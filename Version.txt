@@ -1,0 +1,15 @@
+Aktuell ist Version 0.01.0001
+
+wird eingetragen in: Version.h
+
+Ähnlich wie bei Microsoft:
+
+x.xx.xxxx
+
+wobei:
+
+    Die erste Zahl die Hauptversion angibt
+
+    Die zweite Zahl die Nebenversion darstellt
+
+    Die letzten vier Ziffern die Build-Nummer angeben

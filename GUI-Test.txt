@@ -1,0 +1,121 @@
+Konzept GUI-Test
+================
+
+Ziel
+----
+Die GUI wird so bedient wie ein Benutzer sie bedient: echte Mausklicks und
+Tastatureingaben (wxUIActionSimulator) auf die echten Fenster der echten
+Anwendung. Getestet wird das ausgelieferte Programm, nicht ein Nachbau.
+
+Verzeichnis
+-----------
+test/GUI-Tests enthaelt den kompletten Testcode. Der produktive Quelltext
+enthaelt genau eine Testabhaengigkeit: App.cpp waehlt unter _GUITEST
+IMPLEMENT_APP_NO_MAIN, weil das Testprogramm sein eigenes main() (Google Test)
+mitbringt. Alles andere - Fensteraufbau, Dialoge, Konfiguration - ist
+unveraendert.
+
+Bausteine
+---------
+GuiTestSandbox    Legt die Benutzerverzeichnisse auf ein Wegwerf-Verzeichnis um,
+                  bevor wxWidgets startet - unter Unix HOME und XDG_CONFIG_HOME,
+                  unter Windows APPDATA, USERPROFILE und HOME. Ein GUI-Test kann
+                  die echte Konfiguration des Benutzers dadurch weder lesen noch
+                  beschaedigen. Enthaelt Quell- und Zielverzeichnis der Tests.
+ModalDialogWatcher Der einzige wxModalDialogHook des Testlaufs. Ein per expect()
+                  angekuendigter Dialog wird aus seiner eigenen Modal-Schleife
+                  heraus bedient; jeder andere modale Dialog wird abgebrochen
+                  und protokolliert. Ein unerwartetes Meldungsfenster laesst den
+                  Test damit fehlschlagen statt ihn haengen zu lassen.
+UserActions       Klicken und Tippen ueber wxUIActionSimulator. Getippt wird
+                  zeichenweise, weil Text() keine Pfadtrenner kann. Wie das
+                  Zeichen ankommt, unterscheidet sich je Plattform:
+
+                  Windows  SendInput mit KEYEVENTF_UNICODE - das Zeichen wird
+                           direkt eingespeist, ohne den Umweg ueber eine Taste
+                           des Layouts. Der Umweg scheiterte an den Totzeichen
+                           der deutschen Belegung: '`' und '^' liefern nichts,
+                           bis der naechste Anschlag entscheidet, womit sie sich
+                           verbinden. Ein Wert, der auf so einem Zeichen endet,
+                           verliert es - und es taucht spaeter im naechsten Feld
+                           wieder auf, auch im naechsten Test.
+                  X11      Char() mit der Keymap des Servers, die verraet,
+                           welche Zeichen auf einer Umschalttaste liegen. Ohne
+                           das kaeme '$' als '4' an.
+                  macOS    Char() mit der Umschalt-Belegung des US-Standard-
+                           layouts, fest hinterlegt: die Layout-Abfrage braeuchte
+                           dort die Carbon-Text-Input-API.
+
+                  Menuebefehle gehen ueber den Event-Table: eine Menueleiste
+                  laesst sich mit dem Simulator nicht zuverlaessig oeffnen.
+EventPump         wxYield-Schleifen, damit die vom X-Server zugestellten
+                  Eingaben und die EVT_UPDATE_UI-Ereignisse verarbeitet werden.
+GuiTest           Basisklasse aller GUI-Tests, setzt die Regel aus CLAUDE.md um.
+
+Zustandsregel
+-------------
+Nach jedem GUI-Test muss derselbe Zustand herrschen wie vorher. GuiTest::SetUp()
+merkt sich Konfiguration, Konfigurationsdatei sowie Quell- und Zielverzeichnis;
+TearDown() liest die Konfiguration von der unveraenderten Datei neu ein und
+vergleicht anschliessend alles mit dem gemerkten Zustand. Der Vergleich ist Teil
+des Tests: eine Aufraeumluecke faellt sofort auf.
+
+Bauen und Ausfuehren unter Linux und macOS
+------------------------------------------
+    ./run_GUI_Tests.sh                                  # baut und startet
+    ./run_GUI_Tests.sh --gtest_filter='*Papierkorb*'    # Argumente gehen durch
+
+Das Skript konfiguriert und baut ueber CMake und uebergibt an
+test/GUI-Tests/run_gui_tests.sh, das auch einzeln aufgerufen werden kann:
+
+    cd test/GUI-Tests && ./run_gui_tests.sh build/GuiTests
+
+Unter Linux laufen die Tests darueber auf einer eigenen X-Anzeige (xvfb-run).
+Das ist Pflicht: der Simulator bewegt den echten Mauszeiger und belegt die
+echte Tastatur. Unter macOS gibt es dazu kein Gegenstueck - die Ereignisse
+gehen an die angemeldete Sitzung, waehrend des Laufs sind Maus und Tastatur
+also belegt.
+
+Bauen und Ausfuehren unter Windows
+----------------------------------
+    .\run_GUI_Tests.ps1                        # baut und startet
+    .\run_GUI_Tests.ps1 -Filter *Papierkorb*   # einzelne Tests
+    .\run_GUI_Tests.ps1 -NoBuild               # nur starten
+
+Meldet PowerShell "die Ausfuehrung von Skripts ist deaktiviert", greift die
+Execution Policy. Ohne Aenderung am System hilft run_GUI_Tests.bat, das
+dieselben Argumente nimmt und die Ausnahme nur fuer seinen eigenen Prozess
+setzt. Dauerhaft entschaerft man es mit
+
+    Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+Das Skript uebersetzt die Quellen aus GuiTests.vcxproj mit cl.exe und braucht
+weder Visual Studio noch das NuGet-Paket; Google Test kommt aus dem
+vcpkg-Baum. Die Pfade zu wxWidgets, vcpkg und Boost sind Parameter, die
+Vorgaben passen zum hiesigen extlib-Verzeichnis. Voreinstellung ist Debug:
+in manchen extlib-Baeumen liegen unter lib\vc_x64_lib x86-Bibliotheken fuer
+Release, womit sich die Tests nicht linken lassen.
+
+Alternativ von Hand: GuiTests.sln in Visual Studio oeffnen (Debug|x64 oder
+Release|x64), NuGet-Pakete wiederherstellen lassen und bauen, danach
+
+    run_gui_tests.bat x64\Debug\GuiTests.exe
+
+GuiTests.vcxproj uebernimmt die wxWidgets-, Boost- und libssh2-Pfade von
+autofilesync.vcxproj; werden diese dort umgestellt, ist GuiTests.vcxproj
+mitzupflegen. Google Test kommt aus demselben NuGet-Paket wie bei den
+Integrationstests, allerdings ohne gtest_main - main() steht in GuiTestMain.cpp.
+
+Ein Gegenstueck zu Xvfb gibt es unter Windows nicht: wxUIActionSimulator
+schickt seine Eingaben ueber SendInput an den interaktiven Desktop, auf einem
+eigenen Desktop wuerden sie nicht ankommen. Waehrend des Laufs darf deshalb
+weder Maus noch Tastatur benutzt werden.
+
+Vorhandene Tests
+----------------
+AddSyncItemTest   Legt ueber "Datei/Neu/Synchronisation" eine Synchronisation an
+                  und prueft, dass sie in der Konfiguration und in der Liste des
+                  Hauptfensters vorhanden ist.
+AddSshAccountTest Legt ueber "SSH-Verbindungen/Hinzufuegen" eine SSH-Verbindung
+                  mit einem Passwort aus Sonderzeichen an und prueft, dass der
+                  Dialog es annimmt und unveraendert in der Konfiguration steht.

@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{cff39967-8ad0-47ad-a714-fb7b75258b23}</ProjectGuid>
+    <RootNamespace>autofilesync</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <!-- Gilt fuer alle Konfigurationen: ohne /utf-8 liest MSVC Quellen ohne BOM in
+       der ANSI-Codepage, obwohl die Quellen dieses Projekts UTF-8 sind. Umlaute
+       in String-Literalen wurden dadurch doppelt kodiert und landeten als
+       Buchstabensalat in Log und Oberflaeche. gcc/clang verhalten sich ohnehin
+       so, wie /utf-8 es hier herstellt. -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)installed\&lt;triplet&gt;\include;..\AFS_Core\include;..\AFS_Core\mylib\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud; C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)installed\&lt;triplet&gt;\include;..\AFS_Core\include;..\AFS_Core\mylib\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Entwicklung\extlib\vcpkg\installed\x64-windows\lib;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\AFS_Core\mylib\include\RecycleBin.h" />
+    <ClInclude Include="include\resource.h" />
+    <ClInclude Include="include\SyncInterface.h" />
+    <ClInclude Include="..\AFS_Core\include\ChatTypes.h" />
+    <ClInclude Include="..\AFS_Core\include\LlamaClient.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="autofilesync.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="GUI-Test.txt" />
+    <Text Include="HowTo.txt" />
+    <Text Include="ToDo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\AFS_Core\mylib\src\FilesystemUtil.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\LogCut.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\Logging.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\MountedDrives.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\RecycleBin.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\SmtpMailer.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\strutil.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\util.cpp" />
+    <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\BackgroundService.cpp" />
+    <ClCompile Include="src\Canvas.cpp" />
+    <ClCompile Include="src\ChatDialog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Libssh2Init.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LlamaClient.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
+    <ClCompile Include="..\AFS_Core\src\config.cpp" />
+    <ClCompile Include="..\AFS_Core\src\BackupProof.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Directory.cpp" />
+    <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Global.cpp" />
+    <ClCompile Include="src\GridCtrl.cpp" />
+    <ClCompile Include="src\GridWindow.cpp" />
+    <ClCompile Include="src\ListCtrl.cpp" />
+    <ClCompile Include="src\ListWindow.cpp" />
+    <ClCompile Include="src\LoggingDialog.cpp" />
+    <ClCompile Include="src\MainWindow.cpp" />
+    <ClCompile Include="src\Menu.cpp" />
+    <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="src\ProgressDialog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\settings.cpp" />
+    <ClCompile Include="src\SettingsDialog.cpp" />
+    <ClCompile Include="src\SourceCanvas.cpp" />
+    <ClCompile Include="src\SplitterWindow.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshAccount.cpp" />
+    <ClCompile Include="src\SshAccountDialog.cpp" />
+    <ClCompile Include="src\SshAccountsDialog.cpp" />
+    <ClCompile Include="src\SshAccountSelectDialog.cpp" />
+    <ClCompile Include="src\SshDirDialog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshDirInspector.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshFileInspector.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncArbiter.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncBase.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncControler.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncDir.cpp" />
+    <ClCompile Include="..\AFS_Core\src\FileDelete.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncFile.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncFileSsh.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Synchronize.cpp" />
+    <ClCompile Include="src\SyncInterface.cpp" />
+    <ClCompile Include="..\AFS_Core\src\syncitem.cpp" />
+    <ClCompile Include="src\SyncItemDialog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
+    <ClCompile Include="src\TargetCanvas.cpp" />
+    <ClCompile Include="src\TaskBarIcon.cpp" />
+    <ClCompile Include="src\TimedMessageBox.cpp" />
+    <ClCompile Include="src\Toolbar.cpp" />
+    <ClCompile Include="src\Tree.cpp" />
+    <ClCompile Include="src\TreeCtrl.cpp" />
+    <ClCompile Include="src\TreeItemData.cpp" />
+    <ClCompile Include="..\AFS_Core\src\winutil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.github\copilot-instructions.md" />
+    <None Include="build_wxwidgets.bat" />
+    <None Include="copy_libssh2.bat" />
+    <None Include="Directory.Build.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="autofilesync_postbuild.xml" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <!-- IncrementalClean (part of the built-in Build target) runs right after PostBuildEvent
+       and deletes any output-folder file it doesn't recognize as a declared build output -
+       including files a PostBuildEvent just copied in, which is why libssh2/llama/ggml/ssl
+       DLLs vanished right after being copied. AfterTargets="Build" runs once IncrementalClean
+       is done, so the copied files survive. -->
+  <Target Name="CopyRuntimeDependencies" AfterTargets="Build">
+    <Exec Command="call &quot;$(ProjectDir)copy_libssh2.bat&quot; $(ConfigurationName) &quot;$(OutDir)&quot;" />
+    <Exec Command="xcopy /Y /I /E &quot;$(ProjectDir)help&quot; &quot;$(OutDir)help&quot;" />
+  </Target>
+</Project>

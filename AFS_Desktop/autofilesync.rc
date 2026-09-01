@@ -1,0 +1,28 @@
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+NEW                     BITMAP                  "bitmaps/new.bmp"
+
+SAVE                    BITMAP                  "bitmaps/save.bmp"
+
+HELP                    BITMAP                  "bitmaps/help.bmp"
+
+START                   BITMAP                  "bitmaps/start.bmp"
+
+STOP                    BITMAP                  "bitmaps/stop.bmp"
+
+EDIT                    BITMAP                  "bitmaps/edit.bmp"
+
+DELETE                  BITMAP                  "bitmaps/delete.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+SAMPLE                  ICON                    "icons/afs.ico"

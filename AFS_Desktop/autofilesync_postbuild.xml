@@ -1,0 +1,10 @@
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PostBuildEvent>
+      <Command>call "$(ProjectDir)copy_libssh2.bat" $(Configuration) "$(OutDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PostBuildEvent>
+      <Command>call "$(ProjectDir)copy_libssh2.bat" $(Configuration) "$(OutDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>

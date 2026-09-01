@@ -1,0 +1,31 @@
+/* XPM */
+static const char *const edit_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 9 1",
+" 	c None",
+"a	c #000000",
+"b	c #C8C8C8",
+"c	c #D6506E",
+"d	c #FF7896",
+"e	c #FFCE00",
+"f	c #D6A500",
+"g	c #DEB887",
+"h	c #3C3C3C",
+/* pixels */
+"           abcdd",
+"           aebed",
+"          aeeeea",
+"         aeeeefa",
+"        aeeeefa ",
+"       aeeeefa  ",
+"      aeeeefa   ",
+"     aeeeefa    ",
+"    aeeeefa     ",
+"   aeeeefa      ",
+"  aeeeefa       ",
+" ageeefa        ",
+"ahhgaaa         ",
+" aaa            ",
+"                ",
+"                "
+};

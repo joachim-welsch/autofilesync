@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronisationen anlegen</title>
+</head>
+<body>
+<h1>Synchronisationen anlegen</h1>
+
+<p>Eine Synchronisation beschreibt eine Aufgabe: was von wo nach wo abgeglichen
+wird. Angelegt wird sie über <b>Datei &rarr; Neu &rarr; Synchronisation</b>,
+geändert über <b>Bearbeiten &rarr; Synchronisation ändern</b> oder einen
+Doppelklick auf den Eintrag.</p>
+
+<h2>Name</h2>
+
+<p>Der Name identifiziert die Synchronisation und muss eindeutig sein. Er
+erscheint in der Übersicht, im Protokoll und – falls eingeschaltet – als
+Dateiname des <a href="backupproof.html">Sicherungsnachweises</a>.</p>
+
+<h2>Typ</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Typ</th><th align="left">Was abgeglichen wird</th></tr>
+<tr>
+  <td valign="top"><b>Datei</b></td>
+  <td>Genau eine Datei. Quelle und Ziel sind vollständige Dateinamen.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Verzeichnis</b></td>
+  <td>Alle Dateien in einem Verzeichnis, <i>ohne</i> dessen Unterverzeichnisse.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Verzeichnisbaum</b></td>
+  <td>Ein Verzeichnis mit allen Unterverzeichnissen. Fehlende Zielverzeichnisse
+      werden angelegt.</td>
+</tr>
+</table>
+
+<h2>Quelle und Ziel</h2>
+
+<p>Beide Felder nehmen einen Pfad entgegen. Die Schaltfläche daneben öffnet die
+Auswahl; für einen Rechner am anderen Ende einer SSH-Verbindung gibt es eine
+eigene Schaltfläche, siehe <a href="ssh.html">Über SSH synchronisieren</a>.</p>
+
+<p>Ein Ziel, das noch nicht existiert, wird beim ersten Lauf angelegt. Liegt die
+Quelle auf einem Wechseldatenträger oder einem Netzlaufwerk, das gerade nicht
+verbunden ist, überspringt AutoFileSync die Synchronisation und rührt das Ziel
+nicht an – das ist wichtig, damit ein abgezogenes Laufwerk nicht als „alles
+gelöscht“ missverstanden wird.</p>
+
+<h2>Platzhalter</h2>
+
+<p>Das Feld <b>Platzhalter</b> schränkt bei den Typen Verzeichnis und
+Verzeichnisbaum ein, welche Dateien überhaupt betrachtet werden, etwa
+<tt>*.txt</tt> für Textdateien oder <tt>*.*</tt> für alle. Dateien, die nicht
+passen, sind für diese Synchronisation unsichtbar: Sie werden weder kopiert noch
+gelöscht, auch dann nicht, wenn <a href="options.html">gelöschte Dateien im Ziel
+ebenfalls gelöscht</a> werden sollen.</p>
+
+<h2>Ausschlüsse</h2>
+
+<p>Auf dem Reiter <b>Ausschlüsse</b> steht ein Muster pro Zeile, zum Beispiel:</p>
+
+<blockquote><tt>*.tmp<br>
+node_modules<br>
+Thumbs.db</tt></blockquote>
+
+<p>Ausgeschlossen wird sowohl beim Kopieren als auch beim Löschen. Bei einem
+Verzeichnisbaum wird ein ausgeschlossenes Verzeichnis gar nicht erst betreten –
+das spart Zeit und verhindert, dass darin liegende Dateien einzeln geprüft
+werden müssen.</p>
+
+<h2>Aktiv</h2>
+
+<p>Eine Synchronisation, deren Häkchen <b>Aktiv</b> fehlt, bleibt in der Liste
+stehen, wird aber nicht ausgeführt. So lässt sich eine Aufgabe vorübergehend
+stilllegen, ohne sie zu verlieren.</p>
+
+<p>Weiter zu den <a href="options.html">Optionen</a>.</p>
+
+</body>
+</html>

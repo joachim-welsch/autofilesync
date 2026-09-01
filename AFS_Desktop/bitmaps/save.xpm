@@ -1,0 +1,23 @@
+/* XPM */
+static const char *const save_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 15 2 1",
+" 	c None",
+"a	c #000000",
+/* pixels */
+"                ",
+" aaa     aa a   ",
+" aaa     aa aa  ",
+" aaa     aa aaa ",
+" aaaaaaaaaaaaaa ",
+" aaaaaaaaaaaaaa ",
+" aaaaaaaaaaaaaa ",
+" a            a ",
+" a  aaaaaaaa  a ",
+" a            a ",
+" a  aaaaaaaa  a ",
+" a            a ",
+" a            a ",
+" aaaaaaaaaaaaaa ",
+"                "
+};

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Protokoll und Benachrichtigung</title>
+</head>
+<body>
+<h1>Protokoll und Benachrichtigung</h1>
+
+<p><b>Bearbeiten &rarr; Logging-Einstellungen</b> steuert, was mitgeschrieben
+wird und wie Sie von schweren Fehlern erfahren.</p>
+
+<h2>Protokoll</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Protokolldatei-Pfad</b></td>
+    <td>Ort der Protokolldatei. Ohne eigene Angabe schreibt AutoFileSync unter
+        Windows nach <tt>%LOCALAPPDATA%\autofilesync\autofilesync.log</tt>, unter
+        Linux nach <tt>~/.cache/autofilesync/autofilesync.log</tt>. Das
+        Verzeichnis wird bei Bedarf angelegt.</td></tr>
+<tr><td valign="top"><b>Log Level</b></td>
+    <td>Ab welcher Stufe geschrieben wird: <tt>Debug</tt>, <tt>Info</tt>,
+        <tt>Warning</tt>, <tt>Error</tt> oder <tt>FatalError</tt>. <tt>Debug</tt>
+        protokolliert jeden Schritt und lässt die Datei schnell wachsen – für
+        die Fehlersuche gedacht, nicht für den Dauerbetrieb. <tt>Info</tt> hält
+        fest, was kopiert und gelöscht wurde.</td></tr>
+<tr><td valign="top"><b>Historie [Tage]</b></td>
+    <td>Wie lange Einträge aufbewahrt werden. Beim Programmstart werden ältere
+        Zeilen entfernt, jüngere bleiben stehen.</td></tr>
+<tr><td valign="top"><b>Editor</b></td>
+    <td>Programm, mit dem <b>Ansicht &rarr; Log-Datei anzeigen</b> das Protokoll
+        öffnet.</td></tr>
+<tr><td valign="top"><b>Pfad für Sicherungsnachweise</b></td>
+    <td>Verzeichnis für die Nachweisdateien, siehe
+        <a href="backupproof.html">Sicherungsnachweis</a>.</td></tr>
+</table>
+
+<h2>Benachrichtigung per E-Mail</h2>
+
+<p>Auf dem zweiten Reiter lässt sich eine Benachrichtigung einrichten, die bei
+einem schweren Fehler eine E-Mail verschickt – nützlich, wenn AutoFileSync
+unbeaufsichtigt oder als <a href="service.html">Hintergrunddienst</a> läuft.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Aktiv</b></td>
+    <td>Schaltet den Versand ein. Ohne Häkchen bleibt alles andere
+        wirkungslos.</td></tr>
+<tr><td valign="top"><b>E-Mail-Adresse</b></td>
+    <td>Empfänger der Benachrichtigung.</td></tr>
+<tr><td valign="top"><b>Postausgangsserver</b>, <b>Port</b></td>
+    <td>SMTP-Server und Port des Anbieters.</td></tr>
+<tr><td valign="top"><b>Benutzer</b>, <b>Passwort</b></td>
+    <td>Zugangsdaten für den Postausgangsserver.</td></tr>
+<tr><td valign="top"><b>Absender</b></td>
+    <td>Adresse, die als Absender eingetragen wird. Viele Anbieter verlangen,
+        dass sie zum Konto gehört.</td></tr>
+</table>
+
+<p>Fehlen bei aktiver Benachrichtigung Empfänger, Server oder Absender, weist
+der Dialog beim Übernehmen darauf hin. Derselbe Fehler löst nicht beliebig oft
+eine Mail aus – nach einer Meldung bleibt er für eine Weile stumm, damit ein
+dauerhaft nicht erreichbares Ziel nicht das Postfach flutet.</p>
+
+</body>
+</html>

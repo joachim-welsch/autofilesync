@@ -1,0 +1,1 @@
+rd dest\dir1

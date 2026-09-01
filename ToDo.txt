@@ -1,0 +1,59 @@
+claude
+*******
+Installer: claude --resume bd999abb-7277-49d8-af62-224b91a3fc22
+
+Fehler:
+*******
+
+Aktuell
+*******
+- ToDos im Quelltext erledigen
+
+Für Version 0.1:
+****************
+- Lizenzvereinbarung
+- Test
+  + GUI-Tests erweitern
+  + Integrationstests erweitern
+- Speicherung der Fensterdaten prüfen. Fehlfunktion ist vorgekommen. -> void MainWindow::onClose(wxCloseEvent& event)
+
+
+Für Version 1.0:
+****************
+- Meldungen in MessageBox anzeigen 
+  + konfigurierbar
+  + abwählbar machen
+- Fehlerbehandlung für Fallunterscheidung in getfileinfo: ungültiger Pfadname, keine Berechtigung, keine Datei
+- Erläuterungstext in Statusbar zu Toolbar-Items hinzufügen
+- Wenn Laufwerk nicht verfügbar:
+  + zyklische Laufwerksprüfung
+  + Wartezeit einstellbar
+- Speichern-Button ausgrauen, wenn keine Änderungen
+- Meldung, wenn das Zählen der Dateien länger dauert
+- Fortschrittsdialog verbessern -> zulanger Text wird abgeschnitten, Überprüfung anzeigen
+- Exlusionen implementieren
+- Taste Delete für Liste implementieren
+- Fehlerbehandlung verbessern (Deutsch) und testen
+  * Log-Pfad und Editor-Pfad auswählbar machen
+- Wildcard ausgrauen, wenn Datei ausgewählt
+- Menue-Struktur überarbeiten Bearbeiten Synchronsation Neu - Ändern - Löschen
+- ToDos im Quelltext erledigen
+
+Test
+****
+- CompareItems dürfen nie leer sein
+- Konfigurierte Sync-Zeiten
+- Wildcard Implementierung testen
+- unc-Pfade
+- Wildcard Implementierung testen
+- alle Ansichten testen
+   + überall klicken
+   + Eingaben überfordern
+- Automatisch Starten hat vielleicht ein Problem
+
+Zukünftig:
+- 2. Fehlermeldung (Event) bei falsch konfiguriertem Editor beseitigen
+- Internationale Version
+- Synchronization with Android
+- Schichtentrennung: SyncLib implementieren
+

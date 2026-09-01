@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7F3C1A24-9B05-4E6D-8C31-5D2A6E4B91C7}</ProjectGuid>
+    <RootNamespace>GuiTests</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_GUITEST;wxUSE_HELP;_WXWIDGETS;WIN32;X64;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- The prebuilt wxmsw33ud_* debug libs below were built against the debug CRT
+           (/MDd); without RuntimeLibrary set explicitly here the toolset default resolves
+           to /MD, and linking mixes the two, leaving wx's internal debug-heap calls
+           (_CrtDbgReport, _calloc_dbg) unresolved. -->
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;..\..\..\AFS_Core\mylib\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>gtestd.lib;libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxmsw33ud_adv.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug;C:\Entwicklung\extlib\boost\boost_1_90_0\stage\lib;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_GUITEST;wxUSE_HELP;_WXWIDGETS;WIN32;X64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOPCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;..\..\..\AFS_Core\mylib\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>gtest.lib;libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxmsw33u_adv.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release;C:\Entwicklung\extlib\boost\boost_1_90_0\stage\lib;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="EventPump.h" />
+    <ClInclude Include="GuiTest.h" />
+    <ClInclude Include="GuiTestSandbox.h" />
+    <ClInclude Include="ModalDialogWatcher.h" />
+    <ClInclude Include="SettingsDialogDriver.h" />
+    <ClInclude Include="SshAccountDialogDriver.h" />
+    <ClInclude Include="SyncItemDialogDriver.h" />
+    <ClInclude Include="UserActions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GuiTestMain.cpp" />
+    <ClCompile Include="GuiTest.cpp" />
+    <ClCompile Include="GuiTestSandbox.cpp" />
+    <ClCompile Include="EventPump.cpp" />
+    <ClCompile Include="UserActions.cpp" />
+    <ClCompile Include="ModalDialogWatcher.cpp" />
+    <ClCompile Include="SyncItemDialogDriver.cpp" />
+    <ClCompile Include="SshAccountDialogDriver.cpp" />
+    <ClCompile Include="SettingsDialogDriver.cpp" />
+    <ClCompile Include="AddSyncItemTest.cpp" />
+    <ClCompile Include="AddSshAccountTest.cpp" />
+    <ClCompile Include="SettingsRecycleBinTest.cpp" />
+    <ClCompile Include="ChatLogQuestionTest.cpp" />
+    <ClCompile Include="..\..\src\App.cpp" />
+    <ClCompile Include="..\..\src\ChatDialog.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\LogAnalysis.cpp" />
+    <ClCompile Include="..\..\src\BackgroundService.cpp" />
+    <ClCompile Include="..\..\src\Canvas.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\CheckPath.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\config.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\BackupProof.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\Directory.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\FileDifference.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\Global.cpp" />
+    <ClCompile Include="..\..\src\GridCtrl.cpp" />
+    <ClCompile Include="..\..\src\GridWindow.cpp" />
+    <ClCompile Include="..\..\src\ListCtrl.cpp" />
+    <ClCompile Include="..\..\src\ListWindow.cpp" />
+    <ClCompile Include="..\..\src\LoggingDialog.cpp" />
+    <ClCompile Include="..\..\src\MainWindow.cpp" />
+    <ClCompile Include="..\..\src\Menu.cpp" />
+    <ClCompile Include="..\..\src\ProgressDialog.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\settings.cpp" />
+    <ClCompile Include="..\..\src\SettingsDialog.cpp" />
+    <ClCompile Include="..\..\src\SourceCanvas.cpp" />
+    <ClCompile Include="..\..\src\SplitterWindow.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SshAccount.cpp" />
+    <ClCompile Include="..\..\src\SshAccountDialog.cpp" />
+    <ClCompile Include="..\..\src\SshAccountSelectDialog.cpp" />
+    <ClCompile Include="..\..\src\SshAccountsDialog.cpp" />
+    <ClCompile Include="..\..\src\SshDirDialog.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SshDirInspector.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SshFileInspector.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SshHostKeyVerification.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\Libssh2Init.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncArbiter.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncBase.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncControler.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncDir.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\FileDelete.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncFile.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncFileSsh.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\Synchronize.cpp" />
+    <ClCompile Include="..\..\src\SyncInterface.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\syncitem.cpp" />
+    <ClCompile Include="..\..\src\SyncItemDialog.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncMessage.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncTree.cpp" />
+    <ClCompile Include="..\..\src\TargetCanvas.cpp" />
+    <ClCompile Include="..\..\src\TaskBarIcon.cpp" />
+    <ClCompile Include="..\..\src\TimedMessageBox.cpp" />
+    <ClCompile Include="..\..\src\Tree.cpp" />
+    <ClCompile Include="..\..\src\Toolbar.cpp" />
+    <ClCompile Include="..\..\src\TreeCtrl.cpp" />
+    <ClCompile Include="..\..\src\TreeItemData.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\winutil.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\util.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\SmtpMailer.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\MountedDrives.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\RecycleBin.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\LogCut.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\Logging.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\strutil.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\FilesystemUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="run_gui_tests.bat" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!-- IncrementalClean (part of the built-in Build target) deletes output-folder files it
+       doesn't recognize as declared build outputs, including files a PostBuildEvent copies
+       in - see the identical fix in ..\..\autofilesync.vcxproj. AfterTargets="Build" runs
+       once IncrementalClean is done. -->
+  <Target Name="CopyRuntimeDependencies" AfterTargets="Build">
+    <Exec Command="call &quot;$(SolutionDir)..\..\copy_libssh2.bat&quot; $(ConfigurationName) &quot;$(OutDir)&quot;" />
+  </Target>
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets" Condition="Exists('packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf NuGet-Pakete, die auf diesem Computer fehlen. Verwenden Sie die NuGet-Paketwiederherstellung. Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets'))" />
+  </Target>
+</Project>

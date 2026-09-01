@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sicherungsnachweis</title>
+</head>
+<body>
+<h1>Sicherungsnachweis</h1>
+
+<p>Wer belegen muss, dass gesichert wurde, kann eine Synchronisation als
+<b>Sicherungsnachweis</b> kennzeichnen – das Häkchen steht auf dem Reiter
+<a href="options.html">Optionen</a>. Anders als das Protokoll, dessen Umfang von
+der eingestellten Stufe abhängt und das nach einigen Tagen gekürzt wird, ist der
+Nachweis dafür gedacht, aufbewahrt zu werden.</p>
+
+<h2>Wohin geschrieben wird</h2>
+
+<p>Das Verzeichnis steht in den <a href="logging.html">Logging-Einstellungen</a>
+unter <b>Pfad für Sicherungsnachweise</b>. Darin legt AutoFileSync je
+Synchronisation eine Datei an, benannt nach ihrem Namen, im JSON-Format:</p>
+
+<blockquote><tt>&lt;Nachweisverzeichnis&gt;\&lt;Name der Synchronisation&gt;.json</tt></blockquote>
+
+<h2>Was ein Eintrag enthält</h2>
+
+<ul>
+<li>Zeitstempel des Durchlaufs</li>
+<li>Quelle und Ziel</li>
+<li>Anzahl der übertragenen Dateien</li>
+<li>übertragenes Volumen</li>
+<li>aufgetretene Fehlermeldungen</li>
+<li>Status <tt>Erfolgreich</tt> oder <tt>Fehlgeschlagen</tt></li>
+</ul>
+
+<h2>Was nicht geschrieben wird</h2>
+
+<p>Ein Durchlauf, der nichts zu tun hatte, schreibt keinen Eintrag. Bei einer
+Pause von wenigen Sekunden entstünden sonst pro Stunde Hunderte von Zeilen ohne
+Aussage, unter denen die Durchläufe mit echtem Inhalt nicht mehr zu finden
+wären.</p>
+
+<p>Die Fehlermeldungen im Nachweis stammen unmittelbar aus der Synchronisation
+und nicht aus dem Protokoll. Der eingestellte Log-Level hat deshalb keinen
+Einfluss darauf, was im Nachweis steht.</p>
+
+<p>Lässt sich eine vorhandene Nachweisdatei nicht lesen, wird sie nicht ersetzt,
+sondern in Ruhe gelassen: Sie ist ein Beleg, und der bereits vorhandene Inhalt
+wiegt schwerer als der Eintrag, der gerade nicht hinzugefügt werden kann.</p>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Einmal synchronisieren</title>
+</head>
+<body>
+<h1>Einmal synchronisieren</h1>
+
+<p><b>Synchronisation &rarr; Einmal synchronisieren</b> führt genau einen
+Durchlauf über alle aktiven Synchronisationen aus und hält danach an. Die bei
+den Aufgaben eingestellte Pause spielt dabei keine Rolle – sie gilt nur für den
+fortlaufenden Betrieb.</p>
+
+<p>Das ist der passende Befehl, um</p>
+
+<ul>
+<li>eine neu angelegte Synchronisation auszuprobieren,</li>
+<li>vor dem Abziehen eines Datenträgers noch einmal alles abzugleichen,</li>
+<li>nach einer geänderten Option das Ergebnis zu prüfen, ohne dass das Programm
+    danach weiterläuft.</li>
+</ul>
+
+<p>Während des Laufs sind <b>Start</b> und <b>Einmal synchronisieren</b>
+gesperrt; danach stehen sie wieder zur Verfügung. Was dabei geschehen ist,
+steht im <a href="logging.html">Protokoll</a>, und bei eingeschaltetem
+<a href="backupproof.html">Sicherungsnachweis</a> zusätzlich in der
+Nachweisdatei.</p>
+
+<p>Soll gar nichts verändert, sondern nur ermittelt werden, wie viel zu tun
+wäre, hilft ein Blick in das Protokoll bei Log-Level <tt>Info</tt>: Der Lauf
+zählt die betroffenen Dateien, bevor er kopiert.</p>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+#pragma once
+
+// IDs for the controls and the menu commands
+// 
+
+enum class id {
+	ToolBar = 500,
+	ListCtrl,
+	GridCtrl,
+	Quit = wxID_EXIT,
+	About = wxID_ABOUT,
+	Help = wxID_HELP,
+	MAINWINDOW = wxID_HIGHEST + 1,
+	SyncOnce,
+	StartSync,
+	StopSync,
+	EditSync,
+	EditSshAccounts,
+	EditSettings,
+	EditLogging,
+	DeleteSync,
+	File_new,
+	File_new_SshConnection,
+	File_new_Synchronization,
+	File_open,
+	File_save,
+	File_save_as,
+	View_Tree,
+	View_List,
+	View_Grid,
+	View_Log,
+    View_Background,
+    BackgroundServiceState,
+    BackgroundServiceStart,
+    BackgroundServiceStop,
+    Chat
+};

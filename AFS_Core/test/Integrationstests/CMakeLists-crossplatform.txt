@@ -1,0 +1,147 @@
+# Plattformuebergreifende Variante der urspruenglichen CMakeLists.
+# Funktioniert unter Linux (wie bisher) und unter Windows / VS 2022
+# ueber "Ordner oeffnen" oder ueber den CMake-Generator "Visual Studio 17 2022".
+cmake_minimum_required(VERSION 3.21)
+
+project(IntegrationtestProject LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# --- Basisverzeichnisse: HOME (Unix) bzw. USERPROFILE (Windows) -------------
+if(DEFINED ENV{HOME})
+    set(HOME_DIR "$ENV{HOME}")
+else()
+    file(TO_CMAKE_PATH "$ENV{USERPROFILE}" HOME_DIR)
+endif()
+
+get_filename_component(AFS_CORE_DEFAULT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+set(LIB_DIR   "${AFS_CORE_DEFAULT_DIR}"       CACHE PATH "AFS_Core Quellen")
+set(MYLIB_DIR "${LIB_DIR}/mylib"              CACHE PATH "mylib-Quellen innerhalb von AFS_Core")
+
+# --- Compilerflags ----------------------------------------------------------
+if(MSVC)
+    add_compile_options(/W4 /permissive- /MP /utf-8 /Zc:__cplusplus)
+    add_compile_definitions(
+        _WINDOWS
+        NOMINMAX
+        WIN32_LEAN_AND_MEAN
+        _CRT_SECURE_NO_WARNINGS
+    )
+else()
+    set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    add_compile_definitions(_UNIX)
+endif()
+
+add_compile_definitions(_TEST)
+
+# --- Abhaengigkeiten --------------------------------------------------------
+find_package(GTest  REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+# libssh2 liefert unter vcpkg/Windows ein CONFIG-Package, unter Linux oft nur
+# die nackte Bibliothek "ssh2".
+find_package(Libssh2 CONFIG QUIET)
+if(Libssh2_FOUND)
+    set(SSH_LIBRARY Libssh2::libssh2)
+else()
+    find_library(SSH_LIBRARY NAMES ssh2 ssh REQUIRED)
+endif()
+
+enable_testing()
+
+# --- Quellen ----------------------------------------------------------------
+set(TEST_SOURCES
+    pch.cpp
+    FileUtil.cpp
+    DirUtil.cpp
+    SyncFileTests.cpp
+    SyncDirTests.cpp
+    SyncItemTests.cpp
+    ConfigTests.cpp
+    FileDeleteTests.cpp
+    PasswordCryptoTests.cpp
+    StrUtilTests.cpp
+    FileDifferenceTests.cpp
+    LoggingConcurrencyTests.cpp
+    Libssh2InitTests.cpp
+    SyncTreeTests.cpp
+    MountedDrivesTests.cpp
+    SynchronizeTests.cpp
+    CheckPathTests.cpp
+    LogCutTests.cpp
+    SyncSshFileTests.cpp
+    SyncSshDirTests.cpp
+    SyncSshTreeTests.cpp
+)
+
+set(MYLIB_SOURCES
+    ${MYLIB_DIR}/src/FilesystemUtil.cpp
+    ${MYLIB_DIR}/src/LogCut.cpp
+    ${MYLIB_DIR}/src/Logging.cpp
+    ${MYLIB_DIR}/src/strutil.cpp
+    ${MYLIB_DIR}/src/util.cpp
+    ${MYLIB_DIR}/src/MountedDrives.cpp
+    ${MYLIB_DIR}/src/RecycleBin.cpp
+)
+
+set(LIB_SOURCES
+    ${LIB_DIR}/src/SshFileInspector.cpp
+    ${LIB_DIR}/src/SshAccount.cpp
+    ${LIB_DIR}/src/SyncFileSsh.cpp
+    ${LIB_DIR}/src/CheckPath.cpp
+    ${LIB_DIR}/src/config.cpp
+    ${LIB_DIR}/src/PasswordCrypto.cpp
+    ${LIB_DIR}/src/SshHostKeyVerification.cpp
+    ${LIB_DIR}/src/Libssh2Init.cpp
+    ${LIB_DIR}/src/Directory.cpp
+    ${LIB_DIR}/src/FileDifference.cpp
+    ${LIB_DIR}/src/Global.cpp
+    ${LIB_DIR}/src/settings.cpp
+    ${LIB_DIR}/src/SyncBase.cpp
+    ${LIB_DIR}/src/SyncControler.cpp
+    ${LIB_DIR}/src/SyncDir.cpp
+    ${LIB_DIR}/src/SyncFile.cpp
+    ${LIB_DIR}/src/FileDelete.cpp
+    ${LIB_DIR}/src/Synchronize.cpp
+    ${LIB_DIR}/src/syncitem.cpp
+    ${LIB_DIR}/src/SyncMessage.cpp
+    ${LIB_DIR}/src/SyncTree.cpp
+    ${LIB_DIR}/src/winutil.cpp
+)
+
+add_executable(Integrationtests ${TEST_SOURCES} ${MYLIB_SOURCES} ${LIB_SOURCES})
+
+# Ordnerstruktur im Solution Explorer
+source_group("Tests"              FILES ${TEST_SOURCES})
+source_group("mylib"              FILES ${MYLIB_SOURCES})
+source_group("AFS_Core"  FILES ${LIB_SOURCES})
+
+target_link_libraries(Integrationtests PRIVATE
+    GTest::gtest
+    GTest::gtest_main
+    ${SSH_LIBRARY}
+    OpenSSL::Crypto
+)
+
+if(WIN32)
+    target_link_libraries(Integrationtests PRIVATE ws2_32 crypt32 bcrypt shlwapi)
+endif()
+
+target_include_directories(Integrationtests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${LIB_DIR}
+    ${LIB_DIR}/include
+    ${MYLIB_DIR}
+    ${MYLIB_DIR}/include
+)
+
+target_compile_definitions(Integrationtests PRIVATE LIB_SOURCE_DIR="${LIB_DIR}")
+
+# Startprojekt setzen, damit F5 in VS direkt funktioniert
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+             PROPERTY VS_STARTUP_PROJECT Integrationtests)
+
+add_test(NAME Integrationtests COMMAND Integrationtests)

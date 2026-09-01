@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Hintergrunddienst</title>
+</head>
+<body>
+<h1>Hintergrunddienst</h1>
+
+<p>Der Hintergrunddienst synchronisiert, ohne dass das Programmfenster geöffnet
+sein muss – auch dann, wenn niemand angemeldet ist. Er benutzt dieselbe
+<a href="config.html">Konfigurationsdatei</a> wie das Programm, also dieselben
+Synchronisationen mit denselben Optionen.</p>
+
+<h2>Steuern</h2>
+
+<p>Das Menü <b>Hintergrunddienst</b> enthält <b>Start</b> und <b>Stop</b>. Unter
+<b>Ansicht &rarr; Hintergrund</b> lässt sich ablesen, ob der Dienst gerade
+läuft.</p>
+
+<h2>Zusammenspiel mit dem Programm</h2>
+
+<p>Dienst und Programm gehen sich aus dem Weg: Es synchronisiert immer nur eine
+der beiden Seiten, damit nicht zwei Läufe gleichzeitig dieselben Dateien
+anfassen. Wenn Sie im Programm <b>Start</b> wählen, während der Dienst arbeitet,
+tritt der Dienst zurück.</p>
+
+<h2>Wann sich der Dienst lohnt</h2>
+
+<ul>
+<li>Sicherungen sollen auch ohne angemeldeten Benutzer laufen.</li>
+<li>Das Programmfenster soll nicht dauerhaft offen sein.</li>
+<li>Der Rechner läuft durch und soll unbeaufsichtigt abgleichen – dann ist die
+    <a href="logging.html">Benachrichtigung per E-Mail</a> sinnvoll, weil
+    niemand die Meldungen am Bildschirm sieht.</li>
+</ul>
+
+<p>Änderungen an der Konfiguration wirken erst, wenn der Dienst sie liest. Nach
+größeren Umbauten empfiehlt es sich, ihn einmal zu stoppen und wieder zu
+starten.</p>
+
+</body>
+</html>

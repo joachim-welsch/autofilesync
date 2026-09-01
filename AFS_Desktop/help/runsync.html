@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronisation ausführen</title>
+</head>
+<body>
+<h1>Synchronisation ausführen</h1>
+
+<p>Das Menü <b>Synchronisation</b> steuert den Ablauf.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="25%">Befehl</th><th align="left">Wirkung</th></tr>
+<tr><td valign="top"><b>Start</b></td>
+    <td>Startet den fortlaufenden Betrieb. AutoFileSync arbeitet alle aktiven
+        Synchronisationen der Reihe nach ab, wartet die bei der jeweiligen
+        Aufgabe eingestellte Pause und beginnt von vorn.</td></tr>
+<tr><td valign="top"><b>Stopp</b></td>
+    <td>Beendet den Betrieb. Ein laufender Kopiervorgang wird noch zu Ende
+        geführt, danach hält die Verarbeitung an.</td></tr>
+<tr><td valign="top"><b>Einmal synchronisieren</b></td>
+    <td>Ein einzelner Durchlauf über alle aktiven Synchronisationen; danach
+        stoppt die Verarbeitung von selbst. Siehe
+        <a href="synconce.html">Einmal synchronisieren</a>.</td></tr>
+</table>
+
+<p>Start und Einmal-Lauf sind nur verfügbar, wenn die Konfiguration mindestens
+eine ausführbare Synchronisation enthält. Während ein Lauf aktiv ist, sind sie
+gesperrt.</p>
+
+<h2>Was währenddessen zu sehen ist</h2>
+
+<p>Die Statuszeile meldet den aktuellen Schritt, etwa das Zählen der Dateien vor
+dem eigentlichen Kopieren. Für längere Übertragungen erscheint ein
+Fortschrittsdialog mit Quelle, Ziel und Umfang. Die Werkzeugleiste schaltet
+zwischen Start und Stopp um, sodass der Zustand jederzeit ablesbar ist.</p>
+
+<p>Wird das Fenster minimiert, läuft die Synchronisation im Infobereich der
+Taskleiste weiter.</p>
+
+<h2>Automatisch beim Programmstart</h2>
+
+<p>In den <a href="settings.html">globalen Einstellungen</a> lässt sich
+festlegen, dass AutoFileSync die Synchronisation direkt nach dem Start beginnt –
+zusammen mit <b>Anwendung automatisch starten</b> und <b>Start minimiert</b>
+ergibt das einen Ablauf, der ohne Zutun mitläuft. Wer die Synchronisation ganz
+ohne geöffnetes Programm möchte, verwendet den
+<a href="service.html">Hintergrunddienst</a>.</p>
+
+<h2>Ansichten</h2>
+
+<p>Das Menü <b>Ansicht</b> stellt die Übersicht um:</p>
+
+<ul>
+<li><b>Liste</b> – eine Zeile je Synchronisation</li>
+<li><b>Baum</b> – nach Quelle und Ziel gegliedert</li>
+<li><b>Tabelle</b> – alle Felder nebeneinander, gut zum Vergleichen mehrerer
+    Aufgaben</li>
+<li><b>Log-Datei anzeigen</b> – öffnet das Protokoll im eingestellten Editor,
+    siehe <a href="logging.html">Protokoll und Benachrichtigung</a></li>
+<li><b>Hintergrund</b> – zeigt den Zustand des
+    <a href="service.html">Hintergrunddienstes</a></li>
+</ul>
+
+</body>
+</html>

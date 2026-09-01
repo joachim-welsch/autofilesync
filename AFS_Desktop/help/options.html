@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Optionen einer Synchronisation</title>
+</head>
+<body>
+<h1>Optionen einer Synchronisation</h1>
+
+<p>Der Reiter <b>Optionen</b> im Dialog einer Synchronisation legt fest, wonach
+Quelle und Ziel verglichen werden und was in den Sonderfällen geschieht.</p>
+
+<h2>Dateivergleich nach</h2>
+
+<p>Diese drei Häkchen bestimmen, woran AutoFileSync einen Unterschied erkennt.
+Sie lassen sich kombinieren.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Kriterium</th><th align="left">Bedeutung</th></tr>
+<tr><td valign="top"><b>Datum</b></td>
+    <td>Die Änderungszeit entscheidet. Das ist der übliche Fall und mit Abstand
+        der schnellste.</td></tr>
+<tr><td valign="top"><b>Größe</b></td>
+    <td>Unterschiedliche Dateigrößen gelten als Unterschied.</td></tr>
+<tr><td valign="top"><b>Inhalt</b></td>
+    <td>Die Dateien werden inhaltlich verglichen. Das ist genau, kostet aber
+        Lesezeit für beide Seiten. Bei Zwei-Wege-Synchronisation entscheidet
+        zusätzlich die Änderungszeit, welche Seite die neuere ist – ein reiner
+        Inhaltsvergleich kann das nicht unterscheiden.</td></tr>
+</table>
+
+<h2>Optionen im Einzelnen</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Option</th><th align="left">Wirkung</th></tr>
+
+<tr><td valign="top"><b>Quelle nach dem Kopieren löschen</b></td>
+    <td>Nach erfolgreichem Kopieren wird die <i>Quelldatei</i> entfernt – je nach
+        <a href="settings.html">Löschmodus</a> in den Papierkorb oder endgültig.
+        Aus einer Synchronisation wird damit ein Verschieben. Für Quellen, die
+        über SSH liegen, hat die Option keine Wirkung.</td></tr>
+
+<tr><td valign="top"><b>Zwei-Wege-Synchronisation</b></td>
+    <td>Auch der umgekehrte Weg wird berücksichtigt: Was nur im Ziel existiert,
+        wird zurück in die Quelle kopiert, und ein neueres Ziel gewinnt gegen
+        eine ältere Quelle. Zusammen mit <b>Gelöschte Dateien im Ziel ebenfalls
+        löschen</b> gewinnt das Löschen – beides gleichzeitig zu setzen ist
+        selten sinnvoll.</td></tr>
+
+<tr><td valign="top"><b>Kopieren wenn Ziel neuer</b></td>
+    <td>Normalerweise überschreibt AutoFileSync keine Zieldatei, die neuer ist
+        als die Quelle. Mit dieser Option tut es das doch. Bei eingeschalteter
+        Zwei-Wege-Synchronisation ist die Option gesperrt, weil sie dort keinen
+        Sinn ergibt.</td></tr>
+
+<tr><td valign="top"><b>Generationenprinzip</b></td>
+    <td>Bevor eine vorhandene Zieldatei überschrieben wird, benennt
+        AutoFileSync sie um: aus <tt>bericht.doc</tt> wird
+        <tt>bericht.doc.bak.1</tt>, beim nächsten Mal <tt>.bak.2</tt> und so
+        fort. Ältere Stände bleiben damit erhalten. Beachten Sie, dass die
+        Sicherungen im Ziel liegen bleiben und Platz belegen – sie werden nicht
+        automatisch aufgeräumt.</td></tr>
+
+<tr><td valign="top"><b>Gelöschte Dateien im Ziel ebenfalls löschen</b></td>
+    <td>Eine Datei, die es nur noch im Ziel gibt, wird dort gelöscht – das Ziel
+        wird also zum Spiegel der Quelle. Einzelheiten und Grenzen stehen im
+        <a href="#deleteintarget">Abschnitt unten</a>.</td></tr>
+
+<tr><td valign="top"><b>Sicherungsnachweis</b></td>
+    <td>Jeder Durchlauf, der etwas kopiert hat oder auf einen Fehler gelaufen
+        ist, schreibt einen Eintrag in eine Nachweisdatei; siehe
+        <a href="backupproof.html">Sicherungsnachweis</a>.</td></tr>
+
+<tr><td valign="top"><b>Leere Dateien synchronisieren</b></td>
+    <td>Dateien der Größe 0 werden normalerweise übersprungen: Eine leere Datei
+        ist häufiger ein abgebrochener Schreibvorgang als eine gewollt leere
+        Datei, und sie über eine gefüllte Zieldatei zu kopieren wäre
+        Datenverlust. Mit dieser Option werden sie mitgeführt – gedacht für
+        Platzhalter wie <tt>.gitkeep</tt> sowie Sperr- und Markierungsdateien.
+        <b>Achtung:</b> Ist die Quelldatei leer und die Zieldatei nicht, ersetzt
+        die Synchronisation den Zielinhalt dann durch die leere Datei.</td></tr>
+
+<tr><td valign="top"><b>Sekunden Pause</b></td>
+    <td>Wartezeit zwischen zwei Durchläufen bei fortlaufender Synchronisation,
+        einstellbar von 1 bis 60 Sekunden. Kurze Pausen erkennen Änderungen
+        schneller und belasten Datenträger und Netz stärker.</td></tr>
+</table>
+
+<h2><a name="deleteintarget"></a>Gelöschte Dateien im Ziel ebenfalls löschen</h2>
+
+<p>Diese Option verdient eine genauere Beschreibung, weil sie als einzige Daten
+im Ziel entfernt.</p>
+
+<ul>
+<li>Sie steht für <b>Verzeichnis</b> und <b>Verzeichnisbaum</b> zur Verfügung,
+    nicht für den Typ <b>Datei</b>.</li>
+<li>Gelöscht wird gemäß <a href="settings.html">Löschmodus</a>, also
+    normalerweise in den Papierkorb. Bei einem Ziel über SSH ist die Löschung
+    endgültig, weil eine entfernte Datei dafür erst heruntergeladen werden
+    müsste.</li>
+<li>Dateien, die durch <b>Platzhalter</b> oder <b>Ausschlüsse</b> ohnehin nicht
+    zu dieser Synchronisation gehören, bleiben unangetastet.</li>
+<li>Ist die <b>Quelle nicht erreichbar</b> – Laufwerk abgezogen, Freigabe nicht
+    verbunden, SSH-Server nicht erreichbar –, wird nichts gelöscht. Ein
+    unerreichbarer Ort ist kein leerer Ort.</li>
+<li>Gespiegelt werden <b>Dateien</b>, keine Verzeichnisse: Ein Verzeichnis, das
+    in der Quelle gelöscht wurde, bleibt im Ziel samt Inhalt stehen.</li>
+</ul>
+
+<p>Wenn die Option nicht anspringt, obwohl sie gesetzt ist, hilft
+<a href="troubleshooting.html">Wenn etwas nicht wie erwartet passiert</a>
+weiter.</p>
+
+</body>
+</html>

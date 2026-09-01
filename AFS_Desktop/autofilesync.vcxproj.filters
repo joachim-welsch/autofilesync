@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{83caf696-61ac-4d21-b38a-32609d0ee655}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Fiiles">
+      <UniqueIdentifier>{17a3bc00-bc5c-40db-9d88-44690e7cbffb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Documentation">
+      <UniqueIdentifier>{5d44a3ab-5e34-4f14-a845-bfaf9a9d51f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dialogs">
+      <UniqueIdentifier>{b8f94ff8-bf4a-431c-96f2-c52a254a0293}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{c79809d4-f935-48d0-b92a-609da03c21e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mylib">
+      <UniqueIdentifier>{6e5aef1e-b63e-4aa9-8b1d-1514a0b63432}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mylib\include">
+      <UniqueIdentifier>{a0d36751-f6bc-4e7a-97eb-c2233ad5d3a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Fiiles\bmp">
+      <UniqueIdentifier>{9e17ade7-0f05-40e3-bf01-43f8d5b60f76}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\resource.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SyncInterface.h" />
+    <ClInclude Include="..\AFS_Core\mylib\include\RecycleBin.h">
+      <Filter>mylib\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="autofilesync.rc">
+      <Filter>Resource Fiiles</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="GUI-Test.txt">
+      <Filter>Documentation</Filter>
+    </Text>
+    <Text Include="HowTo.txt">
+      <Filter>Documentation</Filter>
+    </Text>
+    <Text Include="ToDo.txt">
+      <Filter>Documentation</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\LoggingDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SettingsDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SyncItemDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\mylib\src\FilesystemUtil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\mylib\src\LogCut.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\mylib\src\Logging.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\mylib\src\strutil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\config.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\Directory.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\Global.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\SyncArbiter.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\SyncBase.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\SyncDir.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\SyncFile.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\Synchronize.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\syncitem.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\winutil.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\BackgroundService.cpp" />
+    <ClCompile Include="src\Canvas.cpp" />
+    <ClCompile Include="src\GridWindow.cpp" />
+    <ClCompile Include="src\ListCtrl.cpp" />
+    <ClCompile Include="src\ListWindow.cpp" />
+    <ClCompile Include="src\MainWindow.cpp" />
+    <ClCompile Include="src\Menu.cpp" />
+    <ClCompile Include="..\AFS_Core\src\settings.cpp" />
+    <ClCompile Include="src\SourceCanvas.cpp" />
+    <ClCompile Include="src\SplitterWindow.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
+    <ClCompile Include="src\TargetCanvas.cpp" />
+    <ClCompile Include="src\TaskBarIcon.cpp" />
+    <ClCompile Include="src\TimedMessageBox.cpp" />
+    <ClCompile Include="src\Toolbar.cpp" />
+    <ClCompile Include="src\Tree.cpp" />
+    <ClCompile Include="src\TreeCtrl.cpp" />
+    <ClCompile Include="src\TreeItemData.cpp" />
+    <ClCompile Include="src\GridCtrl.cpp" />
+    <ClCompile Include="src\ProgressDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\SyncControler.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\FileDifference.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\MountedDrives.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\mylib\src\util.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshAccount.cpp" />
+    <ClCompile Include="src\SshAccountDialog.cpp" />
+    <ClCompile Include="src\SshAccountsDialog.cpp" />
+    <ClCompile Include="src\SshAccountSelectDialog.cpp" />
+    <ClCompile Include="src\SshDirDialog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshDirInspector.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshFileInspector.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncFileSsh.cpp" />
+    <ClCompile Include="src\SyncInterface.cpp" />
+    <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />
+    <ClCompile Include="..\AFS_Core\mylib\src\RecycleBin.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="add_libssh2_to_project.py" />
+    <None Include="build_wxwidgets.bat" />
+    <None Include="..\.github\copilot-instructions.md" />
+    <None Include="copy_libssh2.bat" />
+    <None Include="Directory.Build.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="autofilesync_postbuild.xml" />
+  </ItemGroup>
+</Project>

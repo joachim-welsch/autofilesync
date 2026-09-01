@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="SyncFileTests.cpp" />
+    <ClCompile Include="..\..\config.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Directory.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FileDifference.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Global.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncBase.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncDir.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncFile.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\syncitem.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncTree.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\winutil.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncControler.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\settings.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncMessage.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="FileUtil.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncDirTests.cpp" />
+    <ClCompile Include="DirUtil.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="MountedDrivesTests.cpp" />
+    <ClCompile Include="LoggingTests.cpp" />
+    <ClCompile Include="..\..\..\mylib\util.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Synchronize.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\mylib\MountedDrives.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\mylib\Logging.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\mylib\LogCut.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\mylib\FilesystemUtil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CheckPath.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshAccount.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshFileInspector.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncFileSsh.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncTreeTests.cpp" />
+    <ClCompile Include="SyncSshDirTests.cpp" />
+    <ClCompile Include="SyncSshFileTests.cpp" />
+    <ClCompile Include="SyncSshTreeTests.cpp" />
+    <ClCompile Include="..\..\..\mylib\strutil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="SshTest.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="FileUtil.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="DirUtil.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncFileTests.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncDirTests.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggingTests.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="SshTest.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{2edc10cc-0525-4536-8255-f72146ca33d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{8b772e15-3365-4346-9a41-fd0ba7c517af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{dd9c3b3a-a5cc-4b13-a391-0c6c972cf0c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mylib">
+      <UniqueIdentifier>{cec3c3c5-1bf0-4acf-8865-7f64d79fa984}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="test\Integrationstests\fix_gtest.ps1" />
+  </ItemGroup>
+</Project>

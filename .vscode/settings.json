@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "cmath": "cpp"
+    },
+    "cmake.configureSettings": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+    },
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.preferredGenerators": [
+        "Unix Makefiles"
+    ],
+    "cmake.generator": "Unix Makefiles",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compilerPath": "/usr/bin/g++",
+    "C_Cpp.default.intelliSenseMode": "linux-gcc-x64"
+}
