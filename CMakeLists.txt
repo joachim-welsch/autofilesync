@@ -24,3 +24,7 @@ endif()
 add_subdirectory(AFS_Core)
 # AFS_Desktop: the wxWidgets application "autofilesync" on top of AFS_Core.
 add_subdirectory(AFS_Desktop)
+# backgroundsync: headless daemon running the same sync engine as the GUI.
+# Binary dir renamed: the target is also called "backgroundsync", which would
+# otherwise collide with this directory under CMAKE_RUNTIME_OUTPUT_DIRECTORY.
+add_subdirectory(backgroundsync backgroundsync_build)
