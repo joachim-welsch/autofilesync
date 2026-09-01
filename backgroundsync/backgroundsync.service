@@ -1,0 +1,24 @@
+[Unit]
+Description=Mein benutzerdefinierter Daemon
+# Die Sync-Ziele liegen auf CIFS-Mounts aus der fstab. network.target allein
+# reicht nicht: der Mount ist dann noch nicht da, der Daemon meldet beim Start
+# "Zielverzeichnis nicht erreichbar" und probiert es wegen des Backoff in
+# CheckPath erst bis zu eine Stunde spaeter wieder.
+# Wants statt Requires, damit der Daemon auch laeuft (und die uebrigen Items
+# synchronisiert), wenn der Server gerade nicht erreichbar ist.
+Wants=network-online.target media-mmuser.mount
+After=network-online.target remote-fs.target media-mmuser.mount
+
+[Service]
+ExecStart=/usr/sbin/backgroundsync
+Restart=on-failure
+User=welschj
+Group=welschj
+WorkingDirectory=/opt/backgroundsync
+Environment="CONFIG_FILE=/opt/backgroundsync/config.yml"
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=backgroundsync
+
+[Install]
+WantedBy=multi-user.target
