@@ -1,0 +1,7 @@
+[OPTIONS]
+Title=Hilfe
+Default=help.html
+Index=help.html
+
+[FILES]
+help.html

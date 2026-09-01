@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Wenn etwas nicht wie erwartet passiert</title>
+</head>
+<body>
+<h1>Wenn etwas nicht wie erwartet passiert</h1>
+
+<p>Erste Anlaufstelle ist immer das <a href="logging.html">Protokoll</a>. Auf
+Stufe <tt>Info</tt> steht darin, was kopiert und gelöscht wurde; auf
+<tt>Debug</tt> zusätzlich, welche Datei aus welchem Grund übersprungen wurde.</p>
+
+<h2>Eine Datei wird nicht kopiert</h2>
+
+<ul>
+<li><b>Sie ist leer.</b> Dateien der Größe 0 werden übersprungen, solange
+    <a href="options.html">Leere Dateien synchronisieren</a> nicht gesetzt ist.
+    Das Protokoll vermerkt „Leere Quelldatei wurde nicht kopiert“.</li>
+<li><b>Der Platzhalter passt nicht</b> oder ein <b>Ausschluss</b> greift, siehe
+    <a href="syncitems.html">Synchronisationen anlegen</a>.</li>
+<li><b>Das Ziel ist neuer als die Quelle.</b> Ohne <b>Kopieren wenn Ziel
+    neuer</b> bleibt es unangetastet.</li>
+<li><b>Quelle und Ziel gelten als gleich.</b> Wird nur nach <b>Datum</b>
+    verglichen, fällt eine inhaltliche Änderung ohne neue Änderungszeit nicht
+    auf. In dem Fall zusätzlich <b>Größe</b> oder <b>Inhalt</b>
+    einschalten.</li>
+<li><b>Die Synchronisation ist nicht aktiv</b> – das Häkchen <b>Aktiv</b>
+    fehlt.</li>
+<li><b>Es handelt sich um ein Unterverzeichnis</b>, die Synchronisation ist aber
+    vom Typ <b>Verzeichnis</b>. Für Unterverzeichnisse braucht es den Typ
+    <b>Verzeichnisbaum</b>.</li>
+</ul>
+
+<h2>Im Ziel wird nichts gelöscht, obwohl die Option gesetzt ist</h2>
+
+<ul>
+<li><b>Die Quelle ist nicht erreichbar.</b> Ein abgezogenes Laufwerk, eine nicht
+    verbundene Freigabe oder ein nicht erreichbarer SSH-Server führen dazu, dass
+    gar nichts gelöscht wird. Das ist beabsichtigt.</li>
+<li><b>Der Typ ist Datei.</b> Die Option gilt nur für Verzeichnis und
+    Verzeichnisbaum.</li>
+<li><b>Platzhalter oder Ausschluss</b> nehmen die Datei von der Synchronisation
+    aus – dann wird sie auch nicht gelöscht.</li>
+<li><b>Es geht um ein Verzeichnis.</b> Gespiegelt werden Dateien; ein in der
+    Quelle gelöschtes Verzeichnis bleibt im Ziel stehen.</li>
+</ul>
+
+<h2>Es wird gar nicht synchronisiert</h2>
+
+<ul>
+<li>Läuft der <a href="service.html">Hintergrunddienst</a>? Dienst und Programm
+    synchronisieren nicht gleichzeitig.</li>
+<li>Sind <b>Start</b> und <b>Einmal synchronisieren</b> ausgegraut, enthält die
+    Konfiguration keine ausführbare Synchronisation – etwa weil alle inaktiv
+    sind oder Quelle und Ziel fehlen.</li>
+<li>Wurde die Konfiguration nach der letzten Änderung
+    <a href="config.html">gespeichert</a>?</li>
+<li>Bei Quelle oder Ziel über SSH: Antwortet die Gegenstelle? AutoFileSync
+    prüft das vor jedem Durchlauf und lässt die Synchronisation aus, solange
+    der Server nicht erreichbar ist oder die Anmeldung scheitert. Im Protokoll
+    steht dann „SSH-Pfad nicht erreichbar“ samt Grund.</li>
+<li><b>Der Server ist wieder da, es passiert trotzdem noch nichts.</b> Das
+    Ergebnis der Erreichbarkeitsprüfung wird zwischengespeichert, damit nicht
+    jeder Durchlauf eine neue Verbindung aufbaut. Nach einem gescheiterten
+    Versuch wird frühestens nach ein paar Sekunden erneut geprüft, bei
+    anhaltendem Ausfall höchstens alle fünf Minuten. Es kann also bis zu fünf
+    Minuten dauern, bis eine wiederhergestellte Verbindung bemerkt wird.</li>
+</ul>
+
+<h2>Eine SSH-Verbindung schlägt fehl</h2>
+
+<ul>
+<li><b>Authentifizierungsfehler</b> – Benutzername oder Passwort stimmen nicht,
+    oder der Server erlaubt keine Anmeldung mit Passwort.</li>
+<li><b>Verbindungsfehler</b> – Host oder Port sind nicht erreichbar.</li>
+<li><b>Host-Key hat sich geändert</b> – der Server meldet sich mit einem anderen
+    Schlüssel als beim ersten Mal. AutoFileSync bricht dann ab. Ist die Änderung
+    erklärbar, etwa nach einer Neuinstallation des Servers, muss der alte
+    Eintrag aus der Datei <tt>known_hosts</tt> Ihres Benutzerprofils entfernt
+    werden.</li>
+<li><b>SSH-Account nicht gefunden</b> – der Name vor dem Doppelpunkt im Pfad
+    gehört zu keiner angelegten Verbindung. Das passiert etwa, wenn eine
+    Verbindung umbenannt wurde; die betroffenen Synchronisationen zeigen dann
+    weiter auf den alten Namen.</li>
+</ul>
+
+<p>In allen diesen Fällen wird die betroffene Synchronisation für diesen
+Durchlauf übersprungen: Es wird weder kopiert noch gelöscht. Die übrigen
+Synchronisationen laufen normal weiter.</p>
+
+<h2>Gelöschte Dateien zurückholen</h2>
+
+<p>Steht der <a href="settings.html">Löschmodus</a> auf <b>In Papierkorb
+verschieben</b>, liegen die Dateien im eingestellten Papierkorbverzeichnis, in
+der Struktur ihres Herkunftsortes. Bei <b>Endgültig löschen</b> und bei Zielen
+über SSH gibt es keine solche Kopie.</p>
+
+<p>Wurde eine Zieldatei überschrieben, hilft das
+<a href="options.html">Generationenprinzip</a> – sofern es vorher eingeschaltet
+war: Der vorige Stand liegt dann als <tt>.bak.1</tt> neben der Datei.</p>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Über SSH synchronisieren</title>
+</head>
+<body>
+<h1>Über SSH synchronisieren</h1>
+
+<p>Quelle oder Ziel dürfen auf einem anderen Rechner liegen, der über SSH
+erreichbar ist – etwa einem NAS, einem Server oder einem kleinen Rechner im
+Heimnetz. Auch beide Seiten gleichzeitig sind möglich.</p>
+
+<h2>Verbindung anlegen</h2>
+
+<p><b>Datei &rarr; Neu &rarr; SSH-Verbindung</b> oder <b>Bearbeiten &rarr;
+SSH-Verbindungen...</b> öffnet die Verwaltung. Eine Verbindung besteht aus:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Name</b></td>
+    <td>Frei wählbar. Unter diesem Namen wird die Verbindung später in Pfaden
+        angesprochen.</td></tr>
+<tr><td valign="top"><b>Host</b></td>
+    <td>Rechnername oder IP-Adresse.</td></tr>
+<tr><td valign="top"><b>Benutzer</b></td>
+    <td>Konto auf dem entfernten Rechner.</td></tr>
+<tr><td valign="top"><b>Passwort</b></td>
+    <td>Wird verschlüsselt in der Konfiguration abgelegt, nicht im Klartext.</td></tr>
+</table>
+
+<p>In der Übersicht lassen sich Verbindungen anlegen, bearbeiten, umbenennen und
+löschen. Wird eine Verbindung umbenannt, ziehen die Synchronisationen, die sie
+benutzen, automatisch mit.</p>
+
+<h2>Entfernte Pfade schreiben</h2>
+
+<p>Ein entfernter Pfad besteht aus dem Namen der Verbindung, einem Doppelpunkt
+und dem Pfad auf dem entfernten Rechner:</p>
+
+<blockquote><tt>pisi:/home/joachim/dokumente</tt></blockquote>
+
+<p>Im Dialog einer Synchronisation führt die SSH-Schaltfläche neben Quelle und
+Ziel zunächst zur Auswahl der Verbindung und dann zu einem Dialog, der die
+Verzeichnisse auf dem entfernten Rechner durchblättert – mit Größe und
+Änderungsdatum, sodass sich der richtige Ort ohne Tippen finden lässt.</p>
+
+<h2>Was dabei anders ist</h2>
+
+<ul>
+<li><b>Symbolische Verknüpfungen</b> auf dem entfernten Rechner werden nicht
+    verfolgt. Sie werden übersprungen, damit ein Verweis auf ein übergeordnetes
+    Verzeichnis keine endlose Schleife erzeugt.</li>
+<li><b>Löschen ist endgültig.</b> Der Papierkorb steht nur lokal zur Verfügung;
+    eine entfernte Datei müsste zum Verschieben erst heruntergeladen werden.
+    Das betrifft <b>Gelöschte Dateien im Ziel ebenfalls löschen</b> ebenso wie
+    <b>Quelle nach dem Kopieren löschen</b>, wobei letzteres bei entfernten
+    Quellen ohnehin nicht ausgeführt wird.</li>
+<li><b>Dateiattribute</b> werden auf der entfernten Seite nicht verändert.</li>
+<li><b>Ist der Server nicht erreichbar</b>, unterscheidet AutoFileSync das von
+    „dort ist nichts mehr“ und lässt das Ziel unangetastet. Ein Ausfall der
+    Verbindung führt also nicht zu Löschungen.</li>
+<li>Beim ersten Verbindungsaufbau wird der Schlüssel des Servers gespeichert.
+    Ändert er sich später, bricht AutoFileSync die Verbindung ab und meldet den
+    Verdacht auf einen Man-in-the-Middle-Angriff.</li>
+</ul>
+
+<h2>Die Prüfung vor jedem Durchlauf</h2>
+
+<p>Bevor eine Synchronisation mit einer entfernten Seite überhaupt anläuft,
+vergewissert sich AutoFileSync, dass die Gegenstelle da ist: Es baut die
+Verbindung auf, prüft den Schlüssel des Servers und meldet sich an. Das ist
+dasselbe, was bei einem lokalen Pfad die Frage „ist das Laufwerk verbunden?“
+beantwortet. Scheitert einer dieser Schritte, wird die Synchronisation für
+diesen Durchlauf übersprungen – es wird weder kopiert noch gelöscht.</p>
+
+<p>Für <b>Quelle</b> und <b>Ziel</b> gelten dabei unterschiedliche Maßstäbe:</p>
+
+<ul>
+<li>Die <b>Quelle</b> muss vorhanden sein. Antwortet der Server, meldet aber
+    „gibt es nicht“, dann ist die Quelle verschwunden – und eine
+    Synchronisation, deren Quelle verschwunden ist, hält still, statt das
+    Verschwinden nachzuvollziehen. Andernfalls würde ein gelöschtes
+    Quellverzeichnis zusammen mit <b>Gelöschte Dateien im Ziel ebenfalls
+    löschen</b> das Ziel leerräumen.</li>
+<li>Beim <b>Ziel</b> genügt es, dass die Verbindung zustande kommt. Ein
+    Zielverzeichnis, das es noch nicht gibt, legt AutoFileSync selbst an – es
+    darf die Synchronisation nicht blockieren.</li>
+</ul>
+
+<p>Das Ergebnis wird zwischengespeichert, damit nicht jeder Durchlauf eine neue
+Verbindung aufbaut. Eine erreichbare Gegenstelle wird höchstens stündlich
+nachgeprüft, eine nicht erreichbare höchstens alle fünf Minuten. Nach einer
+Störung kann es deshalb einige Minuten dauern, bis die Synchronisation von
+selbst wieder anläuft.</p>
+
+</body>
+</html>

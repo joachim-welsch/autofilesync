@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{11111111-1111-4111-8111-111111111111}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Testhelfer">
+      <UniqueIdentifier>{22222222-2222-4222-8222-222222222222}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mylib">
+      <UniqueIdentifier>{33333333-3333-4333-8333-333333333333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AFS_Core">
+      <UniqueIdentifier>{44444444-4444-4444-8444-444444444444}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <Filter>Testhelfer</Filter>
+    </ClCompile>
+    <ClCompile Include="FileUtil.cpp">
+      <Filter>Testhelfer</Filter>
+    </ClCompile>
+    <ClCompile Include="DirUtil.cpp">
+      <Filter>Testhelfer</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncFileTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncDirTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncItemTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="PasswordCryptoTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="StrUtilTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDifferenceTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggingConcurrencyTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Libssh2InitTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncTreeTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="MountedDrivesTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SynchronizeTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckPathTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="LogCutTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncSshFileTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncSshDirTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncSshTreeTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshPathEncodingTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MyLibDir)\src\FilesystemUtil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MyLibDir)\src\LogCut.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MyLibDir)\src\Logging.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MyLibDir)\src\strutil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MyLibDir)\src\util.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MyLibDir)\src\MountedDrives.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SshFileInspector.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SshAccount.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SyncFileSsh.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\CheckPath.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\config.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\PasswordCrypto.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SshHostKeyVerification.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\Libssh2Init.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\Directory.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\FileDifference.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\Global.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\settings.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SyncBase.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SyncControler.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SyncDir.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SyncFile.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\Synchronize.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\syncitem.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SyncMessage.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SyncTree.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\winutil.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ScopedEnv.cpp">
+      <Filter>Testhelfer</Filter>
+    </ClCompile>
+    <ClCompile Include="ThStrUtil.cpp">
+      <Filter>Testhelfer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="ScopedEnv.h">
+      <Filter>Testhelfer</Filter>
+    </ClInclude>
+    <ClInclude Include="ThStrUtil.h">
+      <Filter>Testhelfer</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

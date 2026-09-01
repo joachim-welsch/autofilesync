@@ -1,0 +1,27 @@
+[OPTIONS]
+Compiled File=help.htb
+Contents File=contents.hhc
+Index File=index.hhk
+Default Topic=help.html
+Title=AutoFileSync Hilfe
+Charset=utf-8
+
+[FILES]
+help.html
+syncitems.html
+options.html
+runsync.html
+synconce.html
+ssh.html
+settings.html
+logging.html
+backupproof.html
+service.html
+config.html
+troubleshooting.html
+
+[ALIAS]
+; Kontext-Hilfe: siehe wxhelp.map
+
+[MAP]
+; Zuordnung von IDs fuer Kontext-Hilfe, siehe wxhelp.map

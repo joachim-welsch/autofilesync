@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{6F3C1E8A-9B24-4D57-A1F0-2E7C8D5B4A31}</ProjectGuid>
+    <RootNamespace>Integrationtests</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <!-- ==========================================================
+       Pfade werden aus der Projektlage abgeleitet, NICHT aus %USERPROFILE%.
+       Erwartete Struktur:
+         <Repo>\AFS_Core\              <- LibDir
+         <Repo>\AFS_Core\test\Integrationstests <- dieses Projekt
+         <Repo>\AFS_Core\mylib        <- MyLibDir
+       Abweichung: LibDir / MyLibDir hier hart setzen oder per
+       msbuild /p:MyLibDir=D:\pfad\mylib uebergeben.
+       ========================================================== -->
+  <PropertyGroup Label="UserPaths">
+    <LibDir Condition="'$(LibDir)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))</LibDir>
+    <MyLibDir Condition="'$(MyLibDir)' == ''">$([System.IO.Path]::GetFullPath('$(LibDir)\mylib'))</MyLibDir>
+    <!-- Vorwaertsslashes fuer das String-Literal LIB_SOURCE_DIR -->
+    <LibDirPosix>$(LibDir.Replace('\','/'))</LibDirPosix>
+    <!-- Boost kommt normalerweise ueber vcpkg (boost-property-tree im Manifest);
+         die Include-Pfade setzt die vcpkg-Integration dann selbst.
+         Nur fuer eine manuell installierte Boost-Distribution hier oder per
+         Umgebungsvariable BoostRoot den Wurzelpfad setzen, z.B.
+         C:\Entwicklung\extlib\boost_1_87_0 -->
+    <BoostRoot Condition="'$(BoostRoot)' == '' and '$(BOOST_ROOT)' != ''">$(BOOST_ROOT)</BoostRoot>
+    <BoostIncludeDir Condition="'$(BoostRoot)' != ''">$(BoostRoot)</BoostIncludeDir>
+    <BoostLibDir Condition="'$(BoostRoot)' != '' and Exists('$(BoostRoot)\stage\lib')">$(BoostRoot)\stage\lib</BoostLibDir>
+    <BoostLibDir Condition="'$(BoostLibDir)' == '' and '$(BoostRoot)' != '' and Exists('$(BoostRoot)\lib64-msvc-14.3')">$(BoostRoot)\lib64-msvc-14.3</BoostLibDir>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgTriplet>x64-windows</VcpkgTriplet>
+    <VcpkgUseStatic>false</VcpkgUseStatic>
+  </PropertyGroup>
+  <!-- Explizite vcpkg-Pfade als Rueckfallebene zur MSBuild-Integration.
+       WICHTIG: keine Exists()-Bedingungen - PropertyGroups werden beim Laden
+       des Projekts ausgewertet, also bevor der vcpkg-Install-Schritt im Build
+       das Verzeichnis ueberhaupt angelegt hat. Beide Layouts werden eingetragen
+       (VS-Integration verdoppelt den Triplet-Ordner, die CLI nicht); nicht
+       existierende Include-Pfade ignoriert cl.exe folgenlos. -->
+  <PropertyGroup Label="VcpkgPaths">
+    <VcpkgManifestInstall>true</VcpkgManifestInstall>
+    <VcpkgManifestDir>$(MSBuildProjectDirectory)\vcpkg_installed\$(VcpkgTriplet)</VcpkgManifestDir>
+    <VcpkgIncludeDirCli>$(VcpkgManifestDir)\include</VcpkgIncludeDirCli>
+    <VcpkgIncludeDirIde>$(VcpkgManifestDir)\$(VcpkgTriplet)\include</VcpkgIncludeDirIde>
+    <VcpkgLibSuffix Condition="'$(Configuration)' == 'Debug'">debug\lib</VcpkgLibSuffix>
+    <VcpkgLibSuffix Condition="'$(Configuration)' != 'Debug'">lib</VcpkgLibSuffix>
+    <VcpkgLibDirCli>$(VcpkgManifestDir)\$(VcpkgLibSuffix)</VcpkgLibDirCli>
+    <VcpkgLibDirIde>$(VcpkgManifestDir)\$(VcpkgTriplet)\$(VcpkgLibSuffix)</VcpkgLibDirIde>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>Integrationtests</TargetName>
+    <LinkIncremental Condition="'$(Configuration)'=='Debug'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)'=='Release'">false</LinkIncremental>
+  </PropertyGroup>
+  <!-- ===================== Gemeinsame Compilereinstellungen ===================== -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>C:\Entwicklung\extlib\boost_1_91_0;$(ProjectDir);$(LibDir);$(LibDir)\include;$(MyLibDir);$(MyLibDir)\include;$(VcpkgIncludeDirCli);$(VcpkgIncludeDirIde);$(BoostIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- _CRT_SECURE_NO_WARNINGS / _SCL_SECURE_NO_WARNINGS werden bereits in
+           pch.h gesetzt -> hier weglassen, sonst C4005 (Makro-Neudefinition).
+           Deprecation-Warnungen sind ueber DisableSpecificWarnings 4996 abgedeckt. -->
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_TEST;NOMINMAX;WIN32_LEAN_AND_MEAN;LIB_SOURCE_DIR="$(LibDirPosix)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- 4505: static-Funktion in einem Header, in dieser TU ungenutzt (FilesystemUtil).
+           5205 (Loeschen abstrakter Klasse ohne virtuellen Dtor) ist bewusst NICHT
+           unterdrueckt - das ist ein echter Befund in SyncPath. -->
+      <DisableSpecificWarnings>4100;4996;4505;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <!-- Ohne /utf-8 liest MSVC Quellen ohne BOM in der ANSI-Codepage (cp1252),
+           obwohl alle Dateien dieses Projekts UTF-8 sind: Umlaut-Literale werden
+           dadurch doppelt kodiert ("ä" -> "Ã¤"), was die StrUtil- und
+           SyncException-Tests scheitern liess. /utf-8 setzt Quell- UND
+           Ausfuehrungszeichensatz auf UTF-8, wie es gcc/clang ohnehin tun. -->
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(VcpkgLibDirCli);$(VcpkgLibDirIde);$(BoostLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gtest.lib;gtest_main.lib;libssh2.lib;libcrypto.lib;ws2_32.lib;crypt32.lib;bcrypt.lib;advapi32.lib;user32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- ===================== Quellen ===================== -->
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="FileUtil.cpp" />
+    <ClCompile Include="DirUtil.cpp" />
+    <ClCompile Include="ScopedEnv.cpp" />
+    <ClCompile Include="ThStrUtil.cpp" />
+    <ClCompile Include="SyncFileTests.cpp" />
+    <ClCompile Include="SyncDirTests.cpp" />
+    <ClCompile Include="SyncItemTests.cpp" />
+    <ClCompile Include="ConfigTests.cpp" />
+    <ClCompile Include="BackupProofTests.cpp" />
+    <ClCompile Include="FileDeleteTests.cpp" />
+    <ClCompile Include="PasswordCryptoTests.cpp" />
+    <ClCompile Include="StrUtilTests.cpp" />
+    <ClCompile Include="FileDifferenceTests.cpp" />
+    <ClCompile Include="LoggingConcurrencyTests.cpp" />
+    <ClCompile Include="Libssh2InitTests.cpp" />
+    <ClCompile Include="SyncTreeTests.cpp" />
+    <!-- MountedDrivesTests.cpp prueft /etc/fstab bzw. /proc/mounts und ruft
+         MountedDrives::setFstabPathForTest(), das es im Windows-Zweig nicht gibt.
+         Solange der Test nicht portiert ist, kann er hier ausgeschlossen werden:
+         <ClCompile Include="MountedDrivesTests.cpp"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile> -->
+    <ClCompile Include="MountedDrivesTests.cpp" />
+    <ClCompile Include="SynchronizeTests.cpp" />
+    <ClCompile Include="CheckPathTests.cpp" />
+    <ClCompile Include="LogCutTests.cpp" />
+    <ClCompile Include="SyncSshFileTests.cpp" />
+    <ClCompile Include="SyncSshDirTests.cpp" />
+    <ClCompile Include="SyncSshTreeTests.cpp" />
+    <ClCompile Include="SshPathEncodingTests.cpp" />
+    <ClCompile Include="SshTest.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\FilesystemUtil.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\LogCut.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\Logging.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\SmtpMailer.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncArbiter.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\strutil.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\util.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\MountedDrives.cpp" />
+    <ClCompile Include="$(MyLibDir)\src\RecycleBin.cpp" />
+    <ClCompile Include="$(LibDir)\src\SshFileInspector.cpp" />
+    <ClCompile Include="$(LibDir)\src\SshAccount.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncFileSsh.cpp" />
+    <ClCompile Include="$(LibDir)\src\CheckPath.cpp" />
+    <ClCompile Include="$(LibDir)\src\config.cpp" />
+    <ClCompile Include="$(LibDir)\src\BackupProof.cpp" />
+    <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
+    <ClCompile Include="$(LibDir)\src\SshHostKeyVerification.cpp" />
+    <ClCompile Include="$(LibDir)\src\Libssh2Init.cpp" />
+    <ClCompile Include="$(LibDir)\src\Directory.cpp" />
+    <ClCompile Include="$(LibDir)\src\FileDifference.cpp" />
+    <ClCompile Include="$(LibDir)\src\Global.cpp" />
+    <ClCompile Include="$(LibDir)\src\settings.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncBase.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncControler.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncDir.cpp" />
+    <ClCompile Include="$(LibDir)\src\FileDelete.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncFile.cpp" />
+    <ClCompile Include="$(LibDir)\src\Synchronize.cpp" />
+    <ClCompile Include="$(LibDir)\src\syncitem.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncMessage.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncTree.cpp" />
+    <ClCompile Include="$(LibDir)\src\winutil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" Condition="exists('$(ProjectDir)pch.h')" />
+    <ClInclude Include="ScopedEnv.h" />
+    <ClInclude Include="ThStrUtil.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+  <!-- ===================== Pfadpruefung =====================
+       Verhindert die Lawine aus C1083-Fehlern: falsche Pfade werden mit
+       einer einzigen aussagekraeftigen Meldung abgefangen. -->
+  <Target Name="ValidateSourcePaths" BeforeTargets="ClCompile">
+    <Message Importance="high" Text="LibDir   = $(LibDir)" />
+    <Message Importance="high" Text="MyLibDir = $(MyLibDir)" />
+    <Error Condition="!Exists('$(LibDir)\src\SyncFile.cpp')" Text="LibDir zeigt nicht auf die AFS_Core-Quellen (SyncFile.cpp fehlt): '$(LibDir)'. Property LibDir im .vcxproj anpassen oder /p:LibDir=... uebergeben." />
+    <Error Condition="!Exists('$(MyLibDir)\src\strutil.cpp')" Text="MyLibDir zeigt nicht auf die mylib-Quellen (strutil.cpp fehlt): '$(MyLibDir)'. Property MyLibDir im .vcxproj anpassen oder /p:MyLibDir=... uebergeben." />
+    <!-- Nur Warnung: ein Error wuerde den Build abbrechen, bevor der
+         vcpkg-Install-Schritt Boost ueberhaupt anlegen kann. -->
+    <Warning Condition="!Exists('$(VcpkgIncludeDirCli)\boost\version.hpp') and !Exists('$(VcpkgIncludeDirIde)\boost\version.hpp') and '$(BoostIncludeDir)' == ''" Text="Boost liegt (noch) nicht im vcpkg-Baum: weder '$(VcpkgIncludeDirCli)\boost' noch '$(VcpkgIncludeDirIde)\boost' vorhanden. Falls der Build gleich mit C1083 abbricht: vcpkg install von Hand im Projektverzeichnis ausfuehren und dessen Ausgabe pruefen." />
+  </Target>
+</Project>

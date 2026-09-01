@@ -1,0 +1,23 @@
+/* XPM */
+static const char *const stop_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"15 15 2 1",
+" 	c None",
+"a	c #FF0000",
+/* pixels */
+"               ",
+"               ",
+"     aaaaa     ",
+"    aaaaaaa    ",
+"   aaaaaaaaa   ",
+"  aaaaaaaaaaa  ",
+"  aaaa   aaaa  ",
+"  aaaa   aaaa  ",
+"  aaaa   aaaa  ",
+"  aaaa   aaaa  ",
+"   aaaaaaaaa   ",
+"    aaaaaaa    ",
+"     aaaaa     ",
+"               ",
+"               "
+};

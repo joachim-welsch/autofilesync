@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Testrahmen">
+      <UniqueIdentifier>{1B4E2A70-3C5D-4A81-9E60-7F2D8C1A5B03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Anwendung">
+      <UniqueIdentifier>{2C5F3B81-4D6E-4B92-8F71-1A3E9D2B6C14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mylib">
+      <UniqueIdentifier>{3D604C92-5E7F-4CA3-9082-2B4F0E3C7D25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GuiTestMain.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiTest.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiTestSandbox.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="EventPump.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="UserActions.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="ModalDialogWatcher.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncItemDialogDriver.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="SshAccountDialogDriver.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="AddSyncItemTest.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="AddSshAccountTest.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\App.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\BackgroundService.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Canvas.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CheckPath.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\config.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PasswordCrypto.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Directory.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FileDifference.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Global.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\GridCtrl.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\GridWindow.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ListCtrl.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ListWindow.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\LoggingDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\MainWindow.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Menu.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ProgressDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\settings.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SettingsDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SourceCanvas.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SplitterWindow.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshAccount.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshAccountDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshAccountSelectDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshAccountsDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshDirDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshDirInspector.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshFileInspector.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SshHostKeyVerification.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Libssh2Init.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncArbiter.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncBase.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncControler.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncDir.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncFile.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncFileSsh.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Synchronize.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncInterface.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\syncitem.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncItemDialog.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncMessage.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SyncTree.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TargetCanvas.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TaskBarIcon.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TimedMessageBox.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tree.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Toolbar.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TreeCtrl.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TreeItemData.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\winutil.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\util.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\MountedDrives.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\LogCut.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\Logging.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\strutil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\mylib\src\FilesystemUtil.cpp">
+      <Filter>mylib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EventPump.h">
+      <Filter>Testrahmen</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiTest.h">
+      <Filter>Testrahmen</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiTestSandbox.h">
+      <Filter>Testrahmen</Filter>
+    </ClInclude>
+    <ClInclude Include="ModalDialogWatcher.h">
+      <Filter>Testrahmen</Filter>
+    </ClInclude>
+    <ClInclude Include="SshAccountDialogDriver.h">
+      <Filter>Testrahmen</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncItemDialogDriver.h">
+      <Filter>Testrahmen</Filter>
+    </ClInclude>
+    <ClInclude Include="UserActions.h">
+      <Filter>Testrahmen</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

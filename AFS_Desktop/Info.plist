@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>AutoFileSync</string>
+    <key>CFBundleDisplayName</key>
+    <string>AutoFileSync</string>
+    <key>CFBundleIdentifier</key>
+    <string>de.autofilesync.app</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>autofilesync</string>
+    <key>CFBundleIconFile</key>
+    <string>afs</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>13.3</string>
+</dict>
+</plist>

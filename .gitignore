@@ -1,0 +1,33 @@
+temp.txt
+autofilesync
+/.vs
+AFS_Core/test/Integrationstests/.vs
+AFS_Core/test/Integrationstests/Integrat.*
+AFS_Core/test/Integrationstests/x64
+AFS_Core/test/Integrationstests/packages
+packages
+build
+xcode
+CMakeLists.txt.user.*
+/Debug
+/Release
+/*.user
+/vc_mswud_x64
+/test/test
+/*.aps
+*~
+x64
+vcpkg_installed
+/#!#
+Directory.Build.props
+/AFS_Desktop/bitmaps/delete-old.bmp
+/AFS_Core/test/Integrationstests/*.bak
+/AFS_Core/test/Integrationstests/Integrationstests_backup.vcxproj
+/AFS_Desktop/test/GUI-Tests/nuget.exe
+/AFS_Desktop/test/GUI-Tests/.wix/extensions/WixToolset.UI.wixext/5.0.2/wixext5/*.dll
+
+# Python bytecode from the icon generator
+__pycache__/
+
+# Finder metadata, written whenever a folder is opened in the Finder
+.DS_Store

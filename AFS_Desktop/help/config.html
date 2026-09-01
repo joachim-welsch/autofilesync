@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Konfigurationsdatei</title>
+</head>
+<body>
+<h1>Konfigurationsdatei</h1>
+
+<p>Alle Synchronisationen, SSH-Verbindungen und Einstellungen stehen in einer
+Datei im JSON-Format. Sie ist es, die das Programm und der
+<a href="service.html">Hintergrunddienst</a> gemeinsam benutzen.</p>
+
+<h2>Wo sie liegt</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="25%"><b>Windows</b></td>
+    <td><tt>%APPDATA%\autofilesync\autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td><tt>$XDG_CONFIG_HOME/autofilesync/autofilesync.json</tt>, ersatzweise
+        <tt>~/.config/autofilesync/autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>~/Library/Application Support/autofilesync/autofilesync.json</tt></td></tr>
+</table>
+
+<h2>Öffnen und Speichern</h2>
+
+<ul>
+<li><b>Datei &rarr; Öffnen</b> lädt eine andere Konfiguration, etwa einen
+    Satz Synchronisationen für einen bestimmten Zweck.</li>
+<li><b>Datei &rarr; Speichern</b> schreibt die Änderungen zurück. Ohne
+    Speichern gehen sie beim Beenden verloren.</li>
+<li><b>Datei &rarr; Speichern als</b> legt eine Kopie an. Existiert die Datei
+    bereits, wird vor dem Überschreiben gefragt.</li>
+</ul>
+
+<h2>Was drin steht</h2>
+
+<p>Je Synchronisation Name, Typ, Quelle, Ziel, Platzhalter, Ausschlüsse, die
+Optionen und die Pause; dazu die SSH-Verbindungen und die globalen
+Einstellungen. Passwörter für SSH-Verbindungen und für den Postausgangsserver
+werden <b>verschlüsselt</b> abgelegt, nicht im Klartext.</p>
+
+<p>Die Datei lässt sich im Notfall mit einem Texteditor betrachten. Ein
+Schlüssel, den eine ältere Ausgabe des Programms noch nicht kannte, fehlt in
+alten Dateien einfach – AutoFileSync setzt dann die dokumentierte Vorgabe ein
+und lädt die Datei trotzdem. Ein einzelner beschädigter Eintrag führt ebenfalls
+nicht dazu, dass die ganze Konfiguration verloren geht; er wird übersprungen.</p>
+
+<p>Beim Schreiben wird die vorhandene Datei nicht zerstört, falls das Speichern
+scheitert – im Zweifel bleibt der alte Stand erhalten.</p>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Globale Einstellungen</title>
+</head>
+<body>
+<h1>Globale Einstellungen</h1>
+
+<p><b>Bearbeiten &rarr; Globale Einstellungen</b> öffnet die Einstellungen, die
+für das ganze Programm gelten – nicht für eine einzelne Synchronisation.</p>
+
+<h2>Starten und Fenster</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Anwendung automatisch starten</b></td>
+    <td>AutoFileSync wird beim Anmelden mitgestartet.</td></tr>
+<tr><td valign="top"><b>Synchronisation bei Programmstart starten</b></td>
+    <td>Der fortlaufende Betrieb beginnt sofort nach dem Start, ohne dass
+        <b>Synchronisation &rarr; Start</b> nötig wäre.</td></tr>
+<tr><td valign="top"><b>Start minimiert</b></td>
+    <td>Das Fenster erscheint beim Start nicht, das Programm liegt gleich im
+        Infobereich der Taskleiste.</td></tr>
+<tr><td valign="top"><b>Minimieren statt schließen?</b></td>
+    <td>Das Schließen des Fensters beendet das Programm nicht, sondern
+        minimiert es in den Infobereich. Beendet wird dann über <b>Datei &rarr;
+        Beenden</b> oder das Kontextmenü im Infobereich.</td></tr>
+</table>
+
+<p>Es läuft immer nur eine Instanz: Ein zweiter Start meldet, dass AutoFileSync
+bereits läuft, und beendet sich.</p>
+
+<h2>Meldungen im Dialog anzeigen</h2>
+
+<p>Die drei Häkchen <b>Fehler</b>, <b>Warnung</b> und <b>Info</b> legen fest,
+welche Meldungen zusätzlich als Dialogfenster erscheinen. Ohne Häkchen läuft
+die Synchronisation still und schreibt nur ins <a href="logging.html">Protokoll</a>
+– sinnvoll für den Dauerbetrieb, weil sonst jeder Hinweis das Fenster in den
+Vordergrund holt.</p>
+
+<h2>Löschmodus</h2>
+
+<p>Der Löschmodus gilt für alle Löschungen, die AutoFileSync vornimmt: die
+Quelle bei <b>Quelle nach dem Kopieren löschen</b> und das Ziel bei
+<b>Gelöschte Dateien im Ziel ebenfalls löschen</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>In Papierkorb verschieben</b></td>
+    <td>Vorgabe. Gelöschte Dateien landen im unten angegebenen
+        Papierkorbverzeichnis und lassen sich von dort zurückholen. Die
+        Herkunftsstruktur bleibt erhalten, gleichnamige Dateien überschreiben
+        sich nicht.</td></tr>
+<tr><td valign="top"><b>Endgültig löschen</b></td>
+    <td>Die Dateien werden unmittelbar entfernt.</td></tr>
+</table>
+
+<p>Im Feld <b>Papierkorb</b> steht das Verzeichnis dafür. Es sollte auf einem
+Datenträger mit genügend Platz liegen; AutoFileSync räumt es nicht selbsttätig
+auf.</p>
+
+<p>Bei Zielen über SSH wird unabhängig von dieser Einstellung endgültig
+gelöscht, siehe <a href="ssh.html">Über SSH synchronisieren</a>.</p>
+
+</body>
+</html>
