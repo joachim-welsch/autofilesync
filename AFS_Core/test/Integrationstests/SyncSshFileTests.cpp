@@ -106,7 +106,10 @@ TEST_F(SyncSshFileInspectorTest, InspectNonExistingFile)
 {
     SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
 
-    std::string non_existing = tu::concatTemp("this_file_absolutely_does_not_exist_") +
+    // concatSSHTemp, not concatTemp: the SSH account cannot even traverse the
+    // per-user temp directory macOS hands out, which answers "permission
+    // denied" instead of "no such file".
+    std::string non_existing = tu::concatSSHTemp("this_file_absolutely_does_not_exist_") +
                                 std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
     
     RemoteFileInfo info = inspector.inspectFile(non_existing);
@@ -125,7 +128,11 @@ TEST_F(SyncSshFileInspectorTest, InspectMultipleFiles)
     // Test mit mehreren Standard-System-Dateien
     std::vector<std::string> test_files = {
         tu::concatPath(etcPath, "hosts"),
-#ifdef _UNIX
+#if defined(_MACOS)
+        // macOS keeps no /etc/hostname - the name lives in the system configuration.
+        tu::concatPath(etcPath, "services"),
+        tu::concatPath(etcPath, "passwd")
+#elif defined(_UNIX)
         tu::concatPath(etcPath, "hostname"),
         tu::concatPath(etcPath, "passwd")
 #else
@@ -248,7 +255,7 @@ TEST_F(SyncSshFileInspectorTest, InspectPathWithSpaces)
     SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
 
     // Pfad mit Leerzeichen (könnte nicht existieren, aber sollte nicht crashen)
-    RemoteFileInfo info = inspector.inspectFile(tu::concatTemp("file with spaces.txt"));
+    RemoteFileInfo info = inspector.inspectFile(tu::concatSSHTemp("file with spaces.txt"));
     
     // Sollte nicht crashen, auch wenn Datei nicht existiert
     EXPECT_FALSE(info.exists);
@@ -489,7 +496,7 @@ TEST_F(SyncSshFileCopyTest, CopyNonExistentSourceFile)
     ensureAccountInConfig();
     
     std::wstring srcPath = tu::concatTemp(L"ssh_copy_test/non_existent_file.txt");
-    std::wstring destPath = L"localhost:" + tu::concatTemp(L"should_not_be_created.txt");
+    std::wstring destPath = L"localhost:" + tu::concatSSHTemp(L"should_not_be_created.txt");
     
     // Kopieren sollte fehlschlagen
     CopyResult result = copyFsToSsh(srcPath, destPath);
