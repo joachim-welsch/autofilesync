@@ -56,7 +56,11 @@ void SyncBase::createTargetDirIfNotExist(const std::wstring& targetdir)
                 wstring localDest = withoutVolumeSpec(destination);
                 if (!fs::exists(localDest)) {
                         try {
-                                fs::create_directory(localDest);
+                                // create_directories, not create_directory: a target more than one
+                                // level below anything that exists - a backup drive freshly attached,
+                                // a path typed ahead of its parents - would otherwise fail on every
+                                // run, and the item would never sync.
+                                fs::create_directories(localDest);
                         }
                         catch (std::filesystem::filesystem_error const& ex) {
                                 handleLastError(ex);

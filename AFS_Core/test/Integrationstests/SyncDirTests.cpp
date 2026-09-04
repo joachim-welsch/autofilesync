@@ -479,3 +479,32 @@ TEST_F(SyncDirUnreachableSshSourceTest, DeleteInTargetKeepsTargetWhenSshSourceIs
         << "an unreachable SSH source lists as empty - the target must not be emptied along with it";
     EXPECT_TRUE(std::filesystem::exists(TargetPath + L"/backup2.txt"));
 }
+
+// The target directory used to be created with create_directory(), so a target
+// whose parent did not exist yet - a fresh backup drive, a path one level
+// deeper than anything present - failed on every run and the item never synced.
+TEST(SyncDirTests, SyncCreatesTargetDirWhoseParentIsMissing)
+{
+    // Built through fs::path so the separators are the platform's own.
+    const std::wstring missingParent = (std::filesystem::path(TestPaths::scratchDir()) / L"missing_parent").wstring();
+    const std::wstring targetPath = (std::filesystem::path(missingParent) / L"dir").wstring();
+    tu::eraseTestDir(missingParent, false);
+    tu::eraseTestDir(SourcePath, false);
+    std::filesystem::create_directories(SourcePath);
+    std::ofstream(wstring_to_string(SourcePath) + "file1.txt") << "content1";
+
+    Synchronize::start();
+    SyncItem si;
+    si.syncCycle(0);
+    si.syncItemType(SyncItemType::Dir);
+    si.source(SourcePath);
+    si.target(targetPath);
+    std::size_t copyCount = 0;
+    SyncDir test(si, copyCount, false);
+    test();
+
+    EXPECT_TRUE(std::filesystem::exists(targetPath));
+    EXPECT_TRUE(tu::checkCopiedFiles(SourcePath, targetPath));
+    tu::eraseTestDir(SourcePath, true);
+    tu::eraseTestDir(missingParent, true);
+}

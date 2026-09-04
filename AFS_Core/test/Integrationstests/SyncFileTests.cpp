@@ -26,6 +26,10 @@ TEST(SyncFileTests, CheckSyncNotExistingFile)
 	si.source(SourcePathName);
 	si.target(TargetDir);
     tu::copyFile(ResourcePathName, SourcePathName);
+    // Missing is the target *file*, not its directory: SyncFile copies into
+    // an existing directory, so without this the test only passed on a scratch
+    // area some earlier run had already created.
+    fs::create_directories(TargetDir);
     tu::eraseTestFile(TargetPathName);
 	std::size_t copyCount = 0;
 	SyncFile test(si, copyCount, false, true);
