@@ -134,6 +134,7 @@
     <ClCompile Include="..\..\src\SyncFile.cpp" />
     <ClCompile Include="..\..\src\SyncFileSsh.cpp" />
     <ClCompile Include="..\..\src\Synchronize.cpp" />
+    <ClCompile Include="..\..\src\Translation.cpp" />
     <ClCompile Include="..\..\src\syncitem.cpp" />
     <ClCompile Include="..\..\src\SyncMessage.cpp" />
     <ClCompile Include="..\..\src\SyncTree.cpp" />

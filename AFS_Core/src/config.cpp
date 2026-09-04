@@ -540,7 +540,9 @@ void Config::writeSyncItem(const SyncItem& inode, boost::property_tree::wptree& 
     syncitemNode.push_back(make_pair(wstring(L"exclusions"), exclusionsNode));
     syncitemNode.push_back(make_pair(wstring(L"syncflags"), syncFlagsNode));
     syncitemNode.put(wstring(L"name"), inode.name());
-    syncitemNode.put(wstring(L"type"), inode.itemTypeStr());
+    // The untranslated key, not the displayed text: a configuration written
+    // with one language must stay readable with any other.
+    syncitemNode.put(wstring(L"type"), syncItemTypeKey(inode.syncItemType()));
     
     // Write source path
     if (inode.sourcePath()) {

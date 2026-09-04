@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "syncitem.h"
 #include <optional>
+#include <utility>
 #include <Logging.h>
+#include "Translation.h"
 #include "SyncFileSsh.h"
 #include "util.h"
 
@@ -101,26 +103,39 @@ inline optional<CompareItem> str2CompareItem(const std::wstring& s)
     return nullopt;
 }
 
+// The gettext message ids are the German strings the configuration has stored
+// since the first version, which is why syncItemTypeKey() can keep writing them
+// while syncItemType2Str() shows the translation.
+constexpr std::pair<SyncItemType, const char*> syncItemTypeIds[] = {
+    {SyncItemType::File, "Datei"},
+    {SyncItemType::Dir, "Verzeichnis"},
+    {SyncItemType::Tree, "Verzeichnisbaum"},
+};
+
+wstring syncItemTypeKey(SyncItemType st)
+{
+    for (const auto& [type, msgid] : syncItemTypeIds)
+        if (type == st)
+            return util::string_to_wstring(msgid);
+    return L"";
+}
+
 wstring syncItemType2Str(SyncItemType st)
 {
-    switch (st) {
-        case SyncItemType::File: return L"Datei"; break;
-        case SyncItemType::Dir: return L"Verzeichnis"; break;
-        case SyncItemType::Tree: return L"Verzeichnisbaum"; break;
-    }
+    for (const auto& [type, msgid] : syncItemTypeIds)
+        if (type == st)
+            return translation::translate(msgid);
     return L"";
 }
 
 SyncItemType str2SyncItemType(const std::wstring& str)
 {
-    if (str == L"Datei")
-        return SyncItemType::File;
-    else if (str == L"Verzeichnis")
-        return SyncItemType::Dir;
-    else if (str == L"Verzeichnisbaum")
-        return SyncItemType::Tree;
-    else
-        return SyncItemType::Undefined;
+    // Both spellings have to be understood: the untranslated key from the
+    // configuration file and the translated text a dialog hands back.
+    for (const auto& [type, msgid] : syncItemTypeIds)
+        if (str == util::string_to_wstring(msgid) || str == translation::translate(msgid))
+            return type;
+    return SyncItemType::Undefined;
 }
 
 // CompareItems /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -36,6 +36,7 @@ set(AFS_CORE_SOURCES
     SyncTree.cpp
     Synchronize.cpp
     config.cpp
+    Translation.cpp
     settings.cpp
     syncitem.cpp
     winutil.cpp
@@ -63,6 +64,11 @@ if(NOT TARGET afs_core_deps)
     find_package(Threads REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBSSH REQUIRED libssh)
+
+    # GNU gettext for the translated texts (Translation.cpp). Part of the C library on
+    # glibc, a separate libintl on macOS and Windows - optional, because without
+    # it the programs still show the German message ids.
+    find_package(Intl)
 
     # LlamaClient runs the assistant chat locally through llama.cpp instead of a
     # cloud API - pinned to a commit so the build stays reproducible. Only the
@@ -97,6 +103,11 @@ if(NOT TARGET afs_core_deps)
     target_include_directories(afs_core_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS})
     target_link_directories(afs_core_deps INTERFACE ${LIBSSH_LIBRARY_DIRS})
     target_link_libraries(afs_core_deps INTERFACE ${LIBSSH_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto llama Threads::Threads)
+    if(Intl_FOUND)
+        target_include_directories(afs_core_deps SYSTEM INTERFACE ${Intl_INCLUDE_DIRS})
+        target_link_libraries(afs_core_deps INTERFACE ${Intl_LIBRARIES})
+        target_compile_definitions(afs_core_deps INTERFACE AFS_WITH_GETTEXT)
+    endif()
 endif()
 
 # afs_core_add_library(<target> [WXWIDGETS] [DEFINITIONS <def>...])

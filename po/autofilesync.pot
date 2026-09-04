@@ -1,0 +1,28 @@
+# Translation template for autofilesync.
+# The message ids are the German source strings; a language without a catalogue
+# therefore shows the original German text.
+#
+# Refresh after adding or changing a translated string:
+#   xgettext --keyword=translate --from-code=UTF-8 -o po/autofilesync.pot \
+#            AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp
+#   msgmerge --update po/en.po po/autofilesync.pot
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: autofilesync\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+
+#: AFS_Core/src/syncitem.cpp
+msgid "Datei"
+msgstr ""
+
+#: AFS_Core/src/syncitem.cpp
+msgid "Verzeichnis"
+msgstr ""
+
+#: AFS_Core/src/syncitem.cpp
+msgid "Verzeichnisbaum"
+msgstr ""

@@ -9,6 +9,9 @@
 #include "config.h"
 #include "Global.h"
 #include "Logging.h"
+#include "Translation.h"
+#include <wx/stdpaths.h>
+#include <filesystem>
 #ifdef _MACOS
     #include "macutil.h"
 #endif
@@ -24,6 +27,22 @@ IMPLEMENT_APP(App);
 
 using util::tul;
 
+namespace {
+// Same two places as the help book: next to the executable in a build tree or
+// an installation, among the resources inside the macOS bundle.
+std::filesystem::path messageCatalogueDir()
+{
+    wxFileName exe(wxStandardPaths::Get().GetExecutablePath());
+    exe.SetFullName(wxEmptyString);
+    for (const wxString& directory : {exe.GetPath(), wxStandardPaths::Get().GetResourcesDir()}) {
+        std::filesystem::path candidate = std::filesystem::path(directory.ToStdWstring()) / L"locale";
+        if (std::filesystem::is_directory(candidate))
+            return candidate;
+    }
+    return {};
+}
+}
+
 bool App::OnInit()
 {
 #ifdef _MACOS
@@ -32,6 +51,9 @@ bool App::OnInit()
     setlocale(LC_ALL, "de_DE.UTF-8");
     wxLocale locale;
     locale.Init(wxLANGUAGE_GERMAN);
+    // gettext takes the language from LANGUAGE/LC_MESSAGES, so a translated run
+    // needs no rebuild: LANGUAGE=en autofilesync.
+    translation::init(messageCatalogueDir());
     if (singleInstanceChecker_.IsAnotherRunning()) {
         // wxLogError alone is easy to miss headlessly (a cron/systemd
         // --console trigger with no display attached) - log it to the app's
