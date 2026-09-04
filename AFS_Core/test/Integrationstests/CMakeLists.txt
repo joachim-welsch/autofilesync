@@ -57,7 +57,10 @@ target_link_libraries(Integrationtests PRIVATE afs_core_test GTest::GTest GTest:
 target_compile_definitions(Integrationtests PRIVATE LIB_SOURCE_DIR="${AFS_CORE_DIR}")
 
 # Register each TEST() case individually with CTest instead of the binary as a
-# whole. RUN_SERIAL: the tests share fixed rather than random directory paths
-# and would disturb each other under real ctest parallelism.
+# whole. DISCOVERY_MODE PRE_TEST: the default POST_BUILD runs the binary from a
+# script phase, which the Xcode generator schedules before code signing - macOS
+# kills an unsigned binary at once. RUN_SERIAL: the tests share fixed rather
+# than random directory paths and would disturb each other under real ctest
+# parallelism.
 include(GoogleTest)
-gtest_discover_tests(Integrationtests PROPERTIES RUN_SERIAL TRUE)
+gtest_discover_tests(Integrationtests DISCOVERY_MODE PRE_TEST PROPERTIES RUN_SERIAL TRUE)

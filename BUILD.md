@@ -47,6 +47,26 @@ cmake --build build/Release -j 10
 - **F5** - Baut und startet das Programm mit Debugger
 - **Ctrl+F5** - Startet ohne Debugger
 
+## Build in Xcode
+
+Das Xcode-Projekt wird von CMake erzeugt, in einem eigenen Baubaum neben dem
+Makefile-Build:
+```bash
+cmake -S . -B xcode -G Xcode -DAFS_BUILD_TESTS=ON
+cmake --build xcode --config Debug --target autofilesync
+```
+Jedes CMake-Ziel wird ein Xcode-Target (`afs_core`, `autofilesync`,
+`backgroundsync`, `Integrationtests`, `GuiTests`); Debug oder Release wählt
+Xcode beim Bauen, nicht `CMAKE_BUILD_TYPE`.
+
+Ist `AUTOFILESYNC_LLAMA_MODEL` beim Konfigurieren gesetzt, erzeugt CMake dazu
+ein Schema, das den Modellpfad an Debug-Läufe weitergibt.
+
+Nach Änderungen an der Verzeichnisstruktur beschreibt ein vorhandener Baubaum
+noch die alte Aufteilung; er ist zu löschen und neu zu erzeugen. Der llama.cpp-
+Checkout lässt sich dabei mit `-DFETCHCONTENT_SOURCE_DIR_LLAMA_CPP=<Pfad>`
+weiterverwenden.
+
 ## Projekt-Struktur
 
 Das Projekt besteht aus zwei Teilen: **AFS_Core** (Synchronisationskern,
@@ -58,6 +78,7 @@ autofilesync/
 ├── CMakeLists.txt              # Gesamtprojekt: AFS_Core + AFS_Desktop
 ├── build/                      # Debug-Build (build/autofilesync)
 ├── build/Release/              # Release-Build (build/Release/autofilesync)
+├── xcode/                      # Xcode-Projekt (cmake -G Xcode)
 ├── .vscode/                    # VS Code Konfiguration
 ├── AFS_Core/                   # Kern - statische Bibliothek afs_core
 │   ├── CMakeLists.txt
