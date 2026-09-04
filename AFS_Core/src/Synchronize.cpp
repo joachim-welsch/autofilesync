@@ -6,7 +6,6 @@
         #include <tchar.h>
         #include <wincon.h>
     #endif
-    #include "winutil.h"
 #endif
 #include <string>
 #include <iostream>

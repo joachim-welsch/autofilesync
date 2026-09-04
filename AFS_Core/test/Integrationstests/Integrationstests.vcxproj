@@ -138,7 +138,6 @@
     <ClCompile Include="..\..\src\SyncItem.cpp" />
     <ClCompile Include="..\..\src\SyncMessage.cpp" />
     <ClCompile Include="..\..\src\SyncTree.cpp" />
-    <ClCompile Include="..\..\src\winutil.cpp" />
     <ClCompile Include="DirUtil.cpp" />
     <ClCompile Include="FileUtil.cpp" />
     <ClCompile Include="LoggingTests.cpp" />

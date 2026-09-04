@@ -156,9 +156,6 @@
     <ClCompile Include="$(LibDir)\SyncTree.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\winutil.cpp">
-      <Filter>AFS_Core</Filter>
-    </ClCompile>
     <ClCompile Include="ScopedEnv.cpp">
       <Filter>Testhelfer</Filter>
     </ClCompile>
