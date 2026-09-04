@@ -48,3 +48,14 @@ add_subdirectory(AFS_Desktop)
 # Binary dir renamed: the target is also called "backgroundsync", which would
 # otherwise collide with this directory under CMAKE_RUNTIME_OUTPUT_DIRECTORY.
 add_subdirectory(backgroundsync backgroundsync_build)
+
+# Xcode offers only targets that have a scheme, and stops autocreating schemes
+# as soon as the project carries one - AFS_Desktop's scheme for the model path
+# would otherwise hide every other target. Name the runnable ones explicitly.
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+    foreach(afs_scheme_target autofilesync backgroundsync Integrationtests GuiTests)
+        if(TARGET ${afs_scheme_target})
+            set_target_properties(${afs_scheme_target} PROPERTIES XCODE_GENERATE_SCHEME TRUE)
+        endif()
+    endforeach()
+endif()
