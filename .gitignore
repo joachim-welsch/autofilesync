@@ -25,7 +25,7 @@ Directory.Build.props
 /AFS_Core/test/Integrationstests/Integrationstests_backup.vcxproj
 /AFS_Desktop/test/GUI-Tests/nuget.exe
 /AFS_Desktop/test/GUI-Tests/.wix/extensions/WixToolset.UI.wixext/5.0.2/wixext5/*.dll
-
+.cache
 # Python bytecode from the icon generator
 __pycache__/
 
