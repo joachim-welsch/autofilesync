@@ -2,7 +2,7 @@
 #include "TreeCtrl.h"
 #include "utilwx.h"
 #include "id.h"
-#include "config.h"
+#include "Config.h"
 
 using util::tul;
 using std::wstring;

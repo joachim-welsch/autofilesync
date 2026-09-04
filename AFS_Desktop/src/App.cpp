@@ -6,7 +6,7 @@
 #include "wx/fs_zip.h"
 #include "wx/generic/helpext.h"
 #include "wx/cshelp.h"
-#include "config.h"
+#include "Config.h"
 #include "Global.h"
 #include "Logging.h"
 #include "Translation.h"

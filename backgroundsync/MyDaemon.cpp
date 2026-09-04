@@ -1,7 +1,7 @@
 #include "MyDaemon.h"
 #include <ctime>
 #include <Synchronize.h>
-#include <config.h>
+#include <Config.h>
 #include "Logging.h"
 
 MyDaemon::MyDaemon()

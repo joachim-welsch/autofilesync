@@ -108,7 +108,7 @@
     <ClCompile Include="$(LibDir)\CheckPath.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\config.cpp">
+    <ClCompile Include="$(LibDir)\Config.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\PasswordCrypto.cpp">
@@ -129,7 +129,7 @@
     <ClCompile Include="$(LibDir)\Global.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\settings.cpp">
+    <ClCompile Include="$(LibDir)\Settings.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\SyncBase.cpp">
@@ -147,7 +147,7 @@
     <ClCompile Include="$(LibDir)\Synchronize.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\syncitem.cpp">
+    <ClCompile Include="$(LibDir)\SyncItem.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\SyncMessage.cpp">

@@ -16,7 +16,7 @@
 #include "../icons/checked.xpm"
 
 #include "TreeItemData.h"
-#include "config.h"
+#include "Config.h"
 #include <vector>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>

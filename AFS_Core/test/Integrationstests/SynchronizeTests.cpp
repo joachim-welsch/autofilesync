@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Synchronize.h"
-#include "config.h"
+#include "Config.h"
 #include "SshTest.h"
 #include "FileUtil.h"
 #include "DirUtil.h"

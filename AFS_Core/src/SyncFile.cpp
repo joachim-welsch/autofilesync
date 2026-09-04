@@ -14,7 +14,7 @@
 #include <FilesystemUtil.h>
 #include "FileDifference.h"
 #include "Logging.h"
-#include "config.h"
+#include "Config.h"
 #include "FileDelete.h"
 #include "SyncFileSsh.h"
 #include "BackupProof.h"

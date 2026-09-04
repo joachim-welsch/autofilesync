@@ -4,8 +4,8 @@
 #include <wx/sizer.h>
 #include "wx/filedlg.h"
 #include <wx/dirdlg.h>
-#include "syncitem.h"
-#include "config.h"
+#include "SyncItem.h"
+#include "Config.h"
 #include "util.h"
 #include "Logging.h"
 #include "SshAccountSelectDialog.h"

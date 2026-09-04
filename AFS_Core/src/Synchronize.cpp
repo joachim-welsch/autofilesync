@@ -12,11 +12,11 @@
 #include <iostream>
 #include <fstream>
 #include "util.h"
-#include "config.h"
+#include "Config.h"
 #include <sstream>
 #include <filesystem>
 #include "Global.h"
-#include "syncitem.h"
+#include "SyncItem.h"
 #include "SyncFileSsh.h"
 #include "SyncFile.h"
 #include "SyncTree.h"

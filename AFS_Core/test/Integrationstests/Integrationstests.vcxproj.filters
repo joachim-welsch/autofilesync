@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="SyncFileTests.cpp" />
-    <ClCompile Include="..\..\config.cpp">
+    <ClCompile Include="..\..\Config.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Directory.cpp">
@@ -24,7 +24,7 @@
     <ClCompile Include="..\..\SyncFile.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\syncitem.cpp">
+    <ClCompile Include="..\..\SyncItem.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SyncTree.cpp">
@@ -36,7 +36,7 @@
     <ClCompile Include="..\..\SyncControler.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\settings.cpp">
+    <ClCompile Include="..\..\Settings.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SyncMessage.cpp">

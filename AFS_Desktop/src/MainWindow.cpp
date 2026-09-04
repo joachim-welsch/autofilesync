@@ -13,7 +13,7 @@
 #include "SshAccountDialog.h"
 #include "SshAccountsDialog.h"
 #include "ChatDialog.h"
-#include "config.h"
+#include "Config.h"
 #include "Synchronize.h"
 #include "SyncControler.h"
 #include "SyncInterface.h"

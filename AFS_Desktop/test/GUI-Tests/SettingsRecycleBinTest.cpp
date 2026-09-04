@@ -5,7 +5,7 @@
 #include "SettingsDialogDriver.h"
 #include "UserActions.h"
 #include "FileDelete.h"
-#include "config.h"
+#include "Config.h"
 #include "id.h"
 #include "TextResources.h"
 #include "utilwx.h"

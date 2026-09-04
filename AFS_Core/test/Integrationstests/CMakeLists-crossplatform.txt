@@ -92,21 +92,21 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/SshAccount.cpp
     ${LIB_DIR}/src/SyncFileSsh.cpp
     ${LIB_DIR}/src/CheckPath.cpp
-    ${LIB_DIR}/src/config.cpp
+    ${LIB_DIR}/src/Config.cpp
     ${LIB_DIR}/src/PasswordCrypto.cpp
     ${LIB_DIR}/src/SshHostKeyVerification.cpp
     ${LIB_DIR}/src/Libssh2Init.cpp
     ${LIB_DIR}/src/Directory.cpp
     ${LIB_DIR}/src/FileDifference.cpp
     ${LIB_DIR}/src/Global.cpp
-    ${LIB_DIR}/src/settings.cpp
+    ${LIB_DIR}/src/Settings.cpp
     ${LIB_DIR}/src/SyncBase.cpp
     ${LIB_DIR}/src/SyncControler.cpp
     ${LIB_DIR}/src/SyncDir.cpp
     ${LIB_DIR}/src/SyncFile.cpp
     ${LIB_DIR}/src/FileDelete.cpp
     ${LIB_DIR}/src/Synchronize.cpp
-    ${LIB_DIR}/src/syncitem.cpp
+    ${LIB_DIR}/src/SyncItem.cpp
     ${LIB_DIR}/src/SyncMessage.cpp
     ${LIB_DIR}/src/SyncTree.cpp
     ${LIB_DIR}/src/winutil.cpp

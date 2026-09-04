@@ -20,7 +20,7 @@
     #pragma comment(lib, "ws2_32.lib")
 #endif
 #endif
-#include "config.h"
+#include "Config.h"
 #include "util.h"
 #include "Logging.h"
 #include "Synchronize.h"

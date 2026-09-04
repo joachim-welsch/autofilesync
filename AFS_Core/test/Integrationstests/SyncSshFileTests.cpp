@@ -2,7 +2,7 @@
 #include "SshFileInspector.h"
 #include "SshAccount.h"
 #include "SyncFileSsh.h"
-#include "config.h"
+#include "Config.h"
 #include "Synchronize.h"
 #include "SyncFile.h"
 #include "SyncSshFileTests.h"

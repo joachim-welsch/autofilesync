@@ -6,7 +6,7 @@
 #include <FilesystemUtil.h>
 #include "Logging.h"
 #include "SshFileInspector.h"
-#include "config.h"
+#include "Config.h"
 
 namespace fs=std::filesystem;
 

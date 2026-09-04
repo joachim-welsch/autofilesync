@@ -6,8 +6,8 @@
 #include <fstream>
 #include <optional>
 #include <mutex>
-#include "syncitem.h"
-#include "settings.h"
+#include "SyncItem.h"
+#include "Settings.h"
 #include "SshAccount.h"
 #include <boost/property_tree/json_parser.hpp>
 

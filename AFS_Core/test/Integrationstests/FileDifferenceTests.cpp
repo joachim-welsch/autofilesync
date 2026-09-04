@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "FileDifference.h"
-#include "config.h"
+#include "Config.h"
 #include "SshAccount.h"
 #include "SyncFile.h"
 #include "Synchronize.h"
-#include "syncitem.h"
+#include "SyncItem.h"
 #include "util.h"
 #include <filesystem>
 #include <fstream>

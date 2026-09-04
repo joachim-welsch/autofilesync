@@ -1,5 +1,5 @@
 #include "ListCtrl.h"
-#include "config.h"
+#include "Config.h"
 #include "SyncItemDialog.h"
 #include "TextResources.h"
 

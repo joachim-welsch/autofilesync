@@ -190,7 +190,7 @@
     <ClCompile Include="$(LibDir)\src\SshAccount.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncFileSsh.cpp" />
     <ClCompile Include="$(LibDir)\src\CheckPath.cpp" />
-    <ClCompile Include="$(LibDir)\src\config.cpp" />
+    <ClCompile Include="$(LibDir)\src\Config.cpp" />
     <ClCompile Include="$(LibDir)\src\BackupProof.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
     <ClCompile Include="$(LibDir)\src\SshHostKeyVerification.cpp" />
@@ -198,7 +198,7 @@
     <ClCompile Include="$(LibDir)\src\Directory.cpp" />
     <ClCompile Include="$(LibDir)\src\FileDifference.cpp" />
     <ClCompile Include="$(LibDir)\src\Global.cpp" />
-    <ClCompile Include="$(LibDir)\src\settings.cpp" />
+    <ClCompile Include="$(LibDir)\src\Settings.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncBase.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncControler.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncDir.cpp" />
@@ -206,7 +206,7 @@
     <ClCompile Include="$(LibDir)\src\SyncFile.cpp" />
     <ClCompile Include="$(LibDir)\src\Synchronize.cpp" />
     <ClCompile Include="$(LibDir)\src\Translation.cpp" />
-    <ClCompile Include="$(LibDir)\src\syncitem.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncItem.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncMessage.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncTree.cpp" />
     <ClCompile Include="$(LibDir)\src\winutil.cpp" />

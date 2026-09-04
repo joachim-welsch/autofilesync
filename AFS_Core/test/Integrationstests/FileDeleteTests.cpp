@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "FileDelete.h"
-#include "config.h"
+#include "Config.h"
 #include <RecycleBin.h>
 #include <filesystem>
 #include <fstream>

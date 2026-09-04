@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "settings.h"
+#include "Settings.h"
 
 void Settings::reset()
 {

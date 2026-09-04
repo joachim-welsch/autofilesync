@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "syncitem.h"
+#include "SyncItem.h"
 #include "SyncTree.h"
 #include "Synchronize.h"
 #include "BackupProof.h"
-#include "config.h"
+#include "Config.h"
 #include "SshAccount.h"
 #include "TestPaths.h"
 #include <strutil.h>

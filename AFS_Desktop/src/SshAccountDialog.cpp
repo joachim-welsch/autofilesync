@@ -1,6 +1,6 @@
 #include "SshAccountDialog.h"
 #include "SshAccount.h"
-#include "config.h"
+#include "Config.h"
 
 BEGIN_EVENT_TABLE(SshAccountDialog, wxDialog)
     EVT_UPDATE_UI(wxID_OK, SshAccountDialog::onUpdateOkButton)

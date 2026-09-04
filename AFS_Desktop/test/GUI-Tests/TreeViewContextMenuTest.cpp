@@ -5,7 +5,7 @@
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
 #include "Canvas.h"
-#include "config.h"
+#include "Config.h"
 #include "id.h"
 #include "TextResources.h"
 #include "utilwx.h"

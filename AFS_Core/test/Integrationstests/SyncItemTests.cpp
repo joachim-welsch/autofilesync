@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "syncitem.h"
+#include "SyncItem.h"
 
 // Exclusions feature: isExcluded() reuses the same */? wildcard syntax the
 // existing wildcard field already uses (via util::wildmatch()), matched

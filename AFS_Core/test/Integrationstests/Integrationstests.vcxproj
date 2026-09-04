@@ -120,11 +120,11 @@
     <ClCompile Include="..\..\mylib\src\strutil.cpp" />
     <ClCompile Include="..\..\mylib\src\util.cpp" />
     <ClCompile Include="..\..\src\CheckPath.cpp" />
-    <ClCompile Include="..\..\src\config.cpp" />
+    <ClCompile Include="..\..\src\Config.cpp" />
     <ClCompile Include="..\..\src\Directory.cpp" />
     <ClCompile Include="..\..\src\FileDifference.cpp" />
     <ClCompile Include="..\..\src\Global.cpp" />
-    <ClCompile Include="..\..\src\settings.cpp" />
+    <ClCompile Include="..\..\src\Settings.cpp" />
     <ClCompile Include="..\..\src\SshAccount.cpp" />
     <ClCompile Include="..\..\src\SshFileInspector.cpp" />
     <ClCompile Include="..\..\src\SyncBase.cpp" />
@@ -135,7 +135,7 @@
     <ClCompile Include="..\..\src\SyncFileSsh.cpp" />
     <ClCompile Include="..\..\src\Synchronize.cpp" />
     <ClCompile Include="..\..\src\Translation.cpp" />
-    <ClCompile Include="..\..\src\syncitem.cpp" />
+    <ClCompile Include="..\..\src\SyncItem.cpp" />
     <ClCompile Include="..\..\src\SyncMessage.cpp" />
     <ClCompile Include="..\..\src\SyncTree.cpp" />
     <ClCompile Include="..\..\src\winutil.cpp" />

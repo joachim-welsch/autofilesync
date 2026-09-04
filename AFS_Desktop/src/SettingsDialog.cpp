@@ -1,5 +1,5 @@
 #include "SettingsDialog.h"
-#include "config.h"
+#include "Config.h"
 #include "RecycleBin.h"
 #include <wx/dirdlg.h>
 

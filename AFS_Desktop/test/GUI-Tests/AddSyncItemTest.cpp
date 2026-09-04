@@ -4,7 +4,7 @@
 #include "ModalDialogWatcher.h"
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
-#include "config.h"
+#include "Config.h"
 #include "id.h"
 #include "TextResources.h"
 #include "utilwx.h"

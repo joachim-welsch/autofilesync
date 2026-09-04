@@ -35,10 +35,10 @@ set(AFS_CORE_SOURCES
     SyncMessage.cpp
     SyncTree.cpp
     Synchronize.cpp
-    config.cpp
+    Config.cpp
     Translation.cpp
-    settings.cpp
-    syncitem.cpp
+    Settings.cpp
+    SyncItem.cpp
     winutil.cpp
 )
 list(TRANSFORM AFS_CORE_SOURCES PREPEND ${AFS_CORE_DIR}/src/)

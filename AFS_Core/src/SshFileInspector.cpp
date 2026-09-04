@@ -109,7 +109,7 @@ RemoteFileInfo SshFileInspector::inspectFile(const std::string& remote_path)
     info.raw_mtime = 0;
     info.last_modified_iso = "N/A";
 
-    // Configured paths may use either separator (settings.cpp stores them as
+    // Configured paths may use either separator (Settings.cpp stores them as
     // entered); the remote sftp server only understands slashes.
     const std::string sftp_path = win_to_sftp_path(remote_path);
     sftp_attributes attributes = sftp_stat(sftp_session_ptr, sftp_path.c_str());

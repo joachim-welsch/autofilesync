@@ -4,7 +4,7 @@
 #include "Logging.h"
 #include "util.h"
 #include "MountedDrives.h"
-#include "config.h"
+#include "Config.h"
 #include "SshAccount.h"
 #include "SshFileInspector.h"
 #include <FilesystemUtil.h>
