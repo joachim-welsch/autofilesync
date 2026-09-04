@@ -3,9 +3,6 @@
 #include "SyncFileSsh.h"
 #include "SyncFile.h"
 #include "Synchronize.h"
-#ifdef _WXWIDGETS
-    #include "winutil.h"
-#endif
 #include "util.h"
 #include "Logging.h"
 #include "Global.h"

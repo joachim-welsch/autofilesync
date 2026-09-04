@@ -39,7 +39,6 @@ set(AFS_CORE_SOURCES
     Translation.cpp
     Settings.cpp
     SyncItem.cpp
-    winutil.cpp
 )
 list(TRANSFORM AFS_CORE_SOURCES PREPEND ${AFS_CORE_DIR}/src/)
 

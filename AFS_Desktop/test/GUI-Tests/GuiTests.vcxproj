@@ -147,7 +147,6 @@
     <ClCompile Include="..\..\src\Toolbar.cpp" />
     <ClCompile Include="..\..\src\TreeCtrl.cpp" />
     <ClCompile Include="..\..\src\TreeItemData.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\winutil.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\mylib\src\util.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\mylib\src\SmtpMailer.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\mylib\src\MountedDrives.cpp" />

@@ -24,7 +24,9 @@
 #include "LogCut.h"
 #include "App.h"
 #include "util.h"
-#include "winutil.h"
+#ifdef WIN32
+    #include <Windows.h> // registerAutomaticStart() writes the autostart registry key
+#endif
 #include "wx/filesys.h"
 #include "wx/fs_zip.h"
 #include <wx/config.h>

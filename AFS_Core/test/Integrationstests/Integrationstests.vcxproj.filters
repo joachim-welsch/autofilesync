@@ -30,9 +30,6 @@
     <ClCompile Include="..\..\SyncTree.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\winutil.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\SyncControler.cpp">
       <Filter>source</Filter>
     </ClCompile>

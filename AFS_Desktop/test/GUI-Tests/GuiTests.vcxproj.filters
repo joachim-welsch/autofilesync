@@ -189,9 +189,6 @@
     <ClCompile Include="..\..\TreeItemData.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\winutil.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\mylib\src\util.cpp">
       <Filter>mylib</Filter>
     </ClCompile>

@@ -109,7 +109,6 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/SyncItem.cpp
     ${LIB_DIR}/src/SyncMessage.cpp
     ${LIB_DIR}/src/SyncTree.cpp
-    ${LIB_DIR}/src/winutil.cpp
 )
 
 add_executable(Integrationtests ${TEST_SOURCES} ${MYLIB_SOURCES} ${LIB_SOURCES})

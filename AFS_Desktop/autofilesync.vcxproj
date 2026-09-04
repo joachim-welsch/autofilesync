@@ -168,7 +168,6 @@
     <ClCompile Include="src\Tree.cpp" />
     <ClCompile Include="src\TreeCtrl.cpp" />
     <ClCompile Include="src\TreeItemData.cpp" />
-    <ClCompile Include="..\AFS_Core\src\winutil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.github\copilot-instructions.md" />

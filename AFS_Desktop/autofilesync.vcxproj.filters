@@ -100,9 +100,6 @@
     <ClCompile Include="..\AFS_Core\src\SyncItem.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\winutil.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\BackgroundService.cpp" />
     <ClCompile Include="src\Canvas.cpp" />
