@@ -8,7 +8,7 @@
 #endif
 
 #include <string>
-#include "syncitem.h"
+#include "SyncItem.h"
 
 class Tree;
 class Canvas;

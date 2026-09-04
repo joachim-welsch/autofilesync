@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CheckPath.h"
-#include "config.h"
+#include "Config.h"
 #include "SshAccount.h"
 #include "SshTest.h"
 #include "FileUtil.h"

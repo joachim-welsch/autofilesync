@@ -1,5 +1,5 @@
 #include "SshAccountSelectDialog.h"
-#include "config.h"
+#include "Config.h"
 
 BEGIN_EVENT_TABLE(SshAccountSelectDialog, wxDialog)
     EVT_LIST_ITEM_SELECTED(ID_SSH_SELECT_LIST, SshAccountSelectDialog::onListSelect)

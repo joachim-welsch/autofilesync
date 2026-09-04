@@ -4,7 +4,7 @@
 #include "FileUtil.h"
 #include "FilesystemUtil.h"
 #include "SyncFileTests.h"
-#include "config.h"
+#include "Config.h"
 #include "util.h"
 #include <fstream>
 #ifndef _WIN32

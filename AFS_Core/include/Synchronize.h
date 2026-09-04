@@ -9,7 +9,7 @@
 #include <mutex>
 #include <condition_variable>
 #include "Global.h"
-#include "config.h"
+#include "Config.h"
 #include "ThreadSaveStack.h"
 #include "SyncMessage.h"
 #include "CheckPath.h"

@@ -54,7 +54,7 @@
     <ClCompile Include="..\..\CheckPath.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\config.cpp">
+    <ClCompile Include="..\..\Config.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
     <ClCompile Include="..\..\PasswordCrypto.cpp">
@@ -93,7 +93,7 @@
     <ClCompile Include="..\..\ProgressDialog.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\settings.cpp">
+    <ClCompile Include="..\..\Settings.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SettingsDialog.cpp">
@@ -156,7 +156,7 @@
     <ClCompile Include="..\..\SyncInterface.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\syncitem.cpp">
+    <ClCompile Include="..\..\SyncItem.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
     <ClCompile Include="..\..\SyncItemDialog.cpp">

@@ -3,7 +3,7 @@
 #include "Synchronize.h"
 #include "DirUtil.h"
 #include "SyncDirTests.h"
-#include "config.h"
+#include "Config.h"
 #include "SshAccount.h"
 #include <Logging.h>
 #include <strutil.h>

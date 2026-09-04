@@ -2,7 +2,7 @@
 #include "Logging.h"
 #include "id.h"
 #include "util.h"
-#include "config.h"
+#include "Config.h"
 #include "LogCut.h"
 #include <wx/dirdlg.h>
 

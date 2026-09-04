@@ -3,7 +3,7 @@
 #include "ModalDialogWatcher.h"
 #include "SshAccountDialogDriver.h"
 #include "UserActions.h"
-#include "config.h"
+#include "Config.h"
 #include "id.h"
 #include "TextResources.h"
 #include "utilwx.h"

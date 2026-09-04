@@ -8,7 +8,7 @@
 #endif
 #include <wx/notebook.h>
 
-#include "syncitem.h"
+#include "SyncItem.h"
 
 class SyncItem;
 

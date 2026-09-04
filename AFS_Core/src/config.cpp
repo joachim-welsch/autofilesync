@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "config.h"
+#include "Config.h"
 #include "util.h"
 #include "PasswordCrypto.h"
 #include <fstream>

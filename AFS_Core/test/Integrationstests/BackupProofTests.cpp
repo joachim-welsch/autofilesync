@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "BackupProof.h"
 #include "Synchronize.h"
-#include "config.h"
+#include "Config.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <chrono>

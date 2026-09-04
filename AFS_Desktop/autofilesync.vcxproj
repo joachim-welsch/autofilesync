@@ -121,7 +121,7 @@
     <ClCompile Include="..\AFS_Core\src\Libssh2Init.cpp" />
     <ClCompile Include="..\AFS_Core\src\LlamaClient.cpp" />
     <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
-    <ClCompile Include="..\AFS_Core\src\config.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\AFS_Core\src\BackupProof.cpp" />
     <ClCompile Include="..\AFS_Core\src\Directory.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />
@@ -135,7 +135,7 @@
     <ClCompile Include="src\Menu.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="src\ProgressDialog.cpp" />
-    <ClCompile Include="..\AFS_Core\src\settings.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Settings.cpp" />
     <ClCompile Include="src\SettingsDialog.cpp" />
     <ClCompile Include="src\SourceCanvas.cpp" />
     <ClCompile Include="src\SplitterWindow.cpp" />
@@ -157,7 +157,7 @@
     <ClCompile Include="..\AFS_Core\src\Synchronize.cpp" />
     <ClCompile Include="src\SyncInterface.cpp" />
     <ClCompile Include="..\AFS_Core\src\Translation.cpp" />
-    <ClCompile Include="..\AFS_Core\src\syncitem.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncItem.cpp" />
     <ClCompile Include="src\SyncItemDialog.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />

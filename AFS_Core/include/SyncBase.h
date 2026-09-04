@@ -1,5 +1,5 @@
 #pragma once
-#include "syncitem.h"
+#include "SyncItem.h"
 #include <stdexcept>
 #include <filesystem>
 #include <set>

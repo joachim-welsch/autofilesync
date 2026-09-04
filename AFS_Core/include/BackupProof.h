@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <string>
 #include <vector>
-#include "syncitem.h"
+#include "SyncItem.h"
 
 // What one synchronisation pass over one sync item did, as far as a proof of
 // backup has to state it. The file count is not kept here: it comes from the

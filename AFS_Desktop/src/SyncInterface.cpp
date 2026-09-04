@@ -3,7 +3,7 @@
 #include "ProgressDialog.h"
 #include "Synchronize.h"
 #include "Menu.h"
-#include "config.h"
+#include "Config.h"
 #include "Logging.h"
 #include "id.h"
 #include "utilwx.h"

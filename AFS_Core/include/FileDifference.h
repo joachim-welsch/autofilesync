@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "syncitem.h"
+#include "SyncItem.h"
 
 class FileDifference {
 public:

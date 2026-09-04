@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "syncitem.h"
+#include "SyncItem.h"
 #include <optional>
 #include <utility>
 #include <Logging.h>

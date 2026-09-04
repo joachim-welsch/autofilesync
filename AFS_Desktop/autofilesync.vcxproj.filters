@@ -73,7 +73,7 @@
     <ClCompile Include="..\AFS_Core\mylib\src\strutil.cpp">
       <Filter>mylib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\config.cpp">
+    <ClCompile Include="..\AFS_Core\src\Config.cpp">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Directory.cpp">
@@ -97,7 +97,7 @@
     <ClCompile Include="..\AFS_Core\src\Synchronize.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\syncitem.cpp">
+    <ClCompile Include="..\AFS_Core\src\SyncItem.cpp">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\winutil.cpp">
@@ -111,7 +111,7 @@
     <ClCompile Include="src\ListWindow.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\Menu.cpp" />
-    <ClCompile Include="..\AFS_Core\src\settings.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Settings.cpp" />
     <ClCompile Include="src\SourceCanvas.cpp" />
     <ClCompile Include="src\SplitterWindow.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />

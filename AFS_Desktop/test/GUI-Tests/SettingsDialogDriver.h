@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ModalDialogWatcher.h"
-#include "settings.h"
+#include "Settings.h"
 #include <wx/string.h>
 
 namespace guitest {

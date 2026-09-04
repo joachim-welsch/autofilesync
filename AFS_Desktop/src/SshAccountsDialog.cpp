@@ -1,7 +1,7 @@
 #include "SshAccountsDialog.h"
 #include "SshAccountDialog.h"
 #include "SshAccount.h"
-#include "config.h"
+#include "Config.h"
 #include "TextResources.h"
 
 BEGIN_EVENT_TABLE(SshAccountsDialog, wxDialog)

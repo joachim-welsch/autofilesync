@@ -2,7 +2,7 @@
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
 #include "UserActions.h"
-#include "config.h"
+#include "Config.h"
 #include "id.h"
 #include "ListCtrl.h"
 #include "util.h"

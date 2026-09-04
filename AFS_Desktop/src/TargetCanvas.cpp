@@ -1,6 +1,6 @@
 #include "TargetCanvas.h"
 #include "TreeCtrl.h"
-#include "config.h"
+#include "Config.h"
 
 using std::wstring;
 
