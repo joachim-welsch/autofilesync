@@ -284,6 +284,7 @@ protected:
 #endif
 
     void SetUp() override {
+        SKIP_WITHOUT_SSH_SERVER();
         namespace fs = std::filesystem;
         // Lokales Testverzeichnis erstellen
         fs::create_directories(LOCAL_TEST_DIR);
