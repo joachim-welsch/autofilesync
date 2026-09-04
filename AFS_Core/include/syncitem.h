@@ -103,7 +103,8 @@ enum class SyncItemType {
     Tree
 };
 
-std::wstring syncItemType2Str(SyncItemType);
+std::wstring syncItemType2Str(SyncItemType);       // translated, for display
+std::wstring syncItemTypeKey(SyncItemType);        // untranslated, for the configuration file
 SyncItemType str2SyncItemType(const std::wstring&);
 
 class SyncItem {

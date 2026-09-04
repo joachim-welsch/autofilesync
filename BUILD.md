@@ -94,7 +94,30 @@ Die früher separat erwartete Bibliothek **mylib** ist als `AFS_Core/mylib`
 Teil des Kerns (Logging, LogCut, FilesystemUtil, MountedDrives, RecycleBin,
 SmtpMailer, strutil, util). Weitere Abhängigkeiten: wxWidgets 3.2, Boost
 (header-only), libssh, OpenSSL, Google Test (nur Tests); llama.cpp wird beim
-Konfigurieren geklont.
+Konfigurieren geklont. GNU gettext (libintl, `msgfmt`) ist optional - ohne die
+Bibliothek bleiben die Texte deutsch.
+
+## Mehrsprachigkeit (GNU gettext)
+
+Die Texte, die `syncItemType2Str()` liefert, sind beispielhaft über GNU gettext
+übersetzbar. Die msgid ist jeweils der deutsche Originaltext, deshalb zeigt ein
+Build ohne Katalog (oder ganz ohne libintl) unverändert die deutschen Texte.
+
+- Kataloge: `po/<sprache>.po`, Vorlage `po/autofilesync.pot`.
+- `msgfmt` übersetzt sie beim Build nach `build/locale/<sprache>/LC_MESSAGES/autofilesync.mo`
+  (auf macOS zusätzlich in `autofilesync.app/Contents/Resources/locale`).
+  Fehlt `msgfmt`, entfällt nur der Übersetzungsschritt.
+- Sprache zur Laufzeit wählen: `LANGUAGE=en ./autofilesync` (gettext wertet
+  `LANGUAGE` vor der Locale aus).
+- Neue übersetzbare Texte einsammeln:
+  ```bash
+  xgettext --keyword=translate --from-code=UTF-8 -o po/autofilesync.pot AFS_Core/src/*.cpp
+  msgmerge --update po/en.po po/autofilesync.pot
+  ```
+
+In der Konfigurationsdatei steht weiterhin der unübersetzte Schlüssel
+(`syncItemTypeKey()`), damit eine mit einer Sprache geschriebene Konfiguration
+mit jeder anderen lesbar bleibt.
 
 ## Häufige Probleme
 

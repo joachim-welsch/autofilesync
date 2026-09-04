@@ -156,6 +156,7 @@
     <ClCompile Include="..\AFS_Core\src\SyncFileSsh.cpp" />
     <ClCompile Include="..\AFS_Core\src\Synchronize.cpp" />
     <ClCompile Include="src\SyncInterface.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Translation.cpp" />
     <ClCompile Include="..\AFS_Core\src\syncitem.cpp" />
     <ClCompile Include="src\SyncItemDialog.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />

@@ -20,6 +20,26 @@ if(AFS_BUILD_TESTS)
     enable_testing()
 endif()
 
+# Message catalogues: msgfmt turns po/<language>.po into the layout gettext
+# looks for next to the executable (locale/<language>/LC_MESSAGES/autofilesync.mo).
+# Optional - without msgfmt the programs show the untranslated German message ids.
+# Defined before the subdirectories so that AFS_Desktop can depend on the target.
+find_program(MSGFMT_EXECUTABLE msgfmt)
+if(MSGFMT_EXECUTABLE)
+    file(GLOB AFS_PO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/po/*.po)
+    foreach(po_file ${AFS_PO_FILES})
+        get_filename_component(language ${po_file} NAME_WE)
+        set(mo_dir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/locale/${language}/LC_MESSAGES)
+        add_custom_command(OUTPUT ${mo_dir}/autofilesync.mo
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${mo_dir}
+            COMMAND ${MSGFMT_EXECUTABLE} -o ${mo_dir}/autofilesync.mo ${po_file}
+            DEPENDS ${po_file}
+            COMMENT "Compiling the message catalogue ${language}")
+        list(APPEND AFS_MO_FILES ${mo_dir}/autofilesync.mo)
+    endforeach()
+    add_custom_target(translations ALL DEPENDS ${AFS_MO_FILES})
+endif()
+
 # AFS_Core: synchronisation engine, GPLv3. Builds without AFS_Desktop.
 add_subdirectory(AFS_Core)
 # AFS_Desktop: the wxWidgets application "autofilesync" on top of AFS_Core.

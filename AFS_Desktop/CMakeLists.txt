@@ -55,6 +55,18 @@ add_custom_command(TARGET autofilesync POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/help ${HELP_DESTINATION}
     COMMENT "Copying the help book next to autofilesync")
 
+# The message catalogues are built into <build>/locale, which on Linux and
+# Windows is already the directory of the executable; the macOS bundle needs
+# them among its resources, just like the help book.
+if(TARGET translations)
+    add_dependencies(autofilesync translations)
+    if(APPLE)
+        add_custom_command(TARGET autofilesync POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/locale $<TARGET_BUNDLE_CONTENT_DIR:autofilesync>/Resources/locale
+            COMMENT "Copying the message catalogues into the bundle")
+    endif()
+endif()
+
 if(AFS_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test/GUI-Tests)

@@ -37,3 +37,22 @@ TEST(SyncItemTests, SyncItemStoresAndCopiesExclusions)
     ASSERT_EQ(copy.exclusions().size(), 1u);
     EXPECT_EQ(copy.exclusions()[0], L"*.log");
 }
+
+// syncItemType2Str() is translated (GNU gettext), syncItemTypeKey() is not:
+// the configuration file must stay readable no matter which language wrote it.
+TEST(SyncItemTests, SyncItemTypeKeyStaysUntranslated)
+{
+    EXPECT_EQ(syncItemTypeKey(SyncItemType::File), L"Datei");
+    EXPECT_EQ(syncItemTypeKey(SyncItemType::Dir), L"Verzeichnis");
+    EXPECT_EQ(syncItemTypeKey(SyncItemType::Tree), L"Verzeichnisbaum");
+    EXPECT_EQ(syncItemTypeKey(SyncItemType::Undefined), L"");
+}
+
+TEST(SyncItemTests, Str2SyncItemTypeAcceptsKeyAndTranslation)
+{
+    for (auto type : {SyncItemType::File, SyncItemType::Dir, SyncItemType::Tree}) {
+        EXPECT_EQ(str2SyncItemType(syncItemTypeKey(type)), type);
+        EXPECT_EQ(str2SyncItemType(syncItemType2Str(type)), type);
+    }
+    EXPECT_EQ(str2SyncItemType(L"kein Typ"), SyncItemType::Undefined);
+}
