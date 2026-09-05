@@ -1,60 +1,123 @@
 {
     "version": "0.2.0",
+    // LD_LIBRARY_PATH / LD_PRELOAD are reset so libraries injected by snap
+    // do not get loaded into the debuggee (see gdb_wrapper.sh).
     "configurations": [
         {
-            "name": "(gdb) Debug",
+            "name": "autofilesync (gdb)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/autofilesync",
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
-                {
-                    "name": "LD_LIBRARY_PATH",
-                    "value": "/usr/local/lib:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu"
-                },
-                {
-                    "name": "LD_PRELOAD",
-                    "value": ""
-                },
-                {
-                    "name": "GTK_MODULES",
-                    "value": ""
-                },
-                {
-                    "name": "GTK_PATH",
-                    "value": ""
-                }
+                { "name": "LD_LIBRARY_PATH", "value": "/usr/local/lib:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu" },
+                { "name": "LD_PRELOAD", "value": "" },
+                { "name": "GTK_MODULES", "value": "" },
+                { "name": "GTK_PATH", "value": "" }
             ],
-            "externalConsole": false,
             "console": "integratedTerminal",
-            "terminal": "integratedTerminal",
             "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
             "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Disable debuginfod prompt",
-                    "text": "-gdb-set debuginfod enabled off",
-                    "ignoreFailures": true
-                }
+                { "description": "Enable pretty-printing for gdb", "text": "-enable-pretty-printing", "ignoreFailures": true },
+                { "description": "Disable debuginfod prompt", "text": "-gdb-set debuginfod enabled off", "ignoreFailures": true },
+                { "description": "Step over the standard library", "text": "skip -gfi /usr/include/c++/*/*", "ignoreFailures": true }
             ],
-            "preLaunchTask": "CMake: build",
-            "logging": {
-                "engineLogging": true,
-                "trace": false,
-                "traceResponse": false
-            },
-            "miDebuggerPath": "/usr/bin/gdb"
+            "preLaunchTask": "CMake: build"
+        },
+        {
+            "name": "backgroundsync (gdb)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/backgroundsync",
+            // Options understood by the daemon: -logfile <file> -loglevel <n> -singlesync
+            "args": ["-singlesync", "-loglevel", "3"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                { "name": "LD_LIBRARY_PATH", "value": "/usr/local/lib:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu" },
+                { "name": "LD_PRELOAD", "value": "" }
+            ],
+            "console": "integratedTerminal",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                { "text": "-enable-pretty-printing", "ignoreFailures": true },
+                { "text": "-gdb-set debuginfod enabled off", "ignoreFailures": true },
+                { "text": "skip -gfi /usr/include/c++/*/*", "ignoreFailures": true }
+            ],
+            "preLaunchTask": "CMake: build backgroundsync"
+        },
+        {
+            "name": "Integrationtests (gdb)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Integrationtests",
+            "args": ["--gtest_filter=${input:gtestFilter}", "--gtest_break_on_failure"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                { "name": "LD_LIBRARY_PATH", "value": "/usr/local/lib:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu" },
+                { "name": "LD_PRELOAD", "value": "" }
+            ],
+            "console": "integratedTerminal",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                { "text": "-enable-pretty-printing", "ignoreFailures": true },
+                { "text": "-gdb-set debuginfod enabled off", "ignoreFailures": true },
+                { "text": "skip -gfi /usr/include/c++/*/*", "ignoreFailures": true }
+            ],
+            "preLaunchTask": "CMake: build Integrationtests"
+        },
+        {
+            // Runs on the real desktop, not on the private X display of
+            // run_gui_tests.sh: wxUIActionSimulator takes over mouse and
+            // keyboard while the test runs, so narrow the filter to one test.
+            "name": "GuiTests (gdb, real desktop)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/GuiTests",
+            "args": ["--gtest_filter=${input:gtestFilter}", "--gtest_break_on_failure"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                { "name": "LD_LIBRARY_PATH", "value": "/usr/local/lib:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu" },
+                { "name": "LD_PRELOAD", "value": "" },
+                { "name": "GDK_BACKEND", "value": "x11" }
+            ],
+            "console": "integratedTerminal",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                { "text": "-enable-pretty-printing", "ignoreFailures": true },
+                { "text": "-gdb-set debuginfod enabled off", "ignoreFailures": true },
+                { "text": "skip -gfi /usr/include/c++/*/*", "ignoreFailures": true }
+            ],
+            "preLaunchTask": "CMake: build GuiTests"
+        },
+        {
+            "name": "Attach to process (gdb)",
+            "type": "cppdbg",
+            "request": "attach",
+            "program": "${workspaceFolder}/build/autofilesync",
+            "processId": "${command:pickProcess}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                { "text": "-enable-pretty-printing", "ignoreFailures": true },
+                { "text": "-gdb-set debuginfod enabled off", "ignoreFailures": true }
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "gtestFilter",
+            "type": "promptString",
+            "description": "gtest filter, e.g. SyncFileTests.* (empty = all)",
+            "default": "*"
         }
     ]
 }
