@@ -53,6 +53,10 @@ afs_desktop_configure_target(GuiTests)
 target_compile_definitions(GuiTests PRIVATE _GUITEST)
 target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${X11_INCLUDE_DIR})
 target_link_libraries(GuiTests PRIVATE GTest::GTest ${X11_LIBRARIES})
+if(APPLE)
+    # UserActions injects keystrokes as CGEvents (layout independent).
+    target_link_libraries(GuiTests PRIVATE "-framework ApplicationServices")
+endif()
 
 # Always through the wrapper: it provides the virtual X display the tests need
 # and keeps them off the developer's own screen. CROSSCOMPILING_EMULATOR makes
