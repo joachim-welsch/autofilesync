@@ -7,7 +7,10 @@
 #include <string_view>
 #ifdef _WIN32
     #include <wx/msw/wrapwin.h>
-#elif !defined(_MACOS)
+#elif defined(_MACOS)
+    #include <ApplicationServices/ApplicationServices.h>
+    #include <unistd.h>
+#else
     #include <X11/XKBlib.h>
 #endif
 
@@ -45,20 +48,37 @@ bool typeCharacter(wxUIActionSimulator&, wxUniChar character)
     return SendInput(2, input, sizeof(INPUT)) == 2;
 }
 #elif defined(_MACOS)
-// There is no keyboard map to ask here without pulling in the Carbon text input
-// API, and Char() presses no modifier by itself on this port either. The
-// shifted set of the standard US layout is therefore hard coded - the tests
-// type ASCII only, but on a different layout a character sitting on another key
-// would arrive unshifted.
-bool typeCharacter(wxUIActionSimulator& simulator, wxUniChar character)
+// The character is injected as a unicode string instead of through a key of the
+// active layout - same reasoning as the Windows branch above. Char() maps to
+// the key codes of a US layout, which any other layout then reinterprets: on a
+// German one 'y' and 'z' swap places and every character sitting on a different
+// key ('-', '/', '_', '.') is dropped altogether, so names and paths arrived
+// mangled ("autofilesync-guitest" as "autofilesznc guitest").
+// Posted to this process instead of the HID tap: the keystrokes reach the
+// application under test without it having to be the frontmost application, and
+// cannot land in whatever else is open on the developer's desktop.
+bool typeCharacter(wxUIActionSimulator&, wxUniChar character)
 {
-    if (!character.IsAscii())
+    const wxUint32 value = character.GetValue();
+    if (value > 0xFFFF)
+        return false; // outside the BMP a single UniChar cannot carry it
+    UniChar unicode = static_cast<UniChar>(value);
+    CGEventRef down = CGEventCreateKeyboardEvent(nullptr, 0, true);
+    CGEventRef up = CGEventCreateKeyboardEvent(nullptr, 0, false);
+    if (down == nullptr || up == nullptr) {
+        if (down != nullptr)
+            CFRelease(down);
+        if (up != nullptr)
+            CFRelease(up);
         return false;
-    const std::string_view shiftedOnUsLayout = R"(~!@#$%^&*()_+{}|:"<>?)";
-    const char ascii = static_cast<char>(character.GetValue());
-    const bool needsShift = std::isupper(static_cast<unsigned char>(ascii)) != 0
-        || shiftedOnUsLayout.find(ascii) != std::string_view::npos;
-    return simulator.Char(character.GetValue(), needsShift ? wxMOD_SHIFT : wxMOD_NONE);
+    }
+    CGEventKeyboardSetUnicodeString(down, 1, &unicode);
+    CGEventKeyboardSetUnicodeString(up, 1, &unicode);
+    CGEventPostToPid(getpid(), down);
+    CGEventPostToPid(getpid(), up);
+    CFRelease(down);
+    CFRelease(up);
+    return true;
 }
 #else
 // Own connection to the same server the application uses: only the keyboard
