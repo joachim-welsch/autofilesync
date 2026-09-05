@@ -36,16 +36,29 @@ cmake --build build/Release -j 10
 
 ## Build in VS Code
 
-### Debug-Version bauen
-1. **Ctrl+Shift+B** (Standard-Build-Task)
-2. Oder **Ctrl+Shift+P** → "Tasks: Run Task" → "CMake: build"
+Die Konfiguration liegt in `.vscode/` (CMake Tools + C/C++-Erweiterung,
+empfohlen in `extensions.json`). Beim Öffnen konfiguriert CMake Tools den
+Debug-Baum `build/` mit `AFS_BUILD_TESTS=ON`, damit die Tests auch im
+Test-Explorer (CTest) erscheinen.
 
-### Release-Version bauen
-1. **Ctrl+Shift+P** → "Tasks: Run Task" → "CMake: build Release"
+### Bauen (Tasks, Ctrl+Shift+P → "Tasks: Run Task")
+- **Ctrl+Shift+B** - "CMake: build", Debug-Version von `autofilesync`
+- "CMake: build backgroundsync" / "... Integrationtests" / "... GuiTests" / "... all"
+- "CMake: build Release" - konfiguriert und baut `build/Release`
+- "CMake: clean"
 
-### Programm starten/debuggen
-- **F5** - Baut und startet das Programm mit Debugger
-- **Ctrl+F5** - Startet ohne Debugger
+### Testen (Tasks, Ctrl+Shift+P → "Tasks: Run Test Task")
+- "Test: Integrationtests" - `run_Integrationtests.sh`, fragt nach einem gtest-Filter
+- "Test: GUI-Tests" - `run_GUI_Tests.sh` auf einem privaten X-Display
+- "Test: ctest" - alle bei CTest registrierten Tests
+
+### Starten/Debuggen (F5, Auswahl in der Debug-Ansicht)
+- "autofilesync (gdb)" - baut und startet das Programm
+- "backgroundsync (gdb)" - Daemon mit `-singlesync`
+- "Integrationtests (gdb)" - fragt nach einem gtest-Filter, hält bei Fehlschlag an
+- "GuiTests (gdb, real desktop)" - läuft auf dem echten Desktop, Maus und
+  Tastatur werden während des Tests übernommen; Filter auf einen Test setzen
+- "Attach to process (gdb)" - an ein laufendes `autofilesync` anhängen
 
 ## Build in Xcode
 

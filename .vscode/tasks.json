@@ -1,117 +1,98 @@
 {
     "version": "2.0.0",
+    // Shared settings for every task: run in the workspace root, one reused
+    // terminal panel, GCC diagnostics turned into Problems entries.
+    "options": { "cwd": "${workspaceFolder}" },
+    "presentation": { "reveal": "always", "focus": false, "panel": "shared", "clear": true },
+    "problemMatcher": ["$gcc"],
     "tasks": [
-        {
-            "label": "CMake: build",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "${workspaceFolder}/build",
-                "--config",
-                "Debug",
-                "--target",
-                "autofilesync",
-                "-j",
-                "10"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
         {
             "label": "CMake: configure",
             "type": "shell",
-            "command": "CC=gcc CXX=g++ cmake",
-            "args": [
-                "-S",
-                "${workspaceFolder}",
-                "-B",
-                "${workspaceFolder}/build",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
+            "command": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DAFS_BUILD_TESTS=ON",
+            "problemMatcher": []
+        },
+        {
+            "label": "CMake: build",
+            "detail": "Debug build of autofilesync (Ctrl+Shift+B)",
+            "type": "shell",
+            "command": "cmake --build build --target autofilesync -j$(nproc)",
+            "group": { "kind": "build", "isDefault": true }
+        },
+        {
+            "label": "CMake: build backgroundsync",
+            "type": "shell",
+            "command": "cmake --build build --target backgroundsync -j$(nproc)",
+            "group": "build"
+        },
+        {
+            "label": "CMake: build Integrationtests",
+            "type": "shell",
+            "command": "cmake --build build --target Integrationtests -j$(nproc)",
+            "group": "build"
+        },
+        {
+            "label": "CMake: build GuiTests",
+            "type": "shell",
+            "command": "cmake --build build --target GuiTests -j$(nproc)",
+            "group": "build"
+        },
+        {
+            "label": "CMake: build all",
+            "detail": "Every target of the Debug tree incl. tests and translations",
+            "type": "shell",
+            "command": "cmake --build build -j$(nproc)",
+            "group": "build"
+        },
+        {
+            "label": "CMake: clean",
+            "type": "shell",
+            "command": "cmake --build build --target clean",
             "problemMatcher": []
         },
         {
             "label": "CMake: configure Release",
             "type": "shell",
-            "command": "CC=gcc CXX=g++ cmake",
-            "args": [
-                "-S",
-                "${workspaceFolder}",
-                "-B",
-                "${workspaceFolder}/build/Release",
-                "-DCMAKE_BUILD_TYPE=Release",
-                "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
+            "command": "cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release",
             "problemMatcher": []
         },
         {
             "label": "CMake: build Release",
+            "detail": "Optimised build in build/Release",
             "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "${workspaceFolder}/build/Release",
-                "--config",
-                "Release",
-                "--target",
-                "autofilesync",
-                "-j",
-                "10"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
+            "command": "cmake --build build/Release --target autofilesync backgroundsync -j$(nproc)",
             "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": false
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
             "dependsOn": ["CMake: configure Release"]
+        },
+        {
+            "label": "Test: Integrationtests",
+            "detail": "Builds and runs the AFS_Core integration tests (run_Integrationtests.sh)",
+            "type": "shell",
+            "command": "./run_Integrationtests.sh --gtest_filter='${input:gtestFilter}'",
+            "group": { "kind": "test", "isDefault": true }
+        },
+        {
+            "label": "Test: GUI-Tests",
+            "detail": "Builds and runs the GUI tests on a private X display (run_GUI_Tests.sh)",
+            "type": "shell",
+            "command": "./run_GUI_Tests.sh --gtest_filter='${input:gtestFilter}'",
+            "group": "test"
+        },
+        {
+            "label": "Test: ctest",
+            "detail": "All tests registered with CTest, one after another",
+            "type": "shell",
+            "command": "ctest --test-dir build --output-on-failure",
+            "group": "test",
+            "dependsOn": ["CMake: build all"]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "gtestFilter",
+            "type": "promptString",
+            "description": "gtest filter, e.g. *Sync* or SyncFileTests.*",
+            "default": "*"
         }
     ]
 }

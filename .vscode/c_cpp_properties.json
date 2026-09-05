@@ -2,10 +2,14 @@
     "configurations": [
         {
             "name": "Linux",
+            // Flags, defines and include paths come from compile_commands.json;
+            // the entries below are the fallback for files CMake does not build.
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "includePath": [
-                "${workspaceFolder}/**",
-                "/usr/local/include/**",
-                "/usr/include/**"
+                "${workspaceFolder}/AFS_Core/include",
+                "${workspaceFolder}/AFS_Core/mylib/include",
+                "${workspaceFolder}/AFS_Desktop/include"
             ],
             "defines": [
                 "_UNIX",
@@ -15,9 +19,7 @@
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
             "cppStandard": "c++20",
-            "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4

@@ -1,24 +1,66 @@
 {
-    "files.associations": {
-        "hash_map": "cpp",
-        "hash_set": "cpp",
-        "deque": "cpp",
-        "list": "cpp",
-        "string": "cpp",
-        "vector": "cpp",
-        "cmath": "cpp"
-    },
-    "cmake.configureSettings": {
-        "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_CXX_COMPILER": "g++",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-    },
+    // CMake Tools: the Debug tree in build/ is shared with the tasks, the
+    // launch configurations and the run_*Tests.sh scripts. AFS_BUILD_TESTS
+    // registers Integrationtests and GuiTests with CTest (Test Explorer).
     "cmake.buildDirectory": "${workspaceFolder}/build",
-    "cmake.preferredGenerators": [
-        "Unix Makefiles"
-    ],
     "cmake.generator": "Unix Makefiles",
+    "cmake.configureOnOpen": true,
+    "cmake.configureSettings": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "AFS_BUILD_TESTS": "ON"
+    },
+    "cmake.buildBeforeRun": true,
+    // Both test binaries are RUN_SERIAL; the GUI tests take over a display.
+    "cmake.ctest.parallelJobs": 1,
+    // Used by the CMake status bar "Debug" button (Shift+F5).
+    "cmake.debugConfig": {
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}",
+        "environment": [
+            { "name": "LD_LIBRARY_PATH", "value": "/usr/local/lib:/usr/lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu" },
+            { "name": "LD_PRELOAD", "value": "" }
+        ],
+        "setupCommands": [
+            { "text": "-enable-pretty-printing", "ignoreFailures": true },
+            { "text": "-gdb-set debuginfod enabled off", "ignoreFailures": true }
+        ]
+    },
+
+    // IntelliSense reads build/compile_commands.json through CMake Tools.
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
     "C_Cpp.default.compilerPath": "/usr/bin/g++",
-    "C_Cpp.default.intelliSenseMode": "linux-gcc-x64"
+    "C_Cpp.default.cppStandard": "c++20",
+    "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+    "C_Cpp.errorSquiggles": "enabled",
+
+    // Keep generated trees out of search, file watching and Quick Open.
+    "files.exclude": {
+        "**/.cache": true,
+        "**/__pycache__": true,
+        "**/.DS_Store": true
+    },
+    "search.exclude": {
+        "build/**": true,
+        "xcode/**": true,
+        "vcpkg_installed/**": true,
+        "**/x64/**": true
+    },
+    "files.watcherExclude": {
+        "build/**": true,
+        "xcode/**": true,
+        "vcpkg_installed/**": true
+    },
+    "files.associations": {
+        "*.vcxproj": "xml",
+        "*.vcxproj.filters": "xml",
+        "*.po": "gettext",
+        "*.pot": "gettext"
+    },
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "[cpp]": {
+        "editor.formatOnSave": false
+    }
 }
