@@ -16,6 +16,8 @@
 #include <ScopedEnv.h>
 #endif
 
+using namespace AFS_Core;
+
 using tu::pathContains;
 using tu::toUtf8;
 namespace fs = std::filesystem;

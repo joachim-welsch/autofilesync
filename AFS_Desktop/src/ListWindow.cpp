@@ -3,7 +3,7 @@
 #include "id.h"
 #include "ListCtrl.h"
 
-using util::tul;
+using utilwx::tul;
 using std::wstring;
 
 wxBEGIN_EVENT_TABLE(ListWindow, wxScrolledWindow)

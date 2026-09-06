@@ -10,6 +10,8 @@
 #include "util.h"
 #include <filesystem>
 
+namespace AFS_Core {
+
 using std::wstring;
 namespace fs = std::filesystem;
 using namespace util;
@@ -180,3 +182,5 @@ void SyncBase::syncTargetOnlyEntries(const wstring &sourceDir,
 }
 
 bool SyncBase::stopRequested() const { return Synchronize::stopRequested(); }
+
+} // namespace AFS_Core

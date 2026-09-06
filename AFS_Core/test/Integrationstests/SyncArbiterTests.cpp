@@ -4,6 +4,8 @@
 #include <chrono>
 #include <thread>
 
+using namespace AFS_Core;
+
 using namespace std::chrono_literals;
 
 namespace {

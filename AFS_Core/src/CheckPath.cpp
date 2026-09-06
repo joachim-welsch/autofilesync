@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <optional>
 
+namespace AFS_Core {
+
 using namespace util;
 using std::wstring;
 namespace fs = std::filesystem;
@@ -259,3 +261,5 @@ std::wstring withoutVolumeSpec(const std::wstring& path)
 		return path;
 	return rootName(path) + path.substr(closeParenthesisPos + 1);
 }
+
+} // namespace AFS_Core

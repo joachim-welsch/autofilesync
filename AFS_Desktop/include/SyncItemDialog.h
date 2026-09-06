@@ -10,7 +10,7 @@
 
 #include "SyncItem.h"
 
-class SyncItem;
+using namespace AFS_Core;
 
 class SyncItemDialog: public wxDialog {
 public:

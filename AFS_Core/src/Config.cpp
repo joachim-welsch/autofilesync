@@ -14,6 +14,8 @@
 #include "Logging.h"
 #include "RecycleBin.h"
 
+namespace AFS_Core {
+
 using std::wstring;
 using std::string;
 using std::make_pair;
@@ -799,3 +801,5 @@ void Config::unload()
 	instance_->reset();  // Clear data
 	instance_.reset();   // Delete instance to avoid false positive memory leak reports
 }
+
+} // namespace AFS_Core

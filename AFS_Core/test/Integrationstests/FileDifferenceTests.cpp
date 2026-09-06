@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <chrono>
 
+using namespace AFS_Core;
+
 namespace fs = std::filesystem;
 
 namespace {

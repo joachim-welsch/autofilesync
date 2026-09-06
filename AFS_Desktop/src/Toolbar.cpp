@@ -21,7 +21,7 @@
     #pragma GCC diagnostic pop
 #endif
 
-using util::tul;
+using utilwx::tul;
 
 enum
 {

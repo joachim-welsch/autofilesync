@@ -17,6 +17,8 @@
     #include <unistd.h>    // getpid
 #endif
 
+using namespace AFS_Core;
+
 using namespace util;
 namespace fs = std::filesystem;
 

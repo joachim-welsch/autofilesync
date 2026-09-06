@@ -7,7 +7,9 @@
 #endif
 #include <optional>
 
-class SshAccount;
+namespace AFS_Core { class SshAccount; }
+
+using namespace AFS_Core;
 
 // Shared with SshAccountsDialog's inline label edit, which otherwise bypasses
 // this dialog's validation entirely. Returns the German error message if name

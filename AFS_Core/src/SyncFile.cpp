@@ -19,6 +19,8 @@
 #include "SyncFileSsh.h"
 #include "BackupProof.h"
 
+namespace AFS_Core {
+
 namespace fs = std::filesystem;
 using std::wstring;
 using util::handleLastError;
@@ -451,3 +453,5 @@ void SyncFile::operator()()
         reportSyncError(L"Unbekannter Fehler: " + syncItem_.source());
     }
 }
+
+} // namespace AFS_Core

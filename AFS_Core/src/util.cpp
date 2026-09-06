@@ -35,6 +35,8 @@
     #endif
 #endif
 
+namespace AFS_Core {
+
 using std::string;
 using std::wstring;
 
@@ -355,3 +357,5 @@ bool set_last_write_time(const std::wstring& fn, const fs::file_time_type& modif
 }
 
 } // namespace util
+
+} // namespace AFS_Core

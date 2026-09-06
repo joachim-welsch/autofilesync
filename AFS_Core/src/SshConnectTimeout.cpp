@@ -1,5 +1,7 @@
 #include "SshConnectTimeout.h"
 
+namespace AFS_Core {
+
 namespace {
     constexpr long kSshConnectTimeoutSeconds = 15;
 }
@@ -22,3 +24,5 @@ void applySshConnectTimeout(LIBSSH2_SESSION* session)
 
     #endif
 #endif
+
+} // namespace AFS_Core

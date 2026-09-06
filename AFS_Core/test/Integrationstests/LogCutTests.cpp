@@ -11,6 +11,8 @@
 #include <unistd.h>
 #endif
 
+using namespace AFS_Core;
+
 namespace fs = std::filesystem;
 
 namespace {

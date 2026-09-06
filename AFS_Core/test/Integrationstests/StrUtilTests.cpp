@@ -1,6 +1,8 @@
 #include "pch.h"
 #include <strutil.h>
 
+using namespace AFS_Core;
+
 using util::string_to_wstring;
 using util::wstring_to_string;
 

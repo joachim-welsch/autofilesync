@@ -13,7 +13,9 @@
 #include <mutex>
 
 class MainWindow;
-class SyncControler;
+namespace AFS_Core { class SyncControler; }
+
+using namespace AFS_Core;
 
 class ProgressDialog: public wxDialog {
     bool closed_ = false;

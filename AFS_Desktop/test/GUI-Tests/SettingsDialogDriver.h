@@ -4,6 +4,8 @@
 #include "Settings.h"
 #include <wx/string.h>
 
+using namespace AFS_Core;
+
 namespace guitest {
 
 // Enters a recycle bin path and a delete mode in the "Globale Einstellungen"

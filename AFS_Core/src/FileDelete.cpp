@@ -6,6 +6,8 @@
 #include <Logging.h>
 #include <filesystem>
 
+namespace AFS_Core {
+
 namespace fs = std::filesystem;
 
 bool deleteFile(const std::wstring& pathname)
@@ -24,3 +26,5 @@ bool deleteFile(const std::wstring& pathname)
     LOG_INFO2(L"In den Papierkorb verschoben: ", pathname);
     return true;
 }
+
+} // namespace AFS_Core

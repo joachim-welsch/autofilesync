@@ -1,6 +1,8 @@
 #include "SshAccountSelectDialog.h"
 #include "Config.h"
 
+using namespace AFS_Core;
+
 BEGIN_EVENT_TABLE(SshAccountSelectDialog, wxDialog)
     EVT_LIST_ITEM_SELECTED(ID_SSH_SELECT_LIST, SshAccountSelectDialog::onListSelect)
 END_EVENT_TABLE()

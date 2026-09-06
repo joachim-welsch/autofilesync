@@ -7,6 +7,8 @@
 #include <atomic>
 #include <vector>
 
+using namespace AFS_Core;
+
 using namespace MountedDrivesTests;
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;

@@ -2,6 +2,8 @@
 #include <thread>
 #include "LogAnalysis.h"
 
+using namespace AFS_Core;
+
 wxBEGIN_EVENT_TABLE(ChatDialog, wxDialog)
     EVT_BUTTON(ID_CHAT_SEND, ChatDialog::onSend)
     EVT_THREAD(ID_CHAT_REPLY, ChatDialog::onReply)

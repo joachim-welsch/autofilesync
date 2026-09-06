@@ -4,6 +4,8 @@
 #include <optional>
 #include <filesystem>
 
+namespace AFS_Core {
+
 // Encrypts secrets (SSH passwords) at rest so they no longer sit in plaintext
 // inside the JSON config file - protects against casual disclosure (support
 // files, backups, accidental paste of the config) but not against an attacker
@@ -29,3 +31,5 @@ bool isEncrypted(const std::string& stored);
 std::optional<std::string> decrypt(const std::string& stored, const std::filesystem::path& keyFile);
 
 } // namespace passwordcrypto
+
+} // namespace AFS_Core

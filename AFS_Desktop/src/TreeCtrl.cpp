@@ -23,6 +23,8 @@
 #include "Tree.h"
 #include "Canvas.h"
 
+using namespace AFS_Core;
+
 using std::wstring;
 using std::vector;
 using std::nullopt;

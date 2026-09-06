@@ -6,6 +6,11 @@
     #include <wx/app.h>
 #endif
 
+namespace AFS_Core {
+
+using StringVector = std::vector<std::wstring>;
+using WStringVector = std::vector<std::wstring>;
+
 enum class SyncType {
     None,
     CountFiles,
@@ -37,3 +42,5 @@ using StrVect = std::vector<std::wstring>;
         wxApp* getApp() const { return app_; }
     };
 #endif
+
+} // namespace AFS_Core

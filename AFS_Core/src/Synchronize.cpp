@@ -25,7 +25,9 @@
 #include "BackupProof.h"
 #include <FilesystemUtil.h>
 #include <utility>
+#include <mutex>
 
+namespace AFS_Core {
 
 using namespace util;
 namespace fs = std::filesystem;
@@ -111,7 +113,6 @@ Synchronize::~Synchronize()
 }
 
 #ifdef _TEST
-#include <mutex>
 std::once_flag removeTestFlag;
 void removeTestFile() {
     std::filesystem::remove(L"/home/welschj/temp/testafx.txt");
@@ -373,3 +374,5 @@ void Synchronize::operator()()
 #endif
     LOG_DEBUG(L"End of Synchronize::operator()()");
 }
+
+} // namespace AFS_Core

@@ -4,7 +4,7 @@
 #include "id.h"
 #include "GridCtrl.h"
 
-using util::tul;
+using utilwx::tul;
 using std::wstring;
 
 wxBEGIN_EVENT_TABLE(GridWindow, wxScrolledWindow)

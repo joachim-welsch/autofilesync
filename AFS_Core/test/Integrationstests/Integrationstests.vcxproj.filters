@@ -48,23 +48,23 @@
     </ClCompile>
     <ClCompile Include="MountedDrivesTests.cpp" />
     <ClCompile Include="LoggingTests.cpp" />
-    <ClCompile Include="..\..\..\mylib\util.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\src\util.cpp">
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Synchronize.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\mylib\MountedDrives.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\src\MountedDrives.cpp">
+      <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\mylib\Logging.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\src\Logging.cpp">
+      <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\mylib\LogCut.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\src\LogCut.cpp">
+      <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\mylib\FilesystemUtil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\src\FilesystemUtil.cpp">
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\CheckPath.cpp">
       <Filter>source</Filter>
@@ -82,8 +82,8 @@
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
     <ClCompile Include="SyncSshTreeTests.cpp" />
-    <ClCompile Include="..\..\..\mylib\strutil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\src\strutil.cpp">
+      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="SshTest.cpp">
       <Filter>util</Filter>
@@ -120,9 +120,6 @@
     </Filter>
     <Filter Include="util">
       <UniqueIdentifier>{dd9c3b3a-a5cc-4b13-a391-0c6c972cf0c5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="mylib">
-      <UniqueIdentifier>{cec3c3c5-1bf0-4acf-8865-7f64d79fa984}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

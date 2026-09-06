@@ -7,6 +7,8 @@
 #include <codecvt>
 #include <Logging.h>
 
+namespace AFS_Core {
+
 namespace util {
 
     std::string wstring_to_string(const std::wstring& ws);
@@ -62,3 +64,5 @@ namespace util {
     bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
 	bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
 } // namespace util
+
+} // namespace AFS_Core

@@ -3,6 +3,8 @@
 #include "Synchronize.h"
 #include "Logging.h"
 
+namespace AFS_Core {
+
 std::unique_ptr<SyncControler> SyncControler::instance_ = nullptr;
 
 SyncControler& SyncControler::instance() 
@@ -100,3 +102,5 @@ SyncMessage SyncControler::getMessage() const {
 	else
 		return SyncMessage();
 }
+
+} // namespace AFS_Core

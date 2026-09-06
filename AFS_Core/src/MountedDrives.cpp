@@ -17,6 +17,8 @@
     #include <sys/mount.h>
 #endif
 
+namespace AFS_Core {
+
 using std::string;
 using std::wstring;
 using namespace std::chrono;
@@ -332,3 +334,5 @@ bool MountedDrives::timeElapsedTest() const
     return timeElapsed();
 }
 #endif
+
+} // namespace AFS_Core

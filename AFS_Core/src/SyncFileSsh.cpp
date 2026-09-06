@@ -25,6 +25,8 @@
 #include "Logging.h"
 #include "Synchronize.h"
 
+namespace AFS_Core {
+
 using std::wstring;
 using util::string_to_wstring;
 using util::wstring_to_string;
@@ -1954,3 +1956,5 @@ std::vector<SshDirEntry> sshListDir(const std::wstring& path)
 }
 #endif
 #endif
+
+} // namespace AFS_Core

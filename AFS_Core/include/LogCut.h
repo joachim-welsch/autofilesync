@@ -3,6 +3,8 @@
 #include <fstream>
 #include <chrono>
 
+namespace AFS_Core {
+
 class LogCut {
 	using time_point = std::chrono::system_clock::time_point;
 
@@ -20,3 +22,5 @@ public:
 	void operator()();
 };
 
+
+} // namespace AFS_Core

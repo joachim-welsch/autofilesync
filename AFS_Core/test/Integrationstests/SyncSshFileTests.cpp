@@ -17,6 +17,8 @@
 #include "SshTest.h"
 #include "DirUtil.h"
 
+using namespace AFS_Core;
+
 using namespace SSHTest;
 using namespace util;
 using std::string;

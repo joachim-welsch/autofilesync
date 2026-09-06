@@ -14,6 +14,8 @@
 #include <stdexcept>
 #include <fcntl.h>
 
+using namespace AFS_Core;
+
 namespace guitest {
 namespace {
 

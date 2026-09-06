@@ -20,12 +20,15 @@
 #ifdef _GUITEST
 // The GUI test binary brings its own main() (Google Test); apart from the entry
 // point the application under test is built exactly like the shipped one.
+
+using namespace AFS_Core;
+
 IMPLEMENT_APP_NO_MAIN(App);
 #else
 IMPLEMENT_APP(App);
 #endif
 
-using util::tul;
+using utilwx::tul;
 
 namespace {
 // Same two places as the help book: next to the executable in a build tree or

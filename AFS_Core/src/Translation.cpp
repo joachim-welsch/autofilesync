@@ -5,6 +5,8 @@
     #include <libintl.h>
 #endif
 
+namespace AFS_Core {
+
 namespace {
 constexpr const char* textDomain = "autofilesync";
 }
@@ -39,3 +41,5 @@ std::wstring translate(const char* msgid)
 }
 #endif
 }
+
+} // namespace AFS_Core

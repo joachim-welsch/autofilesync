@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <string>
 
+namespace AFS_Core {
+
 // Mail server and sender identity, as configured under "Logging" in the config
 // file. Kept out of Logging so the SMTP code can be used (and tested) without
 // the logger singleton.
@@ -23,3 +25,5 @@ struct SmtpAccount {
 // non-ASCII character on Windows.
 std::string sendMail(const SmtpAccount& account, const std::wstring& recipient,
 	const std::wstring& subject, const std::string& body);
+
+} // namespace AFS_Core

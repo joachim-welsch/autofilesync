@@ -8,6 +8,8 @@
 #include <Logging.h>
 #include "util.h"
 
+namespace AFS_Core {
+
 using std::string;
 using std::wstring;
 using util::string_to_wstring;
@@ -202,3 +204,5 @@ ChatReply LlamaClient::analyzeLog(const ChatHistory& history, const wstring& log
     withExcerpt.back().text = logAnalysisInstruction + logExcerpt + L"\n\nFrage: " + withExcerpt.back().text;
     return send(withExcerpt);
 }
+
+} // namespace AFS_Core

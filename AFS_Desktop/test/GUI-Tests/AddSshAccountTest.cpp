@@ -8,7 +8,9 @@
 #include "TextResources.h"
 #include "utilwx.h"
 
-using util::tul;
+using namespace AFS_Core;
+
+using utilwx::tul;
 
 namespace guitest {
 namespace {

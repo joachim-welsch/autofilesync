@@ -39,12 +39,6 @@ set(AFS_CORE_SOURCES
     Translation.cpp
     Settings.cpp
     SyncItem.cpp
-)
-list(TRANSFORM AFS_CORE_SOURCES PREPEND ${AFS_CORE_DIR}/src/)
-
-# Utility sources taken over from mylib; they live in the core so that AFS_Core
-# is self-contained.
-set(AFS_MYLIB_SOURCES
     FilesystemUtil.cpp
     LogCut.cpp
     Logging.cpp
@@ -54,7 +48,7 @@ set(AFS_MYLIB_SOURCES
     strutil.cpp
     util.cpp
 )
-list(TRANSFORM AFS_MYLIB_SOURCES PREPEND ${AFS_CORE_DIR}/mylib/src/)
+list(TRANSFORM AFS_CORE_SOURCES PREPEND ${AFS_CORE_DIR}/src/)
 
 if(NOT TARGET afs_core_deps)
     # Boost is used header-only (property_tree, algorithm).
@@ -115,8 +109,8 @@ endif()
 # PUBLIC compile definitions so that consumers see the same class layouts.
 function(afs_core_add_library target)
     cmake_parse_arguments(ARG "WXWIDGETS" "" "DEFINITIONS" ${ARGN})
-    add_library(${target} STATIC ${AFS_CORE_SOURCES} ${AFS_MYLIB_SOURCES})
-    target_include_directories(${target} PUBLIC ${AFS_CORE_DIR}/include ${AFS_CORE_DIR}/mylib/include)
+    add_library(${target} STATIC ${AFS_CORE_SOURCES})
+    target_include_directories(${target} PUBLIC ${AFS_CORE_DIR}/include)
     target_compile_features(${target} PUBLIC cxx_std_20)
     target_compile_definitions(${target} PUBLIC ${ARG_DEFINITIONS})
     if(NOT WIN32)

@@ -15,6 +15,9 @@
 // was reset to false, so a thread that reached its "while (!stop_)" check
 // before create() got to run could see the stale "true" left over from
 // program start and silently exit after a single pass instead of looping.
+
+using namespace AFS_Core;
+
 TEST(SynchronizeTests, ContinuousSyncKeepsRunningPastFirstPass)
 {
     Synchronize* sync = Synchronize::create(SyncType::Continuous);

@@ -1,12 +1,15 @@
 #pragma once
 
-#ifdef _WIN32
-
 #include <mutex>
 #include <string>
+#ifdef _WIN32
 #include <libssh2.h>
+#endif
 #include "Logging.h"
 
+namespace AFS_Core {
+
+#ifdef _WIN32
 // Ensures libssh2's global crypto backend is initialized exactly once for
 // the whole process. libssh2_init()/libssh2_exit() are not reference-counted,
 // so calling libssh2_exit() while any other thread still owns a session tears
@@ -32,5 +35,6 @@ inline void ensureLibssh2Initialized()
         }
     });
 }
-
 #endif
+
+} // namespace AFS_Core

@@ -4,6 +4,8 @@
 #include <atomic>
 #endif
 
+namespace AFS_Core {
+
 class SyncFile: public SyncBase {
     bool transferFilename_ = false;
 
@@ -33,3 +35,5 @@ bool SyncFile::sshDest() const { return ssh_ == SSHPATH::dest || ssh_ == SSHPATH
 
 inline
 bool SyncFile::sshSource() const { return ssh_ == SSHPATH::source || ssh_ == SSHPATH::both; }
+
+} // namespace AFS_Core

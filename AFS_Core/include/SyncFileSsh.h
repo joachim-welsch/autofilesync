@@ -3,8 +3,11 @@
 #include <string>
 #include <optional>
 #include <vector>
+#include <atomic>
 #include "SshAccount.h"
 #include "SyncBase.h"  // für CopyResult
+
+namespace AFS_Core {
 
 // Struktur für SSH-Verzeichniseinträge
 struct SshDirEntry {
@@ -33,8 +36,9 @@ bool sshRemoveFile(const std::wstring& path);
 std::vector<SshDirEntry> sshListDir(const std::wstring& path);
 
 #ifdef _TEST
-#include <atomic>
 // Counts real SSH directory checks (each one is a full connect), so tests can
 // verify Synchronize's per-target cache actually avoids reconnecting.
 extern std::atomic<int> sshIsDirectoryCallCount;
 #endif
+
+} // namespace AFS_Core

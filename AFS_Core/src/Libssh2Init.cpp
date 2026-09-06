@@ -3,7 +3,11 @@
 
 #ifdef _WIN32
 #include <libssh2.h>
+#endif
 
+namespace AFS_Core {
+
+#ifdef _WIN32
 namespace {
 
 // Constructed on first use (thread-safe per C++11 static local semantics) and
@@ -22,3 +26,5 @@ struct Libssh2Guard {
 //}
 
 #endif
+
+} // namespace AFS_Core

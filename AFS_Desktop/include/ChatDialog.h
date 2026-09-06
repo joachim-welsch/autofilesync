@@ -11,6 +11,9 @@
 // Chat with the assistant. Modeless, so a long answer never blocks the rest of
 // the program, and hidden instead of destroyed on close so the conversation
 // survives until the program ends.
+
+using namespace AFS_Core;
+
 class ChatDialog: public wxDialog {
 public:
     ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title);

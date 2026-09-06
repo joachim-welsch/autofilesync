@@ -17,6 +17,8 @@
 #include <unistd.h>
 #endif
 
+namespace AFS_Core {
+
 namespace passwordcrypto {
 
 namespace {
@@ -174,3 +176,5 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
 }
 
 } // namespace passwordcrypto
+
+} // namespace AFS_Core

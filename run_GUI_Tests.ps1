@@ -94,7 +94,7 @@ if (-not $NoBuild) {
                '_CRT_SECURE_NO_DEPRECATE=1', '_CRT_NON_CONFORMING_SWPRINTFS=1',
                '_SCL_SECURE_NO_WARNINGS=1', '__WXMSW__', '_UNICODE', 'UNICODE', 'NOPCH'
     if ($debug) { $defines += '_DEBUG' } else { $defines += 'NDEBUG' }
-    $includes = $guiDir, (Join-Path $root 'AFS_Desktop\include'), (Join-Path $root 'AFS_Core\include'), (Join-Path $root 'AFS_Core\mylib\include'),
+    $includes = $guiDir, (Join-Path $root 'AFS_Desktop\include'), (Join-Path $root 'AFS_Core\include'),
                 (Join-Path $GTestDir 'include'), (Join-Path $VcpkgDir 'include'), $BoostDir,
                 (Join-Path $wxLibDir $wxSetupDir), (Join-Path $WxDir 'include'),
                 (Join-Path $llamaPkgDir 'include'), (Join-Path $ggmlPkgDir 'include')

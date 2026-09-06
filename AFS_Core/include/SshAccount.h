@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+namespace AFS_Core {
+
 class SshAccount {
     std::string name_;
     std::string user_;
@@ -12,10 +14,12 @@ public:
     const std::string& user() const;
     const std::string& host() const;
     const std::string& password() const;
-    
+
     // Setter
     void setName(const std::string& name);
     void setUser(const std::string& user);
     void setHost(const std::string& host);
     void setPassword(const std::string& password);
 };
+
+} // namespace AFS_Core

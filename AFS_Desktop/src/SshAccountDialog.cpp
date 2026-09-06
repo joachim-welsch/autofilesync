@@ -2,6 +2,8 @@
 #include "SshAccount.h"
 #include "Config.h"
 
+using namespace AFS_Core;
+
 BEGIN_EVENT_TABLE(SshAccountDialog, wxDialog)
     EVT_UPDATE_UI(wxID_OK, SshAccountDialog::onUpdateOkButton)
 END_EVENT_TABLE()

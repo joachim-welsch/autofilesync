@@ -8,6 +8,8 @@
 #include "SshFileInspector.h"
 #include "Config.h"
 
+namespace AFS_Core {
+
 namespace fs=std::filesystem;
 
 using std::wstring;
@@ -149,3 +151,5 @@ uint64_t FileDifference::operator()()
     LOG_DEBUG(wstring(L"FileDifference result: ") + to_wstring(result_))
     return sourcesize_;
 }
+
+} // namespace AFS_Core

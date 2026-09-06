@@ -11,6 +11,8 @@
 #include "SshAccountSelectDialog.h"
 #include "SshDirDialog.h"
 
+using namespace AFS_Core;
+
 namespace fs = std::filesystem;
 using util::wstring_to_string;
 using util::string_to_wstring;

@@ -19,15 +19,15 @@ class SplitterWindow;
 class ListWindow;
 class GridWindow;
 class Canvas;
-class Synchronize;
 class ProgressDialog;
-class SyncControler;
 class wxToolBar;
-class SyncItem;
+namespace AFS_Core { class Synchronize; class SyncControler; class SyncItem; }
 class TaskBarIcon;
 class ChatDialog;
 class wxHelpControllerBase;
 class wxHtmlHelpController;
+
+using namespace AFS_Core;
 
 class MainWindow: public wxFrame {
 public:

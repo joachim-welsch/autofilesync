@@ -57,7 +57,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\mylib\include;..\..\include;..\..\..\extlib\boost\boost_1_90_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\extlib\boost\boost_1_90_0</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -91,7 +91,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\mylib\include;..\..\include;..\..\..\..\extlib\boost\boost_1_90_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\..\extlib\boost\boost_1_90_0</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -112,13 +112,13 @@
     <ClInclude Include="SyncFileTests.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\mylib\src\FilesystemUtil.cpp" />
-    <ClCompile Include="..\..\mylib\src\LogCut.cpp" />
-    <ClCompile Include="..\..\mylib\src\Logging.cpp" />
-    <ClCompile Include="..\..\mylib\src\MountedDrives.cpp" />
-    <ClCompile Include="..\..\mylib\src\RecycleBin.cpp" />
-    <ClCompile Include="..\..\mylib\src\strutil.cpp" />
-    <ClCompile Include="..\..\mylib\src\util.cpp" />
+    <ClCompile Include="..\..\src\FilesystemUtil.cpp" />
+    <ClCompile Include="..\..\src\LogCut.cpp" />
+    <ClCompile Include="..\..\src\Logging.cpp" />
+    <ClCompile Include="..\..\src\MountedDrives.cpp" />
+    <ClCompile Include="..\..\src\RecycleBin.cpp" />
+    <ClCompile Include="..\..\src\strutil.cpp" />
+    <ClCompile Include="..\..\src\util.cpp" />
     <ClCompile Include="..\..\src\CheckPath.cpp" />
     <ClCompile Include="..\..\src\Config.cpp" />
     <ClCompile Include="..\..\src\Directory.cpp" />

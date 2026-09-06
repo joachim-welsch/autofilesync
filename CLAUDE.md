@@ -7,7 +7,6 @@ Benutzerfreundliche automatische Synchronisation von Dateien hin bis Verzeichnis
 ## Architektur
 ### Projektstruktur
 - `AFS_Core/`: Synchronisationskern als statische Bibliothek `afs_core` (GPLv3).
-  Enthält die aus mylib übernommenen Hilfsquellen unter `AFS_Core/mylib/`.
   Darf nichts aus AFS_Desktop einbinden (einzige noch offene Ausnahme:
   `ProgressDialog.h` in `SyncFile.cpp`, siehe `AFS_Core/cmake/AfsCore.cmake`).
 - `AFS_Desktop/`: Benutzeroberfläche und weiterführende Funktionalität,

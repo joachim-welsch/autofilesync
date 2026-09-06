@@ -4,6 +4,8 @@
 #include "Config.h"
 #include "TextResources.h"
 
+using namespace AFS_Core;
+
 BEGIN_EVENT_TABLE(SshAccountsDialog, wxDialog)
     EVT_BUTTON(ID_SSHACCOUNTS_ADD, SshAccountsDialog::onAdd)
     EVT_BUTTON(ID_SSHACCOUNTS_EDIT, SshAccountsDialog::onEdit)

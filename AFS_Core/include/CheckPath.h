@@ -4,6 +4,8 @@
 #include <map>
 #include <chrono>
 
+namespace AFS_Core {
+
 class CheckPath {
     mutable std::mutex  driveCheckCacheMutex_;
 
@@ -37,3 +39,5 @@ bool pathContainsVolumeName(const std::wstring& path);
 std::wstring volumeName(const std::wstring& path);
 std::wstring rootName(const std::wstring& path);
 std::wstring withoutVolumeSpec(const std::wstring& path);
+
+} // namespace AFS_Core

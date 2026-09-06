@@ -6,6 +6,8 @@
 #include "LogCut.h"
 #include <wx/dirdlg.h>
 
+using namespace AFS_Core;
+
 using util::wstring_to_string;
 
 BEGIN_EVENT_TABLE(LoggingDialog, wxDialog)

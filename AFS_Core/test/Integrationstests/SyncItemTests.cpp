@@ -5,6 +5,9 @@
 // existing wildcard field already uses (via util::wildmatch()), matched
 // against the entry's own name (not a full path) - consistent with how the
 // wildcard field itself is applied throughout SyncDir/SyncTree.
+
+using namespace AFS_Core;
+
 TEST(SyncItemTests, IsExcludedMatchesAnyPatternInTheList)
 {
     Exclusions exclusions;

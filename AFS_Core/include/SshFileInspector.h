@@ -15,6 +15,8 @@
 
 #include "SshAccount.h"
 
+namespace AFS_Core {
+
 // Struktur für die Rückgabewerte
 struct RemoteFileInfo {
     bool exists;
@@ -34,11 +36,11 @@ class SshFileInspector {
         SOCKET sock = INVALID_SOCKET;
     #endif
 #endif
-    
+
     SshAccount account_;
-    
+
     void cleanup();
-    
+
 public:
   // Verbindet, prueft den Host-Key und meldet sich an; wirft, wenn davon etwas
   // scheitert. Ein erfolgreich erzeugtes Objekt heisst: die Gegenstelle steht.
@@ -52,3 +54,5 @@ public:
   // aussieht.
   RemoteFileInfo inspectFile(const std::string& remote_path);
 };
+
+} // namespace AFS_Core

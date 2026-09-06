@@ -11,7 +11,9 @@
 #include "utilwx.h"
 #include <wx/treectrl.h>
 
-using util::tul;
+using namespace AFS_Core;
+
+using utilwx::tul;
 
 namespace guitest {
 namespace {

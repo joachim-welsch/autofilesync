@@ -2,6 +2,8 @@
 #include <cstddef>
 #include <string>
 
+namespace AFS_Core {
+
 // Reads the tail of the configured log file (Logging::instance().getLogFilePathName())
 // for the chat assistant to analyse. Kept separate from LlamaClient: it is
 // plain file I/O and testable without loading a model.
@@ -16,3 +18,5 @@ std::wstring readRecentLogEntries(std::size_t maxChars);
 // "Protokolldatei-Pfad"). Case-insensitive substring match: a chat question
 // isn't worth a real NLU pass just to decide whether to attach the log.
 bool looksLikeLogQuestion(const std::wstring& text);
+
+} // namespace AFS_Core

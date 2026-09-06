@@ -8,6 +8,8 @@
     #endif
 #endif
 
+namespace AFS_Core {
+
 // Bounds how long an SSH connection attempt may block. Every "account:/path"
 // operation (sshListDir(), sshExists(), copySshToFs() and friends) opens its
 // own short-lived connection rather than reusing one across a sync pass, so
@@ -25,3 +27,5 @@ void applySshConnectTimeout(ssh_session session);
 void applySshConnectTimeout(LIBSSH2_SESSION* session);
     #endif
 #endif
+
+} // namespace AFS_Core

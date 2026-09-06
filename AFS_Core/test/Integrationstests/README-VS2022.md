@@ -27,9 +27,8 @@ die DLLs ins Ausgabeverzeichnis.
 |---|---|
 | `HOME_DIR $ENV{HOME}` | `$(HomeDir)`, Default `$(USERPROFILE)` |
 | `LIB_DIR` | `$(LibDir)`, Default `<Repo>\AFS_Core` (aus der Projektlage abgeleitet) |
-| `MYLIB_DIR` | `$(MyLibDir)`, Default `$(LibDir)\mylib` |
 
-Abweichende Ablage: entweder die drei Properties oben im `.vcxproj` anpassen, als
+Abweichende Ablage: entweder die beiden Properties oben im `.vcxproj` anpassen, als
 Umgebungsvariablen setzen, oder `msbuild /p:LibDir=D:\src\autofilesync\AFS_Core` übergeben.
 
 ### Übersetzte Einstellungen
@@ -54,7 +53,7 @@ Umgebungsvariablen setzen, oder `msbuild /p:LibDir=D:\src\autofilesync\AFS_Core`
 2. **`pch.cpp`.** Die CMakeLists kompiliert die Datei nur mit, ohne echtes PCH-Setup – im
    `.vcxproj` ist `PrecompiledHeader` deshalb auf `NotUsing`. Wenn du echtes PCH willst:
    `pch.cpp` auf *Create* (`/Yc"pch.h"`), alle übrigen auf *Use* (`/Yu"pch.h"`), und die
-   Fremdquellen aus `$(LibDir)`/`$(MyLibDir)` auf *NotUsing* lassen.
+   Fremdquellen aus `$(LibDir)` auf *NotUsing* lassen.
 3. **`/W4` ist schärfer als `-Wall -Wextra`.** Für den ersten Durchlauf sind `4100` und `4996`
    bereits unterdrückt; ggf. weitere ergänzen statt den Warnlevel zu senken.
 4. **libssh2-Crypto-Backend.** Der vcpkg-Port hat die Default-Features `openssl` und `zlib`,

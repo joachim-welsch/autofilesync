@@ -3,6 +3,8 @@
 #include "RecycleBin.h"
 #include <wx/dirdlg.h>
 
+using namespace AFS_Core;
+
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 END_EVENT_TABLE()
 

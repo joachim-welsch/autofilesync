@@ -11,6 +11,9 @@
 #include "SshAccount.h"
 
 // Dialog zur Auswahl einer SSH-Verbindung aus der Liste
+
+using namespace AFS_Core;
+
 class SshAccountSelectDialog : public wxDialog {
 public:
     SshAccountSelectDialog(wxWindow* parent,

@@ -6,6 +6,8 @@
 #include <cwctype>
 #include <exception>
 
+using namespace AFS_Core;
+
 std::wstring win_to_sftp_pathW(const std::wstring& win)
 {
 	std::wstring p = win;

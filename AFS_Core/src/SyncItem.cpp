@@ -7,6 +7,8 @@
 #include "SyncFileSsh.h"
 #include "util.h"
 
+namespace AFS_Core {
+
 using std::optional;
 using std::nullopt;
 using std::wstring;
@@ -389,3 +391,5 @@ SSHPATH SyncItem::sshPathType() const
     else
         return SSHPATH::none;
 }
+
+} // namespace AFS_Core

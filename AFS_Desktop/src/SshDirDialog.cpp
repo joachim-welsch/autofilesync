@@ -3,6 +3,8 @@
 #include <wx/busyinfo.h>
 #include <algorithm>
 
+using namespace AFS_Core;
+
 BEGIN_EVENT_TABLE(SshDirDialog, wxDialog)
     EVT_BUTTON(ID_SSH_DIR_HOME_BUTTON, SshDirDialog::onHomeButton)
     EVT_BUTTON(ID_SSH_DIR_SORT_BUTTON, SshDirDialog::onSortByName)

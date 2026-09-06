@@ -2,6 +2,8 @@
 #include "SyncBase.h"
 #include "SyncFileSsh.h"
 
+namespace AFS_Core {
+
 class SyncTree: SyncBase {
 protected:
     void syncBranch(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard);
@@ -15,3 +17,5 @@ public:
     void count(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard);
     void operator()() override;
 };
+
+} // namespace AFS_Core

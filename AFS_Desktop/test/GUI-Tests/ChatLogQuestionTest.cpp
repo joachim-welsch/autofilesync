@@ -10,7 +10,9 @@
 #include <iomanip>
 #include <sstream>
 
-using util::tul;
+using namespace AFS_Core;
+
+using utilwx::tul;
 using util::wstring_to_string;
 
 namespace guitest {

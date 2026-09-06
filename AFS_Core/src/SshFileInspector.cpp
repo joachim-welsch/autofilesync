@@ -22,6 +22,8 @@
     #endif
 #endif
 
+namespace AFS_Core {
+
 // Hilfsfunktion: time_t in ISO-String konvertieren (plattformunabhängig)
 static std::string timeToIso(time_t t) {
     struct tm timeinfo;
@@ -320,3 +322,5 @@ RemoteFileInfo SshFileInspector::inspectFile(const std::string& remote_path) {
 
 #endif // _WIN32
 #endif // _UNIX
+
+} // namespace AFS_Core

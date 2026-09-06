@@ -3,6 +3,8 @@
 #include <mutex>
 #include <vector>
 
+namespace AFS_Core {
+
 // Items are addressed by a path relative to the current working directory. The
 // path is mirrored inside the bin, so restoreItem() can put the file back where
 // it came from.
@@ -32,3 +34,5 @@ public:
 	// By value: a reference would outlive the lock that protects the bin.
 	ItemList listItems() const;
 };
+
+} // namespace AFS_Core
