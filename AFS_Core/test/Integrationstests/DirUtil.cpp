@@ -5,6 +5,8 @@
 #include "util.h"
 #include <filesystem>
 
+using namespace AFS_Core;
+
 namespace tu {
 
     bool eraseTestDir(const std::wstring& fn, bool displayError)

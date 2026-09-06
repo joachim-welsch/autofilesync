@@ -6,6 +6,8 @@
 #include <fstream>
 #include <regex>
 
+using namespace AFS_Core;
+
 namespace fs = std::filesystem;
 
 namespace {

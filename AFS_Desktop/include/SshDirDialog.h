@@ -14,6 +14,8 @@
 #include "SshAccount.h"
 #include "SshDirInspector.h"
 
+using namespace AFS_Core;
+
 class SshDirDialog : public wxDialog {
 public:
     SshDirDialog(wxWindow* parent, 

@@ -3,14 +3,16 @@
 #include <fstream>
 #include <filesystem>
 
+namespace AFS_Core {
+
 namespace fs = std::filesystem;
 
 using std::wstring;
 
-svect Directory::read(const wstring& dir)
+WStringVector Directory::read(const wstring& dir)
 {
     const wstring actDir = current_ + dir + L"\\";
-    svect retval;
+    WStringVector retval;
     for (const fs::directory_entry& dir_entry :
         std::filesystem::directory_iterator(actDir))
     {
@@ -22,3 +24,5 @@ svect Directory::read(const wstring& dir)
     }
     return retval;
 }
+
+} // namespace AFS_Core

@@ -17,6 +17,8 @@
     #include <sys/stat.h>
 #endif
 
+namespace AFS_Core {
+
 #ifdef _UNIX
 // ============================================================================
 // UNIX/Linux-Implementierung mit libssh
@@ -532,3 +534,5 @@ void SshDirInspector::inspectDirRecursiveImpl(const std::string& remote_path, Re
 
 #endif // _WIN32
 #endif // _UNIX
+
+} // namespace AFS_Core

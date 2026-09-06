@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+using namespace AFS_Core;
+
 namespace fs = std::filesystem;
 using std::wstring;
 using std::string;

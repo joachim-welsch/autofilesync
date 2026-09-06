@@ -6,6 +6,9 @@
 #include "SyncMessage.h"
 
 class ProgressDialog;
+
+namespace AFS_Core {
+
 class Synchronize;
 
 enum class SyncCtrlState { Waiting, SyncActive, SyncFinished };
@@ -19,7 +22,7 @@ class SyncControler {
 	bool				displayErrormessages_ = false;
 	std::atomic<SyncCtrlState>	state_ = SyncCtrlState::Waiting;
 	std::size_t			countFiles_ = 0;
-	
+
 protected:
 	void setSyncFinished();
 	SyncControler() = default;
@@ -45,7 +48,7 @@ public:
 //##############################################################
 inline
 void SyncControler::countFiles(std::size_t countFiles)
-{ 
+{
 	countFiles_ = countFiles;
 }
 
@@ -59,3 +62,5 @@ inline
 void SyncControler::resetState() {
 	state_ = SyncCtrlState::Waiting;
 }
+
+} // namespace AFS_Core

@@ -8,6 +8,8 @@
 #include <Logging.h>
 #include <strutil.h>
 
+using namespace AFS_Core;
+
 using namespace SyncDirTests;
 using namespace util;
 TEST(SyncDirTests, /*DISABLED_*/CheckSyncExistingFiles)

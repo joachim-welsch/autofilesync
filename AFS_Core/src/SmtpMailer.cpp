@@ -20,6 +20,8 @@
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 
+namespace AFS_Core {
+
 using std::string;
 using std::wstring;
 using util::wstring_to_string;
@@ -389,3 +391,5 @@ std::string sendMail(const SmtpAccount& account, const std::wstring& recipient,
 		return ex.what();
 	}
 }
+
+} // namespace AFS_Core

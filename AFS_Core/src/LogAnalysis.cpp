@@ -6,6 +6,8 @@
 #include <Logging.h>
 #include "util.h"
 
+namespace AFS_Core {
+
 using util::string_to_wstring;
 using util::wstring_to_string;
 
@@ -36,3 +38,5 @@ bool looksLikeLogQuestion(const std::wstring& text)
         [](wchar_t c) { return static_cast<wchar_t>(std::towlower(c)); });
     return lower.find(L"log") != std::wstring::npos || lower.find(L"protokoll") != std::wstring::npos;
 }
+
+} // namespace AFS_Core

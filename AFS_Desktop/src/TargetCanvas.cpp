@@ -2,6 +2,8 @@
 #include "TreeCtrl.h"
 #include "Config.h"
 
+using namespace AFS_Core;
+
 using std::wstring;
 
 TargetCanvas::TargetCanvas(wxWindow* parent)

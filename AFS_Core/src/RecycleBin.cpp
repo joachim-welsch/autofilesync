@@ -5,6 +5,8 @@
 #include "util.h"
 #include <system_error>
 
+namespace AFS_Core {
+
 namespace fs = std::filesystem;
 
 namespace {
@@ -150,3 +152,5 @@ RecycleBin::ItemList RecycleBin::listItems() const
     }
     return items;
 }
+
+} // namespace AFS_Core

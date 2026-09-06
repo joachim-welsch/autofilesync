@@ -7,9 +7,6 @@
     <Filter Include="Anwendung">
       <UniqueIdentifier>{2C5F3B81-4D6E-4B92-8F71-1A3E9D2B6C14}</UniqueIdentifier>
     </Filter>
-    <Filter Include="mylib">
-      <UniqueIdentifier>{3D604C92-5E7F-4CA3-9082-2B4F0E3C7D25}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GuiTestMain.cpp">
@@ -189,23 +186,23 @@
     <ClCompile Include="..\..\TreeItemData.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\mylib\src\util.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\..\AFS_Core\src\util.cpp">
+      <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\mylib\src\MountedDrives.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp">
+      <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\mylib\src\LogCut.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\..\AFS_Core\src\LogCut.cpp">
+      <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\mylib\src\Logging.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\..\AFS_Core\src\Logging.cpp">
+      <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\mylib\src\strutil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\..\AFS_Core\src\strutil.cpp">
+      <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\mylib\src\FilesystemUtil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\..\..\AFS_Core\src\FilesystemUtil.cpp">
+      <Filter>Anwendung</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

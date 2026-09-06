@@ -2,9 +2,11 @@
 #include <string>
 #include "SyncItem.h"
 
+namespace AFS_Core {
+
 class FileDifference {
 public:
-    enum class Result { Equal, SourceModified, DestModified, DestNotExists, SourceNotExits, 
+    enum class Result { Equal, SourceModified, DestModified, DestNotExists, SourceNotExits,
                         SourceDriveNotMounted, DestDriveNotMounted, Undefined };
 private:
     const std::wstring& source_;
@@ -22,3 +24,5 @@ public:
     uint64_t sourceSize() const { return sourcesize_; }
     uint64_t destSize() const { return destsize_; }
 };
+
+} // namespace AFS_Core

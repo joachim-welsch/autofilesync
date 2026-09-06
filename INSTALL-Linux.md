@@ -64,7 +64,7 @@ Repository bezogen werden.
 ## 2. Quellen bereitstellen
 
 Alle Quellen liegen im Repository; die früher separat benötigte Bibliothek
-mylib ist als `AFS_Core/mylib` Bestandteil des Kerns.
+mylib ist vollständig in `AFS_Core` aufgegangen.
 
 ```bash
 mkdir -p ~/Entwicklung

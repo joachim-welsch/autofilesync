@@ -12,6 +12,8 @@
 #include "SshTest.h"
 #include "FileUtil.h"
 
+using namespace AFS_Core;
+
 using namespace SSHTest;
 using namespace tu;
 

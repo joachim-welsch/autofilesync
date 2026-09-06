@@ -8,7 +8,9 @@
 #include "id.h"
 #include "utilwx.h"
 
-using util::tul;
+using namespace AFS_Core;
+
+using utilwx::tul;
 
 SyncInterface::SyncInterface(wxWindow& parentWindow, Menu& menu)
     : parentWindow_(parentWindow)

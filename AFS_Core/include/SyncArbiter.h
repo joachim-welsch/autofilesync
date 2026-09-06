@@ -2,6 +2,8 @@
 
 #include <atomic>
 
+namespace AFS_Core {
+
 // Cross process arbitration between the GUI and the backgroundsync daemon: both
 // run the same Synchronize engine over the same configuration, so only one of
 // them may synchronise at a time. The GUI has priority - the daemon pauses
@@ -35,3 +37,5 @@ private:
     int activeLockFd_ = -1;
 #endif
 };
+
+} // namespace AFS_Core

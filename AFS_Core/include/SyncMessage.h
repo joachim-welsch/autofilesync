@@ -3,6 +3,8 @@
 #include <string>
 #include <cstdint>
 
+namespace AFS_Core {
+
 class SyncMessage {
 	std::wstring	msg_;
 	uint64_t		filenumber_ = 0;
@@ -15,3 +17,4 @@ public:
 	uint64_t	filesize() const { return filesize_; }
 };
 
+} // namespace AFS_Core

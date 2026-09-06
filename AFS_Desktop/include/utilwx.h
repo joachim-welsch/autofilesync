@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-namespace util {
+namespace utilwx {
 
 template <typename E>
 constexpr auto tul(E e) noexcept

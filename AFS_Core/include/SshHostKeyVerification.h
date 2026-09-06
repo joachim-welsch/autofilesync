@@ -10,6 +10,8 @@
     #endif
 #endif
 
+namespace AFS_Core {
+
 // Verifies the server's host key against the known_hosts store (trust-on-first-use),
 // rejecting the connection when a previously stored key no longer matches to guard
 // against man-in-the-middle attacks. Call once right after the SSH handshake, before
@@ -21,3 +23,5 @@ bool verifySshHostKey(ssh_session session, const std::string& host);
 bool verifySshHostKey(LIBSSH2_SESSION* session, const std::string& host, unsigned short port = 22);
     #endif
 #endif
+
+} // namespace AFS_Core

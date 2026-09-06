@@ -16,6 +16,8 @@
 #include "SyncArbiter.h"
 #include <Logging.h>
 
+namespace AFS_Core {
+
 class SyncControler;
 class SyncItem;
 
@@ -80,7 +82,7 @@ public:
     static Synchronize& instance();
 	static void destroy();
     virtual ~Synchronize();
-    
+
     #ifdef _TEST
         void startLogging(LogLevel, const std::wstring& lfname);
         int loopIterations() const { return loopIterations_; }
@@ -98,3 +100,5 @@ inline
 bool Synchronize::stop_requested() const {
     return stopRequest_.load();
 }
+
+} // namespace AFS_Core

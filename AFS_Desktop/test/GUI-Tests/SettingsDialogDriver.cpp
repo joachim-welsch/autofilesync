@@ -4,6 +4,8 @@
 #include "UserActions.h"
 #include "SettingsDialog.h"
 
+using namespace AFS_Core;
+
 namespace guitest {
 namespace {
 

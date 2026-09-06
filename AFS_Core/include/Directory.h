@@ -1,12 +1,14 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "Global.h"
 
-using svect = std::vector<std::wstring>;
+namespace AFS_Core {
 
 class Directory {
 	std::wstring current_ = L"\\";
 public:
-	svect read(const std::wstring& path);
+	WStringVector read(const std::wstring& path);
 };
 
+} // namespace AFS_Core

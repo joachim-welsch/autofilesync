@@ -41,7 +41,9 @@
     #pragma GCC diagnostic pop
 #endif
 
-using util::tul;
+using namespace AFS_Core;
+
+using utilwx::tul;
 using std::wstring;
 using std::nullopt;
 

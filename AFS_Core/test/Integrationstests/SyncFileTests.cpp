@@ -12,6 +12,8 @@
 #endif
 #include <Logging.h>
 
+using namespace AFS_Core;
+
 using namespace SyncFileTests;
 using namespace std::chrono;
 namespace fs = std::filesystem;
@@ -205,7 +207,7 @@ TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)
 // Reaches the file-local helper in SyncFile.cpp; no header declares it. The
 // default argument (call_wait = true) lives at the definition, so it must be
 // passed explicitly here.
-void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait);
+namespace AFS_Core { void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait); }
 
 // Regression test (Fehler 3, round 4): set_last_write_time() retried in a
 // "do { ... } while (ec)" loop with no exit condition. A persistent error

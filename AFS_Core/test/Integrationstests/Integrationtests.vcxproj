@@ -22,13 +22,11 @@
        Erwartete Struktur:
          <Repo>\AFS_Core\              <- LibDir
          <Repo>\AFS_Core\test\Integrationstests <- dieses Projekt
-         <Repo>\AFS_Core\mylib        <- MyLibDir
-       Abweichung: LibDir / MyLibDir hier hart setzen oder per
-       msbuild /p:MyLibDir=D:\pfad\mylib uebergeben.
+       Abweichung: LibDir hier hart setzen oder per
+       msbuild /p:LibDir=D:\pfad\AFS_Core uebergeben.
        ========================================================== -->
   <PropertyGroup Label="UserPaths">
     <LibDir Condition="'$(LibDir)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))</LibDir>
-    <MyLibDir Condition="'$(MyLibDir)' == ''">$([System.IO.Path]::GetFullPath('$(LibDir)\mylib'))</MyLibDir>
     <!-- Vorwaertsslashes fuer das String-Literal LIB_SOURCE_DIR -->
     <LibDirPosix>$(LibDir.Replace('\','/'))</LibDirPosix>
     <!-- Boost kommt normalerweise ueber vcpkg (boost-property-tree im Manifest);
@@ -98,7 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>C:\Entwicklung\extlib\boost_1_91_0;$(ProjectDir);$(LibDir);$(LibDir)\include;$(MyLibDir);$(MyLibDir)\include;$(VcpkgIncludeDirCli);$(VcpkgIncludeDirIde);$(BoostIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Entwicklung\extlib\boost_1_91_0;$(ProjectDir);$(LibDir);$(LibDir)\include;$(VcpkgIncludeDirCli);$(VcpkgIncludeDirIde);$(BoostIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- _CRT_SECURE_NO_WARNINGS / _SCL_SECURE_NO_WARNINGS werden bereits in
            pch.h gesetzt -> hier weglassen, sonst C4005 (Makro-Neudefinition).
            Deprecation-Warnungen sind ueber DisableSpecificWarnings 4996 abgedeckt. -->
@@ -177,15 +175,15 @@
     <ClCompile Include="SyncSshTreeTests.cpp" />
     <ClCompile Include="SshPathEncodingTests.cpp" />
     <ClCompile Include="SshTest.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\FilesystemUtil.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\LogCut.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\Logging.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\SmtpMailer.cpp" />
+    <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp" />
+    <ClCompile Include="$(LibDir)\src\LogCut.cpp" />
+    <ClCompile Include="$(LibDir)\src\Logging.cpp" />
+    <ClCompile Include="$(LibDir)\src\SmtpMailer.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncArbiter.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\strutil.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\util.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\MountedDrives.cpp" />
-    <ClCompile Include="$(MyLibDir)\src\RecycleBin.cpp" />
+    <ClCompile Include="$(LibDir)\src\strutil.cpp" />
+    <ClCompile Include="$(LibDir)\src\util.cpp" />
+    <ClCompile Include="$(LibDir)\src\MountedDrives.cpp" />
+    <ClCompile Include="$(LibDir)\src\RecycleBin.cpp" />
     <ClCompile Include="$(LibDir)\src\SshFileInspector.cpp" />
     <ClCompile Include="$(LibDir)\src\SshAccount.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncFileSsh.cpp" />
@@ -222,9 +220,7 @@
        einer einzigen aussagekraeftigen Meldung abgefangen. -->
   <Target Name="ValidateSourcePaths" BeforeTargets="ClCompile">
     <Message Importance="high" Text="LibDir   = $(LibDir)" />
-    <Message Importance="high" Text="MyLibDir = $(MyLibDir)" />
     <Error Condition="!Exists('$(LibDir)\src\SyncFile.cpp')" Text="LibDir zeigt nicht auf die AFS_Core-Quellen (SyncFile.cpp fehlt): '$(LibDir)'. Property LibDir im .vcxproj anpassen oder /p:LibDir=... uebergeben." />
-    <Error Condition="!Exists('$(MyLibDir)\src\strutil.cpp')" Text="MyLibDir zeigt nicht auf die mylib-Quellen (strutil.cpp fehlt): '$(MyLibDir)'. Property MyLibDir im .vcxproj anpassen oder /p:MyLibDir=... uebergeben." />
     <!-- Nur Warnung: ein Error wuerde den Build abbrechen, bevor der
          vcpkg-Install-Schritt Boost ueberhaupt anlegen kann. -->
     <Warning Condition="!Exists('$(VcpkgIncludeDirCli)\boost\version.hpp') and !Exists('$(VcpkgIncludeDirIde)\boost\version.hpp') and '$(BoostIncludeDir)' == ''" Text="Boost liegt (noch) nicht im vcpkg-Baum: weder '$(VcpkgIncludeDirCli)\boost' noch '$(VcpkgIncludeDirIde)\boost' vorhanden. Falls der Build gleich mit C1083 abbricht: vcpkg install von Hand im Projektverzeichnis ausfuehren und dessen Ausgabe pruefen." />

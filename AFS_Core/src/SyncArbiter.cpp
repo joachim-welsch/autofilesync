@@ -13,6 +13,8 @@
     #include <string>
 #endif
 
+namespace AFS_Core {
+
 namespace {
 // Slices the waiting so that a stop request is noticed quickly without polling
 // the other process more often than necessary.
@@ -161,3 +163,5 @@ SyncArbiter::~SyncArbiter()
 {
     release();
 }
+
+} // namespace AFS_Core

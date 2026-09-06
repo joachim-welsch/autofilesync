@@ -6,6 +6,8 @@
 #include <chrono>
 #include "SshAccount.h"
 
+namespace AFS_Core {
+
 enum class SSHPATH {none, source, dest, both};
 
 class SyncFlags {
@@ -247,3 +249,5 @@ inline Exclusions SyncItem::exclusions() const { return exclusions_; }
 inline void SyncItem::syncCycle(uint16_t p) { syncCycle_ = p; }
 inline uint16_t SyncItem::syncCycle() const { return syncCycle_; }
 inline SyncItem::timePoint SyncItem::lastSync() const { return lastSync_; }
+
+} // namespace AFS_Core

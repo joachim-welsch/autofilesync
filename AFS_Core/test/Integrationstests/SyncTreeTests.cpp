@@ -10,6 +10,8 @@
 #include <fstream>
 #include <strutil.h>
 
+using namespace AFS_Core;
+
 using namespace SyncTreeTests;
 using namespace util;
 

@@ -10,6 +10,8 @@
 #include <fstream>
 #include <thread>
 
+using namespace AFS_Core;
+
 namespace fs = std::filesystem;
 namespace pt = boost::property_tree;
 using std::wstring;
@@ -286,7 +288,7 @@ TEST_F(BackupProofTest, ReportsOnlyReachTheGuardedRun)
     reportSyncVolume(4096);
     reportSyncError(L"draussen");
 
-    EXPECT_EQ(report.bytes(), 1024u);
+    EXPECT_EQ(report.bytesTransferd(), 1024u);
     ASSERT_EQ(report.errors().size(), 1u);
     EXPECT_EQ(report.errors()[0], L"drin");
 }

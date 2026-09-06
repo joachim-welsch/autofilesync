@@ -16,6 +16,8 @@
     #include <unistd.h>
 #endif
 
+namespace AFS_Core {
+
 namespace fs = std::filesystem;
 using util::wstring_to_string;
 using util::string_to_wstring;
@@ -425,3 +427,5 @@ void Logging::log4(LogLevel level, const std::wstring& msg1, const std::wstring&
 		write(level, os);
     }
 }
+
+} // namespace AFS_Core

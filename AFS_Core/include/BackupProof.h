@@ -4,25 +4,21 @@
 #include <string>
 #include <vector>
 #include "SyncItem.h"
+#include "Global.h"
 
-// What one synchronisation pass over one sync item did, as far as a proof of
-// backup has to state it. The file count is not kept here: it comes from the
-// same counter the rest of the program reports (Synchronize::countFiles()), so
-// that the proof cannot disagree with what the user is shown.
+namespace AFS_Core {
+
 class SyncReport {
-    uint64_t bytes_ = 0;
-    std::vector<std::wstring> errors_;
+    uint64_t        bytesTransfered_ = 0;
+    WStringVector   errors_;
 public:
-    // A tree that fails file by file would otherwise grow the report - and with
-    // it the proof file - without limit. The message below is appended once
-    // when the limit is reached, so a truncated list never reads as a complete one.
     static constexpr std::size_t maxErrors = 100;
-    void transferred(uint64_t bytes) { bytes_ += bytes; }
+    void transferred(uint64_t bytes) { bytesTransfered_ += bytes; }
     void error(const std::wstring& message);
-    uint64_t bytes() const { return bytes_; }
-    const std::vector<std::wstring>& errors() const { return errors_; }
+    uint64_t bytesTransferd() const { return bytesTransfered_; }
+    const WStringVector& errors() const { return errors_; }
     bool successful() const { return errors_.empty(); }
-    bool empty() const { return bytes_ == 0 && errors_.empty(); }
+    bool empty() const { return bytesTransfered_ == 0 && errors_.empty(); }
 };
 
 // Makes report the one that reportSyncError()/reportSyncVolume() feed, for as
@@ -52,3 +48,5 @@ bool writeBackupProof(const std::filesystem::path& directory, const SyncItem& it
 // The proof file that writeBackupProof() appends an item's entries to.
 std::filesystem::path backupProofFilePath(const std::filesystem::path& directory,
     const std::wstring& itemName);
+
+} // namespace AFS_Core

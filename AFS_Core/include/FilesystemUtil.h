@@ -3,6 +3,8 @@
 #include <string>
 #include <optional>
 
+namespace AFS_Core {
+
 namespace FilesystemUtil
 {
 	enum class FileInfoResult { OK, FileNotExist, DriveNotMounted, CannotReadFileAttributes, InvalidFileTime, ErrorReadFileInfo };
@@ -16,3 +18,5 @@ namespace FilesystemUtil
 	std::string homeDir();
 }
 namespace fsu = FilesystemUtil;
+
+} // namespace AFS_Core

@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <string>
 
+namespace AFS_Core {
+
 enum class DeleteMode { RecycleBin, Permanent };
 
 class Settings {
@@ -43,3 +45,5 @@ public:
     void backupProofPath(const std::wstring& path) { backupProofPath_ = path; }
     void reset();
 };
+
+} // namespace AFS_Core

@@ -8,6 +8,7 @@
 #ifdef _WIN32
 #include "Libssh2Init.h"
 #include <libssh2.h>
+using namespace AFS_Core;
 #endif
 
 namespace fs = std::filesystem;

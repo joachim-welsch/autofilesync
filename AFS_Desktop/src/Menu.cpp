@@ -3,7 +3,7 @@
 #include "utilwx.h"
 #include "TextResources.h"
 
-using util::tul;
+using utilwx::tul;
 
 wxMenuBar*  Menu::menuBar()
 {

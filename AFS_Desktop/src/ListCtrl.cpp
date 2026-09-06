@@ -3,6 +3,8 @@
 #include "SyncItemDialog.h"
 #include "TextResources.h"
 
+using namespace AFS_Core;
+
 using std::wstring;
 using std::nullopt;
 

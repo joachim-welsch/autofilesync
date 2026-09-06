@@ -6,6 +6,8 @@
    #include <windows.h>
 #endif
 
+namespace AFS_Core {
+
 using std::string;
 using std::wstring;
 
@@ -71,3 +73,5 @@ std::wstring string_to_wstring(const std::string& str)
 #endif
 
 }
+
+} // namespace AFS_Core

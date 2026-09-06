@@ -16,6 +16,8 @@
     #include  <cctype>
 #endif
 
+namespace AFS_Core {
+
 using std::string;
 using std::wstring;
 
@@ -335,3 +337,5 @@ std::optional<fs::path> getMountRoot(const fs::path& in)
 }
 
 } // namespace FilesystemUtil
+
+} // namespace AFS_Core

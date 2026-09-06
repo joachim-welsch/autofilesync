@@ -5,6 +5,8 @@
 #include <set>
 #include "util.h"
 
+namespace AFS_Core {
+
 enum class CopyResult { Undefined, OK, Error, Stopped };
 
 class SyncBase {
@@ -58,5 +60,4 @@ public:
 std::wstring rootName(const std::wstring& path);
 std::wstring withoutVolumeSpec(const std::wstring& path);
 
-
-//################################################
+} // namespace AFS_Core

@@ -4,6 +4,8 @@
 #include <fstream>
 #include <cstdlib>
 
+using namespace AFS_Core;
+
 namespace fs = std::filesystem;
 
 namespace {

@@ -13,6 +13,8 @@
 class Tree;
 class Canvas;
 
+using namespace AFS_Core;
+
 enum class TreeCtrlIcon
 {
     File,

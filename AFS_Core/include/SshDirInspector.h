@@ -15,6 +15,8 @@
 #endif
 #include "SshAccount.h"
 
+namespace AFS_Core {
+
 // Struktur für Verzeichniseinträge
 struct RemoteDirEntry {
     std::string name;
@@ -48,16 +50,16 @@ class SshDirInspector {
     #endif
 #endif
     SshAccount account_;
-    
+
     void cleanup();
-    
+
 public:
     SshDirInspector(const SshAccount& account);
     ~SshDirInspector();
-    
+
     // Lädt alle Verzeichnisinformationen im übergebenen Pfad
     RemoteDirInfo inspectDir(const std::string& remote_path);
-    
+
     // Lädt Verzeichnisinformationen rekursiv
     RemoteDirInfo inspectDirRecursive(const std::string& remote_path);
 
@@ -69,3 +71,5 @@ public:
 private:
     void inspectDirRecursiveImpl(const std::string& remote_path, RemoteDirInfo& result);
 };
+
+} // namespace AFS_Core

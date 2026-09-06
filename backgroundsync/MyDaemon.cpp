@@ -4,6 +4,8 @@
 #include <Config.h>
 #include "Logging.h"
 
+using namespace AFS_Core;
+
 MyDaemon::MyDaemon()
     : running_(false) {
 }

@@ -7,9 +7,6 @@
     <Filter Include="Testhelfer">
       <UniqueIdentifier>{22222222-2222-4222-8222-222222222222}</UniqueIdentifier>
     </Filter>
-    <Filter Include="mylib">
-      <UniqueIdentifier>{33333333-3333-4333-8333-333333333333}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AFS_Core">
       <UniqueIdentifier>{44444444-4444-4444-8444-444444444444}</UniqueIdentifier>
     </Filter>
@@ -78,23 +75,23 @@
     <ClCompile Include="SshPathEncodingTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="$(MyLibDir)\src\FilesystemUtil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp">
+      <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(MyLibDir)\src\LogCut.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="$(LibDir)\src\LogCut.cpp">
+      <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(MyLibDir)\src\Logging.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="$(LibDir)\src\Logging.cpp">
+      <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(MyLibDir)\src\strutil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="$(LibDir)\src\strutil.cpp">
+      <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(MyLibDir)\src\util.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="$(LibDir)\src\util.cpp">
+      <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(MyLibDir)\src\MountedDrives.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="$(LibDir)\src\MountedDrives.cpp">
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\SshFileInspector.cpp">
       <Filter>AFS_Core</Filter>

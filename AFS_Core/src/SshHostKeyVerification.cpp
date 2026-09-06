@@ -3,6 +3,8 @@
 #include "Logging.h"
 #include "util.h"
 
+namespace AFS_Core {
+
 using util::string_to_wstring;
 
 #ifdef _UNIX
@@ -105,3 +107,5 @@ bool verifySshHostKey(LIBSSH2_SESSION* session, const std::string& host, unsigne
 
 #endif
 #endif
+
+} // namespace AFS_Core

@@ -12,6 +12,8 @@
 #include <iostream>
 
 
+namespace AFS_Core {
+
 using std::wstring;
 using namespace util;
 namespace fs = std::filesystem;
@@ -340,3 +342,5 @@ void SyncTree::operator()()
 				   syncItem_.wildcard());
 	}
 }
+
+} // namespace AFS_Core

@@ -8,6 +8,8 @@ struct llama_model;
 struct llama_context;
 struct llama_vocab;
 
+namespace AFS_Core {
+
 // Runs a GGUF model locally through llama.cpp - no network, no API key. The
 // model file comes from AUTOFILESYNC_LLAMA_MODEL; nothing is loaded until the
 // first send(), so an unset variable costs nothing at startup.
@@ -51,3 +53,5 @@ private:
     std::unique_ptr<llama_context, ContextDeleter> context_;
     const llama_vocab* vocab_ = nullptr;
 };
+
+} // namespace AFS_Core

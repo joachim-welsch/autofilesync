@@ -6,6 +6,8 @@
 #include <mutex>
 #include <optional>
 
+namespace AFS_Core {
+
 struct MountInfo {
     std::string device;
     std::string mountPoint;
@@ -55,3 +57,5 @@ public:
 };
 
 std::filesystem::path getMountPoint(const std::filesystem::path& path);
+
+} // namespace AFS_Core

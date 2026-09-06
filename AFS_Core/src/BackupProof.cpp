@@ -10,6 +10,8 @@
 #include "Logging.h"
 #include "util.h"
 
+namespace AFS_Core {
+
 namespace pt = boost::property_tree;
 namespace fs = std::filesystem;
 using std::wstring;
@@ -63,7 +65,7 @@ namespace {
         entry.put(wstring(L"Quelle"), item.source());
         entry.put(wstring(L"Ziel"), item.target());
         entry.put(wstring(L"Dateien"), std::to_wstring(files));
-        entry.put(wstring(L"Datenvolumen"), std::to_wstring(report.bytes()));
+        entry.put(wstring(L"Datenvolumen"), std::to_wstring(report.bytesTransferd()));
         entry.put(wstring(L"Status"), wstring(report.successful() ? L"Erfolgreich" : L"Fehlgeschlagen"));
         if (!report.errors().empty()) {
             pt::wptree errors;
@@ -179,3 +181,5 @@ bool writeBackupProof(const fs::path& directory, const SyncItem& item, std::size
     entries.push_back(std::make_pair(wstring(L""), buildEntry(item, files, report)));
     return writeProofFile(file, root);
 }
+
+} // namespace AFS_Core

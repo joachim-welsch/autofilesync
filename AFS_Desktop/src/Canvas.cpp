@@ -4,7 +4,9 @@
 #include "id.h"
 #include "Config.h"
 
-using util::tul;
+using namespace AFS_Core;
+
+using utilwx::tul;
 using std::wstring;
 using std::nullopt;
 

@@ -16,12 +16,6 @@
     <Filter Include="lib">
       <UniqueIdentifier>{c79809d4-f935-48d0-b92a-609da03c21e5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="mylib">
-      <UniqueIdentifier>{6e5aef1e-b63e-4aa9-8b1d-1514a0b63432}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="mylib\include">
-      <UniqueIdentifier>{a0d36751-f6bc-4e7a-97eb-c2233ad5d3a8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Fiiles\bmp">
       <UniqueIdentifier>{9e17ade7-0f05-40e3-bf01-43f8d5b60f76}</UniqueIdentifier>
     </Filter>
@@ -31,8 +25,8 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\SyncInterface.h" />
-    <ClInclude Include="..\AFS_Core\mylib\include\RecycleBin.h">
-      <Filter>mylib\include</Filter>
+    <ClInclude Include="..\AFS_Core\include\RecycleBin.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,17 +55,17 @@
     <ClCompile Include="src\SyncItemDialog.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\mylib\src\FilesystemUtil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\mylib\src\LogCut.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\AFS_Core\src\LogCut.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\mylib\src\Logging.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\AFS_Core\src\Logging.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\mylib\src\strutil.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\AFS_Core\src\strutil.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Config.cpp">
       <Filter>lib</Filter>
@@ -130,11 +124,11 @@
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
-    <ClCompile Include="..\AFS_Core\mylib\src\MountedDrives.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\mylib\src\util.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\AFS_Core\src\util.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshAccount.cpp" />
@@ -148,8 +142,8 @@
     <ClCompile Include="src\SyncInterface.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />
-    <ClCompile Include="..\AFS_Core\mylib\src\RecycleBin.cpp">
-      <Filter>mylib</Filter>
+    <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

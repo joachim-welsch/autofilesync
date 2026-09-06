@@ -10,9 +10,11 @@
 #include <chrono>
 #include "Global.h"
 
-class SyncControler;
+namespace AFS_Core { class SyncControler; }
 class ProgressDialog;
 class Menu;
+
+using namespace AFS_Core;
 
 class SyncInterface {
     wxWindow&       parentWindow_;

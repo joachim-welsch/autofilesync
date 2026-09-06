@@ -3,6 +3,8 @@
 #include "MainWindow.h"
 #include "SyncControler.h"
 
+using namespace AFS_Core;
+
 BEGIN_EVENT_TABLE(ProgressDialog, wxDialog)
     EVT_UPDATE_UI(wxID_CANCEL, ProgressDialog::onUpdateCancelButton)
     EVT_BUTTON(wxID_CANCEL, ProgressDialog::OnCancel)

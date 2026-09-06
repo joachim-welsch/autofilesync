@@ -5,7 +5,7 @@
 #include <wx/log.h>
 #include <wx/menu.h>
 
-using util::tul;
+using utilwx::tul;
 
 namespace guitest {
 namespace {

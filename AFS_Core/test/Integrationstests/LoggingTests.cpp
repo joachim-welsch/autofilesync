@@ -5,6 +5,8 @@
 #include "Synchronize.h"
 #include <fstream>
 
+using namespace AFS_Core;
+
 using namespace LoggingTests;
 
 size_t countLogEntries(const std::wstring& searchText)

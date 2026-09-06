@@ -11,6 +11,8 @@
 #include <fstream>
 #include <vector>
 
+using namespace AFS_Core;
+
 using util::wstring_to_string;
 namespace fs = std::filesystem;
 

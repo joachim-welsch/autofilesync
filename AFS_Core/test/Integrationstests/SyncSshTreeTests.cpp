@@ -13,6 +13,8 @@
 #include "FileUtil.h"
 
 
+using namespace AFS_Core;
+
 using namespace SSHTest;
 
 // Test-Konfiguration - Anpassen an Ihre SSH-Umgebung

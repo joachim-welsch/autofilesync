@@ -11,6 +11,8 @@
 #include "SshAccount.h"
 #include <boost/property_tree/json_parser.hpp>
 
+namespace AFS_Core {
+
 using SshAccounts = std::vector<SshAccount>;
 
 class Config {
@@ -93,3 +95,5 @@ public:
     void setChanged() { changed_ = true; }
     void unload();
 };
+
+} // namespace AFS_Core

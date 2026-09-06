@@ -8,6 +8,8 @@
     #include "strutil.h"
 #endif
 
+namespace AFS_Core {
+
 namespace fs = std::filesystem;
 
 #ifdef _UNIX
@@ -96,3 +98,5 @@ void LogCut::cut()
 }
 
 
+
+} // namespace AFS_Core

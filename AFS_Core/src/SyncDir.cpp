@@ -9,6 +9,8 @@
 #include "BackupProof.h"
 #include <iostream>
 
+namespace AFS_Core {
+
 using std::wstring;
 namespace fs = std::filesystem;
 using namespace util;
@@ -92,3 +94,5 @@ void SyncDir::operator()()
         reportSyncError(string_to_wstring(e.what()));
     }
 }
+
+} // namespace AFS_Core

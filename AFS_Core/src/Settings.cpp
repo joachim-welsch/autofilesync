@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Settings.h"
 
+namespace AFS_Core {
+
 void Settings::reset()
 {
     startMinimized_    = false;
@@ -10,3 +12,5 @@ void Settings::reset()
     deleteMode_ = DeleteMode::RecycleBin;
     backupProofPath_.clear();
 }
+
+} // namespace AFS_Core

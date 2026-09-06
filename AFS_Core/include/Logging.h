@@ -5,28 +5,25 @@
 #include <string>
 #include <fstream>
 #include "SmtpMailer.h"
-#ifdef WIN32
 
-#endif
+namespace AFS_Core {
 
-// Ordered by severity: shouldLog() compares the enumerators, so a new level
-// only works where its position says how severe it is. None stays last as the
-// threshold that silences everything.
 enum class LogLevel { Debug, Info, Warning, Error, FatalError, None };
 
 std::wstring getDefaultLogFilePath();
 
 class Logging {
-	static std::unique_ptr<Logging> instance_;
-	static std::once_flag initInstanceFlag_;
-	mutable std::mutex mutex_;
-	LogLevel		level_ = LogLevel::Info;
+	using LoggingPtr = std::unique_ptr<Logging>;
+	static  LoggingPtr 		instance_;
+	static std::once_flag 	initInstanceFlag_;
+	mutable std::mutex 		mutex_;
+	LogLevel				level_ = LogLevel::Info;
 #ifdef WIN32
-std::wstring	filePathName_ = getDefaultLogFilePath();
-std::wstring	editorPathName_ = L"C:\\windows\\notepad";
+	std::wstring	filePathName_ = getDefaultLogFilePath();
+	std::wstring	editorPathName_ = L"C:\\windows\\notepad";
 #else
 	std::wstring	filePathName_ = getDefaultLogFilePath();
-    std::wstring	editorPathName_ = L""; // TODO linux version
+    std::wstring	editorPathName_ = L"/usr/bin/nautilus";
 #endif
 	uint16_t		retentionDays_ = 7;
 	// Recipient for the levels that need a person to act (see LogLevel).
@@ -94,59 +91,59 @@ public:
 };
 
 #define LOG_INFO(msg) \
-	Logging::instance().log(LogLevel::Info, msg);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Info, msg);
 
 #define LOG_INFO2(msg1, msg2) \
-	Logging::instance().log(LogLevel::Info, msg1, msg2);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Info, msg1, msg2);
 
 #define LOG_INFO3(msg1, msg2, msg3) \
-	Logging::instance().log(LogLevel::Info, msg1, msg2, msg3);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Info, msg1, msg2, msg3);
 
 #define LOG_INFO4(msg1, msg2, msg3, msg4) \
-    Logging::instance().log4(LogLevel::Info, msg1, msg2, msg3, msg4);
+    AFS_Core::Logging::instance().log4(AFS_Core::LogLevel::Info, msg1, msg2, msg3, msg4);
 
 #define LOG_WARNING(msg) \
-	Logging::instance().log(LogLevel::Warning, msg);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Warning, msg);
 
 #define LOG_WARNING2(msg1, msg2) \
-    Logging::instance().log(LogLevel::Warning, msg1, msg2);
+    AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Warning, msg1, msg2);
 
 #define LOG_ERROR(msg) \
-	Logging::instance().log(LogLevel::Error, msg);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Error, msg);
 
 #define LOG_ERROR2(msg1, msg2) \
-	Logging::instance().log(LogLevel::Error, msg1, msg2);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Error, msg1, msg2);
 
 #define LOG_ERROR3(msg1, msg2, msg3) \
-    Logging::instance().log3(LogLevel::Error, msg1, msg2, msg3);
+    AFS_Core::Logging::instance().log3(AFS_Core::LogLevel::Error, msg1, msg2, msg3);
 
 #define LOG_ERROR4(msg1, msg2, msg3, msg4) \
-    Logging::instance().log4(LogLevel::Error, msg1, msg2, msg3, msg4);
+    AFS_Core::Logging::instance().log4(AFS_Core::LogLevel::Error, msg1, msg2, msg3, msg4);
 
 #define LOG_FATAL(msg) \
-	Logging::instance().log(LogLevel::FatalError, msg);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::FatalError, msg);
 
 #define LOG_FATAL2(msg1, msg2) \
-	Logging::instance().log(LogLevel::FatalError, msg1, msg2);
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::FatalError, msg1, msg2);
 
 #define LOG_FATAL3(msg1, msg2, msg3) \
-	Logging::instance().log3(LogLevel::FatalError, msg1, msg2, msg3);
+	AFS_Core::Logging::instance().log3(AFS_Core::LogLevel::FatalError, msg1, msg2, msg3);
 
 #ifdef _xDEBUG
 // Log debug, even if a different log level is set.
 #define LOG_DEBUG(msg) \
     {\
-    LogLevel savedLevel = Logging::instance().getLogLevel(); \
-	Logging::instance().setLogLevel(LogLevel::Debug); \
-	Logging::instance().log(LogLevel::Debug, msg); \
-    Logging::instance().setLogLevel(savedLevel);\
+    AFS_Core::LogLevel savedLevel = AFS_Core::Logging::instance().getLogLevel(); \
+	AFS_Core::Logging::instance().setLogLevel(AFS_Core::LogLevel::Debug); \
+	AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Debug, msg); \
+    AFS_Core::Logging::instance().setLogLevel(savedLevel);\
     }
 #else
 #define LOG_DEBUG(msg) \
-    Logging::instance().log(LogLevel::Debug, msg);
+    AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Debug, msg);
 
 #define LOG_DEBUG2(msg1, msg2) \
-    Logging::instance().log(LogLevel::Debug, msg1, msg2);
+    AFS_Core::Logging::instance().log(AFS_Core::LogLevel::Debug, msg1, msg2);
 #endif
 
 
@@ -154,3 +151,5 @@ inline
 std::unique_ptr<Logging> Logging::instance_;
 inline
 std::once_flag Logging::initInstanceFlag_;
+
+} // namespace AFS_Core
