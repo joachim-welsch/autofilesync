@@ -64,7 +64,7 @@
     <ClCompile Include="..\AFS_Core\src\Logging.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\strutil.cpp">
+    <ClCompile Include="..\AFS_Core\src\StrUtil.cpp">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Config.cpp">

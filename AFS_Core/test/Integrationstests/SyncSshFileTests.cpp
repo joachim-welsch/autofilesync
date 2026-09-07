@@ -13,7 +13,7 @@
 #include <FilesystemUtil.h>
 #include "FileUtil.h"
 #include "DirUtil.h"
-#include "strutil.h"
+#include "StrUtil.h"
 #include "SshTest.h"
 #include "DirUtil.h"
 

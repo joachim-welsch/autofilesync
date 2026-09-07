@@ -5,7 +5,7 @@
 #include <ctime>
 #include <filesystem>
 #ifdef _UNIX
-    #include "strutil.h"
+    #include "StrUtil.h"
 #endif
 
 namespace AFS_Core {

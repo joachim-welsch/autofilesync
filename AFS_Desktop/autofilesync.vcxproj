@@ -111,7 +111,7 @@
     <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp" />
     <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp" />
     <ClCompile Include="..\AFS_Core\src\SmtpMailer.cpp" />
-    <ClCompile Include="..\AFS_Core\src\strutil.cpp" />
+    <ClCompile Include="..\AFS_Core\src\StrUtil.cpp" />
     <ClCompile Include="..\AFS_Core\src\util.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\BackgroundService.cpp" />
