@@ -5,6 +5,8 @@
 #include <mutex>
 #include <stack>
 
+namespace AFS_Core {
+
 struct emptyStack : std::exception {
 	//const char* what() const throw();
 };
@@ -42,3 +44,5 @@ public:
 		return data_.empty();
 	}
 };
+
+} // namespace AFS_Core

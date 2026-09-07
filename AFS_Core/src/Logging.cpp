@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <Logging.h>
-#include <strutil.h>
+#include <StrUtil.h>
 #include <array>
 #include <chrono>
 #include <ctime>

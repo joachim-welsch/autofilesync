@@ -126,7 +126,7 @@ bzw. `cmake -S AFS_Desktop ...`); AFS_Desktop zieht AFS_Core dann selbst hinzu.
 
 Die früher separat erwartete Bibliothek **mylib** ist vollständig in `AFS_Core`
 aufgegangen (Logging, LogCut, FilesystemUtil, MountedDrives, RecycleBin,
-SmtpMailer, strutil, util). Weitere Abhängigkeiten: wxWidgets 3.2, Boost
+SmtpMailer, StrUtil, util). Weitere Abhängigkeiten: wxWidgets 3.2, Boost
 (header-only), libssh, OpenSSL, Google Test (nur Tests); llama.cpp wird beim
 Konfigurieren geklont. GNU gettext (libintl, `msgfmt`) ist optional - ohne die
 Bibliothek bleiben die Texte deutsch.

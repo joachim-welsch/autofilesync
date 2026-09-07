@@ -180,7 +180,7 @@
     <ClCompile Include="$(LibDir)\src\Logging.cpp" />
     <ClCompile Include="$(LibDir)\src\SmtpMailer.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncArbiter.cpp" />
-    <ClCompile Include="$(LibDir)\src\strutil.cpp" />
+    <ClCompile Include="$(LibDir)\src\StrUtil.cpp" />
     <ClCompile Include="$(LibDir)\src\util.cpp" />
     <ClCompile Include="$(LibDir)\src\MountedDrives.cpp" />
     <ClCompile Include="$(LibDir)\src\RecycleBin.cpp" />

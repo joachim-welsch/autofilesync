@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <SmtpMailer.h>
-#include <strutil.h>
+#include <StrUtil.h>
 #include <cctype>
 #include <cstdio>
 #include <ctime>

@@ -8,7 +8,7 @@
 #include <Logging.h>
 #include <filesystem>
 #include <fstream>
-#include <strutil.h>
+#include <StrUtil.h>
 
 using namespace AFS_Core;
 

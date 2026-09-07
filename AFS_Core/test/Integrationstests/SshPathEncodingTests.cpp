@@ -6,7 +6,7 @@
 #include "Config.h"
 #include "SshAccount.h"
 #include "TestPaths.h"
-#include <strutil.h>
+#include <StrUtil.h>
 #include <filesystem>
 #include <fstream>
 #include <vector>

@@ -82,7 +82,7 @@
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
     <ClCompile Include="SyncSshTreeTests.cpp" />
-    <ClCompile Include="..\..\src\strutil.cpp">
+    <ClCompile Include="..\..\src\StrUtil.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="SshTest.cpp">

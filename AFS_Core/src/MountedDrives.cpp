@@ -10,7 +10,7 @@
     #include <Windows.h>
 #else
     #include <sys/stat.h>
-    #include "strutil.h"
+    #include "StrUtil.h"
 #endif
 #ifdef _MACOS
     #include <sys/param.h>

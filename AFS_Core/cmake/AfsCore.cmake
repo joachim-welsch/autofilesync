@@ -45,7 +45,7 @@ set(AFS_CORE_SOURCES
     MountedDrives.cpp
     RecycleBin.cpp
     SmtpMailer.cpp
-    strutil.cpp
+    StrUtil.cpp
     util.cpp
 )
 list(TRANSFORM AFS_CORE_SOURCES PREPEND ${AFS_CORE_DIR}/src/)

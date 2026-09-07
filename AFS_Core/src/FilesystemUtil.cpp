@@ -2,7 +2,7 @@
 #include "FilesystemUtil.h"
 #include "Logging.h"
 #include "MountedDrives.h"  // Hinzugefügter Include
-#include <strutil.h>
+#include <StrUtil.h>
 #include <chrono>
 #include <iomanip>
 #include <sstream>

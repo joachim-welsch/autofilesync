@@ -198,7 +198,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\Logging.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\strutil.cpp">
+    <ClCompile Include="..\..\..\AFS_Core\src\StrUtil.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\FilesystemUtil.cpp">

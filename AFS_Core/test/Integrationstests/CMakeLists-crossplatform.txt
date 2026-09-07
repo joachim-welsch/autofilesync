@@ -80,7 +80,7 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/FilesystemUtil.cpp
     ${LIB_DIR}/src/LogCut.cpp
     ${LIB_DIR}/src/Logging.cpp
-    ${LIB_DIR}/src/strutil.cpp
+    ${LIB_DIR}/src/StrUtil.cpp
     ${LIB_DIR}/src/util.cpp
     ${LIB_DIR}/src/MountedDrives.cpp
     ${LIB_DIR}/src/RecycleBin.cpp

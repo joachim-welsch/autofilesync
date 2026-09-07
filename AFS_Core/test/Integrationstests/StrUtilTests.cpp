@@ -1,5 +1,5 @@
 #include "pch.h"
-#include <strutil.h>
+#include <StrUtil.h>
 
 using namespace AFS_Core;
 
