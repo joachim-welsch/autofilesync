@@ -14,9 +14,9 @@ TEST(StrUtilTests, WstringToStringRoundTripsUmlauts)
     const std::wstring original = L"Prüfung äöüÄÖÜß häckchen";
 
     const std::string utf8 = wstring_to_string(original);
-    const std::wstring roundTripped = string_to_wstring(utf8);
+    const std::wstring round_tripped = string_to_wstring(utf8);
 
-    EXPECT_EQ(roundTripped, original);
+    EXPECT_EQ(round_tripped, original);
 }
 
 TEST(StrUtilTests, WstringToStringProducesValidUtf8ForUmlauts)
@@ -38,24 +38,24 @@ TEST(StrUtilTests, WstringToStringRoundTripsPlainAscii)
     EXPECT_EQ(string_to_wstring(wstring_to_string(original)), original);
 }
 
-#include <util.h>
+#include <Util.h>
 
-// Regression test (Fehler 4, round 4): withTrailingChar() dereferenced
+// Regression test (Fehler 4, round 4): with_trailing_char() dereferenced
 // rbegin() without checking for an empty string - undefined behavior (a hard
 // iterator-debug assert on MSVC). Reachable from every path-joining call site
 // whenever a source/target ends up empty (bad config entry, mangled path).
 TEST(StrUtilTests, WithTrailingCharHandlesEmptyString)
 {
-    EXPECT_EQ(util::withTrailingChar(L"", L'/'), L"/");
+    EXPECT_EQ(util::with_trailing_char(L"", L'/'), L"/");
 }
 
 TEST(StrUtilTests, WithTrailingCharKeepsExistingBehavior)
 {
-    EXPECT_EQ(util::withTrailingChar(L"/a", L'/'), L"/a/");
-    EXPECT_EQ(util::withTrailingChar(L"/a/", L'/'), L"/a/");
+    EXPECT_EQ(util::with_trailing_char(L"/a", L'/'), L"/a/");
+    EXPECT_EQ(util::with_trailing_char(L"/a/", L'/'), L"/a/");
 }
 
-// Fehler 2 (round 5): wildcardToRegex() only replaced * and ? but escaped
+// Fehler 2 (round 5): wildcard_to_regex() only replaced * and ? but escaped
 // nothing else, so the remaining characters were interpreted as regex:
 // "*.txt" (-> ".*.txt") matched "abXtxt", parentheses became groups so
 // "Fotos (2020)*" never matched its own files, and an unbalanced "[" threw
@@ -77,6 +77,6 @@ TEST(StrUtilTests, WildmatchTreatsNonWildcardCharsLiterally)
 // local path, or any other path that simply didn't exist.
 TEST(StrUtilTests, RemoveFileReturnsWhetherSomethingWasActuallyRemoved)
 {
-    const std::wstring nonExistent = L"/nonexistent_afx_dir/nonexistent_afx_file.txt";
-    EXPECT_FALSE(util::remove_file(nonExistent, LogLevel::None));
+    const std::wstring non_existent = L"/nonexistent_afx_dir/nonexistent_afx_file.txt";
+    EXPECT_FALSE(util::remove_file(non_existent, LogLevel::None));
 }

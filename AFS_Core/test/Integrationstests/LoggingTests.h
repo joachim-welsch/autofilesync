@@ -8,9 +8,9 @@ namespace LoggingTests
 	const std::wstring TargetFile = L"test1.txt";
 
 #ifdef _UNIX
-	const std::wstring SourcePath = TestPaths::scratchDir() + L"/source/";
-	const std::wstring TargetDir = TestPaths::scratchDir() + L"/dest/";
-	const std::wstring LoggingPath = TestPaths::scratchDir() + L"/afs_log.txt";
+	const std::wstring SourcePath = TestPaths::scratch_dir() + L"/source/";
+	const std::wstring TargetDir = TestPaths::scratch_dir() + L"/dest/";
+	const std::wstring LoggingPath = TestPaths::scratch_dir() + L"/afs_log.txt";
 #else
 	const std::wstring NotMountedSourcePath = L"Y:\\";
 	const std::wstring TargetDir = L"C:\\temp\\test\\dest\\";

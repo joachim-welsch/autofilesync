@@ -32,7 +32,7 @@ TEST_F(GuiTest, SshPasswortMitSonderzeichenWirdUebernommen)
     activateMenuItem(mainWindow(), tul(id::EditSshAccounts));
     pump();
 
-    const auto created = Config::instance().findSshAccountByName(accountName.ToStdString());
+    const auto created = Config::instance().find_ssh_account_by_name(accountName.ToStdString());
     ASSERT_TRUE(created.has_value()) << "Die SSH-Verbindung wurde nicht angelegt.";
     EXPECT_EQ(created->password(), std::string(passwordWithSpecialCharacters.ToUTF8()));
 }

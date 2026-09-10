@@ -181,7 +181,7 @@ void GridCtrl::OnModifyEntry(wxGridEvent& ev)
 	auto name = GetRowLabelValue(row);
 	std::optional<SyncItem> found = nullopt;
 	if (!name.empty())
-		found = Config::instance().findByName(name.ToStdWstring());
+		found = Config::instance().find_by_name(name.ToStdWstring());
 	if (!found.has_value()) // click on a row label with no matching item
 		return;
 	// found is a copy; write it back under Config's lock via the original name
@@ -190,7 +190,7 @@ void GridCtrl::OnModifyEntry(wxGridEvent& ev)
 	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);
-		Config::instance().updateByName(originalName, *found);
+		Config::instance().update_by_name(originalName, *found);
 		update();
 	}
 }
@@ -202,7 +202,7 @@ void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
 	auto value = GetCellValue(row, col);
 	auto name = GetRowLabelValue(row);
 	auto& cfg = Config::instance();
-	auto found = Config::instance().findByName(name.ToStdWstring());
+	auto found = Config::instance().find_by_name(name.ToStdWstring());
 	if (found != std::nullopt) {
 		// SyncItemDialog disables its OK button while source/target are empty
 		// (onUpdateOkButton); the grid's inline cell edit has no such gate, so
@@ -219,7 +219,7 @@ void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
 		case 2:	found->target(value.ToStdWstring()); break;
 		}
 		// found is a copy; write it back under Config's lock (also sets changed).
-		cfg.updateByName(name.ToStdWstring(), *found);
+		cfg.update_by_name(name.ToStdWstring(), *found);
 	}
 	ev.Skip();
 }

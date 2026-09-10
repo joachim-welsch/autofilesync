@@ -91,7 +91,7 @@ void SshDirDialog::populateList(const wxString& path)
     try {
         wxBusyCursor wait;
         SshDirInspector inspector(account_);
-        RemoteDirInfo info = inspector.inspectDir(std::string(path.ToUTF8()));
+        RemoteDirInfo info = inspector.inspect_dir(std::string(path.ToUTF8()));
 
         if (!info.exists) {
             statusText_->SetLabel(wxString::Format(_("Fehler: %s"), info.error_message));
@@ -210,7 +210,7 @@ void SshDirDialog::onHomeButton(wxCommandEvent&)
     try {
         wxBusyCursor wait;
         SshDirInspector inspector(account_);
-        populateList(wxString::FromUTF8(inspector.getHomeDir()));
+        populateList(wxString::FromUTF8(inspector.get_home_dir()));
     } catch (const std::exception& ex) {
         statusText_->SetLabel(wxString::Format(_("Fehler: %s"), ex.what()));
     }

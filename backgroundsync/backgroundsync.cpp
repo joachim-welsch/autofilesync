@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     std::signal(SIGTERM, signalHandler);
     myDaemon->start();
     syslog(LOG_INFO, "backgroundsys läuft...");
-    LOG_INFO2(L"backgroundsys gestartet", L"");
+    AFS_Core::log_info(L"backgroundsys gestartet", L"");
     while (!stopRequested) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

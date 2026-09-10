@@ -127,7 +127,7 @@
     <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\util.cpp">
+    <ClCompile Include="..\AFS_Core\src\Util.cpp">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
@@ -141,6 +141,7 @@
     <ClCompile Include="..\AFS_Core\src\SyncFileSsh.cpp" />
     <ClCompile Include="src\SyncInterface.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SftpConnection.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />
     <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp">
       <Filter>lib</Filter>

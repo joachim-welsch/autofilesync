@@ -18,35 +18,35 @@ using SshAccounts = std::vector<SshAccount>;
 class Config {
     Settings    settings_;
     SyncItems   syncitems_;
-    mutable std::mutex syncitemsMutex_;   // guards syncitems_: GUI thread (add/remove/edit sync items) mutates it
+    mutable std::mutex syncitems_mutex_;   // guards syncitems_: GUI thread (add/remove/edit sync items) mutates it
                                            // while the sync worker thread reads a snapshot of it concurrently
-    SshAccounts sshAccounts_;
-    mutable std::mutex sshAccountsMutex_; // guards sshAccounts_: GUI thread (SshAccountsDialog) mutates it
+    SshAccounts ssh_accounts_;
+    mutable std::mutex ssh_accounts_mutex_; // guards ssh_accounts_: GUI thread (SshAccountsDialog) mutates it
                                            // while the sync worker thread searches it concurrently
     std::wstring pathname_;
     bool changed_ = false;
     bool ready_ = false;
     static std::unique_ptr<Config> instance_;
-    static std::once_flag initInstanceFlag_;
+    static std::once_flag init_instance_flag_;
 
     Config() = default;
     Config(const Config&) = delete;
     Config& operator=(const Config&) = delete;
-    bool interpretJson(boost::property_tree::wptree&& pt);
-    bool readLoggingSetup(boost::property_tree::wptree&);
-    bool readSettings(boost::property_tree::wptree&);
-    bool readSshAccounts(boost::property_tree::wptree&);
-    void writeLoggingSetup(boost::property_tree::wptree& root);
-    void writeSettings(boost::property_tree::wptree& root);
-    void writeSshAccounts(boost::property_tree::wptree& root);
-    void writeSyncItems(boost::property_tree::wptree& root);
-    void writeSyncItem(const SyncItem& inode, boost::property_tree::wptree& syncitemNode);
-    static void initSingleton();
+    bool interpret_json(boost::property_tree::wptree&& pt);
+    bool read_logging_setup(boost::property_tree::wptree&);
+    bool read_settings(boost::property_tree::wptree&);
+    bool read_ssh_accounts(boost::property_tree::wptree&);
+    void write_logging_setup(boost::property_tree::wptree& root);
+    void write_settings(boost::property_tree::wptree& root);
+    void write_ssh_accounts(boost::property_tree::wptree& root);
+    void write_sync_items(boost::property_tree::wptree& root);
+    void write_sync_item(const SyncItem& inode, boost::property_tree::wptree& syncitem_node);
+    static void init_singleton();
 public:
     static Config& instance();
-    static std::wstring getRootPathname();
+    static std::wstring get_root_pathname();
     static bool exists();
-    static bool syncPossible();
+    static bool sync_possible();
     ~Config() = default;
     bool ready() const { return ready_; }
     void add(const SyncItem&, bool loading = false);
@@ -55,16 +55,16 @@ public:
     bool read(std::wstring_view pathname);
     bool write(const std::wstring& pathname);
     void remove(unsigned);
-    bool eraseByName(const std::wstring& name);
+    bool erase_by_name(const std::wstring& name);
     void pathname(std::wstring_view p);
     const std::wstring& pathname() const { return pathname_; }
-    // find/findByName return copies, not pointers into syncitems_: a raw pointer
+    // find/find_by_name return copies, not pointers into syncitems_: a raw pointer
     // would be written by the GUI thread without the lock (and could dangle after
     // add/remove reallocates) while the sync thread snapshots the vector.
-    // Mutations go through updateByName()/eraseByName() instead.
+    // Mutations go through update_by_name()/erase_by_name() instead.
     std::optional<SyncItem> find(const std::wstring& path, bool source = true) const;
-    std::optional<SyncItem> findByName(const std::wstring& name) const;
-    bool updateByName(const std::wstring& name, const SyncItem& updated);
+    std::optional<SyncItem> find_by_name(const std::wstring& name) const;
+    bool update_by_name(const std::wstring& name, const SyncItem& updated);
     SyncItem item(unsigned) const;
     // Returns a snapshot copy, not a reference: the sync worker thread reads this
     // concurrently with GUI-thread add()/set()/remove()/erase() calls, and SyncDir/
@@ -72,27 +72,27 @@ public:
     // copy, so a live reference into syncitems_ could be reallocated/erased from
     // under them.
     SyncItems syncitems() const;
-    void refreshLastSync(const std::wstring& name);
-    // No direct sshAccounts_ reference is exposed: callers on different threads
+    void refresh_last_sync(const std::wstring& name);
+    // No direct ssh_accounts_ reference is exposed: callers on different threads
     // must not iterate/mutate the shared vector without going through the lock.
-    std::optional<SshAccount> findSshAccountByName(const std::string& name) const;
-    std::optional<SshAccount> sshAccountAt(std::size_t index) const;
-    SshAccounts sshAccountsSnapshot() const;
-    bool removeSshAccount(std::size_t index);
-    bool updateSshAccount(std::size_t index, const SshAccount& updated);
+    std::optional<SshAccount> find_ssh_account_by_name(const std::string& name) const;
+    std::optional<SshAccount> ssh_account_at(std::size_t index) const;
+    SshAccounts ssh_accounts_snapshot() const;
+    bool remove_ssh_account(std::size_t index);
+    bool update_ssh_account(std::size_t index, const SshAccount& updated);
     // Keeps sync items pointing at a renamed/edited SSH account working: their
-    // embedded account snapshot (see SyncItem::renameSshAccountReference) is
+    // embedded account snapshot (see SyncItem::rename_ssh_account_reference) is
     // updated in place wherever it still matches oldName. Call after a
-    // successful updateSshAccount() whose old name you captured beforehand.
-    bool updateSshAccountReferences(const std::string& oldName, const SshAccount& newAccount);
-    bool sshAccountReferencedByAnyItem(const std::string& name) const;
+    // successful update_ssh_account() whose old name you captured beforehand.
+    bool update_ssh_account_references(const std::string& old_name, const SshAccount& new_account);
+    bool ssh_account_referenced_by_any_item(const std::string& name) const;
     Settings& settings() { return settings_; }
     const Settings& settings() const { return settings_; }
     void reset();
-    void setConsoleMode() { settings_.setConsoleMode(); }
-    bool consoleMode() const { return settings_.consoleMode(); }
+    void set_console_mode() { settings_.set_console_mode(); }
+    bool console_mode() const { return settings_.console_mode(); }
     bool changed() const { return changed_; }
-    void setChanged() { changed_ = true; }
+    void set_changed() { changed_ = true; }
     void unload();
 };
 

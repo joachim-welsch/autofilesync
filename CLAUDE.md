@@ -36,8 +36,19 @@ Wenn Regeln sich widersprechen:
 3. Geschwindigkeit.
 
 ## Code Style
+### Bezeichner
+Für Klassen- und Type-Namen wird PascalCase verwendet. Für Member, Funktionen und Parameter wird snake_case verwendet. Vorhandener Code wird diesbezüglich angepasst.
+Für Konstanten und Makros wird SCREAMING_SNAKE_CASE verwendet.
+Hungarian Notation und führende Unterstriche sind verboten.
+Membervariablen werden mit einem abschließenden Unterstrich gekennzeichnet.
+Es werden Kontextbezogene Namen (NL.1) verwendet.
+Bezeichner sollen möglichst kurz sein. Wenn es für den selbsterklärenden Code notwendig ist, dürfen sie auch lang werden.
+### Leerzeilen
 Kompakter Code wird bevorzugt (keine unnötigen Leerzeilen)
-
+Die öffnende und schließende Klammer einer Funktion oder Methode soll in einer eigenen Zeile stehen.
+### Allgemeine Regeln
+Die C++ Core Guidelines (Bjarne Stroustrup und Herb Sutter) sollen eingehalten werden.
+Der Code soll selbsterklärend sein.
 Wenn möglich sollen die folgenden Regeln eingehalten werden.
 - Nicht notwendige Klammern werden wegelassen.
 - Single Responsibility Principle (SRP) eine Verantwortung pro Funktion.
@@ -45,23 +56,22 @@ Wenn möglich sollen die folgenden Regeln eingehalten werden.
 - Low Cyclomatic Complexity – möglichst geringe Verzweigungskomplexität.
 - One Level of Abstraction per Function – innerhalb einer Funktion auf derselben Abstraktionsebene bleiben.
 - Selbsterklärender Code soll Inline-Kommentaren bevorzugt werden.
-
+Konstanten werden Makros wenn immer möglich bevorzugt.
 ### Kommentare
 - Wenn sich ein Kommentar durch einen besseren Bezeichner oder eine kleine Refaktorisierung vermeiden lässt, ist dies zu bevorzugen.
--Der Code enthält nur Kommentare, die zum Verständnis des Codes notwendig sind;
-     Architektur, Anforderungen oder Bedienkonzepte gehören in die Dokumentation.
-- Kommentare sollten nur lokalen Kontext erklären.     
+- Der Code enthält nur Kommentare, die zum Verständnis des Codes notwendig sind;
+     Architektur, Anforderungen oder Bedienkonzepte gehören nicht in den Code, sondern in die Dokumentation.
+- Kommentare sollten nur den lokalen Kontext erklären.
 - Sprache: English
-- Kein Kommentar, wenn nur der Code widerholt wird.
+- Kein Kommentar, wenn nur der Code widerholt.
 - Ein Kommentar soll mindestens eine dieser Fragen beantworten:
   Warum wird das so gemacht?
-  Warum nicht anders?
   Welche Annahme gilt hier?
   Welche Randbedingung muss beachtet werden?
 - Kommentare müssen bei jeder Codeänderung mit gepflegt werden. Veraltete Kommentare sind zu entfernen oder anzupassen.
 - Kommentare beschreiben keine offensichtlichen Sprachkonstrukte oder Standardbibliotheksfunktionen.
-- Der Kode soll nicht den kompakten Code stören (z.B. unnötige Zeilen)
-  Kommentare sollen den Lesefluss des Codes nicht stören. Unnötige Leerzeilen oder großflächige Kommentarblöcke sind zu vermeiden.
+- Der Kommentar soll nicht den kompakten Code stören (z.B. unnötige Zeilen)
+  Kommentare sollen den Lesefluss des Codes nicht stören. Unnötige Leerzeilen oder großflächige Kommentarblöcke sind verboten.
 
 ## Tests
 

@@ -4,10 +4,10 @@
 #include "SyncDir.h"
 #include "SyncFileSsh.h"
 #include "SyncFile.h"
-#include "util.h"
+#include "Util.h"
 #include "Synchronize.h"
 #include "Logging.h"
-#include "BackupProof.h"
+#include "CopyLog.h"
 #include <filesystem>
 #include <iostream>
 
@@ -19,26 +19,26 @@ using namespace util;
 namespace fs = std::filesystem;
 using std::exception;
 
-SyncTree::SyncTree(const SyncItem& si, std::size_t& copyCount, bool onlyCount)
-    : SyncBase(si, copyCount, onlyCount)
+SyncTree::SyncTree(const SyncItem& si, std::size_t& copy_count, bool only_count)
+    : SyncBase(si, copy_count, only_count)
 {}
 
 void SyncTree::count(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
-    LOG_DEBUG(L"count: " + sourcename + L" -> " + targetname);
-    if (syncItem_.sshSource()) {
-        syncSshBranch(sourcename, targetname, wildcard);
+    log_debug(L"count: " + sourcename + L" -> " + targetname);
+    if (sync_item_.ssh_source()) {
+        sync_ssh_branch(sourcename, targetname, wildcard);
     } else {
-        syncBranch(withoutVolumeSpec(sourcename), withoutVolumeSpec(targetname), wildcard);
+        sync_branch(without_volume_spec(sourcename), without_volume_spec(targetname), wildcard);
     }
 }
 
-void SyncTree::syncSshDirEntry(const SshDirEntry& entry, const wstring& sourcePath, const wstring& wildcard, const wstring& destination)
+void SyncTree::sync_ssh_dir_entry(const SshDirEntry& entry, const wstring& source_path, const wstring& wildcard, const wstring& destination)
 {
-    LOG_DEBUG(L"syncSshDirEntry: " + entry.name);
+    log_debug(L"sync_ssh_dir_entry: " + entry.name);
     
-    // Nur reguläre Dateien verarbeiten (Verzeichnisse werden in syncSshBranch behandelt)
-    if (!entry.isRegularFile) {
+    // directories are handled by sync_ssh_branch
+    if (!entry.is_regular_file) {
         return;
     }
     
@@ -46,96 +46,93 @@ void SyncTree::syncSshDirEntry(const SshDirEntry& entry, const wstring& sourcePa
     if (!wildcard.empty() && !wildmatch(entry.name, wildcard)) {
         return;
     }
-    if (isExcluded(entry.name, syncItem_.exclusions())) {
+    if (is_excluded(entry.name, sync_item_.exclusions())) {
         return;
     }
 
-    if (onlyCount_) {
-        copyCount_++;
+    if (only_count_) {
+        copy_count_++;
         return;
     }
 
-    wstring fname = util::withTrailingChar(sourcePath, L'/') + entry.name;
-    wstring dest = util::withTrailingChar(destination, L'/') + entry.name;
+    wstring fname = util::with_trailing_char(source_path, L'/') + entry.name;
+    wstring dest = util::with_trailing_char(destination, L'/') + entry.name;
     
-    SyncFile(SyncItem(syncItem_.name(), syncItem_.syncItemType(), fname, dest, wildcard, Exclusions(), syncItem_.flags(), syncItem_.compareItems()), copyCount_)();
+    SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), fname, dest, wildcard, Exclusions(), sync_item_.flags(), sync_item_.compare_items()), copy_count_)();
 }
 
-void SyncTree::syncSshBranch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
+void SyncTree::sync_ssh_branch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
-    LOG_DEBUG(L"syncSshBranch: " + sourcename + L" -> " + targetname);
-    if (Synchronize::stopRequested())
+    log_debug(L"sync_ssh_branch: " + sourcename + L" -> " + targetname);
+    if (Synchronize::stopping())
         return;
     // Names seen at this directory level's source listing, so the
     // target-only pass below can tell "not in source" from "wildcard-
-    // excluded, ignore" - see SyncBase::syncTargetOnlyEntries(). Includes
+    // excluded, ignore" - see SyncBase::sync_target_only_entries(). Includes
     // subdirectory names too, so a target file that happens to share a
     // source subdirectory's name is never mistaken for an orphan.
-    std::set<wstring> sourceNames;
+    std::set<wstring> source_names;
     try {
-        createTargetDirIfNotExist(targetname);
+        create_target_dir_if_not_exist(targetname);
 
-        auto entries = sshListDir(sourcename);
+        auto entries = ssh_list_dir(sourcename);
         for (const auto& entry : entries) {
             if (entry.name == L"." || entry.name == L"..") {
                 continue;
             }
-            sourceNames.insert(entry.name);
+            source_names.insert(entry.name);
 
-            // Never follow SSH symlinks - see syncBranch()'s local-path check
+            // Never follow SSH symlinks - see sync_branch()'s local-path check
             // above for the same reasoning (a link back to an ancestor would
             // recurse forever). Unlike the local path, this can't safely
             // distinguish "symlink to a directory" from "symlink to a file"
             // without an extra round trip per entry, so every symlink is
             // skipped rather than synced - conservative, but correct either way.
-            if (entry.isSymlink) {
-                LOG_INFO2(L"SSH-Symlink wird nicht verfolgt: ", withTrailingChar(sourcename, L'/') + entry.name)
-            } else if (entry.isDirectory) {
-                // Ausgeschlossene Verzeichnisse werden komplett übersprungen,
-                // nicht erst pro enthaltener Datei gefiltert - eine ganze
-                // Teilstruktur (z.B. "node_modules") soll nie betreten werden.
-                if (isExcluded(entry.name, syncItem_.exclusions())) {
-                    LOG_DEBUG(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + entry.name)
+            if (entry.is_symlink) {
+                log_info(L"SSH-Symlink wird nicht verfolgt: ", with_trailing_char(sourcename, L'/') + entry.name);
+            } else if (entry.is_directory) {
+                // An excluded directory is skipped as a whole, not filtered per
+                // contained file: a subtree like "node_modules" is never entered.
+                if (is_excluded(entry.name, sync_item_.exclusions())) {
+                    log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + entry.name);
                 } else {
-                    // Rekursiv in Unterverzeichnis absteigen
-                    wstring source = withTrailingChar(sourcename, L'/') + entry.name;
-                    wstring target = withTrailingChar(targetname, L'/') + entry.name;
-                    syncSshBranch(source, target, wildcard);
+                    wstring source = with_trailing_char(sourcename, L'/') + entry.name;
+                    wstring target = with_trailing_char(targetname, L'/') + entry.name;
+                    sync_ssh_branch(source, target, wildcard);
                 }
             } else {
-                // Datei synchronisieren
-                syncSshDirEntry(entry, sourcename, wildcard, targetname);
+                sync_ssh_dir_entry(entry, sourcename, wildcard, targetname);
             }
 
-            if (Synchronize::stopRequested())
+            if (Synchronize::stopping())
                 break;
         }
         // Target-only subdirectories are intentionally out of scope here (see
-        // syncTargetOnlyEntries()'s doc comment) - only files at this level.
-        if (!Synchronize::stopRequested())
-            syncTargetOnlyEntries(sourcename, targetname, wildcard, sourceNames);
+        // sync_target_only_entries()'s doc comment) - only files at this level.
+        if (!Synchronize::stopping())
+            sync_target_only_entries(sourcename, targetname, wildcard, source_names);
     }
     catch (const std::exception& e) {
-        LOG_ERROR3(sourcename, targetname, string_to_wstring(e.what()))
-        reportSyncError(sourcename + L": " + string_to_wstring(e.what()));
+        log_error(sourcename, targetname, string_to_wstring(e.what()));
+        report_sync_error(sourcename + L": " + string_to_wstring(e.what()));
     }
     catch (...) {
-        LOG_ERROR3(sourcename, targetname, L" - Unbekannter Fehler")
-        reportSyncError(L"Unbekannter Fehler: " + sourcename);
+        log_error(sourcename, targetname, L" - Unbekannter Fehler");
+        report_sync_error(L"Unbekannter Fehler: " + sourcename);
     }
 }
 
-void SyncTree::syncBranch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
+void SyncTree::sync_branch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
-    LOG_DEBUG(L"syncBranch: " + sourcename + L" -> " + targetname);
-    if (Synchronize::stopRequested())
+    log_debug(L"sync_branch: " + sourcename + L" -> " + targetname);
+    if (Synchronize::stopping())
         return;
-    SyncItem syncItem(L"", SyncItemType::Dir, sourcename, targetname, wildcard, syncItem_.exclusions(), syncItem_.flags(),
-            syncItem_.compareItems());
-    wstring search = withTrailingChar(sourcename, DIR_SEPARATOR);
-    std::set<wstring> sourceNames;
+    SyncItem sync_item(L"", SyncItemType::Dir, sourcename, targetname, wildcard, sync_item_.exclusions(), sync_item_.flags(),
+            sync_item_.compare_items());
+    wstring search = with_trailing_char(sourcename, DIR_SEPARATOR);
+    std::set<wstring> source_names;
     try {
-        createTargetDirIfNotExist(targetname);
+        create_target_dir_if_not_exist(targetname);
         for (const fs::directory_entry& dir_entry : std::filesystem::directory_iterator(search)) {
             const auto& newpath = dir_entry.path();
             if (newpath.has_filename()) {
@@ -143,54 +140,54 @@ void SyncTree::syncBranch(const wstring& sourcename, const wstring& targetname, 
                 try {
                     filename = newpath.filename().wstring();
                 } catch (const exception& e) {
-                    LOG_ERROR3(sourcename, targetname, string_to_wstring(e.what()))
+                    log_error(sourcename, targetname, string_to_wstring(e.what()));
                     continue;
                 }
                 if (filename != L"." && filename != L"..")
-                    sourceNames.insert(filename);
+                    source_names.insert(filename);
                 if (dir_entry.is_directory() && filename != L"." && filename != L"..") {
                     // Never follow directory symlinks: a link back to an ancestor
                     // (or any other cycle) would otherwise make this recurse
                     // forever, exhausting the stack.
                     if (dir_entry.is_symlink()) {
-                        LOG_INFO2(L"Symlink-Verzeichnis wird nicht verfolgt: ", withTrailingChar(sourcename, DIR_SEPARATOR) + filename)
-                    } else if (isExcluded(filename, syncItem_.exclusions())) {
-                        // Ganze Teilstruktur überspringen, nicht erst pro Datei filtern.
-                        LOG_DEBUG(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + filename)
+                        log_info(L"Symlink-Verzeichnis wird nicht verfolgt: ", with_trailing_char(sourcename, DIR_SEPARATOR) + filename);
+                    } else if (is_excluded(filename, sync_item_.exclusions())) {
+                        // Skip the whole subtree rather than filtering per file.
+                        log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + filename);
                     } else {
-                        wstring target = withTrailingChar(targetname, DIR_SEPARATOR) + filename;
-                        wstring source = withTrailingChar(sourcename, DIR_SEPARATOR) + filename;
-                        syncBranch(source, target, wildcard);
+                        wstring target = with_trailing_char(targetname, DIR_SEPARATOR) + filename;
+                        wstring source = with_trailing_char(sourcename, DIR_SEPARATOR) + filename;
+                        sync_branch(source, target, wildcard);
                     }
                 } else
-                    syncDirEntry(dir_entry, wildcard, targetname);
+                    sync_dir_entry(dir_entry, wildcard, targetname);
             }
-            if (Synchronize::stopRequested())
+            if (Synchronize::stopping())
                 break;
         }
-        if (!Synchronize::stopRequested())
-            syncTargetOnlyEntries(sourcename, targetname, wildcard, sourceNames);
+        if (!Synchronize::stopping())
+            sync_target_only_entries(sourcename, targetname, wildcard, source_names);
     }
     catch (const std::exception& e) {
-        LOG_ERROR3(sourcename, targetname, string_to_wstring(e.what()))
-        reportSyncError(sourcename + L": " + string_to_wstring(e.what()));
+        log_error(sourcename, targetname, string_to_wstring(e.what()));
+        report_sync_error(sourcename + L": " + string_to_wstring(e.what()));
     }
     catch (...) {
-        LOG_ERROR3(sourcename, targetname, L" - Unbekannter Fehler")
-        reportSyncError(L"Unbekannter Fehler: " + sourcename);
+        log_error(sourcename, targetname, L" - Unbekannter Fehler");
+        report_sync_error(L"Unbekannter Fehler: " + sourcename);
     }
 }
 
-void SyncTree::syncLocalToSshBranch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
+void SyncTree::sync_local_to_ssh_branch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
-    LOG_DEBUG(L"syncLocalToSshBranch: " + sourcename + L" -> " + targetname);
-    if (Synchronize::stopRequested())
+    log_debug(L"sync_local_to_ssh_branch: " + sourcename + L" -> " + targetname);
+    if (Synchronize::stopping())
         return;
 
-    wstring search = withTrailingChar(sourcename, DIR_SEPARATOR);
-    std::set<wstring> sourceNames;
+    wstring search = with_trailing_char(sourcename, DIR_SEPARATOR);
+    std::set<wstring> source_names;
     try {
-        createTargetDirIfNotExist(targetname);
+        create_target_dir_if_not_exist(targetname);
         for (const fs::directory_entry& dir_entry : std::filesystem::directory_iterator(search)) {
             const auto& newpath = dir_entry.path();
             if (newpath.has_filename()) {
@@ -198,148 +195,147 @@ void SyncTree::syncLocalToSshBranch(const wstring& sourcename, const wstring& ta
                 try {
                     filename = newpath.filename().wstring();
                 } catch (const exception& e) {
-                    LOG_ERROR3(sourcename, targetname, string_to_wstring(e.what()))
+                    log_error(sourcename, targetname, string_to_wstring(e.what()));
                     continue;
                 }
                 if (filename != L"." && filename != L"..")
-                    sourceNames.insert(filename);
+                    source_names.insert(filename);
                 if (dir_entry.is_directory() && filename != L"." && filename != L"..") {
-                    // Never follow directory symlinks - see syncBranch() above.
+                    // Never follow directory symlinks - see sync_branch() above.
                     if (dir_entry.is_symlink()) {
-                        LOG_INFO2(L"Symlink-Verzeichnis wird nicht verfolgt: ", withTrailingChar(sourcename, DIR_SEPARATOR) + filename)
-                    } else if (isExcluded(filename, syncItem_.exclusions())) {
-                        LOG_DEBUG(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + filename)
+                        log_info(L"Symlink-Verzeichnis wird nicht verfolgt: ", with_trailing_char(sourcename, DIR_SEPARATOR) + filename);
+                    } else if (is_excluded(filename, sync_item_.exclusions())) {
+                        log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + filename);
                     } else {
                         // SSH-Ziel: POSIX '/' verwenden
-                        wstring target = withTrailingChar(targetname, L'/') + filename;
-                        wstring source = withTrailingChar(sourcename, DIR_SEPARATOR) + filename;
-                        syncLocalToSshBranch(source, target, wildcard);
+                        wstring target = with_trailing_char(targetname, L'/') + filename;
+                        wstring source = with_trailing_char(sourcename, DIR_SEPARATOR) + filename;
+                        sync_local_to_ssh_branch(source, target, wildcard);
                     }
                 } else if (dir_entry.is_regular_file()) {
                     // Wildcard-Matching prüfen
                     if (!wildcard.empty() && !wildmatch(filename, wildcard)) {
                         continue;
                     }
-                    if (isExcluded(filename, syncItem_.exclusions())) {
+                    if (is_excluded(filename, sync_item_.exclusions())) {
                         continue;
                     }
 
-                    if (onlyCount_) {
-                        copyCount_++;
+                    if (only_count_) {
+                        copy_count_++;
                     } else {
-                        wstring source = withTrailingChar(sourcename, DIR_SEPARATOR) + filename;
-                        wstring dest = withTrailingChar(targetname, L'/') + filename;
-                        SyncFile(SyncItem(syncItem_.name(), syncItem_.syncItemType(), source, dest, wildcard,
-                                 Exclusions(), syncItem_.flags(), syncItem_.compareItems()), copyCount_)();
+                        wstring source = with_trailing_char(sourcename, DIR_SEPARATOR) + filename;
+                        wstring dest = with_trailing_char(targetname, L'/') + filename;
+                        SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard,
+                                 Exclusions(), sync_item_.flags(), sync_item_.compare_items()), copy_count_)();
                     }
                 }
             }
-            if (Synchronize::stopRequested())
+            if (Synchronize::stopping())
                 break;
         }
-        if (!Synchronize::stopRequested())
-            syncTargetOnlyEntries(sourcename, targetname, wildcard, sourceNames);
+        if (!Synchronize::stopping())
+            sync_target_only_entries(sourcename, targetname, wildcard, source_names);
     }
     catch (const std::exception& e) {
-        LOG_ERROR3(sourcename, targetname, string_to_wstring(e.what()))
-        reportSyncError(sourcename + L": " + string_to_wstring(e.what()));
+        log_error(sourcename, targetname, string_to_wstring(e.what()));
+        report_sync_error(sourcename + L": " + string_to_wstring(e.what()));
     }
     catch (...) {
-        LOG_ERROR3(sourcename, targetname, L" - Unbekannter Fehler")
-        reportSyncError(L"Unbekannter Fehler: " + sourcename);
+        log_error(sourcename, targetname, L" - Unbekannter Fehler");
+        report_sync_error(L"Unbekannter Fehler: " + sourcename);
     }
 }
 
-void SyncTree::syncSshToSshBranch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
+void SyncTree::sync_ssh_to_ssh_branch(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
-    LOG_DEBUG(L"syncSshToSshBranch: " + sourcename + L" -> " + targetname);
-    if (Synchronize::stopRequested())
+    log_debug(L"sync_ssh_to_ssh_branch: " + sourcename + L" -> " + targetname);
+    if (Synchronize::stopping())
         return;
 
-    std::set<wstring> sourceNames;
+    std::set<wstring> source_names;
     try {
-        createTargetDirIfNotExist(targetname);
+        create_target_dir_if_not_exist(targetname);
 
-        auto entries = sshListDir(sourcename);
+        auto entries = ssh_list_dir(sourcename);
         for (const auto& entry : entries) {
             if (entry.name == L"." || entry.name == L"..") {
                 continue;
             }
-            sourceNames.insert(entry.name);
+            source_names.insert(entry.name);
 
-            // Never follow SSH symlinks - see syncSshBranch() above.
-            if (entry.isSymlink) {
-                LOG_INFO2(L"SSH-Symlink wird nicht verfolgt: ", withTrailingChar(sourcename, L'/') + entry.name)
-            } else if (entry.isDirectory) {
-                if (isExcluded(entry.name, syncItem_.exclusions())) {
-                    LOG_DEBUG(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + entry.name)
+            // Never follow SSH symlinks - see sync_ssh_branch() above.
+            if (entry.is_symlink) {
+                log_info(L"SSH-Symlink wird nicht verfolgt: ", with_trailing_char(sourcename, L'/') + entry.name);
+            } else if (entry.is_directory) {
+                if (is_excluded(entry.name, sync_item_.exclusions())) {
+                    log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + entry.name);
                 } else {
                     // Rekursiv in Unterverzeichnis absteigen (beide SSH-Pfade: POSIX '/')
-                    wstring source = withTrailingChar(sourcename, L'/') + entry.name;
-                    wstring target = withTrailingChar(targetname, L'/') + entry.name;
-                    syncSshToSshBranch(source, target, wildcard);
+                    wstring source = with_trailing_char(sourcename, L'/') + entry.name;
+                    wstring target = with_trailing_char(targetname, L'/') + entry.name;
+                    sync_ssh_to_ssh_branch(source, target, wildcard);
                 }
-            } else if (entry.isRegularFile) {
+            } else if (entry.is_regular_file) {
                 // Wildcard-Matching prüfen
                 if (!wildcard.empty() && !wildmatch(entry.name, wildcard)) {
                     continue;
                 }
-                if (isExcluded(entry.name, syncItem_.exclusions())) {
+                if (is_excluded(entry.name, sync_item_.exclusions())) {
                     continue;
                 }
 
-                if (onlyCount_) {
-                    copyCount_++;
+                if (only_count_) {
+                    copy_count_++;
                 } else {
-                    wstring source = withTrailingChar(sourcename, L'/') + entry.name;
-                    wstring dest = withTrailingChar(targetname, L'/') + entry.name;
-                    SyncFile(SyncItem(syncItem_.name(), syncItem_.syncItemType(), source, dest, wildcard,
-                             Exclusions(), syncItem_.flags(), syncItem_.compareItems()), copyCount_)();
+                    wstring source = with_trailing_char(sourcename, L'/') + entry.name;
+                    wstring dest = with_trailing_char(targetname, L'/') + entry.name;
+                    SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard,
+                             Exclusions(), sync_item_.flags(), sync_item_.compare_items()), copy_count_)();
                 }
             }
 
-            if (Synchronize::stopRequested())
+            if (Synchronize::stopping())
                 break;
         }
-        if (!Synchronize::stopRequested())
-            syncTargetOnlyEntries(sourcename, targetname, wildcard, sourceNames);
+        if (!Synchronize::stopping())
+            sync_target_only_entries(sourcename, targetname, wildcard, source_names);
     }
     catch (const std::exception& e) {
-        LOG_ERROR3(sourcename, targetname, string_to_wstring(e.what()))
-        reportSyncError(sourcename + L": " + string_to_wstring(e.what()));
+        log_error(sourcename, targetname, string_to_wstring(e.what()));
+        report_sync_error(sourcename + L": " + string_to_wstring(e.what()));
     }
     catch (...) {
-        LOG_ERROR3(sourcename, targetname, L" - Unbekannter Fehler")
-        reportSyncError(L"Unbekannter Fehler: " + sourcename);
+        log_error(sourcename, targetname, L" - Unbekannter Fehler");
+        report_sync_error(L"Unbekannter Fehler: " + sourcename);
     }
 }
 
 void SyncTree::operator()()
 {
-	LOG_DEBUG(L"SyncTree::operator()()");
+	log_debug(L"SyncTree::operator()()");
 
-	if (syncItem_.sshSource() && syncItem_.sshTarget()) {
-		// SSH-zu-SSH: Beide Endpunkte sind SSH-Pfade
-		LOG_DEBUG(L"SyncTree SSH-zu-SSH: " + syncItem_.source() + L" -> " + syncItem_.target());
-		syncSshToSshBranch(syncItem_.source(), syncItem_.target(), syncItem_.wildcard());
+	if (sync_item_.ssh_source() && sync_item_.ssh_target()) {
+		log_debug(L"SyncTree SSH-zu-SSH: " + sync_item_.source() + L" -> " + sync_item_.target());
+		sync_ssh_to_ssh_branch(sync_item_.source(), sync_item_.target(), sync_item_.wildcard());
 	}
-	else if (syncItem_.sshSource()) {
+	else if (sync_item_.ssh_source()) {
 		// SSH-Quelle: Verwende SSH-basiertes Directory Listing
-		LOG_DEBUG(L"SyncTree mit SSH-Quelle: " + syncItem_.source());
-		syncSshBranch(syncItem_.source(), 
-					  syncItem_.sshTarget() ? syncItem_.target() : withoutVolumeSpec(syncItem_.target()), 
-					  syncItem_.wildcard());
+		log_debug(L"SyncTree mit SSH-Quelle: " + sync_item_.source());
+		sync_ssh_branch(sync_item_.source(), 
+					  sync_item_.ssh_target() ? sync_item_.target() : without_volume_spec(sync_item_.target()), 
+					  sync_item_.wildcard());
 	}
-	else if (syncItem_.sshTarget()) {
+	else if (sync_item_.ssh_target()) {
 		// Lokale Quelle, SSH-Ziel
-		LOG_DEBUG(L"SyncTree lokal->SSH: " + syncItem_.source() + L" -> " + syncItem_.target());
-		syncLocalToSshBranch(withoutVolumeSpec(syncItem_.source()), syncItem_.target(), syncItem_.wildcard());
+		log_debug(L"SyncTree lokal->SSH: " + sync_item_.source() + L" -> " + sync_item_.target());
+		sync_local_to_ssh_branch(without_volume_spec(sync_item_.source()), sync_item_.target(), sync_item_.wildcard());
 	}
 	else {
 		// Lokale Quelle
-		syncBranch(withoutVolumeSpec(syncItem_.source()), 
-				   syncItem_.sshTarget() ? syncItem_.target() : withoutVolumeSpec(syncItem_.target()), 
-				   syncItem_.wildcard());
+		sync_branch(without_volume_spec(sync_item_.source()), 
+				   sync_item_.ssh_target() ? sync_item_.target() : without_volume_spec(sync_item_.target()), 
+				   sync_item_.wildcard());
 	}
 }
 

@@ -6,17 +6,17 @@
 namespace AFS_Core {
 
 class LogCut {
-	using time_point = std::chrono::system_clock::time_point;
+	using TimePoint = std::chrono::system_clock::time_point;
 
 	Logging&		log_;
-	time_point		now_;
+	TimePoint		now_;
 	std::ifstream	is_;
 	std::ofstream	os_;
 
-	bool openFiles();
-	void closeFiles();
+	bool open_files();
+	void close_files();
 	void cut();
-	bool getTimeFromLine(const std::string& line, time_point& tp);
+	bool get_time_from_line(const std::string& line, TimePoint& tp);
 public:
 	LogCut();
 	void operator()();

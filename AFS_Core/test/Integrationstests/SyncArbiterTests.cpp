@@ -12,7 +12,7 @@ namespace {
 // Two arbiters in one process see each other exactly as two processes do: the
 // Windows events live in the Global\ namespace and flock treats two open file
 // descriptors of the same file independently, even within one process.
-std::chrono::milliseconds timeAcquire(SyncArbiter& arbiter, const std::atomic_bool& abort, bool& acquired)
+std::chrono::milliseconds time_acquire(SyncArbiter& arbiter, const std::atomic_bool& abort, bool& acquired)
 {
     const auto start = std::chrono::steady_clock::now();
     acquired = arbiter.acquire(abort);
@@ -26,23 +26,23 @@ TEST(SyncArbiterTests, BackgroundWaitsWhileForegroundHolds)
     std::atomic_bool abort{false};
     SyncArbiter foreground(SyncRole::Foreground);
     bool acquired = false;
-    ASSERT_LT(timeAcquire(foreground, abort, acquired).count(), 500);
+    ASSERT_LT(time_acquire(foreground, abort, acquired).count(), 500);
     ASSERT_TRUE(acquired);
 
-    std::atomic_bool backgroundEntered{false};
+    std::atomic_bool background_entered{false};
     std::thread daemon([&]() {
         SyncArbiter background(SyncRole::Background);
-        std::atomic_bool noAbort{false};
-        background.acquire(noAbort);
-        backgroundEntered = true;
+        std::atomic_bool no_abort{false};
+        background.acquire(no_abort);
+        background_entered = true;
         background.release();
     });
     std::this_thread::sleep_for(600ms);
-    EXPECT_FALSE(backgroundEntered.load()) << "Der Hintergrunddienst haette pausieren muessen.";
+    EXPECT_FALSE(background_entered.load()) << "Der Hintergrunddienst haette pausieren muessen.";
 
     foreground.release();
     daemon.join();
-    EXPECT_TRUE(backgroundEntered.load()) << "Nach dem Ende der GUI-Synchronisation muss der Dienst weiterlaufen.";
+    EXPECT_TRUE(background_entered.load()) << "Nach dem Ende der GUI-Synchronisation muss der Dienst weiterlaufen.";
 }
 
 // The other direction: only one synchronisation at a time means the GUI has to
@@ -59,7 +59,7 @@ TEST(SyncArbiterTests, ForegroundWaitsForRunningBackgroundPass)
         background.release();
     });
     SyncArbiter foreground(SyncRole::Foreground);
-    const auto waited = timeAcquire(foreground, abort, acquired);
+    const auto waited = time_acquire(foreground, abort, acquired);
     releaser.join();
 
     EXPECT_TRUE(acquired);
@@ -75,15 +75,15 @@ TEST(SyncArbiterTests, AbortEndsTheWaitInsteadOfBlocking)
     SyncArbiter foreground(SyncRole::Foreground);
     ASSERT_TRUE(foreground.acquire(abort));
 
-    std::atomic_bool daemonAbort{false};
+    std::atomic_bool daemon_abort{false};
     bool acquired = true;
     std::chrono::milliseconds waited{0};
     std::thread daemon([&]() {
         SyncArbiter background(SyncRole::Background);
-        waited = timeAcquire(background, daemonAbort, acquired);
+        waited = time_acquire(background, daemon_abort, acquired);
     });
     std::this_thread::sleep_for(400ms);
-    daemonAbort = true;
+    daemon_abort = true;
     daemon.join();
 
     EXPECT_FALSE(acquired) << "acquire() muss bei Abbruch false liefern.";
@@ -99,7 +99,7 @@ TEST(SyncArbiterTests, RepeatedAcquireOfTheSameHolderReturnsAtOnce)
     SyncArbiter foreground(SyncRole::Foreground);
     ASSERT_TRUE(foreground.acquire(abort));
     bool acquired = false;
-    EXPECT_LT(timeAcquire(foreground, abort, acquired).count(), 100);
+    EXPECT_LT(time_acquire(foreground, abort, acquired).count(), 100);
     EXPECT_TRUE(acquired);
     foreground.release();
 }

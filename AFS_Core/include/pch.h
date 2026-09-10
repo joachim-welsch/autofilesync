@@ -1,7 +1,7 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
 
-// Verhindere, dass winsock.h (Version 1) eingebunden wird, da wir winsock2.h brauchen
+// Keep winsock.h (version 1) out because winsock2.h is required
 #ifndef _WINSOCKAPI_
 #define _WINSOCKAPI_
 #endif

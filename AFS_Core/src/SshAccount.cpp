@@ -26,22 +26,22 @@ const std::string& SshAccount::password() const
 }
 
 // Setter
-void SshAccount::setName(const std::string& name)
+void SshAccount::set_name(const std::string& name)
 {
     name_ = name;
 }
 
-void SshAccount::setUser(const std::string& user)
+void SshAccount::set_user(const std::string& user)
 {
     user_ = user;
 }
 
-void SshAccount::setHost(const std::string& host)
+void SshAccount::set_host(const std::string& host)
 {
     host_ = host;
 }
 
-void SshAccount::setPassword(const std::string& password)
+void SshAccount::set_password(const std::string& password)
 {
     password_ = password;
 }

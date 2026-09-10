@@ -15,7 +15,7 @@ namespace AFS_Core {
 // first send(), so an unset variable costs nothing at startup.
 class LlamaClient {
 public:
-    static constexpr char modelPathVariable[] = "AUTOFILESYNC_LLAMA_MODEL";
+    static constexpr char MODEL_PATH_VARIABLE[] = "AUTOFILESYNC_LLAMA_MODEL";
     // True if the variable points at a file that exists; does not load the
     // model, so this is cheap enough to call whenever the chat window opens.
     static bool available();
@@ -32,16 +32,16 @@ public:
     ChatReply send(const ChatHistory& history);
 
     // Answers the latest turn of history with a log excerpt (see
-    // readRecentLogEntries()) folded into it. Only this one request sees the
+    // read_recent_log_entries()) folded into it. Only this one request sees the
     // excerpt - the caller's own copy of history is untouched, so a persisted
     // ChatHistory never carries it forward into every later send() call.
-    ChatReply analyzeLog(const ChatHistory& history, const std::wstring& logExcerpt);
+    ChatReply analyze_log(const ChatHistory& history, const std::wstring& log_excerpt);
 
 private:
-    bool ensureLoaded(std::wstring& error);
+    bool ensure_loaded(std::wstring& error);
     // Renders the history through the model's own chat template; empty if the
     // model carries no template llama.cpp recognises.
-    std::wstring buildPrompt(const ChatHistory& history) const;
+    std::wstring build_prompt(const ChatHistory& history) const;
 
     // Serialises send(): a llama_context's decode/KV-cache state is not safe
     // to touch from two threads at once, and ChatDialog disables the button

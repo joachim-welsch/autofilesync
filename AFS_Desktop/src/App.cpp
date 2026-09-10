@@ -62,7 +62,7 @@ bool App::OnInit()
         // --console trigger with no display attached) - log it to the app's
         // own log too, now that the log path actually resolves to somewhere
         // real by default (see the Logging default-path fix).
-        LOG_ERROR(L"Start abgebrochen: eine andere Instanz von AutoFileSync läuft bereits.")
+        log_error(L"Start abgebrochen: eine andere Instanz von AutoFileSync läuft bereits.");
         wxLogError(_(L"AutoFileSync läuft bereits."));
 		return false;
 	}
@@ -80,14 +80,14 @@ bool App::OnInit()
 		main->Close(true);
 		return true;
 	}
-    if (Config::instance().settings().startMinimized())
+    if (Config::instance().settings().start_minimized())
 		main->Iconize(true);
     else {
         provider->SetHelpController(&main->GetHelpController());
         main->Center();
 		main->Show(true);
     }
-    Global::instance().setApp(this);
+    Global::instance().set_app(this);
 	return true;
 }
 

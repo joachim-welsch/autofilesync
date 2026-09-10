@@ -93,15 +93,15 @@ SettingsDialog::~SettingsDialog()
 bool SettingsDialog::TransferDataToWindow()
 {
     const Settings& s = Config::instance().settings();
-    startMinimizedCB_->SetValue(s.startMinimized());
-    minimizeInsteadOfCloseCB_->SetValue(s.minimizeInsteadOfClose());
-    autoStartCB_->SetValue(s.autoStart());
-    startSyncAtStartCB_->SetValue(s.startSyncAtStart());
-    messageBoxErrorCB_->SetValue(s.showErrors());
-    messageBoxWarningCB_->SetValue(s.showWarnings());
-    messageBoxInfoCB_->SetValue(s.showInfos());
-    recycleBinPathBox_->SetValue(RecycleBin::instance().binPath().wstring());
-    deleteModeRB_->SetSelection(s.deleteMode() == DeleteMode::Permanent ? 1 : 0);
+    startMinimizedCB_->SetValue(s.start_minimized());
+    minimizeInsteadOfCloseCB_->SetValue(s.minimize_instead_of_close());
+    autoStartCB_->SetValue(s.auto_start());
+    startSyncAtStartCB_->SetValue(s.start_sync_at_start());
+    messageBoxErrorCB_->SetValue(s.show_errors());
+    messageBoxWarningCB_->SetValue(s.show_warnings());
+    messageBoxInfoCB_->SetValue(s.show_infos());
+    recycleBinPathBox_->SetValue(RecycleBin::instance().bin_path().wstring());
+    deleteModeRB_->SetSelection(s.delete_mode() == DeleteMode::Permanent ? 1 : 0);
     enableRecycleBinPath();
     return true;
 }
@@ -136,46 +136,46 @@ bool SettingsDialog::TransferDataFromWindow()
 {
     bool changed = false;
     Settings& s = Config::instance().settings();
-    if (s.startMinimized() != startMinimizedCB_->GetValue()) {
-        s.startMinimized(startMinimizedCB_->GetValue());
+    if (s.start_minimized() != startMinimizedCB_->GetValue()) {
+        s.start_minimized(startMinimizedCB_->GetValue());
         changed = true;
     }
-    if (s.minimizeInsteadOfClose() != minimizeInsteadOfCloseCB_->GetValue()) {
-        s.minimizeInsteadOfClose(minimizeInsteadOfCloseCB_->GetValue());
+    if (s.minimize_instead_of_close() != minimizeInsteadOfCloseCB_->GetValue()) {
+        s.minimize_instead_of_close(minimizeInsteadOfCloseCB_->GetValue());
         changed = true;
     }
-    if (s.autoStart() != autoStartCB_->GetValue()) {
-        s.autoStart(autoStartCB_->GetValue());
+    if (s.auto_start() != autoStartCB_->GetValue()) {
+        s.auto_start(autoStartCB_->GetValue());
         changed = true;
     }
-    if (s.startSyncAtStart() != startSyncAtStartCB_->GetValue()) {
-        s.startSyncAtStart(startSyncAtStartCB_->GetValue());
+    if (s.start_sync_at_start() != startSyncAtStartCB_->GetValue()) {
+        s.start_sync_at_start(startSyncAtStartCB_->GetValue());
         changed = true;
     }
-    if (s.showErrors() != messageBoxErrorCB_->GetValue()) {
-        s.showErrors(messageBoxErrorCB_->GetValue());
+    if (s.show_errors() != messageBoxErrorCB_->GetValue()) {
+        s.show_errors(messageBoxErrorCB_->GetValue());
         changed = true;
     }
-    if (s.showWarnings() != messageBoxWarningCB_->GetValue()) {
-        s.showWarnings(messageBoxWarningCB_->GetValue());
+    if (s.show_warnings() != messageBoxWarningCB_->GetValue()) {
+        s.show_warnings(messageBoxWarningCB_->GetValue());
         changed = true;
     }
-    if (s.showInfos() != messageBoxInfoCB_->GetValue()) {
-        s.showInfos(messageBoxInfoCB_->GetValue());
+    if (s.show_infos() != messageBoxInfoCB_->GetValue()) {
+        s.show_infos(messageBoxInfoCB_->GetValue());
         changed = true;
     }
     const DeleteMode deleteMode = deleteModeRB_->GetSelection() == 1 ? DeleteMode::Permanent : DeleteMode::RecycleBin;
-    if (s.deleteMode() != deleteMode) {
-        s.deleteMode(deleteMode);
+    if (s.delete_mode() != deleteMode) {
+        s.delete_mode(deleteMode);
         changed = true;
     }
     const std::wstring recycleBinPath = recycleBinPathBox_->GetValue().ToStdWstring();
-    if (!recycleBinPath.empty() && RecycleBin::instance().binPath() != std::filesystem::path(recycleBinPath)) {
-        RecycleBin::instance().binPath(recycleBinPath);
+    if (!recycleBinPath.empty() && RecycleBin::instance().bin_path() != std::filesystem::path(recycleBinPath)) {
+        RecycleBin::instance().bin_path(recycleBinPath);
         changed = true;
     }
     if (changed)
-        Config::instance().setChanged();
+        Config::instance().set_changed();
     return true;
 }
 

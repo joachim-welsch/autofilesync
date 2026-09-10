@@ -6,7 +6,7 @@
 #include <wx/dirdlg.h>
 #include "SyncItem.h"
 #include "Config.h"
-#include "util.h"
+#include "Util.h"
 #include "Logging.h"
 #include "SshAccountSelectDialog.h"
 #include "SshDirDialog.h"
@@ -57,9 +57,9 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     typeLable->SetMinSize(wxSize(60, typeLable->GetMinSize().y));
     typeSizer->Add(typeLable, 0, wxALIGN_CENTER_VERTICAL);
     wxArrayString types;
-    types.push_back(syncItemType2Str(SyncItemType::File));
-    types.push_back(syncItemType2Str(SyncItemType::Dir));
-    types.push_back(syncItemType2Str(SyncItemType::Tree));
+    types.push_back(sync_item_type_to_str(SyncItemType::File));
+    types.push_back(sync_item_type_to_str(SyncItemType::Dir));
+    types.push_back(sync_item_type_to_str(SyncItemType::Tree));
 
     typeChoice_ = new wxChoice(tab1, ID_TYPE_CHOICE, wxDefaultPosition, wxDefaultSize, types);
     typeSizer->Add(typeChoice_, 1);
@@ -232,7 +232,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
 void SyncItemDialog::updateDeleteInTargetState()
 {
     bool isFileType = (typeChoice_->GetSelection() != wxNOT_FOUND) &&
-                      (typeChoice_->GetString(typeChoice_->GetSelection()) == syncItemType2Str(SyncItemType::File));
+                      (typeChoice_->GetString(typeChoice_->GetSelection()) == sync_item_type_to_str(SyncItemType::File));
     if (isFileType) {
         deleteInTargetCheck_->SetValue(false);
         deleteInTargetCheck_->Enable(false);
@@ -272,25 +272,25 @@ void SyncItemDialog::setData(const SyncItem& si)
     source_ = si.source();
     target_ = si.target();
     name_ = si.name();
-    type_ = si.itemTypeStr();
+    type_ = si.item_type_str();
     enabled_ = si.enabled();
-    delSourceAfter_ = si.delAftercopy();
-    compareDate_ = si.compareItems().time();
-    twoWaySync_ = si.twoWaySync();
-    compareSize_ = si.compareItems().size();
-    copyWhenTargetNewer_ = si.copyWhenTargetNewer();
-    compareContent_ = si.compareItems().content();
-    fatherSonPrinciple_ = si.fatherSonPrinciple();
-    deleteInTarget_ = si.deleteInTarget();
-    backupProof_ = si.backupProof();
-    syncEmptyFiles_ = si.syncEmptyFiles();
-    syncCycle_ = si.syncCycle();
+    delSourceAfter_ = si.del_aftercopy();
+    compareDate_ = si.compare_items().time();
+    twoWaySync_ = si.two_way_sync();
+    compareSize_ = si.compare_items().size();
+    copyWhenTargetNewer_ = si.copy_when_target_newer();
+    compareContent_ = si.compare_items().content();
+    fatherSonPrinciple_ = si.father_son_principle();
+    deleteInTarget_ = si.delete_in_target();
+    backupProof_ = si.backup_proof();
+    syncEmptyFiles_ = si.sync_empty_files();
+    syncCycle_ = si.sync_cycle();
     
 }
 
 void SyncItemDialog::saveData(SyncItem& si)
 {
-    LOG_INFO("SyncItemDialog::saveData called");
+    log_info("SyncItemDialog::saveData called");
     si.name(name_.ToStdWstring());
     si.wildcard(wildcard_.ToStdWstring());
     {
@@ -311,21 +311,21 @@ void SyncItemDialog::saveData(SyncItem& si)
     }
     si.source(source_.ToStdWstring());
     si.target(target_.ToStdWstring());
-    si.syncItemType(str2SyncItemType(type_.ToStdWstring()));
+    si.sync_item_type(str_to_sync_item_type(type_.ToStdWstring()));
     si.enabled(enabled_);
-    si.delAftercopy(delSourceAfter_);
+    si.del_aftercopy(delSourceAfter_);
     CompareItems compareItems;
     compareItems.time(compareDate_);
-    si.twoWaySync(twoWaySync_);
+    si.two_way_sync(twoWaySync_);
     compareItems.size(compareSize_);
-    si.copyWhenTargetNewer(copyWhenTargetNewer_);
+    si.copy_when_target_newer(copyWhenTargetNewer_);
     compareItems.content(compareContent_);
-    si.compareItems(compareItems);
-    si.fatherSonPrinciple(fatherSonPrinciple_);
-    si.deleteInTarget(deleteInTarget_);
-    si.backupProof(backupProof_);
-    si.syncEmptyFiles(syncEmptyFiles_);
-    si.syncCycle(syncCycle_);
+    si.compare_items(compareItems);
+    si.father_son_principle(fatherSonPrinciple_);
+    si.delete_in_target(deleteInTarget_);
+    si.backup_proof(backupProof_);
+    si.sync_empty_files(syncEmptyFiles_);
+    si.sync_cycle(syncCycle_);
 }
 
 void SyncItemDialog::onUpdateOkButton(wxUpdateUIEvent& event)
@@ -410,7 +410,7 @@ wxString withVolumenName(const wxString& path)
         fs_path = fs::path(pathStr);
 	}
 	catch (std::exception& e) {
-		LOG_ERROR(L"Fehler beim Ermitteln des Volumennamens: " + string_to_wstring(e.what()));
+		log_error(L"Fehler beim Ermitteln des Volumennamens: " + string_to_wstring(e.what()));
 		return path;
 	}
     if (fs_path.empty() || !fs_path.has_root_name())
@@ -484,7 +484,7 @@ SyncItemType SyncItemDialog::actSyncItemType(wxChoice* typeChoice)
     wxString stype;
     if (selection != wxNOT_FOUND) {
         stype = typeChoice->GetString(selection);
-        return str2SyncItemType(stype.ToStdWstring());
+        return str_to_sync_item_type(stype.ToStdWstring());
     }
     else
         return SyncItemType::Undefined;
@@ -520,7 +520,7 @@ bool SyncItemDialog::Validate()
     // TransferDataFromWindow() only runs after Validate() succeeds). Comparing
     // against it - not just checking name_.empty() - also catches renaming an
     // existing item onto another item's name, not just brand-new items.
-    if (name != name_ && Config::instance().findByName(name.ToStdWstring()) != std::nullopt) {
+    if (name != name_ && Config::instance().find_by_name(name.ToStdWstring()) != std::nullopt) {
         wxMessageBox("Synchronisation " + name + " existiert schon.", "Fehler");
         return false;
     }
@@ -547,7 +547,7 @@ void SyncItemDialog::handleSshButton(wxTextCtrl* targetBox)
     if (colonPos != wxNOT_FOUND && colonPos > 0) {
         wxString sshName = currentValue.Left(colonPos);
         // Prüfe ob dieser Name ein bekannter SSH-Account ist
-        auto found = Config::instance().findSshAccountByName(std::string(sshName.ToUTF8()));
+        auto found = Config::instance().find_ssh_account_by_name(std::string(sshName.ToUTF8()));
         if (found.has_value())
             account = found.value();
     }

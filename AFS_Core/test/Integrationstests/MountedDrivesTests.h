@@ -5,7 +5,7 @@
 namespace MountedDrivesTests {
 #ifdef _UNIX
     const std::wstring TESTMOUNT = L"/media/winuser/test";
-    const std::wstring TESTMOUNTFN = TestPaths::scratchDir() + L"/test1.txt";
+    const std::wstring TESTMOUNTFN = TestPaths::scratch_dir() + L"/test1.txt";
     const std::wstring TESTMOUNT2 = L"/";
 #else
 	const std::wstring TESTMOUNT = L"Z:\\";

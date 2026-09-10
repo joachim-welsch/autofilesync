@@ -15,13 +15,13 @@ namespace AFS_Core {
 // so calling libssh2_exit() while any other thread still owns a session tears
 // down the shared backend state from under it. Callers must not call
 // libssh2_init()/libssh2_exit() themselves.
-inline void ensureLibssh2Initialized()
+inline void ensure_libssh2_initialized()
 {
     // Implementation is inline so translation units that include this header
     // get the initialization logic without requiring an extra .cpp to be
     // added to the project. Use std::call_once to make this thread-safe.
-    static std::once_flag onceFlag;
-    std::call_once(onceFlag, []() {
+    static std::once_flag init_once;
+    std::call_once(init_once, []() {
         int rc = libssh2_init(0);
         if (rc != 0) {
             // Logging may not be available very early during startup, but use

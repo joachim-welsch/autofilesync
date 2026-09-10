@@ -100,7 +100,7 @@
     <ClCompile Include="..\..\src\Canvas.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Config.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\BackupProof.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\CopyLog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Directory.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\FileDifference.cpp" />
@@ -147,7 +147,7 @@
     <ClCompile Include="..\..\src\Toolbar.cpp" />
     <ClCompile Include="..\..\src\TreeCtrl.cpp" />
     <ClCompile Include="..\..\src\TreeItemData.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\util.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\Util.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SmtpMailer.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\RecycleBin.cpp" />

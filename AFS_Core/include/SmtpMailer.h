@@ -23,7 +23,7 @@ struct SmtpAccount {
 // The body is UTF-8 and stays a narrow string on purpose: it comes from the log
 // line, which is UTF-8 already, and the detour through wstring loses every
 // non-ASCII character on Windows.
-std::string sendMail(const SmtpAccount& account, const std::wstring& recipient,
+std::string send_mail(const SmtpAccount& account, const std::wstring& recipient,
 	const std::wstring& subject, const std::string& body);
 
 } // namespace AFS_Core

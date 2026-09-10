@@ -11,10 +11,10 @@ using std::wstring;
 
 WStringVector Directory::read(const wstring& dir)
 {
-    const wstring actDir = current_ + dir + L"\\";
+    const wstring act_dir = current_ + dir + L"\\";
     WStringVector retval;
     for (const fs::directory_entry& dir_entry :
-        std::filesystem::directory_iterator(actDir))
+        std::filesystem::directory_iterator(act_dir))
     {
         const auto& newpath = dir_entry.path();
         if (newpath.has_filename()) {

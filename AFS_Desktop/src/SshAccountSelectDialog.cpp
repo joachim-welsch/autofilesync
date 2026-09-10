@@ -54,7 +54,7 @@ void SshAccountSelectDialog::populateList()
 {
     listCtrl_->DeleteAllItems();
 
-    const SshAccounts accounts = Config::instance().sshAccountsSnapshot();
+    const SshAccounts accounts = Config::instance().ssh_accounts_snapshot();
     long index = 0;
     for (const auto& account : accounts) {
         // FromUTF8 - siehe SshAccountsDialog::updateList().
@@ -91,5 +91,5 @@ std::optional<SshAccount> SshAccountSelectDialog::getSelectedAccount() const
     if (selectedIndex_ < 0) {
         return std::nullopt;
     }
-    return Config::instance().sshAccountAt(static_cast<size_t>(selectedIndex_));
+    return Config::instance().ssh_account_at(static_cast<size_t>(selectedIndex_));
 }

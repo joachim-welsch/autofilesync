@@ -11,7 +11,7 @@ using namespace LoggingTests;
 
 size_t countLogEntries(const std::wstring& searchText)
 {
-    std::wifstream logFile(Logging::instance().getLogFilePathName());
+    std::wifstream logFile(Logging::instance().get_log_file_path_name());
     if (!logFile.is_open())
         return 0;
     std::wstring line;
@@ -29,13 +29,13 @@ TEST(LoggingTests, testNotMounted)
 {	
     // Log-Datei vor dem Test leeren
     Synchronize::create(SyncType::Single);
-    Synchronize::instance().startLogging(LogLevel::Debug, LoggingPath);
-    Logging::instance().eraseFile();
+    Synchronize::instance().start_logging(LogLevel::Debug, LoggingPath);
+    Logging::instance().erase_file();
     // Test-Setup
     SyncItem si;
     si.source(NotMountedSourcePathName);
     si.target(TargetDir);
-    si.syncCycle(0);
+    si.sync_cycle(0);
     
     // Test mehrfach ausf�hren
     const int testIterations = 3;

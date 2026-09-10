@@ -6,7 +6,7 @@
 #include "Logging.h"
 #include <FilesystemUtil.h>
 #ifdef WIN32
-    #include "util.h"
+    #include "Util.h"
     #include <Windows.h>
 #else
     #include <sys/stat.h>
@@ -30,9 +30,9 @@ MountedDrives& MountedDrives::instance()
     return obj;
 }
 
-bool MountedDrives::timeElapsed() const
+bool MountedDrives::time_elapsed() const
 {
-    auto diff = system_clock::now() - checkTime_;
+    auto diff = system_clock::now() - check_time_;
     auto diff_s = std::chrono::duration_cast<std::chrono::seconds>(diff);
 // #ifdef _TEST
 //     std::cout << "Time diff: " << diff_s << std::endl;
@@ -41,16 +41,16 @@ bool MountedDrives::timeElapsed() const
 }
 
 #ifdef WIN32
-    fs::path getMountPoint(const fs::path& path)
+    fs::path get_mount_point(const fs::path& path)
     {
-        wchar_t volumePathName[MAX_PATH];
-        if (GetVolumePathNameW(path.c_str(), volumePathName, MAX_PATH)) {
-            return fs::path(volumePathName);
+        wchar_t volume_path_name[MAX_PATH];
+        if (GetVolumePathNameW(path.c_str(), volume_path_name, MAX_PATH)) {
+            return fs::path(volume_path_name);
         }
         else {
             DWORD error = GetLastError();
-            LOG_ERROR(L"Fehler beim Abrufen des Mountpoints: " + std::to_wstring(error));
-            return fs::path(); // Leerer Pfad bei Fehler
+            log_error(L"Fehler beim Abrufen des Mountpoints: " + std::to_wstring(error));
+            return fs::path();
         }
     }
 #else
@@ -64,13 +64,13 @@ struct FstabEntry {
 };
 
 // Parse /etc/fstab
-std::vector<FstabEntry> parseFstab(const std::string& fstabPath = "/etc/fstab") {
+std::vector<FstabEntry> parse_fstab(const std::string& fstab_path = "/etc/fstab")
+{
     std::vector<FstabEntry> entries;
-    std::ifstream file(fstabPath);
+    std::ifstream file(fstab_path);
     std::string line;
 
     while (std::getline(file, line)) {
-        // Kommentare und leere Zeilen überspringen
         if (line.empty() || line[0] == '#')
             continue;
 
@@ -84,18 +84,18 @@ std::vector<FstabEntry> parseFstab(const std::string& fstabPath = "/etc/fstab") 
     return entries;
 }
 
-bool MountedDrives::mountPointExist(const string& mp) const
+bool MountedDrives::mount_point_exist(const string& mp) const
 {
-    for (const MountInfo& i: mountedDrives_)
-        if (i.mountPoint == mp)
+    for (const MountInfo& i: mounted_drives_)
+        if (i.mount_point == mp)
             return true;
     return false;
 }
 
-fs::path getMountPoint(const fs::path& path)
+fs::path get_mount_point(const fs::path& path)
 {
     fs::path retval {};
-    auto mp = fsu::getMountRoot(path);
+    auto mp = fsu::get_mount_root(path);
     if (mp.has_value())
         retval=mp.value();
     return retval;
@@ -104,23 +104,23 @@ fs::path getMountPoint(const fs::path& path)
 #endif
 
 #if defined(_UNIX) && !defined(_MACOS)
-bool MountedDrives::refresh(const string& mountPoint, const std::wstring&)
+bool MountedDrives::refresh(const string& mount_point, const std::wstring&)
 {
-    LOG_DEBUG(L"MountedDrives::refresh");
-    std::ifstream mountsFile("/proc/mounts");
+    log_debug(L"MountedDrives::refresh");
+    std::ifstream mounts_file("/proc/mounts");
     std::string line;
-    mountedDrives_.clear();
-    requestedDrives_.clear();
-    checkTime_ = system_clock::now();
+    mounted_drives_.clear();
+    requested_drives_.clear();
+    check_time_ = system_clock::now();
     bool retval = false;
-    while (std::getline(mountsFile, line)) {
+    while (std::getline(mounts_file, line)) {
         std::istringstream iss(line);
-        MountInfo mountInfo;
-        if (iss >> mountInfo.device >> mountInfo.mountPoint >> mountInfo.fileSystemType) {
-            mountedDrives_.push_back(mountInfo);
-            if (mountInfo.mountPoint == mountPoint) {
-                requestedDrives_.push_back(mountInfo);
-                checkTime_ = system_clock::now();
+        MountInfo mount_info;
+        if (iss >> mount_info.device >> mount_info.mount_point >> mount_info.file_system_type) {
+            mounted_drives_.push_back(mount_info);
+            if (mount_info.mount_point == mount_point) {
+                requested_drives_.push_back(mount_info);
+                check_time_ = system_clock::now();
                 retval = true;
                 continue;
             }
@@ -131,32 +131,32 @@ bool MountedDrives::refresh(const string& mountPoint, const std::wstring&)
 
 bool MountedDrives::check(const fs::path& path) const
 {
-    LOG_DEBUG(L"MountedDrives::check");
-    for (auto i : mountedDrives_) {
-        if (i.mountPoint == fsu::getMountRoot(path))
+    log_debug(L"MountedDrives::check");
+    for (auto i : mounted_drives_) {
+        if (i.mount_point == fsu::get_mount_root(path))
             return true;
     }
     return false;
 }
 
 // Deepest fstab mountpoint (other than "/") that is a path prefix of 'path'.
-std::optional<std::string> MountedDrives::fstabMountpointFor(const fs::path& path) const
+std::optional<std::string> MountedDrives::fstab_mountpoint_for(const fs::path& path) const
 {
     const std::string p = path.string();
     std::optional<std::string> best;
-    for (const auto& entry : parseFstab(fstabPath_)) {
+    for (const auto& entry : parse_fstab(fstab_path_)) {
         const std::string& mp = entry.mountpoint;
         if (mp == "/" || mp.empty() || mp[0] != '/')
             continue;
-        const bool isPrefix = p == mp
+        const bool is_prefix = p == mp
             || (p.size() > mp.size() && p.compare(0, mp.size(), mp) == 0 && p[mp.size()] == '/');
-        if (isPrefix && (!best || mp.size() > best->size()))
+        if (is_prefix && (!best || mp.size() > best->size()))
             best = mp;
     }
     return best;
 }
 
-bool MountedDrives::mountpointActive(const std::string& mountpoint) const
+bool MountedDrives::mountpoint_active(const std::string& mountpoint) const
 {
     std::ifstream mounts("/proc/mounts");
     std::string line, device, mount;
@@ -171,24 +171,24 @@ bool MountedDrives::mountpointActive(const std::string& mountpoint) const
 #elif defined(_MACOS)
 // macOS has no /proc; the BSD getmntinfo() syscall wrapper returns the
 // currently mounted filesystems directly from the kernel instead.
-bool MountedDrives::refresh(const string& mountPoint, const std::wstring&)
+bool MountedDrives::refresh(const string& mount_point, const std::wstring&)
 {
-    LOG_DEBUG(L"MountedDrives::refresh");
-    mountedDrives_.clear();
-    requestedDrives_.clear();
-    checkTime_ = system_clock::now();
+    log_debug(L"MountedDrives::refresh");
+    mounted_drives_.clear();
+    requested_drives_.clear();
+    check_time_ = system_clock::now();
     bool retval = false;
     struct statfs* mounts = nullptr;
     int count = getmntinfo(&mounts, MNT_NOWAIT);
     for (int i = 0; i < count; ++i) {
-        MountInfo mountInfo;
-        mountInfo.device = mounts[i].f_mntfromname;
-        mountInfo.mountPoint = mounts[i].f_mntonname;
-        mountInfo.fileSystemType = mounts[i].f_fstypename;
-        mountedDrives_.push_back(mountInfo);
-        if (mountInfo.mountPoint == mountPoint) {
-            requestedDrives_.push_back(mountInfo);
-            checkTime_ = system_clock::now();
+        MountInfo mount_info;
+        mount_info.device = mounts[i].f_mntfromname;
+        mount_info.mount_point = mounts[i].f_mntonname;
+        mount_info.file_system_type = mounts[i].f_fstypename;
+        mounted_drives_.push_back(mount_info);
+        if (mount_info.mount_point == mount_point) {
+            requested_drives_.push_back(mount_info);
+            check_time_ = system_clock::now();
             retval = true;
         }
     }
@@ -197,121 +197,109 @@ bool MountedDrives::refresh(const string& mountPoint, const std::wstring&)
 
 bool MountedDrives::check(const fs::path& path) const
 {
-    LOG_DEBUG(L"MountedDrives::check");
-    for (auto i : mountedDrives_) {
-        if (i.mountPoint == fsu::getMountRoot(path))
+    log_debug(L"MountedDrives::check");
+    for (auto i : mounted_drives_) {
+        if (i.mount_point == fsu::get_mount_root(path))
             return true;
     }
     return false;
 }
 
 #else
-wstring volumeNameFromDriveletter(const wstring& driveletter)
+wstring volume_name_from_driveletter(const wstring& driveletter)
 {
-	wstring volumeName(MAX_PATH, L'\0');
-	DWORD volumeNameSize = static_cast<DWORD>(volumeName.size());
-	if (GetVolumeInformationW(driveletter.c_str(), &volumeName[0], volumeNameSize, NULL, NULL, NULL, NULL, 0) == 0) {
-		LOG_ERROR(L"Failed to get volume information");
+	wstring volume_name(MAX_PATH, L'\0');
+	DWORD volume_name_size = static_cast<DWORD>(volume_name.size());
+	if (GetVolumeInformationW(driveletter.c_str(), &volume_name[0], volume_name_size, NULL, NULL, NULL, NULL, 0) == 0) {
+		log_error(L"Failed to get volume information");
 		return L"";
 	}
-	volumeName.resize(wcslen(volumeName.c_str()));
-	return volumeName;
+	volume_name.resize(wcslen(volume_name.c_str()));
+	return volume_name;
 }
 
-bool MountedDrives::mountInfoExists(const MountInfo& mountInfo) const
+bool MountedDrives::mount_info_exists(const MountInfo& mount_info) const
 {
-    return std::find(requestedDrives_.begin(), requestedDrives_.end(), mountInfo) == requestedDrives_.end();
+    return std::find(requested_drives_.begin(), requested_drives_.end(), mount_info) == requested_drives_.end();
 }
 
-bool MountedDrives::refresh(const string& mountPoint, const std::wstring& name)
+bool MountedDrives::refresh(const string& mount_point, const std::wstring& name)
 {
-	LOG_DEBUG(L"MountedDrives::refresh");
-    mountedDrives_.clear();
-    checkTime_ = std::chrono::system_clock::now();
+	log_debug(L"MountedDrives::refresh");
+    mounted_drives_.clear();
+    check_time_ = std::chrono::system_clock::now();
 
     DWORD drives = GetLogicalDrives();
     if (drives == 0) {
-        LOG_ERROR(L"Failed to get logical drives");
+        log_error(L"Failed to get logical drives");
         return false;
     }
     bool retval = false;
-    char driveLetter = 'A';
+    char drive_letter = 'A';
     while (drives) {
         if (drives & 1) {
-            std::wstring drive = std::wstring(1, driveLetter) + L":\\";
-            UINT driveType = GetDriveType(drive.c_str());
-            if (driveType != DRIVE_NO_ROOT_DIR) {
-                MountInfo mountInfo;
-                mountInfo.device = util::wstring_to_string(drive);
-				mountInfo.mountPoint = mountInfo.device;
+            std::wstring drive = std::wstring(1, drive_letter) + L":\\";
+            UINT drive_type = GetDriveType(drive.c_str());
+            if (drive_type != DRIVE_NO_ROOT_DIR) {
+                MountInfo mount_info;
+                mount_info.device = util::wstring_to_string(drive);
+				mount_info.mount_point = mount_info.device;
 
-                switch (driveType) {
+                switch (drive_type) {
                 case DRIVE_REMOVABLE:
-                    mountInfo.fileSystemType = "Removable";
+                    mount_info.file_system_type = "Removable";
                     break;
                 case DRIVE_FIXED:
-                    mountInfo.fileSystemType = "Fixed";
+                    mount_info.file_system_type = "Fixed";
                     break;
                 case DRIVE_REMOTE:
-                    mountInfo.fileSystemType = "Remote";
+                    mount_info.file_system_type = "Remote";
                     break;
                 case DRIVE_CDROM:
-                    mountInfo.fileSystemType = "CD-ROM";
+                    mount_info.file_system_type = "CD-ROM";
                     break;
                 case DRIVE_RAMDISK:
-                    mountInfo.fileSystemType = "RAM Disk";
+                    mount_info.file_system_type = "RAM Disk";
                     break;
                 default:
-                    mountInfo.fileSystemType = "Unknown";
+                    mount_info.file_system_type = "Unknown";
                     break;
                 }
-                mountInfo.name = volumeNameFromDriveletter(drive);
-                mountedDrives_.push_back(mountInfo);
-                if (mountInfo.mountPoint == mountPoint && (name.empty() || mountInfo.name == name)) {
-                    if (!mountInfoExists(mountInfo))
-					    requestedDrives_.push_back(mountInfo);
-					checkTime_ = system_clock::now();
+                mount_info.name = volume_name_from_driveletter(drive);
+                mounted_drives_.push_back(mount_info);
+                if (mount_info.mount_point == mount_point && (name.empty() || mount_info.name == name)) {
+                    if (!mount_info_exists(mount_info))
+					    requested_drives_.push_back(mount_info);
+					check_time_ = system_clock::now();
 					retval = true;
 				}
             }
         }
         drives >>= 1;
-        driveLetter++;
+        drive_letter++;
     }
 	return retval;
 }
 
 bool MountedDrives::check(const fs::path& path) const
 {
-    LOG_DEBUG(L"MountedDrives::check");
-    auto mp = fsu::getMountRoot(path);
+    log_debug(L"MountedDrives::check");
+    auto mp = fsu::get_mount_root(path);
     return mp.has_value();
-    // for (auto i : mountedDrives_) {
-    //     auto mp = getMountRoot(path);
-    //     if (i.device == )
-    //         return true;
-    // }
-    // return false;
 }
 
 #endif
 
-bool MountedDrives::driveMounted(const fs::path& path, const std::wstring& name)
+bool MountedDrives::drive_mounted(const fs::path& path, const std::wstring& name)
 {
-    LOG_DEBUG(L"MountedDrives::driveMounted");
+    log_debug(L"MountedDrives::drive_mounted");
     std::lock_guard<std::mutex> lock(mutex_);
 #if defined(_UNIX) && !defined(_MACOS)
-    // A path under a known fstab mountpoint counts as mounted only while that
-    // mountpoint is actually mounted. Without this, getMountRoot() walks up
-    // past the missing mountpoint to "/" (always mounted) and an unplugged
-    // drive reads as "file deleted" instead of "drive gone" - which
-    // deleteInTarget acts on. Auto-mounted media without an fstab entry
-    // cannot be told apart from an ordinary missing directory here.
-    if (auto fstabMountpoint = fstabMountpointFor(path))
-        return mountpointActive(*fstabMountpoint);
+    if (auto fstab_mountpoint = fstab_mountpoint_for(path))
+        return mountpoint_active(*fstab_mountpoint);
 #endif
-    if (timeElapsed()) {
-        auto mp=fsu::getMountRoot(path);
+    if (time_elapsed()) {
+        auto mp=fsu::get_mount_root(path);
         if (!mp)
             return false;
         string mountpoint = mp.value().string();
@@ -322,16 +310,16 @@ bool MountedDrives::driveMounted(const fs::path& path, const std::wstring& name)
 }
 
 #ifdef _TEST
-void MountedDrives::setTestTime(std::chrono::seconds duration)
+void MountedDrives::set_test_time(std::chrono::seconds duration)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    checkTime_= system_clock::now() + duration;
+    check_time_= system_clock::now() + duration;
 }
 
-bool MountedDrives::timeElapsedTest() const
+bool MountedDrives::time_elapsed_test() const
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    return timeElapsed();
+    return time_elapsed();
 }
 #endif
 

@@ -10,7 +10,7 @@
 #include <thread>
 #include <atomic>
 #include <vector>
-#include <util.h>
+#include <Util.h>
 #ifdef _WIN32
     #include <process.h>   // _getpid
 #else
@@ -24,10 +24,10 @@ namespace fs = std::filesystem;
 
 namespace {
 
-// The variables Config::getRootPathname() derives the configuration path from -
+// The variables Config::get_root_pathname() derives the configuration path from -
 // APPDATA plus USERPROFILE for the legacy location on Windows, HOME (and
 // XDG_CONFIG_HOME on Linux) elsewhere.
-const char* const redirectedVariables[] = {
+const char* const REDIRECTED_VARIABLES[] = {
 #ifdef _WIN32
     "APPDATA", "USERPROFILE"
 #else
@@ -35,13 +35,13 @@ const char* const redirectedVariables[] = {
 #endif
 };
 
-std::optional<std::string> getEnvVar(const char* name)
+std::optional<std::string> get_env_var(const char* name)
 {
     const char* value = getenv(name);
     return value ? std::optional<std::string>(value) : std::nullopt;
 }
 
-void setEnvVar(const char* name, const std::string& value)
+void set_env_var(const char* name, const std::string& value)
 {
 #ifdef _WIN32
     _putenv_s(name, value.c_str());
@@ -51,7 +51,7 @@ void setEnvVar(const char* name, const std::string& value)
 }
 
 // An empty value is how the CRT deletes a variable; POSIX has its own call.
-void unsetEnvVar(const char* name)
+void unset_env_var(const char* name)
 {
 #ifdef _WIN32
     _putenv_s(name, "");
@@ -60,7 +60,7 @@ void unsetEnvVar(const char* name)
 #endif
 }
 
-int processId()
+int process_id()
 {
 #ifdef _WIN32
     return _getpid();
@@ -69,61 +69,61 @@ int processId()
 #endif
 }
 
-// Points the environment at a fresh temp directory so Config::getRootPathname()
+// Points the environment at a fresh temp directory so Config::get_root_pathname()
 // can be exercised without touching the real user configuration.
 class ConfigPathTest : public ::testing::Test {
 protected:
-    fs::path testHome_;
-    std::vector<std::pair<const char*, std::optional<std::string>>> savedVariables_;
+    fs::path test_home_;
+    std::vector<std::pair<const char*, std::optional<std::string>>> saved_variables_;
 
-    // Where getRootPathname() puts the file once the environment is redirected.
-    fs::path expectedConfigPath() const
+    // Where get_root_pathname() puts the file once the environment is redirected.
+    fs::path expected_config_path() const
     {
 #ifdef _WIN32
-        return testHome_ / "AppData" / "autofilesync" / "autofilesync.json";
+        return test_home_ / "AppData" / "autofilesync" / "autofilesync.json";
 #elif defined(_MACOS)
-        return testHome_ / "Library" / "Application Support" / "autofilesync" / "autofilesync.json";
+        return test_home_ / "Library" / "Application Support" / "autofilesync" / "autofilesync.json";
 #else
-        return testHome_ / ".config" / "autofilesync" / "autofilesync.json";
+        return test_home_ / ".config" / "autofilesync" / "autofilesync.json";
 #endif
     }
 
     void SetUp() override
     {
-        for (const char* name : redirectedVariables)
-            savedVariables_.push_back({name, getEnvVar(name)});
-        const std::string testName = testing::UnitTest::GetInstance()->current_test_info()->name();
-        testHome_ = fs::temp_directory_path() / ("autofilesync_configtest_" + testName + "_" + std::to_string(processId()));
-        fs::remove_all(testHome_);
-        fs::create_directories(testHome_);
+        for (const char* name : REDIRECTED_VARIABLES)
+            saved_variables_.push_back({name, get_env_var(name)});
+        const std::string test_name = testing::UnitTest::GetInstance()->current_test_info()->name();
+        test_home_ = fs::temp_directory_path() / ("autofilesync_configtest_" + test_name + "_" + std::to_string(process_id()));
+        fs::remove_all(test_home_);
+        fs::create_directories(test_home_);
 #ifdef _WIN32
-        setEnvVar("APPDATA", (testHome_ / "AppData").string());
-        setEnvVar("USERPROFILE", testHome_.string());
+        set_env_var("APPDATA", (test_home_ / "AppData").string());
+        set_env_var("USERPROFILE", test_home_.string());
 #else
-        setEnvVar("HOME", testHome_.string());
-        unsetEnvVar("XDG_CONFIG_HOME");
+        set_env_var("HOME", test_home_.string());
+        unset_env_var("XDG_CONFIG_HOME");
 #endif
     }
 
     void TearDown() override
     {
-        for (const auto& [name, value] : savedVariables_) {
+        for (const auto& [name, value] : saved_variables_) {
             if (value)
-                setEnvVar(name, *value);
+                set_env_var(name, *value);
             else
-                unsetEnvVar(name);
+                unset_env_var(name);
         }
-        fs::remove_all(testHome_);
+        fs::remove_all(test_home_);
     }
 };
 
-void writeFile(const fs::path& path, const std::string& content)
+void write_file(const fs::path& path, const std::string& content)
 {
     fs::create_directories(path.parent_path());
     std::ofstream(path) << content;
 }
 
-std::string readFile(const fs::path& path)
+std::string read_file(const fs::path& path)
 {
     std::ifstream in(path);
     return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
@@ -131,16 +131,16 @@ std::string readFile(const fs::path& path)
 
 // Writes a config file in the pre-encryption format (plaintext "password" field)
 // to verify existing users' configs still load after upgrading.
-void writeLegacyPlaintextConfig(const fs::path& path, const std::wstring& name,
+void write_legacy_plaintext_config(const fs::path& path, const std::wstring& name,
     const std::wstring& host, const std::wstring& user, const std::wstring& password)
 {
-    boost::property_tree::wptree accountNode, accountsNode, root;
-    accountNode.put(L"name", name);
-    accountNode.put(L"host", host);
-    accountNode.put(L"user", user);
-    accountNode.put(L"password", password);
-    accountsNode.push_back({ L"SshAccount", accountNode });
-    root.push_back({ L"SshAccounts", accountsNode });
+    boost::property_tree::wptree account_node, accounts_node, root;
+    account_node.put(L"name", name);
+    account_node.put(L"host", host);
+    account_node.put(L"user", user);
+    account_node.put(L"password", password);
+    accounts_node.push_back({ L"SshAccount", account_node });
+    root.push_back({ L"SshAccounts", accounts_node });
     fs::create_directories(path.parent_path());
     std::wofstream out(path);
     boost::property_tree::write_json(out, root);
@@ -149,147 +149,147 @@ void writeLegacyPlaintextConfig(const fs::path& path, const std::wstring& name,
 } // namespace
 
 // XDG_CONFIG_HOME is a Linux/freedesktop.org convention only: on macOS
-// Config::getRootPathname() always resolves under Library/Application Support,
+// Config::get_root_pathname() always resolves under Library/Application Support,
 // on Windows under APPDATA, so these two apply to Linux alone.
 #if !defined(_MACOS) && !defined(_WIN32)
 TEST_F(ConfigPathTest, HonorsXdgConfigHome)
 {
-    const fs::path xdgHome = testHome_ / "xdg";
-    setEnvVar("XDG_CONFIG_HOME", xdgHome.string());
+    const fs::path xdg_home = test_home_ / "xdg";
+    set_env_var("XDG_CONFIG_HOME", xdg_home.string());
 
-    const std::wstring path = Config::getRootPathname();
+    const std::wstring path = Config::get_root_pathname();
 
-    EXPECT_EQ(fs::path(wstring_to_string(path)), xdgHome / "autofilesync" / "autofilesync.json");
+    EXPECT_EQ(fs::path(wstring_to_string(path)), xdg_home / "autofilesync" / "autofilesync.json");
 }
 
 TEST_F(ConfigPathTest, FallsBackToDotConfigWhenXdgUnset)
 {
-    const std::wstring path = Config::getRootPathname();
+    const std::wstring path = Config::get_root_pathname();
 
-    EXPECT_EQ(fs::path(wstring_to_string(path)), testHome_ / ".config" / "autofilesync" / "autofilesync.json");
+    EXPECT_EQ(fs::path(wstring_to_string(path)), test_home_ / ".config" / "autofilesync" / "autofilesync.json");
 }
 #endif
 
 TEST_F(ConfigPathTest, MigratesLegacyConfigFile)
 {
-    const fs::path legacyPath = testHome_ / "autofilesync.json";
-    writeFile(legacyPath, "legacy content");
+    const fs::path legacy_path = test_home_ / "autofilesync.json";
+    write_file(legacy_path, "legacy content");
 
-    const std::wstring path = Config::getRootPathname();
+    const std::wstring path = Config::get_root_pathname();
 
     EXPECT_TRUE(fs::exists(wstring_to_string(path)));
-    EXPECT_EQ(readFile(wstring_to_string(path)), "legacy content");
-    EXPECT_FALSE(fs::exists(legacyPath));
+    EXPECT_EQ(read_file(wstring_to_string(path)), "legacy content");
+    EXPECT_FALSE(fs::exists(legacy_path));
 }
 
 TEST_F(ConfigPathTest, DoesNotOverwriteExistingConfigDuringMigration)
 {
-    const fs::path legacyPath = testHome_ / "autofilesync.json";
-    const fs::path newPath = expectedConfigPath();
-    writeFile(legacyPath, "legacy content");
-    writeFile(newPath, "current content");
+    const fs::path legacy_path = test_home_ / "autofilesync.json";
+    const fs::path new_path = expected_config_path();
+    write_file(legacy_path, "legacy content");
+    write_file(new_path, "current content");
 
-    Config::getRootPathname();
+    Config::get_root_pathname();
 
-    EXPECT_EQ(readFile(newPath), "current content");
-    EXPECT_TRUE(fs::exists(legacyPath));
+    EXPECT_EQ(read_file(new_path), "current content");
+    EXPECT_TRUE(fs::exists(legacy_path));
 }
 
 TEST_F(ConfigPathTest, WriteCreatesMissingDirectories)
 {
-    const fs::path targetPath = testHome_ / "does" / "not" / "exist" / "autofilesync.json";
+    const fs::path target_path = test_home_ / "does" / "not" / "exist" / "autofilesync.json";
 
-    const bool result = Config::instance().write(targetPath.wstring());
+    const bool result = Config::instance().write(target_path.wstring());
 
     EXPECT_TRUE(result);
-    EXPECT_TRUE(fs::exists(targetPath));
+    EXPECT_TRUE(fs::exists(target_path));
 }
 
 TEST_F(ConfigPathTest, SshAccountPasswordIsNotStoredAsPlaintext)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     const std::wstring secret = L"testonly-not-a-real-secret-42";
     Config::instance().reset();
     SshAccount account;
-    account.setName("pi");
-    account.setHost("raspberrypi.local");
-    account.setUser("pi");
-    account.setPassword(util::wstring_to_string(secret));
+    account.set_name("pi");
+    account.set_host("raspberrypi.local");
+    account.set_user("pi");
+    account.set_password(util::wstring_to_string(secret));
     Config::instance().add(account);
 
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
-    const std::string fileContent = readFile(targetPath);
-    EXPECT_EQ(fileContent.find(util::wstring_to_string(secret)), std::string::npos);
-    EXPECT_NE(fileContent.find("AES256GCM"), std::string::npos);
+    const std::string file_content = read_file(target_path);
+    EXPECT_EQ(file_content.find(util::wstring_to_string(secret)), std::string::npos);
+    EXPECT_NE(file_content.find("AES256GCM"), std::string::npos);
 }
 
 TEST_F(ConfigPathTest, SshAccountPasswordRoundTripsThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     const std::wstring secret = L"testonly-not-a-real-secret-42";
     Config::instance().reset();
     SshAccount account;
-    account.setName("pi");
-    account.setHost("raspberrypi.local");
-    account.setUser("pi");
-    account.setPassword(util::wstring_to_string(secret));
+    account.set_name("pi");
+    account.set_host("raspberrypi.local");
+    account.set_user("pi");
+    account.set_password(util::wstring_to_string(secret));
     Config::instance().add(account);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
-    const auto accounts = Config::instance().sshAccountsSnapshot();
+    const auto accounts = Config::instance().ssh_accounts_snapshot();
     ASSERT_EQ(accounts.size(), 1u);
     EXPECT_EQ(accounts[0].password(), util::wstring_to_string(secret));
 }
 
 TEST_F(ConfigPathTest, SshAccountPasswordWithSpecialCharactersRoundTrips)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     // Passwords are arbitrary UTF-8 byte sequences; every stage of the chain
     // (AES-GCM, base64, JSON with its wide-string node values) has to hand back
     // exactly the same bytes, including the ones a JSON writer must escape.
     const std::string secret = "a!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ äöüÄÖÜß€";
     Config::instance().reset();
     SshAccount account;
-    account.setName("pi");
-    account.setHost("raspberrypi.local");
-    account.setUser("pi");
-    account.setPassword(secret);
+    account.set_name("pi");
+    account.set_host("raspberrypi.local");
+    account.set_user("pi");
+    account.set_password(secret);
     Config::instance().add(account);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
-    const auto accounts = Config::instance().sshAccountsSnapshot();
+    const auto accounts = Config::instance().ssh_accounts_snapshot();
     ASSERT_EQ(accounts.size(), 1u);
     EXPECT_EQ(accounts[0].password(), secret);
 }
 
 TEST_F(ConfigPathTest, LegacyPlaintextPasswordStillLoads)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
-    writeLegacyPlaintextConfig(targetPath, L"pi", L"raspberrypi.local", L"pi", L"legacy-plaintext-secret");
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    write_legacy_plaintext_config(target_path, L"pi", L"raspberrypi.local", L"pi", L"legacy-plaintext-secret");
 
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
-    const auto accounts = Config::instance().sshAccountsSnapshot();
+    const auto accounts = Config::instance().ssh_accounts_snapshot();
     ASSERT_EQ(accounts.size(), 1u);
     EXPECT_EQ(accounts[0].password(), "legacy-plaintext-secret");
 }
 
 TEST_F(ConfigPathTest, LegacyPlaintextPasswordIsEncryptedOnNextSave)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
-    writeLegacyPlaintextConfig(targetPath, L"pi", L"raspberrypi.local", L"pi", L"legacy-plaintext-secret");
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    write_legacy_plaintext_config(target_path, L"pi", L"raspberrypi.local", L"pi", L"legacy-plaintext-secret");
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
-    const std::string fileContent = readFile(targetPath);
-    EXPECT_EQ(fileContent.find("legacy-plaintext-secret"), std::string::npos);
-    EXPECT_NE(fileContent.find("AES256GCM"), std::string::npos);
+    const std::string file_content = read_file(target_path);
+    EXPECT_EQ(file_content.find("legacy-plaintext-secret"), std::string::npos);
+    EXPECT_NE(file_content.find("AES256GCM"), std::string::npos);
 }
 
 // Regression test for Fehler 9: sshAccounts() used to hand out a live reference
@@ -303,23 +303,23 @@ TEST_F(ConfigPathTest, ConcurrentSshAccountAccessDoesNotCrash)
     Config::instance().reset();
     for (int i = 0; i < 5; ++i) {
         SshAccount account;
-        account.setName("acc" + std::to_string(i));
-        account.setHost("host");
-        account.setUser("user");
-        account.setPassword("pw");
+        account.set_name("acc" + std::to_string(i));
+        account.set_host("host");
+        account.set_user("user");
+        account.set_password("pw");
         Config::instance().add(account);
     }
 
     std::atomic<bool> stop{false};
-    std::atomic<bool> sawInconsistency{false};
+    std::atomic<bool> saw_inconsistency{false};
 
     std::thread writer([&] {
         int i = 5;
         while (!stop.load()) {
             SshAccount account;
-            account.setName("acc" + std::to_string(i++));
+            account.set_name("acc" + std::to_string(i++));
             Config::instance().add(account);
-            Config::instance().removeSshAccount(0);
+            Config::instance().remove_ssh_account(0);
         }
     });
 
@@ -327,12 +327,12 @@ TEST_F(ConfigPathTest, ConcurrentSshAccountAccessDoesNotCrash)
     for (int r = 0; r < 4; ++r) {
         readers.emplace_back([&] {
             while (!stop.load()) {
-                const auto snapshot = Config::instance().sshAccountsSnapshot();
+                const auto snapshot = Config::instance().ssh_accounts_snapshot();
                 for (const auto& acc : snapshot) {
                     if (acc.name().empty()) // a torn/half-constructed element would show up here
-                        sawInconsistency = true;
+                        saw_inconsistency = true;
                 }
-                Config::instance().findSshAccountByName("acc0");
+                Config::instance().find_ssh_account_by_name("acc0");
             }
         });
     }
@@ -343,13 +343,13 @@ TEST_F(ConfigPathTest, ConcurrentSshAccountAccessDoesNotCrash)
     for (auto& t : readers)
         t.join();
 
-    EXPECT_FALSE(sawInconsistency.load());
+    EXPECT_FALSE(saw_inconsistency.load());
     Config::instance().reset();
 }
 
 // syncitems_ is read by the sync worker thread (via the snapshot returned from
 // syncitems()) while the GUI thread concurrently adds/removes items - the same
-// hazard already covered above for sshAccounts_.
+// hazard already covered above for ssh_accounts_.
 TEST_F(ConfigPathTest, ConcurrentSyncItemAccessDoesNotCrash)
 {
     Config::instance().reset();
@@ -357,7 +357,7 @@ TEST_F(ConfigPathTest, ConcurrentSyncItemAccessDoesNotCrash)
         Config::instance().add(SyncItem(L"item" + std::to_wstring(i), SyncItemType::File, L"src", L"dst", L""));
 
     std::atomic<bool> stop{false};
-    std::atomic<bool> sawInconsistency{false};
+    std::atomic<bool> saw_inconsistency{false};
 
     std::thread writer([&] {
         int i = 5;
@@ -374,9 +374,9 @@ TEST_F(ConfigPathTest, ConcurrentSyncItemAccessDoesNotCrash)
                 const auto snapshot = Config::instance().syncitems();
                 for (const auto& si : snapshot) {
                     if (si.name().empty()) // a torn/half-constructed element would show up here
-                        sawInconsistency = true;
+                        saw_inconsistency = true;
                 }
-                Config::instance().findByName(L"item0");
+                Config::instance().find_by_name(L"item0");
             }
         });
     }
@@ -387,29 +387,29 @@ TEST_F(ConfigPathTest, ConcurrentSyncItemAccessDoesNotCrash)
     for (auto& t : readers)
         t.join();
 
-    EXPECT_FALSE(sawInconsistency.load());
+    EXPECT_FALSE(saw_inconsistency.load());
     Config::instance().reset();
 }
 
-// refreshLastSync() is how Synchronize writes the result of syncing a snapshot
+// refresh_last_sync() is how Synchronize writes the result of syncing a snapshot
 // copy back onto the live SyncItem in Config (see Fehler 2: the worker no
 // longer holds a reference into syncitems_ directly). Without this write-back,
-// lastSync() would stay at its initial value forever and per-item syncCycle
-// throttling (pauseElapsed() in Synchronize.cpp) would silently break.
+// last_sync() would stay at its initial value forever and per-item sync_cycle
+// throttling (pause_elapsed() in Synchronize.cpp) would silently break.
 TEST_F(ConfigPathTest, RefreshLastSyncUpdatesTheLiveItem)
 {
     Config::instance().reset();
     Config::instance().add(SyncItem(L"item", SyncItemType::File, L"src", L"dst", L""));
-    auto before = Config::instance().findByName(L"item");
+    auto before = Config::instance().find_by_name(L"item");
     ASSERT_TRUE(before.has_value());
-    EXPECT_EQ(before->lastSync(), std::chrono::steady_clock::time_point::min());
+    EXPECT_EQ(before->last_sync(), std::chrono::steady_clock::time_point::min());
 
     const auto now = std::chrono::steady_clock::now();
-    Config::instance().refreshLastSync(L"item");
+    Config::instance().refresh_last_sync(L"item");
 
-    auto after = Config::instance().findByName(L"item");
+    auto after = Config::instance().find_by_name(L"item");
     ASSERT_TRUE(after.has_value());
-    EXPECT_GE(after->lastSync(), now);
+    EXPECT_GE(after->last_sync(), now);
 
     Config::instance().reset();
 }
@@ -421,48 +421,48 @@ TEST_F(ConfigPathTest, RefreshLastSyncUpdatesTheLiveItem)
 // failure must leave the original file completely untouched.
 TEST_F(ConfigPathTest, WriteFailureDoesNotCorruptExistingConfig)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
     Config::instance().add(SyncItem(L"original", SyncItemType::File, L"src", L"dst", L""));
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
-    const std::string originalContent = readFile(targetPath);
-    ASSERT_FALSE(originalContent.empty());
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    const std::string original_content = read_file(target_path);
+    ASSERT_FALSE(original_content.empty());
 
     // Make the temp file write() would create fail by pre-occupying its path
     // with a directory - opening it as an output file fails.
-    const fs::path tmpPath = targetPath.wstring() + L".tmp";
-    fs::create_directory(tmpPath);
+    const fs::path tmp_path = target_path.wstring() + L".tmp";
+    fs::create_directory(tmp_path);
 
     Config::instance().add(SyncItem(L"should-not-be-saved", SyncItemType::File, L"src2", L"dst2", L""));
-    EXPECT_FALSE(Config::instance().write(targetPath.wstring()));
-    EXPECT_EQ(readFile(targetPath), originalContent);
+    EXPECT_FALSE(Config::instance().write(target_path.wstring()));
+    EXPECT_EQ(read_file(target_path), original_content);
 
-    fs::remove_all(tmpPath);
+    fs::remove_all(tmp_path);
     Config::instance().reset();
 }
 
-// Fehler 7 (round 4): find()/findByName() used to hand out raw SyncItem*
+// Fehler 7 (round 4): find()/find_by_name() used to hand out raw SyncItem*
 // into the mutex-guarded vector; the GUI then wrote through that pointer
 // without the lock (and it dangled after add/remove reallocated the vector)
 // while the sync thread concurrently copied the vector. They now return
-// copies, and writes go through updateByName() under the lock.
+// copies, and writes go through update_by_name() under the lock.
 TEST_F(ConfigPathTest, FindByNameReturnsCopyAndUpdateByNameWritesBack)
 {
     Config::instance().reset();
     Config::instance().add(SyncItem(L"item", SyncItemType::File, L"src", L"dst", L""));
 
-    auto copy = Config::instance().findByName(L"item");
+    auto copy = Config::instance().find_by_name(L"item");
     ASSERT_TRUE(copy.has_value());
     copy->source(L"changed_src");
     // Mutating the copy must not touch Config's live item ...
-    EXPECT_EQ(Config::instance().findByName(L"item")->source(), L"src");
+    EXPECT_EQ(Config::instance().find_by_name(L"item")->source(), L"src");
     // ... only the explicit locked write-back does.
-    EXPECT_TRUE(Config::instance().updateByName(L"item", *copy));
-    EXPECT_EQ(Config::instance().findByName(L"item")->source(), L"changed_src");
+    EXPECT_TRUE(Config::instance().update_by_name(L"item", *copy));
+    EXPECT_EQ(Config::instance().find_by_name(L"item")->source(), L"changed_src");
 
-    EXPECT_TRUE(Config::instance().eraseByName(L"item"));
-    EXPECT_FALSE(Config::instance().findByName(L"item").has_value());
-    EXPECT_FALSE(Config::instance().eraseByName(L"item"));
+    EXPECT_TRUE(Config::instance().erase_by_name(L"item"));
+    EXPECT_FALSE(Config::instance().find_by_name(L"item").has_value());
+    EXPECT_FALSE(Config::instance().erase_by_name(L"item"));
     Config::instance().reset();
 }
 
@@ -470,20 +470,20 @@ TEST_F(ConfigPathTest, ConcurrentUpdateByNameAndSnapshotDoesNotCrash)
 {
     Config::instance().reset();
     // Long strings force heap allocation, making a torn unlocked write visible.
-    const std::wstring longA(256, L'a');
-    const std::wstring longB(256, L'b');
-    Config::instance().add(SyncItem(L"item", SyncItemType::File, longA, L"dst", L""));
+    const std::wstring long_a(256, L'a');
+    const std::wstring long_b(256, L'b');
+    Config::instance().add(SyncItem(L"item", SyncItemType::File, long_a, L"dst", L""));
 
     std::atomic_bool stop{false};
     std::thread writer([&] {
         bool flip = false;
         while (!stop.load()) {
-            SyncItem updated(L"item", SyncItemType::File, flip ? longA : longB, L"dst", L"");
-            Config::instance().updateByName(L"item", updated);
+            SyncItem updated(L"item", SyncItemType::File, flip ? long_a : long_b, L"dst", L"");
+            Config::instance().update_by_name(L"item", updated);
             flip = !flip;
         }
     });
-    std::atomic_bool sawTornRead{false};
+    std::atomic_bool saw_torn_read{false};
     std::vector<std::thread> readers;
     for (int r = 0; r < 4; ++r) {
         readers.emplace_back([&] {
@@ -491,8 +491,8 @@ TEST_F(ConfigPathTest, ConcurrentUpdateByNameAndSnapshotDoesNotCrash)
                 const auto snapshot = Config::instance().syncitems();
                 for (const auto& si : snapshot) {
                     const auto s = si.source();
-                    if (s != longA && s != longB)
-                        sawTornRead = true;
+                    if (s != long_a && s != long_b)
+                        saw_torn_read = true;
                 }
             }
         });
@@ -502,21 +502,21 @@ TEST_F(ConfigPathTest, ConcurrentUpdateByNameAndSnapshotDoesNotCrash)
     writer.join();
     for (auto& t : readers)
         t.join();
-    EXPECT_FALSE(sawTornRead.load());
+    EXPECT_FALSE(saw_torn_read.load());
     Config::instance().reset();
 }
 
-// Fehler 9 (round 4): interpretJson() ignored interpretSyncItem()'s return
+// Fehler 9 (round 4): interpret_json() ignored interpret_sync_item()'s return
 // value and added the half-initialized SyncItem anyway. One malformed entry
 // (e.g. a missing mandatory field) produced a ghost item - enabled by default,
 // type Undefined, empty paths - that showed up in the GUI and ran in every
 // sync pass. Malformed entries must be skipped while the valid rest loads.
 TEST_F(ConfigPathTest, MalformedSyncItemIsSkippedNotHalfLoaded)
 {
-    const fs::path configPath = testHome_ / "broken_item.json";
+    const fs::path config_path = test_home_ / "broken_item.json";
     // First entry lacks "name" (and more), second is complete - the loop must
     // survive the broken one and still load the good one.
-    writeFile(configPath, R"({
+    write_file(config_path, R"({
         "Syncitems": {
             "Syncitem": {
                 "type": "Datei",
@@ -541,7 +541,7 @@ TEST_F(ConfigPathTest, MalformedSyncItemIsSkippedNotHalfLoaded)
         }
     })");
 
-    EXPECT_TRUE(Config::instance().read(configPath.wstring()));
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
     EXPECT_TRUE(Config::instance().ready());
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
@@ -551,7 +551,7 @@ TEST_F(ConfigPathTest, MalformedSyncItemIsSkippedNotHalfLoaded)
 
 // Fehler 5 (round 5): a SyncItem's embedded SSH account is a snapshot taken
 // when its source/target path was set, not a live lookup by name (see
-// SyncItem::source()/target() via getAccountFromPath()). Renaming or editing
+// SyncItem::source()/target() via get_account_from_path()). Renaming or editing
 // the account in SshAccountsDialog left existing items pointing at a name/
 // credentials that no longer resolve in Config, so they silently failed every
 // sync pass afterward with no indication why.
@@ -559,48 +559,48 @@ TEST_F(ConfigPathTest, RenamingSshAccountUpdatesReferencingSyncItems)
 {
     Config::instance().reset();
     SshAccount acc;
-    acc.setName("oldname");
-    acc.setHost("host1");
-    acc.setUser("user1");
-    acc.setPassword("pw1");
+    acc.set_name("oldname");
+    acc.set_host("host1");
+    acc.set_user("user1");
+    acc.set_password("pw1");
     Config::instance().add(acc, true);
 
     SyncItem si(L"item", SyncItemType::File, L"oldname:/src", L"/local/dst", L"");
-    ASSERT_TRUE(si.sshSource());
+    ASSERT_TRUE(si.ssh_source());
     Config::instance().add(si, true);
     // Not referencing the renamed account: must be left untouched.
     SyncItem unrelated(L"other", SyncItemType::File, L"/local/src2", L"/local/dst2", L"");
     Config::instance().add(unrelated, true);
 
     SshAccount renamed = acc;
-    renamed.setName("newname");
-    renamed.setHost("host2");
-    EXPECT_TRUE(Config::instance().updateSshAccountReferences("oldname", renamed));
+    renamed.set_name("newname");
+    renamed.set_host("host2");
+    EXPECT_TRUE(Config::instance().update_ssh_account_references("oldname", renamed));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 2u);
     EXPECT_EQ(items[0].source(), L"newname:/src"); // account name in the path prefix updated
-    EXPECT_FALSE(Config::instance().sshAccountReferencedByAnyItem("oldname"));
-    EXPECT_TRUE(Config::instance().sshAccountReferencedByAnyItem("newname"));
+    EXPECT_FALSE(Config::instance().ssh_account_referenced_by_any_item("oldname"));
+    EXPECT_TRUE(Config::instance().ssh_account_referenced_by_any_item("newname"));
     EXPECT_EQ(items[1].source(), L"/local/src2"); // unrelated item unchanged
 
     // Renaming an account nothing references is a no-op, not an error.
-    EXPECT_FALSE(Config::instance().updateSshAccountReferences("nonexistent", renamed));
+    EXPECT_FALSE(Config::instance().update_ssh_account_references("nonexistent", renamed));
     Config::instance().reset();
 }
 
 // Fehler 3 (round 6): a single malformed SSH account entry aborted the whole
-// readSshAccounts() loop, and a single malformed Settings/Logging field
-// aborted interpretJson() before SshAccounts/Syncitems were even read - one
+// read_ssh_accounts() loop, and a single malformed Settings/Logging field
+// aborted interpret_json() before SshAccounts/Syncitems were even read - one
 // bad field anywhere near the top of the file could make every sync item and
 // every other SSH account appear to vanish. Both sections are now resilient:
 // per-account for SshAccounts (mirroring the existing per-item Syncitems
 // handling), and non-fatal for Settings/Logging.
 TEST_F(ConfigPathTest, MalformedSshAccountIsSkippedNotAllAccountsLost)
 {
-    const fs::path configPath = testHome_ / "broken_account.json";
+    const fs::path config_path = test_home_ / "broken_account.json";
     // First account lacks "password" (and more); second is complete.
-    writeFile(configPath, R"({
+    write_file(config_path, R"({
         "SshAccounts": {
             "SshAccount": {
                 "name": "broken",
@@ -615,9 +615,9 @@ TEST_F(ConfigPathTest, MalformedSshAccountIsSkippedNotAllAccountsLost)
         }
     })");
 
-    EXPECT_TRUE(Config::instance().read(configPath.wstring()));
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
     EXPECT_TRUE(Config::instance().ready());
-    const auto accounts = Config::instance().sshAccountsSnapshot();
+    const auto accounts = Config::instance().ssh_accounts_snapshot();
     ASSERT_EQ(accounts.size(), 1u);
     EXPECT_EQ(accounts[0].name(), "good");
     Config::instance().reset();
@@ -625,11 +625,11 @@ TEST_F(ConfigPathTest, MalformedSshAccountIsSkippedNotAllAccountsLost)
 
 TEST_F(ConfigPathTest, MalformedSettingsDoesNotBlockSyncitemsAndAccounts)
 {
-    const fs::path configPath = testHome_ / "broken_settings.json";
+    const fs::path config_path = test_home_ / "broken_settings.json";
     // "Settings" node present but missing every field it needs; "Logging"
     // absent entirely (also handled via get_child_optional, but exercises
     // the same non-fatal-failure path for Settings specifically here).
-    writeFile(configPath, R"({
+    write_file(config_path, R"({
         "Settings": {
             "StartMinimzed": "true"
         },
@@ -660,14 +660,14 @@ TEST_F(ConfigPathTest, MalformedSettingsDoesNotBlockSyncitemsAndAccounts)
         }
     })");
 
-    EXPECT_TRUE(Config::instance().read(configPath.wstring()));
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
     EXPECT_TRUE(Config::instance().ready());
-    EXPECT_EQ(Config::instance().sshAccountsSnapshot().size(), 1u);
+    EXPECT_EQ(Config::instance().ssh_accounts_snapshot().size(), 1u);
     EXPECT_EQ(Config::instance().syncitems().size(), 1u);
     Config::instance().reset();
 }
 
-// Fehler 4 (round 7): readSshAccounts() used decrypted.value_or(storedPassword),
+// Fehler 4 (round 7): read_ssh_accounts() used decrypted.value_or(storedPassword),
 // conflating "genuine legacy plaintext" (decrypt() returns nullopt because
 // there's no marker) with "encrypted but failed to decrypt" (decrypt() also
 // returns nullopt, e.g. the encryption key was lost/changed) - the second
@@ -675,11 +675,11 @@ TEST_F(ConfigPathTest, MalformedSettingsDoesNotBlockSyncitemsAndAccounts)
 // SSH password instead of surfacing that decryption failed.
 TEST_F(ConfigPathTest, FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword)
 {
-    const fs::path configPath = testHome_ / "bad_password.json";
+    const fs::path config_path = test_home_ / "bad_password.json";
     // Well-formed marker + base64 blob (long enough to pass the corruption
     // length check) that can never authenticate against any key - decrypt()
     // must fail, and the account's password must not become this raw string.
-    writeFile(configPath, R"({
+    write_file(config_path, R"({
         "SshAccounts": {
             "SshAccount": {
                 "name": "acc",
@@ -690,21 +690,21 @@ TEST_F(ConfigPathTest, FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword
         }
     })");
 
-    EXPECT_TRUE(Config::instance().read(configPath.wstring()));
-    const auto accounts = Config::instance().sshAccountsSnapshot();
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
+    const auto accounts = Config::instance().ssh_accounts_snapshot();
     ASSERT_EQ(accounts.size(), 1u);
     EXPECT_TRUE(accounts[0].password().empty());
     EXPECT_EQ(accounts[0].password().find("AES256GCM"), std::string::npos);
     Config::instance().reset();
 }
 
-// Exclusions feature: getExclusions() was a TODO stub that always returned
+// Exclusions feature: get_exclusions() was a TODO stub that always returned
 // empty, so exclusion patterns written to the config file were silently
-// dropped on the next load - writeSyncItem() already wrote them correctly,
+// dropped on the next load - write_sync_item() already wrote them correctly,
 // but nothing read them back.
 TEST_F(ConfigPathTest, ExclusionsRoundTripThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
     Exclusions exclusions;
     exclusions.push_back(L"*.tmp");
@@ -712,9 +712,9 @@ TEST_F(ConfigPathTest, ExclusionsRoundTripThroughSaveAndLoad)
     SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", exclusions,
         SyncFlags(false, false, false, false, true), CompareItems());
     Config::instance().add(si);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
@@ -727,30 +727,30 @@ TEST_F(ConfigPathTest, ExclusionsRoundTripThroughSaveAndLoad)
 
 TEST_F(ConfigPathTest, BackupProofRoundTripsThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
     SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
         SyncFlags(false, false, false, false, true), CompareItems());
-    ASSERT_FALSE(si.backupProof());
-    si.backupProof(true);
+    ASSERT_FALSE(si.backup_proof());
+    si.backup_proof(true);
     Config::instance().add(si);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
     Config::instance().reset();
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_TRUE(items[0].backupProof());
+    EXPECT_TRUE(items[0].backup_proof());
     Config::instance().reset();
 }
 
-// A config file written before the flag existed has no "backupProof" node;
+// A config file written before the flag existed has no "backup_proof" node;
 // loading it must fall back to the default instead of throwing.
 TEST_F(ConfigPathTest, BackupProofDefaultsToFalseForOlderConfigFiles)
 {
-    const fs::path configPath = testHome_ / "autofilesync.json";
-    writeFile(configPath, R"({
+    const fs::path config_path = test_home_ / "autofilesync.json";
+    write_file(config_path, R"({
         "Syncitems": {
             "Syncitem": {
                 "syncflags": {
@@ -771,36 +771,36 @@ TEST_F(ConfigPathTest, BackupProofDefaultsToFalseForOlderConfigFiles)
     })");
     Config::instance().reset();
 
-    ASSERT_TRUE(Config::instance().read(configPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(config_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_FALSE(items[0].backupProof());
+    EXPECT_FALSE(items[0].backup_proof());
     Config::instance().reset();
 }
 
 // "Gelöschte Dateien im Ziel ebenfalls löschen" is persisted under the
-// syncflags key "syncDeletions" (writeSyncItem/getSyncFlags). The option
+// syncflags key "syncDeletions" (write_sync_item/get_sync_flags). The option
 // deletes user data, so a silent loss of the flag on save/load - or a silent
 // gain of it - is the kind of defect that has to be caught here rather than
 // in the field.
 TEST_F(ConfigPathTest, DeleteInTargetRoundTripsThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
     SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
         SyncFlags(false, false, false, false, true), CompareItems());
-    ASSERT_FALSE(si.deleteInTarget());
-    si.deleteInTarget(true);
+    ASSERT_FALSE(si.delete_in_target());
+    si.delete_in_target(true);
     Config::instance().add(si);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
     Config::instance().reset();
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_TRUE(items[0].deleteInTarget());
+    EXPECT_TRUE(items[0].delete_in_target());
     Config::instance().reset();
 }
 
@@ -808,19 +808,19 @@ TEST_F(ConfigPathTest, DeleteInTargetRoundTripsThroughSaveAndLoad)
 // off must never come back with it on.
 TEST_F(ConfigPathTest, DeleteInTargetStaysOffThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
     SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
         SyncFlags(false, false, false, false, true), CompareItems());
     Config::instance().add(si);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
     Config::instance().reset();
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_FALSE(items[0].deleteInTarget());
+    EXPECT_FALSE(items[0].delete_in_target());
     Config::instance().reset();
 }
 
@@ -829,8 +829,8 @@ TEST_F(ConfigPathTest, DeleteInTargetStaysOffThroughSaveAndLoad)
 // target files on the next sync of an item the user never opted in for.
 TEST_F(ConfigPathTest, DeleteInTargetDefaultsToFalseForOlderConfigFiles)
 {
-    const fs::path configPath = testHome_ / "legacy_syncdeletions.json";
-    writeFile(configPath, R"({
+    const fs::path config_path = test_home_ / "legacy_syncdeletions.json";
+    write_file(config_path, R"({
         "Syncitems": {
             "Syncitem": {
                 "syncflags": {
@@ -851,53 +851,53 @@ TEST_F(ConfigPathTest, DeleteInTargetDefaultsToFalseForOlderConfigFiles)
     })");
     Config::instance().reset();
 
-    ASSERT_TRUE(Config::instance().read(configPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(config_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_FALSE(items[0].deleteInTarget());
+    EXPECT_FALSE(items[0].delete_in_target());
     Config::instance().reset();
 }
 
 // "Leere Dateien synchronisieren" wird unter dem syncflags-Schluessel
-// "syncEmptyFiles" abgelegt. Wie bei syncDeletions gilt: geht das Flag beim
+// "sync_empty_files" abgelegt. Wie bei syncDeletions gilt: geht das Flag beim
 // Speichern oder Laden verloren - oder kommt es ungefragt dazu -, aendert sich
 // das Verhalten an den Daten des Benutzers.
 TEST_F(ConfigPathTest, SyncEmptyFilesRoundTripsThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
     SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
         SyncFlags(false, false, false, false, true), CompareItems());
-    ASSERT_FALSE(si.syncEmptyFiles());
-    si.syncEmptyFiles(true);
+    ASSERT_FALSE(si.sync_empty_files());
+    si.sync_empty_files(true);
     Config::instance().add(si);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
     Config::instance().reset();
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_TRUE(items[0].syncEmptyFiles());
+    EXPECT_TRUE(items[0].sync_empty_files());
     Config::instance().reset();
 }
 
 TEST_F(ConfigPathTest, SyncEmptyFilesStaysOffThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
     SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
         SyncFlags(false, false, false, false, true), CompareItems());
     Config::instance().add(si);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
     Config::instance().reset();
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_FALSE(items[0].syncEmptyFiles());
+    EXPECT_FALSE(items[0].sync_empty_files());
     Config::instance().reset();
 }
 
@@ -907,8 +907,8 @@ TEST_F(ConfigPathTest, SyncEmptyFilesStaysOffThroughSaveAndLoad)
 // uebertragen und dabei womoeglich gefuellte Zieldateien zu ueberschreiben.
 TEST_F(ConfigPathTest, SyncEmptyFilesDefaultsToFalseForOlderConfigFiles)
 {
-    const fs::path configPath = testHome_ / "legacy_syncemptyfiles.json";
-    writeFile(configPath, R"({
+    const fs::path config_path = test_home_ / "legacy_syncemptyfiles.json";
+    write_file(config_path, R"({
         "Syncitems": {
             "Syncitem": {
                 "syncflags": {
@@ -929,56 +929,56 @@ TEST_F(ConfigPathTest, SyncEmptyFilesDefaultsToFalseForOlderConfigFiles)
     })");
     Config::instance().reset();
 
-    ASSERT_TRUE(Config::instance().read(configPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(config_path.wstring()));
 
     const auto items = Config::instance().syncitems();
     ASSERT_EQ(items.size(), 1u);
-    EXPECT_FALSE(items[0].syncEmptyFiles());
+    EXPECT_FALSE(items[0].sync_empty_files());
     Config::instance().reset();
 }
 
 TEST_F(ConfigPathTest, BackupProofPathRoundTripsThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
-    Config::instance().settings().backupProofPath(L"/tmp/nachweise");
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    Config::instance().settings().backup_proof_path(L"/tmp/nachweise");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
     Config::instance().reset();
-    ASSERT_TRUE(Config::instance().settings().backupProofPath().empty());
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_TRUE(Config::instance().settings().backup_proof_path().empty());
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
-    EXPECT_EQ(Config::instance().settings().backupProofPath(), L"/tmp/nachweise");
+    EXPECT_EQ(Config::instance().settings().backup_proof_path(), L"/tmp/nachweise");
     Config::instance().reset();
 }
 
 TEST_F(ConfigPathTest, RecycleBinPathRoundTripsThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
-    const fs::path binPath = testHome_ / "papierkorb";
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    const fs::path bin_path = test_home_ / "papierkorb";
     Config::instance().reset();
-    RecycleBin::instance().binPath(binPath);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    RecycleBin::instance().bin_path(bin_path);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
-    RecycleBin::instance().binPath("");
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    RecycleBin::instance().bin_path("");
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
-    EXPECT_EQ(RecycleBin::instance().binPath(), binPath);
+    EXPECT_EQ(RecycleBin::instance().bin_path(), bin_path);
     Config::instance().reset();
 }
 
 TEST_F(ConfigPathTest, DeleteModeRoundTripsThroughSaveAndLoad)
 {
-    const fs::path targetPath = testHome_ / "autofilesync.json";
+    const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
-    Config::instance().settings().deleteMode(DeleteMode::Permanent);
-    ASSERT_TRUE(Config::instance().write(targetPath.wstring()));
+    Config::instance().settings().delete_mode(DeleteMode::Permanent);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
 
     Config::instance().reset();
-    ASSERT_EQ(Config::instance().settings().deleteMode(), DeleteMode::RecycleBin);
-    ASSERT_TRUE(Config::instance().read(targetPath.wstring()));
+    ASSERT_EQ(Config::instance().settings().delete_mode(), DeleteMode::RecycleBin);
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
-    EXPECT_EQ(Config::instance().settings().deleteMode(), DeleteMode::Permanent);
+    EXPECT_EQ(Config::instance().settings().delete_mode(), DeleteMode::Permanent);
     Config::instance().reset();
 }
 
@@ -986,8 +986,8 @@ TEST_F(ConfigPathTest, DeleteModeRoundTripsThroughSaveAndLoad)
 // it must fall back to the recoverable mode rather than fail the Settings node.
 TEST_F(ConfigPathTest, ConfigWithoutDeleteModeFallsBackToRecycleBin)
 {
-    const fs::path configPath = testHome_ / "legacy_deletemode.json";
-    writeFile(configPath, R"({
+    const fs::path config_path = test_home_ / "legacy_deletemode.json";
+    write_file(config_path, R"({
         "Settings": {
             "StartMinimzed": "false",
             "MinimizeInsteadOfClose": "false",
@@ -998,12 +998,12 @@ TEST_F(ConfigPathTest, ConfigWithoutDeleteModeFallsBackToRecycleBin)
             "ShowInfos": "false"
         }
     })");
-    Config::instance().settings().deleteMode(DeleteMode::Permanent);
+    Config::instance().settings().delete_mode(DeleteMode::Permanent);
 
-    ASSERT_TRUE(Config::instance().read(configPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(config_path.wstring()));
 
-    EXPECT_EQ(Config::instance().settings().deleteMode(), DeleteMode::RecycleBin);
-    EXPECT_TRUE(Config::instance().settings().showErrors());
+    EXPECT_EQ(Config::instance().settings().delete_mode(), DeleteMode::RecycleBin);
+    EXPECT_TRUE(Config::instance().settings().show_errors());
     Config::instance().reset();
 }
 
@@ -1012,8 +1012,8 @@ TEST_F(ConfigPathTest, ConfigWithoutDeleteModeFallsBackToRecycleBin)
 // take the rest of the Settings node down with it.
 TEST_F(ConfigPathTest, ConfigWithoutRecycleBinPathKeepsCurrentPath)
 {
-    const fs::path configPath = testHome_ / "legacy_settings.json";
-    writeFile(configPath, R"({
+    const fs::path config_path = test_home_ / "legacy_settings.json";
+    write_file(config_path, R"({
         "Settings": {
             "StartMinimzed": "true",
             "MinimizeInsteadOfClose": "false",
@@ -1024,13 +1024,13 @@ TEST_F(ConfigPathTest, ConfigWithoutRecycleBinPathKeepsCurrentPath)
             "ShowInfos": "false"
         }
     })");
-    const fs::path binPath = testHome_ / "papierkorb";
-    RecycleBin::instance().binPath(binPath);
+    const fs::path bin_path = test_home_ / "papierkorb";
+    RecycleBin::instance().bin_path(bin_path);
 
-    ASSERT_TRUE(Config::instance().read(configPath.wstring()));
+    ASSERT_TRUE(Config::instance().read(config_path.wstring()));
 
-    EXPECT_EQ(RecycleBin::instance().binPath(), binPath);
-    EXPECT_TRUE(Config::instance().settings().startMinimized());
-    EXPECT_TRUE(Config::instance().settings().showErrors());
+    EXPECT_EQ(RecycleBin::instance().bin_path(), bin_path);
+    EXPECT_TRUE(Config::instance().settings().start_minimized());
+    EXPECT_TRUE(Config::instance().settings().show_errors());
     Config::instance().reset();
 }

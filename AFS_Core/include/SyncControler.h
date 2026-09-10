@@ -17,49 +17,50 @@ class SyncControler {
 	using SyncCtrlPtr = std::unique_ptr<SyncControler>;
 
 	static SyncCtrlPtr  instance_;
-	std::atomic<ProgressDialog*> progressDialog_ = nullptr;
+	std::atomic<ProgressDialog*> progress_dialog_ = nullptr;
 	Synchronize*		synchronize_ = nullptr;
-	bool				displayErrormessages_ = false;
+	bool				display_errormessages_ = false;
 	std::atomic<SyncCtrlState>	state_ = SyncCtrlState::Waiting;
-	std::size_t			countFiles_ = 0;
+	std::size_t			count_files_ = 0;
 
 protected:
-	void setSyncFinished();
+	void set_sync_finished();
 	SyncControler() = default;
 public:
 	~SyncControler();
 	static SyncControler& instance();
-	void registerProgressDialog(ProgressDialog*);
-	std::optional<ProgressDialog*> progressDialog();
-	bool startSync(SyncType syncType);
-	void requestStop();
-	void stopSync();
-	bool syncFinished() const;
-	void resetState();
-	void destroySynchronize();
-	void displayErrormessages(bool);
-	bool displayErrormessages() const;
-	SyncMessage getMessage() const;
-	void countFiles(std::size_t);
-	std::size_t countFiles() const;
+	void register_progress_dialog(ProgressDialog*);
+	std::optional<ProgressDialog*> progress_dialog();
+	bool start_sync(SyncType sync_type);
+	void request_stop();
+	void stop_sync();
+	bool sync_finished() const;
+	void reset_state();
+	void destroy_synchronize();
+	void display_errormessages(bool);
+	bool display_errormessages() const;
+	SyncMessage get_message() const;
+	void count_files(std::size_t);
+	std::size_t count_files() const;
 	friend class Synchronize;
 };
 
 //##############################################################
 inline
-void SyncControler::countFiles(std::size_t countFiles)
+void SyncControler::count_files(std::size_t count_files)
 {
-	countFiles_ = countFiles;
+	count_files_ = count_files;
 }
 
 inline
-std::size_t SyncControler::countFiles() const
+std::size_t SyncControler::count_files() const
 {
-	return countFiles_;
+	return count_files_;
 }
 
 inline
-void SyncControler::resetState() {
+void SyncControler::reset_state()
+{
 	state_ = SyncCtrlState::Waiting;
 }
 

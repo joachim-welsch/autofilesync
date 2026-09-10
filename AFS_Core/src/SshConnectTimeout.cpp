@@ -3,23 +3,23 @@
 namespace AFS_Core {
 
 namespace {
-    constexpr long kSshConnectTimeoutSeconds = 15;
+    constexpr long SSH_CONNECT_TIMEOUT_SECONDS = 15;
 }
 
 #ifdef _UNIX
 
-void applySshConnectTimeout(ssh_session session)
+void apply_ssh_connect_timeout(ssh_session session)
 {
-    long timeoutSeconds = kSshConnectTimeoutSeconds;
-    ssh_options_set(session, SSH_OPTIONS_TIMEOUT, &timeoutSeconds);
+    long timeout_seconds = SSH_CONNECT_TIMEOUT_SECONDS;
+    ssh_options_set(session, SSH_OPTIONS_TIMEOUT, &timeout_seconds);
 }
 
 #else
     #ifdef _WIN32
 
-void applySshConnectTimeout(LIBSSH2_SESSION* session)
+void apply_ssh_connect_timeout(LIBSSH2_SESSION* session)
 {
-    libssh2_session_set_timeout(session, kSshConnectTimeoutSeconds * 1000L);
+    libssh2_session_set_timeout(session, SSH_CONNECT_TIMEOUT_SECONDS * 1000L);
 }
 
     #endif

@@ -9,40 +9,40 @@ enum class DeleteMode { RecycleBin, Permanent };
 class Settings {
     // Recoverable deletion is the safer default and also what a config file
     // written before this setting existed falls back to.
-    DeleteMode deleteMode_          = DeleteMode::RecycleBin;
-    bool consoleMode_               = false;
-    bool startMinimized_            = false;
-    bool minimizeInsteadOfClose_    = false;
-    bool autoStart_                 = false;
-    bool startSyncAtStart_          = false;
-    bool showErrors_                = false;
-    bool showWarnings_              = false;
-    bool showInfos_                 = false;
+    DeleteMode delete_mode_          = DeleteMode::RecycleBin;
+    bool console_mode_               = false;
+    bool start_minimized_            = false;
+    bool minimize_instead_of_close_    = false;
+    bool auto_start_                 = false;
+    bool start_sync_at_start_          = false;
+    bool show_errors_                = false;
+    bool show_warnings_              = false;
+    bool show_infos_                 = false;
     // Directory the proofs of backup go into, one file per sync item. Empty
     // means none are written, whatever a single sync item asks for - there is
     // nowhere to put them.
-    std::wstring backupProofPath_;
+    std::wstring backup_proof_path_;
 public:
-    void setConsoleMode() { consoleMode_=true; }
-    bool consoleMode() const { return consoleMode_; }
-    bool startMinimized() const { return startMinimized_; }
-    void startMinimized(bool sm) { startMinimized_=sm; }
-    bool minimizeInsteadOfClose() const { return minimizeInsteadOfClose_; }
-    void minimizeInsteadOfClose(bool m) { minimizeInsteadOfClose_ = m; }
-    bool autoStart() const { return autoStart_; }
-    void autoStart(bool as) { autoStart_=as; }
-    bool startSyncAtStart() const { return startSyncAtStart_; }
-    void startSyncAtStart(bool as) { startSyncAtStart_=as; }
-    bool showErrors() const { return showErrors_; }
-    void showErrors(bool t) { showErrors_ = t; }
-    bool showWarnings() const { return showWarnings_; }
-    void showWarnings(bool t) { showWarnings_ = t; }
-    bool showInfos() const { return showInfos_; }
-    void showInfos(bool t) { showInfos_ = t; }
-    DeleteMode deleteMode() const { return deleteMode_; }
-    void deleteMode(DeleteMode dm) { deleteMode_ = dm; }
-    std::wstring backupProofPath() const { return backupProofPath_; }
-    void backupProofPath(const std::wstring& path) { backupProofPath_ = path; }
+    void set_console_mode() { console_mode_=true; }
+    bool console_mode() const { return console_mode_; }
+    bool start_minimized() const { return start_minimized_; }
+    void start_minimized(bool sm) { start_minimized_=sm; }
+    bool minimize_instead_of_close() const { return minimize_instead_of_close_; }
+    void minimize_instead_of_close(bool m) { minimize_instead_of_close_ = m; }
+    bool auto_start() const { return auto_start_; }
+    void auto_start(bool as) { auto_start_=as; }
+    bool start_sync_at_start() const { return start_sync_at_start_; }
+    void start_sync_at_start(bool as) { start_sync_at_start_=as; }
+    bool show_errors() const { return show_errors_; }
+    void show_errors(bool t) { show_errors_ = t; }
+    bool show_warnings() const { return show_warnings_; }
+    void show_warnings(bool t) { show_warnings_ = t; }
+    bool show_infos() const { return show_infos_; }
+    void show_infos(bool t) { show_infos_ = t; }
+    DeleteMode delete_mode() const { return delete_mode_; }
+    void delete_mode(DeleteMode dm) { delete_mode_ = dm; }
+    std::wstring backup_proof_path() const { return backup_proof_path_; }
+    void backup_proof_path(const std::wstring& path) { backup_proof_path_ = path; }
     void reset();
 };
 

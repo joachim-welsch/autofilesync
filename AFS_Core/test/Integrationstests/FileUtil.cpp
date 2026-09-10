@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 namespace tu {
 
-	bool eraseTestFile(const wstring& fn)
+	bool erase_test_file(const wstring& fn)
 	{
 		if (std::filesystem::exists(fn))
 		{
@@ -23,9 +23,9 @@ namespace tu {
 		return true;
 	}
 
-	bool copyFile(const wstring& source, const wstring& destination)
+	bool copy_file(const wstring& source, const wstring& destination)
 	{
-		eraseTestFile(destination);
+		erase_test_file(destination);
 		try {
 			fs::create_directories(fs::path(destination).parent_path());
 			fs::copy_file(source, destination);
@@ -37,14 +37,14 @@ namespace tu {
 		return true;
 	}
 
-	bool copySourceToDest(const wstring& source, const wstring& destination)
+	bool copy_source_to_dest(const wstring& source, const wstring& destination)
 	{
-		return copyFile(source, destination);
+		return copy_file(source, destination);
 	}
 
-	void setFileDate(const std::wstring& filePath, int newyear, int newmonth, int newday) {
+	void set_file_date(const std::wstring& file_path, int newyear, int newmonth, int newday) {
 		try {
-			fs::path path(filePath);
+			fs::path path(file_path);
 			auto date = year(newyear) / month(newmonth) / day(newday);
 			auto timepoint = sys_days(date);
 			auto file_time = fs::file_time_type::clock::now() + (timepoint - std::chrono::system_clock::now());
@@ -56,17 +56,17 @@ namespace tu {
 		}
 	}
 
-	std::wstring tempDirW()
+	std::wstring temp_dir_w()
 	{
 		return fs::temp_directory_path().wstring();
 	}
 
-	std::string tempDir()
+	std::string temp_dir()
 	{
 		return fs::temp_directory_path().string();
 	}
 
-	std::string testTempDir()
+	std::string test_temp_dir()
 	{
 #ifdef _UNIX
 		return "/tmp";
@@ -76,29 +76,29 @@ namespace tu {
 	}
 
 #ifdef _UNIX
-	std::string testSourceDir()
+	std::string test_source_dir()
 	{ 
 		return "/tmp/test/source";
 	}
 
-	std::string testDestDir()
+	std::string test_dest_dir()
 	{
 		return "/tmp/test/dest";
 	}
 #else
-	std::string testSourceDir()
+	std::string test_source_dir()
 	{
 		return "C:\\temp\\test\\source";
 	}
 
-	std::string testDestDir()
+	std::string test_dest_dir()
 	{
 		return "C:\\temp\\test\\dest";
 	}
 #endif
 
 	// Windows liefert '\' und ggf. abweichende Groß-/Kleinschreibung zurück.
-	bool pathContains(std::wstring haystack, std::wstring needle)
+	bool path_contains(std::wstring haystack, std::wstring needle)
 	{
 		auto normalize = [](std::wstring& s) {
 			std::replace(s.begin(), s.end(), L'\\', L'/');

@@ -8,9 +8,9 @@ namespace AFS_Core {
 
 class SyncDir: public SyncBase {
 private:
-    void syncSshDirEntry(const SshDirEntry& entry, const std::wstring& sourcePath, const std::wstring& wildcard, const std::wstring& destination);
+    void sync_ssh_dir_entry(const SshDirEntry& entry, const std::wstring& source_path, const std::wstring& wildcard, const std::wstring& destination);
 public:
-    SyncDir(const SyncItem& si, std::size_t& copyCount, bool onlyCount);
+    SyncDir(const SyncItem& si, std::size_t& copy_count, bool only_count);
     void operator()() override;
 };
 

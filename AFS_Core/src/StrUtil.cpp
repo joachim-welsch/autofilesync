@@ -14,16 +14,17 @@ using std::wstring;
 namespace util {
 
 #ifdef WIN32
-std::string wstring_to_string(const std::wstring& ws) {
+std::string wstring_to_string(const std::wstring& ws)
+{
     if (ws.empty()) {
         return {};
     }
-    int bufferSize = WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    if (bufferSize == 0) {
+    int buffer_size = WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (buffer_size == 0) {
         throw std::runtime_error("WideCharToMultiByte failed");
     }
-    std::string result(bufferSize - 1, '\0'); // -1, because WideCharToMultiByte counts the null terminator
-    WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), -1, &result[0], bufferSize, nullptr, nullptr);
+    std::string result(buffer_size - 1, '\0'); // -1, because WideCharToMultiByte counts the null terminator
+    WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), -1, &result[0], buffer_size, nullptr, nullptr);
     return result;
 }
 std::wstring string_to_wstring(const std::string& s)
@@ -48,15 +49,15 @@ std::wstring string_to_wstring(const std::string& s)
 #else
 std::string wstring_to_string(const std::wstring& wstr)
 {
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
-    return converterX.to_bytes(wstr);
+    using ConvertTypeX = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<ConvertTypeX, wchar_t> converter_x;
+    return converter_x.to_bytes(wstr);
 }
 std::wstring string_to_wstring(const std::string& str)
 {
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
-    return converterX.from_bytes(str);
+    using ConvertTypeX = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<ConvertTypeX, wchar_t> converter_x;
+    return converter_x.from_bytes(str);
 }
 
 #endif

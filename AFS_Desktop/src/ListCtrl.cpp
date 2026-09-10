@@ -58,7 +58,7 @@ void ListCtrl::OnDClick(wxMouseEvent&)
 	const wstring syncName = getSelected();
 	std::optional<SyncItem> found = nullopt;
 	if (!syncName.empty())
-		found = Config::instance().findByName(syncName);
+		found = Config::instance().find_by_name(syncName);
 	if (!found.has_value()) // double-click on empty list area, or item no longer exists
 		return;
 	// found is a copy; write it back under Config's lock via the original name
@@ -67,7 +67,7 @@ void ListCtrl::OnDClick(wxMouseEvent&)
 	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);
-		Config::instance().updateByName(originalName, *found);
+		Config::instance().update_by_name(originalName, *found);
 		update();
 	}
 }

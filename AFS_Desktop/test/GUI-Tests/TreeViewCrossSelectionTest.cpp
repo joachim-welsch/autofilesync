@@ -33,7 +33,7 @@ TEST_F(GuiTest, LinksclickImBaumZeigtDenPfadAufDerAnderenSeite)
     ModalDialogWatcher::instance().expect(txt::AddSynchronisation, fillSyncItemDialog(input));
     activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
     pump();
-    ASSERT_TRUE(Config::instance().findByName(syncItemName.ToStdWstring()).has_value())
+    ASSERT_TRUE(Config::instance().find_by_name(syncItemName.ToStdWstring()).has_value())
         << "Die Synchronisation wurde nicht angelegt.";
 
     activateMenuItem(mainWindow(), tul(id::View_Tree));
