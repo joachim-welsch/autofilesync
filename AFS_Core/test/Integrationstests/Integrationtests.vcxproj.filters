@@ -114,6 +114,9 @@
     <ClCompile Include="$(LibDir)\SftpConnection.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
+    <ClCompile Include="$(LibDir)\SshConnectTimeout.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
     <ClCompile Include="$(LibDir)\SshHostKeyVerification.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
