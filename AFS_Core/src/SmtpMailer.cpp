@@ -28,14 +28,8 @@ using util::wstring_to_string;
 
 namespace {
 
-// Only the port distinguishes the two ways to get TLS: 465 expects the
-// handshake right after connecting, every other port the STARTTLS command.
 constexpr uint16_t IMPLICIT_TLS_PORT = 465;
-// A fatal error blocks the thread that reported it until the mail is out, so
-// every network step needs a ceiling well below "the user gives up".
 constexpr int SOCKET_TIMEOUT_SECONDS = 15;
-// A greeting or error text beyond this is a broken (or hostile) server, not
-// something worth buffering.
 constexpr size_t MAX_REPLY_SIZE = 4096;
 
 string base64(const string& data)
@@ -158,8 +152,6 @@ bool SmtpSession::connect()
 	bio_ = BIO_new_connect(address.c_str());
 	if (!bio_)
 		return fail("Verbindung zu " + address + " konnte nicht angelegt werden");
-	// Blocking: the timeouts below cover reads and writes, the connect attempt
-	// itself is limited by the operating system.
 	if (BIO_do_connect(bio_) <= 0)
 		return fail("keine Verbindung zu " + address);
 	set_timeouts();
@@ -271,8 +263,6 @@ bool SmtpSession::deliver(const wstring& recipient, const wstring& subject, cons
 		return false;
 	if (!put("DATA") || !reply(354))
 		return false;
-	// No dot stuffing: header lines never start with a dot and the base64
-	// alphabet of the body does not contain one.
 	if (!put(message(recipient, subject, body) + "\r\n."))
 		return false;
 	return reply_ok();

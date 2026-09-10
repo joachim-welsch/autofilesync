@@ -16,21 +16,10 @@
 namespace AFS_Core {
 
 namespace {
-// Slices the waiting so that a stop request is noticed quickly without polling
-// the other process more often than necessary.
 constexpr auto POLL_INTERVAL = std::chrono::milliseconds(200);
-// The daemon waits for the GUI without a limit: that is the requested pause,
-// and a GUI that dies takes its announcement with it (see below). The GUI only
-// waits for the daemon to finish its current pass, so a limit here merely keeps
-// a daemon that cannot be inspected - one running under a different account -
-// from blocking the user's own synchronisation for good.
 constexpr auto FOREGROUND_WAIT_LIMIT = std::chrono::seconds(60);
 
 #ifdef WIN32
-// Presence of the event, not its signal state, carries the message. Windows
-// destroys the object once the last handle is gone, and it closes the handles
-// of a process that dies, so a crashed GUI cannot leave the daemon paused
-// forever - which a flag that outlives its owner would.
 const wchar_t* event_name(SyncRole role)
 {
     return role == SyncRole::Foreground ? L"Global\\AutoFileSyncForegroundSync" : L"Global\\AutoFileSyncBackgroundSync";
@@ -64,9 +53,6 @@ void SyncArbiter::publish_active()
         log_warning(L"SyncArbiter: Sperrdatei nicht anlegbar, Fehler ", std::to_wstring(errno));
         return;
     }
-    // A failure here means a second process of the same role synchronises. That
-    // is outside what this arbitration solves (the GUI already refuses a second
-    // sync of its own), and refusing to synchronise would be the worse answer.
     if (flock(active_lock_fd_, LOCK_EX | LOCK_NB) != 0)
         log_warning(L"SyncArbiter: eigene Sperre bereits vergeben, Synchronisation laeuft trotzdem weiter.");
 #endif
@@ -96,16 +82,11 @@ bool SyncArbiter::other_side_active() const
         CloseHandle(other);
         return true;
     }
-    // ERROR_ACCESS_DENIED means the object is there but belongs to another
-    // account, so the other side is synchronising; only its absence is proof
-    // that nobody is.
     return GetLastError() != ERROR_FILE_NOT_FOUND;
 #else
     const int other = open(lock_path(other_role(role_)).c_str(), O_RDWR | O_CREAT, 0600);
     if (other < 0)
         return false;
-    // Taking the lock is the only way to ask whether it is free; it is given
-    // back at once, so the owner is delayed by no more than this probe.
     const bool free = flock(other, LOCK_EX | LOCK_NB) == 0;
     if (free)
         flock(other, LOCK_UN);
@@ -119,10 +100,6 @@ bool SyncArbiter::acquire(const std::atomic_bool& abort)
     if (held_)
         return true;
     if (role_ == SyncRole::Background) {
-        // Both sides announce before they look, which is what rules out a
-        // simultaneous start: whoever checks second must see the first one.
-        // Only the reaction differs - the daemon steps back and retries while
-        // the GUI keeps its announcement up and waits, so the GUI always wins.
         while (!abort.load()) {
             publish_active();
             if (!other_side_active()) {
