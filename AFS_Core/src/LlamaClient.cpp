@@ -6,7 +6,7 @@
 #include <vector>
 #include <llama.h>
 #include <Logging.h>
-#include "util.h"
+#include "Util.h"
 
 namespace AFS_Core {
 
@@ -18,7 +18,7 @@ using util::wstring_to_string;
 namespace {
 // Sent as the "system" turn on every request: the model has no other way to
 // know what Autofilesync is, since there is no RAG/document lookup.
-const string systemPrompt =
+const string SYSTEM_PROMPT =
     "Du bist der eingebaute Assistent von Autofilesync, einem Programm zur "
     "benutzerfreundlichen automatischen Synchronisation von Dateien und Verzeichnisbaeumen "
     "unter Windows und Linux. Antworte auf Deutsch, kurz und konkret bezogen auf Autofilesync.\n"
@@ -33,9 +33,9 @@ const string systemPrompt =
     "Wenn du eine Frage nicht sicher aus diesem Wissen beantworten kannst, sag das offen, "
     "statt Funktionen zu erfinden, die es nicht gibt.";
 
-// Sent in front of the excerpt for analyzeLog(): a plain log dump without an
+// Sent in front of the excerpt for analyze_log(): a plain log dump without an
 // instruction leaves the model guessing what kind of answer is wanted.
-const wstring logAnalysisInstruction =
+const wstring LOG_ANALYSIS_INSTRUCTION =
     L"Der folgende Ausschnitt stammt aus der Autofilesync-Logdatei (neueste Eintraege stehen "
     L"zuletzt). Nutze ihn, um die anschliessende Frage des Nutzers zu beantworten. Enthaelt der "
     L"Ausschnitt dafuer nichts Passendes, sag das offen, statt etwas zu erfinden.\n\n";
@@ -48,33 +48,33 @@ LlamaClient::~LlamaClient() = default;
 
 bool LlamaClient::available()
 {
-    const char* path = std::getenv(modelPathVariable);
+    const char* path = std::getenv(MODEL_PATH_VARIABLE);
     return path != nullptr && *path != '\0' && std::filesystem::exists(path);
 }
 
-bool LlamaClient::ensureLoaded(wstring& error)
+bool LlamaClient::ensure_loaded(wstring& error)
 {
     if (context_)
         return true;
-    const char* path = std::getenv(modelPathVariable);
+    const char* path = std::getenv(MODEL_PATH_VARIABLE);
     if (path == nullptr || *path == '\0') {
-        error = L"Kein lokales Modell konfiguriert. Bitte " + string_to_wstring(modelPathVariable) +
+        error = L"Kein lokales Modell konfiguriert. Bitte " + string_to_wstring(MODEL_PATH_VARIABLE) +
                 L" auf eine GGUF-Datei setzen und das Programm neu starten.";
         return false;
     }
     // Idempotent and required exactly once before any other llama_* call;
     // cheapest to do lazily here rather than force every caller to remember it.
-    static const bool backendReady = (llama_backend_init(), true);
-    (void)backendReady;
-    llama_model_params modelParams = llama_model_default_params();
-    modelParams.n_gpu_layers = 0; // CPU only: no assumption about the user's GPU/driver setup
-    llama_model* model = llama_model_load_from_file(path, modelParams);
+    static const bool BACKEND_READY = (llama_backend_init(), true);
+    (void)BACKEND_READY;
+    llama_model_params model_params = llama_model_default_params();
+    model_params.n_gpu_layers = 0; // CPU only: no assumption about the user's GPU/driver setup
+    llama_model* model = llama_model_load_from_file(path, model_params);
     if (model == nullptr) {
         error = L"Modell konnte nicht geladen werden: " + string_to_wstring(path);
         return false;
     }
-    llama_context_params ctxParams = llama_context_default_params();
-    ctxParams.n_ctx = 8192;
+    llama_context_params ctx_params = llama_context_default_params();
+    ctx_params.n_ctx = 8192;
     // n_batch is deliberately left at its library default (2048), not raised
     // to match n_ctx: send() hands the whole prompt to llama_decode() in one
     // llama_batch_get_one() call, and a several-thousand-token prompt (e.g. a
@@ -84,9 +84,9 @@ bool LlamaClient::ensureLoaded(wstring& error)
     // prompt against llama_n_batch() before ever calling decode, so a prompt
     // this large is refused outright, not hung.
     const auto threads = static_cast<int32_t>(std::max(1u, std::thread::hardware_concurrency()));
-    ctxParams.n_threads = threads;
-    ctxParams.n_threads_batch = threads;
-    llama_context* ctx = llama_init_from_model(model, ctxParams);
+    ctx_params.n_threads = threads;
+    ctx_params.n_threads_batch = threads;
+    llama_context* ctx = llama_init_from_model(model, ctx_params);
     if (ctx == nullptr) {
         llama_model_free(model);
         error = L"Fuer das Modell konnte kein Kontext erstellt werden.";
@@ -98,20 +98,20 @@ bool LlamaClient::ensureLoaded(wstring& error)
     return true;
 }
 
-wstring LlamaClient::buildPrompt(const ChatHistory& history) const
+wstring LlamaClient::build_prompt(const ChatHistory& history) const
 {
     // llama_chat_message.content points into these, so they must outlive the
     // llama_chat_apply_template() calls below.
     std::vector<string> contents;
     contents.reserve(history.size() + 1);
-    contents.push_back(systemPrompt);
+    contents.push_back(SYSTEM_PROMPT);
     for (const ChatTurn& turn : history)
         contents.push_back(wstring_to_string(turn.text));
     std::vector<llama_chat_message> messages;
     messages.reserve(history.size() + 1);
     messages.push_back({ "system", contents[0].c_str() });
     for (std::size_t i = 0; i < history.size(); ++i)
-        messages.push_back({ history[i].fromUser ? "user" : "assistant", contents[i + 1].c_str() });
+        messages.push_back({ history[i].from_user ? "user" : "assistant", contents[i + 1].c_str() });
 
     const char* tmpl = llama_model_chat_template(model_.get(), nullptr);
     std::vector<char> buf(4096);
@@ -130,11 +130,11 @@ ChatReply LlamaClient::send(const ChatHistory& history)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     wstring error;
-    if (!ensureLoaded(error))
+    if (!ensure_loaded(error))
         return { false, error };
     if (history.empty())
         return { false, L"Es gibt nichts zu senden." };
-    const wstring prompt = buildPrompt(history);
+    const wstring prompt = build_prompt(history);
     if (prompt.empty())
         return { false, L"Das Modell unterstuetzt kein bekanntes Chat-Format." };
 
@@ -143,24 +143,24 @@ ChatReply LlamaClient::send(const ChatHistory& history)
     // turn's KV cache is stale weight, not something to build on.
     llama_memory_clear(llama_get_memory(ctx), true);
 
-    const string utf8Prompt = wstring_to_string(prompt);
-    std::vector<llama_token> tokens(utf8Prompt.size() + 32);
-    int32_t nTokens = llama_tokenize(vocab_, utf8Prompt.data(), static_cast<int32_t>(utf8Prompt.size()),
+    const string utf8_prompt = wstring_to_string(prompt);
+    std::vector<llama_token> tokens(utf8_prompt.size() + 32);
+    int32_t n_tokens = llama_tokenize(vocab_, utf8_prompt.data(), static_cast<int32_t>(utf8_prompt.size()),
         tokens.data(), static_cast<int32_t>(tokens.size()), true, true);
-    if (nTokens < 0) {
-        tokens.resize(-nTokens);
-        nTokens = llama_tokenize(vocab_, utf8Prompt.data(), static_cast<int32_t>(utf8Prompt.size()),
+    if (n_tokens < 0) {
+        tokens.resize(-n_tokens);
+        n_tokens = llama_tokenize(vocab_, utf8_prompt.data(), static_cast<int32_t>(utf8_prompt.size()),
             tokens.data(), static_cast<int32_t>(tokens.size()), true, true);
     }
-    tokens.resize(nTokens);
+    tokens.resize(n_tokens);
     // Checked against n_batch, not just n_ctx: send() submits the whole prompt
-    // to llama_decode() as a single batch (see ensureLoaded()), so a prompt
+    // to llama_decode() as a single batch (see ensure_loaded()), so a prompt
     // that fits the context window can still exceed what one batch may carry -
     // GGML_ASSERT(n_tokens_all <= n_batch) aborts the whole process instead of
     // just this request, and there is no recovering from that here.
     if (tokens.empty() || static_cast<uint32_t>(tokens.size()) >= llama_n_ctx(ctx)
         || static_cast<uint32_t>(tokens.size()) >= llama_n_batch(ctx)) {
-        LOG_ERROR2(L"LlamaClient: Prompt zu lang, Tokens: ", std::to_wstring(tokens.size()));
+        log_error(L"LlamaClient: Prompt zu lang, Tokens: ", std::to_wstring(tokens.size()));
         return { false, L"Die Unterhaltung ist laenger als das Kontextfenster des Modells." };
     }
     if (llama_decode(ctx, llama_batch_get_one(tokens.data(), static_cast<int32_t>(tokens.size()))) != 0)
@@ -176,8 +176,8 @@ ChatReply LlamaClient::send(const ChatHistory& history)
     string answer;
     // Thinking and answer share this budget - a fixed cap keeps one runaway
     // reply from filling the whole context window.
-    constexpr int maxNewTokens = 2048;
-    for (int i = 0; i < maxNewTokens; ++i) {
+    constexpr int MAX_NEW_TOKENS = 2048;
+    for (int i = 0; i < MAX_NEW_TOKENS; ++i) {
         llama_token token = llama_sampler_sample(sampler.get(), ctx, -1);
         llama_sampler_accept(sampler.get(), token);
         if (llama_vocab_is_eog(vocab_, token))
@@ -194,15 +194,15 @@ ChatReply LlamaClient::send(const ChatHistory& history)
     return { true, string_to_wstring(answer) };
 }
 
-ChatReply LlamaClient::analyzeLog(const ChatHistory& history, const wstring& logExcerpt)
+ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& log_excerpt)
 {
     if (history.empty())
         return { false, L"Es gibt nichts zu senden." };
-    if (logExcerpt.empty())
+    if (log_excerpt.empty())
         return { false, L"Die Logdatei ist leer oder konnte nicht gelesen werden." };
-    ChatHistory withExcerpt = history;
-    withExcerpt.back().text = logAnalysisInstruction + logExcerpt + L"\n\nFrage: " + withExcerpt.back().text;
-    return send(withExcerpt);
+    ChatHistory with_excerpt = history;
+    with_excerpt.back().text = LOG_ANALYSIS_INSTRUCTION + log_excerpt + L"\n\nFrage: " + with_excerpt.back().text;
+    return send(with_excerpt);
 }
 
 } // namespace AFS_Core

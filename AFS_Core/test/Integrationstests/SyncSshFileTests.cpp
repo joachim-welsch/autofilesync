@@ -26,21 +26,21 @@ using std::string;
 // Test-Konfiguration - Anpassen an Ihre SSH-Umgebung
 namespace SyncSshFileTestConfig {
 #ifdef _UNIX
-    const std::string TEST_REMOTE_PATH = fsu::homeDir() + "/tmp/test_file.txt";
-    const std::string TEST_REMOTE_DIR = fsu::homeDir() + "/tmp";
+    const std::string TEST_REMOTE_PATH = fsu::home_dir() + "/tmp/test_file.txt";
+    const std::string TEST_REMOTE_DIR = fsu::home_dir() + "/tmp";
 #else
-    const std::string TEST_REMOTE_PATH = fsu::homeDir() + "\\tmp\\test_file.txt";
-    const std::string TEST_REMOTE_DIR = fsu::homeDir() + "\\tmp";
+    const std::string TEST_REMOTE_PATH = fsu::home_dir() + "\\tmp\\test_file.txt";
+    const std::string TEST_REMOTE_DIR = fsu::home_dir() + "\\tmp";
 #endif
     // Hilfsfunktion um ein SshAccount-Objekt zu erstellen
-    inline SshAccount createTestAccount(const std::string& user = SSH_USER,
+    inline SshAccount create_test_account(const std::string& user = SSH_USER,
                                         const std::string& host = SSH_HOST,
                                         const std::string& password = SSH_PASSWORD) {
         SshAccount acc;
-        acc.setName("test_account");
-        acc.setUser(user);
-        acc.setHost(host);
-        acc.setPassword(password);
+        acc.set_name("test_account");
+        acc.set_user(user);
+        acc.set_host(host);
+        acc.set_password(password);
         return acc;
     }
 }
@@ -49,7 +49,7 @@ namespace SyncSshFileTestConfig {
 class SyncSshFileInspectorTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Diese Tests belegen die Aufrufkonvention von inspectFile() ueber alle
+        // Diese Tests belegen die Aufrufkonvention von inspect_file() ueber alle
         // Pfadformen hinweg - mit und ohne Laufwerksbuchstaben, mit Leerzeichen,
         // relativ, Verzeichnis. Sie brauchen den Testserver und ueberspringen
         // sich, wo keiner laeuft.
@@ -65,7 +65,7 @@ protected:
 TEST_F(SyncSshFileInspectorTest, ConstructorConnectsSuccessfully)
 {
     EXPECT_NO_THROW({
-        SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+        SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
     });
 }
 
@@ -74,7 +74,7 @@ TEST_F(SyncSshFileInspectorTest, ConstructorFailsWithWrongPassword)
 {
     EXPECT_THROW({
         SshFileInspector inspector(
-            SyncSshFileTestConfig::createTestAccount(SSH_USER, SSH_HOST, "wrong_password")
+            SyncSshFileTestConfig::create_test_account(SSH_USER, SSH_HOST, "wrong_password")
         );
     }, std::runtime_error);
 }
@@ -84,7 +84,7 @@ TEST_F(SyncSshFileInspectorTest, ConstructorFailsWithInvalidHost)
 {
     EXPECT_THROW({
         SshFileInspector inspector(
-            SyncSshFileTestConfig::createTestAccount(SSH_USER, "invalid.host.that.does.not.exist.123", SSH_PASSWORD)
+            SyncSshFileTestConfig::create_test_account(SSH_USER, "invalid.host.that.does.not.exist.123", SSH_PASSWORD)
         );
     }, std::runtime_error);
 }
@@ -92,10 +92,10 @@ TEST_F(SyncSshFileInspectorTest, ConstructorFailsWithInvalidHost)
 // Test 4: Prüfung einer existierenden Datei
 TEST_F(SyncSshFileInspectorTest, InspectExistingFile)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
     // Annahme: /etc/hosts existiert auf den meisten Unix-Systemen
-    RemoteFileInfo info = inspector.inspectFile(hostsPath);
+    RemoteFileInfo info = inspector.inspect_file(HOSTS_PATH);
     
     EXPECT_TRUE(info.exists);
     EXPECT_GT(info.size_bytes, 0);
@@ -106,15 +106,15 @@ TEST_F(SyncSshFileInspectorTest, InspectExistingFile)
 // Test 5: Prüfung einer nicht existierenden Datei
 TEST_F(SyncSshFileInspectorTest, InspectNonExistingFile)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
-    // concatSSHTemp, not concatTemp: the SSH account cannot even traverse the
+    // concat_ssh_temp, not concat_temp: the SSH account cannot even traverse the
     // per-user temp directory macOS hands out, which answers "permission
     // denied" instead of "no such file".
-    std::string non_existing = tu::concatSSHTemp("this_file_absolutely_does_not_exist_") +
+    std::string non_existing = tu::concat_ssh_temp("this_file_absolutely_does_not_exist_") +
                                 std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
     
-    RemoteFileInfo info = inspector.inspectFile(non_existing);
+    RemoteFileInfo info = inspector.inspect_file(non_existing);
     
     EXPECT_FALSE(info.exists);
     EXPECT_EQ(info.size_bytes, 0);
@@ -125,26 +125,26 @@ TEST_F(SyncSshFileInspectorTest, InspectNonExistingFile)
 // Test 6: Prüfung mehrerer Dateien mit derselben Session
 TEST_F(SyncSshFileInspectorTest, InspectMultipleFiles)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
     // Test mit mehreren Standard-System-Dateien
     std::vector<std::string> test_files = {
-        tu::concatPath(etcPath, "hosts"),
+        tu::concat_path(ETC_PATH, "hosts"),
 #if defined(_MACOS)
         // macOS keeps no /etc/hostname - the name lives in the system configuration.
-        tu::concatPath(etcPath, "services"),
-        tu::concatPath(etcPath, "passwd")
+        tu::concat_path(ETC_PATH, "services"),
+        tu::concat_path(ETC_PATH, "passwd")
 #elif defined(_UNIX)
-        tu::concatPath(etcPath, "hostname"),
-        tu::concatPath(etcPath, "passwd")
+        tu::concat_path(ETC_PATH, "hostname"),
+        tu::concat_path(ETC_PATH, "passwd")
 #else
-        tu::concatPath(etcPath, "networks"),
-        tu::concatPath(etcPath, "protocol")
+        tu::concat_path(ETC_PATH, "networks"),
+        tu::concat_path(ETC_PATH, "protocol")
 #endif
     };
 
     for (const auto& file : test_files) {
-        RemoteFileInfo info = inspector.inspectFile(file);
+        RemoteFileInfo info = inspector.inspect_file(file);
         EXPECT_TRUE(info.exists) << "File should exist: " << file;
         EXPECT_GT(info.size_bytes, 0) << "File should have size > 0: " << file;
     }
@@ -153,10 +153,10 @@ TEST_F(SyncSshFileInspectorTest, InspectMultipleFiles)
 // Test 7: Prüfung der Dateigröße
 TEST_F(SyncSshFileInspectorTest, CheckFileSize)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
     // /etc/hosts sollte klein sein (< 10KB auf den meisten Systemen)
-    RemoteFileInfo info = inspector.inspectFile(hostsPath);
+    RemoteFileInfo info = inspector.inspect_file(HOSTS_PATH);
     
     EXPECT_TRUE(info.exists);
     EXPECT_GT(info.size_bytes, 0);
@@ -166,9 +166,9 @@ TEST_F(SyncSshFileInspectorTest, CheckFileSize)
 // Test 8: Prüfung des Zeitstempel-Formats
 TEST_F(SyncSshFileInspectorTest, CheckTimestampFormat)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
-    RemoteFileInfo info = inspector.inspectFile(hostsPath);
+    RemoteFileInfo info = inspector.inspect_file(HOSTS_PATH);
     
     EXPECT_TRUE(info.exists);
     EXPECT_NE(info.last_modified_iso, "N/A");
@@ -185,9 +185,9 @@ TEST_F(SyncSshFileInspectorTest, CheckTimestampFormat)
 // Test 9: Prüfung mit leerem Pfad
 TEST_F(SyncSshFileInspectorTest, InspectEmptyPath)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
-    RemoteFileInfo info = inspector.inspectFile("");
+    RemoteFileInfo info = inspector.inspect_file("");
     
     EXPECT_FALSE(info.exists);
 }
@@ -198,8 +198,8 @@ TEST_F(SyncSshFileInspectorTest, DestructorCleansUpProperly)
     // Test dass mehrere Instanzen nacheinander ohne Probleme erstellt werden können
     for (int i = 0; i < 3; ++i) {
         EXPECT_NO_THROW({
-            SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
-            RemoteFileInfo info = inspector.inspectFile(hostsPath);
+            SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
+            RemoteFileInfo info = inspector.inspect_file(HOSTS_PATH);
             EXPECT_TRUE(info.exists);
             // Inspector wird am Ende des Scopes zerstört
         });
@@ -209,9 +209,9 @@ TEST_F(SyncSshFileInspectorTest, DestructorCleansUpProperly)
 // Test 11: Vergleich von raw_mtime und formatiertem Zeitstempel
 TEST_F(SyncSshFileInspectorTest, TimestampConsistency)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
-    RemoteFileInfo info = inspector.inspectFile(hostsPath);
+    RemoteFileInfo info = inspector.inspect_file(HOSTS_PATH);
     
     EXPECT_TRUE(info.exists);
     EXPECT_GT(info.raw_mtime, 0);
@@ -228,9 +228,9 @@ TEST_F(SyncSshFileInspectorTest, TimestampConsistency)
 // Test 12: Prüfung eines Verzeichnisses (sollte anders behandelt werden als Datei)
 TEST_F(SyncSshFileInspectorTest, InspectDirectory)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
-    RemoteFileInfo info = inspector.inspectFile(etcPath);
+    RemoteFileInfo info = inspector.inspect_file(ETC_PATH);
     
     // Ein Verzeichnis könnte als existierend zurückgegeben werden
     // Je nach SFTP-Implementation
@@ -242,11 +242,11 @@ TEST_F(SyncSshFileInspectorTest, InspectDirectory)
 // Test 13: Stress-Test mit vielen aufeinanderfolgenden Abfragen
 TEST_F(SyncSshFileInspectorTest, StressTestMultipleQueries)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
     // 100 aufeinanderfolgende Abfragen
     for (int i = 0; i < 100; ++i) {
-        RemoteFileInfo info = inspector.inspectFile(hostsPath);
+        RemoteFileInfo info = inspector.inspect_file(HOSTS_PATH);
         EXPECT_TRUE(info.exists);
     }
 }
@@ -254,10 +254,10 @@ TEST_F(SyncSshFileInspectorTest, StressTestMultipleQueries)
 // Test 14: Sonderzeichen im Pfad
 TEST_F(SyncSshFileInspectorTest, InspectPathWithSpaces)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
     // Pfad mit Leerzeichen (könnte nicht existieren, aber sollte nicht crashen)
-    RemoteFileInfo info = inspector.inspectFile(tu::concatSSHTemp("file with spaces.txt"));
+    RemoteFileInfo info = inspector.inspect_file(tu::concat_ssh_temp("file with spaces.txt"));
     
     // Sollte nicht crashen, auch wenn Datei nicht existiert
     EXPECT_FALSE(info.exists);
@@ -266,10 +266,10 @@ TEST_F(SyncSshFileInspectorTest, InspectPathWithSpaces)
 // Test 15: Absolute vs. relative Pfade
 TEST_F(SyncSshFileInspectorTest, InspectRelativePath)
 {
-    SshFileInspector inspector(SyncSshFileTestConfig::createTestAccount());
+    SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
 
     // Relative Pfade könnten je nach SFTP-Implementation funktionieren oder nicht
-    RemoteFileInfo info = inspector.inspectFile(string("..")+ hostsPath);
+    RemoteFileInfo info = inspector.inspect_file(string("..")+ HOSTS_PATH);
     // Kein Crash erwartet, aber Existenz ist implementationsabhängig
     EXPECT_GE(info.size_bytes, 0);
 }
@@ -288,8 +288,8 @@ protected:
     const std::string LOCAL_TEST_DIR = std::string(getenv("HOME")) + "/tmp/ssh_copy_test";
     const std::string REMOTE_TEST_DIR = std::string(getenv("HOME")) + "/tmp/ssh_copy_test_remote";
 #else
-	const std::string LOCAL_TEST_DIR = fsu::homeDir() + "\\tmp\\ssh_copy_test";
-	const std::string REMOTE_TEST_DIR = fsu::homeDir() + "\\tmp\\ssh_copy_test_remote";
+	const std::string LOCAL_TEST_DIR = fsu::home_dir() + "\\tmp\\ssh_copy_test";
+	const std::string REMOTE_TEST_DIR = fsu::home_dir() + "\\tmp\\ssh_copy_test_remote";
 #endif
 
     void SetUp() override {
@@ -299,10 +299,10 @@ protected:
         fs::create_directories(LOCAL_TEST_DIR);
 
         // Testdatei lokal erstellen
-        std::string localFilePath = tu::concatPath(LOCAL_TEST_DIR, TEST_FILENAME);
-        std::ofstream outFile(localFilePath);
-        outFile << TEST_CONTENT;
-        outFile.close();
+        std::string local_file_path = tu::concat_path(LOCAL_TEST_DIR, TEST_FILENAME);
+        std::ofstream out_file(local_file_path);
+        out_file << TEST_CONTENT;
+        out_file.close();
 
         // Synchronize zurücksetzen (sonst wird Kopieren als "Stopped" abgebrochen)
         Synchronize::start();
@@ -316,192 +316,192 @@ protected:
     }
     
     // SSH-Account für Localhost-Verbindung erstellen (verwendet SshTestConfig)
-    SshAccount createLaptopAccount() {
-        return SyncSshFileTestConfig::createTestAccount();
+    SshAccount create_laptop_account() {
+        return SyncSshFileTestConfig::create_test_account();
     }
     
     // Account zur Config hinzufügen (falls noch nicht vorhanden)
-    void ensureAccountInConfig() {
+    void ensure_account_in_config() {
         // Account dynamisch zur Config hinzufügen
         // Der Name muss "localhost" sein, da das im Pfad als Präfix verwendet wird
         SshAccount acc;
-        acc.setName("localhost");
-        acc.setUser(SSH_USER);
-        acc.setHost(SSH_HOST);
-        acc.setPassword(SSH_PASSWORD);
+        acc.set_name("localhost");
+        acc.set_user(SSH_USER);
+        acc.set_host(SSH_HOST);
+        acc.set_password(SSH_PASSWORD);
         Config::instance().add(acc);
     }
 };
 
 TEST_F(SyncSshFileCopyTest, CopyLocalFileToRemote)
 {
-    ensureAccountInConfig();
+    ensure_account_in_config();
     namespace fs = std::filesystem;
 
     // Quell- und Zielpfade definieren
-    fs::create_directories(tu::testSourceDir());
-    // testSourceDir()/testDestDir() teilen sich ein Elternverzeichnis
+    fs::create_directories(tu::test_source_dir());
+    // test_source_dir()/test_dest_dir() teilen sich ein Elternverzeichnis
     // ("/tmp/test"); das wurde gerade als dieser lokale Benutzer angelegt, die
     // Gegenseite unten legt "dest" darunter aber ueber das SSH-Testkonto an -
-    // ohne g+w/o+w koennte dessen sshMkdir() das Elternverzeichnis nicht
+    // ohne g+w/o+w koennte dessen ssh_mkdir() das Elternverzeichnis nicht
     // beschreiben.
-    fs::permissions(fs::path(tu::testSourceDir()).parent_path(), fs::perms::all);
-    const std::string TEST_FILENAME = tu::concatPath(tu::testSourceDir(), "data.txt");
+    fs::permissions(fs::path(tu::test_source_dir()).parent_path(), fs::perms::all);
+    const std::string TEST_FILENAME = tu::concat_path(tu::test_source_dir(), "data.txt");
     std::ofstream(TEST_FILENAME) << "data";
 
-    const std::string TEST_REMOTE_FILENAME = "localhost:" + tu::concatPath(tu::testDestDir(), "data.txt");;
+    const std::string test_remote_filename = "localhost:" + tu::concat_path(tu::test_dest_dir(), "data.txt");;
     // SyncFile kopiert ein einzelnes Ziel und legt dessen Verzeichnis anders
-    // als SyncDir/SyncTree nicht selbst an (siehe createTargetDirIfNotExist());
-    // das Zielverzeichnis muss hier also vorher existieren. sshMkdir() ist wie
+    // als SyncDir/SyncTree nicht selbst an (siehe create_target_dir_if_not_exist());
+    // das Zielverzeichnis muss hier also vorher existieren. ssh_mkdir() ist wie
     // ein einfaches mkdir nicht rekursiv, darum zuerst das Elternverzeichnis.
-    const std::wstring remoteDestParent = L"localhost:" + string_to_wstring(fs::path(tu::testDestDir()).parent_path().string());
-    const std::wstring remoteDestDir = L"localhost:" + string_to_wstring(tu::testDestDir());
-    if (!sshExists(remoteDestParent))
-        sshMkdir(remoteDestParent);
-    if (!sshExists(remoteDestDir))
-        sshMkdir(remoteDestDir);
+    const std::wstring remote_dest_parent = L"localhost:" + string_to_wstring(fs::path(tu::test_dest_dir()).parent_path().string());
+    const std::wstring remote_dest_dir = L"localhost:" + string_to_wstring(tu::test_dest_dir());
+    if (!ssh_exists(remote_dest_parent))
+        ssh_mkdir(remote_dest_parent);
+    if (!ssh_exists(remote_dest_dir))
+        ssh_mkdir(remote_dest_dir);
 
     SyncItem si;
-    si.syncCycle(0);
-    si.syncItemType(SyncItemType::Dir);
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::Dir);
     si.source(string_to_wstring(TEST_FILENAME));
-    si.target(string_to_wstring(TEST_REMOTE_FILENAME));
+    si.target(string_to_wstring(test_remote_filename));
 
-    std::size_t copyCount = 0;
-    SyncFile test(si, copyCount, false);
+    std::size_t copy_count = 0;
+    SyncFile test(si, copy_count, false);
     test();
 
     // Ergebnis prüfen
-    EXPECT_EQ(copyCount, 1);
+    EXPECT_EQ(copy_count, 1);
     // Prüfen ob die Datei auf dem Remote-Server existiert
-    SshFileInspector inspector(createLaptopAccount());
-    // inspectFile() erwartet den Pfad ohne Kontopraefix - so wie ihn die
+    SshFileInspector inspector(create_laptop_account());
+    // inspect_file() erwartet den Pfad ohne Kontopraefix - so wie ihn die
     // Aufraeumzeile unten schon bildet. Frueher stand hier der volle Pfad und
     // der Windows-Zweig schnitt das Praefix selbst noch einmal ab.
-    RemoteFileInfo info = inspector.inspectFile(getRemotePath(string_to_wstring(TEST_REMOTE_FILENAME)));
+    RemoteFileInfo info = inspector.inspect_file(get_remote_path(string_to_wstring(test_remote_filename)));
 
     EXPECT_TRUE(info.exists) << "Remote-Datei wurde nicht gefunden";
     EXPECT_GT(info.size_bytes, 0) << "Remote-Datei ist leer";
     std::filesystem::remove(string_to_wstring(TEST_FILENAME));
     // Ueber SSH loeschen, nicht lokal: die Remote-Datei gehoert dem
     // SSH-Testkonto, das lokale std::filesystem::remove() (als Entwickler-User)
-    // hat darauf keinen Zugriff - siehe eraseSshTestDir() in DirUtil.cpp.
-    sshRemoveFile(string_to_wstring(TEST_REMOTE_FILENAME));
+    // hat darauf keinen Zugriff - siehe erase_ssh_test_dir() in DirUtil.cpp.
+    ssh_remove_file(string_to_wstring(test_remote_filename));
 }
 
 // Test: Lokale Datei via SSH nach /tmp kopieren (Fs -> SSH)
 TEST_F(SyncSshFileCopyTest, CopyLocalFileToRemoteTmp)
 {
-    ensureAccountInConfig();
+    ensure_account_in_config();
     
     const std::string TEST_FILENAME = "ssh_copy_test_file.txt";
-    const std::string TEST_REMOTE_FILENAME = "ssh_copy_test_file_remote.txt";
+    const std::string test_remote_filename = "ssh_copy_test_file_remote.txt";
 
     // Quell- und Zielpfade definieren
-    std::string srcPath = tu::concatTemp(tu::concatPath("ssh_copy_test", TEST_FILENAME));
-    std::string destPath =  "localhost:" + tu::concatSSHTemp(TEST_REMOTE_FILENAME);
+    std::string src_path = tu::concat_temp(tu::concat_path("ssh_copy_test", TEST_FILENAME));
+    std::string dest_path =  "localhost:" + tu::concat_ssh_temp(test_remote_filename);
 
     // Quelldatei anlegen: SetUp() legt eine gleichnamige Datei unter
     // LOCAL_TEST_DIR ($HOME/tmp/...) an, srcPath zeigt aber ins OS-Temp-
     // Verzeichnis - beide muessen nicht identisch sein, also hier direkt an
     // srcPath schreiben statt sich auf SetUp() zu verlassen.
-    std::filesystem::create_directories(std::filesystem::path(srcPath).parent_path());
-    std::ofstream(srcPath) << TEST_CONTENT;
+    std::filesystem::create_directories(std::filesystem::path(src_path).parent_path());
+    std::ofstream(src_path) << TEST_CONTENT;
 
     // Datei kopieren
-    CopyResult result = copyFsToSsh(string_to_wstring(srcPath), string_to_wstring(destPath));
+    CopyResult result = copy_fs_to_ssh(string_to_wstring(src_path), string_to_wstring(dest_path));
 
     // Ergebnis prüfen
     EXPECT_EQ(result, CopyResult::OK) << "Kopieren von lokal nach SSH fehlgeschlagen";
 
     // Prüfen ob die Datei auf dem Remote-Server existiert
-    SshFileInspector inspector(createLaptopAccount());
-    RemoteFileInfo info = inspector.inspectFile(tu::concatSSHTemp(TEST_REMOTE_FILENAME));
+    SshFileInspector inspector(create_laptop_account());
+    RemoteFileInfo info = inspector.inspect_file(tu::concat_ssh_temp(test_remote_filename));
 
     EXPECT_TRUE(info.exists) << "Remote-Datei wurde nicht gefunden";
     EXPECT_GT(info.size_bytes, 0) << "Remote-Datei ist leer";
 
-    std::filesystem::remove(srcPath);
-    sshRemoveFile(string_to_wstring(destPath));
+    std::filesystem::remove(src_path);
+    ssh_remove_file(string_to_wstring(dest_path));
 }
 
 // Test: Datei von SSH nach lokal kopieren (SSH -> Fs)
 TEST_F(SyncSshFileCopyTest, CopyRemoteFileToLocal)
 {
-    ensureAccountInConfig();
+    ensure_account_in_config();
     
     // Erst eine Datei auf dem Remote-Server erstellen (via /etc/hosts die existiert)
 #ifdef _UNIX
-    std::wstring srcPath = L"localhost:/etc/hosts";
+    std::wstring src_path = L"localhost:/etc/hosts";
 #else
 	std::wstring srcPath = L"localhost:C:\\Windows\\System32\\drivers\\etc\\hosts";
 #endif
-    std::wstring destPath = tu::concatTemp(tu::concatPath(L"ssh_copy_test", L"hosts_from_remote.txt"));
+    std::wstring dest_path = tu::concat_temp(tu::concat_path(L"ssh_copy_test", L"hosts_from_remote.txt"));
     namespace fs = std::filesystem;
-    // copySshToFs() legt das Zielverzeichnis nicht selbst an - im echten
-    // Sync-Ablauf tut das schon SyncBase::createTargetDirIfNotExist() vorher.
-    fs::create_directories(fs::path(destPath).parent_path());
+    // copy_ssh_to_fs() legt das Zielverzeichnis nicht selbst an - im echten
+    // Sync-Ablauf tut das schon SyncBase::create_target_dir_if_not_exist() vorher.
+    fs::create_directories(fs::path(dest_path).parent_path());
     // Datei kopieren
-    CopyResult result = copySshToFs(srcPath, destPath);
+    CopyResult result = copy_ssh_to_fs(src_path, dest_path);
 
     // Ergebnis prüfen
     EXPECT_EQ(result, CopyResult::OK) << "Kopieren von SSH nach lokal fehlgeschlagen";
 
     // Prüfen ob die lokale Datei existiert
-    EXPECT_TRUE(fs::exists(destPath)) << "Lokale Datei wurde nicht erstellt";
+    EXPECT_TRUE(fs::exists(dest_path)) << "Lokale Datei wurde nicht erstellt";
 
     // Prüfen ob die Datei Inhalt hat
-    std::ifstream inFile(wstring_to_string(destPath));
-    std::string content((std::istreambuf_iterator<char>(inFile)),
+    std::ifstream in_file(wstring_to_string(dest_path));
+    std::string content((std::istreambuf_iterator<char>(in_file)),
                          std::istreambuf_iterator<char>());
-    inFile.close();
+    in_file.close();
 
     EXPECT_FALSE(content.empty()) << "Kopierte Datei ist leer";
-    fs::remove(destPath);
+    fs::remove(dest_path);
 }
 
 // Test: Große Datei kopieren
 TEST_F(SyncSshFileCopyTest, CopyLargeFileToRemote)
 {
-    ensureAccountInConfig();
+    ensure_account_in_config();
     
     // Große Testdatei erstellen (1 MB)
-    std::string largeFilePath = tu::concatPath(LOCAL_TEST_DIR, "large_test_file.bin");
-    std::ofstream outFile(largeFilePath, std::ios::binary);
+    std::string large_file_path = tu::concat_path(LOCAL_TEST_DIR, "large_test_file.bin");
+    std::ofstream out_file(large_file_path, std::ios::binary);
     std::vector<char> data(1024 * 1024, 'X');  // 1 MB mit 'X' gefüllt
-    outFile.write(data.data(), data.size());
-    outFile.close();
+    out_file.write(data.data(), data.size());
+    out_file.close();
     
     // largeFilePath liegt unter LOCAL_TEST_DIR ($HOME/tmp/...), nicht unter dem
     // OS-Temp-Verzeichnis - srcPath muss dorthin zeigen, wo die Datei gerade
     // tatsaechlich angelegt wurde.
-    std::wstring srcPath = string_to_wstring(largeFilePath);
-    std::wstring destPath = L"localhost:" + tu::concatSSHTemp(L"large_test_file_remote.bin");
+    std::wstring src_path = string_to_wstring(large_file_path);
+    std::wstring dest_path = L"localhost:" + tu::concat_ssh_temp(L"large_test_file_remote.bin");
 
     // Datei kopieren
-    CopyResult result = copyFsToSsh(srcPath, destPath);
+    CopyResult result = copy_fs_to_ssh(src_path, dest_path);
 
     EXPECT_EQ(result, CopyResult::OK) << "Kopieren der großen Datei fehlgeschlagen";
 
     // Größe auf Remote prüfen
-    SshFileInspector inspector(createLaptopAccount());
-    RemoteFileInfo info = inspector.inspectFile(tu::concatSSHTemp("large_test_file_remote.bin"));
+    SshFileInspector inspector(create_laptop_account());
+    RemoteFileInfo info = inspector.inspect_file(tu::concat_ssh_temp("large_test_file_remote.bin"));
 
     EXPECT_TRUE(info.exists);
     EXPECT_EQ(info.size_bytes, 1024 * 1024) << "Dateigröße stimmt nicht überein";
-    sshRemoveFile(destPath);
+    ssh_remove_file(dest_path);
 }
 
 // Test: Kopieren mit nicht existierendem Quellpfad
 TEST_F(SyncSshFileCopyTest, CopyNonExistentSourceFile)
 {
-    ensureAccountInConfig();
+    ensure_account_in_config();
     
-    std::wstring srcPath = tu::concatTemp(L"ssh_copy_test/non_existent_file.txt");
-    std::wstring destPath = L"localhost:" + tu::concatSSHTemp(L"should_not_be_created.txt");
+    std::wstring src_path = tu::concat_temp(L"ssh_copy_test/non_existent_file.txt");
+    std::wstring dest_path = L"localhost:" + tu::concat_ssh_temp(L"should_not_be_created.txt");
     
     // Kopieren sollte fehlschlagen
-    CopyResult result = copyFsToSsh(srcPath, destPath);
+    CopyResult result = copy_fs_to_ssh(src_path, dest_path);
     
     EXPECT_NE(result, CopyResult::OK) << "Kopieren einer nicht existierenden Datei sollte fehlschlagen";
 }

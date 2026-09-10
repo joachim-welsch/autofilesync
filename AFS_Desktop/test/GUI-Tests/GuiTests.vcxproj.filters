@@ -186,7 +186,7 @@
     <ClCompile Include="..\..\TreeItemData.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\util.cpp">
+    <ClCompile Include="..\..\..\AFS_Core\src\Util.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp">

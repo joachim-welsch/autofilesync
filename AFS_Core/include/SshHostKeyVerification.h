@@ -17,10 +17,10 @@ namespace AFS_Core {
 // against man-in-the-middle attacks. Call once right after the SSH handshake, before
 // authenticating.
 #ifdef _UNIX
-bool verifySshHostKey(ssh_session session, const std::string& host);
+bool verify_ssh_host_key(ssh_session session, const std::string& host);
 #else
     #ifdef _WIN32
-bool verifySshHostKey(LIBSSH2_SESSION* session, const std::string& host, unsigned short port = 22);
+bool verify_ssh_host_key(LIBSSH2_SESSION* session, const std::string& host, unsigned short port = 22);
     #endif
 #endif
 

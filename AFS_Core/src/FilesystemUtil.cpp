@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "FilesystemUtil.h"
 #include "Logging.h"
-#include "MountedDrives.h"  // Hinzugefügter Include
+#include "MountedDrives.h"
 #include <StrUtil.h>
 #include <chrono>
 #include <iomanip>
@@ -23,7 +23,6 @@ using std::wstring;
 
 namespace fs = std::filesystem;
 
-// Helper function to convert file_time_type to time_t
 template <typename TP>
 static std::time_t to_time_t(TP tp)
 {
@@ -36,32 +35,26 @@ static std::time_t to_time_t(TP tp)
 namespace FilesystemUtil {
 
 #ifdef _WIN32
-    std::string homeDir()
+    std::string home_dir()
     {
-        char* homeDrive = getenv("HOMEDRIVE");
-        char* homePath = getenv("HOMEPATH");
-        if (homeDrive && homePath) {
-            return std::string(homeDrive) + std::string(homePath);
-        }
-        return ""; // Fallback, falls die Umgebungsvariablen nicht gesetzt sind
+        const char* home_drive = getenv("HOMEDRIVE");
+        const char* home_path = getenv("HOMEPATH");
+        return home_drive && home_path ? std::string(home_drive) + home_path : std::string();
     }
 #else
-    std::string homeDir()
+    std::string home_dir()
     {
-        const char* homedir;
-        if ((homedir = getenv("HOME")) == NULL) {
-            homedir = getpwuid(getuid())->pw_dir;
-        }
-        return homedir;
+        const char* homedir = getenv("HOME");
+        return homedir ? homedir : getpwuid(getuid())->pw_dir;
     }
 #endif
 
-bool fileExists(const std::wstring& StrFilename)
+bool file_exists(const std::wstring& filename)
 {
-    return fs::exists(fs::status(StrFilename));
+    return fs::exists(fs::status(filename));
 }
 
-wstring makeErrorMessage(FileInfoResult result)
+wstring make_error_message(FileInfoResult result)
 {
     switch (result) {
     case FileInfoResult::FileNotExist:
@@ -83,45 +76,29 @@ wstring makeErrorMessage(FileInfoResult result)
 
 FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
-    if (!fileExists(fname)) {
-        // Prüfen, ob das Laufwerk gemounted ist
-        fs::path filePath(fname);
-        auto& mountedDrives = MountedDrives::instance();
-        if (!mountedDrives.driveMounted(filePath)) {
+    if (!file_exists(fname)) {
+        fs::path file_path(fname);
+        auto& mounted_drives = MountedDrives::instance();
+        if (!mounted_drives.drive_mounted(file_path)) {
             return FileInfoResult::DriveNotMounted;
         }
         return FileInfoResult::FileNotExist;
     }
-    
+
     _WIN32_FILE_ATTRIBUTE_DATA data{};
-    // GetFileAttributesEx returns BOOL (0 on failure), not the DWORD
-    // INVALID_FILE_ATTRIBUTES sentinel GetFileAttributes() uses - comparing
-    // against 0xFFFFFFFF here never matched, so a real failure (permission
-    // denied, deleted mid-call) fell through and used the zeroed-out 'data'.
     BOOL rc = GetFileAttributesEx(fname.c_str(), GetFileExInfoStandard, &data);
-    if (!rc) {
+    if (!rc)
         return FileInfoResult::CannotReadFileAttributes;
-    }
-    SYSTEMTIME stUTC;
-    // Kept purely as the validity check it always was; the value below no
-    // longer goes through it.
-    if (!FileTimeToSystemTime(&data.ftLastWriteTime, &stUTC))
+    SYSTEMTIME st_utc;
+    if (!FileTimeToSystemTime(&data.ftLastWriteTime, &st_utc))
         return FileInfoResult::InvalidFileTime;
-    // FILETIME and file_time_type share both epoch (1601-01-01 UTC) and tick
-    // (100 ns) on Windows, so the raw counter carries over unchanged. The
-    // detour this replaces converted to local time and then to a time_t -
-    // seconds since 1970, stored as if they were ticks since 1601, which put
-    // every timestamp 369 years into the past, shifted it by the time zone
-    // offset and truncated it to whole seconds.
+
     ULARGE_INTEGER ticks;
     ticks.LowPart = data.ftLastWriteTime.dwLowDateTime;
     ticks.HighPart = data.ftLastWriteTime.dwHighDateTime;
     last_write_time = fs::file_time_type(
         fs::file_time_type::duration(static_cast<int64_t>(ticks.QuadPart)));
-    // nFileSizeLow alone silently truncated any file >= 4GB to its low 32
-    // bits, e.g. reporting a 4.5GB file as ~0.5GB - FileDifference's size
-    // comparison would then think it needs a re-copy on every single pass.
-    filesize = (static_cast<uint64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow;
+        filesize = (static_cast<uint64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow;
     return FileInfoResult::OK;
 }
 #else
@@ -129,14 +106,13 @@ FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, fs::f
 {
     try {
         if (!fs::exists(fpathname)) {
-            // Prüfen, ob das Laufwerk gemounted ist
-            auto& mountedDrives = MountedDrives::instance();
-            if (!mountedDrives.driveMounted(fpathname)) {
+            auto& mounted_drives = MountedDrives::instance();
+            if (!mounted_drives.drive_mounted(fpathname)) {
                 return FileInfoResult::DriveNotMounted;
             }
             return FileInfoResult::FileNotExist;
         }
-        
+
         filesize = fs::file_size(fpathname);
         last_write_time = fs::last_write_time(fpathname);
 
@@ -145,11 +121,11 @@ FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, fs::f
         std::tm* gmt = std::gmtime(&tt);
         std::stringstream buffer;
         buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
-        std::string formattedFileTime = buffer.str();
+        std::string formatted_file_time = buffer.str();
 
         std::wstringstream debug_msg;
-        debug_msg << L"Fileinfo result -> Filesize: " << filesize << L" last_write_time: " << util::string_to_wstring(formattedFileTime);
-        LOG_DEBUG(debug_msg.str())
+        debug_msg << L"Fileinfo result -> Filesize: " << filesize << L" last_write_time: " << util::string_to_wstring(formatted_file_time);
+        log_debug(debug_msg.str());
 #endif
         return FileInfoResult::OK;
     }
@@ -162,32 +138,34 @@ FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, fs::f
 bool touch(const wstring& fpathname)
 {
     try {
-        auto now = fs::file_time_type::clock::now(); // aktuelle Zeit im Dateisystem-Zeitformat
+        auto now = fs::file_time_type::clock::now();
         fs::last_write_time(fpathname, now);
         return true;
     } catch (const std::filesystem::filesystem_error& e) {
-        LOG_ERROR2(L"Error in function touch: ", e.what() )
+        log_error(L"Error in function touch: ", e.what() );
         return false;
     }
 }
 
-static fs::path normalize_best_effort(const fs::path& p) {
+static fs::path normalize_best_effort(const fs::path& p)
+{
     std::error_code ec;
     fs::path n = fs::weakly_canonical(p, ec);
     return ec ? fs::path(p) : n;
 }
 
-// lstat wrapper (folgt Symlinks nicht)
-static bool lstat_ok(const fs::path& p, struct stat& st) {
+static bool lstat_ok(const fs::path& p, struct stat& st)
+{
 #ifndef WIN32
     return ::lstat(p.c_str(), &st) == 0;
 #else
-    // Windows: verwende stat (kein lstat verfügbar)
     return ::stat(p.string().c_str(), &st) == 0;
 #endif
 }
 
-static std::string decode_mountinfo_escapes(const std::string& s) {
+#ifdef __linux__
+static std::string decode_mountinfo_escapes(const std::string& s)
+{
     std::string out;
     out.reserve(s.size());
     for (size_t i = 0; i < s.size(); ++i) {
@@ -205,74 +183,51 @@ static std::string decode_mountinfo_escapes(const std::string& s) {
     return out;
 }
 
-static inline void strip_trailing_slash(std::string& s) {
+static std::string without_trailing_slash(std::string s)
+{
     if (s.size() > 1 && s.back() == '/') s.pop_back();
+    return s.empty() ? "/" : s;
 }
 
-static std::optional<fs::path> nonroot_covering_mountpoint(const fs::path& target) {
-#ifdef __linux__
-    std::ifstream f("/proc/self/mountinfo");
-    if (!f) return std::nullopt;
+static std::optional<std::string> mountpoint_of_mountinfo_line(const std::string& line)
+{
+    std::istringstream iss(line);
+    std::string field;
+    // Field 5 of /proc/self/mountinfo is the mount point with octal escapes
+    for (int i = 0; i < 5; ++i)
+        if (!(iss >> field)) return std::nullopt;
+    return without_trailing_slash(decode_mountinfo_escapes(field));
+}
 
-    // Ziel normalisieren
-    std::string t = normalize_best_effort(target).string();
-    strip_trailing_slash(t);
-    if (t.empty()) t = "/";
+static bool mount_covers(const std::string& mountpoint, const std::string& target)
+{
+    return target.starts_with(mountpoint) &&
+           (target.size() == mountpoint.size() || target[mountpoint.size()] == '/');
+}
 
-    // tiefsten passenden Mount sammeln
-    std::optional<fs::path> best;
-    size_t best_len = 0;
-
-    std::string line;
-    while (std::getline(f, line)) {
-        std::istringstream iss(line);
-        std::string field, mp_enc;
-
-        // Felder 1..4 überspringen, Feld 5 ist Mountpoint (escaped)
-        for (int i = 0; i < 4; ++i) {
-            if (!(iss >> field)) { mp_enc.clear(); break; }
-        }
-        if (!(iss >> mp_enc)) continue;
-
-        std::string mp = decode_mountinfo_escapes(mp_enc);
-        strip_trailing_slash(mp);
-        if (mp.empty()) mp = "/";
-
-        // Root nie zurückgeben
-        if (mp == "/") continue;
-
-        // exakter Treffer
-        if (t == mp) {
-            // Exakt ist immer der tiefstmögliche Kandidat
-            return fs::path(mp);
-        }
-
-        // Präfix-Match mit Pfadgrenze: mp/...
-        if (t.size() > mp.size() &&
-            t.compare(0, mp.size(), mp) == 0 &&
-            t[mp.size()] == '/')
-        {
-            if (mp.size() > best_len) {
-                best_len = mp.size();
-                best = fs::path(mp);
-            }
-        }
+static std::optional<fs::path> nonroot_covering_mountpoint(const fs::path& target)
+{
+    std::ifstream mountinfo("/proc/self/mountinfo");
+    if (!mountinfo) return std::nullopt;
+    const std::string t = without_trailing_slash(normalize_best_effort(target).string());
+    // The deepest covering mount is the longest one; "/" covers everything and is never reported
+    std::string deepest;
+    for (std::string line; std::getline(mountinfo, line);) {
+        auto mp = mountpoint_of_mountinfo_line(line);
+        if (mp && *mp != "/" && mount_covers(*mp, t) && mp->size() > deepest.size()) deepest = *mp;
     }
-
-    return best; // std::nullopt, wenn nur "/" oder gar nichts passt
-#else
-    (void)target; // TODO windows implementieren
-    return std::nullopt;
-#endif
+    if (deepest.empty()) return std::nullopt;
+    return fs::path(deepest);
 }
+#endif
 
-std::optional<fs::path> isMountpoint(const fs::path& path)
+std::optional<fs::path> is_mountpoint(const fs::path& path)
 {
 #ifdef __linux__
-    // Auf Linux ist mountinfo die robusteste Quelle (erkennt auch Bind-Mounts).
+    // mountinfo is the most robust source on Linux; it also knows bind mounts.
     return nonroot_covering_mountpoint(path);
 #else
-    // Fallback: Device-Grenze zwischen Pfad und Parent (erkennt keine Bind-Mounts).
+    // Fallback: device boundary between path and parent; misses bind mounts.
     fs::path p = normalize_best_effort(path);
     struct stat cur{}, par{};
     if (!lstat_ok(p, cur)) return std::nullopt;
@@ -286,52 +241,48 @@ std::optional<fs::path> isMountpoint(const fs::path& path)
 #endif
 }
 
-std::optional<fs::path> getMountRoot(const fs::path& in)
+std::optional<fs::path> get_mount_root(const fs::path& in)
 {
 #ifdef WIN32
-    // Auf Windows: Laufwerksbuchstabe extrahieren (z.B. "Z:\")
-    // Wir verwenden 'in' direkt, um den Laufwerksbuchstaben zu erhalten
-    // (normalize_best_effort kann UNC-Pfade zurückgeben)
+    // 'in' is used unnormalized: normalize_best_effort may return UNC paths.
     if (in.has_root_name()) {
         fs::path root = in.root_name();
-        root /= "\\"; // Füge Backslash hinzu für "Z:\"
+        root /= "\\";
         return root;
     }
     // Handle Unix-style paths (e.g., "/home/...") on Windows
     // These can occur when using WSL paths or cross-platform test data
-    std::wstring pathStr = in.wstring();
-    if (!pathStr.empty() && pathStr[0] == L'/') {
+    std::wstring path_str = in.wstring();
+    if (!path_str.empty() && path_str[0] == L'/') {
         return fs::path("/");
     }
     return std::nullopt;
 #else
     fs::path current = normalize_best_effort(in);
 
-    // Wenn 'in' nicht existiert, gehe so weit hoch, bis etwas existiert.
-    struct stat stCur{};
-    while (!lstat_ok(current, stCur)) {
+    // Climb up until something exists.
+    struct stat st_cur{};
+    while (!lstat_ok(current, st_cur)) {
         if (!current.has_parent_path()) return std::nullopt;
         current = current.parent_path();
     }
 
     for (;;) {
         fs::path parent = current.has_parent_path() ? current.parent_path() : fs::path("/");
-        struct stat stPar{};
-        if (!lstat_ok(parent, stPar)) return std::nullopt;
+        struct stat st_par{};
+        if (!lstat_ok(parent, st_par)) return std::nullopt;
 
-        if (stCur.st_dev != stPar.st_dev) {
-            // Geräte unterscheiden sich: 'current' ist Mountpoint der darunterliegenden Struktur
+        if (st_cur.st_dev != st_par.st_dev) {
+            // the device changes here, so 'current' is the mount point
             return current.empty() ? fs::path("/") : current;
         }
 
         if (current == "/") {
-            // Wurzel des aktuellen Namespace/FS erreicht -> das ist immer ein Mountpoint
             return fs::path("/");
         }
 
-        // Aufwärts gehen: Parent wird neuer Current
         current = parent;
-        stCur = stPar;
+        st_cur = st_par;
     }
 #endif
 }

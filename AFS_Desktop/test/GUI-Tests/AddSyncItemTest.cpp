@@ -30,7 +30,7 @@ TEST_F(GuiTest, AngelegteSynchronisationIstInKonfigurationUndListeVorhanden)
     activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
     pump();
 
-    const auto created = Config::instance().findByName(syncItemName.ToStdWstring());
+    const auto created = Config::instance().find_by_name(syncItemName.ToStdWstring());
     ASSERT_TRUE(created.has_value()) << "Die Synchronisation wurde nicht angelegt.";
     EXPECT_EQ(created->source(), input.source.ToStdWstring());
     EXPECT_EQ(created->target(), input.target.ToStdWstring());

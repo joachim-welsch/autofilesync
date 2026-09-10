@@ -5,7 +5,7 @@
 #include "id.h"
 #include "utilwx.h"
 #include "Logging.h"
-#include "util.h"
+#include "Util.h"
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -74,7 +74,7 @@ public:
 // and waits for the assistant's answer instead of assuming a fixed delay.
 TEST_F(GuiTest, LogFrageWirdImChatBeantwortet)
 {
-    const ScopedSampleLogEntries sampleLog(wstring_to_string(Logging::instance().getLogFilePathName()));
+    const ScopedSampleLogEntries sampleLog(wstring_to_string(Logging::instance().get_log_file_path_name()));
 
     activateMenuItem(mainWindow(), tul(id::Chat));
 

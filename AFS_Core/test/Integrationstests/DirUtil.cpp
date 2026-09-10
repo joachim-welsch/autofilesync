@@ -2,14 +2,14 @@
 #include "DirUtil.h"
 #include "FileUtil.h"
 #include "SyncFileSsh.h"
-#include "util.h"
+#include "Util.h"
 #include <filesystem>
 
 using namespace AFS_Core;
 
 namespace tu {
 
-    bool eraseTestDir(const std::wstring& fn, bool displayError)
+    bool erase_test_dir(const std::wstring& fn, bool display_error)
     {
         // Prüfe, ob das Verzeichnis existiert
         if (!std::filesystem::exists(fn)) {
@@ -21,7 +21,7 @@ namespace tu {
             for (const auto& entry : std::filesystem::directory_iterator(fn)) {
                 if (entry.is_directory()) {
                     // Rekursiv Unterverzeichnisse loeschen
-                    eraseTestDir(entry.path().wstring(), displayError);
+                    erase_test_dir(entry.path().wstring(), display_error);
                 }
                 else {
                     // Datei loeschen
@@ -33,56 +33,56 @@ namespace tu {
             return true;
         }
         catch (const std::filesystem::filesystem_error& e) {
-            if (displayError)
+            if (display_error)
                 std::wcerr << L"Fehler beim Loeschen des Verzeichnisses: " << fn << L"\n" << e.what() << std::endl;
             return false;
         }
     }
 
-    void eraseSshTestDir(const std::wstring& sshPath)
+    void erase_ssh_test_dir(const std::wstring& ssh_path)
     {
-        if (!sshExists(sshPath) || !sshIsDirectory(sshPath))
+        if (!ssh_exists(ssh_path) || !ssh_is_directory(ssh_path))
             return;
-        for (const auto& entry : sshListDir(sshPath)) {
-            const std::wstring child = util::withTrailingChar(sshPath, L'/') + entry.name;
-            if (entry.isRegularFile)
-                sshRemoveFile(child);
-            else if (entry.isDirectory)
-                eraseSshTestDir(child); // no remote rmdir available; leaving the now-empty directory behind is harmless
+        for (const auto& entry : ssh_list_dir(ssh_path)) {
+            const std::wstring child = util::with_trailing_char(ssh_path, L'/') + entry.name;
+            if (entry.is_regular_file)
+                ssh_remove_file(child);
+            else if (entry.is_directory)
+                erase_ssh_test_dir(child); // no remote rmdir available; leaving the now-empty directory behind is harmless
         }
     }
 
-    void eraseSshTestDirVariants(const std::wstring& sshBasePath, const std::vector<std::wstring>& suffixes)
+    void erase_ssh_test_dir_variants(const std::wstring& ssh_base_path, const std::vector<std::wstring>& suffixes)
     {
-        eraseSshTestDir(sshBasePath);
+        erase_ssh_test_dir(ssh_base_path);
         for (const auto& suffix : suffixes)
-            eraseSshTestDir(sshBasePath + suffix);
+            erase_ssh_test_dir(ssh_base_path + suffix);
     }
 
-    bool checkCopiedFiles(const std::wstring& sourceDir, const std::wstring& destDir)
+    bool check_copied_files(const std::wstring& source_dir, const std::wstring& dest_dir)
     {
-        for (const auto& entry : std::filesystem::directory_iterator(sourceDir)) {
-            auto sourceFile = entry.path();
-            std::filesystem::path destPath(destDir);
-            auto destFile = destPath / sourceFile.filename();
+        for (const auto& entry : std::filesystem::directory_iterator(source_dir)) {
+            auto source_file = entry.path();
+            std::filesystem::path dest_path(dest_dir);
+            auto dest_file = dest_path / source_file.filename();
 
             // Skip directories, only check regular files
-            if (std::filesystem::is_directory(sourceFile)) {
+            if (std::filesystem::is_directory(source_file)) {
                 continue;
             }
 
-            if (!std::filesystem::exists(destFile)) {
+            if (!std::filesystem::exists(dest_file)) {
                 return false; // File not copied
             }
             // Only check if file size matches
-            if (std::filesystem::file_size(sourceFile) != std::filesystem::file_size(destFile)) {
+            if (std::filesystem::file_size(source_file) != std::filesystem::file_size(dest_file)) {
                 return false; // File size is different
             }
         }
         return true; // All files copied successfully
     }
 
-    std::string concatPath(const std::string& path1, const std::string& path2)
+    std::string concat_path(const std::string& path1, const std::string& path2)
     {
 #ifdef _UNIX
 		const char separator = '/';
@@ -109,7 +109,7 @@ namespace tu {
 		}
     }
 
-        std::wstring concatPath(const std::wstring& path1, const std::wstring& path2)
+        std::wstring concat_path(const std::wstring& path1, const std::wstring& path2)
         {
     #ifdef _UNIX
             const wchar_t separator = L'/';
@@ -136,35 +136,35 @@ namespace tu {
             }
         }
 
-    std::string concatTemp(const std::string& path)
+    std::string concat_temp(const std::string& path)
     {
-        return concatPath(tempDir(), path);
+        return concat_path(temp_dir(), path);
     }
 
-    std::wstring concatTemp(const std::wstring& path)
+    std::wstring concat_temp(const std::wstring& path)
     {
-        return concatPath(tempDirW(), path);
+        return concat_path(temp_dir_w(), path);
     }
 #ifdef _UNIX
-    std::wstring concatSSHTemp(const std::wstring& path)
+    std::wstring concat_ssh_temp(const std::wstring& path)
     {
-        return concatPath(L"/tmp", path);
+        return concat_path(L"/tmp", path);
 	}
 #else
-    std::wstring concatSSHTemp(const std::wstring& path)
+    std::wstring concat_ssh_temp(const std::wstring& path)
     {
-        return concatPath(L"\\tmp", path);
+        return concat_path(L"\\tmp", path);
 	}
 #endif
 #ifdef _UNIX
-    std::string concatSSHTemp(const std::string& path)
+    std::string concat_ssh_temp(const std::string& path)
     {
-        return concatPath("/tmp", path);
+        return concat_path("/tmp", path);
     }
 #else
-    std::string concatSSHTemp(const std::string& path)
+    std::string concat_ssh_temp(const std::string& path)
     {
-        return concatPath("\\tmp", path);
+        return concat_path("\\tmp", path);
     }
 #endif
 } // namespace tu

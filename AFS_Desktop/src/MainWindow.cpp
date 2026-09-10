@@ -23,7 +23,7 @@
 #include "Logging.h"
 #include "LogCut.h"
 #include "App.h"
-#include "util.h"
+#include "Util.h"
 #ifdef WIN32
     #include <Windows.h> // registerAutomaticStart() writes the autostart registry key
 #endif
@@ -94,7 +94,7 @@ MainWindow::MainWindow(wxWindow *parent,
 
 	SetIcon(wxICON(sample));
 	createMenu();
-	const std::wstring pathName = Config::getRootPathname();
+	const std::wstring pathName = Config::get_root_pathname();
 	Config::instance().pathname(pathName);
 	Config::instance().read(pathName);
 	setTitle();
@@ -105,11 +105,11 @@ MainWindow::MainWindow(wxWindow *parent,
 	createHelp();
 	createTaskBar();
 	LogCut()();
-	if (Config::instance().settings().startMinimized()) {
+	if (Config::instance().settings().start_minimized()) {
 		TimedMessageBox dlg(this, "AutoFileSync wurde minimiert gestartet.\n Siehe Ausgeblendete Symbole.", "Info", 3000);
 		dlg.ShowModal(); // dlg is stack-allocated: its own destructor cleans it up, Destroy() is only for `new`-allocated windows
 	}
-	if (Config::syncPossible() && Config::instance().settings().startSyncAtStart()) {
+	if (Config::sync_possible() && Config::instance().settings().start_sync_at_start()) {
 		syncInterface_.setActSyncType(SyncType::Continuous);
 		menu_.syncMenu()->Enable(tul(id::StartSync), false);
 		menu_.syncMenu()->Enable(tul(id::SyncOnce), false);
@@ -144,7 +144,7 @@ void MainWindow::setTitle()
 
 void MainWindow::startSyncTimer()
 {
-    LOG_DEBUG(L"MainWindow::startTimer()");
+    log_debug(L"MainWindow::startTimer()");
     syncTimer_.Bind(wxEVT_TIMER, &MainWindow::onTimer, this);
     syncTimer_.Start(1000);
 }
@@ -454,7 +454,7 @@ void MainWindow::onFileSaveAs(wxCommandEvent& WXUNUSED(event))
 
 void MainWindow::onStartSingleSync(wxCommandEvent& WXUNUSED(event))
 {
-	LOG_DEBUG(L"MainWindow::onStartSingleSync()");
+	log_debug(L"MainWindow::onStartSingleSync()");
 	if (syncInterface_.singleSync()) {
 		menu_.syncMenu()->Enable(tul(id::StartSync), false);
 		menu_.syncMenu()->Enable(tul(id::SyncOnce), false);
@@ -463,14 +463,14 @@ void MainWindow::onStartSingleSync(wxCommandEvent& WXUNUSED(event))
 
 void MainWindow::onStartContinuousSync(wxCommandEvent& WXUNUSED(event))
 {
-	LOG_DEBUG(L"MainWindow::onStartContinuousSync()");  
+	log_debug(L"MainWindow::onStartContinuousSync()");  
 	syncInterface_.startContinuousSync();
 	toolbar_.setStarted(true);
 }
 
 void MainWindow::onStopContinuousSync(wxCommandEvent& WXUNUSED(event))
 {
-	LOG_DEBUG(L"MainWindow::onStopContinuousSync()");
+	log_debug(L"MainWindow::onStopContinuousSync()");
 	syncInterface_.stopContinuousSync();
 	toolbar_.setStarted(false);
 }
@@ -490,7 +490,7 @@ void MainWindow::updateMenu()
 
 void MainWindow::onTimer(wxTimerEvent&)
 {
-	LOG_DEBUG(L"MainWindow::onTimer()");
+	log_debug(L"MainWindow::onTimer()");
 	if (!Config::exists() || !Config::instance().ready())
 		return;
 	updateMenu();
@@ -513,12 +513,12 @@ std::optional<SyncItem> MainWindow::findSyncItem()
     else if (listWindow_ != nullptr) {
         const wstring syncName = listWindow_->getSelected();
         if (!syncName.empty())
-            found = Config::instance().findByName(syncName);
+            found = Config::instance().find_by_name(syncName);
     }
     else if (gridWindow_ != nullptr) {
         const wstring syncName = gridWindow_->getSelected();
         if (!syncName.empty())
-            found = Config::instance().findByName(syncName);
+            found = Config::instance().find_by_name(syncName);
     }
     return found;
 }
@@ -536,7 +536,7 @@ void MainWindow::onEditSync(wxCommandEvent&)
     SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(*found);
-        Config::instance().updateByName(originalName, *found);
+        Config::instance().update_by_name(originalName, *found);
         update();
     }
 }
@@ -555,11 +555,11 @@ void MainWindow::onEditSshAccounts(wxCommandEvent&)
 
 void MainWindow::onEditSettings(wxCommandEvent&)
 {
-    bool autoStartLast = Config::instance().settings().autoStart();
+    bool autoStartLast = Config::instance().settings().auto_start();
     SettingsDialog dlg(this, wxID_ANY, txt::EditSettings);
     dlg.ShowModal();
-    if (autoStartLast !=  Config::instance().settings().autoStart())
-        registerAutomaticStart(Config::instance().settings().autoStart());
+    if (autoStartLast !=  Config::instance().settings().auto_start())
+        registerAutomaticStart(Config::instance().settings().auto_start());
 }
 
 void MainWindow::onEditLogging(wxCommandEvent&)
@@ -591,7 +591,7 @@ void MainWindow::onDeleteSync(wxCommandEvent&)
     if (answer != wxYES)
         return;
     Config& cfg(Config::instance());
-    cfg.eraseByName(found->name());
+    cfg.erase_by_name(found->name());
     update();
 }
 
@@ -618,7 +618,7 @@ void MainWindow::onViewGrid(wxCommandEvent&)
 
 void MainWindow::onViewLog(wxCommandEvent&)
 {
-    wxString commandLine = Logging::instance().getEditorPathName() + wxString(L" ") + Logging::instance().getLogFilePathName();
+    wxString commandLine = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
     long pid = 0;
     pid = wxExecute(commandLine);
     if (pid == 0) {
@@ -674,7 +674,7 @@ void MainWindow::onStopBackgroundService(wxCommandEvent&)
 {
     const std::wstring error = BackgroundService::stop();
     if (error.empty())
-        LOG_INFO(L"Hintergrunddienst gestoppt.");
+        log_info(L"Hintergrunddienst gestoppt.");
     reportBackgroundService(error, "Hintergrunddienst gestoppt.");
 }
 
@@ -704,7 +704,7 @@ void MainWindow::onClose(wxCloseEvent& event)
     config->Write("/MainWindow/height", static_cast<long>(size.GetHeight()));
     config->Flush();
 
-    if (event.CanVeto() && Config::instance().settings().minimizeInsteadOfClose()) {
+    if (event.CanVeto() && Config::instance().settings().minimize_instead_of_close()) {
         // Keep the app (and any running background sync) alive in the tray
         // instead of closing - same as onViewBackground(). CanVeto() is false
         // for a forced close (tray "Beenden", OS logoff), which must always
@@ -773,7 +773,7 @@ void MainWindow::createHelp()
     else if (!htmlHelpController_->AddBook(helpFilePath))
         wxMessageBox(L"Fehler beim Hinzufügen der Hilfedatei: " + helpFilePath, "Fehler", wxOK | wxICON_ERROR);
     else
-        LOG_DEBUG2("Hilfedatei erfolgreich hinzugefügt: ", std::string(helpFilePath.ToUTF8()));
+        log_debug("Hilfedatei erfolgreich hinzugefügt: ", std::string(helpFilePath.ToUTF8()));
     GetHelpController().SetViewer("internal");
 }
 

@@ -38,8 +38,8 @@ using StrVect = std::vector<std::wstring>;
         ~Global() = default;
     public:
         static Global& instance();
-        void setApp(wxApp* app) { app_ = app; }
-        wxApp* getApp() const { return app_; }
+        void set_app(wxApp* app) { app_ = app; }
+        wxApp* get_app() const { return app_; }
     };
 #endif
 

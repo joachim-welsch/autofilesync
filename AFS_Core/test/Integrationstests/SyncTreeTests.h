@@ -6,11 +6,11 @@
 namespace SyncTreeTests
 {
 #ifdef _UNIX
-	const std::wstring SourcePath = TestPaths::repoDir() + L"/test/resources/tree/";
-	const std::wstring TargetPath = TestPaths::scratchDir() + L"/tree";
-	const std::wstring ResourcePath = TestPaths::repoDir() + L"/test/tree/source/";
-	const std::wstring CountTestSourcePath = TestPaths::scratchDir() + L"/tree/src/";
-	const std::wstring CountTestTargetPath = TestPaths::scratchDir() + L"/tree/dest";
+	const std::wstring SOURCE_PATH = TestPaths::repo_dir() + L"/test/resources/tree/";
+	const std::wstring TARGET_PATH = TestPaths::scratch_dir() + L"/tree";
+	const std::wstring RESOURCE_PATH = TestPaths::repo_dir() + L"/test/tree/source/";
+	const std::wstring COUNT_TEST_SOURCE_PATH = TestPaths::scratch_dir() + L"/tree/src/";
+	const std::wstring COUNT_TEST_TARGET_PATH = TestPaths::scratch_dir() + L"/tree/dest";
 #else
 	const std::wstring SourcePath = L"C:\\Entwicklung\\autofilesync\\AFS_Core\\test\\resources\\tree\\";
 	const std::wstring TargetPath = L"C:\\temp\\test\\tree";

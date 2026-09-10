@@ -76,7 +76,7 @@ void SshAccountsDialog::populateList()
 {
     listCtrl_->DeleteAllItems();
 
-    const SshAccounts accounts = Config::instance().sshAccountsSnapshot();
+    const SshAccounts accounts = Config::instance().ssh_accounts_snapshot();
     long index = 0;
     for (const auto& account : accounts) {
         // FromUTF8: die Konfiguration haelt diese Felder als UTF-8, die
@@ -124,7 +124,7 @@ void SshAccountsDialog::onDelete(wxCommandEvent&)
     if (sel == -1)
         return;
 
-    auto account = Config::instance().sshAccountAt(static_cast<size_t>(sel));
+    auto account = Config::instance().ssh_account_at(static_cast<size_t>(sel));
     if (!account.has_value())
         return;
 
@@ -133,13 +133,13 @@ void SshAccountsDialog::onDelete(wxCommandEvent&)
     // Unlike a rename, a deletion has no valid account left to point items at
     // - the best this dialog can do is warn instead of letting them silently
     // start failing every sync pass.
-    if (Config::instance().sshAccountReferencedByAnyItem(account->name()))
+    if (Config::instance().ssh_account_referenced_by_any_item(account->name()))
         message += _("\n\nAchtung: Es gibt Synchronisationen, die diesen Account verwenden. Diese werden danach fehlschlagen.");
 
     int answer = wxMessageBox(message, _(L"Löschen bestätigen"), wxYES_NO | wxICON_QUESTION, this);
 
     if (answer == wxYES) {
-        Config::instance().removeSshAccount(static_cast<size_t>(sel));
+        Config::instance().remove_ssh_account(static_cast<size_t>(sel));
         populateList();
         updateButtons();
     }
@@ -166,7 +166,7 @@ void SshAccountsDialog::onEndLabelEdit(wxListEvent& event)
         return;
 
     long sel = event.GetIndex();
-    auto account = Config::instance().sshAccountAt(static_cast<size_t>(sel));
+    auto account = Config::instance().ssh_account_at(static_cast<size_t>(sel));
     if (!account.has_value())
         return;
 
@@ -178,17 +178,17 @@ void SshAccountsDialog::onEndLabelEdit(wxListEvent& event)
 
     const std::string oldName = account->name();
     const std::string newName = std::string(event.GetLabel().ToUTF8());
-    if (newName != oldName && Config::instance().findSshAccountByName(newName) != std::nullopt) {
+    if (newName != oldName && Config::instance().find_ssh_account_by_name(newName) != std::nullopt) {
         wxMessageBox(wxString::Format(_("SSH-Account '%s' existiert bereits."), event.GetLabel()),
             _("Validierungsfehler"), wxOK | wxICON_WARNING, this);
         event.Veto();
         return;
     }
-    account->setName(newName);
-    Config::instance().updateSshAccount(static_cast<size_t>(sel), *account);
+    account->set_name(newName);
+    Config::instance().update_ssh_account(static_cast<size_t>(sel), *account);
     // Keeps sync items using this account under its old name from silently
     // failing every pass afterward (see Config::updateSshAccountReferences).
-    Config::instance().updateSshAccountReferences(oldName, *account);
+    Config::instance().update_ssh_account_references(oldName, *account);
 }
 
 void SshAccountsDialog::editSelectedItem()
@@ -197,7 +197,7 @@ void SshAccountsDialog::editSelectedItem()
     if (sel == -1)
         return;
 
-    auto account = Config::instance().sshAccountAt(static_cast<size_t>(sel));
+    auto account = Config::instance().ssh_account_at(static_cast<size_t>(sel));
     if (!account.has_value())
         return;
 
@@ -205,10 +205,10 @@ void SshAccountsDialog::editSelectedItem()
     SshAccountDialog dlg(&account.value(), this, wxID_ANY, txt::EditSshConnection);
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(account.value());
-        Config::instance().updateSshAccount(static_cast<size_t>(sel), account.value());
+        Config::instance().update_ssh_account(static_cast<size_t>(sel), account.value());
         // Keeps sync items using this account under its old name/credentials
         // from silently failing every pass afterward.
-        Config::instance().updateSshAccountReferences(oldName, account.value());
+        Config::instance().update_ssh_account_references(oldName, account.value());
         populateList();
     }
 }

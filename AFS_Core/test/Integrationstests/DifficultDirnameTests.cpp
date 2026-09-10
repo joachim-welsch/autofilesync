@@ -3,7 +3,7 @@
 #include "SyncTree.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
-#include "util.h"
+#include "Util.h"
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -16,14 +16,14 @@ using std::wstring;
 using std::string;
 
 namespace {
-    const wstring baseDir = TestPaths::scratchDir() + L"/difficult_dirnames";
+    const wstring BASE_DIR = TestPaths::scratch_dir() + L"/difficult_dirnames";
 
     // Gleiche Kategorien wie DifficultFilenameTests, aber ohne Dateiendung und
     // ohne eingebetteten Backslash: der wird von dieser App an mehreren
     // Stellen als Pfadtrenner interpretiert (DIR_SEPARATOR, win_to_sftp_path,
     // ...), ein Backslash *im Verzeichnisnamen* wuerde also Trennzeichen- statt
     // Namensverarbeitung testen - ein anderes Thema als hier.
-    const std::vector<string> difficultDirNames = {
+    const std::vector<string> DIFFICULT_DIR_NAMES = {
         string(150, 'b'),
         "Verzeichnis mit Leerzeichen",
         "   mehrfache   Leerzeichen   ",
@@ -40,7 +40,7 @@ namespace {
     // Wandelt einen nativ (UTF-8) aufgebauten Pfad in die wstring-Form um, die
     // SyncItem::source()/target() erwarten - derselbe Umweg wie im Rest der
     // App (siehe util::string_to_wstring), nicht ein rohes Verbreitern.
-    wstring toSyncPath(const fs::path& p)
+    wstring to_sync_path(const fs::path& p)
     {
         return util::string_to_wstring(p.string());
     }
@@ -54,44 +54,44 @@ namespace {
 // DifficultFilenameTests fuer das Verzeichnis statt fuer die Datei.
 TEST(DifficultDirnameTests, DirsWithDifficultNamesSyncToTwoTargets)
 {
-    const fs::path sourceRoot = fs::path(util::wstring_to_string(baseDir)) / "sync_dir_quelle";
-    const fs::path target1Root = fs::path(util::wstring_to_string(baseDir)) / "sync_dir_ziel1";
-    const fs::path target2Root = fs::path(util::wstring_to_string(baseDir)) / "sync_dir_ziel2";
+    const fs::path source_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_dir_quelle";
+    const fs::path target1_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_dir_ziel1";
+    const fs::path target2_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_dir_ziel2";
 
-    fs::remove_all(sourceRoot);
-    fs::remove_all(target1Root);
-    fs::remove_all(target2Root);
-    fs::create_directories(sourceRoot);
-    // SyncDir legt nur die letzte Ebene des Ziels an (createTargetDirIfNotExist
+    fs::remove_all(source_root);
+    fs::remove_all(target1_root);
+    fs::remove_all(target2_root);
+    fs::create_directories(source_root);
+    // SyncDir legt nur die letzte Ebene des Ziels an (create_target_dir_if_not_exist
     // ruft fs::create_directory(), nicht create_directories()); die Eltern
     // muessen also schon existieren.
-    fs::create_directories(target1Root);
-    fs::create_directories(target2Root);
+    fs::create_directories(target1_root);
+    fs::create_directories(target2_root);
 
     Synchronize::start();
-    for (const auto& name : difficultDirNames) {
-        const fs::path sourceDir = sourceRoot / name;
-        fs::create_directories(sourceDir);
-        std::ofstream(sourceDir / "inhalt.txt") << "inhalt";
+    for (const auto& name : DIFFICULT_DIR_NAMES) {
+        const fs::path source_dir = source_root / name;
+        fs::create_directories(source_dir);
+        std::ofstream(source_dir / "inhalt.txt") << "inhalt";
 
-        for (const fs::path& targetRoot : { target1Root, target2Root }) {
-            const fs::path targetDir = targetRoot / name;
+        for (const fs::path& target_root : { target1_root, target2_root }) {
+            const fs::path target_dir = target_root / name;
             SyncItem si;
-            si.syncCycle(0);
-            si.syncItemType(SyncItemType::Dir);
-            si.source(toSyncPath(sourceDir));
-            si.target(toSyncPath(targetDir));
-            std::size_t copyCount = 0;
-            SyncDir sync(si, copyCount, false);
+            si.sync_cycle(0);
+            si.sync_item_type(SyncItemType::Dir);
+            si.source(to_sync_path(source_dir));
+            si.target(to_sync_path(target_dir));
+            std::size_t copy_count = 0;
+            SyncDir sync(si, copy_count, false);
             sync();
-            EXPECT_EQ(copyCount, 1u) << "Verzeichnisname: " << name;
-            EXPECT_TRUE(fs::exists(targetDir / "inhalt.txt")) << "Verzeichnisname: " << name;
+            EXPECT_EQ(copy_count, 1u) << "Verzeichnisname: " << name;
+            EXPECT_TRUE(fs::exists(target_dir / "inhalt.txt")) << "Verzeichnisname: " << name;
         }
     }
 
-    fs::remove_all(sourceRoot);
-    fs::remove_all(target1Root);
-    fs::remove_all(target2Root);
+    fs::remove_all(source_root);
+    fs::remove_all(target1_root);
+    fs::remove_all(target2_root);
 }
 
 // SyncTree rekursiert selbst durch die Verzeichnisstruktur - die schwierigen
@@ -99,36 +99,36 @@ TEST(DifficultDirnameTests, DirsWithDifficultNamesSyncToTwoTargets)
 // selbst per fs::directory_iterator entdecken und im Ziel nachbilden muss.
 TEST(DifficultDirnameTests, TreeWithDifficultSubdirNamesSyncsToTwoTargets)
 {
-    const fs::path sourceRoot = fs::path(util::wstring_to_string(baseDir)) / "sync_tree_quelle";
-    const fs::path target1Root = fs::path(util::wstring_to_string(baseDir)) / "sync_tree_ziel1";
-    const fs::path target2Root = fs::path(util::wstring_to_string(baseDir)) / "sync_tree_ziel2";
+    const fs::path source_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_tree_quelle";
+    const fs::path target1_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_tree_ziel1";
+    const fs::path target2_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_tree_ziel2";
 
-    fs::remove_all(sourceRoot);
-    fs::remove_all(target1Root);
-    fs::remove_all(target2Root);
-    fs::create_directories(sourceRoot);
-    for (const auto& name : difficultDirNames) {
-        fs::create_directories(sourceRoot / name);
-        std::ofstream(sourceRoot / name / "datei.txt") << "inhalt";
+    fs::remove_all(source_root);
+    fs::remove_all(target1_root);
+    fs::remove_all(target2_root);
+    fs::create_directories(source_root);
+    for (const auto& name : DIFFICULT_DIR_NAMES) {
+        fs::create_directories(source_root / name);
+        std::ofstream(source_root / name / "datei.txt") << "inhalt";
     }
 
     Synchronize::start();
-    for (const fs::path& targetRoot : { target1Root, target2Root }) {
+    for (const fs::path& target_root : { target1_root, target2_root }) {
         SyncItem si;
-        si.syncCycle(0);
-        si.syncItemType(SyncItemType::Tree);
-        si.source(toSyncPath(sourceRoot));
-        si.target(toSyncPath(targetRoot));
-        std::size_t copyCount = 0;
-        SyncTree sync(si, copyCount, false);
+        si.sync_cycle(0);
+        si.sync_item_type(SyncItemType::Tree);
+        si.source(to_sync_path(source_root));
+        si.target(to_sync_path(target_root));
+        std::size_t copy_count = 0;
+        SyncTree sync(si, copy_count, false);
         sync();
-        EXPECT_EQ(copyCount, difficultDirNames.size());
+        EXPECT_EQ(copy_count, DIFFICULT_DIR_NAMES.size());
 
-        for (const auto& name : difficultDirNames)
-            EXPECT_TRUE(fs::exists(targetRoot / name / "datei.txt")) << "Verzeichnisname: " << name;
+        for (const auto& name : DIFFICULT_DIR_NAMES)
+            EXPECT_TRUE(fs::exists(target_root / name / "datei.txt")) << "Verzeichnisname: " << name;
     }
 
-    fs::remove_all(sourceRoot);
-    fs::remove_all(target1Root);
-    fs::remove_all(target2Root);
+    fs::remove_all(source_root);
+    fs::remove_all(target1_root);
+    fs::remove_all(target2_root);
 }

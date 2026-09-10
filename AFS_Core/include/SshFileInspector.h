@@ -3,10 +3,8 @@
 #include <string>
 
 #ifdef _UNIX
-    #include <libssh/libssh.h>
-    #include <libssh/sftp.h>
+    #include "SftpConnection.h"
 #else
-    // Windows: libssh2 als Alternative
     #ifdef _WIN32
         #include <libssh2.h>
         #include <libssh2_sftp.h>
@@ -17,42 +15,36 @@
 
 namespace AFS_Core {
 
-// Struktur für die Rückgabewerte
 struct RemoteFileInfo {
     bool exists;
     uint64_t size_bytes;
-    std::string last_modified_iso; // Lesbarer Zeitstempel
-    time_t raw_mtime;              // Für programmatische Vergleiche
+    std::string last_modified_iso;
+    time_t raw_mtime;
 };
 
 class SshFileInspector {
 #ifdef _UNIX
-    ssh_session my_ssh_session = nullptr;
-    sftp_session sftp_session_ptr = nullptr;
+    SftpConnection connection_;
 #else
     #ifdef _WIN32
-        LIBSSH2_SESSION* my_ssh_session = nullptr;
-        LIBSSH2_SFTP* sftp_session_ptr = nullptr;
-        SOCKET sock = INVALID_SOCKET;
+        LIBSSH2_SESSION* my_ssh_session_ = nullptr;
+        LIBSSH2_SFTP* sftp_session_ptr_ = nullptr;
+        SOCKET sock_ = INVALID_SOCKET;
+        void cleanup();
     #endif
 #endif
-
     SshAccount account_;
-
-    void cleanup();
-
 public:
-  // Verbindet, prueft den Host-Key und meldet sich an; wirft, wenn davon etwas
-  // scheitert. Ein erfolgreich erzeugtes Objekt heisst: die Gegenstelle steht.
+  // Connects, verifies the host key and logs in; throws if any of that fails,
+  // so a constructed object means the remote side is up.
   SshFileInspector(const SshAccount& account);
   ~SshFileInspector();
-  // remote_path ist der Pfad auf der Gegenstelle **ohne** Kontopraefix, also
-  // "/home/joachim/daten" und nicht "pisi:/home/joachim/daten". Die Umschrift
-  // fuer Windows-Pfade ("C:\dir" -> "/C:/dir") macht die Funktion selbst.
-  // exists=false bedeutet "verbunden und sicher nicht vorhanden"; jeder andere
-  // Fehler wirft, damit ein Verbindungsproblem nicht wie eine geloeschte Datei
-  // aussieht.
-  RemoteFileInfo inspectFile(const std::string& remote_path);
+  // remote_path is the path on the remote side without the account prefix
+  // ("/home/user/data", not "account:/home/user/data"); Windows paths are
+  // transcribed here ("C:\dir" -> "/C:/dir"). exists=false means "connected
+  // and definitely absent"; any other failure throws so that a connection
+  // problem does not look like a deleted file.
+  RemoteFileInfo inspect_file(const std::string& remote_path);
 };
 
 } // namespace AFS_Core

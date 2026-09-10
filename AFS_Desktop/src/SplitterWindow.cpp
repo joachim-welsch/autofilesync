@@ -9,7 +9,7 @@
     #include "wx/dcmirror.h"
 #endif
 
-#include "util.h"
+#include "Util.h"
 #include "SourceCanvas.h"
 #include "TargetCanvas.h"
 

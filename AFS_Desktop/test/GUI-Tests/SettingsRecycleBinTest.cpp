@@ -28,9 +28,9 @@ namespace {
 // expects it - both must happen even when an assertion ends the test early.
 class RestoredState {
 public:
-    RestoredState(): binPath_(RecycleBin::instance().binPath()) {}
+    RestoredState(): binPath_(RecycleBin::instance().bin_path()) {}
     ~RestoredState() {
-        RecycleBin::instance().binPath(binPath_);
+        RecycleBin::instance().bin_path(binPath_);
     }
 private:
     fs::path binPath_;
@@ -58,14 +58,14 @@ TEST_F(GuiTest, NeuerPapierkorbPfadWirdUebernommenUndDateiDorthinVerschoben)
     activateMenuItem(mainWindow(), tul(id::EditSettings));
     pump();
 
-    ASSERT_EQ(RecycleBin::instance().binPath(), binPath) << "Der eingegebene Pfad wurde nicht übernommen.";
-    ASSERT_EQ(Config::instance().settings().deleteMode(), DeleteMode::RecycleBin);
+    ASSERT_EQ(RecycleBin::instance().bin_path(), binPath) << "Der eingegebene Pfad wurde nicht übernommen.";
+    ASSERT_EQ(Config::instance().settings().delete_mode(), DeleteMode::RecycleBin);
 
-    ASSERT_TRUE(deleteFile(deletedFile.wstring())) << "Die Datei wurde nicht in den Papierkorb verschoben.";
+    ASSERT_TRUE(delete_file(deletedFile.wstring())) << "Die Datei wurde nicht in den Papierkorb verschoben.";
 
     EXPECT_FALSE(fs::exists(deletedFile));
     EXPECT_TRUE(fs::exists(binPath)) << "Der Papierkorb wurde nicht angelegt.";
-    const RecycleBin::ItemList items = RecycleBin::instance().listItems();
+    const RecycleBin::ItemList items = RecycleBin::instance().list_items();
     ASSERT_EQ(items.size(), 1u);
     EXPECT_TRUE(std::regex_match(items[0].filename().wstring(),
         std::wregex(LR"(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}_beispiel\.txt)")))

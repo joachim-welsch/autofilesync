@@ -100,10 +100,10 @@ void SshAccountDialog::saveData(SshAccount& account)
     // password containing "€" or "ä" would silently be lost on Windows. UTF-8
     // keeps every character and is what SSH expects on the wire (RFC 4252),
     // und die Konfiguration speichert diese Felder ohnehin als UTF-8.
-    account.setName(std::string(name_.ToUTF8()));
-    account.setUser(std::string(user_.ToUTF8()));
-    account.setHost(std::string(host_.ToUTF8()));
-    account.setPassword(std::string(password_.ToUTF8()));
+    account.set_name(std::string(name_.ToUTF8()));
+    account.set_user(std::string(user_.ToUTF8()));
+    account.set_host(std::string(host_.ToUTF8()));
+    account.set_password(std::string(password_.ToUTF8()));
 }
 
 bool SshAccountDialog::TransferDataToWindow()
@@ -158,7 +158,7 @@ bool SshAccountDialog::Validate()
     // it, TransferDataFromWindow() only runs after Validate() succeeds) -
     // comparing against it, not just checking for any existing match, also
     // allows leaving an existing account's own name unchanged.
-    if (name != name_ && Config::instance().findSshAccountByName(std::string(name.ToUTF8())) != std::nullopt) {
+    if (name != name_ && Config::instance().find_ssh_account_by_name(std::string(name.ToUTF8())) != std::nullopt) {
         wxMessageBox(wxString::Format(_("SSH-Account '%s' existiert bereits."), name), _("Validierungsfehler"),
             wxOK | wxICON_WARNING, this);
         nameBox_->SetFocus();

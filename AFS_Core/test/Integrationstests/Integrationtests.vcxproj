@@ -154,7 +154,7 @@
     <ClCompile Include="SyncDirTests.cpp" />
     <ClCompile Include="SyncItemTests.cpp" />
     <ClCompile Include="ConfigTests.cpp" />
-    <ClCompile Include="BackupProofTests.cpp" />
+    <ClCompile Include="CopyLogTests.cpp" />
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="PasswordCryptoTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
@@ -181,7 +181,7 @@
     <ClCompile Include="$(LibDir)\src\SmtpMailer.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncArbiter.cpp" />
     <ClCompile Include="$(LibDir)\src\StrUtil.cpp" />
-    <ClCompile Include="$(LibDir)\src\util.cpp" />
+    <ClCompile Include="$(LibDir)\src\Util.cpp" />
     <ClCompile Include="$(LibDir)\src\MountedDrives.cpp" />
     <ClCompile Include="$(LibDir)\src\RecycleBin.cpp" />
     <ClCompile Include="$(LibDir)\src\SshFileInspector.cpp" />
@@ -189,8 +189,9 @@
     <ClCompile Include="$(LibDir)\src\SyncFileSsh.cpp" />
     <ClCompile Include="$(LibDir)\src\CheckPath.cpp" />
     <ClCompile Include="$(LibDir)\src\Config.cpp" />
-    <ClCompile Include="$(LibDir)\src\BackupProof.cpp" />
+    <ClCompile Include="$(LibDir)\src\CopyLog.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
+    <ClCompile Include="$(LibDir)\src\SftpConnection.cpp" />
     <ClCompile Include="$(LibDir)\src\SshHostKeyVerification.cpp" />
     <ClCompile Include="$(LibDir)\src\Libssh2Init.cpp" />
     <ClCompile Include="$(LibDir)\src\Directory.cpp" />

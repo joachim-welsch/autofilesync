@@ -48,7 +48,7 @@
     </ClCompile>
     <ClCompile Include="MountedDrivesTests.cpp" />
     <ClCompile Include="LoggingTests.cpp" />
-    <ClCompile Include="..\..\src\util.cpp">
+    <ClCompile Include="..\..\src\Util.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Synchronize.cpp">

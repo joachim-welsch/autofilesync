@@ -87,7 +87,7 @@
     <ClCompile Include="$(LibDir)\src\StrUtil.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\util.cpp">
+    <ClCompile Include="$(LibDir)\src\Util.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\MountedDrives.cpp">
@@ -109,6 +109,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\PasswordCrypto.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\SftpConnection.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\SshHostKeyVerification.cpp">

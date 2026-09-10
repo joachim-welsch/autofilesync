@@ -29,7 +29,7 @@ set(SOURCES
     DifficultDirnameTests.cpp
     SyncItemTests.cpp
     ConfigTests.cpp
-    BackupProofTests.cpp
+    CopyLogTests.cpp
     FileDeleteTests.cpp
     PasswordCryptoTests.cpp
     StrUtilTests.cpp

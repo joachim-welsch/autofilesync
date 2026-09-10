@@ -22,9 +22,9 @@ public:
     bool acquire(const std::atomic_bool& abort);
     void release();
 private:
-    bool otherSideActive() const;
-    void publishActive();
-    void withdrawActive();
+    bool other_side_active() const;
+    void publish_active();
+    void withdraw_active();
 
     SyncRole role_;
     bool held_ = false;
@@ -32,9 +32,9 @@ private:
     // A HANDLE to the Global\ event announcing that this side synchronises. It
     // is deliberately kept as a plain pointer so that no Windows header leaks
     // into everything that synchronises.
-    void* activeEvent_ = nullptr;
+    void* active_event_ = nullptr;
 #else
-    int activeLockFd_ = -1;
+    int active_lock_fd_ = -1;
 #endif
 };
 

@@ -55,7 +55,7 @@ private:
     SyncItemType actSyncItemType(wxChoice* typeChoice);
     
     wxString name_;
-    wxString type_ = syncItemType2Str(SyncItemType::File); // must match an entry of the type choice, which is translated
+    wxString type_ = sync_item_type_to_str(SyncItemType::File); // must match an entry of the type choice, which is translated
     wxString wildcard_ = "*.*";
     wxString exclusions_; // one wildcard pattern per line, converted to/from Exclusions in saveData()/setData()
     wxString source_;

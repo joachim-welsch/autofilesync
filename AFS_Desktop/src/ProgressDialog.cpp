@@ -69,9 +69,9 @@ void ProgressDialog::OnCancel(wxCommandEvent& event)
     // blocks the GUI thread outright - clicking Cancel used to freeze the
     // whole window for as long as the current copy step took to notice the
     // stop request.
-    syncControler_.requestStop();
+    syncControler_.request_stop();
     wxBusyCursor busyCursor;
-    while (!syncControler_.syncFinished())
+    while (!syncControler_.sync_finished())
     {
         wxSafeYield(this);
         wxMilliSleep(50);
@@ -83,7 +83,7 @@ void ProgressDialog::onTimerUpdate(wxTimerEvent&)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     wxYield();
-    SyncMessage sm = syncControler_.getMessage();
+    SyncMessage sm = syncControler_.get_message();
     if (!sm.msg().empty())
         gauge_->SetValue(sm.filenumber());
 }

@@ -98,7 +98,7 @@ autofilesync/
 │   ├── cmake/AfsCore.cmake     # Quelllisten, Abhängigkeiten, afs_core_add_library()
 │   ├── cmake/AfsWxWidgets.cmake# wxWidgets als Link-Target afs_wxwidgets
 │   ├── include/, src/          # Synchronisation, SSH, Konfiguration, LlamaClient,
-│   │                           # Hilfsquellen (Logging, FilesystemUtil, util, ...)
+│   │                           # Hilfsquellen (Logging, FilesystemUtil, Util, ...)
 │   └── test/                   # Integrationstests, Testdaten (resources, tree)
 └── AFS_Desktop/                # Anwendung - Programm autofilesync
     ├── CMakeLists.txt
@@ -126,7 +126,7 @@ bzw. `cmake -S AFS_Desktop ...`); AFS_Desktop zieht AFS_Core dann selbst hinzu.
 
 Die früher separat erwartete Bibliothek **mylib** ist vollständig in `AFS_Core`
 aufgegangen (Logging, LogCut, FilesystemUtil, MountedDrives, RecycleBin,
-SmtpMailer, StrUtil, util). Weitere Abhängigkeiten: wxWidgets 3.2, Boost
+SmtpMailer, StrUtil, Util). Weitere Abhängigkeiten: wxWidgets 3.2, Boost
 (header-only), libssh, OpenSSL, Google Test (nur Tests); llama.cpp wird beim
 Konfigurieren geklont. GNU gettext (libintl, `msgfmt`) ist optional - ohne die
 Bibliothek bleiben die Texte deutsch.

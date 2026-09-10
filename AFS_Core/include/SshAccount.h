@@ -16,10 +16,10 @@ public:
     const std::string& password() const;
 
     // Setter
-    void setName(const std::string& name);
-    void setUser(const std::string& user);
-    void setHost(const std::string& host);
-    void setPassword(const std::string& password);
+    void set_name(const std::string& name);
+    void set_user(const std::string& user);
+    void set_host(const std::string& host);
+    void set_password(const std::string& password);
 };
 
 } // namespace AFS_Core

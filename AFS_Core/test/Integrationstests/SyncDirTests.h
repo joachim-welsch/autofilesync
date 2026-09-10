@@ -6,8 +6,8 @@
 namespace SyncDirTests
 {
 #ifdef _UNIX
-    const std::wstring SourcePath = TestPaths::repoDir() + L"/test/resources/dir/";
-    const std::wstring TargetPath = TestPaths::scratchDir() + L"/dir";
+    const std::wstring SOURCE_PATH = TestPaths::repo_dir() + L"/test/resources/dir/";
+    const std::wstring TARGET_PATH = TestPaths::scratch_dir() + L"/dir";
 #else
 	const std::wstring SourcePath = L"C:\\Entwicklung\\autofilesync\\AFS_Core\\test\\resources\\dir\\";
 	const std::wstring TargetPath = L"C:\\temp\\test\\dir";

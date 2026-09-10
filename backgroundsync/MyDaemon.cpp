@@ -20,7 +20,7 @@ void MyDaemon::start() {
     }
     running_.store(true);
     Config::instance().read(L"/home/welschj/backgroundsync.json");
-    LOG_INFO(L"Daemon is running...");
+    log_info(L"Daemon is running...");
     workerThread_ = std::thread(&MyDaemon::run, this);
 }
 

@@ -27,9 +27,9 @@ using std::wstring_view;
 
 #ifdef WIN32
 namespace {
-// Liest aus dem Win32-Umgebungsblock statt aus dem CRT-Cache, damit auch zur
-// Laufzeit gesetzte Werte gesehen werden.
-std::wstring envVar(const wchar_t* name)
+// Reads the Win32 environment block instead of the CRT cache so that values
+// set at runtime are seen.
+std::wstring env_var(const wchar_t* name)
 {
 	DWORD len = GetEnvironmentVariableW(name, nullptr, 0);
 	if (len == 0)
@@ -41,28 +41,27 @@ std::wstring envVar(const wchar_t* name)
 }
 }
 
-std::wstring getDefaultLogFilePath()
+std::wstring get_default_log_file_path()
 {
-	// Wie unter Linux (~/.cache/autofilesync) gehoert das Log ins benutzereigene
-	// Datenverzeichnis, nicht nach %TEMP%: dort raeumen Bereinigungswerkzeuge es
-	// weg, und alle Benutzer der Maschine teilen sich denselben Dateinamen.
-	// Das Verzeichnis wird von Logging::createDir() bei Bedarf angelegt.
-	std::wstring base = envVar(L"LOCALAPPDATA");
+	// As on Linux (~/.cache/autofilesync) the log belongs in the user's own data
+	// directory, not in %TEMP%: cleanup tools purge that, and all users of the
+	// machine would share one file name. Logging::create_dir() creates it on demand.
+	std::wstring base = env_var(L"LOCALAPPDATA");
 	if (base.empty())
-		base = envVar(L"APPDATA");
+		base = env_var(L"APPDATA");
 	if (base.empty()) {
-		const std::wstring profile = envVar(L"USERPROFILE");
+		const std::wstring profile = env_var(L"USERPROFILE");
 		if (!profile.empty())
 			base = profile + L"\\AppData\\Local";
 	}
 	if (!base.empty())
 		return base + L"\\autofilesync\\autofilesync.log";
 
-	// Letzte Reserve, wenn die Umgebung voellig leer ist (Dienstkontext).
-	wchar_t tempPath[MAX_PATH];
-	DWORD len = GetTempPathW(MAX_PATH, tempPath);
+	// Last resort when the environment is completely empty (service context).
+	wchar_t temp_path[MAX_PATH];
+	DWORD len = GetTempPathW(MAX_PATH, temp_path);
 	if (len > 0 && len < MAX_PATH) {
-		return std::wstring(tempPath) + L"autofilesync.log";
+		return std::wstring(temp_path) + L"autofilesync.log";
 	}
 	return L"C:\\Temp\\autofilesync.log";
 }
@@ -71,21 +70,22 @@ std::wstring getDefaultLogFilePath()
 // (/home/welschj/temp/autofilesync.log) - the equivalent of this function
 // simply was never written for Linux/macOS, so it fell back to a literal
 // path that exists on exactly one machine. On any other install, logging
-// silently produced nothing (openFile() failing is now tolerated, not
+// silently produced nothing (open_file() failing is now tolerated, not
 // fixed) unless a config file already existed and happened to override it.
-std::wstring getDefaultLogFilePath()
+std::wstring get_default_log_file_path()
 {
 	const char* home = getenv("HOME");
 	if (!home)
 		return L"/tmp/autofilesync.log";
-	const char* xdgCache = getenv("XDG_CACHE_HOME");
-	std::string base = (xdgCache && *xdgCache) ? xdgCache : std::string(home) + "/.cache";
+	const char* xdg_cache = getenv("XDG_CACHE_HOME");
+	std::string base = (xdg_cache && *xdg_cache) ? xdg_cache : std::string(home) + "/.cache";
 	return string_to_wstring(base + "/autofilesync/autofilesync.log");
 }
 #endif
 
-Logging& Logging::instance() {
-	std::call_once(initInstanceFlag_, &Logging::initSingleton);
+Logging& Logging::instance()
+{
+	std::call_once(init_instance_flag_, &Logging::init_singleton);
 	if (!instance_) {
 		instance_.reset(new Logging);
 	}
@@ -93,22 +93,23 @@ Logging& Logging::instance() {
 }
 
 // Counts from the last enumerator, so the table below covers every level.
-// Leaving None out made logLevelStr(LogLevel::None) read past the end.
-constexpr int countEnumElements() {
+// Leaving None out made log_level_str(LogLevel::None) read past the end.
+constexpr int count_enum_elements()
+{
 	return static_cast<int>(LogLevel::None) + 1;
 }
 
-static std::array<std::string_view, countEnumElements()> LogLevelStr = {"Debug", "Info", "Warning", "Error", "FatalError", "None"};
+static constexpr std::array<std::string_view, count_enum_elements()> LOG_LEVEL_NAMES = {"Debug", "Info", "Warning", "Error", "FatalError", "None"};
 
 // How long the same fatal error stays silent after it was reported once.
-constexpr auto notifyRepeatInterval = std::chrono::minutes(30);
+constexpr auto NOTIFY_REPEAT_INTERVAL = std::chrono::minutes(30);
 
 Logging::~Logging()
 {
-	closeFile();
+	close_file();
 }
 
-void Logging::closeFile()
+void Logging::close_file()
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	if (fos_ != nullptr)
@@ -116,44 +117,44 @@ void Logging::closeFile()
 	fos_ = nullptr;
 }
 
-void createDir(const wstring& filePathName)
+void create_dir(const wstring& file_path_name)
 {
-	fs::path logPath(filePathName);
+	fs::path log_path(file_path_name);
 	// The error_code overload: a path whose parent conflicts with an existing
 	// non-directory file (bad user input, a stale file left where a directory
-	// should be) must not throw here - openFile() below already tolerates
+	// should be) must not throw here - open_file() below already tolerates
 	// fopen() failing afterward and must get the chance to.
 	std::error_code ec;
-	fs::create_directories(logPath.parent_path(), ec);
+	fs::create_directories(log_path.parent_path(), ec);
 }
 
-void Logging::openFile()
+void Logging::open_file()
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	if (fos_ != nullptr)
 		return;
-	createDir(filePathName_);
-	fos_=std::fopen(wstring_to_string(filePathName_).c_str(), "a");
+	create_dir(file_path_name_);
+	fos_=std::fopen(wstring_to_string(file_path_name_).c_str(), "a");
 	// Never throw: an invalid/unwritable path (bad user input in LoggingDialog,
 	// a directory removed since the last run) must not turn into an uncaught
-	// exception. setLogFilePathName() calls this after already closeFile()-ing
-	// the previous handle, and LogCut::closeFiles() calls it unconditionally
+	// exception. set_log_file_path_name() calls this after already close_file()-ing
+	// the previous handle, and LogCut::close_files() calls it unconditionally
 	// from MainWindow's constructor on every single startup - either path
 	// throwing would crash the whole application instead of just leaving
 	// logging disabled (write() already handles fos_ == nullptr gracefully).
 }
 
-void Logging::eraseFile()
+void Logging::erase_file()
 {
-	closeFile();
+	close_file();
 	{
 		std::lock_guard<std::mutex> lock(mutex_);
-		remove(wstring_to_string(filePathName_).c_str());
+		remove(wstring_to_string(file_path_name_).c_str());
 	}
-	openFile();
+	open_file();
 }
 
-LogLevel Logging::getFromString(const wstring_view& ll)
+LogLevel Logging::get_from_string(const wstring_view& ll)
 {
 	if (ll == L"Debug") return LogLevel::Debug;
 		else if (ll == L"Info") return LogLevel::Info;
@@ -170,10 +171,10 @@ LogLevel Logging::getFromString(const wstring_view& ll)
 std::string timestamp()
 {
 	using namespace std::chrono;
-	using clock = system_clock;
+	using Clock = system_clock;
 
-	const auto current_time_point{ clock::now() };
-	const auto current_time{ clock::to_time_t(current_time_point) };
+	const auto current_time_point{ Clock::now() };
+	const auto current_time{ Clock::to_time_t(current_time_point) };
 	#ifdef WIN32
 		std::tm current_localtime;
 		localtime_s(&current_localtime, &current_time);
@@ -191,45 +192,45 @@ std::string timestamp()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //Logging::Logging() 
-//	: os_(wstring_to_string(filePathName_), std::ios::app)
+//	: os_(wstring_to_string(file_path_name_), std::ios::app)
 //{
 //}
 
-void Logging::writeHead(std::ostream& os, LogLevel level)
+void Logging::write_head(std::ostream& os, LogLevel level)
 {
-	os << timestamp() << " " << Logging::logLevelStr(level) << '\t';
+	os << timestamp() << " " << Logging::log_level_str(level) << '\t';
 }
 
-std::wstring Logging::getLogFilePathName()
-{
-	std::lock_guard<std::mutex> lock(mutex_);
-	return filePathName_;
-}
-
-std::wstring Logging::getEditorPathName()
+std::wstring Logging::get_log_file_path_name()
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	return editorPathName_;
+	return file_path_name_;
 }
 
-std::string Logging::logLevelStr(LogLevel l)
+std::wstring Logging::get_editor_path_name()
 {
-	return LogLevelStr[static_cast<int>(l)].data();
+	std::lock_guard<std::mutex> lock(mutex_);
+	return editor_path_name_;
 }
 
-bool Logging::shouldLog(LogLevel level)
+std::string Logging::log_level_str(LogLevel l)
+{
+	return LOG_LEVEL_NAMES[static_cast<int>(l)].data();
+}
+
+bool Logging::should_log(LogLevel level)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	return static_cast<int>(level) >= static_cast<int>(Logging::level_);
 }
 
-LogLevel Logging::getLogLevel()
+LogLevel Logging::get_log_level()
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	return level_;
 }
 
-void Logging::setLogLevel(LogLevel plevel)
+void Logging::set_log_level(LogLevel plevel)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	if (level_ == plevel)
@@ -237,27 +238,27 @@ void Logging::setLogLevel(LogLevel plevel)
 	level_ = plevel;
 }
 
-void Logging::setLogFilePathName(const std::wstring& newLogPathname)
+void Logging::set_log_file_path_name(const std::wstring& new_log_pathname)
 {
 	{
 		std::lock_guard<std::mutex> lock(mutex_);
-		if (filePathName_ == newLogPathname)
+		if (file_path_name_ == new_log_pathname)
 			return;
 	}
-	closeFile();
+	close_file();
 	{
 		std::lock_guard<std::mutex> lock(mutex_);
-		filePathName_ = newLogPathname;
+		file_path_name_ = new_log_pathname;
 	}
-	openFile();
+	open_file();
 }
 
-void Logging::setEditorPathName(const std::wstring& newEditorPathname)
+void Logging::set_editor_path_name(const std::wstring& new_editor_pathname)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	if (editorPathName_ == newEditorPathname)
+	if (editor_path_name_ == new_editor_pathname)
 		return;
-	editorPathName_ = newEditorPathname;
+	editor_path_name_ = new_editor_pathname;
 }
 
 void Logging::log(LogLevel level, const std::wstring& msg)
@@ -265,13 +266,13 @@ void Logging::log(LogLevel level, const std::wstring& msg)
 	log(level, wstring_to_string(msg));
 }
 
-void Logging::writeToFile(const std::ostringstream& os)
+void Logging::write_to_file(const std::ostringstream& os)
 {
-	// Locked for the whole call: closeFile()/openFile() (log rotation, called
+	// Locked for the whole call: close_file()/open_file() (log rotation, called
 	// concurrently from GUI/worker threads) must not fclose() fos_ out from
 	// under an in-flight write, or this dereferences a dangling/null FILE*.
 	std::lock_guard<std::mutex> lock(mutex_);
-	if (!fileOpen())
+	if (!file_open())
 		return;
 	// Never throw from here: LOG_ macros run inside catch handlers and worker
 	// threads - an exception escaping them terminates the process exactly when
@@ -288,59 +289,59 @@ void Logging::writeToFile(const std::ostringstream& os)
 #endif
 }
 
-// Notified outside writeToFile(): that call holds mutex_, which every accessor
+// Notified outside write_to_file(): that call holds mutex_, which every accessor
 // below takes as well, and sending blocks on the network.
 void Logging::write(LogLevel level, const std::ostringstream& os)
 {
-	writeToFile(os);
+	write_to_file(os);
 	if (level == LogLevel::FatalError)
-		notifyFatal(os.str());
+		notify_fatal(os.str());
 }
 
-// Strips the timestamped head writeHead() put in front, so that the same error
+// Strips the timestamped head write_head() put in front, so that the same error
 // reported again is recognised as the same error.
-static string errorText(const string& logLine)
+static string error_text(const string& log_line)
 {
-	auto separator = logLine.find('\t');
-	return separator == string::npos ? logLine : logLine.substr(separator + 1);
+	auto separator = log_line.find('\t');
+	return separator == string::npos ? log_line : log_line.substr(separator + 1);
 }
 
-void Logging::notifyFatal(const string& logLine)
+void Logging::notify_fatal(const string& log_line)
 {
-	SmtpAccount account = smtpAccount();
+	SmtpAccount account = smtp_account();
 	if (!account.complete())
 		return;
-	const wstring recipient = notifyEmail();
-	if (!notifyEmailActive() || recipient.empty())
+	const wstring recipient = notify_email();
+	if (!notify_email_active() || recipient.empty())
 		return;
-	if (!notifyAgain(errorText(logLine)))
+	if (!notify_again(error_text(log_line)))
 		return;
 	// Sent synchronously although it delays the caller: a fatal error is often
 	// followed by the process going down, and a detached thread would be killed
 	// with it before the mail is on its way.
-	const string error = sendMail(account, recipient, L"autofilesync: schwerwiegender Fehler", logLine);
+	const string error = send_mail(account, recipient, L"autofilesync: schwerwiegender Fehler", log_line);
 	if (!error.empty())
 		log(LogLevel::Error, "Benachrichtigung an " + wstring_to_string(recipient) + " fehlgeschlagen: ", error);
 }
 
 // Identical errors repeat: the daemon retries the same failing sync every cycle
 // and would otherwise send one mail per cycle. A different error always passes.
-bool Logging::notifyAgain(const string& message)
+bool Logging::notify_again(const string& message)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	const auto now = std::chrono::steady_clock::now();
-	if (message == lastNotified_ && now - lastNotifyTime_ < notifyRepeatInterval)
+	if (message == last_notified_ && now - last_notify_time_ < NOTIFY_REPEAT_INTERVAL)
 		return false;
-	lastNotified_ = message;
-	lastNotifyTime_ = now;
+	last_notified_ = message;
+	last_notify_time_ = now;
 	return true;
 }
 
 void Logging::log(LogLevel level, const std::string& msg)
 {
-	if (shouldLog(level)) {
+	if (should_log(level)) {
 		std::ostringstream os;
-		writeHead(os, level);
+		write_head(os, level);
 		os << msg << std::endl;
 		write(level, os);
 	}
@@ -348,9 +349,9 @@ void Logging::log(LogLevel level, const std::string& msg)
 
 void Logging::log(LogLevel level, const std::string& msg, bool flag)
 {
-    if (shouldLog(level)) {
+    if (should_log(level)) {
         std::ostringstream os;
-        writeHead(os, level);
+        write_head(os, level);
         os << msg << std::boolalpha << flag << std::endl;
         write(level, os);
     }
@@ -358,9 +359,9 @@ void Logging::log(LogLevel level, const std::string& msg, bool flag)
 
 void Logging::log(LogLevel level, const std::string& msg, std::chrono::steady_clock::time_point tp)
 {
-    if (shouldLog(level)) {
+    if (should_log(level)) {
         std::ostringstream os;
-        writeHead(os, level);
+        write_head(os, level);
         using namespace std::chrono;
 		auto since_start = duration_cast<seconds>(tp.time_since_epoch()).count();
         os << msg << since_start << std::endl;
@@ -370,9 +371,9 @@ void Logging::log(LogLevel level, const std::string& msg, std::chrono::steady_cl
 
 void Logging::log(LogLevel level, const std::string& msg1, const std::string& msg2)
 {
-	if (shouldLog(level)) {
+	if (should_log(level)) {
 		std::ostringstream os;
-		writeHead(os, level);
+		write_head(os, level);
 		os << msg1 << msg2 << std::endl;
 		write(level, os);
 	}
@@ -380,9 +381,9 @@ void Logging::log(LogLevel level, const std::string& msg1, const std::string& ms
 
 void Logging::log(LogLevel level, const std::wstring& msg, const std::wstring& filename)
 {
-	if (shouldLog(level)) {
+	if (should_log(level)) {
 		std::ostringstream os;
-		writeHead(os, level);
+		write_head(os, level);
         os << wstring_to_string(msg) << " " << wstring_to_string(filename) << std::endl;
 		write(level, os);
 	}
@@ -390,39 +391,29 @@ void Logging::log(LogLevel level, const std::wstring& msg, const std::wstring& f
 
 void Logging::log(LogLevel level, const std::wstring& msg, const std::string& filename)
 {
-    if (shouldLog(level)) {
+    if (should_log(level)) {
 		std::ostringstream os;
-        writeHead(os, level);
+        write_head(os, level);
         os << wstring_to_string(msg) << " " << filename << std::endl;
 		write(level, os);
     }
 }
 
-void Logging::log(LogLevel level, const std::wstring& msg, const std::wstring& filename, const std::wstring& filename2)
+void Logging::log(LogLevel level, const std::wstring& msg1, const std::wstring& msg2, const std::wstring& msg3)
 {
-	if (shouldLog(level)) {
+    if (should_log(level)) {
 		std::ostringstream os;
-		writeHead(os, level);
-		os << wstring_to_string(msg) << " Dateien: " << wstring_to_string(filename) << ", " << wstring_to_string(filename2) << std::endl;
-		write(level, os);
-	}
-}
-
-void Logging::log3(LogLevel level, const std::wstring& msg1, const std::wstring& msg2, const std::wstring& msg3)
-{
-    if (shouldLog(level)) {
-		std::ostringstream os;
-        writeHead(os, level);
+        write_head(os, level);
         os << wstring_to_string(msg1) << " " << wstring_to_string(msg2) << " " << wstring_to_string(msg3) << std::endl;
 		write(level, os);
     }
 }
 
-void Logging::log4(LogLevel level, const std::wstring& msg1, const std::wstring& msg2, const std::wstring& msg3, const std::wstring& msg4)
+void Logging::log(LogLevel level, const std::wstring& msg1, const std::wstring& msg2, const std::wstring& msg3, const std::wstring& msg4)
 {
-    if (shouldLog(level)) {
+    if (should_log(level)) {
 		std::ostringstream os;
-        writeHead(os, level);
+        write_head(os, level);
         os << wstring_to_string(msg1) << " " << wstring_to_string(msg2) << " " << wstring_to_string(msg3) << " " << wstring_to_string(msg4) << std::endl;
 		write(level, os);
     }

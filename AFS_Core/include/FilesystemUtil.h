@@ -9,13 +9,13 @@ namespace FilesystemUtil
 {
 	enum class FileInfoResult { OK, FileNotExist, DriveNotMounted, CannotReadFileAttributes, InvalidFileTime, ErrorReadFileInfo };
 
-	bool fileExists(const std::wstring& StrFilename);
+	bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
-	std::wstring makeErrorMessage(FileInfoResult result);
+	std::wstring make_error_message(FileInfoResult result);
     bool touch(const std::wstring& fpathname);
-    std::optional<std::filesystem::path> isMountpoint(const std::filesystem::path& path);
-    std::optional<std::filesystem::path> getMountRoot(const std::filesystem::path& in);
-	std::string homeDir();
+    std::optional<std::filesystem::path> is_mountpoint(const std::filesystem::path& path);
+    std::optional<std::filesystem::path> get_mount_root(const std::filesystem::path& in);
+	std::string home_dir();
 }
 namespace fsu = FilesystemUtil;
 

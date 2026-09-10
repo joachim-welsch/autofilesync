@@ -118,7 +118,7 @@
     <ClCompile Include="..\..\src\MountedDrives.cpp" />
     <ClCompile Include="..\..\src\RecycleBin.cpp" />
     <ClCompile Include="..\..\src\StrUtil.cpp" />
-    <ClCompile Include="..\..\src\util.cpp" />
+    <ClCompile Include="..\..\src\Util.cpp" />
     <ClCompile Include="..\..\src\CheckPath.cpp" />
     <ClCompile Include="..\..\src\Config.cpp" />
     <ClCompile Include="..\..\src\Directory.cpp" />

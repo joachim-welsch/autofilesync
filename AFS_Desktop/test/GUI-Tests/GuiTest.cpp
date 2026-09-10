@@ -5,7 +5,7 @@
 #include "Config.h"
 #include "id.h"
 #include "ListCtrl.h"
-#include "util.h"
+#include "Util.h"
 #include "utilwx.h"
 #include <wx/app.h>
 #include <algorithm>
@@ -44,7 +44,7 @@ ApplicationState captureState()
     ApplicationState state;
     for (const auto& item : Config::instance().syncitems())
         state.syncItemNames.push_back(util::wstring_to_string(item.name()));
-    for (const auto& account : Config::instance().sshAccountsSnapshot())
+    for (const auto& account : Config::instance().ssh_accounts_snapshot())
         state.sshAccountNames.push_back(account.name());
     state.configFile = readFile(GuiTestSandbox::configFile());
     state.sourceEntries = entriesOf(GuiTestSandbox::sourceDir());

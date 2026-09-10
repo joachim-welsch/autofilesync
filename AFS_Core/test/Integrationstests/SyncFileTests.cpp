@@ -5,7 +5,7 @@
 #include "FilesystemUtil.h"
 #include "SyncFileTests.h"
 #include "Config.h"
-#include "util.h"
+#include "Util.h"
 #include <fstream>
 #ifndef _WIN32
 #include <unistd.h>
@@ -21,147 +21,147 @@ namespace fs = std::filesystem;
 TEST(SyncFileTests, CheckSyncNotExistingFile)
 {
 	Synchronize::create(SyncType::Single);
-    //Synchronize::instance().startLogging(LogLevel::Debug, L"C:\\temp\\test.log");
-    LOG_DEBUG(L"~~~ Start test: CheckSyncNotExistingFile");
+    //Synchronize::instance().start_logging(LogLevel::Debug, L"C:\\temp\\test.log");
+    log_debug(L"~~~ Start test: CheckSyncNotExistingFile");
 	SyncItem si;
-    si.syncCycle(0);
-	si.source(SourcePathName);
-	si.target(TargetDir);
-    tu::copyFile(ResourcePathName, SourcePathName);
+    si.sync_cycle(0);
+	si.source(SOURCE_PATH_NAME);
+	si.target(TARGET_DIR);
+    tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
     // Missing is the target *file*, not its directory: SyncFile copies into
     // an existing directory, so without this the test only passed on a scratch
     // area some earlier run had already created.
-    fs::create_directories(TargetDir);
-    tu::eraseTestFile(TargetPathName);
-	std::size_t copyCount = 0;
-	SyncFile test(si, copyCount, false, true);
+    fs::create_directories(TARGET_DIR);
+    tu::erase_test_file(TARGET_PATH_NAME);
+	std::size_t copy_count = 0;
+	SyncFile test(si, copy_count, false, true);
 	Synchronize::start();
 	test();
-    EXPECT_EQ(copyCount, 1);
-    EXPECT_TRUE(fs::exists(TargetPathName));
-	std::filesystem::remove(TargetPathName);
-    std::filesystem::remove(SourcePathName);
-    LOG_DEBUG(L"~~~ End test: CheckSyncNotExistingFile");
+    EXPECT_EQ(copy_count, 1);
+    EXPECT_TRUE(fs::exists(TARGET_PATH_NAME));
+	std::filesystem::remove(TARGET_PATH_NAME);
+    std::filesystem::remove(SOURCE_PATH_NAME);
+    log_debug(L"~~~ End test: CheckSyncNotExistingFile");
 }
 
 TEST(SyncFileTests, CheckNotSyncExistingFile)
 {
-	//LOG_DEBUG(L"~~~ Start test: CheckNotSyncExistingFile");
+	//log_debug(L"~~~ Start test: CheckNotSyncExistingFile");
 	Synchronize::start();
 	SyncItem si;
-    si.syncCycle(0);
-	si.source(SourcePathName);
-	si.target(TargetDir);
-    tu::copyFile(ResourcePathName, SourcePathName);
-    tu::copyFile(ResourcePathName, TargetPathName);
-	std::size_t copyCount = 0;
-	SyncFile test(si, copyCount, false, true);
+    si.sync_cycle(0);
+	si.source(SOURCE_PATH_NAME);
+	si.target(TARGET_DIR);
+    tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
+    tu::copy_file(RESOURCE_PATH_NAME, TARGET_PATH_NAME);
+	std::size_t copy_count = 0;
+	SyncFile test(si, copy_count, false, true);
 	test();
-	EXPECT_EQ(copyCount, 0);
-	std::filesystem::remove(TargetPathName);
-    std::filesystem::remove(SourcePathName);
+	EXPECT_EQ(copy_count, 0);
+	std::filesystem::remove(TARGET_PATH_NAME);
+    std::filesystem::remove(SOURCE_PATH_NAME);
 }
 
 TEST(SyncFileTests, CheckSyncChangedSizeFile)
 {
-	//LOG_DEBUG(L"~~~ Start test: CheckSyncChangedSizeFile");
+	//log_debug(L"~~~ Start test: CheckSyncChangedSizeFile");
 	// TODO CheckSyncChangedSizeFileSameSize
 	Synchronize::start();
 	SyncItem si;
-    si.syncCycle(0);
-	si.source(SourcePathName);
-	si.target(TargetDir);
+    si.sync_cycle(0);
+	si.source(SOURCE_PATH_NAME);
+	si.target(TARGET_DIR);
     CompareItems ci;
     ci.size(true);
-    si.compareItems(ci);
+    si.compare_items(ci);
     // Source must be the larger file: FileDifference only maps a size
     // difference to SourceModified (which copyToTarget acts on without extra
     // flags) when the source is bigger - a bigger destination means
-    // DestModified instead, which needs copyWhenTargetNewer() to copy.
-    tu::copyFile(LargerResourcePathName, SourcePathName);
-    tu::copyFile(ResourcePathName, TargetPathName);
-	std::size_t copyCount = 0;
-	SyncFile test(si, copyCount, false, true);
+    // DestModified instead, which needs copy_when_target_newer() to copy.
+    tu::copy_file(LARGER_RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
+    tu::copy_file(RESOURCE_PATH_NAME, TARGET_PATH_NAME);
+	std::size_t copy_count = 0;
+	SyncFile test(si, copy_count, false, true);
 	test();
-	EXPECT_EQ(copyCount, 1);
-	std::filesystem::remove(TargetPathName);
-	std::filesystem::remove(TargetPathName +L".bak");
-    std::filesystem::remove(SourcePathName);
+	EXPECT_EQ(copy_count, 1);
+	std::filesystem::remove(TARGET_PATH_NAME);
+	std::filesystem::remove(TARGET_PATH_NAME +L".bak");
+    std::filesystem::remove(SOURCE_PATH_NAME);
 }
 
 TEST(SyncFileTests, CheckSyncChangedFileTime)
 {
-    //LOG_DEBUG(L"~~~ Start test: CheckSyncChangedFileTime");
+    //log_debug(L"~~~ Start test: CheckSyncChangedFileTime");
     Synchronize::start();
     SyncItem si;
-    si.syncCycle(0);
-    si.source(SourcePathName);
-    si.target(TargetDir);
+    si.sync_cycle(0);
+    si.source(SOURCE_PATH_NAME);
+    si.target(TARGET_DIR);
     CompareItems ci;
 	ci.time(true);
-    si.compareItems(ci);
-    tu::copyFile(ResourcePathName, SourcePathName);
-    EXPECT_TRUE(tu::copySourceToDest(ResourcePathName, TargetPathName));
-    EXPECT_TRUE(fsu::touch(SourcePathName));
-    std::size_t copyCount = 0;
-    SyncFile test(si, copyCount, false, true);
+    si.compare_items(ci);
+    tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
+    EXPECT_TRUE(tu::copy_source_to_dest(RESOURCE_PATH_NAME, TARGET_PATH_NAME));
+    EXPECT_TRUE(fsu::touch(SOURCE_PATH_NAME));
+    std::size_t copy_count = 0;
+    SyncFile test(si, copy_count, false, true);
     test();
-    EXPECT_EQ(copyCount, 1);
-    std::filesystem::remove(SourcePathName);
-    std::filesystem::remove(TargetPathName);
-    std::filesystem::remove(TargetPathName + L".bak");
+    EXPECT_EQ(copy_count, 1);
+    std::filesystem::remove(SOURCE_PATH_NAME);
+    std::filesystem::remove(TARGET_PATH_NAME);
+    std::filesystem::remove(TARGET_PATH_NAME + L".bak");
 }
 
 TEST(SyncFileTests, CheckSyncDoNotChangeTargetDirWithFile)
 {
-    //LOG_DEBUG(L"~~~ Start test: CheckSyncDoNotChangeTargetDirWithFile");
+    //log_debug(L"~~~ Start test: CheckSyncDoNotChangeTargetDirWithFile");
     Synchronize::start();
     SyncItem si;
-    si.syncCycle(0);
-    si.source(SourcePathName);
-    si.target(TargetDir);
+    si.sync_cycle(0);
+    si.source(SOURCE_PATH_NAME);
+    si.target(TARGET_DIR);
     CompareItems ci;
     ci.time(true);
-    si.compareItems(ci);
-    tu::copyFile(ResourcePathName, SourcePathName);
-    EXPECT_TRUE(tu::copySourceToDest(ResourcePathName, TargetPathName));
-    EXPECT_TRUE(fsu::touch(SourcePathName));
-    std::size_t copyCount = 0;
-    SyncFile test(si, copyCount, false, true);
+    si.compare_items(ci);
+    tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
+    EXPECT_TRUE(tu::copy_source_to_dest(RESOURCE_PATH_NAME, TARGET_PATH_NAME));
+    EXPECT_TRUE(fsu::touch(SOURCE_PATH_NAME));
+    std::size_t copy_count = 0;
+    SyncFile test(si, copy_count, false, true);
     test();
-    EXPECT_EQ(copyCount, 1);
-    EXPECT_TRUE(fs::exists(TargetPathName));
-    std::filesystem::remove(SourcePathName);
-    std::filesystem::remove(TargetPathName);
-    std::filesystem::remove(TargetPathName + L".bak");
+    EXPECT_EQ(copy_count, 1);
+    EXPECT_TRUE(fs::exists(TARGET_PATH_NAME));
+    std::filesystem::remove(SOURCE_PATH_NAME);
+    std::filesystem::remove(TARGET_PATH_NAME);
+    std::filesystem::remove(TARGET_PATH_NAME + L".bak");
 }
 
 // Regression test: the "count files" pre-pass (onlyCount=true) must behave like
-// SyncBase::syncDirEntry() already does for Dir/Tree items - increment the
+// SyncBase::sync_dir_entry() already does for Dir/Tree items - increment the
 // counter without touching the filesystem. SyncFile::operator()() used to
-// ignore onlyCount_ entirely and perform the real copy immediately, so a
+// ignore only_count_ entirely and perform the real copy immediately, so a
 // single-file SyncItem's "count" pass wasn't a dry run at all.
 TEST(SyncFileTests, CheckOnlyCountDoesNotCopy)
 {
     Synchronize::start();
     SyncItem si;
-    si.syncCycle(0);
-    si.source(SourcePathName);
-    si.target(TargetDir);
-    tu::copyFile(ResourcePathName, SourcePathName);
-    tu::eraseTestFile(TargetPathName);
-    std::size_t copyCount = 0;
-    SyncFile test(si, copyCount, true, true); // onlyCount=true
+    si.sync_cycle(0);
+    si.source(SOURCE_PATH_NAME);
+    si.target(TARGET_DIR);
+    tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
+    tu::erase_test_file(TARGET_PATH_NAME);
+    std::size_t copy_count = 0;
+    SyncFile test(si, copy_count, true, true); // onlyCount=true
     test();
-    EXPECT_EQ(copyCount, 1); // still counted as "needs sync" ...
-    EXPECT_FALSE(fs::exists(TargetPathName)); // ... but nothing was actually copied
-    std::filesystem::remove(SourcePathName);
+    EXPECT_EQ(copy_count, 1); // still counted as "needs sync" ...
+    EXPECT_FALSE(fs::exists(TARGET_PATH_NAME)); // ... but nothing was actually copied
+    std::filesystem::remove(SOURCE_PATH_NAME);
 }
-// Regression test (Fehler 1, round 4): saveCopyFile() used to "return true"
+// Regression test (Fehler 1, round 4): save_copy_file() used to "return true"
 // for ANY SSH copy result before evaluating it, so a failed or aborted SSH
 // transfer was reported as success - the pre-copy .bak rename was never rolled
 // back (destination replaced by nothing/a truncated file) and callers went on
-// to e.g. delete the source (delAftercopy). Only the content verification may
+// to e.g. delete the source (del_aftercopy). Only the content verification may
 // be skipped for SSH, not the error handling.
 TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)
 {
@@ -169,24 +169,24 @@ TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)
     // Account with an empty host: the connect fails immediately and locally,
     // keeping the test deterministic without network or DNS.
     SshAccount acc;
-    acc.setName("afx_bad_ssh");
-    acc.setHost("");
-    acc.setUser("nobody");
-    acc.setPassword("x");
+    acc.set_name("afx_bad_ssh");
+    acc.set_host("");
+    acc.set_user("nobody");
+    acc.set_password("x");
     Config::instance().add(acc, true);
 
-    fs::create_directories(TargetDir);
-    const std::wstring dest = TargetDir + L"ssh_dest.txt";
+    fs::create_directories(TARGET_DIR);
+    const std::wstring dest = TARGET_DIR + L"ssh_dest.txt";
     std::ofstream(util::wstring_to_string(dest)) << "original";
     const std::wstring source = L"afx_bad_ssh:/nonexistent/src.txt";
 
     SyncItem si;
-    si.syncCycle(0);
+    si.sync_cycle(0);
     si.source(source); // parses to an SshPath because the account exists
     si.target(dest);
-    std::size_t copyCount = 0;
-    SyncFile sf(si, copyCount);
-    EXPECT_FALSE(sf.testSaveCopyFile(source, dest));
+    std::size_t copy_count = 0;
+    SyncFile sf(si, copy_count);
+    EXPECT_FALSE(sf.test_save_copy_file(source, dest));
     ASSERT_TRUE(fs::exists(dest)); // .bak rolled back over the destination
     {
         // Eigener Block: Windows verweigert das Loeschen einer noch geoeffneten
@@ -199,9 +199,9 @@ TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)
     EXPECT_FALSE(fs::exists(dest + L".bak"));
 
     std::filesystem::remove(dest);
-    auto accounts = Config::instance().sshAccountsSnapshot();
+    auto accounts = Config::instance().ssh_accounts_snapshot();
     for (std::size_t i = 0; i < accounts.size(); ++i)
-        if (accounts[i].name() == "afx_bad_ssh") { Config::instance().removeSshAccount(i); break; }
+        if (accounts[i].name() == "afx_bad_ssh") { Config::instance().remove_ssh_account(i); break; }
 }
 
 // Reaches the file-local helper in SyncFile.cpp; no header declares it. The
@@ -212,7 +212,7 @@ namespace AFS_Core { void set_last_write_time(const fs::path& fn, const fs::file
 // Regression test (Fehler 3, round 4): set_last_write_time() retried in a
 // "do { ... } while (ec)" loop with no exit condition. A persistent error
 // (target drive unplugged, file deleted) spun the sync thread forever in
-// 100ms sleeps; SyncControler::stopSync() then busy-waited on it from the
+// 100ms sleeps; SyncControler::stop_sync() then busy-waited on it from the
 // GUI thread, freezing the application on shutdown. The retry loop must be
 // bounded and give up on persistent errors.
 TEST(SyncFileTests, SetLastWriteTimeGivesUpOnPersistentError)
@@ -224,11 +224,11 @@ TEST(SyncFileTests, SetLastWriteTimeGivesUpOnPersistentError)
     EXPECT_LT(elapsed.count(), 10); // bounded (~1s with 10 x 100ms retries), not an endless loop
 }
 
-// Regression test (Fehler 10, round 5): copyDestToSource() called both
-// set_last_write_time() (which already calls waitForUpdatedFiletime()
-// internally by default) AND waitForUpdatedFiletime() again explicitly right
+// Regression test (Fehler 10, round 5): copy_dest_to_source() called both
+// set_last_write_time() (which already calls wait_for_updated_filetime()
+// internally by default) AND wait_for_updated_filetime() again explicitly right
 // after - doubling the wait for every two-way-sync back-copy (up to ~20s
-// instead of ~10s in the worst case). copySourceToDest() has no such issue -
+// instead of ~10s in the worst case). copy_source_to_dest() has no such issue -
 // it uses the plain util::set_last_write_time(), which never waits.
 TEST(SyncFileTests, CopyDestToSourceDoesNotDoubleWaitForFiletime)
 {
@@ -236,22 +236,22 @@ TEST(SyncFileTests, CopyDestToSourceDoesNotDoubleWaitForFiletime)
     const fs::path base = fs::temp_directory_path() / ("autofilesync_synctest_" + std::to_string(getpid()));
     fs::remove_all(base);
     fs::create_directories(base);
-    const std::wstring srcPath = (base / "src.txt").wstring();
-    const std::wstring destPath = (base / "dest.txt").wstring();
-    std::ofstream(util::wstring_to_string(srcPath)) << "old content";
-    std::ofstream(util::wstring_to_string(destPath)) << "new content";
+    const std::wstring src_path = (base / "src.txt").wstring();
+    const std::wstring dest_path = (base / "dest.txt").wstring();
+    std::ofstream(util::wstring_to_string(src_path)) << "old content";
+    std::ofstream(util::wstring_to_string(dest_path)) << "new content";
 
     SyncItem si;
-    si.syncCycle(0);
-    si.source(srcPath);
-    si.target(destPath);
-    std::size_t copyCount = 0;
-    SyncFile sf(si, copyCount);
+    si.sync_cycle(0);
+    si.source(src_path);
+    si.target(dest_path);
+    std::size_t copy_count = 0;
+    SyncFile sf(si, copy_count);
 
-    waitForUpdatedFiletimeCallCount = 0;
-    sf.testCopyDestToSource(destPath, srcPath, 0);
-    EXPECT_EQ(waitForUpdatedFiletimeCallCount.load(), 1);
-    EXPECT_EQ(copyCount, 1u);
+    wait_for_updated_filetime_call_count = 0;
+    sf.test_copy_dest_to_source(dest_path, src_path, 0);
+    EXPECT_EQ(wait_for_updated_filetime_call_count.load(), 1);
+    EXPECT_EQ(copy_count, 1u);
 
     fs::remove_all(base);
 }
@@ -260,7 +260,7 @@ TEST(SyncFileTests, CopyDestToSourceDoesNotDoubleWaitForFiletime)
 // runtime_error base instead of the real message, so every catch site
 // logging ex.what() (there is no dedicated catch(SyncException&) anywhere -
 // it's always caught via catch(std::exception&) or catch(...)) silently
-// dropped the actual diagnostic moveFileToBackup() had built (which file,
+// dropped the actual diagnostic move_file_to_backup() had built (which file,
 // which underlying rename error).
 TEST(SyncFileTests, SyncExceptionWhatReturnsTheRealMessage)
 {
@@ -277,28 +277,28 @@ protected:
     void SetUp() override
     {
         Synchronize::start();
-        fs::create_directories(SourcePath);
-        fs::create_directories(TargetDir);
-        tu::eraseTestFile(SourcePathName);
-        tu::eraseTestFile(TargetPathName);
-        std::ofstream(util::wstring_to_string(SourcePathName)).close(); // 0 Bytes
-        ASSERT_TRUE(fs::exists(SourcePathName));
-        ASSERT_EQ(fs::file_size(SourcePathName), 0u);
+        fs::create_directories(SOURCE_PATH);
+        fs::create_directories(TARGET_DIR);
+        tu::erase_test_file(SOURCE_PATH_NAME);
+        tu::erase_test_file(TARGET_PATH_NAME);
+        std::ofstream(util::wstring_to_string(SOURCE_PATH_NAME)).close(); // 0 Bytes
+        ASSERT_TRUE(fs::exists(SOURCE_PATH_NAME));
+        ASSERT_EQ(fs::file_size(SOURCE_PATH_NAME), 0u);
     }
 
     void TearDown() override
     {
-        tu::eraseTestFile(SourcePathName);
-        tu::eraseTestFile(TargetPathName);
+        tu::erase_test_file(SOURCE_PATH_NAME);
+        tu::erase_test_file(TARGET_PATH_NAME);
     }
 
     SyncItem item() const
     {
         SyncItem si;
-        si.syncCycle(0);
-        si.syncItemType(SyncItemType::File);
-        si.source(SourcePathName);
-        si.target(TargetPathName);
+        si.sync_cycle(0);
+        si.sync_item_type(SyncItemType::File);
+        si.source(SOURCE_PATH_NAME);
+        si.target(TARGET_PATH_NAME);
         return si;
     }
 };
@@ -310,11 +310,11 @@ protected:
 TEST_F(EmptyFileTest, EmptySourceFileIsNotCopiedByDefault)
 {
     SyncItem si = item();
-    ASSERT_FALSE(si.syncEmptyFiles());
-    std::size_t copyCount = 0;
-    SyncFile(si, copyCount)();
+    ASSERT_FALSE(si.sync_empty_files());
+    std::size_t copy_count = 0;
+    SyncFile(si, copy_count)();
 
-    EXPECT_FALSE(fs::exists(TargetPathName))
+    EXPECT_FALSE(fs::exists(TARGET_PATH_NAME))
         << "ohne das Flag darf eine leere Quelldatei das Ziel nicht erreichen";
 }
 
@@ -323,26 +323,26 @@ TEST_F(EmptyFileTest, EmptySourceFileIsNotCopiedByDefault)
 TEST_F(EmptyFileTest, SyncEmptyFilesCopiesTheEmptySourceFile)
 {
     SyncItem si = item();
-    si.syncEmptyFiles(true);
-    std::size_t copyCount = 0;
-    SyncFile(si, copyCount)();
+    si.sync_empty_files(true);
+    std::size_t copy_count = 0;
+    SyncFile(si, copy_count)();
 
-    ASSERT_TRUE(fs::exists(TargetPathName));
-    EXPECT_EQ(fs::file_size(TargetPathName), 0u);
-    EXPECT_EQ(copyCount, 1u) << "die kopierte Datei muss auch gezaehlt werden";
+    ASSERT_TRUE(fs::exists(TARGET_PATH_NAME));
+    EXPECT_EQ(fs::file_size(TARGET_PATH_NAME), 0u);
+    EXPECT_EQ(copy_count, 1u) << "die kopierte Datei muss auch gezaehlt werden";
 }
 
 // Der gefaehrliche Fall: die Quelle ist leer, das Ziel nicht. Ohne das Flag
 // bleibt der Zielinhalt erhalten - das ist der eigentliche Zweck der Vorgabe.
 TEST_F(EmptyFileTest, EmptySourceDoesNotWipeANonEmptyTargetByDefault)
 {
-    std::ofstream(util::wstring_to_string(TargetPathName)) << "wertvoller Inhalt";
+    std::ofstream(util::wstring_to_string(TARGET_PATH_NAME)) << "wertvoller Inhalt";
     SyncItem si = item();
-    std::size_t copyCount = 0;
-    SyncFile(si, copyCount)();
+    std::size_t copy_count = 0;
+    SyncFile(si, copy_count)();
 
-    ASSERT_TRUE(fs::exists(TargetPathName));
-    EXPECT_GT(fs::file_size(TargetPathName), 0u)
+    ASSERT_TRUE(fs::exists(TARGET_PATH_NAME));
+    EXPECT_GT(fs::file_size(TARGET_PATH_NAME), 0u)
         << "eine leere Quelle darf einen vorhandenen Zielinhalt nicht loeschen";
 }
 
@@ -351,24 +351,24 @@ TEST_F(EmptyFileTest, EmptySourceDoesNotWipeANonEmptyTargetByDefault)
 // gewollt und hier festgehalten, damit die Tragweite des Flags dokumentiert ist.
 TEST_F(EmptyFileTest, SyncEmptyFilesReplacesANonEmptyTarget)
 {
-    std::ofstream(util::wstring_to_string(TargetPathName)) << "wird ersetzt";
+    std::ofstream(util::wstring_to_string(TARGET_PATH_NAME)) << "wird ersetzt";
     SyncItem si = item();
-    si.syncEmptyFiles(true);
-    std::size_t copyCount = 0;
-    SyncFile(si, copyCount)();
+    si.sync_empty_files(true);
+    std::size_t copy_count = 0;
+    SyncFile(si, copy_count)();
 
-    ASSERT_TRUE(fs::exists(TargetPathName));
-    EXPECT_EQ(fs::file_size(TargetPathName), 0u);
+    ASSERT_TRUE(fs::exists(TARGET_PATH_NAME));
+    EXPECT_EQ(fs::file_size(TARGET_PATH_NAME), 0u);
 }
 
 // Zaehlmodus fasst nichts an, auch nicht mit eingeschaltetem Flag.
 TEST_F(EmptyFileTest, OnlyCountDoesNotCopyTheEmptyFile)
 {
     SyncItem si = item();
-    si.syncEmptyFiles(true);
-    std::size_t copyCount = 0;
-    SyncFile(si, copyCount, true)();
+    si.sync_empty_files(true);
+    std::size_t copy_count = 0;
+    SyncFile(si, copy_count, true)();
 
-    EXPECT_EQ(copyCount, 1u);
-    EXPECT_FALSE(fs::exists(TargetPathName));
+    EXPECT_EQ(copy_count, 1u);
+    EXPECT_FALSE(fs::exists(TARGET_PATH_NAME));
 }

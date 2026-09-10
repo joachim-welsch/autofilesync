@@ -1,7 +1,7 @@
 ﻿#include "LoggingDialog.h"
 #include "Logging.h"
 #include "id.h"
-#include "util.h"
+#include "Util.h"
 #include "Config.h"
 #include "LogCut.h"
 #include <wx/dirdlg.h>
@@ -162,7 +162,7 @@ void LoggingDialog::onNotifyActiveChanged(wxCommandEvent&)
 
 // Offers directories, not files: the setting names the directory the proofs go
 // into, one file per sync item. A directory that does not exist yet is allowed
-// - writeBackupProof() creates it, and the dialog can create it here as well.
+// - writeCopyLog() creates it, and the dialog can create it here as well.
 void LoggingDialog::onPickBackupProofPath(wxCommandEvent&)
 {
     wxString startDir = backupProofPathBox_->GetValue();
@@ -191,15 +191,15 @@ LoggingDialog::~LoggingDialog()
 
 bool LoggingDialog::TransferDataToWindow()
 {
-    logPathBox_->SetValue(Logging::instance().getLogFilePathName());
-    int sel = static_cast<int>(Logging::instance().getLogLevel());
+    logPathBox_->SetValue(Logging::instance().get_log_file_path_name());
+    int sel = static_cast<int>(Logging::instance().get_log_level());
     logLevelListbox_->SetSelection(sel);
-    retentionDaysCtrl_->SetValue(Logging::instance().retentionDays());
-    editPathBox_->SetValue(Logging::instance().getEditorPathName());
-    backupProofPathBox_->SetValue(Config::instance().settings().backupProofPath());
-    emailActiveCheck_->SetValue(Logging::instance().notifyEmailActive());
-    emailBox_->SetValue(Logging::instance().notifyEmail());
-    const SmtpAccount smtp = Logging::instance().smtpAccount();
+    retentionDaysCtrl_->SetValue(Logging::instance().retention_days());
+    editPathBox_->SetValue(Logging::instance().get_editor_path_name());
+    backupProofPathBox_->SetValue(Config::instance().settings().backup_proof_path());
+    emailActiveCheck_->SetValue(Logging::instance().notify_email_active());
+    emailBox_->SetValue(Logging::instance().notify_email());
+    const SmtpAccount smtp = Logging::instance().smtp_account();
     smtpServerBox_->SetValue(smtp.server);
     smtpPortCtrl_->SetValue(smtp.port);
     smtpUserBox_->SetValue(smtp.user);
@@ -213,40 +213,40 @@ bool LoggingDialog::TransferDataFromWindow()
 {
     bool changed = false;
     auto& li = Logging::instance();
-	if (li.getLogFilePathName() != logPathBox_->GetValue().ToStdWstring()) {
-		li.setLogFilePathName(logPathBox_->GetValue().ToStdWstring());
+	if (li.get_log_file_path_name() != logPathBox_->GetValue().ToStdWstring()) {
+		li.set_log_file_path_name(logPathBox_->GetValue().ToStdWstring());
 		changed = true;
 	}
-	if (li.getLogLevel() != static_cast<LogLevel>(logLevelListbox_->GetSelection())) {
-		li.setLogLevel(static_cast<LogLevel>(logLevelListbox_->GetSelection()));
+	if (li.get_log_level() != static_cast<LogLevel>(logLevelListbox_->GetSelection())) {
+		li.set_log_level(static_cast<LogLevel>(logLevelListbox_->GetSelection()));
 		changed = true;
 	}
-	auto lastRD = li.retentionDays();
-	if (li.retentionDays() != retentionDaysCtrl_->GetValue()) {
-		li.retentionDays(retentionDaysCtrl_->GetValue());
+	auto lastRD = li.retention_days();
+	if (li.retention_days() != retentionDaysCtrl_->GetValue()) {
+		li.retention_days(retentionDaysCtrl_->GetValue());
 		if (lastRD > retentionDaysCtrl_->GetValue()) {
 			LogCut logCut;
 			logCut();
 		}
 		changed = true;
 	}
-    if (li.getEditorPathName() != editPathBox_->GetValue().ToStdWstring()) {
-        li.setEditorPathName(editPathBox_->GetValue().ToStdWstring());
+    if (li.get_editor_path_name() != editPathBox_->GetValue().ToStdWstring()) {
+        li.set_editor_path_name(editPathBox_->GetValue().ToStdWstring());
         changed = true;
     }
     // Not part of Logging: the proofs are the application's own artefact, and
     // Logging is the shared library the daemon logs through as well.
     Settings& settings = Config::instance().settings();
-    if (settings.backupProofPath() != backupProofPathBox_->GetValue().ToStdWstring()) {
-        settings.backupProofPath(backupProofPathBox_->GetValue().ToStdWstring());
+    if (settings.backup_proof_path() != backupProofPathBox_->GetValue().ToStdWstring()) {
+        settings.backup_proof_path(backupProofPathBox_->GetValue().ToStdWstring());
         changed = true;
     }
-    if (li.notifyEmailActive() != emailActiveCheck_->IsChecked()) {
-        li.notifyEmailActive(emailActiveCheck_->IsChecked());
+    if (li.notify_email_active() != emailActiveCheck_->IsChecked()) {
+        li.notify_email_active(emailActiveCheck_->IsChecked());
         changed = true;
     }
-    if (li.notifyEmail() != emailBox_->GetValue().ToStdWstring()) {
-        li.notifyEmail(emailBox_->GetValue().ToStdWstring());
+    if (li.notify_email() != emailBox_->GetValue().ToStdWstring()) {
+        li.notify_email(emailBox_->GetValue().ToStdWstring());
         changed = true;
     }
     // Compared as a whole: the account is stored as one value, so a per-field
@@ -257,12 +257,12 @@ bool LoggingDialog::TransferDataFromWindow()
     smtp.user = smtpUserBox_->GetValue().ToStdWstring();
     smtp.password = smtpPasswordBox_->GetValue().ToStdWstring();
     smtp.from = smtpFromBox_->GetValue().Trim().Trim(false).ToStdWstring();
-    if (li.smtpAccount() != smtp) {
-        li.smtpAccount(smtp);
+    if (li.smtp_account() != smtp) {
+        li.smtp_account(smtp);
         changed = true;
     }
     if (changed)
-        Config::instance().setChanged();
+        Config::instance().set_changed();
     return true;
 }
 

@@ -8,6 +8,6 @@ namespace AFS_Core {
 // that belongs to the user goes through here; our own temporary files (backups,
 // half-copied targets, the config temp file) are removed directly, they have
 // nothing to recover.
-bool deleteFile(const std::wstring& pathname);
+bool delete_file(const std::wstring& pathname);
 
 } // namespace AFS_Core

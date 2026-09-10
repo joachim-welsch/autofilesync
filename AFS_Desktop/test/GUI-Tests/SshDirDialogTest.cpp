@@ -30,10 +30,10 @@ constexpr std::array<const char*, 3> kSortProbeFilesUnsorted = {"zeta.txt", "alp
 SshAccount testAccount()
 {
     SshAccount account;
-    account.setName("guitest-sshdirdialog");
-    account.setHost(kTestHost);
-    account.setUser(kTestUser);
-    account.setPassword(kTestPassword);
+    account.set_name("guitest-sshdirdialog");
+    account.set_host(kTestHost);
+    account.set_user(kTestUser);
+    account.set_password(kTestPassword);
     return account;
 }
 
@@ -51,7 +51,7 @@ public:
         ssh_options_set(session_, SSH_OPTIONS_USER, kTestUser);
         if (ssh_connect(session_) != SSH_OK)
             throw std::runtime_error(ssh_get_error(session_));
-        if (!verifySshHostKey(session_, kTestHost))
+        if (!verify_ssh_host_key(session_, kTestHost))
             throw std::runtime_error("Host-Key-Pruefung fehlgeschlagen");
         if (ssh_userauth_password(session_, nullptr, kTestPassword) != SSH_AUTH_SUCCESS)
             throw std::runtime_error(ssh_get_error(session_));
@@ -145,7 +145,7 @@ protected:
 TEST_F(SshDirDialogTest, HomeButtonNavigatesToLoginDirectory)
 {
     const SshAccount account = testAccount();
-    const wxString expectedHome = wxString::FromUTF8(SshDirInspector(account).getHomeDir());
+    const wxString expectedHome = wxString::FromUTF8(SshDirInspector(account).get_home_dir());
 
     ModalDialogWatcher::instance().expect(L"SSH-Verzeichnis wählen", [&](wxDialog& dialog) {
         wxWindow* homeButton = find(dialog, ID_SSH_DIR_HOME_BUTTON);

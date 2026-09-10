@@ -2,7 +2,7 @@
 #include "CheckPath.h"
 #include <sstream>
 #include "Logging.h"
-#include "util.h"
+#include "Util.h"
 #include "MountedDrives.h"
 #include "Config.h"
 #include "SshAccount.h"
@@ -18,248 +18,204 @@ using std::wstring;
 namespace fs = std::filesystem;
 
 namespace {
-    constexpr uint16_t kBaseInterval = 2;
-    // Erreichbar: selten nachpruefen ist billig und aendert nichts am Ergebnis.
-    constexpr uint16_t kMaxIntervalReachable = 3600;
-    // Nicht erreichbar: hier muss die Pruefung zeitnah wiederkommen. Mit einer
-    // Stunde Backoff bleibt der Sync nach einem spaeten Mount (Boot-Race) oder
-    // einem Netzwechsel noch lange blind, obwohl das Ziel laengst wieder da ist.
-    constexpr uint16_t kMaxIntervalUnreachable = 300;
+    constexpr uint16_t BASE_INTERVAL = 2;
+    // Reachable: re-checking rarely is cheap and does not change the outcome.
+    constexpr uint16_t MAX_INTERVAL_REACHABLE = 3600;
+    // Unreachable: the check has to come back soon. With an hour of backoff the
+    // sync would stay blind long after a late mount (boot race) or a network
+    // change brought the target back.
+    constexpr uint16_t MAX_INTERVAL_UNREACHABLE = 300;
 
-    // Ein Pfad gehoert zu einer SSH-Verbindung, wenn vor dem ersten Doppelpunkt
-    // der Name eines konfigurierten Kontos steht. Ein Laufwerksbuchstabe
-    // ("C:\...") sieht aehnlich aus, findet aber kein Konto.
-    std::optional<SshAccount> sshAccountOfPath(const wstring& path, wstring& remotePath)
+    // A path belongs to an SSH connection if the text before the first colon is
+    // the name of a configured account. A drive letter ("C:\...") looks similar
+    // but finds no account.
+    std::optional<SshAccount> ssh_account_of_path(const wstring& path, wstring& remote_path)
     {
-        const auto colonPos = path.find(L':');
-        if (colonPos == wstring::npos || colonPos == 0)
+        const auto colon_pos = path.find(L':');
+        if (colon_pos == wstring::npos || colon_pos == 0)
             return std::nullopt;
-        const wstring accountName = path.substr(0, colonPos);
-        auto account = Config::instance().findSshAccountByName(wstring_to_string(accountName));
+        const wstring account_name = path.substr(0, colon_pos);
+        auto account = Config::instance().find_ssh_account_by_name(wstring_to_string(account_name));
         if (!account.has_value())
             return std::nullopt;
-        remotePath = path.substr(colonPos + 1);
+        remote_path = path.substr(colon_pos + 1);
         return account;
     }
 }
 
-bool pathContainsVolumeName(const wstring& path)
+bool path_contains_volume_name(const wstring& path)
 {
-	LOG_DEBUG(L"pathContainsVolumeName: " + path);
-	auto openParenthesisPos = path.find(L"(");
-	auto colonPos = path.find(L":");
-    bool retval = openParenthesisPos != wstring::npos && colonPos != wstring::npos && openParenthesisPos < colonPos;
+	log_debug(L"path_contains_volume_name: " + path);
+	auto open_parenthesis_pos = path.find(L"(");
+	auto colon_pos = path.find(L":");
+    bool retval = open_parenthesis_pos != wstring::npos && colon_pos != wstring::npos && open_parenthesis_pos < colon_pos;
     if (retval)
-        LOG_DEBUG(L"pathContainsVolumeName returns true")
+        log_debug(L"path_contains_volume_name returns true");
     else
-        LOG_DEBUG(L"pathContainsVolumeName returns false")
+        log_debug(L"path_contains_volume_name returns false");
     return retval;
 }
 
-wstring volumeName(const wstring& path)
+wstring volume_name(const wstring& path)
 {
-    LOG_DEBUG(L"volumeName() " + path);
+    log_debug(L"volume_name() " + path);
 	wstring retval;
-    if (pathContainsVolumeName(path)) {
+    if (path_contains_volume_name(path)) {
 		retval = path.substr(0, path.find(L"(") - 1);
 	}
 	return retval;
 }
 
-uint16_t nextCheckInterval(uint16_t previousInterval, bool repeatsPreviousResult, bool reachable)
+uint16_t next_check_interval(uint16_t previous_interval, bool repeats_previous_result, bool reachable)
 {
-    if (!repeatsPreviousResult)
-        return kBaseInterval;
-    const uint16_t maxInterval = reachable ? kMaxIntervalReachable : kMaxIntervalUnreachable;
-    const uint32_t doubled = static_cast<uint32_t>(previousInterval) * 2u;
-    return doubled > maxInterval ? maxInterval : static_cast<uint16_t>(doubled);
+    if (!repeats_previous_result)
+        return BASE_INTERVAL;
+    const uint16_t max_interval = reachable ? MAX_INTERVAL_REACHABLE : MAX_INTERVAL_UNREACHABLE;
+    const uint32_t doubled = static_cast<uint32_t>(previous_interval) * 2u;
+    return doubled > max_interval ? max_interval : static_cast<uint16_t>(doubled);
 }
 
-bool CheckPath::pathExists(const wstring& pathname, bool mustExist) const
+bool CheckPath::path_exists(const wstring& pathname, bool must_exist) const
 {
-    LOG_DEBUG(L"drivesExists()");
+    log_debug(L"drivesExists()");
 #ifdef _UNIX
-    (void)mustExist;
-    fs::path path(pathname);
-    // Wenn es eine Datei ist, nehme das Eltern-Verzeichnis
-    if (fs::is_regular_file(path)) {
-        path = path.parent_path();
-    }
-    // Prüfe ob der Pfad existiert (entweder Mountpoint oder regulärer Pfad)
-    auto mountResult = fsu::isMountpoint(path);
-    if (mountResult.has_value()) {
-        // Es ist ein Mountpoint - prüfe ob er gemountet ist
-        return fs::exists(path);
-    }
-    // Kein Mountpoint - prüfe ob der Pfad existiert und zugänglich ist
-    return fs::exists(path);
+    (void)must_exist;
+    std::error_code ec;
+    return fs::exists(pathname, ec);
 #else
-    const wstring driveName = rootName(pathname);
-    if (pathContainsVolumeName(pathname) && !volumeExists(driveName, volumeName(pathname)))
+    const wstring drive_name = root_name(pathname);
+    if (path_contains_volume_name(pathname) && !volume_exists(drive_name, volume_name(pathname)))
         return false;
-    // driveExists() only ever saw the drive letter, never the path itself: a
+    // drive_exists() only ever saw the drive letter, never the path itself: a
     // source folder deleted underneath an existing drive still counted as
     // reachable, so the pass fell through to SyncDir, whose exception got
     // reported unconditionally on every single pass instead of once (see
-    // BackupProofTest.UnreachableSourceIsProvenOnceNotOncePerPass). A target
+    // CopyLogTest.UnreachableSourceIsProvenOnceNotOncePerPass). A target
     // still has to be allowed to not exist yet - SyncDir/SyncTree create it.
-    if (!mustExist)
-        return ::driveExists(driveName);
+    if (!must_exist)
+        return ::drive_exists(drive_name);
     std::error_code ec;
-    return fs::exists(withoutVolumeSpec(pathname), ec);
+    return fs::exists(without_volume_spec(pathname), ec);
 #endif
 }
 
-bool CheckPath::sshPathReachable(const wstring& pathname, bool mustExist) const
+bool CheckPath::ssh_path_reachable(const wstring& pathname, bool must_exist) const
 {
-    LOG_DEBUG(L"sshPathReachable: " + pathname);
-    wstring remotePath;
-    auto account = sshAccountOfPath(pathname, remotePath);
+    log_debug(L"ssh_path_reachable: " + pathname);
+    wstring remote_path;
+    auto account = ssh_account_of_path(pathname, remote_path);
     if (!account.has_value()) {
-        // Kein Konto zu diesem Praefix: der Pfad laesst sich nicht aufloesen,
-        // also ist auch nichts erreichbar.
-        LOG_ERROR(L"SSH-Account nicht gefunden fuer: " + pathname);
+        // No account for this prefix: the path cannot be resolved, so nothing is reachable.
+        log_error(L"SSH-Account nicht gefunden fuer: " + pathname);
         return false;
     }
     try {
-        // Der Konstruktor verbindet, prueft den Host-Key und meldet sich an und
-        // wirft, wenn davon etwas scheitert. Das ist die Entsprechung zum
-        // "Laufwerk ist gemountet" der lokalen Pruefung.
+        // The constructor connects, verifies the host key and logs in; it throws
+        // if any of that fails. This is the SSH counterpart of "drive is mounted".
         SshFileInspector inspector(account.value());
-        if (!mustExist)
+        if (!must_exist)
             return true;
-        // sftp_stat beantwortet Dateien wie Verzeichnisse. exists=false heisst
-        // "verbunden und sicher nicht da" - fuer eine Quelle ist das ein Grund
-        // auszusetzen, nicht einer, das Ziel anzufassen: sonst raeumt ein
-        // geloeschtes Quellverzeichnis mit eingeschaltetem "Geloeschte Dateien
-        // im Ziel ebenfalls loeschen" das Ziel leer.
-        const RemoteFileInfo info = inspector.inspectFile(wstring_to_string(remotePath));
+        // sftp_stat answers for files and directories alike. exists=false means
+        // "connected and definitely absent": for a source that is a reason to
+        // pause, not to touch the target, or a deleted source directory with
+        // "delete in target" enabled would empty the target.
+        const RemoteFileInfo info = inspector.inspect_file(wstring_to_string(remote_path));
         if (!info.exists)
-            LOG_INFO(L"SSH-Pfad existiert nicht: " + pathname);
+            log_info(L"SSH-Pfad existiert nicht: " + pathname);
         return info.exists;
     }
     catch (const std::exception& e) {
-        LOG_INFO(L"SSH-Pfad nicht erreichbar: " + pathname + L" - " + string_to_wstring(e.what()));
+        log_info(L"SSH-Pfad nicht erreichbar: " + pathname + L" - " + string_to_wstring(e.what()));
         return false;
     }
     catch (...) {
-        LOG_INFO(L"SSH-Pfad nicht erreichbar: " + pathname);
+        log_info(L"SSH-Pfad nicht erreichbar: " + pathname);
         return false;
     }
 }
 
-bool CheckPath::sideReachable(const wstring& pathname, bool mustExist) const
+bool CheckPath::side_reachable(const wstring& pathname, bool must_exist) const
 {
-    wstring remotePath;
-    if (sshAccountOfPath(pathname, remotePath).has_value())
-        return sshPathReachable(pathname, mustExist);
-    return pathExists(pathname, mustExist);
+    wstring remote_path;
+    if (ssh_account_of_path(pathname, remote_path).has_value())
+        return ssh_path_reachable(pathname, must_exist);
+    return path_exists(pathname, must_exist);
+}
+
+bool CheckPath::expired(const DriveCheckCacheEntry& entry)
+{
+    const auto age = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - entry.timestamp).count();
+    return age >= entry.time_interval;
+}
+
+bool CheckPath::both_sides_reachable(const std::wstring& source, const std::wstring& dest) const
+{
+    // The source must exist because it is read from. For the target it is enough
+    // that the remote side answers: SyncDir and SyncTree create a missing target
+    // directory themselves, and a target yet to be created must not block the sync.
+    bool result = true;
+    if (!side_reachable(source, true)) {
+        log_info(L"Quellverzeichnis nicht erreichbar: " + source);
+        result = false;
+    }
+    if (!side_reachable(dest, false)) {
+        log_info(L"Zielverzeichnis nicht erreichbar: " + dest);
+        result = false;
+    }
+    return result;
 }
 
 bool CheckPath::operator()(const std::wstring& source, const std::wstring& dest, bool ssh)
 {
-    (void)ssh; // Welche Seite ueber SSH liegt, entscheidet der Pfad selbst.
-        // Cache-Schlüssel aus Quell- und Zielverzeichnis erstellen
-    std::wstring cacheKey = source + L"|" + dest;
-
-    std::lock_guard<std::mutex> lock(driveCheckCacheMutex_);
-
-    // Prüfen, ob ein gültiger Cache-Eintrag existiert
-    bool havePrevious = false;
-    bool previousResult = true;
-    uint16_t previousInterval = 2;
-    auto it = driveCheckCache_.find(cacheKey);
-    LOG_DEBUG(cacheKey);
-    if (it != driveCheckCache_.end()) {
-        LOG_DEBUG(L"cache key found()");
-        const auto& cacheEntry = it->second;
-        auto now = std::chrono::steady_clock::now();
-        auto cacheAge = std::chrono::duration_cast<std::chrono::seconds>(now - cacheEntry.timestamp).count();
-		std::ostringstream debugMsg;
-		debugMsg << "Cache age: " << cacheAge << " seconds, validity: " << cacheEntry.timeIntervall_ << " seconds";
-		LOG_DEBUG(debugMsg.str());
-        if (cacheAge < cacheEntry.timeIntervall_) {
-            std::wstringstream sout;
-            sout << L"checkDrivesExits() using cached result for " << source << "-" << dest
-                << L", cache age: " << cacheAge << L"s, result: " << std::boolalpha << cacheEntry.result;
-            LOG_DEBUG(sout.str());
-            return cacheEntry.result;
-        }
-        // Expired: only remember it for the backoff decision below, not touched
-        // while still valid above - a plain cache hit must not grow the interval.
-        havePrevious = true;
-        previousResult = cacheEntry.result;
-        previousInterval = cacheEntry.timeIntervall_;
-        driveCheckCache_.erase(it);
+    (void)ssh; // The path itself tells which side is behind SSH.
+    const std::wstring cache_key = source + L"|" + dest;
+    std::lock_guard<std::mutex> lock(drive_check_cache_mutex_);
+    const auto cached = drive_check_cache_.find(cache_key);
+    const bool have_previous = cached != drive_check_cache_.end();
+    if (have_previous && !expired(cached->second)) {
+        log_debug(L"CheckPath: cached result for " + cache_key);
+        return cached->second.result;
     }
-
-    // Tatsächliche Laufwerksüberprüfung durchführen
-    bool result = true;
-    // Die Quelle muss vorhanden sein - von dort wird gelesen. Beim Ziel genuegt
-    // es, dass die Gegenstelle antwortet: ein noch nicht existierendes
-    // Zielverzeichnis legen SyncDir und SyncTree selbst an, und ein Ziel, das
-    // erst entstehen soll, darf die Synchronisation nicht blockieren.
-	if (!sideReachable(source, true)) {
-		std::wstringstream os;
-		os << L"Quellverzeichnis nicht erreichbar: " << source;
-		LOG_INFO(os.str());
-        result = false;
-	}
-	if (!sideReachable(dest, false)) {
-		std::wstringstream os;
-		os << L"Zielverzeichnis nicht erreichbar: " << dest;
-		LOG_INFO(os.str());
-        result = false;
-	}
-    // Ergebnis im Cache speichern: das Intervall waechst nur, wenn eine erneute
-    // Pruefung denselben Zustand bestaetigt; aendert sich der Zustand (Laufwerk
-    // erscheint/verschwindet), wird wieder haeufig geprueft statt bis zu einer
-    // Stunde lang am alten Backoff festzuhalten.
-    DriveCheckCacheEntry cacheEntry;
-    cacheEntry.result = result;
-    cacheEntry.timestamp = std::chrono::steady_clock::now();
-    cacheEntry.timeIntervall_ = nextCheckInterval(previousInterval, havePrevious && previousResult == result, result);
-    driveCheckCache_[cacheKey] = cacheEntry;
-
-    if (Logging::instance().shouldLog(LogLevel::Debug)) {
-        std::wstringstream sout;
-        sout << L"checkPathsExits() cached new result for " << source << "-" << dest
-            << L", result: " << std::boolalpha << result;
-        LOG_DEBUG(sout.str());
-    }
-	return result;
+    const bool result = both_sides_reachable(source, dest);
+    // The interval only grows when a re-check confirms the same state; a state
+    // change (drive appears or disappears) resets to frequent checks instead of
+    // keeping the old backoff of up to an hour.
+    const uint16_t previous_interval = have_previous ? cached->second.time_interval : BASE_INTERVAL;
+    const bool repeats = have_previous && cached->second.result == result;
+    drive_check_cache_[cache_key] = {result, next_check_interval(previous_interval, repeats, result), std::chrono::steady_clock::now()};
+    return result;
 }
 
-wstring rootName(const wstring& path)
+wstring root_name(const wstring& path)
 {
-	LOG_DEBUG(L"rootName: " + path);
-	if (pathContainsVolumeName(path)) {
-		auto openParenthesisPos = path.find(L"(");
-		auto closeParenthesisPos = path.find(L")");
-		if (openParenthesisPos != wstring::npos && closeParenthesisPos != wstring::npos)
-			return path.substr(openParenthesisPos + 1, (closeParenthesisPos - openParenthesisPos) - 1);
+	log_debug(L"root_name: " + path);
+	if (path_contains_volume_name(path)) {
+		auto open_parenthesis_pos = path.find(L"(");
+		auto close_parenthesis_pos = path.find(L")");
+		if (open_parenthesis_pos != wstring::npos && close_parenthesis_pos != wstring::npos)
+			return path.substr(open_parenthesis_pos + 1, (close_parenthesis_pos - open_parenthesis_pos) - 1);
 		else
 			throw std::runtime_error("Ungültiger Pfad: " + wstring_to_string(path));
 	}
 	wstring retval;
 	fs::path p(path);
 	retval = p.root_name().wstring();
-    LOG_DEBUG(L"rootName returns: " + retval);
+    log_debug(L"root_name returns: " + retval);
 	return retval;
 }
 
-std::wstring withoutVolumeSpec(const std::wstring& path)
+std::wstring without_volume_spec(const std::wstring& path)
 {
-	LOG_DEBUG(L"withoutVolumeSpec: " + path);
+	log_debug(L"without_volume_spec: " + path);
 	// Strip only a real volume spec ("Label (C:)rest", paren before colon).
 	// Merely containing parentheses ("/home/x/Docs (2023)/f") must not strip,
 	// or the path degenerates to a wrong/empty one and the item never syncs.
-	if (!pathContainsVolumeName(path))
+	if (!path_contains_volume_name(path))
 		return path;
-	auto closeParenthesisPos = path.find(L")");
-	if (closeParenthesisPos == wstring::npos)
+	auto close_parenthesis_pos = path.find(L")");
+	if (close_parenthesis_pos == wstring::npos)
 		return path;
-	return rootName(path) + path.substr(closeParenthesisPos + 1);
+	return root_name(path) + path.substr(close_parenthesis_pos + 1);
 }
 
 } // namespace AFS_Core

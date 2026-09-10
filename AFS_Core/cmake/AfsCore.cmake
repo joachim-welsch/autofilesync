@@ -11,7 +11,7 @@ include_guard(DIRECTORY)
 get_filename_component(AFS_CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
 
 set(AFS_CORE_SOURCES
-    BackupProof.cpp
+    CopyLog.cpp
     CheckPath.cpp
     Directory.cpp
     FileDelete.cpp
@@ -22,6 +22,7 @@ set(AFS_CORE_SOURCES
     LogAnalysis.cpp
     PasswordCrypto.cpp
     SshAccount.cpp
+    SftpConnection.cpp
     SshConnectTimeout.cpp
     SshDirInspector.cpp
     SshFileInspector.cpp
@@ -46,7 +47,7 @@ set(AFS_CORE_SOURCES
     RecycleBin.cpp
     SmtpMailer.cpp
     StrUtil.cpp
-    util.cpp
+    Util.cpp
 )
 list(TRANSFORM AFS_CORE_SOURCES PREPEND ${AFS_CORE_DIR}/src/)
 

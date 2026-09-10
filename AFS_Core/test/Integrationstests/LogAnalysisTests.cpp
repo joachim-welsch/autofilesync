@@ -22,16 +22,16 @@ class ScopedLogPath {
 public:
     explicit ScopedLogPath(const std::string& content)
         : path_(fs::temp_directory_path() / ("autofilesync_loganalysis_" + std::to_string(getpid()) + ".log"))
-        , previous_(Logging::instance().getLogFilePathName())
+        , previous_(Logging::instance().get_log_file_path_name())
     {
         fs::remove(path_);
         { std::ofstream out(path_); out << content; }
-        Logging::instance().setLogFilePathName(path_.wstring());
+        Logging::instance().set_log_file_path_name(path_.wstring());
     }
     ~ScopedLogPath()
     {
         if (!previous_.empty())
-            Logging::instance().setLogFilePathName(previous_);
+            Logging::instance().set_log_file_path_name(previous_);
         fs::remove(path_);
     }
 };
@@ -40,7 +40,7 @@ public:
 TEST(LogAnalysisTests, ReturnsWholeFileWhenUnderBudget)
 {
     ScopedLogPath scoped("2024-01-01 10:00:00.000 Info\tfirst entry\n2024-01-01 10:00:01.000 Error\tsecond entry\n");
-    const std::wstring result = readRecentLogEntries(1000);
+    const std::wstring result = read_recent_log_entries(1000);
     EXPECT_NE(result.find(L"first entry"), std::wstring::npos);
     EXPECT_NE(result.find(L"second entry"), std::wstring::npos);
 }
@@ -51,7 +51,7 @@ TEST(LogAnalysisTests, TruncatesToWholeLinesWhenOverBudget)
 {
     ScopedLogPath scoped("2024-01-01 10:00:00.000 Info\told entry that must be dropped\n"
                           "2024-01-01 10:00:01.000 Error\trecent entry that must survive\n");
-    const std::wstring result = readRecentLogEntries(80);
+    const std::wstring result = read_recent_log_entries(80);
     EXPECT_EQ(result.find(L"old entry"), std::wstring::npos);
     EXPECT_NE(result.find(L"recent entry that must survive"), std::wstring::npos);
     EXPECT_EQ(result.find(L"\told entry"), std::wstring::npos);
@@ -59,26 +59,26 @@ TEST(LogAnalysisTests, TruncatesToWholeLinesWhenOverBudget)
 
 TEST(LogAnalysisTests, ReturnsEmptyForMissingFile)
 {
-    const std::wstring previous = Logging::instance().getLogFilePathName();
+    const std::wstring previous = Logging::instance().get_log_file_path_name();
     const fs::path missing = fs::temp_directory_path() / ("autofilesync_loganalysis_missing_" + std::to_string(getpid()) + ".log");
     fs::remove(missing);
-    Logging::instance().setLogFilePathName(missing.wstring());
-    EXPECT_TRUE(readRecentLogEntries(1000).empty());
+    Logging::instance().set_log_file_path_name(missing.wstring());
+    EXPECT_TRUE(read_recent_log_entries(1000).empty());
     if (!previous.empty())
-        Logging::instance().setLogFilePathName(previous);
+        Logging::instance().set_log_file_path_name(previous);
 }
 
 TEST(LogAnalysisTests, RecognisesLogAndProtokollKeywordsCaseInsensitively)
 {
-    EXPECT_TRUE(looksLikeLogQuestion(L"Was steht im Log?"));
-    EXPECT_TRUE(looksLikeLogQuestion(L"WARUM GIBT ES FEHLER IM LOG"));
-    EXPECT_TRUE(looksLikeLogQuestion(L"Kannst du die Protokolldatei pruefen?"));
+    EXPECT_TRUE(looks_like_log_question(L"Was steht im Log?"));
+    EXPECT_TRUE(looks_like_log_question(L"WARUM GIBT ES FEHLER IM LOG"));
+    EXPECT_TRUE(looks_like_log_question(L"Kannst du die Protokolldatei pruefen?"));
 }
 
 TEST(LogAnalysisTests, DoesNotFlagUnrelatedQuestions)
 {
-    EXPECT_FALSE(looksLikeLogQuestion(L"Wie lege ich eine neue Synchronisation an?"));
-    EXPECT_FALSE(looksLikeLogQuestion(L"Was ist Autofilesync?"));
+    EXPECT_FALSE(looks_like_log_question(L"Wie lege ich eine neue Synchronisation an?"));
+    EXPECT_FALSE(looks_like_log_question(L"Was ist Autofilesync?"));
 }
 
 // The chat question ChatDialog::onSend() actually routes through the log path
@@ -90,8 +90,8 @@ TEST(LogAnalysisTests, WarningsQuestionIsRecognisedAndFindsWarningEntries)
                           "2024-01-01 10:00:01.000 Warning\tZielverzeichnis fast voll\n"
                           "2024-01-01 10:00:02.000 Info\tsync finished\n");
     const std::wstring question = L"Gibt es Warnings im Log?";
-    EXPECT_TRUE(looksLikeLogQuestion(question));
-    const std::wstring excerpt = readRecentLogEntries(1000);
+    EXPECT_TRUE(looks_like_log_question(question));
+    const std::wstring excerpt = read_recent_log_entries(1000);
     EXPECT_NE(excerpt.find(L"Warning"), std::wstring::npos);
     EXPECT_NE(excerpt.find(L"Zielverzeichnis fast voll"), std::wstring::npos);
 }

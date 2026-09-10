@@ -28,7 +28,7 @@ void TargetCanvas::addDataItems()
     wxTreeItemId parentId = treeCtrl_->rootId();
     Config& cfg = Config::instance();
     for (const auto& i : cfg.syncitems()) {
-        treeCtrl_->addBranch(i.target(), tree_, i.syncItemType());
+        treeCtrl_->addBranch(i.target(), tree_, i.sync_item_type());
     }
 }
 

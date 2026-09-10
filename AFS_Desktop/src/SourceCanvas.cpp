@@ -30,7 +30,7 @@ void SourceCanvas::addDataItems()
 {
     Config& cfg = Config::instance();
     for (const auto& i : cfg.syncitems()) {
-        treeCtrl_->addBranch(i.source(), tree_, i.syncItemType());
+        treeCtrl_->addBranch(i.source(), tree_, i.sync_item_type());
     }
     treeCtrl_->ExpandNode(treeCtrl_->rootId());
 }

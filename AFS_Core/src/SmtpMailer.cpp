@@ -30,13 +30,13 @@ namespace {
 
 // Only the port distinguishes the two ways to get TLS: 465 expects the
 // handshake right after connecting, every other port the STARTTLS command.
-constexpr uint16_t implicitTlsPort = 465;
+constexpr uint16_t IMPLICIT_TLS_PORT = 465;
 // A fatal error blocks the thread that reported it until the mail is out, so
 // every network step needs a ceiling well below "the user gives up".
-constexpr int socketTimeoutSeconds = 15;
+constexpr int SOCKET_TIMEOUT_SECONDS = 15;
 // A greeting or error text beyond this is a broken (or hostile) server, not
 // something worth buffering.
-constexpr size_t maxReplySize = 4096;
+constexpr size_t MAX_REPLY_SIZE = 4096;
 
 string base64(const string& data)
 {
@@ -49,27 +49,24 @@ string base64(const string& data)
 	return encoded;
 }
 
-// RFC 2045 caps a line at 76 characters; 57 input bytes encode to exactly that.
-string base64Lines(const string& data)
+string base64_lines(const string& data)
 {
-	constexpr size_t bytesPerLine = 57;
+	constexpr size_t BYTES_PER_LINE = 57;
 	string encoded;
-	for (size_t pos = 0; pos < data.size(); pos += bytesPerLine)
-		encoded += base64(data.substr(pos, bytesPerLine)) + "\r\n";
+	for (size_t pos = 0; pos < data.size(); pos += BYTES_PER_LINE)
+		encoded += base64(data.substr(pos, BYTES_PER_LINE)) + "\r\n";
 	return encoded;
 }
 
-// RFC 2047 encoded word. Applied unconditionally: subjects come from the logger
-// and stay far below the 75 character limit of a single encoded word.
-string encodedWord(const wstring& text)
+string encoded_word(const wstring& text)
 {
 	return "=?UTF-8?B?" + base64(wstring_to_string(text)) + "?=";
 }
 
-string rfc5322Date()
+string rfc5322_date()
 {
-	static const char* const days[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-	static const char* const months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	static const char* const DAYS[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+	static const char* const MONTHS[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	const std::time_t now = std::time(nullptr);
 	std::tm utc{};
 #ifdef WIN32
@@ -77,17 +74,14 @@ string rfc5322Date()
 #else
 	gmtime_r(&now, &utc);
 #endif
-	// Spelled out instead of strftime's %a/%b: those follow the global locale,
-	// which the GUI switches to the user's language - a German weekday name
-	// makes the header unparsable.
 	char date[64];
 	std::snprintf(date, sizeof date, "%s, %02d %s %04d %02d:%02d:%02d +0000",
-		days[utc.tm_wday], utc.tm_mday, months[utc.tm_mon], utc.tm_year + 1900,
+		DAYS[utc.tm_wday], utc.tm_mday, MONTHS[utc.tm_mon], utc.tm_year + 1900,
 		utc.tm_hour, utc.tm_min, utc.tm_sec);
 	return date;
 }
 
-string localHostName()
+string local_host_name()
 {
 	char name[256];
 	if (gethostname(name, sizeof name) != 0)
@@ -97,26 +91,22 @@ string localHostName()
 }
 
 #ifdef WIN32
-// The vcpkg build of OpenSSL looks for a PEM bundle at a path that does not
-// exist on Windows, so peer verification would fail against every server. The
-// roots Windows already trusts are copied into the store instead.
-void loadSystemRootCertificates(SSL_CTX* ctx)
+
+void load_system_root_certificates(SSL_CTX* ctx)
 {
-	HCERTSTORE systemStore = CertOpenSystemStoreW(0, L"ROOT");
-	if (!systemStore)
+	HCERTSTORE system_store = CertOpenSystemStoreW(0, L"ROOT");
+	if (!system_store)
 		return;
 	X509_STORE* trusted = SSL_CTX_get_cert_store(ctx);
 	PCCERT_CONTEXT entry = nullptr;
-	while ((entry = CertEnumCertificatesInStore(systemStore, entry)) != nullptr) {
+	while ((entry = CertEnumCertificatesInStore(system_store, entry)) != nullptr) {
 		const unsigned char* encoded = entry->pbCertEncoded;
-		// An entry OpenSSL cannot parse is skipped, not treated as an error: the
-		// system store also holds formats it does not know.
 		if (X509* certificate = d2i_X509(nullptr, &encoded, entry->cbCertEncoded)) {
 			X509_STORE_add_cert(trusted, certificate);
 			X509_free(certificate);
 		}
 	}
-	CertCloseStore(systemStore, 0);
+	CertCloseStore(system_store, 0);
 }
 #endif
 
@@ -130,17 +120,17 @@ public:
 	string send(const wstring& recipient, const wstring& subject, const string& body);
 private:
 	bool connect();
-	void setTimeouts();
-	bool enableTls();
-	bool upgradeToTls();
+	void set_timeouts();
+	bool enable_tls();
+	bool upgrade_to_tls();
 	bool ehlo();
 	bool authenticate();
 	bool deliver(const wstring& recipient, const wstring& subject, const string& body);
 	string message(const wstring& recipient, const wstring& subject, const string& body) const;
 	bool put(const string& line);
-	bool readReply(int& code);
+	bool read_reply(int& code);
 	bool reply(int expected);
-	bool replyOk();
+	bool reply_ok();
 	bool fail(const string& reason) { error_ = reason; return false; }
 
 	const SmtpAccount& account_;
@@ -148,7 +138,7 @@ private:
 	BIO*	 bio_ = nullptr;	// the whole chain once TLS is on
 	SSL_CTX* ctx_ = nullptr;
 	string	 error_;
-	string	 lastReply_;
+	string	 last_reply_;
 };
 
 SmtpSession::~SmtpSession()
@@ -172,42 +162,40 @@ bool SmtpSession::connect()
 	// itself is limited by the operating system.
 	if (BIO_do_connect(bio_) <= 0)
 		return fail("keine Verbindung zu " + address);
-	setTimeouts();
+	set_timeouts();
 	return true;
 }
 
-void SmtpSession::setTimeouts()
+void SmtpSession::set_timeouts()
 {
-	const int socketHandle = BIO_get_fd(bio_, nullptr);
-	if (socketHandle < 0)
+	const int socket_handle = BIO_get_fd(bio_, nullptr);
+	if (socket_handle < 0)
 		return;
 #ifdef WIN32
-	DWORD timeout = socketTimeoutSeconds * 1000;
+	DWORD timeout = SOCKET_TIMEOUT_SECONDS * 1000;
 	const char* value = reinterpret_cast<const char*>(&timeout);
 	int size = sizeof timeout;
-	SOCKET socketId = static_cast<SOCKET>(socketHandle);
+	SOCKET socket_id = static_cast<SOCKET>(socket_handle);
 #else
-	timeval timeout{ socketTimeoutSeconds, 0 };
+	timeval timeout{ SOCKET_TIMEOUT_SECONDS, 0 };
 	const void* value = &timeout;
 	socklen_t size = sizeof timeout;
-	int socketId = socketHandle;
+	int socket_id = socket_handle;
 #endif
-	setsockopt(socketId, SOL_SOCKET, SO_RCVTIMEO, value, size);
-	setsockopt(socketId, SOL_SOCKET, SO_SNDTIMEO, value, size);
+	setsockopt(socket_id, SOL_SOCKET, SO_RCVTIMEO, value, size);
+	setsockopt(socket_id, SOL_SOCKET, SO_SNDTIMEO, value, size);
 }
 
-bool SmtpSession::enableTls()
+bool SmtpSession::enable_tls()
 {
 	ctx_ = SSL_CTX_new(TLS_client_method());
 	if (!ctx_)
 		return fail("TLS konnte nicht initialisiert werden");
 	SSL_CTX_set_min_proto_version(ctx_, TLS1_2_VERSION);
-	// Verified, not just encrypted: the connection carries the mail account
-	// password, so an intercepting server must not be accepted.
 	SSL_CTX_set_verify(ctx_, SSL_VERIFY_PEER, nullptr);
 	SSL_CTX_set_default_verify_paths(ctx_);
 #ifdef WIN32
-	loadSystemRootCertificates(ctx_);
+	load_system_root_certificates(ctx_);
 #endif
 	BIO* tls = BIO_new_ssl(ctx_, 1);
 	if (!tls)
@@ -223,9 +211,6 @@ bool SmtpSession::enableTls()
 	bio_ = BIO_push(tls, bio_);
 	if (BIO_do_handshake(bio_) <= 0)
 		return fail("TLS-Handshake mit " + host_ + " fehlgeschlagen (Zertifikat pruefen)");
-	// The SSL BIO has no gets method: readReply() would get -2 from every reply
-	// once the connection is encrypted. A buffer BIO on top supplies the
-	// line-wise read the plain connection BIO offered before.
 	BIO* buffered = BIO_new(BIO_f_buffer());
 	if (!buffered)
 		return fail("Lesepuffer fuer " + host_ + " konnte nicht angelegt werden");
@@ -233,26 +218,21 @@ bool SmtpSession::enableTls()
 	return true;
 }
 
-// A plain local relay (port 25, no login) may not offer STARTTLS. That is
-// tolerated only as long as no password is configured - a password must never
-// travel over an unencrypted connection.
-bool SmtpSession::upgradeToTls()
+bool SmtpSession::upgrade_to_tls()
 {
 	if (!put("STARTTLS"))
 		return false;
 	int code = 0;
-	if (!readReply(code))
+	if (!read_reply(code))
 		return false;
 	if (code != 220)
-		return account_.password.empty() ? true : fail(host_ + " bietet kein STARTTLS: " + lastReply_);
-	// The capability list is only valid for the current encryption state, so the
-	// greeting is repeated inside the tunnel.
-	return enableTls() && ehlo();
+		return account_.password.empty() ? true : fail(host_ + " bietet kein STARTTLS: " + last_reply_);
+	return enable_tls() && ehlo();
 }
 
 bool SmtpSession::ehlo()
 {
-	return put("EHLO " + localHostName()) && replyOk();
+	return put("EHLO " + local_host_name()) && reply_ok();
 }
 
 bool SmtpSession::authenticate()
@@ -273,21 +253,21 @@ string SmtpSession::message(const wstring& recipient, const wstring& subject, co
 	std::ostringstream os;
 	os << "From: <" << wstring_to_string(account_.from) << ">\r\n"
 	   << "To: <" << wstring_to_string(recipient) << ">\r\n"
-	   << "Subject: " << encodedWord(subject) << "\r\n"
-	   << "Date: " << rfc5322Date() << "\r\n"
+	   << "Subject: " << encoded_word(subject) << "\r\n"
+	   << "Date: " << rfc5322_date() << "\r\n"
 	   << "MIME-Version: 1.0\r\n"
 	   << "Content-Type: text/plain; charset=UTF-8\r\n"
 	   << "Content-Transfer-Encoding: base64\r\n"
 	   << "\r\n"
-	   << base64Lines(body);
+	   << base64_lines(body);
 	return os.str();
 }
 
 bool SmtpSession::deliver(const wstring& recipient, const wstring& subject, const string& body)
 {
-	if (!put("MAIL FROM:<" + wstring_to_string(account_.from) + ">") || !replyOk())
+	if (!put("MAIL FROM:<" + wstring_to_string(account_.from) + ">") || !reply_ok())
 		return false;
-	if (!put("RCPT TO:<" + wstring_to_string(recipient) + ">") || !replyOk())
+	if (!put("RCPT TO:<" + wstring_to_string(recipient) + ">") || !reply_ok())
 		return false;
 	if (!put("DATA") || !reply(354))
 		return false;
@@ -295,19 +275,19 @@ bool SmtpSession::deliver(const wstring& recipient, const wstring& subject, cons
 	// alphabet of the body does not contain one.
 	if (!put(message(recipient, subject, body) + "\r\n."))
 		return false;
-	return replyOk();
+	return reply_ok();
 }
 
 string SmtpSession::send(const wstring& recipient, const wstring& subject, const string& body)
 {
-	const bool implicitTls = account_.port == implicitTlsPort;
+	const bool implicit_tls = account_.port == IMPLICIT_TLS_PORT;
 	if (!connect())
 		return error_;
-	if (implicitTls && !enableTls())
+	if (implicit_tls && !enable_tls())
 		return error_;
 	if (!reply(220) || !ehlo())
 		return error_;
-	if (!implicitTls && !upgradeToTls())
+	if (!implicit_tls && !upgrade_to_tls())
 		return error_;
 	if (!authenticate() || !deliver(recipient, subject, body))
 		return error_;
@@ -329,7 +309,7 @@ bool SmtpSession::put(const string& line)
 	return true;
 }
 
-bool SmtpSession::readReply(int& code)
+bool SmtpSession::read_reply(int& code)
 {
 	char buffer[512];
 	for (;;) {
@@ -337,7 +317,7 @@ bool SmtpSession::readReply(int& code)
 		if (length <= 0)
 			return fail("keine Antwort von " + host_);
 		string line(buffer, length);
-		while (line.back() != '\n' && line.size() < maxReplySize) {	// reply longer than the buffer
+		while (line.back() != '\n' && line.size() < MAX_REPLY_SIZE) {	// reply longer than the buffer
 			length = BIO_gets(bio_, buffer, sizeof buffer);
 			if (length <= 0)
 				return fail("abgebrochene Antwort von " + host_);
@@ -349,7 +329,7 @@ bool SmtpSession::readReply(int& code)
 			|| !std::isdigit(static_cast<unsigned char>(line[1])) || !std::isdigit(static_cast<unsigned char>(line[2])))
 			return fail("unerwartete Antwort von " + host_ + ": " + line);
 		code = std::stoi(line.substr(0, 3));
-		lastReply_ = line;
+		last_reply_ = line;
 		if (line.size() == 3 || line[3] != '-')	// '-' marks a continuation line
 			return true;
 	}
@@ -358,22 +338,22 @@ bool SmtpSession::readReply(int& code)
 bool SmtpSession::reply(int expected)
 {
 	int code = 0;
-	if (!readReply(code))
+	if (!read_reply(code))
 		return false;
-	return code == expected ? true : fail(host_ + " antwortet: " + lastReply_);
+	return code == expected ? true : fail(host_ + " antwortet: " + last_reply_);
 }
 
-bool SmtpSession::replyOk()
+bool SmtpSession::reply_ok()
 {
 	int code = 0;
-	if (!readReply(code))
+	if (!read_reply(code))
 		return false;
-	return code >= 200 && code < 300 ? true : fail(host_ + " antwortet: " + lastReply_);
+	return code >= 200 && code < 300 ? true : fail(host_ + " antwortet: " + last_reply_);
 }
 
 } // namespace
 
-std::string sendMail(const SmtpAccount& account, const std::wstring& recipient,
+std::string send_mail(const SmtpAccount& account, const std::wstring& recipient,
 	const std::wstring& subject, const std::string& body)
 {
 	if (!account.complete())
@@ -385,9 +365,6 @@ std::string sendMail(const SmtpAccount& account, const std::wstring& recipient,
 		return session.send(recipient, subject, body);
 	}
 	catch (const std::exception& ex) {
-		// The caller is the logger, reached from catch handlers and worker
-		// threads; an exception escaping here would terminate the process while
-		// it is already reporting a fatal error.
 		return ex.what();
 	}
 }

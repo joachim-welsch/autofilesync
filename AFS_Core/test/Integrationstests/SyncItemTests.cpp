@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SyncItem.h"
 
-// Exclusions feature: isExcluded() reuses the same */? wildcard syntax the
+// Exclusions feature: is_excluded() reuses the same */? wildcard syntax the
 // existing wildcard field already uses (via util::wildmatch()), matched
 // against the entry's own name (not a full path) - consistent with how the
 // wildcard field itself is applied throughout SyncDir/SyncTree.
@@ -15,17 +15,17 @@ TEST(SyncItemTests, IsExcludedMatchesAnyPatternInTheList)
     exclusions.push_back(L"node_modules");
     exclusions.push_back(L".git");
 
-    EXPECT_TRUE(isExcluded(L"cache.tmp", exclusions));
-    EXPECT_TRUE(isExcluded(L"node_modules", exclusions));
-    EXPECT_TRUE(isExcluded(L".git", exclusions));
-    EXPECT_FALSE(isExcluded(L"readme.txt", exclusions));
-    EXPECT_FALSE(isExcluded(L"my_node_modules_backup.txt", exclusions)); // not an exact/wildcard match
+    EXPECT_TRUE(is_excluded(L"cache.tmp", exclusions));
+    EXPECT_TRUE(is_excluded(L"node_modules", exclusions));
+    EXPECT_TRUE(is_excluded(L".git", exclusions));
+    EXPECT_FALSE(is_excluded(L"readme.txt", exclusions));
+    EXPECT_FALSE(is_excluded(L"my_node_modules_backup.txt", exclusions)); // not an exact/wildcard match
 }
 
 TEST(SyncItemTests, IsExcludedWithEmptyListExcludesNothing)
 {
     Exclusions exclusions;
-    EXPECT_FALSE(isExcluded(L"anything.txt", exclusions));
+    EXPECT_FALSE(is_excluded(L"anything.txt", exclusions));
 }
 
 // SyncItem persists/copies its exclusion list like any other field.
@@ -41,21 +41,21 @@ TEST(SyncItemTests, SyncItemStoresAndCopiesExclusions)
     EXPECT_EQ(copy.exclusions()[0], L"*.log");
 }
 
-// syncItemType2Str() is translated (GNU gettext), syncItemTypeKey() is not:
+// sync_item_type_to_str() is translated (GNU gettext), sync_item_type_key() is not:
 // the configuration file must stay readable no matter which language wrote it.
 TEST(SyncItemTests, SyncItemTypeKeyStaysUntranslated)
 {
-    EXPECT_EQ(syncItemTypeKey(SyncItemType::File), L"Datei");
-    EXPECT_EQ(syncItemTypeKey(SyncItemType::Dir), L"Verzeichnis");
-    EXPECT_EQ(syncItemTypeKey(SyncItemType::Tree), L"Verzeichnisbaum");
-    EXPECT_EQ(syncItemTypeKey(SyncItemType::Undefined), L"");
+    EXPECT_EQ(sync_item_type_key(SyncItemType::File), L"Datei");
+    EXPECT_EQ(sync_item_type_key(SyncItemType::Dir), L"Verzeichnis");
+    EXPECT_EQ(sync_item_type_key(SyncItemType::Tree), L"Verzeichnisbaum");
+    EXPECT_EQ(sync_item_type_key(SyncItemType::Undefined), L"");
 }
 
 TEST(SyncItemTests, Str2SyncItemTypeAcceptsKeyAndTranslation)
 {
     for (auto type : {SyncItemType::File, SyncItemType::Dir, SyncItemType::Tree}) {
-        EXPECT_EQ(str2SyncItemType(syncItemTypeKey(type)), type);
-        EXPECT_EQ(str2SyncItemType(syncItemType2Str(type)), type);
+        EXPECT_EQ(str_to_sync_item_type(sync_item_type_key(type)), type);
+        EXPECT_EQ(str_to_sync_item_type(sync_item_type_to_str(type)), type);
     }
-    EXPECT_EQ(str2SyncItemType(L"kein Typ"), SyncItemType::Undefined);
+    EXPECT_EQ(str_to_sync_item_type(L"kein Typ"), SyncItemType::Undefined);
 }

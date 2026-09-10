@@ -18,87 +18,88 @@ SyncControler& SyncControler::instance()
 SyncControler::~SyncControler()
 {}
 
-void SyncControler::registerProgressDialog(ProgressDialog* pdlg)
+void SyncControler::register_progress_dialog(ProgressDialog* pdlg)
 {
-	LOG_DEBUG(L"SyncControler::registerProgressDialog()");
-	progressDialog_ = pdlg;
+	log_debug(L"SyncControler::register_progress_dialog()");
+	progress_dialog_ = pdlg;
 }
 
-std::optional<ProgressDialog*> SyncControler::progressDialog()
+std::optional<ProgressDialog*> SyncControler::progress_dialog()
 {
-	LOG_DEBUG(L"SyncControler::progressDialog()");
-	ProgressDialog* pdlg = progressDialog_.load();
+	log_debug(L"SyncControler::progress_dialog()");
+	ProgressDialog* pdlg = progress_dialog_.load();
 	if (pdlg != nullptr)
 		return std::optional<ProgressDialog*>(pdlg);
 	else
 		return std::nullopt;
 }
 
-bool SyncControler::startSync(SyncType syncType)
+bool SyncControler::start_sync(SyncType sync_type)
 {
-	LOG_DEBUG(L"SyncControler::startSync()");
+	log_debug(L"SyncControler::start_sync()");
 	if (synchronize_ != nullptr)
 		return false;
 	state_ = SyncCtrlState::SyncActive;
-    synchronize_ = Synchronize::create(syncType, this);
+    synchronize_ = Synchronize::create(sync_type, this);
 	return true;
 }
 
-bool SyncControler::syncFinished() const
+bool SyncControler::sync_finished() const
 {
 	return state_ == SyncCtrlState::SyncFinished;
 }
 
-void SyncControler::setSyncFinished() // called by Workerthread
+void SyncControler::set_sync_finished() // called by Workerthread
 {
 	// GUI updates (ProgressDialog) must happen on the GUI thread; onTimer()
-	// polls syncFinished() there and closes/deletes the dialog itself.
-	LOG_DEBUG(L"SyncControler::setSyncFinished()");
+	// polls sync_finished() there and closes/deletes the dialog itself.
+	log_debug(L"SyncControler::set_sync_finished()");
 	state_ = SyncCtrlState::SyncFinished;
 }
 
-void SyncControler::destroySynchronize()
+void SyncControler::destroy_synchronize()
 { 
 	Synchronize::destroy();
 	synchronize_ = nullptr;
 }
 
-void SyncControler::requestStop()
+void SyncControler::request_stop()
 {
-	// Non-blocking half of stopSync(): signals the worker thread to stop and
+	// Non-blocking half of stop_sync(): signals the worker thread to stop and
 	// returns immediately, letting the caller wait however suits it (e.g.
 	// ProgressDialog::OnCancel() needs to keep pumping the GUI event queue
 	// while waiting, which this class has no business knowing about).
-	LOG_DEBUG(L"SyncControler::requestStop()");
+	log_debug(L"SyncControler::request_stop()");
 	if (state_ != SyncCtrlState::SyncActive)
 		return;
 	Synchronize::stop();
 }
 
-void SyncControler::stopSync()
+void SyncControler::stop_sync()
 {
-	LOG_DEBUG(L"SyncControler::stopSync()");
+	log_debug(L"SyncControler::stop_sync()");
 	if (state_ != SyncCtrlState::SyncActive)
 		return;
 	Synchronize::stop();
-	while (!syncFinished()) {
+	while (!sync_finished()) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
 
-void SyncControler::displayErrormessages(bool YesNo)
+void SyncControler::display_errormessages(bool yes_no)
 {
-	displayErrormessages_ = YesNo;
+	display_errormessages_ = yes_no;
 }
 
-bool SyncControler::displayErrormessages() const
+bool SyncControler::display_errormessages() const
 {
-	return displayErrormessages_;
+	return display_errormessages_;
 }
 
-SyncMessage SyncControler::getMessage() const {
+SyncMessage SyncControler::get_message() const
+{
 	if (synchronize_ != nullptr)
-		return synchronize_->getMessage();
+		return synchronize_->get_message();
 	else
 		return SyncMessage();
 }

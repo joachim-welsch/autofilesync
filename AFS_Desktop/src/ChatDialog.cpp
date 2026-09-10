@@ -107,9 +107,9 @@ void ChatDialog::onSend(wxCommandEvent&)
     // A question about the log gets the current excerpt folded into just this
     // request (see LlamaClient::analyzeLog); history_ itself only ever keeps
     // the plain question, or every later turn would resend the whole excerpt.
-    if (looksLikeLogQuestion(question.ToStdWstring())) {
-        const std::wstring excerpt = readRecentLogEntries(maxLogExcerptChars);
-        runAsync([client = client_, snapshot, excerpt]() { return client->analyzeLog(snapshot, excerpt); });
+    if (looks_like_log_question(question.ToStdWstring())) {
+        const std::wstring excerpt = read_recent_log_entries(maxLogExcerptChars);
+        runAsync([client = client_, snapshot, excerpt]() { return client->analyze_log(snapshot, excerpt); });
     }
     else
         runAsync([client = client_, snapshot]() { return client->send(snapshot); });

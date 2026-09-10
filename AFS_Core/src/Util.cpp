@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "util.h"
+#include "Util.h"
 #include <sstream>
 #include <fstream>
 #include <iomanip>
@@ -44,7 +44,7 @@ namespace fs=std::filesystem;
 
 namespace util {
 
-unsigned long currentPid()
+unsigned long current_pid()
     {
 #ifdef _WIN32
         return static_cast<unsigned long>(::_getpid());
@@ -53,7 +53,7 @@ unsigned long currentPid()
 #endif
     }
 
-std::wstring withTrailingChar(const std::wstring& s, wchar_t c)
+std::wstring with_trailing_char(const std::wstring& s, wchar_t c)
 {
     // s.empty() must be checked first: *rbegin() on an empty string is UB
     // (hard iterator-debug assert on MSVC). Empty input keeps the contract
@@ -64,40 +64,40 @@ std::wstring withTrailingChar(const std::wstring& s, wchar_t c)
 }
 
 #if !defined(_WXWIDGETS) && defined(_UNIX)
-bool driveExists(const wstring& driveName)
+bool drive_exists(const wstring& drive_name)
 {
-    LOG_DEBUG(L"driveExists() " + driveName);
+    log_debug(L"drive_exists() " + drive_name);
     try {
-        return fs::exists(driveName);
+        return fs::exists(drive_name);
     } catch (const fs::filesystem_error& e) {
-        LOG_ERROR(L"Fehler beim Zugriff auf das Dateisystem: " + string_to_wstring(e.what()));
+        log_error(L"Fehler beim Zugriff auf das Dateisystem: " + string_to_wstring(e.what()));
         return false;
     }
 }
 #endif
 
 #ifdef _WXWIDGETS
-bool driveExists(const wstring& driveName)
+bool drive_exists(const wstring& drive_name)
 {
-    LOG_DEBUG(L"driveExists() " + driveName);
+    log_debug(L"drive_exists() " + drive_name);
     #ifdef _UNIX
-    if (driveName.empty())
+    if (drive_name.empty())
         return false;
     #endif
-    return wxDirExists(driveName);
+    return wxDirExists(drive_name);
 }
 #elif defined(WIN32)
-bool driveExists(const wstring& driveName)
+bool drive_exists(const wstring& drive_name)
 {
-	LOG_DEBUG(L"driveExists() " + driveName);
-    return std::filesystem::exists(driveName) && std::filesystem::is_directory(driveName);
+	log_debug(L"drive_exists() " + drive_name);
+    return std::filesystem::exists(drive_name) && std::filesystem::is_directory(drive_name);
 }
 
 #endif
 
-bool volumeExists(const wstring& driveName, const wstring& volumeName)
+bool volume_exists(const wstring& drive_name, const wstring& volume_name)
 {
-    LOG_DEBUG(L"volumeExists() " + driveName + L" " + volumeName);
+    log_debug(L"volume_exists() " + drive_name + L" " + volume_name);
 #ifdef _UNIX
     std::ifstream mounts("/proc/mounts");
     if (!mounts.is_open()) {
@@ -107,28 +107,28 @@ bool volumeExists(const wstring& driveName, const wstring& volumeName)
 
     std::string line;
     while (std::getline(mounts, line)) {
-        if (line.find(wstring_to_string(volumeName)) != std::string::npos) {
+        if (line.find(wstring_to_string(volume_name)) != std::string::npos) {
             return true;
         }
     }
     return false;
 #else
-    TCHAR fetchedVolumeName[MAX_PATH + 1] = { 0 };
-    TCHAR fileSystemName[MAX_PATH + 1] = { 0 };
-    DWORD serialNumber = 0;
-    DWORD maxComponentLength = 0;
-    DWORD fileSystemFlags = 0;
+    TCHAR fetched_volume_name[MAX_PATH + 1] = { 0 };
+    TCHAR file_system_name[MAX_PATH + 1] = { 0 };
+    DWORD serial_number = 0;
+    DWORD max_component_length = 0;
+    DWORD file_system_flags = 0;
     if (GetVolumeInformation(
-        driveName.c_str(),
-        fetchedVolumeName,
-        ARRAYSIZE(fetchedVolumeName),
-        &serialNumber,
-        &maxComponentLength,
-        &fileSystemFlags,
-        fileSystemName,
-        ARRAYSIZE(fileSystemName)
+        drive_name.c_str(),
+        fetched_volume_name,
+        ARRAYSIZE(fetched_volume_name),
+        &serial_number,
+        &max_component_length,
+        &file_system_flags,
+        file_system_name,
+        ARRAYSIZE(file_system_name)
     )) {
-        return _tcslen(fetchedVolumeName) > 0 && volumeName == fetchedVolumeName;
+        return _tcslen(fetched_volume_name) > 0 && volume_name == fetched_volume_name;
     }
     else {
         return false;
@@ -158,7 +158,7 @@ static std::wstring timestamp(std::chrono::system_clock::time_point time)
     return os.str();
 }
 
-fs::path withTimestampPrefix(const fs::path& pathname, std::chrono::system_clock::time_point time)
+fs::path with_timestamp_prefix(const fs::path& pathname, std::chrono::system_clock::time_point time)
 {
     // A path ending in a separator (or an empty one) has no file name to
     // prefix; prefixing the last directory instead would silently rename it.
@@ -175,7 +175,7 @@ std::time_t to_time_t(TP tp)
               + system_clock::now());
     return system_clock::to_time_t(sctp);
 }
-void handleLastError(std::filesystem::filesystem_error const& ex)
+void handle_last_error(std::filesystem::filesystem_error const& ex)
 {
     std::stringstream msg;
     msg << "what():  " << ex.what() << ' '
@@ -184,10 +184,11 @@ void handleLastError(std::filesystem::filesystem_error const& ex)
         << "code().value():    " << ex.code().value() << ' '
         << "code().message():  " << ex.code().message() << ' '
         << "code().category(): " << ex.code().category().name() << ' ';
-    LOG_ERROR(msg.str())
+    log_error(msg.str());
 }
 
-std::wregex wildcardToRegex(const std::wstring& wildcard, bool caseSensitive = true) {
+std::wregex wildcard_to_regex(const std::wstring& wildcard, bool case_sensitive = true)
+{
     // Everything except the wildcard metacharacters * and ? must be escaped:
     // an unescaped '.' made "*.txt" match "abXtxt", parentheses turned into
     // regex groups so "Fotos (2020)*" never matched its own files, and an
@@ -204,17 +205,17 @@ std::wregex wildcardToRegex(const std::wstring& wildcard, bool caseSensitive = t
         default: regex += c;
         }
     }
-    return std::wregex(regex, caseSensitive ? std::regex_constants::ECMAScript : std::regex_constants::icase);
+    return std::wregex(regex, case_sensitive ? std::regex_constants::ECMAScript : std::regex_constants::icase);
 }
 
 bool wildmatch(const std::wstring& input, const std::wstring& wildcard)
 {
-    auto rgx = wildcardToRegex(wildcard);
+    auto rgx = wildcard_to_regex(wildcard);
     return std::regex_match(input, rgx);
 }
 
 #ifdef WIN32
-bool filesEqual(const wstring& file1, const wstring& file2)
+bool files_equal(const wstring& file1, const wstring& file2)
 {
     FILE* fp1;
     FILE* fp2;
@@ -244,7 +245,8 @@ bool filesEqual(const wstring& file1, const wstring& file2)
     return retval;
 }
 #else
-bool filesEqual(const wstring& input1, const wstring& input2) {
+bool files_equal(const wstring& input1, const wstring& input2)
+{
   constexpr int N = 4096;
   char buf1[N];
   char buf2[N];
@@ -271,7 +273,7 @@ bool filesEqual(const wstring& input1, const wstring& input2) {
 }
 #endif
 
-string toString(const fs::file_time_type& ft)
+string to_string(const fs::file_time_type& ft)
 {
     std::time_t tt = to_time_t(ft);
     std::tm *gmt = std::gmtime(&tt);
@@ -304,18 +306,18 @@ bool greater(const std::filesystem::file_time_type& a, const std::filesystem::fi
 
 bool rename_file(const std::wstring& oldname, const std::wstring& newname)
 {
-    LOG_INFO3(L"rename_file", oldname, newname);
+    log_info(L"rename_file", oldname, newname);
     try
     {
         fs::rename(oldname, newname);
     }
-    catch (const fs::filesystem_error& ex) //// TODO use handleLastError
+    catch (const fs::filesystem_error& ex) //// TODO use handle_last_error
     {
-		LOG_ERROR(L"Fehler beim Umbenennen der Datei: " + string_to_wstring(ex.what()));
+		log_error(L"Fehler beim Umbenennen der Datei: " + string_to_wstring(ex.what()));
         return false;
     }
     catch (...) {
-        LOG_ERROR3(L"Fehler beim Umbenennen der Datei: ", oldname, L"Unbekannter Fehler")
+        log_error(L"Fehler beim Umbenennen der Datei: ", oldname, L"Unbekannter Fehler");
     }
     return true;
 }
@@ -330,12 +332,12 @@ bool remove_file(const std::wstring& name, LogLevel ll)
 	}
 	catch (const fs::filesystem_error& ex)
 	{
-		if (ll != LogLevel::None) // TODO use handleLastError
+		if (ll != LogLevel::None) // TODO use handle_last_error
             Logging::instance().log(ll, L"Error removing file: " + string_to_wstring(ex.what()));
 		return false;
 	}
     catch (...) {
-        LOG_ERROR3(L"remove_file: ", name, L"Unbekannter Fehler")
+        log_error(L"remove_file: ", name, L"Unbekannter Fehler");
         return false;
     }
 }
@@ -346,12 +348,12 @@ bool set_last_write_time(const std::wstring& fn, const fs::file_time_type& modif
 		fs::last_write_time(fn, modify_time);
 	}
 	catch (const fs::filesystem_error& ex) {
-        if (ll != LogLevel::None) // TODO use handleLastError
+        if (ll != LogLevel::None) // TODO use handle_last_error
             Logging::instance().log(ll, L"Error setting last write time: " + string_to_wstring(ex.what()));
 		return false;
 	}
     catch (...) {
-        LOG_ERROR3(L"set_last_write_time: ", fn, L"Unbekannter Fehler")
+        log_error(L"set_last_write_time: ", fn, L"Unbekannter Fehler");
     }
 	return true;
 }

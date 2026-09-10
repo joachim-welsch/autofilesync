@@ -7,7 +7,7 @@
 
 namespace AFS_Core {
 
-struct emptyStack : std::exception {
+struct EmptyStack : std::exception {
 	//const char* what() const throw();
 };
 
@@ -17,29 +17,34 @@ class ThreadSaveStack {
 	mutable std::mutex m_;
 public:
 	ThreadSaveStack(){}
-	ThreadSaveStack(const ThreadSaveStack& other) {
+	ThreadSaveStack(const ThreadSaveStack& other)
+	{
 		std::lock_guard<std::mutex> lock(other.m_);
 		data_ = other.data_;
 	}
 	ThreadSaveStack& operator=(const ThreadSaveStack&) = delete;
-	void push(T value) {
+	void push(T value)
+	{
 		std::lock_guard<std::mutex> lock(m_);
 		data_.push(std::move(value));
 	}
-	std::shared_ptr<T> pop() {
+	std::shared_ptr<T> pop()
+	{
 		std::lock_guard<std::mutex> lock(m_);
-		if (data_.empty()) throw emptyStack();
+		if (data_.empty()) throw EmptyStack();
 		std::shared_ptr<T> const res(std::make_shared<T>(data_.top()));
 		data_.pop();
 		return res;
 	}
-	void pop(T& value) {
+	void pop(T& value)
+	{
 		std::lock_guard<std::mutex> lock(m_);
-		if (data_.empty()) throw emptyStack();
+		if (data_.empty()) throw EmptyStack();
 		value = data_.top();
 		data_.pop();
 	}
-	bool empty() const {
+	bool empty() const
+	{
 		std::lock_guard<std::mutex> lock(m_);
 		return data_.empty();
 	}

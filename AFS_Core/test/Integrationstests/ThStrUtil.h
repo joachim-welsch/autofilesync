@@ -4,5 +4,5 @@
 
 namespace tu {
 
-    std::string toUtf8(const std::wstring& in);
+    std::string to_utf8(const std::wstring& in);
 }
