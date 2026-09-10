@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "SyncBase.h"
 #include "CopyLog.h"
 #include "Global.h"
@@ -6,7 +7,6 @@
 #include "SyncFile.h"
 #include "SyncFileSsh.h"
 #include "Synchronize.h"
-#include "pch.h"
 #include "Util.h"
 #include <filesystem>
 
@@ -39,11 +39,8 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring &targetdir)
     destination = sync_item_.target();
   else
     destination = targetdir;
-
   if (only_count_)
     return;
-
-  // SSH-Ziel behandeln
   if (sync_item_.ssh_target()) {
     if (!ssh_exists(destination)) {
       if (!ssh_mkdir(destination)) {
@@ -52,17 +49,13 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring &targetdir)
         report_sync_error(L"SSH-Zielverzeichnis nicht anlegbar: " + destination);
       }
     }
-  } else {
-    // Lokales Ziel
+  } else { // local target
     wstring local_dest = without_volume_spec(destination);
     if (!fs::exists(local_dest)) {
       try {
-        // create_directories, not create_directory: a target more than one
-        // level below anything that exists - a backup drive freshly attached,
-        // a path typed ahead of its parents - would otherwise fail on every
-        // run, and the item would never sync.
         fs::create_directories(local_dest);
-      } catch (std::filesystem::filesystem_error const &ex) {
+      }
+      catch (std::filesystem::filesystem_error const &ex) {
         handle_last_error(ex);
         report_sync_error(string_to_wstring(ex.what()));
       }
