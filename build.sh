@@ -93,30 +93,42 @@ echo -e "${YELLOW}Building project...${NC}"
 cmake --build "${BUILD_DIR}" \
       --config ${BUILD_TYPE} \
       --target autofilesync \
-      -j $(nproc)
+      -j "$(getconf _NPROCESSORS_ONLN)"
+
+# macOS builds an app bundle instead of a plain executable
+if [ "$(uname)" == "Darwin" ]; then
+    APP="${BUILD_DIR}/autofilesync.app"
+    EXECUTABLE="${APP}/Contents/MacOS/autofilesync"
+    INSTALL_HINT="cp -R ${APP} /Applications/"
+    RUN_HINT="open ${APP}"
+else
+    EXECUTABLE="${BUILD_DIR}/autofilesync"
+    INSTALL_HINT="sudo cp ${EXECUTABLE} /usr/local/bin/"
+    RUN_HINT="${EXECUTABLE}"
+fi
 
 # Check if build was successful
-if [ -f "${BUILD_DIR}/autofilesync" ]; then
+if [ -f "${EXECUTABLE}" ]; then
     echo -e "${GREEN}=== Build successful! ===${NC}"
-    echo -e "Executable: ${BUILD_DIR}/autofilesync"
-    
+    echo -e "Executable: ${EXECUTABLE}"
+
     # Show file size
-    SIZE=$(du -h "${BUILD_DIR}/autofilesync" | cut -f1)
+    SIZE=$(du -h "${EXECUTABLE}" | cut -f1)
     echo -e "Size: ${SIZE}"
     echo -e "Build type: ${BUILD_TYPE}"
-    
+
     # Strip symbols for smaller binary (optional)
     if [ "$STRIP" == true ]; then
         echo -e "${YELLOW}Stripping debug symbols...${NC}"
-        strip "${BUILD_DIR}/autofilesync"
-        SIZE_STRIPPED=$(du -h "${BUILD_DIR}/autofilesync" | cut -f1)
+        strip "${EXECUTABLE}"
+        SIZE_STRIPPED=$(du -h "${EXECUTABLE}" | cut -f1)
         echo -e "Size after strip: ${SIZE_STRIPPED}"
     fi
-    
+
     echo -e "\n${GREEN}To install:${NC}"
-    echo -e "  sudo cp ${BUILD_DIR}/autofilesync /usr/local/bin/"
+    echo -e "  ${INSTALL_HINT}"
     echo -e "\n${GREEN}To run:${NC}"
-    echo -e "  ${BUILD_DIR}/autofilesync"
+    echo -e "  ${RUN_HINT}"
 else
     echo -e "${RED}=== Build failed! ===${NC}"
     exit 1
