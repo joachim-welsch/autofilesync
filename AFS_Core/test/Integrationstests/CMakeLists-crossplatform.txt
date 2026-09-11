@@ -92,7 +92,6 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/PasswordCrypto.cpp
     ${LIB_DIR}/src/SshHostKeyVerification.cpp
     ${LIB_DIR}/src/Libssh2Init.cpp
-    ${LIB_DIR}/src/Directory.cpp
     ${LIB_DIR}/src/FileDifference.cpp
     ${LIB_DIR}/src/Global.cpp
     ${LIB_DIR}/src/Settings.cpp

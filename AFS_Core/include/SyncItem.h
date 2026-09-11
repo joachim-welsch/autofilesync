@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include <chrono>
+#include <memory>
 #include "SshAccount.h"
 
 namespace AFS_Core {
@@ -46,7 +47,7 @@ public:
 enum class CompareItem { size, time, content };
 class CompareItems: std::set<CompareItem>{
 public:
-	CompareItems();
+    CompareItems();
     void set(const std::wstring& name, bool value);
     bool size() const;
     bool time() const;
@@ -60,19 +61,23 @@ enum class SyncPathType { Filesystem, Ssh };
 
 class SyncPath {
     SyncPathType type_;
+protected:
+    explicit SyncPath(SyncPathType type) : type_(type) {}
 public:
     virtual ~SyncPath() = default;
     virtual std::wstring path() const = 0;
-    SyncPathType type() const;
-    void type(SyncPathType t);
+    // Deep copy for SyncItem's value semantics; the concrete type stays intact.
+    virtual std::unique_ptr<SyncPath> clone() const = 0;
+    SyncPathType type() const { return type_; }
 };
 
 class FilesystemPath: public SyncPath {
     std::wstring path_;
 public:
     FilesystemPath();
-    FilesystemPath(const std::wstring& path);
+    explicit FilesystemPath(const std::wstring& path);
     std::wstring path() const override;
+    std::unique_ptr<SyncPath> clone() const override;
     void set_path(const std::wstring& path);
 };
 
@@ -83,6 +88,7 @@ public:
     SshPath();
     SshPath(const SshAccount& account, const std::wstring& path);
     std::wstring path() const override;
+    std::unique_ptr<SyncPath> clone() const override;
     void set_path(const std::wstring& path);
     const SshAccount& account() const;
     void set_account(const SshAccount& account);
@@ -118,13 +124,16 @@ class SyncItem {
     std::wstring    wildcard_;
     SyncFlags       flags_;
     CompareItems    compare_items_;
-    Exclusions		exclusions_;
+    Exclusions      exclusions_;
     uint16_t        sync_cycle_ = 60;
-    TimePoint       last_sync_ = (TimePoint::min)(); // non persitent data - initialize to min so first sync runs immediately
+    TimePoint       last_sync_ = (TimePoint::min)(); // not persisted; min makes the first sync run immediately
+    SshPath* ssh_path(const std::unique_ptr<SyncPath>& path) const;
 public:
-    SyncItem(){}
+    SyncItem() = default;
     SyncItem(const SyncItem& other);
     SyncItem& operator=(const SyncItem& other);
+    SyncItem(SyncItem&&) = default;
+    SyncItem& operator=(SyncItem&&) = default;
     SyncItem(const std::wstring& name, SyncItemType type, const std::wstring& s, const std::wstring& t, const std::wstring& w);
     SyncItem(const std::wstring& name, SyncItemType type, const std::wstring& s, const std::wstring& t, const std::wstring& w, const Exclusions& e,
              bool del_aftercopy, bool tws, bool cwtn, bool fsp, bool enabled, const CompareItems&);
@@ -201,10 +210,6 @@ inline bool SyncFlags::sync_empty_files() const { return sync_empty_files_; }
 inline void SyncFlags::sync_empty_files(bool v) { sync_empty_files_ = v; }
 inline bool SyncFlags::enabled() const { return enabled_; }
 inline void SyncFlags::enabled(bool v) { enabled_ = v; }
-
-// SyncPath inline implementations
-inline SyncPathType SyncPath::type() const { return type_; }
-inline void SyncPath::type(SyncPathType t) { type_ = t; }
 
 // SyncItem inline implementations
 inline bool SyncItem::operator==(const SyncItem& o) const { return o.name_ == name_; }

@@ -123,9 +123,6 @@
     <ClCompile Include="$(LibDir)\Libssh2Init.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\Directory.cpp">
-      <Filter>AFS_Core</Filter>
-    </ClCompile>
     <ClCompile Include="$(LibDir)\FileDifference.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>

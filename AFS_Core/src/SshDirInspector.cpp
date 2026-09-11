@@ -258,7 +258,6 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
         return info;
     }
 
-    // Alle Einträge lesen
     char buffer[512];
     LIBSSH2_SFTP_ATTRIBUTES entry_attrs;
     int read_rc = 0;
@@ -279,7 +278,6 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
         entry.raw_mtime = static_cast<time_t>(entry_attrs.mtime);
         entry.permissions = static_cast<uint32_t>(entry_attrs.permissions);
 
-        // Konvertierung der Zeit in lesbaren String
         auto tp = std::chrono::system_clock::from_time_t(entry.raw_mtime);
         entry.last_modified_iso = std::format("{:%Y-%m-%d %H:%M:%S}", tp);
 
@@ -371,7 +369,6 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
 
         result.entries.push_back(entry);
 
-        // Rekursiv in Unterverzeichnisse gehen
         if (entry.is_directory && !entry.is_symlink) {
             inspect_dir_recursive_impl(full_path, result);
         }

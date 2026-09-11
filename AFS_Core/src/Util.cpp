@@ -4,15 +4,13 @@
 #include <fstream>
 #include <iomanip>
 #include <chrono>
+#include <cstdio>
+#include <cstring>
+#include <limits>
 #include <ctime>
-#include <iostream>
-#include <algorithm>
+#include <memory>
 #include <regex>
-#include <locale>
-#include <codecvt>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include  <cctype>
+#include <stdexcept>
 #ifdef _WIN32
 #  include <process.h>   // _getpid
 #else
@@ -21,15 +19,8 @@
 #ifdef _WXWIDGETS
     #include "wx/msgdlg.h"
     #include "wx/string.h"
-    #ifdef _UNIX
-        #include <pwd.h>
-    #endif
 #else
-    #ifdef _UNIX
-        #include <unistd.h>
-        #include <pwd.h>
-        #include <string.h>
-    #else
+    #ifndef _UNIX
         #include <Windows.h>
         #include <tchar.h>
     #endif
@@ -45,13 +36,21 @@ namespace fs=std::filesystem;
 namespace util {
 
 unsigned long current_pid()
-    {
+{
 #ifdef _WIN32
-        return static_cast<unsigned long>(::_getpid());
+    return static_cast<unsigned long>(::_getpid());
 #else
-        return static_cast<unsigned long>(::getpid());
+    return static_cast<unsigned long>(::getpid());
 #endif
-    }
+}
+
+uint16_t to_uint16_t(const std::wstring& s)
+{
+    const int value = std::stoi(s);
+    if (value < 0 || value > std::numeric_limits<uint16_t>::max())
+        throw std::out_of_range("Wert ausserhalb von 0..65535: " + wstring_to_string(s));
+    return static_cast<uint16_t>(value);
+}
 
 std::wstring with_trailing_char(const std::wstring& s, wchar_t c)
 {
@@ -67,12 +66,8 @@ std::wstring with_trailing_char(const std::wstring& s, wchar_t c)
 bool drive_exists(const wstring& drive_name)
 {
     log_debug(L"drive_exists() " + drive_name);
-    try {
-        return fs::exists(drive_name);
-    } catch (const fs::filesystem_error& e) {
-        log_error(L"Fehler beim Zugriff auf das Dateisystem: " + string_to_wstring(e.what()));
-        return false;
-    }
+    std::error_code ec;
+    return fs::exists(drive_name, ec);
 }
 #endif
 
@@ -89,10 +84,10 @@ bool drive_exists(const wstring& drive_name)
 #elif defined(WIN32)
 bool drive_exists(const wstring& drive_name)
 {
-	log_debug(L"drive_exists() " + drive_name);
-    return std::filesystem::exists(drive_name) && std::filesystem::is_directory(drive_name);
+    log_debug(L"drive_exists() " + drive_name);
+    std::error_code ec;
+    return fs::is_directory(drive_name, ec);
 }
-
 #endif
 
 bool volume_exists(const wstring& drive_name, const wstring& volume_name)
@@ -101,16 +96,14 @@ bool volume_exists(const wstring& drive_name, const wstring& volume_name)
 #ifdef _UNIX
     std::ifstream mounts("/proc/mounts");
     if (!mounts.is_open()) {
-        std::cerr << "Fehler beim Öffnen von /proc/mounts" << std::endl;
+        log_error(L"/proc/mounts kann nicht geoeffnet werden");
         return false;
     }
-
+    const string volume = wstring_to_string(volume_name);
     std::string line;
-    while (std::getline(mounts, line)) {
-        if (line.find(wstring_to_string(volume_name)) != std::string::npos) {
+    while (std::getline(mounts, line))
+        if (line.find(volume) != std::string::npos)
             return true;
-        }
-    }
     return false;
 #else
     TCHAR fetched_volume_name[MAX_PATH + 1] = { 0 };
@@ -118,24 +111,34 @@ bool volume_exists(const wstring& drive_name, const wstring& volume_name)
     DWORD serial_number = 0;
     DWORD max_component_length = 0;
     DWORD file_system_flags = 0;
-    if (GetVolumeInformation(
-        drive_name.c_str(),
-        fetched_volume_name,
-        ARRAYSIZE(fetched_volume_name),
-        &serial_number,
-        &max_component_length,
-        &file_system_flags,
-        file_system_name,
-        ARRAYSIZE(file_system_name)
-    )) {
-        return _tcslen(fetched_volume_name) > 0 && volume_name == fetched_volume_name;
-    }
-    else {
+    if (!GetVolumeInformation(drive_name.c_str(), fetched_volume_name, ARRAYSIZE(fetched_volume_name),
+            &serial_number, &max_component_length, &file_system_flags, file_system_name, ARRAYSIZE(file_system_name)))
         return false;
-    }
+    return _tcslen(fetched_volume_name) > 0 && volume_name == fetched_volume_name;
 #endif
 }
 
+static std::tm local_time(std::time_t tt)
+{
+    std::tm tm{};
+#ifdef _WIN32
+    localtime_s(&tm, &tt);
+#else
+    localtime_r(&tt, &tm);
+#endif
+    return tm;
+}
+
+static std::tm utc_time(std::time_t tt)
+{
+    std::tm tm{};
+#ifdef _WIN32
+    gmtime_s(&tm, &tt);
+#else
+    gmtime_r(&tt, &tm);
+#endif
+    return tm;
+}
 
 // floor() instead of system_clock::to_time_t(): to_time_t may round to the
 // nearest second, which would pair a rounded-up second with the milliseconds of
@@ -145,13 +148,7 @@ static std::wstring timestamp(std::chrono::system_clock::time_point time)
     using namespace std::chrono;
     const auto second = floor<seconds>(time);
     const auto millis = duration_cast<milliseconds>(time - second).count();
-    const std::time_t tt = system_clock::to_time_t(second);
-    std::tm tm{};
-#ifdef _WIN32
-    localtime_s(&tm, &tt);
-#else
-    localtime_r(&tt, &tm);
-#endif
+    const std::tm tm = local_time(system_clock::to_time_t(second));
     std::wostringstream os;
     os << std::put_time(&tm, L"%Y-%m-%d_%H-%M-%S") << L'-'
        << std::setw(3) << std::setfill(L'0') << millis;
@@ -167,14 +164,6 @@ fs::path with_timestamp_prefix(const fs::path& pathname, std::chrono::system_clo
     return pathname.parent_path() / (timestamp(time) + L"_" + pathname.filename().wstring());
 }
 
-template <typename TP>
-std::time_t to_time_t(TP tp)
-{
-    using namespace std::chrono;
-    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
-              + system_clock::now());
-    return system_clock::to_time_t(sctp);
-}
 void handle_last_error(std::filesystem::filesystem_error const& ex)
 {
     std::stringstream msg;
@@ -187,7 +176,7 @@ void handle_last_error(std::filesystem::filesystem_error const& ex)
     log_error(msg.str());
 }
 
-std::wregex wildcard_to_regex(const std::wstring& wildcard, bool case_sensitive = true)
+static std::wregex wildcard_to_regex(const std::wstring& wildcard, bool case_sensitive = true)
 {
     // Everything except the wildcard metacharacters * and ? must be escaped:
     // an unescaped '.' made "*.txt" match "abXtxt", parentheses turned into
@@ -210,75 +199,59 @@ std::wregex wildcard_to_regex(const std::wstring& wildcard, bool case_sensitive 
 
 bool wildmatch(const std::wstring& input, const std::wstring& wildcard)
 {
-    auto rgx = wildcard_to_regex(wildcard);
-    return std::regex_match(input, rgx);
+    return std::regex_match(input, wildcard_to_regex(wildcard));
 }
 
+namespace {
+    using FilePtr = std::unique_ptr<FILE, int(*)(FILE*)>;
+
+    FilePtr open_for_reading(const wstring& name)
+    {
+        FILE* file = nullptr;
 #ifdef WIN32
-bool files_equal(const wstring& file1, const wstring& file2)
+        _wfopen_s(&file, name.c_str(), L"rb");
+#else
+        file = std::fopen(wstring_to_string(name).c_str(), "rb");
+#endif
+        return FilePtr(file, std::fclose);
+    }
+}
+
+bool files_equal(const wstring& input1, const wstring& input2)
 {
-    FILE* fp1;
-    FILE* fp2;
-    errno_t err = _wfopen_s(&fp1, file1.c_str(), L"rb");
-    if (err != 0)
+    const FilePtr f1 = open_for_reading(input1);
+    const FilePtr f2 = open_for_reading(input2);
+    if (!f1 || !f2)
         return false;
-    err = _wfopen_s(&fp2, file2.c_str(), L"rb");
-    if (err != 0)
-        return false;
-    if ((fp1 == nullptr) || (fp2 == nullptr))
-        return false;
-    const int N = 4096;
+    constexpr size_t N = 4096;
     char buf1[N];
     char buf2[N];
     do {
-        size_t r1 = fread(buf1, 1, N, fp1);
-        size_t r2 = fread(buf2, 1, N, fp2);
-        if (r1 != r2 || memcmp(buf1, buf2, r1)) {
-            fclose(fp1);
-            fclose(fp2);
+        const size_t r1 = std::fread(buf1, 1, N, f1.get());
+        const size_t r2 = std::fread(buf2, 1, N, f2.get());
+        if (r1 != r2 || std::memcmp(buf1, buf2, r1) != 0)
             return false;
-        }
-    } while (!feof(fp1) || !feof(fp2));
-    const bool retval = feof(fp1) && feof(fp2);
-    fclose(fp1);
-    fclose(fp2);
-    return retval;
+    } while (!std::feof(f1.get()) || !std::feof(f2.get()));
+    return std::feof(f1.get()) && std::feof(f2.get());
 }
-#else
-bool files_equal(const wstring& input1, const wstring& input2)
+
+static std::time_t to_time_t(const fs::file_time_type& ft)
 {
-  constexpr int N = 4096;
-  char buf1[N];
-  char buf2[N];
-  FILE* f1 = fopen(wstring_to_string(input1).c_str(), "rb");
-  FILE* f2 = fopen(wstring_to_string(input2).c_str(), "rb");
-  if (!f1 || !f2) {
-    if (f1) fclose(f1);
-    if (f2) fclose(f2);
-    return false;
-  }
-  do {
-    size_t r1 = fread(buf1, 1, N, f1);
-    size_t r2 = fread(buf2, 1, N, f2);
-    if (r1 != r2 || memcmp(buf1, buf2, r1)) {
-      fclose(f1);
-      fclose(f2);
-      return false;
-    }
-  } while (!feof(f1) || !feof(f2));
-  bool retval = feof(f1) && feof(f2);
-  fclose(f1);
-  fclose(f2);
-  return retval;
-}
+    using namespace std::chrono;
+#ifdef _MACOS
+    // clock_cast is unavailable in Apple's libc++
+    const auto sys = file_clock::to_sys(ft);
+#else
+    const auto sys = clock_cast<system_clock>(ft);
 #endif
+    return system_clock::to_time_t(time_point_cast<system_clock::duration>(sys));
+}
 
 string to_string(const fs::file_time_type& ft)
 {
-    std::time_t tt = to_time_t(ft);
-    std::tm *gmt = std::gmtime(&tt);
+    const std::tm tm = utc_time(to_time_t(ft));
     std::stringstream buffer;
-    buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
+    buffer << std::put_time(&tm, "%A, %d %B %Y %H:%M");
     return buffer.str();
 }
 
@@ -286,76 +259,69 @@ bool equal(const std::filesystem::file_time_type& a, const std::filesystem::file
 {
 #ifdef _MACOS
     // clock_cast is unavailable in Apple's libc++, so use file_clock::to_sys instead
-    auto a_sys = std::chrono::file_clock::to_sys(a);
-    auto b_sys = std::chrono::file_clock::to_sys(b);
-    return a_sys == b_sys;
-#endif
+    return std::chrono::file_clock::to_sys(a) == std::chrono::file_clock::to_sys(b);
+#else
     return a == b;
+#endif
 }
 
 bool greater(const std::filesystem::file_time_type& a, const std::filesystem::file_time_type& b)
 {
 #ifdef _MACOS
     // clock_cast is unavailable in Apple's libc++, so use file_clock::to_sys instead
-    auto a_sys = std::chrono::file_clock::to_sys(a);
-    auto b_sys = std::chrono::file_clock::to_sys(b);
-    return a_sys > b_sys;
+    return std::chrono::file_clock::to_sys(a) > std::chrono::file_clock::to_sys(b);
+#else
+    return a > b;
 #endif
-	return a > b;
 }
 
 bool rename_file(const std::wstring& oldname, const std::wstring& newname)
 {
     log_info(L"rename_file", oldname, newname);
-    try
-    {
+    try {
         fs::rename(oldname, newname);
+        return true;
     }
-    catch (const fs::filesystem_error& ex) //// TODO use handle_last_error
-    {
-		log_error(L"Fehler beim Umbenennen der Datei: " + string_to_wstring(ex.what()));
-        return false;
+    catch (const fs::filesystem_error& ex) {
+        log_error(L"Fehler beim Umbenennen der Datei: " + string_to_wstring(ex.what()));
     }
     catch (...) {
         log_error(L"Fehler beim Umbenennen der Datei: ", oldname, L"Unbekannter Fehler");
     }
-    return true;
+    return false;
 }
 
 bool remove_file(const std::wstring& name, LogLevel ll)
 {
-	try	{
-		// fs::remove()'s own return value (false = nothing there to remove,
-		// not an error) used to be discarded here, so this always reported
-		// success regardless of whether anything was actually deleted.
-		return fs::remove(name);
-	}
-	catch (const fs::filesystem_error& ex)
-	{
-		if (ll != LogLevel::None) // TODO use handle_last_error
+    try {
+        // fs::remove() answers false when there was nothing to remove, which
+        // is not an error but must not be reported as a deletion either.
+        return fs::remove(name);
+    }
+    catch (const fs::filesystem_error& ex) {
+        if (ll != LogLevel::None)
             Logging::instance().log(ll, L"Error removing file: " + string_to_wstring(ex.what()));
-		return false;
-	}
+    }
     catch (...) {
         log_error(L"remove_file: ", name, L"Unbekannter Fehler");
-        return false;
     }
+    return false;
 }
 
 bool set_last_write_time(const std::wstring& fn, const fs::file_time_type& modify_time, LogLevel ll)
 {
-	try {
-		fs::last_write_time(fn, modify_time);
-	}
-	catch (const fs::filesystem_error& ex) {
-        if (ll != LogLevel::None) // TODO use handle_last_error
+    try {
+        fs::last_write_time(fn, modify_time);
+        return true;
+    }
+    catch (const fs::filesystem_error& ex) {
+        if (ll != LogLevel::None)
             Logging::instance().log(ll, L"Error setting last write time: " + string_to_wstring(ex.what()));
-		return false;
-	}
+    }
     catch (...) {
         log_error(L"set_last_write_time: ", fn, L"Unbekannter Fehler");
     }
-	return true;
+    return false;
 }
 
 } // namespace util

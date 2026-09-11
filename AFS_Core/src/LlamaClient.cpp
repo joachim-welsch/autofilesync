@@ -49,7 +49,8 @@ LlamaClient::~LlamaClient() = default;
 bool LlamaClient::available()
 {
     const char* path = std::getenv(MODEL_PATH_VARIABLE);
-    return path != nullptr && *path != '\0' && std::filesystem::exists(path);
+    std::error_code ec;
+    return path != nullptr && *path != '\0' && std::filesystem::exists(path, ec);
 }
 
 bool LlamaClient::ensure_loaded(wstring& error)

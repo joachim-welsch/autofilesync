@@ -54,7 +54,6 @@ class Synchronize {
     std::map<std::wstring, bool> item_reachable_;
 
     bool has_controler() const;
-    uint16_t get_drive_check_cache_interval() const;
     bool is_ssh_target_dir(const std::wstring& target);
     void sync_item(SyncItem& i);
     void run_sync_item(SyncItem& i);
@@ -80,7 +79,7 @@ public:
     static Synchronize* create(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground);
     static bool has_instance();
     static Synchronize& instance();
-	static void destroy();
+    static void destroy();
     virtual ~Synchronize();
 
     #ifdef _TEST
@@ -91,7 +90,7 @@ public:
     SyncMessage get_message();
     SyncControler& sync_controler() const;
     static bool stopping();
-	friend class SyncControler;
+    friend class SyncControler;
 };
 
 //#####################################################################

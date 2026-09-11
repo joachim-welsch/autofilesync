@@ -10,7 +10,7 @@ class SyncMessage {
 	uint64_t		filenumber_ = 0;
 	uint64_t		filesize_ = 0;
 public:
-	SyncMessage(){}
+	SyncMessage() = default;
 	SyncMessage(const std::wstring& msg, uint64_t filenumber, uint64_t filesize);
 	std::wstring msg() const { return msg_; }
 	uint64_t    filenumber() const { return filenumber_; }

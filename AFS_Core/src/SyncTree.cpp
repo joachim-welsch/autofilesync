@@ -2,7 +2,6 @@
 #include "SyncTree.h"
 #include "Global.h"
 #include "SyncFileSsh.h"
-#include "SyncFile.h"
 #include "Util.h"
 #include "Synchronize.h"
 #include "Logging.h"
@@ -123,13 +122,7 @@ void SyncTree::sync_file_entry(const wstring& name, const wstring& sourcename, c
 {
     if ((!wildcard.empty() && !wildmatch(name, wildcard)) || is_excluded(name, sync_item_.exclusions()))
         return;
-    if (only_count_) {
-        ++copy_count_;
-        return;
-    }
-    const wstring source = with_trailing_char(sourcename, source_separator()) + name;
-    const wstring dest = with_trailing_char(targetname, target_separator()) + name;
-    SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard, Exclusions(), sync_item_.flags(), sync_item_.compare_items()), copy_count_)();
+    sync_file(with_trailing_char(sourcename, source_separator()) + name, with_trailing_char(targetname, target_separator()) + name, wildcard);
 }
 
 void SyncTree::operator()()

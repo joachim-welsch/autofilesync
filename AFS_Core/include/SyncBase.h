@@ -21,6 +21,10 @@ protected:
 
 	void create_target_dir_if_not_exist(const std::wstring& targetdir = L"");
 	void sync_dir_entry(const std::filesystem::directory_entry& dir_entry, const std::wstring& wildcard, const std::wstring& destination);
+	// Synchronises one file of the item; only counts it when only_count_ is set.
+	// Every failure is logged and reported here, so one bad file never stops
+	// the directory it lives in.
+	void sync_file(const std::wstring& source, const std::wstring& dest, const std::wstring& wildcard);
     bool drive_not_exist(const std::wstring& pathname, bool ssh);
 	// Files that exist only in the target directory (one level, not recursive)
 	// never reach FileDifference at all otherwise: SyncDir/SyncTree only ever
@@ -33,28 +37,21 @@ protected:
 	// by constructing it with a source path that is confirmed not to exist.
 	void sync_target_only_entries(const std::wstring& source_dir, const std::wstring& target_dir,
 		const std::wstring& wildcard, const std::set<std::wstring>& source_names);
-protected:
-	SyncBase() = delete;
 	bool stop_requested() const;
+	SyncBase() = delete;
 public:
 	SyncBase(const SyncItem& sync_item, std::size_t& copy_count, bool only_count);
 	virtual void operator()() = 0;
 	virtual ~SyncBase() = default;
 };
 
+// what() carries the UTF-8 encoded message, so the catch(std::exception&)
+// handlers see the same diagnostic as get_message().
 class SyncException : public std::runtime_error {
 	std::wstring message_;
 public:
-	// what() now carries the real message (UTF-8-encoded), not the hardcoded
-	// "Fehler" placeholder it used to pass to runtime_error's constructor -
-	// every catch(...)/catch(std::exception&) site logging ex.what() (there
-	// is no dedicated catch(SyncException&) anywhere) silently dropped the
-	// actual diagnostic (which file, which underlying OS error) the throw
-	// site had already built.
-	SyncException(const std::wstring& msg) : std::runtime_error(util::wstring_to_string(msg)), message_(msg) {};
-	~SyncException() throw() {};
-
-	std::wstring get_message() { return message_; }
+	explicit SyncException(const std::wstring& msg) : std::runtime_error(util::wstring_to_string(msg)), message_(msg) {}
+	std::wstring get_message() const { return message_; }
 };
 
 std::wstring root_name(const std::wstring& path);

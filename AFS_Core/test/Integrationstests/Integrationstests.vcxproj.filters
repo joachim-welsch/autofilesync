@@ -6,9 +6,6 @@
     <ClCompile Include="..\..\Config.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Directory.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\FileDifference.cpp">
       <Filter>source</Filter>
     </ClCompile>

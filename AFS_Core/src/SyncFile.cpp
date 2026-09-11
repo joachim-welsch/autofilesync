@@ -2,12 +2,7 @@
 #include "SyncFile.h"
 #include <filesystem>
 #include <sstream>
-#ifdef _WXWIDGETS
-    #include "SyncControler.h"
-    #include "ProgressDialog.h"
-#elif WIN32
-    #include <Windows.h>
-#endif
+#include <thread>
 #include "Global.h"
 #include "Synchronize.h"
 #include "Util.h"
@@ -30,17 +25,13 @@ using util::to_string;
 using fsu::file_exists;
 using util::files_equal;
 
-namespace {
-    const size_t TEN_MB{ 10 * 1024 * 1024 };
-}
-
 #ifdef _TEST
 // Counts calls to the free wait_for_updated_filetime() below, so a regression
 // test can catch a caller waiting for the same filetime confirmation twice.
 std::atomic<int> wait_for_updated_filetime_call_count{0};
 #endif
 
-void move_file_to_backup(const wstring& dest_filename)
+static void move_file_to_backup(const wstring& dest_filename)
 {
     log_debug(L"move_file_to_backup: " + dest_filename);
     int i = 1;
@@ -52,21 +43,19 @@ void move_file_to_backup(const wstring& dest_filename)
         ++i;
     } while (file_exists(new_dest_filename));
     try {
-        fs::rename(dest_filename.c_str(), new_dest_filename.c_str());
+        fs::rename(dest_filename, new_dest_filename);
     }
-    catch (fs::filesystem_error& err) {
+    catch (const fs::filesystem_error& err) {
         std::wstringstream os;
         os << "Fehler: " << err.what() << ", beim Umbenennen von " << dest_filename << " nach " << new_dest_filename;
         throw SyncException(os.str());
     }
 }
 
-void transfer_filename(const wstring& source, wstring& dest)
+static void transfer_filename(const wstring& source, wstring& dest)
 {
     log_debug(L"transfer_filename: " + source + L" -> " + dest);
-    dest = util::with_trailing_char(dest, DIR_SEPARATOR);
-    fs::path p(source);
-    dest += p.filename().wstring();
+    dest = util::with_trailing_char(dest, DIR_SEPARATOR) + fs::path(source).filename().wstring();
 }
 
 SyncFile::SyncFile(const SyncItem& si, std::size_t& copy_count, bool only_count, bool transfer_filename)
@@ -78,17 +67,7 @@ SyncFile::SyncFile(const SyncItem& si, std::size_t& copy_count, bool only_count,
 
 void SyncFile::set_ssh()
 {
-    ssh_ = SSHPATH::none;
-    if (sync_item_.ssh_source()) {
-        ssh_ = SSHPATH::source;
-    } 
-    if (sync_item_.ssh_target()) {
-        if (ssh_ == SSHPATH::source) {
-            ssh_ = SSHPATH::both;
-        } else {
-            ssh_ = SSHPATH::dest;
-        }
-    }
+    ssh_ = sync_item_.ssh_path_type();
 }
 
 void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& modify_time);
@@ -122,14 +101,14 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
 #ifdef _TEST
     ++wait_for_updated_filetime_call_count;
 #endif
-    log_debug(L"waitForUpdatedFiletimeL " + fn.wstring() + L" filetime: "+ string_to_wstring(util::to_string(modify_time)));
+    log_debug(L"wait_for_updated_filetime " + fn.wstring() + L" filetime: "+ string_to_wstring(util::to_string(modify_time)));
     std::error_code ec;
     int set_count = 0;
     int end_count = 0;
     while (!util::equal(fs::last_write_time(fn, ec), modify_time)) {
         if (Synchronize::stopping())
             return;
-        auto act_filetime=fs::last_write_time(fn, ec);
+        const auto act_filetime = fs::last_write_time(fn, ec);
         log_debug(L"act write time: " + string_to_wstring(util::to_string(act_filetime)) + L" == " + string_to_wstring(util::to_string(modify_time)));
         set_count++;
         end_count++;
@@ -148,131 +127,63 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
     log_debug(L"endof wait_for_updated_filetime");
 }
 
-
-CopyResult copy_large_file(const fs::path& src, const fs::path& dest, [[maybe_unused]] uintmax_t fsize)
+static CopyResult copy_normal_file(const wstring& src, const wstring& dest, const SyncItem& si)
 {
-#ifdef _WXWIDGETS
-	ProgressDialog* progress_dlg = nullptr;
-	if (Synchronize::has_instance()) {
-        auto progress_dialog = SyncControler::instance().progress_dialog();
-        if (progress_dialog != std::nullopt) {
-		    progress_dlg = *progress_dialog;
-            progress_dlg->setRange(fsize / TEN_MB);
-            progress_dlg->SetTitle(L"Kopiere Datei: " + src.wstring());
-        }
-	}
-#endif
-    std::ifstream source(src, std::ios::binary);
-    std::ofstream destination(dest, std::ios::binary);
-    if (!source.is_open() || !destination.is_open()) {
-        return CopyResult::Error;
-    }
-    std::vector<char> buffer(TEN_MB);
-    [[maybe_unused]] uintmax_t copied = 0;
-    while (source.read(buffer.data(), buffer.size()) || source.gcount() > 0) {
-        if (Synchronize::stopping()) {
-			log_debug(L"Stopped");
-			return CopyResult::Stopped;
-        }
-        destination.write(buffer.data(), source.gcount());
-#ifdef _WXWIDGETS
-        copied += TEN_MB;
-        if (!Synchronize::stopping() && Synchronize::has_instance() && progress_dlg != nullptr) {
-			progress_dlg->setProgress(copied / TEN_MB);
-        }
-#endif
-    }
-    source.close();
-    destination.close();
-    return CopyResult::OK;
-}
-
-CopyResult copy_normal_file(const wstring& src, const wstring& dest, const SyncItem& si)
-{
-    if (si.ssh_source() && si.ssh_target()) {
+    if (si.ssh_source() && si.ssh_target())
         return copy_ssh_to_ssh(src, dest);
-    }
-    else if (si.ssh_source() && !si.ssh_target()) {
+    if (si.ssh_source())
         return copy_ssh_to_fs(src, dest);
-    }
-    else if (!si.ssh_source() && si.ssh_target()) {
+    if (si.ssh_target())
         return copy_fs_to_ssh(src, dest);
-    }
-    else
-        return fs::copy_file(src.c_str(), dest.c_str(), fs::copy_options::update_existing) ? CopyResult::OK : CopyResult::Error;
+    return fs::copy_file(src, dest, fs::copy_options::update_existing) ? CopyResult::OK : CopyResult::Error;
 }
 
-#ifdef WIN32
-CopyResult origin_filesystem_copy_function(const wstring& src, const wstring& dest)
+CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
 {
-    if (CopyFile(src.c_str(), dest.c_str(), FALSE)) {
-        return CopyResult::OK;
-    }
-    else {
-        DWORD error = GetLastError();
-        log_error(L"Fehler beim Kopieren der Datei: ", src, dest, std::to_wstring(error));
-        return CopyResult::Error;
-    }
+    return copy_normal_file(src, dest, sync_item_);
 }
-#else
-#endif
 
-#ifdef _WXWIDGETS
-CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
+// Removes a failed or aborted copy and puts the previous target back.
+static void restore_backup(const wstring& dest, const wstring& bak_filename)
 {
-    // auto filesize = fs::file_size(src);
-    // if (filesize > 10U * TEN_MB)
-	//     return copy_large_file(src, dest, filesize);
-	// else
-		return copy_normal_file(src, dest, sync_item_);
+    util::remove_file(dest);
+    if (file_exists(bak_filename))
+        util::rename_file(bak_filename, dest);
 }
-#else
-CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
-{
-	return copy_normal_file(src, dest, sync_item_);
-}
-#endif
 
 bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
 {
-	log_debug(L"save_copy_file");
-	wstring bak_filename = dest + L".bak";
+    log_debug(L"save_copy_file");
+    const wstring bak_filename = dest + L".bak";
     if (file_exists(dest)) {
         if (file_exists(bak_filename))
             util::remove_file(bak_filename);
         if (!util::rename_file(dest, bak_filename))
             return false;
     }
-    CopyResult copy_ok = core_copy_function(src, dest);
+    const CopyResult copy_ok = core_copy_function(src, dest);
     // SSH skips only the content verification below (TODO); Error/Stopped must
     // still run the cleanup/restore paths, or a failed transfer is reported as
     // success - the caller would then e.g. delete the source (del_aftercopy).
     if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK)
         return true;
-    if (copy_ok == CopyResult::OK && !files_equal(src, dest))
-    {
+    if (copy_ok == CopyResult::OK && !files_equal(src, dest)) {
         log_error(L"Kopiere: ", src, dest, L"Überprüfung der kopierten Datei ergab Abweichungen");
         report_sync_error(L"Kopierte Datei weicht ab: " + dest);
-        util::remove_file(dest);
-        if (file_exists(bak_filename))
-            util::rename_file(bak_filename, dest);
+        restore_backup(dest, bak_filename);
         return false;
     }
-    else if (copy_ok == CopyResult::Error) {
+    if (copy_ok == CopyResult::Error) {
         log_error(L"Kopiere: ", src, dest, L"Kopieren fehlgeschlagen");
         report_sync_error(L"Kopieren fehlgeschlagen: " + src + L" -> " + dest);
-		util::remove_file(dest);
-        if (file_exists(bak_filename))
-            util::rename_file(bak_filename, dest);
+        restore_backup(dest, bak_filename);
         return false;
-	}
-	else if (copy_ok == CopyResult::Stopped) {
+    }
+    if (copy_ok == CopyResult::Stopped) {
         log_info(L"Kopieren abgebrochen: ", src);
-			util::remove_file(dest);
-		if (file_exists(bak_filename))
-			util::rename_file(bak_filename, dest);
-		return false;
-	}
+        restore_backup(dest, bak_filename);
+        return false;
+    }
     return true;
 }
 
@@ -280,21 +191,15 @@ void SyncFile::pre_copy(const wstring& src, const wstring& dest)
 {
     if (ssh_ != SSHPATH::none)
         return; // TODO: file attributes are not adjusted over SSH yet
-    if (file_exists(dest)) {
-        try {
-            fs::permissions(dest, fs::perms::owner_all);
-        }
-        catch (std::filesystem::filesystem_error const& ex) {
-            handle_last_error(ex);
-        }
-        catch (...) {
-            log_error(L"Ändere Dateiattribute: ", src, L"Unbekannter Fehler");
-        }
-        if (sync_item_.father_son_principle())
-            move_file_to_backup(dest);
-    }
+    if (!file_exists(dest))
+        return;
+    std::error_code ec;
+    fs::permissions(dest, fs::perms::owner_all, ec);
+    if (ec)
+        log_error(L"Ändere Dateiattribute: ", src, string_to_wstring(ec.message()));
+    if (sync_item_.father_son_principle())
+        move_file_to_backup(dest);
 }
-
 
 void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, const wstring& destination, uint64_t filesize)
 {
@@ -350,41 +255,38 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     #ifdef _WXWIDGETS
         Synchronize::set_progress_message(L"Kopiere \n" + source + L"\nzu\n" + destination + L"...", size);
     #endif
-    const wstring src = source;
-    const wstring dest = destination;
+    // Every failure returns before the bookkeeping below: a copy that did not
+    // happen must neither count as done nor let del_aftercopy delete the source.
     try {
-        pre_copy(src, dest);
-        if (!save_copy_file(src, dest)) {
+        pre_copy(source, destination);
+        if (!save_copy_file(source, destination))
             return;
-        }
-        // fs::last_write_time(src) only resolves a local path - an SSH source
-        // ("account:/path") made it throw here on every single file, after the
-        // copy had already succeeded: the catch below then returned before
-        // ++copy_count_, so an SSH-source sync's progress never advanced and
-        // report_sync_volume()/del_aftercopy never ran, even though the file had
-        // already been copied. See pre_copy()'s own TODO for the same gap.
-        if (!ssh_source()) {
-            const auto modify_time = fs::last_write_time(src);
-            util::set_last_write_time(dest, modify_time);
-        }
-        log_info(L"Quelle zu Ziel kopiert: ", src, L"nach", dest);
+        // fs::last_write_time() only resolves a local path; an SSH source keeps
+        // the time the transfer produced (see pre_copy()'s TODO).
+        if (!ssh_source())
+            util::set_last_write_time(destination, fs::last_write_time(source));
+        log_info(L"Quelle zu Ziel kopiert: ", source, L"nach", destination);
     }
-    catch (std::filesystem::filesystem_error const& ex) {
+    catch (const fs::filesystem_error& ex) {
         handle_last_error(ex);
         report_sync_error(string_to_wstring(ex.what()));
         return;
     }
+    catch (const std::exception& ex) {
+        log_error(L"Kopiere: ", source, destination, string_to_wstring(ex.what()));
+        report_sync_error(string_to_wstring(ex.what()));
+        return;
+    }
     catch (...) {
-        log_error(L"Kopiere: ", src, dest, L"Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler beim Kopieren: " + src + L" -> " + dest);
+        log_error(L"Kopiere: ", source, destination, L"Unbekannter Fehler");
+        report_sync_error(L"Unbekannter Fehler beim Kopieren: " + source + L" -> " + destination);
+        return;
     }
     ++copy_count_;
     report_sync_volume(size);
-    // An SSH source cannot be deleted through the local filesystem - the call
-    // was already a silent no-op for "account:/path" and would now log a
-    // spurious recycle bin error instead.
+    // An SSH source cannot be deleted through the local filesystem.
     if (sync_item_.del_aftercopy() && !ssh_source())
-        delete_file(src);
+        delete_file(source);
 }
 
 void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& source, uint64_t size)
@@ -395,39 +297,36 @@ void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     #ifdef _WXWIDGETS
         Synchronize::set_progress_message(L"Kopiere \n" + destination + L"\nzu\n" + source + L"...", size);
     #endif
-    const wstring src = source;
-    const wstring dest = destination;
-    pre_copy(dest, src);
     try {
-        // fs::last_write_time(dest) only resolves a local path - see
-        // copy_source_to_dest() for the matching source-side gap. Here it is
-        // worse: this call happened before save_copy_file(), so an SSH target
-        // threw before the file was ever copied back, yet still counted as
-        // done below.
+        pre_copy(destination, source);
+        // fs::last_write_time() only resolves a local path - see copy_source_to_dest().
         fs::file_time_type modify_time{};
         if (!ssh_dest())
-            modify_time = fs::last_write_time(dest);
-        if (!save_copy_file(dest, src))
+            modify_time = fs::last_write_time(destination);
+        if (!save_copy_file(destination, source))
             return;
-        // set_last_write_time() (call_wait defaults to true) already calls
-        // wait_for_updated_filetime() internally; calling it again here doubled
-        // the wait - up to ~20s per two-way-sync back-copy instead of ~10s.
         if (!ssh_dest())
-            set_last_write_time(src, modify_time);
-        log_info(L"Ziel zu Quelle: ", dest, L"nach", src);
+            set_last_write_time(source, modify_time);
+        log_info(L"Ziel zu Quelle: ", destination, L"nach", source);
     }
-    catch (std::filesystem::filesystem_error const& ex) {
+    catch (const fs::filesystem_error& ex) {
         handle_last_error(ex);
         report_sync_error(string_to_wstring(ex.what()));
+        return;
+    }
+    catch (const std::exception& ex) {
+        log_error(L"Kopiere: ", destination, source, string_to_wstring(ex.what()));
+        report_sync_error(string_to_wstring(ex.what()));
+        return;
     }
     catch (...) {
-        log_error(L"Kopiere: ", dest, src, L"Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler beim Kopieren: " + dest + L" -> " + src);
+        log_error(L"Kopiere: ", destination, source, L"Unbekannter Fehler");
+        report_sync_error(L"Unbekannter Fehler beim Kopieren: " + destination + L" -> " + source);
+        return;
     }
     ++copy_count_;
     report_sync_volume(size);
 }
-
 
 void SyncFile::operator()()
 {
@@ -435,7 +334,6 @@ void SyncFile::operator()()
     if (Synchronize::stopping())
         return;
     try {
-        set_ssh();
         wstring source = without_volume_spec(sync_item_.source());
         wstring destination = without_volume_spec(sync_item_.target());
         if (transfer_filename_)
@@ -443,7 +341,7 @@ void SyncFile::operator()()
         FileDifference fd(source, destination, sync_item_.compare_items(), ssh_, sync_item_.two_way_sync());
         const auto filesize = fd();
         sync_difference(fd, source, destination, filesize);
-    } catch (std::exception& ex) {
+    } catch (const std::exception& ex) {
         log_error(L"Kopiere: ", sync_item_.source(), sync_item_.target(), string_to_wstring(ex.what()));
         report_sync_error(string_to_wstring(ex.what()));
     }

@@ -50,15 +50,6 @@ boost::property_tree::wptree parse_json_file(wchar_t const* filename)
     return pt;
 }
 
-
-SyncFlags::SyncFlags(bool del_aftercopy, bool tws, bool cwtn, bool fsp, bool enabled)
-    : del_aftercopy_(del_aftercopy)
-    , two_way_sync_(tws)
-    , copy_when_target_newer_(cwtn)
-    , father_son_principle_(fsp)
-    , enabled_(enabled)
-{}
-
 //## class config ####################################################################################################
 inline
 void Config::init_singleton()

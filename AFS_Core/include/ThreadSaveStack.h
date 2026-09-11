@@ -8,7 +8,7 @@
 namespace AFS_Core {
 
 struct EmptyStack : std::exception {
-	//const char* what() const throw();
+	const char* what() const noexcept override { return "empty stack"; }
 };
 
 template<typename T>
@@ -16,7 +16,7 @@ class ThreadSaveStack {
 	std::stack<T> data_;
 	mutable std::mutex m_;
 public:
-	ThreadSaveStack(){}
+	ThreadSaveStack() = default;
 	ThreadSaveStack(const ThreadSaveStack& other)
 	{
 		std::lock_guard<std::mutex> lock(other.m_);

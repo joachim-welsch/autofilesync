@@ -7,16 +7,12 @@ namespace AFS_Core {
 
 std::unique_ptr<SyncControler> SyncControler::instance_ = nullptr;
 
-SyncControler& SyncControler::instance() 
+SyncControler& SyncControler::instance()
 {
-	if (instance_ == nullptr) {
+	if (instance_ == nullptr)
 		instance_ = SyncCtrlPtr(new SyncControler());
-	}
-	return *instance_.get();
+	return *instance_;
 }
-
-SyncControler::~SyncControler()
-{}
 
 void SyncControler::register_progress_dialog(ProgressDialog* pdlg)
 {
@@ -28,10 +24,9 @@ std::optional<ProgressDialog*> SyncControler::progress_dialog()
 {
 	log_debug(L"SyncControler::progress_dialog()");
 	ProgressDialog* pdlg = progress_dialog_.load();
-	if (pdlg != nullptr)
-		return std::optional<ProgressDialog*>(pdlg);
-	else
+	if (pdlg == nullptr)
 		return std::nullopt;
+	return pdlg;
 }
 
 bool SyncControler::start_sync(SyncType sync_type)
@@ -58,7 +53,7 @@ void SyncControler::set_sync_finished() // called by Workerthread
 }
 
 void SyncControler::destroy_synchronize()
-{ 
+{
 	Synchronize::destroy();
 	synchronize_ = nullptr;
 }
@@ -81,9 +76,8 @@ void SyncControler::stop_sync()
 	if (state_ != SyncCtrlState::SyncActive)
 		return;
 	Synchronize::stop();
-	while (!sync_finished()) {
+	while (!sync_finished())
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	}
 }
 
 void SyncControler::display_errormessages(bool yes_no)
@@ -98,10 +92,9 @@ bool SyncControler::display_errormessages() const
 
 SyncMessage SyncControler::get_message() const
 {
-	if (synchronize_ != nullptr)
-		return synchronize_->get_message();
-	else
+	if (synchronize_ == nullptr)
 		return SyncMessage();
+	return synchronize_->get_message();
 }
 
 } // namespace AFS_Core

@@ -4,17 +4,11 @@
 #include <sstream>
 #include <ctime>
 #include <filesystem>
-#ifdef _UNIX
-    #include "StrUtil.h"
-#endif
+#include "StrUtil.h"
 
 namespace AFS_Core {
 
 namespace fs = std::filesystem;
-
-#ifdef _UNIX
-    using util::wstring_to_string;
-#endif
 
 using std::chrono::system_clock;
 
@@ -26,7 +20,7 @@ LogCut::LogCut()
 static auto native_path(const std::wstring& path)
 {
 #ifdef _UNIX
-    return wstring_to_string(path);
+    return util::wstring_to_string(path);
 #else
 	return path;
 #endif
@@ -51,8 +45,13 @@ void LogCut::close_files()
 {
 	is_.close();
 	os_.close();
-	fs::rename(log_.get_log_file_path_name() + L".tmp", log_.get_log_file_path_name()); //
+	// The error_code overload: this runs at every start, and a log directory
+	// that became read-only meanwhile must not take the application down.
+	std::error_code ec;
+	fs::rename(log_.get_log_file_path_name() + L".tmp", log_.get_log_file_path_name(), ec);
 	log_.open_file();
+	if (ec)
+		log_error(L"Logdatei konnte nicht gekuerzt werden: ", log_.get_log_file_path_name(), util::string_to_wstring(ec.message()));
 }
 
 void LogCut::operator()()
@@ -70,11 +69,12 @@ void LogCut::operator()()
 
 bool LogCut::get_time_from_line(const std::string& line, TimePoint& tp)
 {
-	std::tm tm;
+	std::tm tm{};
 	std::istringstream is(line);
 	is >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
 	if (is.fail())
 		return false;
+	tm.tm_isdst = -1; // get_time leaves it unset; mktime then determines daylight saving itself
 	tp = system_clock::from_time_t(std::mktime(&tm));
 	return true;
 }
@@ -93,10 +93,8 @@ void LogCut::cut()
 		if (get_time_from_line(line, line_time))
 			line_too_old = line_time < now_minus_time_span;
 		if (!line_too_old)
-			os_ << line << std::endl;
+			os_ << line << '\n';
 	}
 }
-
-
 
 } // namespace AFS_Core

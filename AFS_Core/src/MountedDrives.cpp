@@ -32,12 +32,7 @@ MountedDrives& MountedDrives::instance()
 
 bool MountedDrives::time_elapsed() const
 {
-    auto diff = system_clock::now() - check_time_;
-    auto diff_s = std::chrono::duration_cast<std::chrono::seconds>(diff);
-// #ifdef _TEST
-//     std::cout << "Time diff: " << diff_s << std::endl;
-// #endif
-    return diff_s > 10s;
+    return system_clock::now() - check_time_ > 10s;
 }
 
 #ifdef WIN32
@@ -63,23 +58,18 @@ struct FstabEntry {
     int pass;
 };
 
-// Parse /etc/fstab
-std::vector<FstabEntry> parse_fstab(const std::string& fstab_path = "/etc/fstab")
+std::vector<FstabEntry> parse_fstab(const std::string& fstab_path)
 {
     std::vector<FstabEntry> entries;
     std::ifstream file(fstab_path);
     std::string line;
-
     while (std::getline(file, line)) {
         if (line.empty() || line[0] == '#')
             continue;
-
         std::istringstream iss(line);
         FstabEntry entry;
-        if (!(iss >> entry.device >> entry.mountpoint >> entry.fstype >> entry.options >> entry.dump >> entry.pass)) {
-            continue; // ungültige Zeile
-        }
-        entries.push_back(entry);
+        if (iss >> entry.device >> entry.mountpoint >> entry.fstype >> entry.options >> entry.dump >> entry.pass)
+            entries.push_back(entry);
     }
     return entries;
 }
@@ -94,13 +84,18 @@ bool MountedDrives::mount_point_exist(const string& mp) const
 
 fs::path get_mount_point(const fs::path& path)
 {
-    fs::path retval {};
-    auto mp = fsu::get_mount_root(path);
-    if (mp.has_value())
-        retval=mp.value();
-    return retval;
+    return fsu::get_mount_root(path).value_or(fs::path());
 }
 
+bool MountedDrives::check(const fs::path& path) const
+{
+    log_debug(L"MountedDrives::check");
+    const auto mount_root = fsu::get_mount_root(path);
+    for (const MountInfo& i : mounted_drives_)
+        if (i.mount_point == mount_root)
+            return true;
+    return false;
+}
 #endif
 
 #if defined(_UNIX) && !defined(_MACOS)
@@ -127,16 +122,6 @@ bool MountedDrives::refresh(const string& mount_point, const std::wstring&)
         }
     }
     return retval;
-}
-
-bool MountedDrives::check(const fs::path& path) const
-{
-    log_debug(L"MountedDrives::check");
-    for (auto i : mounted_drives_) {
-        if (i.mount_point == fsu::get_mount_root(path))
-            return true;
-    }
-    return false;
 }
 
 // Deepest fstab mountpoint (other than "/") that is a path prefix of 'path'.
@@ -195,16 +180,6 @@ bool MountedDrives::refresh(const string& mount_point, const std::wstring&)
     return retval;
 }
 
-bool MountedDrives::check(const fs::path& path) const
-{
-    log_debug(L"MountedDrives::check");
-    for (auto i : mounted_drives_) {
-        if (i.mount_point == fsu::get_mount_root(path))
-            return true;
-    }
-    return false;
-}
-
 #else
 wstring volume_name_from_driveletter(const wstring& driveletter)
 {
@@ -220,7 +195,7 @@ wstring volume_name_from_driveletter(const wstring& driveletter)
 
 bool MountedDrives::mount_info_exists(const MountInfo& mount_info) const
 {
-    return std::find(requested_drives_.begin(), requested_drives_.end(), mount_info) == requested_drives_.end();
+    return std::find(requested_drives_.begin(), requested_drives_.end(), mount_info) != requested_drives_.end();
 }
 
 bool MountedDrives::refresh(const string& mount_point, const std::wstring& name)
@@ -298,15 +273,10 @@ bool MountedDrives::drive_mounted(const fs::path& path, const std::wstring& name
     if (auto fstab_mountpoint = fstab_mountpoint_for(path))
         return mountpoint_active(*fstab_mountpoint);
 #endif
-    if (time_elapsed()) {
-        auto mp=fsu::get_mount_root(path);
-        if (!mp)
-            return false;
-        string mountpoint = mp.value().string();
-        return refresh(mountpoint, name);
-    }
-    else
+    if (!time_elapsed())
         return check(path);
+    const auto mount_root = fsu::get_mount_root(path);
+    return mount_root && refresh(mount_root->string(), name);
 }
 
 #ifdef _TEST

@@ -32,17 +32,9 @@ namespace AFS_Core {
 using namespace util;
 namespace fs = std::filesystem;
 using std::wstring;
-using std::ostringstream;
-using std::wstring;
-using util::with_trailing_char;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// class Synchronize
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 std::atomic<Synchronize*> Synchronize::this_ = nullptr;
-
-std::atomic_bool Synchronize::stop_ = ATOMIC_VAR_INIT(true);
-std::atomic<SyncType> sync_type = ATOMIC_VAR_INIT(SyncType::Continuous);
+std::atomic_bool Synchronize::stop_ = true;
 
 bool Synchronize::has_instance()
 {
@@ -57,10 +49,10 @@ bool Synchronize::stopping()
 Synchronize& Synchronize::instance()
 {
     log_debug(L"Synchronize::instance()");
-    if (this_.load() != nullptr)
-        return  *this_.load();
-	else
+    Synchronize* inst = this_.load();
+    if (inst == nullptr)
         throw std::runtime_error("Keine Synchronisation aktiv.");
+    return *inst;
 }
 
 Synchronize::Synchronize(SyncType sync_type, SyncControler* sc, SyncRole role)
@@ -188,19 +180,11 @@ bool Synchronize::pause_elapsed(const SyncItem& si)
     return retval;
 }
 
-uint16_t Synchronize::get_drive_check_cache_interval() const
-{
-    const uint16_t default_interval = 2;
-    return default_interval;
-}
-
 bool Synchronize::path_exists(const std::wstring& pathname) const
 {
     log_debug(L"path_exists()");
-    namespace fs = std::filesystem;
-    fs::path path(pathname);
     std::error_code ec;
-    return fs::exists(path, ec);
+    return fs::exists(pathname, ec);
 }
 
 SyncControler& Synchronize::sync_controler() const
@@ -270,7 +254,8 @@ void Synchronize::run_sync_item(SyncItem& i)
             sd();
         }
         else if (i.sync_item_type() == SyncItemType::File) {
-            bool is_target_dir = i.ssh_target() ? is_ssh_target_dir(i.target()) : fs::is_directory(without_volume_spec(i.target()));
+            std::error_code ec;
+            const bool is_target_dir = i.ssh_target() ? is_ssh_target_dir(i.target()) : fs::is_directory(without_volume_spec(i.target()), ec);
             SyncFile(i, count_files_, sync_type_ == SyncType::CountFiles, is_target_dir)();
         }
         else if (i.sync_item_type() == SyncItemType::Tree) {
@@ -283,7 +268,7 @@ void Synchronize::run_sync_item(SyncItem& i)
         report_sync_error(string_to_wstring(ex.what()));
         return;
     }
-    catch (std::exception& ex) {
+    catch (const std::exception& ex) {
         log_error(L"Synchronize::sync_item fehlgeschlagen fuer: ", i.name());
         log_error(string_to_wstring(ex.what()));
         report_sync_error(string_to_wstring(ex.what()));
@@ -324,9 +309,9 @@ void Synchronize::operator()()
             }
         } while (sync_type_ == SyncType::Continuous && !stop_);
     }
-    catch (std::exception& ex) {
+    catch (const std::exception& ex) {
         log_fatal(string_to_wstring(ex.what()));
-	}
+    }
     catch (...) {
         log_fatal(L"Unknown error caught in Synchronize::operator()()");
     }

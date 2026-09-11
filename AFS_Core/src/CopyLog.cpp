@@ -30,16 +30,13 @@ namespace {
 #ifdef WIN32
         localtime_s(&parts, &time);
 #else
-        parts = *std::localtime(&time);
+        localtime_r(&time, &parts);
 #endif
         std::wostringstream os;
         os << std::put_time(&parts, L"%Y-%m-%d %H:%M:%S");
         return os.str();
     }
 
-    // A sync item name is free text and lands in a file name here. Everything a
-    // path could stumble over becomes '_' rather than being dropped, so two
-    // names cannot collapse onto the same file by losing their only difference.
     wstring as_file_name(const wstring& item_name)
     {
         const wstring forbidden = L"<>:\"/\\|?*";
@@ -77,9 +74,6 @@ namespace {
         return entry;
     }
 
-    // An existing proof file that cannot be parsed is left untouched: it is
-    // evidence, and overwriting it with a fresh document would destroy whatever
-    // it still holds. read is false in that case, so the caller does not write.
     pt::wptree read_copy_log_file(const fs::path& file, bool& read)
     {
         pt::wptree root;
@@ -101,9 +95,6 @@ namespace {
 
     bool write_copy_log_file(const fs::path& file, const pt::wptree& root)
     {
-        // Written beside the target and renamed over it, like Config::write():
-        // a proof file half-written by a crash or a full disk would take the
-        // previous entries down with it.
         const fs::path tmp_file = file.wstring() + L".tmp";
         try {
             std::wofstream os(tmp_file, std::ios_base::out | std::ios_base::trunc);

@@ -121,7 +121,6 @@
     <ClCompile Include="..\..\src\Util.cpp" />
     <ClCompile Include="..\..\src\CheckPath.cpp" />
     <ClCompile Include="..\..\src\Config.cpp" />
-    <ClCompile Include="..\..\src\Directory.cpp" />
     <ClCompile Include="..\..\src\FileDifference.cpp" />
     <ClCompile Include="..\..\src\Global.cpp" />
     <ClCompile Include="..\..\src\Settings.cpp" />

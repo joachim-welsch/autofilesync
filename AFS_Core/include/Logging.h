@@ -56,10 +56,6 @@ public:
 	virtual ~Logging();
 	static Logging& instance();
 	static void shutdown() { instance_.reset(); }
-    // static Logging& instance() {
-    // 	std::call_once(init_instance_flag_, &Logging::init_singleton);
-    // 	return *instance_;
-    // }
 	LogLevel get_log_level();
 	bool should_log(LogLevel level);
 	void close_file();

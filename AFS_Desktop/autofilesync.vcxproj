@@ -123,7 +123,6 @@
     <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
     <ClCompile Include="..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
-    <ClCompile Include="..\AFS_Core\src\Directory.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />
     <ClCompile Include="..\AFS_Core\src\Global.cpp" />
     <ClCompile Include="src\GridCtrl.cpp" />

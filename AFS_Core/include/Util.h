@@ -3,8 +3,6 @@
 #include <sstream>
 #include <chrono>
 #include <filesystem>
-#include <locale>
-#include <codecvt>
 #include <Logging.h>
 #include <StrUtil.h>
 
@@ -14,10 +12,9 @@ namespace util {
 
     unsigned long current_pid();
 
-    inline uint16_t to_uint16_t(const std::wstring& s)
-    {
-		return static_cast<uint16_t>(std::stoi(s));
-	}
+    // Throws std::invalid_argument or std::out_of_range like std::stoi, so a
+    // configuration value outside 0..65535 is rejected instead of truncated.
+    uint16_t to_uint16_t(const std::wstring& s);
 
     inline
     std::wstring to_string(bool b)
@@ -39,7 +36,7 @@ namespace util {
     std::string to_string(const std::filesystem::file_time_type& ft);
 
     std::wstring with_trailing_char(const std::wstring& s, wchar_t c);
-    
+
     bool volume_exists(const std::wstring& drive_name, const std::wstring& volume_name);
     bool drive_exists(const std::wstring& drive_name);
     // Puts "YYYY-MM-DD_hh-mm-ss-mmm_" in front of the file name, leaving the
@@ -52,9 +49,9 @@ namespace util {
     bool files_equal(const std::wstring& input1, const std::wstring& input2);
     bool equal(const std::filesystem::file_time_type& a, const std::filesystem::file_time_type& b);
     bool greater(const std::filesystem::file_time_type& a, const std::filesystem::file_time_type& b);
-	bool rename_file(const std::wstring& oldname, const std::wstring& newname);
+    bool rename_file(const std::wstring& oldname, const std::wstring& newname);
     bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
-	bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
+    bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
 } // namespace util
 
 } // namespace AFS_Core
