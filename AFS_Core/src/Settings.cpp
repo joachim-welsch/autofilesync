@@ -3,14 +3,13 @@
 
 namespace AFS_Core {
 
+// Console mode comes from the command line, not from the configuration file,
+// so it survives a reload of the configuration.
 void Settings::reset()
 {
-    start_minimized_    = false;
-    minimize_instead_of_close_ = false;
-    auto_start_ = false;
-    start_sync_at_start_  = false;
-    delete_mode_ = DeleteMode::RecycleBin;
-    backup_proof_path_.clear();
+    const bool console_mode = console_mode_;
+    *this = Settings();
+    console_mode_ = console_mode;
 }
 
 } // namespace AFS_Core

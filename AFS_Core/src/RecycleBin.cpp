@@ -147,7 +147,7 @@ RecycleBin::ItemList RecycleBin::list_items() const
             log_error(L"Papierkorb: Verzeichnis nicht lesbar", path_.wstring());
             break;
         }
-        if (!it->is_directory())
+        if (!it->is_directory(ec))
             items.push_back(it->path().lexically_relative(path_));
     }
     return items;

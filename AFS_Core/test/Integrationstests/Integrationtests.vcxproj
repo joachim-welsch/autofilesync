@@ -195,7 +195,6 @@
     <ClCompile Include="$(LibDir)\src\SshConnectTimeout.cpp" />
     <ClCompile Include="$(LibDir)\src\SshHostKeyVerification.cpp" />
     <ClCompile Include="$(LibDir)\src\Libssh2Init.cpp" />
-    <ClCompile Include="$(LibDir)\src\Directory.cpp" />
     <ClCompile Include="$(LibDir)\src\FileDifference.cpp" />
     <ClCompile Include="$(LibDir)\src\Global.cpp" />
     <ClCompile Include="$(LibDir)\src\Settings.cpp" />

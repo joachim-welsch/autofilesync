@@ -13,21 +13,32 @@ using std::optional;
 using std::nullopt;
 using std::wstring;
 
+SyncFlags::SyncFlags(bool del_aftercopy, bool tws, bool cwtn, bool fsp, bool enabled)
+    : del_aftercopy_(del_aftercopy)
+    , two_way_sync_(tws)
+    , copy_when_target_newer_(cwtn)
+    , father_son_principle_(fsp)
+    , enabled_(enabled)
+{}
+
 // FilesystemPath //////////////////////////////////////////////////////////////////////////////////////////////////
 FilesystemPath::FilesystemPath()
-{
-    type(SyncPathType::Filesystem);
-}
+    : SyncPath(SyncPathType::Filesystem)
+{}
 
 FilesystemPath::FilesystemPath(const std::wstring& path)
-    : path_(path)
-{
-    type(SyncPathType::Filesystem);
-}
+    : SyncPath(SyncPathType::Filesystem)
+    , path_(path)
+{}
 
 std::wstring FilesystemPath::path() const
 {
     return path_;
+}
+
+std::unique_ptr<SyncPath> FilesystemPath::clone() const
+{
+    return std::make_unique<FilesystemPath>(*this);
 }
 
 void FilesystemPath::set_path(const std::wstring& path)
@@ -37,37 +48,29 @@ void FilesystemPath::set_path(const std::wstring& path)
 
 // SshPath //////////////////////////////////////////////////////////////////////////////////////////////////
 SshPath::SshPath()
-{
-    type(SyncPathType::Ssh);
-}
+    : SyncPath(SyncPathType::Ssh)
+{}
 
+// Stores the path without its account prefix ("laptop:/home/x" -> "/home/x");
+// path() puts the prefix back.
 SshPath::SshPath(const SshAccount& account, const std::wstring& path)
-    : account_(account)
+    : SyncPath(SyncPathType::Ssh)
+    , account_(account)
+    , path_(path)
 {
-    type(SyncPathType::Ssh);
-    // Remove account prefix if present (e.g., "laptop:/home/..." -> "/home/...")
-    auto colon_pos = path.find(L':');
-    if (colon_pos != std::wstring::npos && colon_pos > 0) {
-        // Check if the part before colon matches the account name
-        std::wstring prefix = path.substr(0, colon_pos);
-        std::wstring account_name = util::string_to_wstring(account.name());
-        if (prefix == account_name) {
-            path_ = path.substr(colon_pos + 1);
-        } else {
-            path_ = path;
-        }
-    } else {
-        path_ = path;
-    }
+    const std::wstring prefix = util::string_to_wstring(account.name()) + L":";
+    if (path.starts_with(prefix))
+        path_ = path.substr(prefix.size());
 }
 
 std::wstring SshPath::path() const
 {
-    // Return full SSH path with account name prefix (e.g., "laptop:/tmp").
-    // The account name is UTF-8: widening it byte by byte would sign-extend
-    // every byte of a non-ASCII character into a wchar_t that no later
-    // wstring_to_string() - logging does one per message - can encode.
     return util::string_to_wstring(account_.name()) + L":" + path_;
+}
+
+std::unique_ptr<SyncPath> SshPath::clone() const
+{
+    return std::make_unique<SshPath>(*this);
 }
 
 void SshPath::set_path(const std::wstring& path)
@@ -85,23 +88,14 @@ void SshPath::set_account(const SshAccount& account)
     account_ = account;
 }
 
-inline std::string compare_item_to_str(CompareItem ci)
-{
-    switch (ci) {
-    case CompareItem::size: return "size";
-    case CompareItem::time: return "time";
-    case CompareItem::content: return "content";
-    }
-}
-
-inline optional<CompareItem> str_to_compare_item(const std::wstring& s)
+static optional<CompareItem> str_to_compare_item(const std::wstring& s)
 {
     if (s == L"size")
-        return optional<CompareItem>(CompareItem::size);
-    else if (s == L"time")
-        return optional<CompareItem>(CompareItem::time);
-    else if (s == L"content")
-        return optional<CompareItem>(CompareItem::content);
+        return CompareItem::size;
+    if (s == L"time")
+        return CompareItem::time;
+    if (s == L"content")
+        return CompareItem::content;
     return nullopt;
 }
 
@@ -146,48 +140,48 @@ CompareItems::CompareItems() : std::set<CompareItem>{CompareItem::content}
 
 void CompareItems::set(const std::wstring& name, bool value)
 {
-    auto ci = str_to_compare_item(name);
-    if (ci.has_value() && value) 
-		insert(ci.value());
+    const auto ci = str_to_compare_item(name);
+    if (ci.has_value() && value)
+        insert(ci.value());
 }
 
 bool CompareItems::size() const
 {
-    return find(CompareItem::size) != cend();
+    return contains(CompareItem::size);
 }
 
 bool CompareItems::time() const
 {
-  	return find(CompareItem::time) != cend();
+    return contains(CompareItem::time);
 }
 
 bool CompareItems::content() const
 {
-	return find(CompareItem::content) != cend();
+    return contains(CompareItem::content);
 }
 
 void CompareItems::size(bool is_set)
 {
-	if (is_set)
-		insert(CompareItem::size);
-	else
-		erase(CompareItem::size);
+    if (is_set)
+        insert(CompareItem::size);
+    else
+        erase(CompareItem::size);
 }
 
 void CompareItems::time(bool is_set)
 {
-	if (is_set)
-		insert(CompareItem::time);
-	else
-		erase(CompareItem::time);
+    if (is_set)
+        insert(CompareItem::time);
+    else
+        erase(CompareItem::time);
 }
 
 void CompareItems::content(bool is_set)
 {
-	if (is_set)
-		insert(CompareItem::content);
-	else
-		erase(CompareItem::content);
+    if (is_set)
+        insert(CompareItem::content);
+    else
+        erase(CompareItem::content);
 }
 
 // Exclusions /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,10 +234,10 @@ SyncItemType SyncItem::sync_item_type() const
     return type_;
 }
 
-void SyncItem::set_last_sync() 
+void SyncItem::set_last_sync()
 {
-    log_debug("SyncItem::set_last_sync", std::chrono::steady_clock::now()); 
-    last_sync_ = std::chrono::steady_clock::now(); 
+    last_sync_ = std::chrono::steady_clock::now();
+    log_debug("SyncItem::set_last_sync", last_sync_);
 }
 
 void SyncItem::source(const std::wstring& s)
@@ -275,67 +269,29 @@ void SyncItem::target(const std::wstring& t)
     }
 }
 
-// Copy constructor
 SyncItem::SyncItem(const SyncItem& other)
     : name_(other.name_)
     , type_(other.type_)
+    , source_(other.source_ ? other.source_->clone() : nullptr)
+    , target_(other.target_ ? other.target_->clone() : nullptr)
     , wildcard_(other.wildcard_)
     , flags_(other.flags_)
     , compare_items_(other.compare_items_)
     , exclusions_(other.exclusions_)
     , sync_cycle_(other.sync_cycle_)
     , last_sync_(other.last_sync_)
-{
-    // Deep copy unique_ptr members
-    if (other.source_) {
-        if (other.source_->type() == SyncPathType::Filesystem) {
-            source_ = std::make_unique<FilesystemPath>(*dynamic_cast<const FilesystemPath*>(other.source_.get()));
-        } else {
-            source_ = std::make_unique<SshPath>(*dynamic_cast<const SshPath*>(other.source_.get()));
-        }
-    }
-    if (other.target_) {
-        if (other.target_->type() == SyncPathType::Filesystem) {
-            target_ = std::make_unique<FilesystemPath>(*dynamic_cast<const FilesystemPath*>(other.target_.get()));
-        } else {
-            target_ = std::make_unique<SshPath>(*dynamic_cast<const SshPath*>(other.target_.get()));
-        }
-    }
-}
+{}
 
 SyncItem& SyncItem::operator=(const SyncItem& other)
 {
-    if (this != &other) {
-        name_ = other.name_;
-        type_ = other.type_;
-        wildcard_ = other.wildcard_;
-        flags_ = other.flags_;
-        compare_items_ = other.compare_items_;
-        exclusions_ = other.exclusions_;
-        sync_cycle_ = other.sync_cycle_;
-        last_sync_ = other.last_sync_;
-        
-        // Deep copy unique_ptr members
-        if (other.source_) {
-            if (other.source_->type() == SyncPathType::Filesystem) {
-                source_ = std::make_unique<FilesystemPath>(*dynamic_cast<const FilesystemPath*>(other.source_.get()));
-            } else {
-                source_ = std::make_unique<SshPath>(*dynamic_cast<const SshPath*>(other.source_.get()));
-            }
-        } else {
-            source_.reset();
-        }
-        if (other.target_) {
-            if (other.target_->type() == SyncPathType::Filesystem) {
-                target_ = std::make_unique<FilesystemPath>(*dynamic_cast<const FilesystemPath*>(other.target_.get()));
-            } else {
-                target_ = std::make_unique<SshPath>(*dynamic_cast<const SshPath*>(other.target_.get()));
-            }
-        } else {
-            target_.reset();
-        }
-    }
+    if (this != &other)
+        *this = SyncItem(other);
     return *this;
+}
+
+SshPath* SyncItem::ssh_path(const std::unique_ptr<SyncPath>& path) const
+{
+    return path && path->type() == SyncPathType::Ssh ? dynamic_cast<SshPath*>(path.get()) : nullptr;
 }
 
 bool SyncItem::rename_ssh_account_reference(const std::string& old_name, const SshAccount& new_account)
@@ -346,50 +302,31 @@ bool SyncItem::rename_ssh_account_reference(const std::string& old_name, const S
     // that no longer resolves. Config calls this on every item after a
     // successful account edit to keep them in sync.
     bool changed = false;
-    if (source_ && source_->type() == SyncPathType::Ssh) {
-        auto* ssh_source = dynamic_cast<SshPath*>(source_.get());
-        if (ssh_source && ssh_source->account().name() == old_name) {
-            ssh_source->set_account(new_account);
+    for (SshPath* path : { ssh_path(source_), ssh_path(target_) })
+        if (path && path->account().name() == old_name) {
+            path->set_account(new_account);
             changed = true;
         }
-    }
-    if (target_ && target_->type() == SyncPathType::Ssh) {
-        auto* ssh_target = dynamic_cast<SshPath*>(target_.get());
-        if (ssh_target && ssh_target->account().name() == old_name) {
-            ssh_target->set_account(new_account);
-            changed = true;
-        }
-    }
     return changed;
 }
 
 bool SyncItem::references_ssh_account(const std::string& name) const
 {
-    if (source_ && source_->type() == SyncPathType::Ssh) {
-        auto* ssh_source = dynamic_cast<const SshPath*>(source_.get());
-        if (ssh_source && ssh_source->account().name() == name)
+    for (const SshPath* path : { ssh_path(source_), ssh_path(target_) })
+        if (path && path->account().name() == name)
             return true;
-    }
-    if (target_ && target_->type() == SyncPathType::Ssh) {
-        auto* ssh_target = dynamic_cast<const SshPath*>(target_.get());
-        if (ssh_target && ssh_target->account().name() == name)
-            return true;
-    }
     return false;
 }
 
 SSHPATH SyncItem::ssh_path_type() const
 {
-    bool source_is_ssh = source_ && source_->type() == SyncPathType::Ssh;
-    bool target_is_ssh = target_ && target_->type() == SyncPathType::Ssh;
-    if (source_is_ssh && target_is_ssh)
+    if (ssh_source() && ssh_target())
         return SSHPATH::both;
-    else if (source_is_ssh)
+    if (ssh_source())
         return SSHPATH::source;
-    else if (target_is_ssh)
+    if (ssh_target())
         return SSHPATH::dest;
-    else
-        return SSHPATH::none;
+    return SSHPATH::none;
 }
 
 } // namespace AFS_Core

@@ -94,7 +94,6 @@ SshFileInspector::SshFileInspector(const SshAccount& account)
     init_winsock();
     ensure_libssh2_initialized();
 
-    // Hostname auflösen
     struct addrinfo hints = {}, *result = nullptr;
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -136,7 +135,6 @@ SshFileInspector::SshFileInspector(const SshAccount& account)
         throw std::runtime_error("Host key verification failed: possible man-in-the-middle attack.");
     }
 
-    // Authentifizierung
     rc = libssh2_userauth_password(my_ssh_session_, 
                                    account.user().c_str(), 
                                    account.password().c_str());

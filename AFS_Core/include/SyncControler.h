@@ -27,7 +27,7 @@ protected:
 	void set_sync_finished();
 	SyncControler() = default;
 public:
-	~SyncControler();
+	~SyncControler() = default;
 	static SyncControler& instance();
 	void register_progress_dialog(ProgressDialog*);
 	std::optional<ProgressDialog*> progress_dialog();

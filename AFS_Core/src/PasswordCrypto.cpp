@@ -119,6 +119,10 @@ std::string encrypt(const std::string& plaintext, const std::filesystem::path& k
     int out_len = 0, final_len = 0;
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        log_error(L"Verschluesselung nicht verfuegbar, Passwort wird nicht gespeichert.");
+        return {};
+    }
     EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr);
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_LEN, nullptr);
     EVP_EncryptInit_ex(ctx, nullptr, nullptr, key.data(), nonce.data());
@@ -160,6 +164,10 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
     int out_len = 0, final_len = 0;
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        log_error(L"Entschluesselung nicht verfuegbar.");
+        return std::nullopt;
+    }
     EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr);
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_LEN, nullptr);
     EVP_DecryptInit_ex(ctx, nullptr, nullptr, key.data(), nonce);

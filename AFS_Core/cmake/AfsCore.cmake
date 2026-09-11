@@ -13,7 +13,6 @@ get_filename_component(AFS_CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
 set(AFS_CORE_SOURCES
     CopyLog.cpp
     CheckPath.cpp
-    Directory.cpp
     FileDelete.cpp
     FileDifference.cpp
     Global.cpp
@@ -125,10 +124,5 @@ function(afs_core_add_library target)
         include(${AFS_CORE_DIR}/cmake/AfsWxWidgets.cmake)
         target_compile_definitions(${target} PUBLIC _WXWIDGETS)
         target_link_libraries(${target} PUBLIC afs_wxwidgets)
-        # Remaining upward dependency: SyncFile.cpp drives the copy progress
-        # through AFS_Desktop's ProgressDialog (registered at SyncControler). It
-        # has to go behind an interface owned by the core before the core can be
-        # published on its own; until then the header is reachable from here.
-        target_include_directories(${target} PRIVATE ${AFS_CORE_DIR}/../AFS_Desktop/include)
     endif()
 endfunction()

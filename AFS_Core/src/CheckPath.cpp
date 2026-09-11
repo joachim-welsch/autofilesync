@@ -45,25 +45,19 @@ namespace {
 
 bool path_contains_volume_name(const wstring& path)
 {
-	log_debug(L"path_contains_volume_name: " + path);
-	auto open_parenthesis_pos = path.find(L"(");
-	auto colon_pos = path.find(L":");
-    bool retval = open_parenthesis_pos != wstring::npos && colon_pos != wstring::npos && open_parenthesis_pos < colon_pos;
-    if (retval)
-        log_debug(L"path_contains_volume_name returns true");
-    else
-        log_debug(L"path_contains_volume_name returns false");
+    const auto open_parenthesis_pos = path.find(L'(');
+    const auto colon_pos = path.find(L':');
+    const bool retval = open_parenthesis_pos != wstring::npos && colon_pos != wstring::npos && open_parenthesis_pos < colon_pos;
+    log_debug("path_contains_volume_name " + wstring_to_string(path) + ": ", retval);
     return retval;
 }
 
 wstring volume_name(const wstring& path)
 {
     log_debug(L"volume_name() " + path);
-	wstring retval;
-    if (path_contains_volume_name(path)) {
-		retval = path.substr(0, path.find(L"(") - 1);
-	}
-	return retval;
+    if (!path_contains_volume_name(path))
+        return {};
+    return path.substr(0, path.find(L'(') - 1);
 }
 
 uint16_t next_check_interval(uint16_t previous_interval, bool repeats_previous_result, bool reachable)
@@ -165,9 +159,9 @@ bool CheckPath::both_sides_reachable(const std::wstring& source, const std::wstr
     return result;
 }
 
-bool CheckPath::operator()(const std::wstring& source, const std::wstring& dest, bool ssh)
+// The path itself tells which side is behind SSH, so ssh is not needed.
+bool CheckPath::operator()(const std::wstring& source, const std::wstring& dest, [[maybe_unused]] bool ssh)
 {
-    (void)ssh; // The path itself tells which side is behind SSH.
     const std::wstring cache_key = source + L"|" + dest;
     std::lock_guard<std::mutex> lock(drive_check_cache_mutex_);
     const auto cached = drive_check_cache_.find(cache_key);
@@ -188,34 +182,31 @@ bool CheckPath::operator()(const std::wstring& source, const std::wstring& dest,
 
 wstring root_name(const wstring& path)
 {
-	log_debug(L"root_name: " + path);
-	if (path_contains_volume_name(path)) {
-		auto open_parenthesis_pos = path.find(L"(");
-		auto close_parenthesis_pos = path.find(L")");
-		if (open_parenthesis_pos != wstring::npos && close_parenthesis_pos != wstring::npos)
-			return path.substr(open_parenthesis_pos + 1, (close_parenthesis_pos - open_parenthesis_pos) - 1);
-		else
-			throw std::runtime_error("Ungültiger Pfad: " + wstring_to_string(path));
-	}
-	wstring retval;
-	fs::path p(path);
-	retval = p.root_name().wstring();
+    log_debug(L"root_name: " + path);
+    if (path_contains_volume_name(path)) {
+        const auto open_parenthesis_pos = path.find(L'(');
+        const auto close_parenthesis_pos = path.find(L')');
+        if (close_parenthesis_pos == wstring::npos)
+            throw std::runtime_error("Ungültiger Pfad: " + wstring_to_string(path));
+        return path.substr(open_parenthesis_pos + 1, close_parenthesis_pos - open_parenthesis_pos - 1);
+    }
+    const wstring retval = fs::path(path).root_name().wstring();
     log_debug(L"root_name returns: " + retval);
-	return retval;
+    return retval;
 }
 
 std::wstring without_volume_spec(const std::wstring& path)
 {
-	log_debug(L"without_volume_spec: " + path);
-	// Strip only a real volume spec ("Label (C:)rest", paren before colon).
-	// Merely containing parentheses ("/home/x/Docs (2023)/f") must not strip,
-	// or the path degenerates to a wrong/empty one and the item never syncs.
-	if (!path_contains_volume_name(path))
-		return path;
-	auto close_parenthesis_pos = path.find(L")");
-	if (close_parenthesis_pos == wstring::npos)
-		return path;
-	return root_name(path) + path.substr(close_parenthesis_pos + 1);
+    log_debug(L"without_volume_spec: " + path);
+    // Strip only a real volume spec ("Label (C:)rest", paren before colon).
+    // Merely containing parentheses ("/home/x/Docs (2023)/f") must not strip,
+    // or the path degenerates to a wrong/empty one and the item never syncs.
+    if (!path_contains_volume_name(path))
+        return path;
+    const auto close_parenthesis_pos = path.find(L')');
+    if (close_parenthesis_pos == wstring::npos)
+        return path;
+    return root_name(path) + path.substr(close_parenthesis_pos + 1);
 }
 
 } // namespace AFS_Core

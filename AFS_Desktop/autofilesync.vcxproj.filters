@@ -70,9 +70,6 @@
     <ClCompile Include="..\AFS_Core\src\Config.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\Directory.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Global.cpp">
       <Filter>lib</Filter>
     </ClCompile>

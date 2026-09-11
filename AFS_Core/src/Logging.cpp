@@ -156,16 +156,13 @@ void Logging::erase_file()
 
 LogLevel Logging::get_from_string(const wstring_view& ll)
 {
-	if (ll == L"Debug") return LogLevel::Debug;
-		else if (ll == L"Info") return LogLevel::Info;
-		else if (ll == L"Warning") return LogLevel::Warning;
-		else if (ll == L"Error") return LogLevel::Error;
-		else if (ll == L"FatalError") return LogLevel::FatalError;
-		// Deliberately not the highest level: an unreadable entry in the
-		// configuration is a typo, and answering it with FatalError would
-		// silently turn the log down to almost nothing. Error keeps the
-		// levels that need a person to act, which is the safe default here.
-		else return	LogLevel::Error;
+	// "None" is not accepted: a configuration that switches the log off
+	// entirely would be indistinguishable from a typo, which gets the safe
+	// default below - Error keeps the levels that need a person to act.
+	for (int i = 0; i < static_cast<int>(LogLevel::None); ++i)
+		if (ll == string_to_wstring(std::string(LOG_LEVEL_NAMES[i])))
+			return static_cast<LogLevel>(i);
+	return LogLevel::Error;
 }
 
 std::string timestamp()
@@ -175,11 +172,11 @@ std::string timestamp()
 
 	const auto current_time_point{ Clock::now() };
 	const auto current_time{ Clock::to_time_t(current_time_point) };
+	std::tm current_localtime{};
 	#ifdef WIN32
-		std::tm current_localtime;
 		localtime_s(&current_localtime, &current_time);
 	#else
-		const auto  current_localtime { *std::localtime(&current_time) };
+		localtime_r(&current_time, &current_localtime);
 	#endif
 	const auto current_time_since_epoch{ current_time_point.time_since_epoch() };
 	const auto current_milliseconds{ duration_cast<milliseconds> (current_time_since_epoch).count() % 1000 };
@@ -188,13 +185,6 @@ std::string timestamp()
 	stream << std::put_time(&current_localtime, "%Y-%m-%d %H:%M:%S") << "." << std::setw(3) << std::setfill('0') << current_milliseconds;
 	return stream.str();
 }
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//Logging::Logging() 
-//	: os_(wstring_to_string(file_path_name_), std::ios::app)
-//{
-//}
 
 void Logging::write_head(std::ostream& os, LogLevel level)
 {

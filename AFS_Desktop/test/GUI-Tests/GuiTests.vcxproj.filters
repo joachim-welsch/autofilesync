@@ -57,9 +57,6 @@
     <ClCompile Include="..\..\PasswordCrypto.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Directory.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\FileDifference.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>

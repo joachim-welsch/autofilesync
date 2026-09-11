@@ -10,8 +10,8 @@ public:
     enum class Result { Equal, SourceModified, DestModified, DestNotExists, SourceNotExits,
                         SourceDriveNotMounted, DestDriveNotMounted, Undefined };
 private:
-    const std::wstring& source_;
-    const std::wstring& dest_;
+    const std::wstring  source_;
+    const std::wstring  dest_;
     uint64_t sourcesize_=0, destsize_=0;
     CompareItems    ci_;
     SSHPATH         ssh_ {SSHPATH::none};

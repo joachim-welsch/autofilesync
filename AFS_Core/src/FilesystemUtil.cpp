@@ -3,8 +3,7 @@
 #include "Logging.h"
 #include "MountedDrives.h"
 #include <StrUtil.h>
-#include <chrono>
-#include <iomanip>
+#include <fstream>
 #include <sstream>
 #ifdef WIN32
     #include <Windows.h>
@@ -23,15 +22,6 @@ using std::wstring;
 
 namespace fs = std::filesystem;
 
-template <typename TP>
-static std::time_t to_time_t(TP tp)
-{
-    using namespace std::chrono;
-    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
-              + system_clock::now());
-    return system_clock::to_time_t(sctp);
-}
-
 namespace FilesystemUtil {
 
 #ifdef _WIN32
@@ -44,14 +34,17 @@ namespace FilesystemUtil {
 #else
     std::string home_dir()
     {
-        const char* homedir = getenv("HOME");
-        return homedir ? homedir : getpwuid(getuid())->pw_dir;
+        if (const char* homedir = getenv("HOME"))
+            return homedir;
+        const passwd* entry = getpwuid(getuid());
+        return entry && entry->pw_dir ? entry->pw_dir : std::string();
     }
 #endif
 
 bool file_exists(const std::wstring& filename)
 {
-    return fs::exists(fs::status(filename));
+    std::error_code ec;
+    return fs::exists(filename, ec);
 }
 
 wstring make_error_message(FileInfoResult result)
@@ -115,21 +108,9 @@ FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, fs::f
 
         filesize = fs::file_size(fpathname);
         last_write_time = fs::last_write_time(fpathname);
-
-#ifdef _DEBUG
-        std::time_t tt = to_time_t(last_write_time);
-        std::tm* gmt = std::gmtime(&tt);
-        std::stringstream buffer;
-        buffer << std::put_time(gmt, "%A, %d %B %Y %H:%M");
-        std::string formatted_file_time = buffer.str();
-
-        std::wstringstream debug_msg;
-        debug_msg << L"Fileinfo result -> Filesize: " << filesize << L" last_write_time: " << util::string_to_wstring(formatted_file_time);
-        log_debug(debug_msg.str());
-#endif
         return FileInfoResult::OK;
     }
-    catch (std::exception& ex) {
+    catch (const std::exception&) {
         return FileInfoResult::ErrorReadFileInfo;
     }
 }
