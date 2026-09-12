@@ -59,10 +59,12 @@ if(NOT TARGET afs_core_deps)
     pkg_check_modules(LIBSSH REQUIRED libssh)
 
     # GNU gettext for the translated texts (Translation.cpp). Part of the C library on
-    # glibc, a separate libintl on macOS and Windows. Optional only in the sense
-    # that the build succeeds without it: since the message ids are technical keys,
-    # such a build shows keys instead of sentences and is not fit for users.
-    find_package(Intl)
+    # glibc, a separate libintl on macOS and Windows. Required, not optional: the
+    # message ids are technical keys, so a build without it shows
+    # "source_dir_not_reachable" where a sentence belongs. Translation.cpp still
+    # carries the fallback for that case because the Visual Studio projects build
+    # without gettext - they define no AFS_WITH_GETTEXT.
+    find_package(Intl REQUIRED)
 
     # LlamaClient runs the assistant chat locally through llama.cpp instead of a
     # cloud API - pinned to a commit so the build stays reproducible. Only the
@@ -97,11 +99,9 @@ if(NOT TARGET afs_core_deps)
     target_include_directories(afs_core_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS})
     target_link_directories(afs_core_deps INTERFACE ${LIBSSH_LIBRARY_DIRS})
     target_link_libraries(afs_core_deps INTERFACE ${LIBSSH_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto llama Threads::Threads)
-    if(Intl_FOUND)
-        target_include_directories(afs_core_deps SYSTEM INTERFACE ${Intl_INCLUDE_DIRS})
-        target_link_libraries(afs_core_deps INTERFACE ${Intl_LIBRARIES})
-        target_compile_definitions(afs_core_deps INTERFACE AFS_WITH_GETTEXT)
-    endif()
+    target_include_directories(afs_core_deps SYSTEM INTERFACE ${Intl_INCLUDE_DIRS})
+    target_link_libraries(afs_core_deps INTERFACE ${Intl_LIBRARIES})
+    target_compile_definitions(afs_core_deps INTERFACE AFS_WITH_GETTEXT)
 endif()
 
 # afs_core_add_library(<target> [WXWIDGETS] [DEFINITIONS <def>...])

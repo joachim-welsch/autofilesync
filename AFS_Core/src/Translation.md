@@ -74,7 +74,7 @@ program set last.
 
 ## no-libintl-fallback
 
-Builds without libintl (Windows without a gettext package) hand the message id straight back, so
-the user reads "source_dir_not_reachable" instead of a sentence. Message ids became keys, so
-there is no longer a language to fall back on; a build meant for users needs libintl and the
-catalogues next to the binary (see locale_dir).
+The branch for builds that define no AFS_WITH_GETTEXT hands the message id straight back, so the
+user reads "source_dir_not_reachable" instead of a sentence: message ids are keys, and there is
+no longer a language to fall back on. The CMake build cannot end up here - it requires Intl -
+but the Visual Studio projects still compile without gettext and do.
