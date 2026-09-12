@@ -100,7 +100,7 @@
       <!-- _CRT_SECURE_NO_WARNINGS / _SCL_SECURE_NO_WARNINGS werden bereits in
            pch.h gesetzt -> hier weglassen, sonst C4005 (Makro-Neudefinition).
            Deprecation-Warnungen sind ueber DisableSpecificWarnings 4996 abgedeckt. -->
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_TEST;NOMINMAX;WIN32_LEAN_AND_MEAN;LIB_SOURCE_DIR="$(LibDirPosix)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_TEST;NOMINMAX;WIN32_LEAN_AND_MEAN;LIB_SOURCE_DIR="$(LibDirPosix)";AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- 4505: static-Funktion in einem Header, in dieser TU ungenutzt (FilesystemUtil).
            5205 (Loeschen abstrakter Klasse ohne virtuellen Dtor) ist bewusst NICHT
            unterdrueckt - das ist ein echter Befund in SyncPath. -->
@@ -116,7 +116,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(VcpkgLibDirCli);$(VcpkgLibDirIde);$(BoostLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gtest.lib;gtest_main.lib;libssh2.lib;libcrypto.lib;ws2_32.lib;crypt32.lib;bcrypt.lib;advapi32.lib;user32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtest.lib;gtest_main.lib;libssh2.lib;libcrypto.lib;ws2_32.lib;crypt32.lib;bcrypt.lib;advapi32.lib;user32.lib;shlwapi.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

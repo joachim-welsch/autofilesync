@@ -128,30 +128,57 @@ Die früher separat erwartete Bibliothek **mylib** ist vollständig in `AFS_Core
 aufgegangen (Logging, LogCut, FilesystemUtil, MountedDrives, RecycleBin,
 SmtpMailer, StrUtil, Util). Weitere Abhängigkeiten: wxWidgets 3.2, Boost
 (header-only), libssh, OpenSSL, Google Test (nur Tests); llama.cpp wird beim
-Konfigurieren geklont. GNU gettext (libintl, `msgfmt`) ist optional - ohne die
-Bibliothek bleiben die Texte deutsch.
+Konfigurieren geklont. GNU gettext (libintl) ist **erforderlich**: die msgids sind
+technische Schlüssel, ein Build ohne libintl zeigt also `source_dir_not_reachable`
+statt eines Satzes. `msgfmt` bleibt optional - fehlt es, entfällt nur der Schritt,
+der die Kataloge übersetzt.
 
 ## Mehrsprachigkeit (GNU gettext)
 
-Die Texte, die `syncItemType2Str()` liefert, sind beispielhaft über GNU gettext
-übersetzbar. Die msgid ist jeweils der deutsche Originaltext, deshalb zeigt ein
-Build ohne Katalog (oder ganz ohne libintl) unverändert die deutschen Texte.
+Alle benutzersichtbaren Texte von `AFS_Core` laufen über das Modul `Translation`.
+Die msgids sind technische Schlüssel (`source_dir_not_reachable`), kein Anzeigetext:
+Deutsch und Englisch sind gleichberechtigte Kataloge, und ein Build ohne Katalog hat
+keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
 
-- Kataloge: `po/<sprache>.po`, Vorlage `po/autofilesync.pot`.
+- Kataloge: `po/de.po` und `po/en.po`, Vorlage `po/autofilesync.pot`.
 - `msgfmt` übersetzt sie beim Build nach `build/locale/<sprache>/LC_MESSAGES/autofilesync.mo`
   (auf macOS zusätzlich in `autofilesync.app/Contents/Resources/locale`).
-  Fehlt `msgfmt`, entfällt nur der Übersetzungsschritt.
+  Beide Programme suchen dieses Verzeichnis neben der eigenen Binary.
 - Sprache zur Laufzeit wählen: `LANGUAGE=en ./autofilesync` (gettext wertet
-  `LANGUAGE` vor der Locale aus).
+  `LANGUAGE` vor der Locale aus). Eine Sitzung, die gar keine Sprache nennt, bekommt
+  Deutsch - siehe `translation::init_locale()`.
 - Neue übersetzbare Texte einsammeln:
   ```bash
-  xgettext --keyword=translate --from-code=UTF-8 -o po/autofilesync.pot AFS_Core/src/*.cpp
-  msgmerge --update po/en.po po/autofilesync.pot
+  xgettext --keyword=translate --keyword=translate_utf8 --keyword=msgid \
+           --from-code=UTF-8 --no-wrap -o po/autofilesync.pot \
+           AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp
+  msgmerge --no-wrap --update po/de.po po/autofilesync.pot
+  msgmerge --no-wrap --update po/en.po po/autofilesync.pot
   ```
+  `--keyword=msgid` ist nötig für die Schlüssel, die erst gespeichert und später
+  übersetzt werden (`translation::msgid(...)` in Tabellen und Prompts).
 
-In der Konfigurationsdatei steht weiterhin der unübersetzte Schlüssel
-(`syncItemTypeKey()`), damit eine mit einer Sprache geschriebene Konfiguration
-mit jeder anderen lesbar bleibt.
+In der Konfigurationsdatei steht weiterhin ein unübersetzter Schlüssel
+(`sync_item_type_key()`), der vom msgid getrennt ist: eine mit einer Sprache
+geschriebene Konfiguration bleibt mit jeder anderen lesbar, und ein umbenannter
+msgid ändert das Dateiformat nicht.
+
+### Windows (Visual Studio)
+
+Der CMake-Build erzwingt libintl; die `.vcxproj`-Projekte holen es über vcpkg
+(`gettext` in `vcpkg.json`), definieren `AFS_WITH_GETTEXT` und linken `intl.lib`.
+Heißt die Bibliothek in `vcpkg_installed\<triplet>\lib` anders (vcpkg kennt auch
+`libintl` und `intl-8`), ist der Eintrag in `AdditionalDependencies` anzupassen.
+
+Einen `msgfmt`-Schritt haben die Projekte **nicht**: die `.mo`-Dateien müssen neben
+der Exe liegen, sonst zeigt auch ein Windows-Build die Schlüssel. Entweder das
+`locale`-Verzeichnis aus einem CMake-Build daneben kopieren oder von Hand erzeugen:
+
+```cmd
+md locale\de\LC_MESSAGES locale\en\LC_MESSAGES
+msgfmt -o locale\de\LC_MESSAGES\autofilesync.mo po\de.po
+msgfmt -o locale\en\LC_MESSAGES\autofilesync.mo po\en.po
+```
 
 ## Häufige Probleme
 
