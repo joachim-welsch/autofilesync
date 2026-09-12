@@ -14,6 +14,16 @@ remote_path is the path on the remote side without the account prefix ("/home/us
 exists=false means "connected and definitely absent"; any other failure throws so that a
 connection problem does not look like a deleted file.
 
+## shared-message-ids
+
+The connection failures use the same message ids across all three copies of the SSH code - this
+module, SshDirInspector and SyncFileSsh, and SftpConnection for the libssh ones. Each of them
+used to word the same failure itself, so a dropped session read differently depending on which
+module noticed it. One catalogue entry cannot drift apart the way four did.
+
+Not shared are SftpConnection's libssh_* ids: those texts end in ": " because the caller appends
+libssh's own error string, so they are a different message, not a differently worded one.
+
 ## path-separators
 
 Configured paths may use either separator (Settings.cpp stores them as entered); the remote sftp

@@ -39,12 +39,15 @@ one caller exists.
 ## SYSTEM_PROMPT
 
 Sent as the "system" turn on every request: the model has no other way to know what Autofilesync
-is, since there is no RAG/document lookup.
+is, since there is no RAG/document lookup. Kept as a message id and translated in build_prompt()
+instead of at namespace scope - it also asks for the answer's language, and the catalogue is not
+bound yet while the constants are initialised.
 
 ## LOG_ANALYSIS_INSTRUCTION
 
 Sent in front of the excerpt for analyze_log(): a plain log dump without an instruction leaves
-the model guessing what kind of answer is wanted.
+the model guessing what kind of answer is wanted. A message id like SYSTEM_PROMPT; analyze_log()
+adds the blank lines that separate it from the excerpt, so no translation can drop them.
 
 ## backend-init
 

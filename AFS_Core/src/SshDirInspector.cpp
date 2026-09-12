@@ -6,6 +6,7 @@
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
+#include "Translation.h"
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -51,13 +52,13 @@ namespace {
         info.path = remote_path;
         const auto attr = connection.stat(remote_path);
         if (!attr) {
-            info.error_message = "Pfad existiert nicht: " + remote_path;
+            info.error_message = translation::translate_utf8("path_not_exist") + remote_path;
             return false;
         }
         info.exists = true;
         info.is_directory = S_ISDIR(attr->permissions);
         if (!info.is_directory)
-            info.error_message = "Pfad ist kein Verzeichnis: " + remote_path;
+            info.error_message = translation::translate_utf8("path_not_a_dir") + remote_path;
         return info.is_directory;
     }
 }
@@ -75,14 +76,14 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
         return info;
     const SftpDir dir = connection_.open_dir(remote_path);
     if (!dir) {
-        info.error_message = "Fehler beim Öffnen des Verzeichnisses: " + connection_.error();
+        info.error_message = translation::translate_utf8("remote_dir_open_error") + connection_.error();
         return info;
     }
     while (const auto attr = connection_.read_dir(dir.get()))
         if (!is_dot_entry(attr->name))
             info.entries.push_back(to_entry(*attr, attr->name));
     if (!sftp_dir_eof(dir.get()))
-        info.error_message = "Fehler beim Lesen des Verzeichnisses: " + connection_.error();
+        info.error_message = translation::translate_utf8("dir_read_error") + connection_.error();
     return info;
 }
 
@@ -90,7 +91,7 @@ std::string SshDirInspector::get_home_dir()
 {
     char* resolved = sftp_canonicalize_path(connection_.sftp(), ".");
     if (!resolved)
-        throw std::runtime_error("Home-Verzeichnis konnte nicht ermittelt werden: " + connection_.error());
+        throw std::runtime_error(translation::translate_utf8("home_dir_unknown") + connection_.error());
     std::string home(resolved);
     ssh_string_free_char(resolved);
     return home;
@@ -108,7 +109,7 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
 {
     const SftpDir dir = connection_.open_dir(remote_path);
     if (!dir) {
-        result.error_message = "Fehler beim Öffnen des Verzeichnisses: " + remote_path;
+        result.error_message = translation::translate_utf8("remote_dir_open_error") + remote_path;
         return;
     }
     while (const auto attr = connection_.read_dir(dir.get())) {
@@ -120,7 +121,7 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
             inspect_dir_recursive_impl(full_path, result);
     }
     if (!sftp_dir_eof(dir.get()))  // [SshDirInspector.md#readdir-eof-vs-error]
-        result.error_message = "Verzeichnis unvollständig gelesen: " + remote_path;
+        result.error_message = translation::translate_utf8("remote_dir_read_incomplete") + remote_path;
 }
 
 #else
@@ -138,14 +139,14 @@ SshDirInspector::SshDirInspector(const SshAccount& account)
     WSADATA wsadata;
     int rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
     if (rc != 0) {
-        throw std::runtime_error("WSAStartup fehlgeschlagen");
+        throw std::runtime_error(translation::translate_utf8("wsastartup_failed"));
     }
 
     struct sockaddr_in sin;
     sock_ = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_ == INVALID_SOCKET) {
         WSACleanup();
-        throw std::runtime_error("Fehler beim Erstellen des Sockets");
+        throw std::runtime_error(translation::translate_utf8("socket_create_error"));
     }
 
     sin.sin_family = AF_INET;
@@ -156,7 +157,7 @@ SshDirInspector::SshDirInspector(const SshAccount& account)
         if (!host) {
             closesocket(sock_);
             WSACleanup();
-            throw std::runtime_error("Hostname konnte nicht aufgelöst werden: " + account_.host());
+            throw std::runtime_error(translation::translate_utf8("host_name_not_resolvable") + account_.host());
         }
         memcpy(&sin.sin_addr, host->h_addr, host->h_length);
     }
@@ -164,7 +165,7 @@ SshDirInspector::SshDirInspector(const SshAccount& account)
     if (connect(sock_, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) {
         closesocket(sock_);
         WSACleanup();
-        throw std::runtime_error("Verbindung zum Server fehlgeschlagen");
+        throw std::runtime_error(translation::translate_utf8("server_connect_failed"));
     }
 
     ensure_libssh2_initialized();
@@ -173,31 +174,31 @@ SshDirInspector::SshDirInspector(const SshAccount& account)
     if (!my_ssh_session_) {
         closesocket(sock_);
         WSACleanup();
-        throw std::runtime_error("Fehler beim Erstellen der SSH Session");
+        throw std::runtime_error(translation::translate_utf8("ssh_session_create_error"));
     }
     apply_ssh_connect_timeout(my_ssh_session_);
 
     rc = libssh2_session_handshake(my_ssh_session_, sock_);
     if (rc != 0) {
         cleanup();
-        throw std::runtime_error("SSH Handshake fehlgeschlagen");
+        throw std::runtime_error(translation::translate_utf8("ssh_handshake_failed"));
     }
 
     if (!verify_ssh_host_key(my_ssh_session_, account_.host())) {
         cleanup();
-        throw std::runtime_error("Host-Key-Prüfung fehlgeschlagen: mögliche Man-in-the-Middle-Attacke.");
+        throw std::runtime_error(translation::translate_utf8("host_key_verification_failed"));
     }
 
     rc = libssh2_userauth_password(my_ssh_session_, account_.user().c_str(), account_.password().c_str());
     if (rc != 0) {
         cleanup();
-        throw std::runtime_error("Authentifizierung fehlgeschlagen");
+        throw std::runtime_error(translation::translate_utf8("ssh_auth_failed"));
     }
 
     sftp_session_ptr_ = libssh2_sftp_init(my_ssh_session_);
     if (!sftp_session_ptr_) {
         cleanup();
-        throw std::runtime_error("SFTP Initialisierung fehlgeschlagen");
+        throw std::runtime_error(translation::translate_utf8("sftp_init_failed"));
     }
 }
 
@@ -234,7 +235,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
     LIBSSH2_SFTP_ATTRIBUTES attrs;
     int rc = libssh2_sftp_stat(sftp_session_ptr_, remote_path.c_str(), &attrs);
     if (rc != 0) {
-        info.error_message = "Pfad existiert nicht: " + remote_path;
+        info.error_message = translation::translate_utf8("path_not_exist") + remote_path;
         return info;
     }
 
@@ -242,7 +243,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
     info.is_directory = has_file_type(attrs.permissions, LIBSSH2_SFTP_S_IFDIR);
 
     if (!info.is_directory) {
-        info.error_message = "Pfad ist kein Verzeichnis: " + remote_path;
+        info.error_message = translation::translate_utf8("path_not_a_dir") + remote_path;
         return info;
     }
 
@@ -250,7 +251,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
     if (!dir_handle) {
         char* err_msg;
         libssh2_session_last_error(my_ssh_session_, &err_msg, nullptr, 0);
-        info.error_message = "Fehler beim Öffnen des Verzeichnisses: " + std::string(err_msg);
+        info.error_message = translation::translate_utf8("remote_dir_open_error") + std::string(err_msg);
         return info;
     }
 
@@ -281,7 +282,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
     }
 
     if (read_rc < 0)  // 0 is EOF, negative means an error in the middle of the listing
-        info.error_message = "Verzeichnis unvollständig gelesen: " + remote_path;
+        info.error_message = translation::translate_utf8("remote_dir_read_incomplete") + remote_path;
 
     libssh2_sftp_closedir(dir_handle);
     return info;
@@ -294,7 +295,7 @@ std::string SshDirInspector::get_home_dir()
     if (rc < 0) {
         char* err_msg;
         libssh2_session_last_error(my_ssh_session_, &err_msg, nullptr, 0);
-        throw std::runtime_error("Home-Verzeichnis konnte nicht ermittelt werden: " + std::string(err_msg));
+        throw std::runtime_error(translation::translate_utf8("home_dir_unknown") + std::string(err_msg));
     }
     return std::string(buffer, rc);
 }
@@ -309,7 +310,7 @@ RemoteDirInfo SshDirInspector::inspect_dir_recursive(const std::string& remote_p
     LIBSSH2_SFTP_ATTRIBUTES attrs;
     int rc = libssh2_sftp_stat(sftp_session_ptr_, remote_path.c_str(), &attrs);
     if (rc != 0) {
-        result.error_message = "Pfad existiert nicht: " + remote_path;
+        result.error_message = translation::translate_utf8("path_not_exist") + remote_path;
         return result;
     }
 
@@ -317,7 +318,7 @@ RemoteDirInfo SshDirInspector::inspect_dir_recursive(const std::string& remote_p
     result.is_directory = has_file_type(attrs.permissions, LIBSSH2_SFTP_S_IFDIR);
 
     if (!result.is_directory) {
-        result.error_message = "Pfad ist kein Verzeichnis: " + remote_path;
+        result.error_message = translation::translate_utf8("path_not_a_dir") + remote_path;
         return result;
     }
 
@@ -329,7 +330,7 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
 {
     LIBSSH2_SFTP_HANDLE* dir_handle = libssh2_sftp_opendir(sftp_session_ptr_, remote_path.c_str());
     if (!dir_handle) {
-        result.error_message = "Fehler beim Öffnen des Verzeichnisses: " + remote_path;
+        result.error_message = translation::translate_utf8("remote_dir_open_error") + remote_path;
         return;
     }
 
@@ -370,7 +371,7 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
     }
 
     if (read_rc < 0)  // 0 is EOF, negative means an error in the middle of the listing
-        result.error_message = "Verzeichnis unvollständig gelesen: " + remote_path;
+        result.error_message = translation::translate_utf8("remote_dir_read_incomplete") + remote_path;
 
     libssh2_sftp_closedir(dir_handle);
 }

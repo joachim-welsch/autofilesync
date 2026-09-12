@@ -7,6 +7,7 @@
 #include "Config.h"
 #include "SshAccount.h"
 #include "SshFileInspector.h"
+#include "Translation.h"
 #include <FilesystemUtil.h>
 #include <filesystem>
 #include <optional>
@@ -86,7 +87,7 @@ bool CheckPath::ssh_path_reachable(const wstring& pathname, bool must_exist) con
     wstring remote_path;
     auto account = ssh_account_of_path(pathname, remote_path);
     if (!account.has_value()) {  // no account for this prefix: nothing can be resolved
-        log_error(L"SSH-Account nicht gefunden fuer: " + pathname);
+        log_error(translation::translate("ssh_account_not_found_for") + pathname);
         return false;
     }
     try {
@@ -95,15 +96,15 @@ bool CheckPath::ssh_path_reachable(const wstring& pathname, bool must_exist) con
             return true;
         const RemoteFileInfo info = inspector.inspect_file(wstring_to_string(remote_path));  // [CheckPath.md#remote-absence-is-definite]
         if (!info.exists)
-            log_info(L"SSH-Pfad existiert nicht: " + pathname);
+            log_info(translation::translate("ssh_path_not_exist") + pathname);
         return info.exists;
     }
     catch (const std::exception& e) {
-        log_info(L"SSH-Pfad nicht erreichbar: " + pathname + L" - " + string_to_wstring(e.what()));
+        log_info(translation::translate("ssh_path_not_reachable") + pathname + L" - " + string_to_wstring(e.what()));
         return false;
     }
     catch (...) {
-        log_info(L"SSH-Pfad nicht erreichbar: " + pathname);
+        log_info(translation::translate("ssh_path_not_reachable") + pathname);
         return false;
     }
 }
@@ -126,11 +127,11 @@ bool CheckPath::both_sides_reachable(const std::wstring& source, const std::wstr
 {
     bool result = true;  // [CheckPath.md#reachability-rules]
     if (!side_reachable(source, true)) {
-        log_info(L"Quellverzeichnis nicht erreichbar: " + source);
+        log_info(translation::translate("source_dir_not_reachable") + source);
         result = false;
     }
     if (!side_reachable(dest, false)) {
-        log_info(L"Zielverzeichnis nicht erreichbar: " + dest);
+        log_info(translation::translate("target_dir_not_reachable") + dest);
         result = false;
     }
     return result;
@@ -160,7 +161,7 @@ wstring root_name(const wstring& path)
         const auto open_parenthesis_pos = path.find(L'(');
         const auto close_parenthesis_pos = path.find(L')');
         if (close_parenthesis_pos == wstring::npos)
-            throw std::runtime_error("Ungültiger Pfad: " + wstring_to_string(path));
+            throw std::runtime_error(translation::translate_utf8("invalid_path") + wstring_to_string(path));
         return path.substr(open_parenthesis_pos + 1, close_parenthesis_pos - open_parenthesis_pos - 1);
     }
     const wstring retval = fs::path(path).root_name().wstring();

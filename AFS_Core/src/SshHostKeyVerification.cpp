@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SshHostKeyVerification.h"
 #include "Logging.h"
+#include "Translation.h"
 #include "Util.h"
 
 namespace AFS_Core {
@@ -17,16 +18,16 @@ bool verify_ssh_host_key(ssh_session session, const std::string& host)
     case SSH_KNOWN_HOSTS_NOT_FOUND: // no known_hosts file yet: trust-on-first-use
     case SSH_KNOWN_HOSTS_UNKNOWN:
         if (ssh_session_update_known_hosts(session) != SSH_OK) {
-            log_error(L"Host-Key konnte nicht gespeichert werden: " + string_to_wstring(host));
+            log_error(translation::translate("host_key_not_storable") + string_to_wstring(host));
             return false;
         }
-        log_info(L"Neuer Host-Key gespeichert für: " + string_to_wstring(host));
+        log_info(translation::translate("host_key_stored") + string_to_wstring(host));
         return true;
     case SSH_KNOWN_HOSTS_CHANGED:
-        log_error(L"Host-Key hat sich geändert, mögliche Man-in-the-Middle-Attacke: " + string_to_wstring(host));
+        log_error(translation::translate("host_key_changed") + string_to_wstring(host));
         return false;
     default:
-        log_error(L"Host-Key-Prüfung fehlgeschlagen für: " + string_to_wstring(host));
+        log_error(translation::translate("host_key_verification_failed_for") + string_to_wstring(host));
         return false;
     }
 }
@@ -63,13 +64,13 @@ bool verify_ssh_host_key(LIBSSH2_SESSION* session, const std::string& host, unsi
     int key_type = 0;
     const char* key = libssh2_session_hostkey(session, &key_len, &key_type);
     if (!key) {
-        log_error(L"Host-Key konnte nicht gelesen werden: " + string_to_wstring(host));
+        log_error(translation::translate("host_key_not_readable") + string_to_wstring(host));
         return false;
     }
 
     LIBSSH2_KNOWNHOSTS* known_hosts = libssh2_knownhost_init(session);
     if (!known_hosts) {
-        log_error(L"Known-Hosts-Speicher konnte nicht erstellt werden");
+        log_error(translation::translate("known_hosts_store_failed"));
         return false;
     }
     const std::string known_hosts_path = known_hosts_file_path();
@@ -87,15 +88,15 @@ bool verify_ssh_host_key(LIBSSH2_SESSION* session, const std::string& host, unsi
     case LIBSSH2_KNOWNHOST_CHECK_NOTFOUND: // trust-on-first-use
         libssh2_knownhost_addc(known_hosts, host.c_str(), nullptr, key, key_len, nullptr, 0, key_mask, nullptr);
         libssh2_knownhost_writefile(known_hosts, known_hosts_path.c_str(), LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-        log_info(L"Neuer Host-Key gespeichert für: " + string_to_wstring(host));
+        log_info(translation::translate("host_key_stored") + string_to_wstring(host));
         result = true;
         break;
     case LIBSSH2_KNOWNHOST_CHECK_MISMATCH:
-        log_error(L"Host-Key hat sich geändert, mögliche Man-in-the-Middle-Attacke: " + string_to_wstring(host));
+        log_error(translation::translate("host_key_changed") + string_to_wstring(host));
         result = false;
         break;
     default:
-        log_error(L"Host-Key-Prüfung fehlgeschlagen für: " + string_to_wstring(host));
+        log_error(translation::translate("host_key_verification_failed_for") + string_to_wstring(host));
         result = false;
     }
 

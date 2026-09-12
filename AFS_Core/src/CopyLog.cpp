@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <sstream>
 #include "Logging.h"
+#include "Translation.h"
 #include "Util.h"
 
 namespace AFS_Core {
@@ -82,7 +83,7 @@ namespace {
             pt::read_json(in, root);
         }
         catch (const std::exception& ex) {
-            log_error(L"Sicherungsnachweis nicht lesbar, Eintrag verworfen: ", file.wstring(),
+            log_error(translation::translate("backup_proof_not_readable"), file.wstring(),
                 util::string_to_wstring(ex.what()));
             read = false;
         }
@@ -98,7 +99,7 @@ namespace {
             pt::write_json(os, root);
         }
         catch (const std::exception& ex) {
-            log_error(L"Sicherungsnachweis konnte nicht geschrieben werden: ", file.wstring(),
+            log_error(translation::translate("backup_proof_not_writable"), file.wstring(),
                 util::string_to_wstring(ex.what()));
             util::remove_file(tmp_file.wstring());
             return false;
@@ -112,7 +113,7 @@ void SyncReport::error(const wstring& message)
     if (errors_.size() > MAX_ERRORS)
         return;
     if (errors_.size() == MAX_ERRORS) {
-        errors_.push_back(L"Weitere Fehler wurden nicht aufgezeichnet.");
+        errors_.push_back(translation::translate("error_list_capped"));
         return;
     }
     errors_.push_back(message);
@@ -152,7 +153,7 @@ bool write_copy_log(const fs::path& directory, const SyncItem& item, std::size_t
     std::error_code ec;
     fs::create_directories(directory, ec);
     if (ec) {
-        log_error(L"Verzeichnis fuer Sicherungsnachweise nicht anlegbar: ", directory.wstring(),
+        log_error(translation::translate("backup_proof_dir_not_creatable"), directory.wstring(),
             util::string_to_wstring(ec.message()));
         return false;
     }

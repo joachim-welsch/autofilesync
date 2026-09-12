@@ -13,6 +13,7 @@
 #include "FileDelete.h"
 #include "SyncFileSsh.h"
 #include "CopyLog.h"
+#include "Translation.h"
 
 namespace AFS_Core {
 
@@ -44,9 +45,8 @@ static void move_file_to_backup(const wstring& dest_filename)
         fs::rename(dest_filename, new_dest_filename);
     }
     catch (const fs::filesystem_error& err) {
-        std::wstringstream os;
-        os << "Fehler: " << err.what() << ", beim Umbenennen von " << dest_filename << " nach " << new_dest_filename;
-        throw SyncException(os.str());
+        throw SyncException(translation::translate("rename_error",
+            {string_to_wstring(err.what()), dest_filename, new_dest_filename}));
     }
 }
 
@@ -84,7 +84,7 @@ void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_ti
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     if (ec) {
-        log_error(L"Dateizeit konnte nicht gesetzt werden: ", fn.wstring(), string_to_wstring(ec.message()));
+        log_error(translation::translate("file_time_not_settable"), fn.wstring(), string_to_wstring(ec.message()));
         return;
     }
     if (call_wait)
@@ -159,19 +159,19 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
     if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK)  // [SyncFile.md#ssh-skips-verification-only]
         return true;
     if (copy_ok == CopyResult::OK && !files_equal(src, dest)) {
-        log_error(L"Kopiere: ", src, dest, L"Überprüfung der kopierten Datei ergab Abweichungen");
-        report_sync_error(L"Kopierte Datei weicht ab: " + dest);
+        log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_verification_differs"));
+        report_sync_error(translation::translate("copied_file_differs") + dest);
         restore_backup(dest, bak_filename);
         return false;
     }
     if (copy_ok == CopyResult::Error) {
-        log_error(L"Kopiere: ", src, dest, L"Kopieren fehlgeschlagen");
-        report_sync_error(L"Kopieren fehlgeschlagen: " + src + L" -> " + dest);
+        log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_failed"));
+        report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest);
         restore_backup(dest, bak_filename);
         return false;
     }
     if (copy_ok == CopyResult::Stopped) {
-        log_info(L"Kopieren abgebrochen: ", src);
+        log_info(translation::translate("copy_cancelled"), src);
         restore_backup(dest, bak_filename);
         return false;
     }
@@ -187,7 +187,7 @@ void SyncFile::pre_copy(const wstring& src, const wstring& dest)
     std::error_code ec;
     fs::permissions(dest, fs::perms::owner_all, ec);
     if (ec)
-        log_error(L"Ändere Dateiattribute: ", src, string_to_wstring(ec.message()));
+        log_error(translation::translate("file_attributes_change"), src, string_to_wstring(ec.message()));
     if (sync_item_.father_son_principle())
         move_file_to_backup(dest);
 }
@@ -211,20 +211,21 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
     else if (copy_to_target && (fd.source_size() > 0 || sync_item_.sync_empty_files()))
         copy_source_to_dest(source, destination, filesize);
     else if (copy_to_target)
-        log_warning(L"Leere Quelldatei wurde nicht kopiert: ", source);
+        log_warning(translation::translate("empty_source_not_copied"), source);
     else if (fd.dest_size() > 0 || sync_item_.sync_empty_files())  // [SyncFile.md#volume-is-target-size]
         copy_dest_to_source(destination, source, fd.dest_size());
     else
-        log_warning(L"Leere Zieldatei wurde nicht kopiert: ", destination);
+        log_warning(translation::translate("empty_target_not_copied"), destination);
 }
 
 void SyncFile::delete_target_file(const wstring& source, const wstring& destination)
 {
-    log_info(L"Lösche Zieldatei, da Quelle nicht existiert: ", destination, L"Quelle:", source);
+    log_info(translation::translate("target_deleted_source_missing"), destination,
+        translation::translate("source_label"), source);
     const bool removed = ssh_dest() ? ssh_remove_file(destination) : delete_file(destination);  // [SyncFile.md#ssh-target-delete]
     if (!removed) {
-        log_error(L"Loeschen der Zieldatei fehlgeschlagen: ", destination);
-        report_sync_error(L"Loeschen der Zieldatei fehlgeschlagen: " + destination);
+        log_error(translation::translate("target_delete_failed"), destination);
+        report_sync_error(translation::translate("target_delete_failed") + destination);
     }
 }
 
@@ -234,7 +235,7 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     if (drive_not_exist(destination, ssh_dest()))
         return;
     #ifdef _WXWIDGETS
-        Synchronize::set_progress_message(L"Kopiere \n" + source + L"\nzu\n" + destination + L"...", size);
+        Synchronize::set_progress_message(translation::translate("copy_progress", {source, destination}), size);
     #endif
     try {  // [SyncFile.md#failures-return-early]
         pre_copy(source, destination);
@@ -242,7 +243,7 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
             return;
         if (!ssh_source())  // [SyncFile.md#local-only-filetime]
             util::set_last_write_time(destination, fs::last_write_time(source));
-        log_info(L"Quelle zu Ziel kopiert: ", source, L"nach", destination);
+        log_info(translation::translate("copied_source_to_target"), source, translation::translate("to_label"), destination);
     }
     catch (const fs::filesystem_error& ex) {
         handle_last_error(ex);
@@ -250,13 +251,13 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
         return;
     }
     catch (const std::exception& ex) {
-        log_error(L"Kopiere: ", source, destination, string_to_wstring(ex.what()));
+        log_error(translation::translate("copying_label"), source, destination, string_to_wstring(ex.what()));
         report_sync_error(string_to_wstring(ex.what()));
         return;
     }
     catch (...) {
-        log_error(L"Kopiere: ", source, destination, L"Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler beim Kopieren: " + source + L" -> " + destination);
+        log_error(translation::translate("copying_label"), source, destination, translation::translate("unknown_error"));
+        report_sync_error(translation::translate("unknown_copy_error") + source + L" -> " + destination);
         return;
     }
     ++copy_count_;
@@ -271,7 +272,7 @@ void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     if (drive_not_exist(source, ssh_source()))
         return;
     #ifdef _WXWIDGETS
-        Synchronize::set_progress_message(L"Kopiere \n" + destination + L"\nzu\n" + source + L"...", size);
+        Synchronize::set_progress_message(translation::translate("copy_progress", {destination, source}), size);
     #endif
     try {
         pre_copy(destination, source);
@@ -282,7 +283,7 @@ void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
             return;
         if (!ssh_dest())
             set_last_write_time(source, modify_time);
-        log_info(L"Ziel zu Quelle: ", destination, L"nach", source);
+        log_info(translation::translate("copied_target_to_source"), destination, translation::translate("to_label"), source);
     }
     catch (const fs::filesystem_error& ex) {
         handle_last_error(ex);
@@ -290,13 +291,13 @@ void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
         return;
     }
     catch (const std::exception& ex) {
-        log_error(L"Kopiere: ", destination, source, string_to_wstring(ex.what()));
+        log_error(translation::translate("copying_label"), destination, source, string_to_wstring(ex.what()));
         report_sync_error(string_to_wstring(ex.what()));
         return;
     }
     catch (...) {
-        log_error(L"Kopiere: ", destination, source, L"Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler beim Kopieren: " + destination + L" -> " + source);
+        log_error(translation::translate("copying_label"), destination, source, translation::translate("unknown_error"));
+        report_sync_error(translation::translate("unknown_copy_error") + destination + L" -> " + source);
         return;
     }
     ++copy_count_;
@@ -317,12 +318,13 @@ void SyncFile::operator()()
         const auto filesize = fd();
         sync_difference(fd, source, destination, filesize);
     } catch (const std::exception& ex) {
-        log_error(L"Kopiere: ", sync_item_.source(), sync_item_.target(), string_to_wstring(ex.what()));
+        log_error(translation::translate("copying_label"), sync_item_.source(), sync_item_.target(), string_to_wstring(ex.what()));
         report_sync_error(string_to_wstring(ex.what()));
     }
     catch (...) {
-        log_error(L"Kopiere: ", sync_item_.source(), sync_item_.target(), L" - Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler: " + sync_item_.source());
+        log_error(translation::translate("copying_label"), sync_item_.source(), sync_item_.target(),
+            L" - " + translation::translate("unknown_error"));
+        report_sync_error(translation::translate("unknown_error_for") + sync_item_.source());
     }
 }
 

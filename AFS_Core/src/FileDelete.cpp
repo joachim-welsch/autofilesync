@@ -4,6 +4,7 @@
 #include <RecycleBin.h>
 #include <Util.h>
 #include <Logging.h>
+#include <Translation.h>
 #include <filesystem>
 
 namespace AFS_Core {
@@ -17,10 +18,10 @@ bool delete_file(const std::wstring& pathname)
     const fs::path source(pathname);
     const fs::path item = util::with_timestamp_prefix(source.relative_path());  // [FileDelete.md#recycle-bin-layout]
     if (!RecycleBin::instance().add_item(source, item)) {
-        log_error(L"Verschieben in den Papierkorb fehlgeschlagen: ", pathname);
+        log_error(translation::translate("file_move_to_recycle_bin_failed"), pathname);
         return false;
     }
-    log_info(L"In den Papierkorb verschoben: ", pathname);
+    log_info(translation::translate("file_moved_to_recycle_bin"), pathname);
     return true;
 }
 

@@ -2,6 +2,7 @@
 #include "FilesystemUtil.h"
 #include "Logging.h"
 #include "MountedDrives.h"
+#include "Translation.h"
 #include <StrUtil.h>
 #include <fstream>
 #include <sstream>
@@ -51,17 +52,17 @@ wstring make_error_message(FileInfoResult result)
 {
     switch (result) {
     case FileInfoResult::FileNotExist:
-        return L"Datei existiert nicht";
+        return translation::translate("file_not_exist");
     case FileInfoResult::DriveNotMounted:
-        return L"Laufwerk ist nicht gemounted";
+        return translation::translate("drive_not_mounted");
     case FileInfoResult::CannotReadFileAttributes:
-        return L"Kann Dateiattribute nicht lesen";
+        return translation::translate("file_attributes_unreadable");
     case FileInfoResult::InvalidFileTime:
-        return L"Ungueltige Dateizeit";
+        return translation::translate("file_time_invalid");
     case FileInfoResult::ErrorReadFileInfo:
-        return L"Fehler beim Lesen der Dateiinformationen";
+        return translation::translate("file_info_read_error");
     default:
-        return L"Unbekannter Fehler";
+        return translation::translate("unknown_error");
     }
 }
 

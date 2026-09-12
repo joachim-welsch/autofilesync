@@ -47,7 +47,7 @@ bool App::OnInit()
 #ifdef _MACOS
     macTransformToForegroundApp();
 #endif
-    setlocale(LC_ALL, "de_DE.UTF-8");
+    translation::init_locale("de_DE.UTF-8");  // [App.md#initLocale]
     wxLocale locale;
     locale.Init(wxLANGUAGE_GERMAN);
     translation::init(messageCatalogueDir());  // [App.md#language-from-environment]

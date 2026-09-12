@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <Logging.h>
 #include <StrUtil.h>
+#include <Translation.h>
 #include <array>
 #include <chrono>
 #include <ctime>
@@ -266,9 +267,10 @@ void Logging::notify_fatal(const string& log_line)
 		return;
 	if (!notify_again(error_text(log_line)))
 		return;
-	const string error = send_mail(account, recipient, L"autofilesync: schwerwiegender Fehler", log_line);  // [Logging.md#mail-sent-synchronously]
+	const string error = send_mail(account, recipient, translation::translate("fatal_error_mail_subject"), log_line);  // [Logging.md#mail-sent-synchronously]
 	if (!error.empty())
-		log(LogLevel::Error, "Benachrichtigung an " + wstring_to_string(recipient) + " fehlgeschlagen: ", error);
+		log(LogLevel::Error, translation::translate_utf8("notification_failed",
+			{wstring_to_string(recipient)}), error);
 }
 
 bool Logging::notify_again(const string& message)  // [Logging.md#notify_again]

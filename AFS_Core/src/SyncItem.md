@@ -27,16 +27,18 @@ see Config::update_ssh_account_references() for why.
 Stores the path without its account prefix ("laptop:/home/x" -> "/home/x"); path() puts the
 prefix back.
 
-## SYNC_ITEM_TYPE_IDS
+## SYNC_ITEM_TYPE_NAMES
 
-The gettext message ids are the German strings the configuration has stored since the first
-version, which is why sync_item_type_key() can keep writing them while sync_item_type_to_str()
-shows the translation.
+The key and the message id are separate columns because they answer to different masters: the
+key is the German word the configuration has stored since the first version and must never
+change again, while the message id only addresses a catalogue entry and may be renamed with the
+rest of them. Tying the stored value to the message id once already meant that renaming an id
+would silently turn every configured item into SyncItemType::Undefined.
 
 ## sync_item_type_from_str
 
-Both spellings have to be understood: the untranslated key from the configuration file and the
-translated text a dialog hands back.
+Three spellings have to be understood: the key a configuration file stores, the message id
+itself (what an untranslated build displays), and the translated text a dialog hands back.
 
 ## ssh-path-without-round-trip
 

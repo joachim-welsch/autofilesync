@@ -2,6 +2,7 @@
 #include "CopyLog.h"
 #include "Synchronize.h"
 #include "Config.h"
+#include "Translation.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <chrono>
@@ -252,7 +253,7 @@ TEST_F(CopyLogTest, ErrorListIsCappedInsteadOfGrowingWithoutLimit)
         report.error(L"Fehler " + std::to_wstring(i));
 
     ASSERT_EQ(report.errors().size(), SyncReport::MAX_ERRORS + 1);
-    EXPECT_EQ(report.errors().back(), L"Weitere Fehler wurden nicht aufgezeichnet.");  // [CopyLogTests.md#capped-list-marker]
+    EXPECT_EQ(report.errors().back(), translation::translate("error_list_capped"));  // [CopyLogTests.md#capped-list-marker]
 }
 
 TEST_F(CopyLogTest, ReportsOnlyReachTheGuardedRun)

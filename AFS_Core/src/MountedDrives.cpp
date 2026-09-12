@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include "Logging.h"
+#include "Translation.h"
 #include <FilesystemUtil.h>
 #ifdef WIN32
     #include "Util.h"
@@ -44,7 +45,7 @@ bool MountedDrives::time_elapsed() const
         }
         else {
             DWORD error = GetLastError();
-            log_error(L"Fehler beim Abrufen des Mountpoints: " + std::to_wstring(error));
+            log_error(translation::translate("mount_point_query_error") + std::to_wstring(error));
             return fs::path();
         }
     }

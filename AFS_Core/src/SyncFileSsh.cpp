@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SyncFileSsh.h"
+#include "Translation.h"
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
@@ -150,7 +151,7 @@ namespace {
     {
         const auto account = get_account_from_path(path);
         if (!account) {
-            log_error(L"SSH-Account nicht gefunden für: " + path);
+            log_error(translation::translate("ssh_account_not_found_for") + path);
             return std::nullopt;
         }
         try {
@@ -182,9 +183,9 @@ namespace {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!local_file.write(buffer.data(), bytes_read))
-                return copy_failed(L"Fehler beim Schreiben der lokalen Datei");
+                return copy_failed(translation::translate("local_file_write_error"));
         }
-        return bytes_read < 0 ? copy_failed(L"Fehler beim Lesen der Remote-Datei") : CopyResult::OK;
+        return bytes_read < 0 ? copy_failed(translation::translate("remote_file_read_error")) : CopyResult::OK;
     }
 
     CopyResult upload(std::ifstream& local_file, sftp_file remote_file)
@@ -194,9 +195,9 @@ namespace {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!sftp_write_all(remote_file, buffer.data(), static_cast<size_t>(local_file.gcount())))
-                return copy_failed(L"Fehler beim Schreiben der Remote-Datei");
+                return copy_failed(translation::translate("remote_file_write_error"));
         }
-        return local_file.bad() ? copy_failed(L"Fehler beim Lesen der lokalen Datei") : CopyResult::OK;
+        return local_file.bad() ? copy_failed(translation::translate("local_file_read_error")) : CopyResult::OK;
     }
 
     CopyResult transfer(sftp_file src_file, sftp_file dest_file)
@@ -207,9 +208,9 @@ namespace {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!sftp_write_all(dest_file, buffer.data(), static_cast<size_t>(bytes_read)))
-                return copy_failed(L"Fehler beim Schreiben der Ziel-Datei");
+                return copy_failed(translation::translate("target_file_write_error"));
         }
-        return bytes_read < 0 ? copy_failed(L"Fehler beim Lesen der Quell-Datei") : CopyResult::OK;
+        return bytes_read < 0 ? copy_failed(translation::translate("source_file_read_error")) : CopyResult::OK;
     }
 
     SshDirEntry to_dir_entry(const sftp_attributes_struct& attr)
@@ -238,10 +239,10 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     const SftpFile remote_file = connection.open(*remote_path, O_RDONLY, 0);
     if (!remote_file)
-        return copy_failed(L"Fehler beim Öffnen der Remote-Datei: " + string_to_wstring(*remote_path));
+        return copy_failed(translation::translate("remote_file_open_error") + string_to_wstring(*remote_path));
     std::ofstream local_file(wstring_to_string(dest), std::ios::binary);
     if (!local_file.is_open())
-        return copy_failed(L"Fehler beim Öffnen der lokalen Datei: " + dest);
+        return copy_failed(translation::translate("local_file_open_error") + dest);
     return download(remote_file.get(), local_file);
 }
 
@@ -257,10 +258,10 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     const SftpFile src_file = source.open(*src_path, O_RDONLY, 0);
     if (!src_file)
-        return copy_failed(L"Fehler beim Öffnen der Quell-Datei: " + string_to_wstring(*src_path));
+        return copy_failed(translation::translate("source_file_open_error") + string_to_wstring(*src_path));
     const SftpFile dest_file = target.open(*dest_path, WRITE_FLAGS, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (!dest_file)
-        return copy_failed(L"Fehler beim Öffnen der Ziel-Datei: " + string_to_wstring(*dest_path));
+        return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(*dest_path));
     return transfer(src_file.get(), dest_file.get());
 }
 
@@ -269,14 +270,14 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     log_debug(L"copy_fs_to_ssh: " + src + L" -> " + dest);
     std::ifstream local_file(wstring_to_string(src), std::ios::binary);
     if (!local_file.is_open())
-        return copy_failed(L"Fehler beim Öffnen der lokalen Datei: " + src);
+        return copy_failed(translation::translate("local_file_open_error") + src);
     SftpConnection connection;
     const auto remote_path = connect_to(dest, connection);
     if (!remote_path)
         return CopyResult::Error;
     const SftpFile remote_file = connection.open(*remote_path, WRITE_FLAGS, S_IRUSR | S_IWUSR);
     if (!remote_file)
-        return copy_failed(L"Fehler beim Öffnen der Remote-Datei zum Schreiben: " + string_to_wstring(*remote_path));
+        return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(*remote_path));
     return upload(local_file, remote_file.get());
 }
 
@@ -310,7 +311,7 @@ bool ssh_mkdir(const std::wstring& path)
     if (!remote_path)
         return false;
     if (sftp_mkdir(connection.sftp(), remote_path->c_str(), DIRECTORY_MODE) != SSH_OK)
-        return failed(L"Fehler beim Erstellen des Remote-Verzeichnisses: " + string_to_wstring(*remote_path));
+        return failed(translation::translate("remote_dir_create_error") + string_to_wstring(*remote_path));
     return true;
 }
 
@@ -322,7 +323,7 @@ bool ssh_remove_file(const std::wstring& path)
     if (!remote_path)
         return false;
     if (sftp_unlink(connection.sftp(), remote_path->c_str()) != SSH_OK)
-        return failed(L"Fehler beim Löschen der Remote-Datei: " + string_to_wstring(*remote_path));
+        return failed(translation::translate("remote_file_delete_error") + string_to_wstring(*remote_path));
     return true;
 }
 
@@ -336,14 +337,14 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         return entries;
     const SftpDir dir = connection.open_dir(*remote_path);
     if (!dir) {
-        log_error(L"Fehler beim Öffnen des Remote-Verzeichnisses: " + string_to_wstring(*remote_path));
+        log_error(translation::translate("remote_dir_open_error") + string_to_wstring(*remote_path));
         return entries;
     }
     while (const auto attr = connection.read_dir(dir.get()))
         if (!is_dot_entry(attr->name))
             entries.push_back(to_dir_entry(*attr));
     if (!sftp_dir_eof(dir.get()))  // [SyncFileSsh.md#readdir-eof-vs-error]
-        log_error(L"Remote-Verzeichnis unvollständig gelesen: " + string_to_wstring(*remote_path) + L" - " + string_to_wstring(connection.error()));
+        log_error(translation::translate("remote_dir_read_incomplete") + string_to_wstring(*remote_path) + L" - " + string_to_wstring(connection.error()));
     return entries;
 }
 #else
@@ -354,7 +355,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     
     auto account_opt = get_account_from_path(src);
     if (!account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für: " + src);
+        log_error(translation::translate("ssh_account_not_found_for") + src);
         return CopyResult::Error;
     }
     const SshAccount& account = account_opt.value();
@@ -363,33 +364,33 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     ensure_libssh2_initialized();
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Sockets");
+        log_error(translation::translate("socket_create_error"));
         return CopyResult::Error;
     }
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(L"Fehler beim Auflösen des Hostnamens: " + string_to_wstring(account.host()));
+        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
         closesocket(sock);
         return CopyResult::Error;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler zum Host: " + string_to_wstring(account.host()));
+        log_error(translation::translate("ssh_connect_error_for_host") + string_to_wstring(account.host()));
         closesocket(sock);
         return CopyResult::Error;
     }
 
     LIBSSH2_SESSION* session = libssh2_session_init();
     if (!session) {
-        log_error(L"Fehler beim Erstellen der SSH Session");
+        log_error(translation::translate("ssh_session_create_error"));
         closesocket(sock);
         return CopyResult::Error;
     }
     apply_ssh_connect_timeout(session);
     
     if (libssh2_session_handshake(session, sock) != 0) {
-        log_error(L"SSH Handshake-Fehler");
+        log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
         closesocket(sock);
         return CopyResult::Error;
@@ -403,7 +404,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     }
 
     if (libssh2_userauth_password(session, account.user().c_str(), account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler");
+        log_error(translation::translate("ssh_auth_failed"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -412,7 +413,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
 
     LIBSSH2_SFTP* sftp_session = libssh2_sftp_init(session);
     if (!sftp_session) {
-        log_error(L"Fehler beim Erstellen der SFTP Session");
+        log_error(translation::translate("sftp_session_create_error"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -422,7 +423,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     LIBSSH2_SFTP_HANDLE* remote_file = libssh2_sftp_open(sftp_session, remote_path.c_str(),
         LIBSSH2_FXF_READ, 0);
     if (!remote_file) {
-        log_error(L"Fehler beim Öffnen der Remote-Datei: " + string_to_wstring(remote_path));
+        log_error(translation::translate("remote_file_open_error") + string_to_wstring(remote_path));
         libssh2_sftp_shutdown(sftp_session);
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
@@ -433,7 +434,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     std::string dest_path = wstring_to_string(dest);
     std::ofstream local_file(dest_path, std::ios::binary);
     if (!local_file.is_open()) {
-        log_error(L"Fehler beim Öffnen der lokalen Datei: " + dest);
+        log_error(translation::translate("local_file_open_error") + dest);
         libssh2_sftp_close(remote_file);
         libssh2_sftp_shutdown(sftp_session);
         libssh2_session_disconnect(session, "Normal Shutdown");
@@ -454,14 +455,14 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         }
         local_file.write(buffer.data(), bytes_read);
         if (!local_file.good()) {
-            log_error(L"Fehler beim Schreiben der lokalen Datei");
+            log_error(translation::translate("local_file_write_error"));
             result = CopyResult::Error;
             break;
         }
     }
     
     if (bytes_read < 0) {
-        log_error(L"Fehler beim Lesen der Remote-Datei");
+        log_error(translation::translate("remote_file_read_error"));
         result = CopyResult::Error;
     }
     
@@ -481,7 +482,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     
     auto src_account_opt = get_account_from_path(src);
     if (!src_account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für Quelle: " + src);
+        log_error(translation::translate("ssh_account_not_found_source") + src);
         return CopyResult::Error;
     }
     const SshAccount& src_account = src_account_opt.value();
@@ -489,7 +490,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     
     auto dest_account_opt = get_account_from_path(dest);
     if (!dest_account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für Ziel: " + dest);
+        log_error(translation::translate("ssh_account_not_found_target") + dest);
         return CopyResult::Error;
     }
     const SshAccount& dest_account = dest_account_opt.value();
@@ -498,33 +499,33 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     ensure_libssh2_initialized();
     SOCKET src_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (src_sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Quell-Sockets");
+        log_error(translation::translate("source_socket_create_error"));
         return CopyResult::Error;
     }
 
     sockaddr_in src_sin{};
     if (!resolve_host(src_account.host(), src_sin)) {
-        log_error(L"Fehler beim Auflösen des Quell-Hostnamens: " + string_to_wstring(src_account.host()));
+        log_error(translation::translate("source_host_name_resolve_error") + string_to_wstring(src_account.host()));
         closesocket(src_sock);
         return CopyResult::Error;
     }
 
     if (connect(src_sock, (struct sockaddr*)&src_sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler (Quelle)");
+        log_error(translation::translate("ssh_connect_error_source"));
         closesocket(src_sock);
         return CopyResult::Error;
     }
 
     LIBSSH2_SESSION* src_session = libssh2_session_init();
     if (!src_session) {
-        log_error(L"Fehler beim Erstellen der Quell-SSH Session");
+        log_error(translation::translate("source_ssh_session_create_error"));
         closesocket(src_sock);
         return CopyResult::Error;
     }
     apply_ssh_connect_timeout(src_session);
     
     if (libssh2_session_handshake(src_session, src_sock) != 0) {
-        log_error(L"SSH Handshake-Fehler (Quelle)");
+        log_error(translation::translate("ssh_handshake_error_source"));
         libssh2_session_free(src_session);
         closesocket(src_sock);
         return CopyResult::Error;
@@ -538,7 +539,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     }
 
     if (libssh2_userauth_password(src_session, src_account.user().c_str(), src_account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler (Quelle)");
+        log_error(translation::translate("ssh_auth_error_source"));
         libssh2_session_disconnect(src_session, "Normal Shutdown");
         libssh2_session_free(src_session);
         closesocket(src_sock);
@@ -547,7 +548,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     
     LIBSSH2_SFTP* src_sftp_session = libssh2_sftp_init(src_session);
     if (!src_sftp_session) {
-        log_error(L"Fehler beim Erstellen der Quell-SFTP Session");
+        log_error(translation::translate("source_sftp_session_create_error"));
         libssh2_session_disconnect(src_session, "Normal Shutdown");
         libssh2_session_free(src_session);
         closesocket(src_sock);
@@ -556,7 +557,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     
     SOCKET dest_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (dest_sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Ziel-Sockets");
+        log_error(translation::translate("target_socket_create_error"));
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
         libssh2_session_free(src_session);
@@ -566,7 +567,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     
     sockaddr_in dest_sin{};
     if (!resolve_host(dest_account.host(), dest_sin)) {
-        log_error(L"Fehler beim Auflösen des Ziel-Hostnamens: " + string_to_wstring(dest_account.host()));
+        log_error(translation::translate("target_host_name_resolve_error") + string_to_wstring(dest_account.host()));
         closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
@@ -576,7 +577,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     }
 
     if (connect(dest_sock, (struct sockaddr*)&dest_sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler (Ziel)");
+        log_error(translation::translate("ssh_connect_error_target"));
         closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
@@ -587,7 +588,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
 
     LIBSSH2_SESSION* dest_session = libssh2_session_init();
     if (!dest_session) {
-        log_error(L"Fehler beim Erstellen der Ziel-SSH Session");
+        log_error(translation::translate("target_ssh_session_create_error"));
         closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
@@ -598,7 +599,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     apply_ssh_connect_timeout(dest_session);
     
     if (libssh2_session_handshake(dest_session, dest_sock) != 0) {
-        log_error(L"SSH Handshake-Fehler (Ziel)");
+        log_error(translation::translate("ssh_handshake_error_target"));
         libssh2_session_free(dest_session);
         closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
@@ -620,7 +621,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     }
 
     if (libssh2_userauth_password(dest_session, dest_account.user().c_str(), dest_account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler (Ziel)");
+        log_error(translation::translate("ssh_auth_error_target"));
         libssh2_session_disconnect(dest_session, "Normal Shutdown");
         libssh2_session_free(dest_session);
         closesocket(dest_sock);
@@ -633,7 +634,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     
     LIBSSH2_SFTP* dest_sftp_session = libssh2_sftp_init(dest_session);
     if (!dest_sftp_session) {
-        log_error(L"Fehler beim Erstellen der Ziel-SFTP Session");
+        log_error(translation::translate("target_sftp_session_create_error"));
         libssh2_session_disconnect(dest_session, "Normal Shutdown");
         libssh2_session_free(dest_session);
         closesocket(dest_sock);
@@ -647,7 +648,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     LIBSSH2_SFTP_HANDLE* src_file = libssh2_sftp_open(src_sftp_session, src_remote_path.c_str(),
         LIBSSH2_FXF_READ, 0);
     if (!src_file) {
-        log_error(L"Fehler beim Öffnen der Quell-Datei: " + string_to_wstring(src_remote_path));
+        log_error(translation::translate("source_file_open_error") + string_to_wstring(src_remote_path));
         libssh2_sftp_shutdown(dest_sftp_session);
         libssh2_session_disconnect(dest_session, "Normal Shutdown");
         libssh2_session_free(dest_session);
@@ -663,7 +664,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC,
         LIBSSH2_SFTP_S_IRUSR | LIBSSH2_SFTP_S_IWUSR | LIBSSH2_SFTP_S_IRGRP | LIBSSH2_SFTP_S_IROTH);
     if (!dest_file) {
-        log_error(L"Fehler beim Öffnen der Ziel-Datei: " + string_to_wstring(dest_remote_path));
+        log_error(translation::translate("target_file_open_error") + string_to_wstring(dest_remote_path));
         libssh2_sftp_close(src_file);
         libssh2_sftp_shutdown(dest_sftp_session);
         libssh2_session_disconnect(dest_session, "Normal Shutdown");
@@ -687,14 +688,14 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
             break;
         }
         if (!sftp_write_all(dest_file, buffer.data(), static_cast<size_t>(bytes_read))) {
-            log_error(L"Fehler beim Schreiben der Ziel-Datei");
+            log_error(translation::translate("target_file_write_error"));
             result = CopyResult::Error;
             break;
         }
     }
     
     if (bytes_read < 0) {
-        log_error(L"Fehler beim Lesen der Quell-Datei");
+        log_error(translation::translate("source_file_read_error"));
         result = CopyResult::Error;
     }
     
@@ -718,7 +719,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     
     auto account_opt = get_account_from_path(dest);
     if (!account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für: " + dest);
+        log_error(translation::translate("ssh_account_not_found_for") + dest);
         return CopyResult::Error;
     }
     const SshAccount& account = account_opt.value();
@@ -727,40 +728,40 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     std::string src_path = wstring_to_string(src);
     std::ifstream local_file(src_path, std::ios::binary);
     if (!local_file.is_open()) {
-        log_error(L"Fehler beim Öffnen der lokalen Datei: " + src);
+        log_error(translation::translate("local_file_open_error") + src);
         return CopyResult::Error;
     }
 
     ensure_libssh2_initialized();
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Sockets");
+        log_error(translation::translate("socket_create_error"));
         return CopyResult::Error;
     }
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(L"Fehler beim Auflösen des Hostnamens: " + string_to_wstring(account.host()));
+        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
         closesocket(sock);
         return CopyResult::Error;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler");
+        log_error(translation::translate("server_connect_failed"));
         closesocket(sock);
         return CopyResult::Error;
     }
 
     LIBSSH2_SESSION* session = libssh2_session_init();
     if (!session) {
-        log_error(L"Fehler beim Erstellen der SSH Session");
+        log_error(translation::translate("ssh_session_create_error"));
         closesocket(sock);
         return CopyResult::Error;
     }
     apply_ssh_connect_timeout(session);
 
     if (libssh2_session_handshake(session, sock) != 0) {
-        log_error(L"SSH Handshake-Fehler");
+        log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
         closesocket(sock);
         return CopyResult::Error;
@@ -774,7 +775,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     }
 
     if (libssh2_userauth_password(session, account.user().c_str(), account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler");
+        log_error(translation::translate("ssh_auth_failed"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -783,7 +784,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
 
     LIBSSH2_SFTP* sftp_session = libssh2_sftp_init(session);
     if (!sftp_session) {
-        log_error(L"Fehler beim Erstellen der SFTP Session");
+        log_error(translation::translate("sftp_session_create_error"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -794,7 +795,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC,
         LIBSSH2_SFTP_S_IRUSR | LIBSSH2_SFTP_S_IWUSR);
     if (!remote_file) {
-        log_error(L"Fehler beim Öffnen der Remote-Datei zum Schreiben: " + string_to_wstring(remote_path));
+        log_error(translation::translate("remote_file_open_write_error") + string_to_wstring(remote_path));
         libssh2_sftp_shutdown(sftp_session);
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
@@ -812,14 +813,14 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         }
         std::streamsize bytes_read = local_file.gcount();
         if (!sftp_write_all(remote_file, buffer.data(), static_cast<size_t>(bytes_read))) {
-            log_error(L"Fehler beim Schreiben der Remote-Datei");
+            log_error(translation::translate("remote_file_write_error"));
             result = CopyResult::Error;
             break;
         }
     }
     
     if (result == CopyResult::OK && local_file.bad()) {
-        log_error(L"Fehler beim Lesen der lokalen Datei");
+        log_error(translation::translate("local_file_read_error"));
         result = CopyResult::Error;
     }
     
@@ -839,7 +840,7 @@ bool ssh_exists(const std::wstring& path)
 
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für: " + path);
+        log_error(translation::translate("ssh_account_not_found_for") + path);
         return false;
     }
     const SshAccount& account = account_opt.value();
@@ -848,33 +849,33 @@ bool ssh_exists(const std::wstring& path)
     ensure_libssh2_initialized();
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Sockets");
+        log_error(translation::translate("socket_create_error"));
         return false;
     }
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(L"Fehler beim Auflösen des Hostnamens: " + string_to_wstring(account.host()));
+        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler");
+        log_error(translation::translate("server_connect_failed"));
         closesocket(sock);
         return false;
     }
 
     LIBSSH2_SESSION* session = libssh2_session_init();
     if (!session) {
-        log_error(L"Fehler beim Erstellen der SSH Session");
+        log_error(translation::translate("ssh_session_create_error"));
         closesocket(sock);
         return false;
     }
     apply_ssh_connect_timeout(session);
 
     if (libssh2_session_handshake(session, sock) != 0) {
-        log_error(L"SSH Handshake-Fehler");
+        log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
         closesocket(sock);
         return false;
@@ -888,7 +889,7 @@ bool ssh_exists(const std::wstring& path)
     }
 
     if (libssh2_userauth_password(session, account.user().c_str(), account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler");
+        log_error(translation::translate("ssh_auth_failed"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -897,7 +898,7 @@ bool ssh_exists(const std::wstring& path)
 
     LIBSSH2_SFTP* sftp_session = libssh2_sftp_init(session);
     if (!sftp_session) {
-        log_error(L"Fehler beim Erstellen der SFTP Session");
+        log_error(translation::translate("sftp_session_create_error"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -925,7 +926,7 @@ bool ssh_is_directory(const std::wstring& path)
 
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für: " + path);
+        log_error(translation::translate("ssh_account_not_found_for") + path);
         return false;
     }
     const SshAccount& account = account_opt.value();
@@ -934,33 +935,33 @@ bool ssh_is_directory(const std::wstring& path)
     ensure_libssh2_initialized();
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Sockets");
+        log_error(translation::translate("socket_create_error"));
         return false;
     }
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(L"Fehler beim Auflösen des Hostnamens: " + string_to_wstring(account.host()));
+        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler");
+        log_error(translation::translate("server_connect_failed"));
         closesocket(sock);
         return false;
     }
 
     LIBSSH2_SESSION* session = libssh2_session_init();
     if (!session) {
-        log_error(L"Fehler beim Erstellen der SSH Session");
+        log_error(translation::translate("ssh_session_create_error"));
         closesocket(sock);
         return false;
     }
     apply_ssh_connect_timeout(session);
 
     if (libssh2_session_handshake(session, sock) != 0) {
-        log_error(L"SSH Handshake-Fehler");
+        log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
         closesocket(sock);
         return false;
@@ -974,7 +975,7 @@ bool ssh_is_directory(const std::wstring& path)
     }
 
     if (libssh2_userauth_password(session, account.user().c_str(), account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler");
+        log_error(translation::translate("ssh_auth_failed"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -983,7 +984,7 @@ bool ssh_is_directory(const std::wstring& path)
 
     LIBSSH2_SFTP* sftp_session = libssh2_sftp_init(session);
     if (!sftp_session) {
-        log_error(L"Fehler beim Erstellen der SFTP Session");
+        log_error(translation::translate("sftp_session_create_error"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1007,7 +1008,7 @@ bool ssh_mkdir(const std::wstring& path)
     log_debug(L"ssh_mkdir: " + path);
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für: " + path);
+        log_error(translation::translate("ssh_account_not_found_for") + path);
         return false;
     }
     const SshAccount& account = account_opt.value();
@@ -1016,33 +1017,33 @@ bool ssh_mkdir(const std::wstring& path)
     ensure_libssh2_initialized();
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Sockets");
+        log_error(translation::translate("socket_create_error"));
         return false;
     }
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(L"Fehler beim Auflösen des Hostnamens: " + string_to_wstring(account.host()));
+        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler");
+        log_error(translation::translate("server_connect_failed"));
         closesocket(sock);
         return false;
     }
 
     LIBSSH2_SESSION* session = libssh2_session_init();
     if (!session) {
-        log_error(L"Fehler beim Erstellen der SSH Session");
+        log_error(translation::translate("ssh_session_create_error"));
         closesocket(sock);
         return false;
     }
     apply_ssh_connect_timeout(session);
 
     if (libssh2_session_handshake(session, sock) != 0) {
-        log_error(L"SSH Handshake-Fehler");
+        log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
         closesocket(sock);
         return false;
@@ -1056,7 +1057,7 @@ bool ssh_mkdir(const std::wstring& path)
     }
 
     if (libssh2_userauth_password(session, account.user().c_str(), account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler");
+        log_error(translation::translate("ssh_auth_failed"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1065,7 +1066,7 @@ bool ssh_mkdir(const std::wstring& path)
 
     LIBSSH2_SFTP* sftp_session = libssh2_sftp_init(session);
     if (!sftp_session) {
-        log_error(L"Fehler beim Erstellen der SFTP Session");
+        log_error(translation::translate("sftp_session_create_error"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1077,7 +1078,7 @@ bool ssh_mkdir(const std::wstring& path)
     bool success = (rc == 0);
     if (!success) {
         unsigned long e = libssh2_sftp_last_error(sftp_session);
-        log_error(L"Fehler beim Erstellen des Remote-Verzeichnisses: " + string_to_wstring(remote_path));
+        log_error(translation::translate("remote_dir_create_error") + string_to_wstring(remote_path));
     }
     
     libssh2_sftp_shutdown(sftp_session);
@@ -1093,7 +1094,7 @@ bool ssh_remove_file(const std::wstring& path)
     log_debug(L"ssh_remove_file: " + path);
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für: " + path);
+        log_error(translation::translate("ssh_account_not_found_for") + path);
         return false;
     }
     const SshAccount& account = account_opt.value();
@@ -1102,33 +1103,33 @@ bool ssh_remove_file(const std::wstring& path)
     ensure_libssh2_initialized();
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Sockets");
+        log_error(translation::translate("socket_create_error"));
         return false;
     }
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(L"Fehler beim Auflösen des Hostnamens: " + string_to_wstring(account.host()));
+        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler");
+        log_error(translation::translate("server_connect_failed"));
         closesocket(sock);
         return false;
     }
 
     LIBSSH2_SESSION* session = libssh2_session_init();
     if (!session) {
-        log_error(L"Fehler beim Erstellen der SSH Session");
+        log_error(translation::translate("ssh_session_create_error"));
         closesocket(sock);
         return false;
     }
     apply_ssh_connect_timeout(session);
 
     if (libssh2_session_handshake(session, sock) != 0) {
-        log_error(L"SSH Handshake-Fehler");
+        log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
         closesocket(sock);
         return false;
@@ -1142,7 +1143,7 @@ bool ssh_remove_file(const std::wstring& path)
     }
 
     if (libssh2_userauth_password(session, account.user().c_str(), account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler");
+        log_error(translation::translate("ssh_auth_failed"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1151,7 +1152,7 @@ bool ssh_remove_file(const std::wstring& path)
 
     LIBSSH2_SFTP* sftp_session = libssh2_sftp_init(session);
     if (!sftp_session) {
-        log_error(L"Fehler beim Erstellen der SFTP Session");
+        log_error(translation::translate("sftp_session_create_error"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1161,7 +1162,7 @@ bool ssh_remove_file(const std::wstring& path)
     int rc = libssh2_sftp_unlink(sftp_session, remote_path.c_str());
     bool success = (rc == 0);
     if (!success) {
-        log_error(L"Fehler beim Löschen der Remote-Datei: " + string_to_wstring(remote_path));
+        log_error(translation::translate("remote_file_delete_error") + string_to_wstring(remote_path));
     }
 
     libssh2_sftp_shutdown(sftp_session);
@@ -1179,7 +1180,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
-        log_error(L"SSH-Account nicht gefunden für: " + path);
+        log_error(translation::translate("ssh_account_not_found_for") + path);
         return entries;
     }
     const SshAccount& account = account_opt.value();
@@ -1188,33 +1189,33 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     ensure_libssh2_initialized();
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        log_error(L"Fehler beim Erstellen des Sockets");
+        log_error(translation::translate("socket_create_error"));
         return entries;
     }
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(L"Fehler beim Auflösen des Hostnamens: " + string_to_wstring(account.host()));
+        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
         closesocket(sock);
         return entries;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(L"SSH Verbindungsfehler");
+        log_error(translation::translate("server_connect_failed"));
         closesocket(sock);
         return entries;
     }
 
     LIBSSH2_SESSION* session = libssh2_session_init();
     if (!session) {
-        log_error(L"Fehler beim Erstellen der SSH Session");
+        log_error(translation::translate("ssh_session_create_error"));
         closesocket(sock);
         return entries;
     }
     apply_ssh_connect_timeout(session);
 
     if (libssh2_session_handshake(session, sock) != 0) {
-        log_error(L"SSH Handshake-Fehler");
+        log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
         closesocket(sock);
         return entries;
@@ -1228,7 +1229,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     }
 
     if (libssh2_userauth_password(session, account.user().c_str(), account.password().c_str()) != 0) {
-        log_error(L"SSH Authentifizierungsfehler");
+        log_error(translation::translate("ssh_auth_failed"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1237,7 +1238,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 
     LIBSSH2_SFTP* sftp_session = libssh2_sftp_init(session);
     if (!sftp_session) {
-        log_error(L"Fehler beim Erstellen der SFTP Session");
+        log_error(translation::translate("sftp_session_create_error"));
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1246,7 +1247,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     
     LIBSSH2_SFTP_HANDLE* dir = libssh2_sftp_opendir(sftp_session, remote_path.c_str());
     if (!dir) {
-        log_error(L"Fehler beim Öffnen des Remote-Verzeichnisses: " + string_to_wstring(remote_path));
+        log_error(translation::translate("remote_dir_open_error") + string_to_wstring(remote_path));
         libssh2_sftp_shutdown(sftp_session);
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
@@ -1270,7 +1271,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         }
     }
     if (rc < 0)  // 0 is EOF, negative is an error mid-listing - see the UNIX variant above
-        log_error(L"Remote-Verzeichnis unvollständig gelesen: " + string_to_wstring(remote_path));
+        log_error(translation::translate("remote_dir_read_incomplete") + string_to_wstring(remote_path));
 
     libssh2_sftp_closedir(dir);
     libssh2_sftp_shutdown(sftp_session);

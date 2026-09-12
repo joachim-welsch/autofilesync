@@ -4,6 +4,7 @@
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
+#include "Translation.h"
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -54,7 +55,8 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
         const int err = sftp_get_error(connection_.sftp());  // [SshFileInspector.md#absence-vs-failure]
         if (err == SSH_FX_NO_SUCH_FILE || err == SSH_FX_NO_SUCH_PATH)
             return info;
-        throw std::runtime_error("SFTP-Stat fehlgeschlagen (Fehlercode " + std::to_string(err) + "): " + sftp_path);
+        throw std::runtime_error(translation::translate_utf8("sftp_stat_failed")
+            + std::to_string(err) + "): " + sftp_path);
     }
     info.exists = true;
     info.size_bytes = attributes->size;
@@ -73,13 +75,13 @@ static void init_winsock()
         WSADATA wsadata;
         int err = WSAStartup(MAKEWORD(2, 2), &wsadata);
         if (err != 0) {
-            throw std::runtime_error("WSAStartup failed");
+            throw std::runtime_error(translation::translate_utf8("wsastartup_failed"));
         }
         initialized = true;
     }
 }
 
-SshFileInspector::SshFileInspector(const SshAccount& account) 
+SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspector.md#shared-message-ids]
     : account_(account)
 {
     
@@ -91,20 +93,20 @@ SshFileInspector::SshFileInspector(const SshAccount& account)
     hints.ai_socktype = SOCK_STREAM;
     
     if (getaddrinfo(account.host().c_str(), "22", &hints, &result) != 0) {
-        throw std::runtime_error("Failed to resolve hostname: " + account.host());
+        throw std::runtime_error(translation::translate_utf8("host_name_not_resolvable") + account.host());
     }
     
     sock_ = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (sock_ == INVALID_SOCKET) {
         freeaddrinfo(result);
-        throw std::runtime_error("Failed to create socket");
+        throw std::runtime_error(translation::translate_utf8("socket_create_error"));
     }
     
     if (connect(sock_, result->ai_addr, (int)result->ai_addrlen) != 0) {
         freeaddrinfo(result);
         closesocket(sock_);
         sock_ = INVALID_SOCKET;
-        throw std::runtime_error("Failed to connect to host");
+        throw std::runtime_error(translation::translate_utf8("server_connect_failed"));
     }
     freeaddrinfo(result);
     
@@ -112,19 +114,19 @@ SshFileInspector::SshFileInspector(const SshAccount& account)
     if (!my_ssh_session_) {
         closesocket(sock_);
         sock_ = INVALID_SOCKET;
-        throw std::runtime_error("Failed to create SSH session");
+        throw std::runtime_error(translation::translate_utf8("ssh_session_create_error"));
     }
     apply_ssh_connect_timeout(my_ssh_session_);
 
     int rc = libssh2_session_handshake(my_ssh_session_, sock_);
     if (rc) {
         cleanup();
-        throw std::runtime_error("SSH handshake failed");
+        throw std::runtime_error(translation::translate_utf8("ssh_handshake_failed"));
     }
 
     if (!verify_ssh_host_key(my_ssh_session_, account.host())) {
         cleanup();
-        throw std::runtime_error("Host key verification failed: possible man-in-the-middle attack.");
+        throw std::runtime_error(translation::translate_utf8("host_key_verification_failed"));
     }
 
     rc = libssh2_userauth_password(my_ssh_session_, 
@@ -132,13 +134,13 @@ SshFileInspector::SshFileInspector(const SshAccount& account)
                                    account.password().c_str());
     if (rc) {
         cleanup();
-        throw std::runtime_error("Authentication failed");
+        throw std::runtime_error(translation::translate_utf8("ssh_auth_failed"));
     }
     
     sftp_session_ptr_ = libssh2_sftp_init(my_ssh_session_);
     if (!sftp_session_ptr_) {
         cleanup();
-        throw std::runtime_error("Failed to initialize SFTP session");
+        throw std::runtime_error(translation::translate_utf8("sftp_init_failed"));
     }
 }
 
@@ -189,7 +191,8 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
             info.exists = false;
             return info;
         }
-        throw std::runtime_error("SFTP stat failed (error " + std::to_string(err) + "): " + remote_path);
+        throw std::runtime_error(translation::translate_utf8("sftp_stat_failed")
+            + std::to_string(err) + "): " + remote_path);
     }
 #ifdef WIN32
     if (remote_path.empty()) {
@@ -210,7 +213,7 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 SshFileInspector::SshFileInspector(const SshAccount& account) 
     : account_(account)
 {
-    throw std::runtime_error("SSH not supported on this platform");
+    throw std::runtime_error(translation::translate_utf8("ssh_unsupported_platform"));
 }
 
 SshFileInspector::~SshFileInspector() {}

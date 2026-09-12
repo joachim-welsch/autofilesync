@@ -6,6 +6,7 @@
 #include <FilesystemUtil.h>
 #include "Logging.h"
 #include "SshFileInspector.h"
+#include "Translation.h"
 #include "Config.h"
 
 namespace AFS_Core {
@@ -44,7 +45,7 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, u
 {
     const auto colon_pos = fname.find(L':');
     if (colon_pos == std::wstring::npos || colon_pos == 0) {
-        log_error(L"Ungueltiger SSH-Pfad: " + fname);
+        log_error(translation::translate("ssh_path_invalid") + fname);
         drive_mounted = false; // malformed, not "confirmed absent" - must not look like a deletion-safe SourceNotExits
         return false;
     }
@@ -52,7 +53,7 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, u
     const std::wstring remote_path = fname.substr(colon_pos + 1);
     const std::optional<SshAccount> account = Config::instance().find_ssh_account_by_name(util::wstring_to_string(ssh_name));
     if (!account.has_value()) {
-        log_error(L"SSH-Account nicht gefunden: " + ssh_name);
+        log_error(translation::translate("ssh_account_not_found") + ssh_name);
         drive_mounted = false;
         return false;
     }
@@ -68,7 +69,7 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, u
         return true;
     }
     catch (const std::exception& e) {
-        log_error(L"SSH-Fehler beim Lesen von " + fname + L": " + string_to_wstring(e.what()));  // [FileDifference.md#ssh-error-is-not-absence]
+        log_error(translation::translate("ssh_read_error_for") + fname + L": " + string_to_wstring(e.what()));  // [FileDifference.md#ssh-error-is-not-absence]
         drive_mounted = false;
         return false;
     }
@@ -128,7 +129,7 @@ void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_tim
     }
     if (sourcesize_ > 1000000) {
         std::wostringstream os;
-        os << "Vergleiche\n" << source_ << "\nmit\n" << dest_ << "...";
+        os << translation::translate("comparing") << L'\n' << source_ << L'\n' << translation::translate("comparing_with") << L'\n' << dest_ << L"...";
         Synchronize::set_progress_message(os.str(), sourcesize_);
     }
     if (util::files_equal(source_, dest_))

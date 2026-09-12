@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PasswordCrypto.h"
 #include "Logging.h"
+#include "Translation.h"
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <fstream>
@@ -45,7 +46,7 @@ std::array<unsigned char, KEY_LEN> load_or_create_key(const std::filesystem::pat
     }
 
     if (RAND_bytes(key.data(), static_cast<int>(key.size())) != 1)
-        log_error(L"Konnte keinen kryptographisch sicheren Schluessel erzeugen.");
+        log_error(translation::translate("crypto_key_generation_failed"));
     std::error_code ec;
     std::filesystem::create_directories(key_file.parent_path(), ec);
 
@@ -64,7 +65,7 @@ std::array<unsigned char, KEY_LEN> load_or_create_key(const std::filesystem::pat
     }
 #endif
     if (!persisted)
-        log_error(L"Schluessel fuer verschluesselte Passwoerter konnte nicht gespeichert werden, Passwoerter werden nach einem Neustart unlesbar: ", key_file.wstring());
+        log_error(translation::translate("crypto_key_not_storable"), key_file.wstring());
 
     key_cache.emplace(key_file, key);
     return key;
@@ -106,7 +107,7 @@ std::string encrypt(const std::string& plaintext, const std::filesystem::path& k
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
-        log_error(L"Verschluesselung nicht verfuegbar, Passwort wird nicht gespeichert.");
+        log_error(translation::translate("crypto_encryption_unavailable"));
         return {};
     }
     EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr);
@@ -137,7 +138,7 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
 
     auto blob = from_base64(stored.substr(MARKER.size()));
     if (blob.size() < NONCE_LEN + TAG_LEN) {
-        log_error(L"Verschluesseltes Passwort ist beschaedigt.");
+        log_error(translation::translate("crypto_password_corrupted"));
         return std::nullopt;
     }
     auto key = load_or_create_key(key_file);
@@ -151,7 +152,7 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
-        log_error(L"Entschluesselung nicht verfuegbar.");
+        log_error(translation::translate("crypto_decryption_unavailable"));
         return std::nullopt;
     }
     EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr);
@@ -163,7 +164,7 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
     EVP_CIPHER_CTX_free(ctx);
 
     if (auth_ok <= 0) {
-        log_error(L"Entschluesselung des Passworts fehlgeschlagen (falscher Schluessel oder beschaedigte Daten).");
+        log_error(translation::translate("crypto_decryption_failed"));
         return std::nullopt;
     }
     return std::string(reinterpret_cast<char*>(plaintext.data()), out_len + final_len);

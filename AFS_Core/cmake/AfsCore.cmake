@@ -59,8 +59,9 @@ if(NOT TARGET afs_core_deps)
     pkg_check_modules(LIBSSH REQUIRED libssh)
 
     # GNU gettext for the translated texts (Translation.cpp). Part of the C library on
-    # glibc, a separate libintl on macOS and Windows - optional, because without
-    # it the programs still show the German message ids.
+    # glibc, a separate libintl on macOS and Windows. Optional only in the sense
+    # that the build succeeds without it: since the message ids are technical keys,
+    # such a build shows keys instead of sentences and is not fit for users.
     find_package(Intl)
 
     # LlamaClient runs the assistant chat locally through llama.cpp instead of a

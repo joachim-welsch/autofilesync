@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <SmtpMailer.h>
 #include <StrUtil.h>
+#include <Translation.h>
 #include <cctype>
 #include <cstdio>
 #include <ctime>
@@ -151,9 +152,9 @@ bool SmtpSession::connect()
 	const string address = host_ + ":" + std::to_string(account_.port);
 	bio_ = BIO_new_connect(address.c_str());
 	if (!bio_)
-		return fail("Verbindung zu " + address + " konnte nicht angelegt werden");
+		return fail(translation::translate_utf8("smtp_connection_not_openable", {address}));
 	if (BIO_do_connect(bio_) <= 0)
-		return fail("keine Verbindung zu " + address);
+		return fail(translation::translate_utf8("smtp_no_connection_to") + address);
 	set_timeouts();
 	return true;
 }
@@ -182,7 +183,7 @@ bool SmtpSession::enable_tls()
 {
 	ctx_ = SSL_CTX_new(TLS_client_method());
 	if (!ctx_)
-		return fail("TLS konnte nicht initialisiert werden");
+		return fail(translation::translate_utf8("smtp_tls_init_failed"));
 	SSL_CTX_set_min_proto_version(ctx_, TLS1_2_VERSION);
 	SSL_CTX_set_verify(ctx_, SSL_VERIFY_PEER, nullptr);
 	SSL_CTX_set_default_verify_paths(ctx_);
@@ -191,21 +192,21 @@ bool SmtpSession::enable_tls()
 #endif
 	BIO* tls = BIO_new_ssl(ctx_, 1);
 	if (!tls)
-		return fail("TLS-Schicht konnte nicht angelegt werden");
+		return fail(translation::translate_utf8("smtp_tls_layer_failed"));
 	SSL* ssl = nullptr;
 	BIO_get_ssl(tls, &ssl);
 	if (!ssl) {
 		BIO_free(tls);
-		return fail("TLS-Schicht konnte nicht angelegt werden");
+		return fail(translation::translate_utf8("smtp_tls_layer_failed"));
 	}
 	SSL_set_tlsext_host_name(ssl, host_.c_str());	// servers with several certificates need SNI
 	SSL_set1_host(ssl, host_.c_str());				// makes the handshake check the certificate name
 	bio_ = BIO_push(tls, bio_);
 	if (BIO_do_handshake(bio_) <= 0)
-		return fail("TLS-Handshake mit " + host_ + " fehlgeschlagen (Zertifikat pruefen)");
+		return fail(translation::translate_utf8("smtp_tls_handshake_failed", {host_}));
 	BIO* buffered = BIO_new(BIO_f_buffer());
 	if (!buffered)
-		return fail("Lesepuffer fuer " + host_ + " konnte nicht angelegt werden");
+		return fail(translation::translate_utf8("smtp_read_buffer_failed", {host_}));
 	bio_ = BIO_push(buffered, bio_);
 	return true;
 }
@@ -218,7 +219,7 @@ bool SmtpSession::upgrade_to_tls()
 	if (!read_reply(code))
 		return false;
 	if (code != 220)
-		return account_.password.empty() ? true : fail(host_ + " bietet kein STARTTLS: " + last_reply_);
+		return account_.password.empty() ? true : fail(translation::translate_utf8("smtp_no_starttls", {host_}) + last_reply_);
 	return enable_tls() && ehlo();
 }
 
@@ -236,7 +237,7 @@ bool SmtpSession::authenticate()
 	if (!put(base64(wstring_to_string(account_.user))) || !reply(334))
 		return false;
 	if (!put(base64(wstring_to_string(account_.password))) || !reply(235))
-		return fail("Anmeldung an " + host_ + " abgelehnt");
+		return fail(translation::translate_utf8("smtp_login_rejected", {host_}));
 	return true;
 }
 
@@ -292,7 +293,7 @@ bool SmtpSession::put(const string& line)
 	while (written < data.size()) {
 		const int chunk = BIO_write(bio_, data.data() + written, static_cast<int>(data.size() - written));
 		if (chunk <= 0)
-			return fail("Senden an " + host_ + " fehlgeschlagen");
+			return fail(translation::translate_utf8("smtp_send_failed", {host_}));
 		written += chunk;
 	}
 	BIO_flush(bio_);
@@ -305,19 +306,19 @@ bool SmtpSession::read_reply(int& code)
 	for (;;) {
 		int length = BIO_gets(bio_, buffer, sizeof buffer);
 		if (length <= 0)
-			return fail("keine Antwort von " + host_);
+			return fail(translation::translate_utf8("smtp_no_answer_from") + host_);
 		string line(buffer, length);
 		while (line.back() != '\n' && line.size() < MAX_REPLY_SIZE) {	// reply longer than the buffer
 			length = BIO_gets(bio_, buffer, sizeof buffer);
 			if (length <= 0)
-				return fail("abgebrochene Antwort von " + host_);
+				return fail(translation::translate_utf8("smtp_truncated_answer_from") + host_);
 			line.append(buffer, length);
 		}
 		while (!line.empty() && (line.back() == '\n' || line.back() == '\r'))
 			line.pop_back();
 		if (line.size() < 3 || !std::isdigit(static_cast<unsigned char>(line[0]))
 			|| !std::isdigit(static_cast<unsigned char>(line[1])) || !std::isdigit(static_cast<unsigned char>(line[2])))
-			return fail("unerwartete Antwort von " + host_ + ": " + line);
+			return fail(translation::translate_utf8("smtp_unexpected_answer", {host_}) + line);
 		code = std::stoi(line.substr(0, 3));
 		last_reply_ = line;
 		if (line.size() == 3 || line[3] != '-')	// '-' marks a continuation line
@@ -330,7 +331,7 @@ bool SmtpSession::reply(int expected)
 	int code = 0;
 	if (!read_reply(code))
 		return false;
-	return code == expected ? true : fail(host_ + " antwortet: " + last_reply_);
+	return code == expected ? true : fail(translation::translate_utf8("smtp_server_answers", {host_}) + last_reply_);
 }
 
 bool SmtpSession::reply_ok()
@@ -338,7 +339,7 @@ bool SmtpSession::reply_ok()
 	int code = 0;
 	if (!read_reply(code))
 		return false;
-	return code >= 200 && code < 300 ? true : fail(host_ + " antwortet: " + last_reply_);
+	return code >= 200 && code < 300 ? true : fail(translation::translate_utf8("smtp_server_answers", {host_}) + last_reply_);
 }
 
 } // namespace
@@ -347,9 +348,9 @@ std::string send_mail(const SmtpAccount& account, const std::wstring& recipient,
 	const std::wstring& subject, const std::string& body)
 {
 	if (!account.complete())
-		return "SMTP-Server oder Absender ist nicht konfiguriert";
+		return translation::translate_utf8("smtp_not_configured");
 	if (recipient.empty())
-		return "kein Empfaenger";
+		return translation::translate_utf8("smtp_no_recipient");
 	try {
 		SmtpSession session(account);
 		return session.send(recipient, subject, body);
