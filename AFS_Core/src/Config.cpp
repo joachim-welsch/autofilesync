@@ -50,7 +50,6 @@ boost::property_tree::wptree parse_json_file(wchar_t const* filename)
     return pt;
 }
 
-//## class config ####################################################################################################
 inline
 void Config::init_singleton()
 {
@@ -134,8 +133,7 @@ wstring platform_root_pathname()
 }
 #endif
 
-// One-time move so users keep their settings after the config directory changed.
-void migrate_legacy_config(const wstring& new_path)
+void migrate_legacy_config(const wstring& new_path)  // [Config.md#migrate_legacy_config]
 {
     const wstring old_path = legacy_root_pathname();
     if (old_path.empty() || old_path == new_path || !fsu::file_exists(old_path) || fsu::file_exists(new_path))
@@ -200,10 +198,7 @@ CompareItems get_compare_items(boost::property_tree::wptree& ci)
 
 Exclusions get_exclusions(boost::property_tree::wptree& ci)
 {
-    // Mirrors write_sync_item()'s exclusionsNode: a JSON array of plain strings,
-    // each pushed with an empty key (i.first) and the pattern itself as the
-    // node's own data (i.second.data()).
-    Exclusions retval;
+    Exclusions retval;  // [Config.md#exclusions-node-format]
     for (const auto& i : ci) {
         const wstring pattern = i.second.data();
         if (!pattern.empty())
@@ -220,13 +215,9 @@ SyncFlags get_sync_flags(boost::property_tree::wptree& sf)
     retval.copy_when_target_newer(sf.get<wstring>(L"copyWhenTargetNewer") == L"true");
     retval.father_son_principle(sf.get<wstring>(L"fatherSonPrinciple") == L"true");
     retval.delete_in_target(sf.get<wstring>(L"syncDeletions", L"false") == L"true");
-    // Default instead of the throwing get<>(): config files written before this
-    // flag existed must keep loading, and off is the documented default.
-    retval.backup_proof(sf.get<wstring>(L"backupProof", L"false") == L"true");
-    // Same default reasoning: older configuration files lack the key.
-    retval.sync_empty_files(sf.get<wstring>(L"syncEmptyFiles", L"false") == L"true");
+    retval.backup_proof(sf.get<wstring>(L"backupProof", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
+    retval.sync_empty_files(sf.get<wstring>(L"syncEmptyFiles", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.enabled(sf.get<wstring>(L"enabled") == L"true");
-    //log_debug(L"enabled: ", sf.get<wstring>(L"enabled"));
     return retval;
 }
 
@@ -240,13 +231,8 @@ Settings get_settings(boost::property_tree::wptree& sf)
     retval.show_errors(sf.get<wstring>(L"ShowErrors") == L"true");
     retval.show_warnings(sf.get<wstring>(L"ShowWarnings") == L"true");
     retval.show_infos(sf.get<wstring>(L"ShowInfos") == L"true");
-    // Default instead of the throwing get<>() above: a config file written
-    // before the delete mode existed must keep loading, and the safer
-    // recycle bin mode is what it then falls back to.
-    retval.delete_mode(sf.get<wstring>(L"DeleteMode", L"") == L"Permanent" ? DeleteMode::Permanent : DeleteMode::RecycleBin);
-    // Same reason for the default as DeleteMode above: unset in older config
-    // files, and empty is what "no proofs are written" already means.
-    retval.backup_proof_path(sf.get<wstring>(L"BackupProofPath", L""));
+    retval.delete_mode(sf.get<wstring>(L"DeleteMode", L"") == L"Permanent" ? DeleteMode::Permanent : DeleteMode::RecycleBin);  // [Config.md#delete-mode-default]
+    retval.backup_proof_path(sf.get<wstring>(L"BackupProofPath", L""));  // [Config.md#delete-mode-default]
     return retval;
 }
 
@@ -321,10 +307,7 @@ bool interpret_sync_item(boost::property_tree::wptree syncitem_node, SyncItem& s
     return true;
 }
 
-// Same rules as read_ssh_accounts(): a value without the encryption marker is
-// genuine legacy plaintext, while a failed decryption must not be handed on -
-// the ciphertext blob would end up being sent as the password.
-static wstring read_stored_password(const wstring& stored)
+static wstring read_stored_password(const wstring& stored)  // [Config.md#read_stored_password]
 {
     const string value = util::wstring_to_string(stored);
     if (!passwordcrypto::is_encrypted(value))
@@ -358,10 +341,7 @@ bool Config::read_logging_setup(boost::property_tree::wptree& root)
             log.set_log_file_path_name(log_file_path_name);
             log.retention_days(to_uint16_t(logging->get<wstring>(L"RetentionDays")));
             log.set_editor_path_name(logging->get<wstring>(L"EditorPathName"));
-            // Defaulted reads: the notification keys did not exist in older
-            // configurations, and the throwing get<> above would have taken the
-            // whole Logging section down with them.
-            log.notify_email_active(logging->get<wstring>(L"NotifyEmailActive", L"false") == L"true");
+            log.notify_email_active(logging->get<wstring>(L"NotifyEmailActive", L"false") == L"true");  // [Config.md#logging-notification-defaults]
             log.notify_email(logging->get<wstring>(L"NotifyEmail", L""));
             log.smtp_account(read_smtp_account(*logging));
         }
@@ -380,10 +360,7 @@ bool Config::read_settings(boost::property_tree::wptree& root)
         if (settings != boost::none) {
             Settings s = get_settings(settings.value());
             settings_ = s;
-            // Read with a default, unlike the fields in get_settings(): a config
-            // file written before the recycle bin existed has no such key, and
-            // the throwing get<>() would discard every other setting with it.
-            const wstring recycle_bin_path = settings->get<wstring>(L"RecycleBinPath", L"");
+            const wstring recycle_bin_path = settings->get<wstring>(L"RecycleBinPath", L"");  // [Config.md#recycle-bin-path-default]
             if (!recycle_bin_path.empty())
                 RecycleBin::instance().bin_path(recycle_bin_path);
         }
@@ -405,10 +382,7 @@ bool Config::read_ssh_accounts(boost::property_tree::wptree& root)
         return true;
     bool all_ok = true;
     for (auto iter = ssh_accounts_node.value().begin(); iter != ssh_accounts_node.value().end(); iter++) {
-        // Caught per account, not around the whole loop: one malformed entry
-        // must not discard every other account - see interpret_sync_item()'s
-        // per-item handling below for the same reasoning.
-        try {
+        try {  // [Config.md#per-account-error-handling]
             SshAccount account;
             account.set_name(util::wstring_to_string(iter->second.get<wstring>(L"name")));
             account.set_host(util::wstring_to_string(iter->second.get<wstring>(L"host")));
@@ -419,11 +393,7 @@ bool Config::read_ssh_accounts(boost::property_tree::wptree& root)
             } else if (auto decrypted = passwordcrypto::decrypt(stored_password, password_key_file_path())) {
                 account.set_password(*decrypted);
             } else {
-                // Do NOT fall back to storedPassword here: it is the raw
-                // "$AES256GCM$..." ciphertext blob, not a usable password -
-                // using it as one would submit garbage to the SSH server with
-                // no indication of what actually went wrong (lost/changed key).
-                log_fatal("Passwort konnte nicht entschluesselt werden fuer SSH-Account: ", account.name());
+                log_fatal("Passwort konnte nicht entschluesselt werden fuer SSH-Account: ", account.name());  // [Config.md#no-ciphertext-fallback]
             }
             add(account, true);
         }
@@ -473,9 +443,7 @@ void Config::write_logging_setup(boost::property_tree::wptree& root)
     logging.put(wstring(L"SmtpPort"), to_string(smtp.port));
     logging.put(wstring(L"SmtpUser"), smtp.user);
     logging.put(wstring(L"SmtpFrom"), smtp.from);
-    // Encrypted like the SSH passwords; an empty password stays empty so that
-    // read_stored_password() does not have to tell "unset" from "undecryptable".
-    logging.put(wstring(L"SmtpPassword"), smtp.password.empty() ? wstring()
+    logging.put(wstring(L"SmtpPassword"), smtp.password.empty() ? wstring()  // [Config.md#smtp-password-encryption]
         : string_to_wstring(passwordcrypto::encrypt(util::wstring_to_string(smtp.password), password_key_file_path())));
 	root.push_back(make_pair(wstring(L"Logging"), logging));
 }
@@ -532,17 +500,13 @@ void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree
     syncitem_node.push_back(make_pair(wstring(L"exclusions"), exclusions_node));
     syncitem_node.push_back(make_pair(wstring(L"syncflags"), sync_flags_node));
     syncitem_node.put(wstring(L"name"), inode.name());
-    // The untranslated key, not the displayed text: a configuration written
-    // with one language must stay readable with any other.
-    syncitem_node.put(wstring(L"type"), sync_item_type_key(inode.sync_item_type()));
+    syncitem_node.put(wstring(L"type"), sync_item_type_key(inode.sync_item_type()));  // [Config.md#untranslated-type-key]
     
-    // Write source path
     if (inode.source_path()) {
         syncitem_node.put(wstring(L"source"), inode.source());
         syncitem_node.put(wstring(L"sourceType"), inode.source_path()->type() == SyncPathType::Filesystem ? L"filesystem" : L"ssh");
     }
     
-    // Write target path
     if (inode.target_path()) {
         syncitem_node.put(wstring(L"target"), inode.target());
         syncitem_node.put(wstring(L"targetType"), inode.target_path()->type() == SyncPathType::Filesystem ? L"filesystem" : L"ssh");

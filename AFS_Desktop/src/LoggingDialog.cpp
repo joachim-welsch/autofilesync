@@ -15,10 +15,7 @@ BEGIN_EVENT_TABLE(LoggingDialog, wxDialog)
     EVT_BUTTON(ID_BTN_PICK_BACKUP_PROOF_PATH, LoggingDialog::onPickBackupProofPath)
 END_EVENT_TABLE()
 
-// Index maps directly onto LogLevel (see the static_cast in
-// TransferDataFromWindow), so the order must stay the one of the enum.
-const wxString choices[] = { "Debug", "Info", "Warning", "Error", "FatalError" };
-// long styleLbox = wxLB_ALWAYS_SB | wxLB_EXTENDED | wxLB_SINGLE;
+const wxString choices[] = { "Debug", "Info", "Warning", "Error", "FatalError" };  // [LoggingDialog.md#choices]
 long styleLbox = wxLB_SINGLE;
 
 LoggingDialog::LoggingDialog(wxWindow* parent, wxWindowID id,
@@ -35,8 +32,6 @@ LoggingDialog::LoggingDialog(wxWindow* parent, wxWindowID id,
     notebook->AddPage(createEmailPage(notebook), _("E-Mail"));
     mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
 
-    // --------------------------------------------------------------------------
-    //Create button field
     wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM, 5);
 
@@ -52,12 +47,8 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     wxBoxSizer* pageSizer = new wxBoxSizer(wxVERTICAL);
     pageSizer->AddStretchSpacer()->SetMinSize(300, 20);
 
-    // One label column for the whole page, measured from the longest label: a
-    // fixed pixel width clips as soon as the font or the DPI differs, and a
-    // label only as wide as itself starts every field at a different place.
-    const int labelWidth = page->GetTextExtent(_(L"Pfad für Sicherungsnachweise:")).x + 5;
+    const int labelWidth = page->GetTextExtent(_(L"Pfad für Sicherungsnachweise:")).x + 5;  // [LoggingDialog.md#labelWidth]
 
-    // Create Log path elements
     wxBoxSizer* logPathSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* nameLable = new wxStaticText(page, wxID_STATIC, _("Protokolldatei-Pfad:"));
     nameLable->SetMinSize(wxSize(labelWidth, nameLable->GetMinSize().y));
@@ -72,10 +63,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     levelLable->SetMinSize(wxSize(labelWidth, levelLable->GetMinSize().y));
     doubleSizer->Add(levelLable, 0, wxEXPAND | wxLEFT, 0);
     logLevelListbox_ =  new wxListBox(page, ID_LOG_LEVEL_LISTBOX, wxDefaultPosition, wxDefaultSize, WXSIZEOF(choices), choices,  styleLbox);
-    //logLevelListbox_->SetSelection(0);
     doubleSizer->Add(logLevelListbox_);
-
-    // Create log retention days elements
 
     retentionDaysCtrl_ = new wxSpinCtrl(page, ID_RETENTIONDAYS_SPIN, wxEmptyString,
         wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
@@ -86,7 +74,6 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     doubleSizer->Add(retentionDaysCtrl_);
     pageSizer->Add(doubleSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
-    // Create Log editor path elements
     wxBoxSizer* editPathSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* editLable = new wxStaticText(page, wxID_STATIC, _("Editor:"));
     editLable->SetMinSize(wxSize(labelWidth, editLable->GetMinSize().y));
@@ -96,7 +83,6 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     editPathSizer->Add(editPathBox_);
     pageSizer->Add(editPathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
-    // Create backup proof path elements
     wxBoxSizer* backupProofPathSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* backupProofLable = new wxStaticText(page, wxID_STATIC, _(L"Pfad für Sicherungsnachweise:"));
     backupProofLable->SetMinSize(wxSize(labelWidth, backupProofLable->GetMinSize().y));
@@ -160,10 +146,7 @@ void LoggingDialog::onNotifyActiveChanged(wxCommandEvent&)
     updateNotifyEnabling();
 }
 
-// Offers directories, not files: the setting names the directory the proofs go
-// into, one file per sync item. A directory that does not exist yet is allowed
-// - writeCopyLog() creates it, and the dialog can create it here as well.
-void LoggingDialog::onPickBackupProofPath(wxCommandEvent&)
+void LoggingDialog::onPickBackupProofPath(wxCommandEvent&)  // [LoggingDialog.md#onPickBackupProofPath]
 {
     wxString startDir = backupProofPathBox_->GetValue();
     if (startDir.IsEmpty())
@@ -174,9 +157,7 @@ void LoggingDialog::onPickBackupProofPath(wxCommandEvent&)
         backupProofPathBox_->SetValue(dialog.GetPath());
 }
 
-// The address stays readable while switched off - greying it out says "not in
-// use" without hiding what was configured.
-void LoggingDialog::updateNotifyEnabling()
+void LoggingDialog::updateNotifyEnabling()  // [LoggingDialog.md#updateNotifyEnabling]
 {
     const bool active = emailActiveCheck_->IsChecked();
     emailBox_->Enable(active);
@@ -234,9 +215,7 @@ bool LoggingDialog::TransferDataFromWindow()
         li.set_editor_path_name(editPathBox_->GetValue().ToStdWstring());
         changed = true;
     }
-    // Not part of Logging: the proofs are the application's own artefact, and
-    // Logging is the shared library the daemon logs through as well.
-    Settings& settings = Config::instance().settings();
+    Settings& settings = Config::instance().settings();  // [LoggingDialog.md#proof-path-not-in-logging]
     if (settings.backup_proof_path() != backupProofPathBox_->GetValue().ToStdWstring()) {
         settings.backup_proof_path(backupProofPathBox_->GetValue().ToStdWstring());
         changed = true;
@@ -249,9 +228,7 @@ bool LoggingDialog::TransferDataFromWindow()
         li.notify_email(emailBox_->GetValue().ToStdWstring());
         changed = true;
     }
-    // Compared as a whole: the account is stored as one value, so a per-field
-    // comparison would only repeat what operator!= already answers.
-    SmtpAccount smtp;
+    SmtpAccount smtp;  // [LoggingDialog.md#smtp-compared-as-whole]
     smtp.server = smtpServerBox_->GetValue().Trim().Trim(false).ToStdWstring();
     smtp.port = static_cast<uint16_t>(smtpPortCtrl_->GetValue());
     smtp.user = smtpUserBox_->GetValue().ToStdWstring();
@@ -266,18 +243,13 @@ bool LoggingDialog::TransferDataFromWindow()
     return true;
 }
 
-// "Aktiv" without a recipient would look like a working notification and
-// silently deliver nothing - exactly what one does not want to find out about
-// after the error it was meant to report.
-bool LoggingDialog::Validate()
+bool LoggingDialog::Validate()  // [LoggingDialog.md#Validate]
 {
     if (emailActiveCheck_->IsChecked() && emailBox_->GetValue().Trim().IsEmpty()) {
         wxMessageBox(_("Bitte eine E-Mail-Adresse eingeben oder die Benachrichtigung deaktivieren."), _("E-Mail"));
         return false;
     }
-    // The notification goes out over this server; without it the switch above
-    // would again promise something that never arrives.
-    if (emailActiveCheck_->IsChecked()
+    if (emailActiveCheck_->IsChecked()  // [LoggingDialog.md#server-required]
         && (smtpServerBox_->GetValue().Trim().IsEmpty() || smtpFromBox_->GetValue().Trim().IsEmpty())) {
         wxMessageBox(_("Bitte Postausgangsserver und Absender eintragen."), _("E-Mail"));
         return false;

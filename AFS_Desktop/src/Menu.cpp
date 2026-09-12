@@ -34,7 +34,6 @@ wxMenu* Menu::createFileMenu()
 {
     wxMenu* fileMenu = new wxMenu;
     
-    // Untermenü für "Neu"
     wxMenu* newSubMenu = new wxMenu;
     newSubMenu->Append(tul(id::File_new_Synchronization), mtxt::File_new_Synchronization);
     newSubMenu->Append(tul(id::File_new_SshConnection), mtxt::File_new_SshConnection);
@@ -92,10 +91,7 @@ wxMenu* Menu::createSyncMenu()
 wxMenu* Menu::createBackgroundServiceMenu()
 {
     backgroundServiceMenu_ = new wxMenu;
-    // Which of the two commands is available already tells whether the service
-    // runs, but only once it is installed at all. The permanently disabled
-    // first entry says so outright and also covers the not installed case.
-    backgroundServiceMenu_->Append(tul(id::BackgroundServiceState), L"Zustand: unbekannt");
+    backgroundServiceMenu_->Append(tul(id::BackgroundServiceState), L"Zustand: unbekannt");  // [Menu.md#background-service-state-entry]
     backgroundServiceMenu_->Enable(tul(id::BackgroundServiceState), false);
     backgroundServiceMenu_->AppendSeparator();
     backgroundServiceMenu_->Append(tul(id::BackgroundServiceStart), "Start", "Hintergrunddienst starten");
@@ -124,7 +120,6 @@ void Menu::create()
 
 Menu::~Menu()
 {
-    // menuBar_ is deleted by the framework
-    editMenu_ = nullptr;
+    editMenu_ = nullptr;  // menuBar_ is deleted by the framework
 }
 

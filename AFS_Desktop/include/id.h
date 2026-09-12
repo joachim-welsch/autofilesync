@@ -1,9 +1,6 @@
 #pragma once
 
-// IDs for the controls and the menu commands
-// 
-
-enum class id {
+enum class id {  // [id.md#id]
 	ToolBar = 500,
 	ListCtrl,
 	GridCtrl,

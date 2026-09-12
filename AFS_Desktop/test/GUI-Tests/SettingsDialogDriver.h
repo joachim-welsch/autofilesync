@@ -8,9 +8,6 @@ using namespace AFS_Core;
 
 namespace guitest {
 
-// Enters a recycle bin path and a delete mode in the "Globale Einstellungen"
-// dialog the way a user would and confirms it with OK. Pass the result to
-// ModalDialogWatcher::expect().
-DialogAction fillSettingsDialog(const wxString& recycleBinPath, DeleteMode deleteMode);
+DialogAction fillSettingsDialog(const wxString& recycleBinPath, DeleteMode deleteMode);  // [SettingsDialogDriver.md#fillSettingsDialog]
 
 }

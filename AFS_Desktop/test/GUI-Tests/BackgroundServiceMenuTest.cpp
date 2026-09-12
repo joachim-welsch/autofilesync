@@ -10,36 +10,23 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-// The menu bar owns what Menu::create() appended, so the item lookup yields the
-// same wxMenu that MainWindow::onMenuOpen compares the opened menu against.
-wxMenu* backgroundServiceMenu(wxFrame& frame)
+wxMenu* backgroundServiceMenu(wxFrame& frame)  // [BackgroundServiceMenuTest.md#backgroundServiceMenu]
 {
     wxMenu* menu = nullptr;
     frame.GetMenuBar()->FindItem(tul(id::BackgroundServiceStart), &menu);
     return menu;
 }
 
-// A menu bar cannot be opened headlessly (see UserActions.cpp's
-// activateMenuItem()), so this sends the event that opening it produces.
-// MainWindow refreshes the two commands from there, because the service can be
-// started and stopped outside of AutoFileSync as well.
-void openMenu(wxFrame& frame, wxMenu* menu)
+void openMenu(wxFrame& frame, wxMenu* menu)  // [BackgroundServiceMenuTest.md#openMenu]
 {
-    // Asking for the state runs launchctl resp. systemctl. Where that command
-    // is missing, the failure belongs in the returned state - not in a message
-    // box that wxLogGui would flush during a later test and fail that one.
-    wxLogNull noPopupOnFailedQuery;
+    wxLogNull noPopupOnFailedQuery;  // [BackgroundServiceMenuTest.md#no-message-box-on-failed-query]
     wxMenuEvent opening(wxEVT_MENU_OPEN, 0, menu);
     frame.GetEventHandler()->ProcessEvent(opening);
 }
 
 }
 
-// Start and Stop describe opposite states of one service, so which of them the
-// menu offers is the only clue it gives about whether the service is running.
-// On macOS both were offered: the state was queried with systemctl, which does
-// not exist there, and an undeterminable state deliberately offers both.
-TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)
+TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)  // [BackgroundServiceMenuTest.md#HintergrunddienstmenueZeigtObDerDienstLaeuft]
 {
     using State = BackgroundService::State;
     wxMenu* menu = backgroundServiceMenu(mainWindow());
@@ -47,17 +34,13 @@ TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)
     openMenu(mainWindow(), menu);
     EXPECT_FALSE(menu->IsEnabled(tul(id::BackgroundServiceStart)) && menu->IsEnabled(tul(id::BackgroundServiceStop)))
         << "Start und Stop sind gleichzeitig anwaehlbar, der Zustand des Dienstes also nicht ablesbar.";
-    // Checked after the symptom so that a failing run names both: what the user
-    // sees in the menu, and the undeterminable state that leads to it.
-    const State state = BackgroundService::state();
+    const State state = BackgroundService::state();  // [BackgroundServiceMenuTest.md#state-checked-after-symptom]
     EXPECT_NE(state, State::Unknown)
         << "Der Zustand des Hintergrunddienstes ist auf dieser Plattform nicht feststellbar.";
 
     const bool startEnabled = menu->IsEnabled(tul(id::BackgroundServiceStart));
     const bool stopEnabled = menu->IsEnabled(tul(id::BackgroundServiceStop));
-    // The state line carries the answer where neither command does: a service
-    // that is not installed offers neither of them.
-    const wxString stateLine = menu->GetLabel(tul(id::BackgroundServiceState));
+    const wxString stateLine = menu->GetLabel(tul(id::BackgroundServiceState));  // [BackgroundServiceMenuTest.md#state-line]
     EXPECT_FALSE(menu->IsEnabled(tul(id::BackgroundServiceState)))
         << "Die Zustandszeile benennt nur den Zustand und darf nicht anwaehlbar sein.";
     switch (state) {

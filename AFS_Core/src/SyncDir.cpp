@@ -23,9 +23,7 @@ void SyncDir::sync_ssh_dir_entry(const SshDirEntry& entry, const wstring& source
     log_debug(L"sync_ssh_dir_entry: " + entry.name);
     if (!entry.is_regular_file || (!wildcard.empty() && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions()))
         return;
-    // source_path is always SSH here (this method only runs for an SSH source);
-    // destination may still be a local path, so only it depends on ssh_target().
-    const wstring fname = util::with_trailing_char(source_path, L'/') + entry.name;
+    const wstring fname = util::with_trailing_char(source_path, L'/') + entry.name;  // [SyncDir.md#ssh-source-local-target]
     const wstring dest = util::with_trailing_char(destination, sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR) + entry.name;
     sync_file(fname, dest, wildcard);
 }
@@ -38,9 +36,7 @@ void SyncDir::operator()()
         return;
     const wstring destination = sync_item_.target();
     const wstring wildcard = sync_item_.wildcard();
-    // Names seen in the source, so the target-only pass below can tell "not
-    // in source" from "wildcard-excluded, ignore" - see sync_target_only_entries().
-    std::set<wstring> source_names;
+    std::set<wstring> source_names;  // [SyncDir.md#source-names]
     try {
         create_target_dir_if_not_exist();
         if (sync_item_.ssh_source()) {

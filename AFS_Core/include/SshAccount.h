@@ -9,13 +9,11 @@ class SshAccount {
     std::string host_;
     std::string password_;
 public:
-    // Getter
     const std::string& name() const;
     const std::string& user() const;
     const std::string& host() const;
     const std::string& password() const;
 
-    // Setter
     void set_name(const std::string& name);
     void set_user(const std::string& user);
     void set_host(const std::string& host);

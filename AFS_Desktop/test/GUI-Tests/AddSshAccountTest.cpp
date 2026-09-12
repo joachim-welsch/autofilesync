@@ -15,10 +15,7 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-// The reported defect: a password containing "$+!" was believed to be rejected
-// by the dialog. Covered here with every special character reachable on a
-// keyboard, since that is what the dialog has to accept.
-const wxString passwordWithSpecialCharacters = R"(geheim$+!"#%&/()=?@[]{}\<>|,.;:-_*'^~`)";
+const wxString passwordWithSpecialCharacters = R"(geheim$+!"#%&/()=?@[]{}\<>|,.;:-_*'^~`)";  // [AddSshAccountTest.md#passwordWithSpecialCharacters]
 const wxString accountName = "guitest-ssh";
 
 }

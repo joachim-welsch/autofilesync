@@ -113,11 +113,7 @@ MainWindow::MainWindow(wxWindow *parent,
 		syncInterface_.setActSyncType(SyncType::Continuous);
 		menu_.syncMenu()->Enable(tul(id::StartSync), false);
 		menu_.syncMenu()->Enable(tul(id::SyncOnce), false);
-		// onStartContinuousSync() (the manual "Start" handler) always pairs
-		// this mode switch with toolbar_.setStarted(true); this auto-start
-		// path used to skip it, leaving the toolbar showing "Start" while a
-		// sync was already running in the background.
-		toolbar_.setStarted(true);
+		toolbar_.setStarted(true);  // [MainWindow.md#autostart-toolbar-state]
 	}
 	else {
 		menu_.syncMenu()->Enable(tul(id::StopSync), false);
@@ -153,8 +149,7 @@ void MainWindow::startSyncTimer()
 const std::string autostartDir = std::string(getenv("HOME")) + "/.config/autostart/";
 const std::string desktopFileName = "my_program.desktop";
 
-// Funktion zum Erstellen der .desktop-Datei
-void enableAutostart(const std::string &execPath) {
+void enableAutostart(const std::string &execPath) {  // [MainWindow.md#enableAutostart]
     std::ofstream desktopFile(autostartDir + desktopFileName);
 
     if (desktopFile.is_open()) {
@@ -173,8 +168,7 @@ void enableAutostart(const std::string &execPath) {
     }
 }
 
-// Funktion zum Löschen der .desktop-Datei
-void disableAutostart() {
+void disableAutostart() {  // [MainWindow.md#disableAutostart]
     if (access((autostartDir + desktopFileName).c_str(), F_OK) == 0) {
         if (remove((autostartDir + desktopFileName).c_str()) == 0) {
             std::cout << "Autostart deaktiviert.\n";
@@ -314,13 +308,7 @@ void MainWindow::onAddSyncItem(wxCommandEvent& WXUNUSED(event))
 {
     SyncItemDialog dlg(nullptr, this, wxID_ANY, txt::AddSynchronisation);
     if (dlg.ShowModal() == wxID_OK) {
-        // saveData() is the single source of truth for reading the dialog's
-        // state (same path onEditSync() uses) - the old manual reconstruction
-        // here had no accessor for compareItems/deleteInTarget and silently
-        // saved content-only comparison and deleteInTarget=false regardless
-        // of what the "Dateivergleich nach:"/"Gelöschte Dateien..." checkboxes
-        // actually showed.
-        SyncItem syncItem;
+        SyncItem syncItem;  // [MainWindow.md#saveData-single-source]
         dlg.saveData(syncItem);
         Config& cfg(Config::instance());
         cfg.add(syncItem);
@@ -355,9 +343,7 @@ void MainWindow::update()
 
 const char* const configWildcard = "Konfigurationsdateien (*.json)|*.json";
 
-// util::pathOnly() only splits at backslashes, so on Unix it discards the whole
-// path and the dialog would always start in the home directory.
-static wxString configDialogDir(const std::filesystem::path& pathname)
+static wxString configDialogDir(const std::filesystem::path& pathname)  // [MainWindow.md#configDialogDir]
 {
     return pathname.has_parent_path() ? wxString(pathname.parent_path().wstring()) : wxGetHomeDir();
 }
@@ -376,12 +362,7 @@ void MainWindow::onFileOpen(wxCommandEvent&)
         cfg.pathname(path);
         setTitle();
     }
-    // read() resets the configuration before it fails, so the previous one is
-    // gone from memory: reload it, otherwise "Speichern" would overwrite the
-    // still intact previous file with an empty configuration. Skipped for a
-    // previous file that never existed, which would only report a second,
-    // pointless read error.
-    else if (std::filesystem::exists(current))
+    else if (std::filesystem::exists(current))  // [MainWindow.md#reload-after-failed-read]
         cfg.read(current.wstring());
     update();
 }
@@ -391,13 +372,7 @@ bool save()
     Config& cfg(Config::instance());
     if (cfg.write(cfg.pathname()))
         return true;
-    // write()'s return value used to be discarded here (and at its other two
-    // call sites): a failed save - disk full, permissions - left the user
-    // believing "Konfiguration gespeichert" while the on-disk file was
-    // untouched (round 4's atomic write correctly refuses to overwrite it on
-    // failure), and askAndSave() would then let the app close right over the
-    // lost changes.
-    wxMessageBox(_("Konfiguration konnte nicht gespeichert werden."), _("Fehler"), wxOK | wxICON_ERROR);
+    wxMessageBox(_("Konfiguration konnte nicht gespeichert werden."), _("Fehler"), wxOK | wxICON_ERROR);  // [MainWindow.md#write-result-checked]
     return false;
 }
 
@@ -414,16 +389,12 @@ void MainWindow::onFileSave(wxCommandEvent& WXUNUSED(event))
         setStatusTextWithTimer("Konfiguration gespeichert", 5000);
 }
 
-// GTK does not append the filter's extension, so a name typed without one would
-// produce a file that the *.json filter hides on the next open.
-static wstring withJsonExtension(const wstring& path)
+static wstring withJsonExtension(const wstring& path)  // [MainWindow.md#withJsonExtension]
 {
     return std::filesystem::path(path).extension() == L".json" ? path : path + L".json";
 }
 
-// The dialog's own overwrite prompt only saw the name the user typed; an
-// appended extension can still collide with an existing file.
-static bool confirmOverwrite(wxWindow* parent, const wstring& path)
+static bool confirmOverwrite(wxWindow* parent, const wstring& path)  // [MainWindow.md#confirmOverwrite]
 {
     if (!std::filesystem::exists(path))
         return true;
@@ -530,9 +501,7 @@ void MainWindow::onEditSync(wxCommandEvent&)
         wxMessageBox("Synchronisation konnte nicht gefunden werden.", "Fehler");
         return;
     }
-    // found is a copy; write it back under Config's lock via the original name
-    // (the dialog may have renamed it).
-    const std::wstring originalName = found->name();
+    const std::wstring originalName = found->name();  // [MainWindow.md#copy-written-back]
     SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(*found);
@@ -651,11 +620,7 @@ wxString backgroundServiceStateText(BackgroundService::State state)
 }
 }
 
-// The service can also be started or stopped outside of AutoFileSync, so its
-// state is asked for whenever the menu opens rather than being tracked here.
-// A state that cannot be determined leaves both commands available: refusing
-// them would lock the user out of a service that may well be controllable.
-void MainWindow::updateBackgroundServiceMenu()
+void MainWindow::updateBackgroundServiceMenu()  // [MainWindow.md#updateBackgroundServiceMenu-state]
 {
     using State = BackgroundService::State;
     const State state = BackgroundService::state();
@@ -694,7 +659,6 @@ void MainWindow::onQuit(wxCommandEvent& event)
 
 void MainWindow::onClose(wxCloseEvent& event)
 {
-    // Save window size and position to wxConfig
     wxConfigBase* config = wxConfig::Get();
     wxPoint pos = GetPosition();
     wxSize size = GetSize();
@@ -705,11 +669,7 @@ void MainWindow::onClose(wxCloseEvent& event)
     config->Flush();
 
     if (event.CanVeto() && Config::instance().settings().minimize_instead_of_close()) {
-        // Keep the app (and any running background sync) alive in the tray
-        // instead of closing - same as onViewBackground(). CanVeto() is false
-        // for a forced close (tray "Beenden", OS logoff), which must always
-        // go through regardless of this setting.
-        event.Veto();
+        event.Veto();  // [MainWindow.md#minimize-instead-of-close]
         Show(false);
         return;
     }
@@ -738,15 +698,7 @@ wxString executableDir()
     return exe.GetPath();
 }
 
-// Anchoring the search at the executable rather than at the working directory is
-// what keeps the help reachable when a desktop launcher, the autostart entry or
-// a debugger starts the program from an unrelated directory. An installation
-// puts the book next to the executable, and so does every build (CMake post
-// build step, Windows post build step); walking up to three directories still
-// finds a book placed at the root of a build tree. The macOS bundle keeps it
-// among its resources, and the working directory stays a candidate for callers
-// that rely on it.
-wxString locateHelpBook()
+wxString locateHelpBook()  // [MainWindow.md#locateHelpBook]
 {
     constexpr int maxBuildTreeDepth = 3;
     wxFileName dir = wxFileName::DirName(executableDir());
@@ -766,8 +718,7 @@ void MainWindow::createHelp()
     htmlHelpController_ = new wxHtmlHelpController;
     const wxString helpFilePath = locateHelpBook();
     if (helpFilePath.empty()) {
-        // Names where the book belongs, not the last place searched: that is where a broken installation gets repaired.
-        TimedMessageBox dlg(this, "Hilfedatei nicht gefunden: ", helpBookIn(executableDir()), 3000);
+        TimedMessageBox dlg(this, "Hilfedatei nicht gefunden: ", helpBookIn(executableDir()), 3000);  // [MainWindow.md#help-path-in-message]
         dlg.ShowModal(); // dlg is stack-allocated: its own destructor cleans it up, Destroy() is only for `new`-allocated windows
     }
     else if (!htmlHelpController_->AddBook(helpFilePath))
@@ -795,10 +746,7 @@ void MainWindow::createTaskBar()
 {
     taskBarIcon_ = new TaskBarIcon(this);
 #ifndef __WXOSX__
-    // On macOS wxTaskBarIcon addresses the Dock icon, which the application
-    // bundle already supplies as afs.icns in every size the Dock asks for.
-    // Setting it here would replace that with the single 64x64 XPM.
-    if (!taskBarIcon_->SetIcon(wxICON(sample),
+    if (!taskBarIcon_->SetIcon(wxICON(sample),  // [MainWindow.md#taskbar-icon-macos]
         "AutoFileSync\n"
         "Minimiertes Synchronisationsprogramm."))
     {
@@ -820,10 +768,7 @@ void MainWindow::askAndSave()
 
 void MainWindow::close()
 {
-    // Always a real shutdown: onClose() already decided to minimize instead
-    // and returns before calling this, so getting here must stop sync and
-    // actually exit regardless of the "minimize instead of close" setting.
-    syncInterface_.stopSync();
+    syncInterface_.stopSync();  // [MainWindow.md#real-shutdown]
     askAndSave();
     wxGetApp().ExitMainLoop();
 }

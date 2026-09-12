@@ -55,9 +55,7 @@ public:
 
     RemoteDirInfo inspect_dir_recursive(const std::string& remote_path);
 
-    // SFTP has no command for the home directory; by convention the server
-    // resolves "." relative to the login directory.
-    std::string get_home_dir();
+    std::string get_home_dir();  // [SshDirInspector.md#get_home_dir]
 
 private:
     void inspect_dir_recursive_impl(const std::string& remote_path, RemoteDirInfo& result);

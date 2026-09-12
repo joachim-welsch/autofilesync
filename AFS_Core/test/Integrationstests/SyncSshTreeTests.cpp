@@ -17,12 +17,10 @@ using namespace AFS_Core;
 
 using namespace SSHTest;
 
-// Test-Konfiguration - Anpassen an Ihre SSH-Umgebung
 namespace SyncSshTreeTestConfig {
     const std::string SRC_TEST_DIR = tu::concat_path(tu::test_temp_dir(), "test_ssh_dir_src");
     const std::string DEST_TEST_DIR = tu::concat_path(tu::test_temp_dir(), "test_ssh_dir_dest");
     
-    // Hilfsfunktion um ein SshAccount-Objekt zu erstellen
     inline SshAccount create_test_account(const std::string& user = SSH_USER,
                                         const std::string& host = SSH_HOST,
                                         const std::string& password = SSH_PASSWORD) {
@@ -35,7 +33,6 @@ namespace SyncSshTreeTestConfig {
     }
 }
 
-// Fixture für SSH-Tree-Tests
 class SyncSshTreeTest : public ::testing::Test {
 protected:
     void SetUp() override {
@@ -43,12 +40,10 @@ protected:
 
         SKIP_WITHOUT_SSH_SERVER();
 
-        // Lokales Testverzeichnis erstellen und aufräumen
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
         fs::create_directories(SyncSshTreeTestConfig::SRC_TEST_DIR);
         
-        // Account zur Config hinzufügen
         SshAccount acc;
         acc.set_name("localhost");
         acc.set_user(SSH_USER);
@@ -56,13 +51,7 @@ protected:
         acc.set_password(SSH_PASSWORD);
             Config::instance().add(acc);
 
-            // Remote-Zielverzeichnisse aus frueheren Laeufen entfernen: sie
-            // gehoeren dem SSH-Testkonto, das lokale fs::remove_all() oben
-            // kann sie nicht anfassen - ein stehen gebliebenes Ziel wuerde
-            // als "bereits synchronisiert" durchgehen. Jeder Aufruf verbindet
-            // neu per SSH, deshalb nur einmal pro Prozess statt vor jedem
-            // einzelnen Test.
-            static bool ssh_dest_cleaned = false;
+            static bool ssh_dest_cleaned = false;  // [SyncSshTreeTests.md#remote-cleanup-once-per-process]
             if (!ssh_dest_cleaned) {
                 tu::erase_ssh_test_dir_variants(
                     L"localhost:" + std::wstring(SyncSshTreeTestConfig::DEST_TEST_DIR.begin(), SyncSshTreeTestConfig::DEST_TEST_DIR.end()),
@@ -70,37 +59,31 @@ protected:
                 ssh_dest_cleaned = true;
             }
 
-            // Synchronize zurücksetzen
             Synchronize::start();
         }
 
     void TearDown() override {
         namespace fs = std::filesystem;
         
-        // Lokales Testverzeichnis aufräumen
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 };
 
-// Test 1: Lokalen verschachtelten Verzeichnisbaum nach SSH synchronisieren
 TEST_F(SyncSshTreeTest, SyncLocalTreeToRemoteWithNestedDirectories)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle verschachtelte Verzeichnisstruktur
     fs::create_directories(tu::concat_path(tu::concat_path(local_dir, "subdir1"), "subdir2"));
     fs::create_directories(tu::concat_path(local_dir, "subdir3"));
     
-    // Erstelle Dateien in verschiedenen Ebenen
     std::ofstream(tu::concat_path(local_dir, "root_file.txt")) << "root content";
     std::ofstream(tu::concat_path(tu::concat_path(local_dir, "subdir1"), "sub1_file.txt")) << "subdir1 content";
     std::ofstream(tu::concat_path(tu::concat_path(tu::concat_path(local_dir, "subdir1"), "subdir2"), "sub2_file.txt")) << "subdir2 content";
     std::ofstream(tu::concat_path(tu::concat_path(local_dir, "subdir3"), "sub3_file.txt")) << "subdir3 content";
     
-    // SyncItem konfigurieren
     std::wstring src_path = std::wstring(local_dir.begin(), local_dir.end()) + PATH_SEPARATOR_W;
     std::wstring dest_path = L"localhost:" + 
                             std::wstring(SyncSshTreeTestConfig::DEST_TEST_DIR.begin(), 
@@ -116,7 +99,6 @@ TEST_F(SyncSshTreeTest, SyncLocalTreeToRemoteWithNestedDirectories)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfen ob Dateien auf Remote existieren
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     
     RemoteFileInfo root_file = inspector.inspect_file(tu::concat_path(SyncSshTreeTestConfig::DEST_TEST_DIR, "root_file.txt"));
@@ -129,10 +111,7 @@ TEST_F(SyncSshTreeTest, SyncLocalTreeToRemoteWithNestedDirectories)
     EXPECT_TRUE(sub2_file.exists) << "sub2_file.txt wurde nicht auf Remote gefunden";
     EXPECT_TRUE(sub3_file.exists) << "sub3_file.txt wurde nicht auf Remote gefunden";
 
-    // Cleanup: Lokales Testverzeichnis entfernen; DEST_TEST_DIR gehoert dem
-    // SSH-Testkonto (per SSH nach dorthin gesynct) und muss deshalb per SFTP
-    // geloescht werden, ein lokales fs::remove_all() haette keinen Zugriff.
-    {
+    {  // [SyncSshTreeTests.md#ssh-cleanup-needed]
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
         tu::erase_ssh_test_dir(L"localhost:" + std::wstring(
@@ -140,18 +119,15 @@ TEST_F(SyncSshTreeTest, SyncLocalTreeToRemoteWithNestedDirectories)
     }
 }
 
-// Test 2: Remote-Verzeichnisbaum nach lokal synchronisieren
 TEST_F(SyncSshTreeTest, SyncRemoteTreeToLocal)
 {
     namespace fs = std::filesystem;
     
-    // Zuerst: Lokale Testdaten nach Remote kopieren, um sicherzustellen dass Remote-Daten existieren
     std::string local_setup_dir = tu::concat_path(SyncSshTreeTestConfig::SRC_TEST_DIR, "setup_for_remote");
     fs::create_directories(tu::concat_path(local_setup_dir, "subdir"));
     std::ofstream(tu::concat_path(local_setup_dir, "remote_file.txt")) << "remote content";
     std::ofstream(tu::concat_path(tu::concat_path(local_setup_dir, "subdir"), "nested_file.txt")) << "nested content";
     
-    // Kopiere nach Remote
     std::wstring setup_src_path = std::wstring(local_setup_dir.begin(), local_setup_dir.end()) + PATH_SEPARATOR_W;
     std::wstring remote_dest_path = L"localhost:" + 
                                   std::wstring(SyncSshTreeTestConfig::DEST_TEST_DIR.begin(), 
@@ -167,7 +143,6 @@ TEST_F(SyncSshTreeTest, SyncRemoteTreeToLocal)
     SyncTree setup_sync(setup_si, setup_copy_count, false);
     setup_sync();
     
-    // Jetzt: Remote nach lokal synchronisieren
     Synchronize::start();
     std::wstring src_path = L"localhost:" + 
                            std::wstring(SyncSshTreeTestConfig::DEST_TEST_DIR.begin(),
@@ -185,21 +160,14 @@ TEST_F(SyncSshTreeTest, SyncRemoteTreeToLocal)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfen ob lokales Verzeichnis erstellt wurde
     EXPECT_TRUE(fs::exists(tu::concat_path(SyncSshTreeTestConfig::SRC_TEST_DIR, "remote_copy")));
     
-    // Prüfen ob Dateien vom Remote kopiert wurden
     EXPECT_TRUE(fs::exists(tu::concat_path(tu::concat_path(SyncSshTreeTestConfig::SRC_TEST_DIR, "remote_copy"), "remote_file.txt")))
         << "remote_file.txt wurde nicht von Remote kopiert";
     EXPECT_TRUE(fs::exists(tu::concat_path(tu::concat_path(tu::concat_path(SyncSshTreeTestConfig::SRC_TEST_DIR, "remote_copy"), "subdir"), "nested_file.txt")))
         << "nested_file.txt wurde nicht von Remote kopiert";
 
-    // Cleanup: Lokales Testverzeichnis entfernen; das per SSH beschriebene
-    // Remote-Verzeichnis war DEST_TEST_DIR + "_reverse" (siehe remoteDestPath
-    // oben), gehoert dem SSH-Testkonto und muss deshalb per SFTP geloescht
-    // werden, ein lokales fs::remove_all() haette weder Zugriff noch den
-    // richtigen Pfad getroffen.
-    {
+    {  // [SyncSshTreeTests.md#reverse-cleanup-path]
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
         tu::erase_ssh_test_dir(L"localhost:" + std::wstring(
@@ -207,14 +175,12 @@ TEST_F(SyncSshTreeTest, SyncRemoteTreeToLocal)
     }
 }
 
-// Test 3: Leere Verzeichnisstruktur nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncEmptyTreeToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle nur leere Verzeichnisstruktur
     fs::create_directories(tu::concat_path(tu::concat_path(tu::concat_path(tu::concat_path(local_dir, "empty1"), "empty2"), "empty3"), ""));
     fs::create_directories(tu::concat_path(local_dir, "empty4"));
     
@@ -232,24 +198,20 @@ TEST_F(SyncSshTreeTest, SyncEmptyTreeToRemote)
     std::size_t copy_count = 0;
     SyncTree test(si, copy_count, false);
     
-    // Sollte keine Exception werfen
-    EXPECT_NO_THROW(test());
+    EXPECT_NO_THROW(test());  // should throw nothing
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 }
 
-// Test 4: Gemischter Baum (Dateien und Verzeichnisse) nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncMixedTreeToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle gemischte Struktur
     fs::create_directories(tu::concat_path(local_dir, "dir1"));
     fs::create_directories(tu::concat_path(tu::concat_path(local_dir, "dir2"), "nested"));
     
@@ -274,7 +236,6 @@ TEST_F(SyncSshTreeTest, SyncMixedTreeToRemote)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfe alle Dateien auf Remote
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     
     RemoteFileInfo file1 = inspector.inspect_file(tu::concat_path(SyncSshTreeTestConfig::DEST_TEST_DIR + "_mixed", "file1.txt"));
@@ -289,21 +250,18 @@ TEST_F(SyncSshTreeTest, SyncMixedTreeToRemote)
     EXPECT_TRUE(file4.exists) << "file4.txt wurde nicht auf Remote gefunden";
     EXPECT_TRUE(file5.exists) << "file5.txt wurde nicht auf Remote gefunden";
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 }
 
-// Test 5: Baum mit vielen Dateien nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncTreeWithManyFilesToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle Verzeichnis mit vielen Dateien
     fs::create_directories(tu::concat_path(local_dir, "many_files"));
     
     const int file_count = 50;
@@ -327,7 +285,6 @@ TEST_F(SyncSshTreeTest, SyncTreeWithManyFilesToRemote)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Stichprobenartig einige Dateien prüfen
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     RemoteFileInfo info0 = inspector.inspect_file(
         tu::concat_path(tu::concat_path(SyncSshTreeTestConfig::DEST_TEST_DIR + "_many", "many_files"), "file_0.txt"));
@@ -340,21 +297,18 @@ TEST_F(SyncSshTreeTest, SyncTreeWithManyFilesToRemote)
     EXPECT_TRUE(info25.exists) << "file_25.txt wurde nicht auf Remote gefunden";
     EXPECT_TRUE(info49.exists) << "file_49.txt wurde nicht auf Remote gefunden";
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 }
 
-// Test 6: Tiefe Verzeichnishierarchie nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncDeepHierarchyToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle sehr tiefe Verzeichnisstruktur
     std::string deep_path = local_dir;
     for (int i = 0; i < 8; ++i) {
         deep_path = tu::concat_path(deep_path, "level" + std::to_string(i));
@@ -377,7 +331,6 @@ TEST_F(SyncSshTreeTest, SyncDeepHierarchyToRemote)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfe, dass die tiefe Struktur kopiert wurde
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     std::string remote_deep_path = SyncSshTreeTestConfig::DEST_TEST_DIR + "_deep";
     for (int i = 0; i < 8; ++i) {
@@ -387,21 +340,18 @@ TEST_F(SyncSshTreeTest, SyncDeepHierarchyToRemote)
     
     EXPECT_TRUE(deep_file.exists) << "deep_file.txt wurde nicht auf Remote gefunden";
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 }
 
-// Test 7: Verschiedene Dateitypen nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncDifferentFileTypesToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle Dateien mit verschiedenen Endungen
     std::ofstream(tu::concat_path(local_dir, "document.txt")) << "Text file";
     std::ofstream(tu::concat_path(local_dir, "script.sh")) << "#!/bin/bash\necho 'test'";
     std::ofstream(tu::concat_path(local_dir, "config.json")) << "{\"key\": \"value\"}";
@@ -423,7 +373,6 @@ TEST_F(SyncSshTreeTest, SyncDifferentFileTypesToRemote)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfe alle verschiedenen Dateitypen
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     
     RemoteFileInfo txt = inspector.inspect_file(tu::concat_path(SyncSshTreeTestConfig::DEST_TEST_DIR + "_types", "document.txt"));
@@ -438,21 +387,18 @@ TEST_F(SyncSshTreeTest, SyncDifferentFileTypesToRemote)
     EXPECT_TRUE(xml.exists) << "data.xml wurde nicht auf Remote gefunden";
     EXPECT_TRUE(md.exists) << "README.md wurde nicht auf Remote gefunden";
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 }
 
-// Test 8: Große Datei nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncLargeFileToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle eine größere Datei (1 MB)
     std::ofstream large_file(tu::concat_path(local_dir, "large_file.dat"), std::ios::binary);
     std::string chunk(1024, 'X'); // 1 KB
     for (int i = 0; i < 1024; ++i) { // 1 MB
@@ -475,39 +421,33 @@ TEST_F(SyncSshTreeTest, SyncLargeFileToRemote)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfe, dass die große Datei kopiert wurde
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     RemoteFileInfo large_file_info = inspector.inspect_file(
         SyncSshTreeTestConfig::DEST_TEST_DIR + "_large/large_file.dat");
     
     EXPECT_TRUE(large_file_info.exists) << "large_file.dat wurde nicht auf Remote gefunden";
     
-    // Prüfe Dateigröße (sollte ungefähr 1 MB sein)
     auto source_size = fs::file_size(tu::concat_path(local_dir, "large_file.dat"));
     EXPECT_EQ(large_file_info.size_bytes, source_size);
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 }
 
-// Test 9: Komplexe Projektstruktur nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncComplexProjectStructureToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle komplexe Struktur mit mehreren Ebenen
     fs::create_directories(tu::concat_path(tu::concat_path(tu::concat_path(local_dir, "project"), "src"), "main"));
     fs::create_directories(tu::concat_path(tu::concat_path(tu::concat_path(local_dir, "project"), "src"), "utils"));
     fs::create_directories(tu::concat_path(tu::concat_path(local_dir, "project"), "tests"));
     fs::create_directories(tu::concat_path(tu::concat_path(local_dir, "project"), "docs"));
     fs::create_directories(tu::concat_path(tu::concat_path(local_dir, "project"), "build"));
     
-    // Dateien in verschiedenen Verzeichnissen
     std::ofstream(tu::concat_path(tu::concat_path(local_dir, "project"), "README.md")) << "# Project";
     std::ofstream(tu::concat_path(tu::concat_path(tu::concat_path(tu::concat_path(local_dir, "project"), "src"), "main"), "main.cpp")) << "int main() {}";
     std::ofstream(tu::concat_path(tu::concat_path(tu::concat_path(tu::concat_path(local_dir, "project"), "src"), "main"), "config.h")) << "#pragma once";
@@ -531,7 +471,6 @@ TEST_F(SyncSshTreeTest, SyncComplexProjectStructureToRemote)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfe komplette Struktur auf Remote
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     
     std::string remote_base = tu::concat_path(SyncSshTreeTestConfig::DEST_TEST_DIR + "_project", "project");
@@ -552,21 +491,18 @@ TEST_F(SyncSshTreeTest, SyncComplexProjectStructureToRemote)
     EXPECT_TRUE(test_main.exists) << "test_main.cpp wurde nicht auf Remote gefunden";
     EXPECT_TRUE(manual.exists) << "manual.txt wurde nicht auf Remote gefunden";
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);
     }
 }
 
-// Test 10: Dateien mit speziellen Zeichen im Namen nach Remote synchronisieren
 TEST_F(SyncSshTreeTest, SyncFilesWithSpecialCharactersToRemote)
 {
     namespace fs = std::filesystem;
     
     std::string local_dir = SyncSshTreeTestConfig::SRC_TEST_DIR;
     
-    // Erstelle Dateien mit speziellen Zeichen (Unix-kompatibel)
     std::ofstream(tu::concat_path(local_dir, "file_with_spaces.txt")) << "spaces";
     std::ofstream(tu::concat_path(local_dir, "file-with-dashes.txt")) << "dashes";
     std::ofstream(tu::concat_path(local_dir, "file_with_underscores.txt")) << "underscores";
@@ -587,7 +523,6 @@ TEST_F(SyncSshTreeTest, SyncFilesWithSpecialCharactersToRemote)
     SyncTree test(si, copy_count, false);
     test();
     
-    // Prüfe alle Dateien mit speziellen Zeichen
     SshFileInspector inspector(SyncSshTreeTestConfig::create_test_account());
     
     RemoteFileInfo spaces = inspector.inspect_file(tu::concat_path(SyncSshTreeTestConfig::DEST_TEST_DIR + "_special", "file_with_spaces.txt"));
@@ -600,7 +535,6 @@ TEST_F(SyncSshTreeTest, SyncFilesWithSpecialCharactersToRemote)
     EXPECT_TRUE(underscores.exists) << "file_with_underscores.txt wurde nicht auf Remote gefunden";
     EXPECT_TRUE(dots.exists) << "file.multiple.dots.txt wurde nicht auf Remote gefunden";
 
-    // Cleanup: Lokale Testverzeichnisse entfernen
     {
         std::error_code ec;
         fs::remove_all(SyncSshTreeTestConfig::SRC_TEST_DIR, ec);

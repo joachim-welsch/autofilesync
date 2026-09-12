@@ -50,8 +50,7 @@ void GridWindow::ShowContextMenu(const wxPoint& pos)
 void GridWindow::OnContextMenu(wxContextMenuEvent& event)
 {
 	wxPoint point = event.GetPosition();
-	// If from keyboard
-	if (point.x == -1 && point.y == -1) {
+	if (point.x == -1 && point.y == -1) {  // (-1,-1) means the menu came from the keyboard
 		wxSize size = GetSize();
 		point.x = size.x / 2;
 		point.y = size.y / 2;

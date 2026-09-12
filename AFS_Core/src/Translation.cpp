@@ -18,22 +18,16 @@ void init(const std::filesystem::path& locale_dir)
     if (locale_dir.empty())
         return;
     bindtextdomain(TEXT_DOMAIN, locale_dir.string().c_str());
-    // The catalogues are UTF-8 and util::string_to_wstring() decodes UTF-8;
-    // without this gettext would recode to the charset of the current locale.
-    bind_textdomain_codeset(TEXT_DOMAIN, "UTF-8");
+    bind_textdomain_codeset(TEXT_DOMAIN, "UTF-8");  // [Translation.md#catalogue-codeset]
     textdomain(TEXT_DOMAIN);
 }
 
 std::wstring translate(const char* msgid)
 {
-    // dgettext() instead of gettext(): the core must not depend on whichever
-    // domain the hosting program set last.
-    return util::string_to_wstring(dgettext(TEXT_DOMAIN, msgid));
+    return util::string_to_wstring(dgettext(TEXT_DOMAIN, msgid));  // [Translation.md#dgettext-instead-of-gettext]
 }
 #else
-// Builds without libintl (Windows without a gettext package) keep the German
-// message ids - the same texts the untranslated program used.
-void init(const std::filesystem::path&) {}
+void init(const std::filesystem::path&) {}  // [Translation.md#no-libintl-fallback]
 
 std::wstring translate(const char* msgid)
 {

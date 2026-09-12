@@ -31,11 +31,7 @@ bool LogCut::open_files()
 	log_.close_file();
 	const std::wstring path_name = log_.get_log_file_path_name();
 	is_.open(native_path(path_name), std::ios::in);
-	// The temp file is created only once the log itself opened: on the early
-	// return the caller skips close_files(), and with it the rename that turns
-	// the temp file back into the log - creating it eagerly left an orphaned
-	// ".tmp" behind on every start without an existing log file.
-	if (!is_.is_open())
+	if (!is_.is_open())  // [LogCut.md#temp-file-created-late]
 		return false;
 	os_.open(native_path(path_name + L".tmp"), std::ios::out);
 	return os_.is_open();
@@ -45,9 +41,7 @@ void LogCut::close_files()
 {
 	is_.close();
 	os_.close();
-	// The error_code overload: this runs at every start, and a log directory
-	// that became read-only meanwhile must not take the application down.
-	std::error_code ec;
+	std::error_code ec;  // [LogCut.md#error-code-overload]
 	fs::rename(log_.get_log_file_path_name() + L".tmp", log_.get_log_file_path_name(), ec);
 	log_.open_file();
 	if (ec)
@@ -57,10 +51,7 @@ void LogCut::close_files()
 void LogCut::operator()()
 {
 	if (!open_files()) {
-		// open_files() closed the log handle and only close_files() reopens it:
-		// without this, a first start (no log file to cut yet) left write()
-		// silently dropping everything for the rest of the session.
-		log_.open_file();
+		log_.open_file();  // [LogCut.md#reopen-log-handle]
 		return;
 	}
 	cut();
@@ -83,11 +74,7 @@ void LogCut::cut()
 {
 	std::string line;
 	auto now_minus_time_span = now_ - std::chrono::hours(24) * Logging::instance().retention_days();
-	// Decided per timestamped line, never latched: logs are chronological (old
-	// lines first), so a sticky flag would discard everything after the first
-	// expired line - including all current entries. Lines without a parseable
-	// timestamp (multi-line entries) follow the preceding timestamped line.
-	bool line_too_old = false;
+	bool line_too_old = false;  // [LogCut.md#per-line-age-decision]
 	while (std::getline(is_, line))	{
 		TimePoint line_time;
 		if (get_time_from_line(line, line_time))

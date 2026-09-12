@@ -4,10 +4,7 @@ namespace guitest {
 
 ModalDialogWatcher& ModalDialogWatcher::instance()
 {
-    // Deliberately never destroyed: unregistering happens in the destructor and
-    // would touch wxWidgets' static hook list, whose lifetime relative to a
-    // static in this translation unit is not defined.
-    static ModalDialogWatcher* watcher = [] {
+    static ModalDialogWatcher* watcher = [] {  // [ModalDialogWatcher.md#never-destroyed]
         auto* created = new ModalDialogWatcher;
         created->Register();
         return created;
@@ -34,10 +31,7 @@ int ModalDialogWatcher::Enter(wxDialog* dialog)
     }
     const DialogAction action = expected_.front().action;
     expected_.pop_front();
-    // Queued instead of called here: the modal event loop is not running yet
-    // and the dialog is not on screen, but wxUIActionSimulator needs a mapped
-    // window to send its events to.
-    dialog->CallAfter([dialog, action] { action(*dialog); });
+    dialog->CallAfter([dialog, action] { action(*dialog); });  // [ModalDialogWatcher.md#queued-not-called]
     return wxID_NONE;
 }
 

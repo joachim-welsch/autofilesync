@@ -9,10 +9,7 @@ using namespace AFS_Core;
 using namespace std::chrono_literals;
 
 namespace {
-// Two arbiters in one process see each other exactly as two processes do: the
-// Windows events live in the Global\ namespace and flock treats two open file
-// descriptors of the same file independently, even within one process.
-std::chrono::milliseconds time_acquire(SyncArbiter& arbiter, const std::atomic_bool& abort, bool& acquired)
+std::chrono::milliseconds time_acquire(SyncArbiter& arbiter, const std::atomic_bool& abort, bool& acquired)  // [SyncArbiterTests.md#time_acquire]
 {
     const auto start = std::chrono::steady_clock::now();
     acquired = arbiter.acquire(abort);
@@ -20,8 +17,7 @@ std::chrono::milliseconds time_acquire(SyncArbiter& arbiter, const std::atomic_b
 }
 }
 
-// The requirement: while the GUI synchronises, the daemon pauses.
-TEST(SyncArbiterTests, BackgroundWaitsWhileForegroundHolds)
+TEST(SyncArbiterTests, BackgroundWaitsWhileForegroundHolds)  // [SyncArbiterTests.md#BackgroundWaitsWhileForegroundHolds]
 {
     std::atomic_bool abort{false};
     SyncArbiter foreground(SyncRole::Foreground);
@@ -45,9 +41,7 @@ TEST(SyncArbiterTests, BackgroundWaitsWhileForegroundHolds)
     EXPECT_TRUE(background_entered.load()) << "Nach dem Ende der GUI-Synchronisation muss der Dienst weiterlaufen.";
 }
 
-// The other direction: only one synchronisation at a time means the GUI has to
-// let a pass that is already running finish.
-TEST(SyncArbiterTests, ForegroundWaitsForRunningBackgroundPass)
+TEST(SyncArbiterTests, ForegroundWaitsForRunningBackgroundPass)  // [SyncArbiterTests.md#ForegroundWaitsForRunningBackgroundPass]
 {
     std::atomic_bool abort{false};
     SyncArbiter background(SyncRole::Background);
@@ -67,9 +61,7 @@ TEST(SyncArbiterTests, ForegroundWaitsForRunningBackgroundPass)
     foreground.release();
 }
 
-// A stop request must not be delayed by whatever the other side is doing, or
-// stopping a sync would hang for as long as the other process keeps going.
-TEST(SyncArbiterTests, AbortEndsTheWaitInsteadOfBlocking)
+TEST(SyncArbiterTests, AbortEndsTheWaitInsteadOfBlocking)  // [SyncArbiterTests.md#AbortEndsTheWaitInsteadOfBlocking]
 {
     std::atomic_bool abort{false};
     SyncArbiter foreground(SyncRole::Foreground);
@@ -91,9 +83,7 @@ TEST(SyncArbiterTests, AbortEndsTheWaitInsteadOfBlocking)
     foreground.release();
 }
 
-// acquire() is called once per pass, so the second call of a holder must not
-// wait for itself.
-TEST(SyncArbiterTests, RepeatedAcquireOfTheSameHolderReturnsAtOnce)
+TEST(SyncArbiterTests, RepeatedAcquireOfTheSameHolderReturnsAtOnce)  // [SyncArbiterTests.md#RepeatedAcquireOfTheSameHolderReturnsAtOnce]
 {
     std::atomic_bool abort{false};
     SyncArbiter foreground(SyncRole::Foreground);

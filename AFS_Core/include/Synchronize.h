@@ -35,9 +35,7 @@ class Synchronize {
     CheckPath               check_path_;
     std::mutex              cv_mutex_;
     std::condition_variable cv_;
-    // Defaults keep the test-only default constructor usable; the real
-    // constructor sets both from its role argument.
-    SyncRole                role_ = SyncRole::Foreground;
+    SyncRole                role_ = SyncRole::Foreground;  // [Synchronize.md#role_]
     SyncArbiter             arbiter_{SyncRole::Foreground};
 #ifdef _TEST
     std::atomic<int>        loop_iterations_{0}; // counts do-while passes of operator()(), for race regression tests
@@ -47,11 +45,8 @@ class Synchronize {
         bool is_dir;
         std::chrono::steady_clock::time_point checked;
     };
-    // Only touched by the worker thread (sync_item), so no lock is needed.
-    std::map<std::wstring, SshTargetDirCacheEntry> ssh_target_dir_cache_;
-    // Last known reachability per item name, so an item that stays unreachable
-    // is reported once instead of once per pass. Same thread as above.
-    std::map<std::wstring, bool> item_reachable_;
+    std::map<std::wstring, SshTargetDirCacheEntry> ssh_target_dir_cache_;  // [Synchronize.md#ssh_target_dir_cache_]
+    std::map<std::wstring, bool> item_reachable_;  // [Synchronize.md#item_reachable_]
 
     bool has_controler() const;
     bool is_ssh_target_dir(const std::wstring& target);
@@ -92,8 +87,6 @@ public:
     static bool stopping();
     friend class SyncControler;
 };
-
-//#####################################################################
 
 inline
 bool Synchronize::stop_requested() const

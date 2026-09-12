@@ -27,17 +27,14 @@ size_t countLogEntries(const std::wstring& searchText)
 
 TEST(LoggingTests, testNotMounted)
 {	
-    // Log-Datei vor dem Test leeren
     Synchronize::create(SyncType::Single);
     Synchronize::instance().start_logging(LogLevel::Debug, LoggingPath);
     Logging::instance().erase_file();
-    // Test-Setup
     SyncItem si;
     si.source(NotMountedSourcePathName);
     si.target(TargetDir);
     si.sync_cycle(0);
     
-    // Test mehrfach ausf�hren
     const int testIterations = 3;
     Config::instance().reset();
 	Config::instance().add(si, true);
@@ -45,11 +42,7 @@ TEST(LoggingTests, testNotMounted)
         Synchronize::instance().operator()();
     }
     
-    // Pr�fen, dass nur ein Log-Eintrag f�r das nicht gemountete Laufwerk existiert
-    // Hier suchen wir nach einem charakteristischen Text, der beim �berpr�fen 
-    // nicht gemounteter Laufwerke protokolliert wird
-    size_t logEntryCount = countLogEntries(L"Quellverzeichnis nicht erreichbar");
+    size_t logEntryCount = countLogEntries(L"Quellverzeichnis nicht erreichbar");  // [LoggingTests.md#single-log-entry]
     
-    // Es sollte nur ein Log-Eintrag vorhanden sein, auch wenn der Test mehrfach ausgef�hrt wurde
-    EXPECT_EQ(logEntryCount, 1);
+    EXPECT_EQ(logEntryCount, 1);  // only one entry, even though the test ran repeatedly
 }

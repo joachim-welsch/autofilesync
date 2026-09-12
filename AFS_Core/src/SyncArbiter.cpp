@@ -28,10 +28,7 @@ const wchar_t* event_name(SyncRole role)
 std::string lock_path(SyncRole role)
 {
     const std::string suffix = role == SyncRole::Foreground ? "foreground" : "background";
-    // Per user: /tmp is shared, and daemon and GUI only need to meet when they
-    // run under the same account - which they must anyway to share the
-    // configuration under the user's profile.
-    return "/tmp/autofilesync-" + std::to_string(getuid()) + "-" + suffix + ".lock";
+    return "/tmp/autofilesync-" + std::to_string(getuid()) + "-" + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
 }
 #endif
 

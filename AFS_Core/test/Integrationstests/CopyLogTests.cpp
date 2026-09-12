@@ -19,9 +19,7 @@ using std::wstring;
 namespace {
     const wstring ENTRIES_KEY = L"Sicherungsnachweise";
 
-    // The whole feature is about what ends up in the file, so every test reads
-    // the file back rather than trusting the writer's return value.
-    pt::wptree read_proof(const fs::path& file)
+    pt::wptree read_proof(const fs::path& file)  // [CopyLogTests.md#read_proof]
     {
         pt::wptree root;
         std::wifstream in(file);
@@ -32,9 +30,7 @@ namespace {
     std::vector<pt::wptree> entries_of(const fs::path& file)
     {
         std::vector<pt::wptree> retval;
-        // Kept in a named variable: get_child() hands back a reference into the
-        // tree, and a temporary tree would already be gone inside the loop.
-        const pt::wptree root = read_proof(file);
+        const pt::wptree root = read_proof(file);  // [CopyLogTests.md#named-root]
         for (const auto& entry : root.get_child(ENTRIES_KEY))
             retval.push_back(entry.second);
         return retval;
@@ -79,8 +75,7 @@ protected:
         return item;
     }
 
-    // One full pass of the real engine over whatever Config currently holds.
-    void run_one_sync()
+    void run_one_sync()  // one full pass of the real engine over whatever Config currently holds
     {
         Synchronize::create(SyncType::Single);
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
@@ -106,15 +101,11 @@ TEST_F(CopyLogTest, SyncWithProofEnabledWritesEntryWithAllFields)
     EXPECT_EQ(entry.get<wstring>(L"Dateien"), L"1");
     EXPECT_EQ(entry.get<wstring>(L"Datenvolumen"), std::to_wstring(fs::file_size(source_ / "a.txt")));
     EXPECT_EQ(entry.get<wstring>(L"Status"), L"Erfolgreich");
-    // "YYYY-MM-TT hh:mm:ss" - only the shape is deterministic here.
-    EXPECT_EQ(entry.get<wstring>(L"Zeitstempel").size(), 19u);
+    EXPECT_EQ(entry.get<wstring>(L"Zeitstempel").size(), 19u);  // only the shape of "YYYY-MM-TT hh:mm:ss" is deterministic here
     EXPECT_FALSE(entry.get_child_optional(L"Fehler").has_value());
 }
 
-// A pass that found nothing to do proves nothing. With a sync cycle down to one
-// second, writing an entry for it anyway would bury the passes that did
-// something under thousands that did not.
-TEST_F(CopyLogTest, PassWithoutActivityWritesNoEntry)
+TEST_F(CopyLogTest, PassWithoutActivityWritesNoEntry)  // [CopyLogTests.md#PassWithoutActivityWritesNoEntry]
 {
     write_source_file("a.txt", "inhalt");
     Config::instance().add(proven_item());
@@ -122,8 +113,7 @@ TEST_F(CopyLogTest, PassWithoutActivityWritesNoEntry)
     const fs::path file = copy_log_file_path(proof_dir_, L"sicherung");
     ASSERT_EQ(entries_of(file).size(), 1u);
 
-    // Everything is in sync now, so this pass has nothing left to copy.
-    Config::instance().reset();
+    Config::instance().reset();  // everything is in sync now, so this pass has nothing left to copy
     Config::instance().settings().backup_proof_path(proof_dir_.wstring());
     Config::instance().add(proven_item());
     run_one_sync();
@@ -157,8 +147,7 @@ TEST_F(CopyLogTest, ItemWithoutProofFlagWritesNothing)
     run_one_sync();
 
     EXPECT_FALSE(fs::exists(proof_dir_));
-    // The sync itself must still have happened - the flag only governs the proof.
-    EXPECT_TRUE(fs::exists(target_ / "a.txt"));
+    EXPECT_TRUE(fs::exists(target_ / "a.txt"));  // the sync itself must still have happened - the flag only governs the proof
 }
 
 TEST_F(CopyLogTest, WithoutConfiguredPathNothingIsWritten)
@@ -192,9 +181,7 @@ TEST_F(CopyLogTest, FailedRunIsRecordedAsFehlgeschlagenWithMessages)
     EXPECT_EQ(messages[1], L"Zieldatei nicht loeschbar: b.txt");
 }
 
-// An unreadable source is a failure the proof has to state, not one it may
-// leave out - otherwise the file only ever documents what went well.
-TEST_F(CopyLogTest, SyncFailureEndsUpInTheProof)
+TEST_F(CopyLogTest, SyncFailureEndsUpInTheProof)  // [CopyLogTests.md#SyncFailureEndsUpInTheProof]
 {
     const fs::path missing = test_dir_ / "nicht_vorhanden";
     SyncItem item(L"fehlerhaft", SyncItemType::Dir, missing.wstring(), target_.wstring(), L"");
@@ -211,10 +198,7 @@ TEST_F(CopyLogTest, SyncFailureEndsUpInTheProof)
     EXPECT_FALSE(entries[0].get_child(L"Fehler").empty());
 }
 
-// A source that stays gone is reported when it goes, not on every pass that
-// finds it still gone: with a cycle down to a second, the second reading would
-// leave a proof file of thousands of identical entries per day.
-TEST_F(CopyLogTest, UnreachableSourceIsProvenOnceNotOncePerPass)
+TEST_F(CopyLogTest, UnreachableSourceIsProvenOnceNotOncePerPass)  // [CopyLogTests.md#UnreachableSourceIsProvenOnceNotOncePerPass]
 {
     SyncItem item(L"fehlerhaft", SyncItemType::Dir, (test_dir_ / "nicht_vorhanden").wstring(),
         target_.wstring(), L"");
@@ -243,14 +227,10 @@ TEST_F(CopyLogTest, ItemNameWithPathCharactersBecomesAUsableFileName)
     const fs::path file = copy_log_file_path(proof_dir_, name);
     EXPECT_EQ(file.parent_path(), proof_dir_);
     ASSERT_TRUE(fs::exists(file));
-    // The unusable characters are gone from the file name, but the entry still
-    // states which sync item it belongs to.
-    EXPECT_EQ(entries_of(file)[0].get<wstring>(L"Name"), name);
+    EXPECT_EQ(entries_of(file)[0].get<wstring>(L"Name"), name);  // [CopyLogTests.md#name-survives-sanitising]
 }
 
-// The proof file is evidence: an entry that cannot be added must not cost the
-// entries already there.
-TEST_F(CopyLogTest, UnreadableProofFileIsNotOverwritten)
+TEST_F(CopyLogTest, UnreadableProofFileIsNotOverwritten)  // [CopyLogTests.md#UnreadableProofFileIsNotOverwritten]
 {
     fs::create_directories(proof_dir_);
     const fs::path file = copy_log_file_path(proof_dir_, L"sicherung");
@@ -272,9 +252,7 @@ TEST_F(CopyLogTest, ErrorListIsCappedInsteadOfGrowingWithoutLimit)
         report.error(L"Fehler " + std::to_wstring(i));
 
     ASSERT_EQ(report.errors().size(), SyncReport::MAX_ERRORS + 1);
-    // The last entry says the list is incomplete, so a capped list is never
-    // mistaken for the full account of what went wrong.
-    EXPECT_EQ(report.errors().back(), L"Weitere Fehler wurden nicht aufgezeichnet.");
+    EXPECT_EQ(report.errors().back(), L"Weitere Fehler wurden nicht aufgezeichnet.");  // [CopyLogTests.md#capped-list-marker]
 }
 
 TEST_F(CopyLogTest, ReportsOnlyReachTheGuardedRun)

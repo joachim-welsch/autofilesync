@@ -78,8 +78,7 @@ void Synchronize::destroy()
 Synchronize* Synchronize::create(SyncType sync_type, SyncControler* sc, SyncRole role)
 {
     log_debug(L"Synchronize::create()");
-    // stop_ is already false by the time the constructor returns; see there.
-    Synchronize* retval = new Synchronize(sync_type, sc, role);
+    Synchronize* retval = new Synchronize(sync_type, sc, role);  // [Synchronize.md#constructor-clears-stop]
     this_.store(retval);
     return retval;
 }
@@ -211,9 +210,7 @@ void Synchronize::sync_item(SyncItem& i)
     log_debug(L"Synchronize::operator()() Start of ", i.name());
     if (!pause_elapsed(i))
         return;
-    // Counting passes touch nothing and have nothing to prove; without a
-    // directory to write to there is nowhere to put a proof either.
-    if (!i.backup_proof() || sync_type_ == SyncType::CountFiles
+    if (!i.backup_proof() || sync_type_ == SyncType::CountFiles  // [Synchronize.md#no-proof-for-counting-passes]
         || Config::instance().settings().backup_proof_path().empty())
         run_sync_item(i);
     else
@@ -280,9 +277,7 @@ void Synchronize::run_sync_item(SyncItem& i)
         return;
     }
     if (sync_type_ != SyncType::CountFiles)
-        // i is this pass's snapshot copy (see operator()()), not the item held by
-        // Config - update last_sync there so the next pass's snapshot sees it.
-        Config::instance().refresh_last_sync(i.name());
+        Config::instance().refresh_last_sync(i.name());  // [Synchronize.md#snapshot-vs-config]
 }
 
 void Synchronize::operator()()

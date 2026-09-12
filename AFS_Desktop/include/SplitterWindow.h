@@ -14,7 +14,6 @@ class SplitterWindow: public wxSplitterWindow {
 public:
     SplitterWindow(wxFrame *parent);
 
-    // event handlers
     void OnPositionChanged(wxSplitterEvent& event);
     void OnPositionChanging(wxSplitterEvent& event);
     void OnDClick(wxSplitterEvent& event);

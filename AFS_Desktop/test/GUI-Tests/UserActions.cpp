@@ -23,18 +23,8 @@ wxPoint centerOnScreen(wxWindow& control)
     return control.GetScreenPosition() + wxPoint(size.x / 2, size.y / 2);
 }
 
-// wxUIActionSimulator::Text() accepts letters, digits and " +-.," only, which
-// rules out the path separators every test path needs. Char() takes a single
-// character, but what it expects there differs per platform.
-#ifdef _WIN32
-// The character is injected directly instead of through a key of the active
-// layout. Going through keys means going through the layout's dead keys: on a
-// German keyboard '`' and '^' produce nothing until the following key decides
-// what to combine into, so a value ending in one loses it - and the pending
-// character then turns up in whatever is typed next, in the next test. The
-// layout also decides which modifiers a character needs (AltGr for '[', '\',
-// '@' among others), and none of that matters with an injected character.
-bool typeCharacter(wxUIActionSimulator&, wxUniChar character)
+#ifdef _WIN32  // [UserActions.md#why-not-simulator-text]
+bool typeCharacter(wxUIActionSimulator&, wxUniChar character)  // [UserActions.md#windows-injects-the-character]
 {
     const wxUint32 value = character.GetValue();
     if (value > 0xFFFF)
@@ -48,16 +38,7 @@ bool typeCharacter(wxUIActionSimulator&, wxUniChar character)
     return SendInput(2, input, sizeof(INPUT)) == 2;
 }
 #elif defined(_MACOS)
-// The character is injected as a unicode string instead of through a key of the
-// active layout - same reasoning as the Windows branch above. Char() maps to
-// the key codes of a US layout, which any other layout then reinterprets: on a
-// German one 'y' and 'z' swap places and every character sitting on a different
-// key ('-', '/', '_', '.') is dropped altogether, so names and paths arrived
-// mangled ("autofilesync-guitest" as "autofilesznc guitest").
-// Posted to this process instead of the HID tap: the keystrokes reach the
-// application under test without it having to be the frontmost application, and
-// cannot land in whatever else is open on the developer's desktop.
-bool typeCharacter(wxUIActionSimulator&, wxUniChar character)
+bool typeCharacter(wxUIActionSimulator&, wxUniChar character)  // [UserActions.md#macos-injects-the-character]
 {
     const wxUint32 value = character.GetValue();
     if (value > 0xFFFF)
@@ -81,28 +62,20 @@ bool typeCharacter(wxUIActionSimulator&, wxUniChar character)
     return true;
 }
 #else
-// Own connection to the same server the application uses: only the keyboard
-// mapping is read, and asking X directly avoids pulling GTK's headers in.
-Display* keyboardDisplay()
+Display* keyboardDisplay()  // [UserActions.md#keyboardDisplay]
 {
     static Display* display = XOpenDisplay(nullptr);
     return display;
 }
 
-// Char() looks the keysym up in the layout but never presses a modifier by
-// itself, so every character sitting on a shifted key - '$', '!', ':' and each
-// capital - would arrive as the unshifted character of the same key. Which
-// characters those are depends on the layout, so the layout decides here too.
-bool typeCharacter(wxUIActionSimulator& simulator, wxUniChar character)
+bool typeCharacter(wxUIActionSimulator& simulator, wxUniChar character)  // [UserActions.md#x11-needs-the-layout]
 {
     if (!character.IsAscii())
         return false;
     Display* display = keyboardDisplay();
     if (display == nullptr)
         return false;
-    // ASCII code points and their X keysyms are identical, which is the same
-    // mapping Char() applies before it looks for the key.
-    const KeySym keysym = character.GetValue();
+    const KeySym keysym = character.GetValue();  // [UserActions.md#ascii-equals-keysym]
     const KeyCode key = XKeysymToKeycode(display, keysym);
     if (key == 0)
         return false;
@@ -129,10 +102,7 @@ bool clickOn(wxWindow* control)
     if (control == nullptr || !control->IsShownOnScreen())
         return false;
     wxUIActionSimulator simulator;
-    // Moving the pointer first also settles the keyboard focus: on an X server
-    // without a window manager the focus follows the pointer, so a key event
-    // sent to a control the pointer never visited would end up elsewhere.
-    if (!simulator.MouseMove(centerOnScreen(*control)))
+    if (!simulator.MouseMove(centerOnScreen(*control)))  // [UserActions.md#pointer-move-settles-focus]
         return false;
     pump(20);
     if (!simulator.MouseClick())
@@ -146,9 +116,7 @@ bool clickOn(wxTreeCtrl& tree, wxTreeItemId item)
     if (!item.IsOk() || !tree.IsShownOnScreen())
         return false;
     wxRect rect;
-    // Only the item's row needs to be visible, not the tree itself scrolled to
-    // it: EnsureVisible() before this call is the caller's responsibility.
-    if (!tree.GetBoundingRect(item, rect, true))
+    if (!tree.GetBoundingRect(item, rect, true))  // [UserActions.md#caller-ensures-visibility]
         return false;
     wxUIActionSimulator simulator;
     const wxPoint screenPoint = tree.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2));
@@ -188,19 +156,13 @@ bool replaceText(wxWindow* field, const wxString& text)
     wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
     if (textCtrl == nullptr || !clickOn(field))
         return false;
-    // Selected after the click, not before: the click sets the caret and drops
-    // an earlier selection, so the new text would land in the middle of the old
-    // value instead of replacing it.
-    textCtrl->SelectAll();
+    textCtrl->SelectAll();  // [UserActions.md#select-after-the-click]
     if (!typeText(text))
         return false;
     return valueOf(field) == text;
 }
 
-// wxRadioBox is a single window: on MSW its buttons are internal children that
-// wx does not expose, so there is nothing to point the mouse at. Selecting and
-// sending the command the click would produce runs the same dialog handler.
-bool selectRadioOption(wxWindow* radioBox, int option)
+bool selectRadioOption(wxWindow* radioBox, int option)  // [UserActions.md#selectRadioOption]
 {
     wxRadioBox* box = dynamic_cast<wxRadioBox*>(radioBox);
     if (box == nullptr || option < 0 || option >= static_cast<int>(box->GetCount()))
@@ -218,20 +180,14 @@ bool clickWhenEnabled(wxWindow* control, int timeoutMilliseconds)
 {
     if (control == nullptr)
         return false;
-    // Buttons guarded by EVT_UPDATE_UI only become enabled while the event loop
-    // is idle, which is exactly what pumping inside waitUntil() provides.
-    if (!waitUntil([control] { return control->IsEnabled(); }, timeoutMilliseconds))
+    if (!waitUntil([control] { return control->IsEnabled(); }, timeoutMilliseconds))  // [UserActions.md#update-ui-needs-idle]
         return false;
     return clickOn(control);
 }
 
 void activateMenuItem(wxFrame& frame, int menuItemId)
 {
-    // wxUIActionSimulator cannot drive a menu bar reliably - the menus are
-    // native popup windows whose position wx does not expose on either
-    // platform - so the command takes the same event table entry that a real
-    // click would reach.
-    wxCommandEvent event(wxEVT_MENU, menuItemId);
+    wxCommandEvent event(wxEVT_MENU, menuItemId);  // [UserActions.md#activateMenuItem]
     event.SetEventObject(&frame);
     frame.GetEventHandler()->ProcessEvent(event);
 }

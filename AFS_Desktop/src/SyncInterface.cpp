@@ -85,10 +85,7 @@ void SyncInterface::countFilesFinished()
             parentFrame()->SetStatusText("");
         wxMessageBox("Es wurden keine zu synchronisierenden Dateien gefunden.", "Info");
         actSyncType_ = SyncType::None;
-        // This is a terminal outcome (no startSync()/syncOnceFinished() follows to
-        // do it): re-enable what onStartSingleSync() disabled, or the menu stays
-        // greyed out forever whenever a sync legitimately finds nothing to do.
-        menu_.syncMenu()->Enable(tul(id::StartSync), true);
+        menu_.syncMenu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
         menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
     }
 }
@@ -162,18 +159,10 @@ void SyncInterface::runConsoleSync()
     log_debug(L"SyncInterface::runConsoleSync()");
     if (Config::instance().syncitems().empty() || Synchronize::has_instance())
         return;
-    // Bypasses the GUI's count-then-sync two-phase dance (built for a progress
-    // dialog's file-count range) and startSync()'s unconditional wxMessageBox
-    // for countFiles_ == 0 - both would otherwise leave a --console
-    // invocation (a cron/systemd job with nobody watching) stuck on a modal
-    // dialog it can never dismiss, without ever having synced anything.
-    actSyncType_ = SyncType::Single;
+    actSyncType_ = SyncType::Single;  // [SyncInterface.md#console-single-sync]
     if (!syncControler_.start_sync(actSyncType_))
         return;
-    // Poll for actual completion instead of calling stopSync(): that requests
-    // an early stop, aborting mid-item and syncing only whatever the worker
-    // thread happened to reach in the few CPU cycles before this call.
-    while (!syncControler_.sync_finished())
+    while (!syncControler_.sync_finished())  // [SyncInterface.md#poll-for-completion]
         wxMilliSleep(50);
     syncControler_.destroy_synchronize();
     syncControler_.reset_state();

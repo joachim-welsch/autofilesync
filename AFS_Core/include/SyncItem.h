@@ -18,9 +18,7 @@ class SyncFlags {
     bool    father_son_principle_ = false;
     bool    delete_in_target_ = false;
     bool    backup_proof_ = false;
-    // Without this flag empty files are skipped: a file of size 0 is usually an
-    // aborted write, and copying it over an existing target would lose data.
-    bool    sync_empty_files_ = false;
+    bool    sync_empty_files_ = false;  // [SyncItem.md#sync_empty_files_]
     bool    enabled_ = true;
     uint16_t sync_cycle_ = 60;
 public:
@@ -66,8 +64,7 @@ protected:
 public:
     virtual ~SyncPath() = default;
     virtual std::wstring path() const = 0;
-    // Deep copy for SyncItem's value semantics; the concrete type stays intact.
-    virtual std::unique_ptr<SyncPath> clone() const = 0;
+    virtual std::unique_ptr<SyncPath> clone() const = 0;  // [SyncItem.md#clone]
     SyncPathType type() const { return type_; }
 };
 
@@ -98,10 +95,7 @@ class Exclusions: public std::vector<std::wstring> {
 public:
 };
 
-// True if `name` (a filename or directory name, not a full path - matching
-// how the existing wildcard field is applied) matches any exclusion pattern.
-// Patterns use the same */? wildcard syntax as the wildcard field itself.
-bool is_excluded(const std::wstring& name, const Exclusions& exclusions);
+bool is_excluded(const std::wstring& name, const Exclusions& exclusions);  // [SyncItem.md#is_excluded]
 
 enum class SyncItemType {
     Undefined,
@@ -185,15 +179,12 @@ public:
     void set_last_sync();
     TimePoint last_sync() const;
     SSHPATH ssh_path_type() const;
-    // Updates an embedded SSH account reference in-place (path unchanged) when
-    // it matches oldName - see Config::update_ssh_account_references() for why.
-    bool rename_ssh_account_reference(const std::string& old_name, const SshAccount& new_account);
+    bool rename_ssh_account_reference(const std::string& old_name, const SshAccount& new_account);  // [SyncItem.md#rename_ssh_account_reference]
     bool references_ssh_account(const std::string& name) const;
 };
 
 using SyncItems=std::vector<SyncItem>;
 
-// SyncFlags inline implementations
 inline bool SyncFlags::del_aftercopy() const { return del_aftercopy_; }
 inline void SyncFlags::del_aftercopy(bool v) { del_aftercopy_ = v; }
 inline bool SyncFlags::two_way_sync() const { return two_way_sync_; }
@@ -211,7 +202,6 @@ inline void SyncFlags::sync_empty_files(bool v) { sync_empty_files_ = v; }
 inline bool SyncFlags::enabled() const { return enabled_; }
 inline void SyncFlags::enabled(bool v) { enabled_ = v; }
 
-// SyncItem inline implementations
 inline bool SyncItem::operator==(const SyncItem& o) const { return o.name_ == name_; }
 inline std::wstring SyncItem::name() const { return name_; }
 inline void SyncItem::name(const std::wstring& n) { name_ = n; }

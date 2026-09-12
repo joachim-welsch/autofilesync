@@ -10,11 +10,9 @@
 #include <optional>
 #include "SshAccount.h"
 
-// Dialog zur Auswahl einer SSH-Verbindung aus der Liste
-
 using namespace AFS_Core;
 
-class SshAccountSelectDialog : public wxDialog {
+class SshAccountSelectDialog : public wxDialog {  // [SshAccountSelectDialog.md#SshAccountSelectDialog]
 public:
     SshAccountSelectDialog(wxWindow* parent,
         const wxString& title = _(L"SSH-Verbindung auswählen"),

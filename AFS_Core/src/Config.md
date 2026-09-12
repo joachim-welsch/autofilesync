@@ -1,0 +1,86 @@
+# Config
+
+Module comment for Config.h / Config.cpp.
+
+## syncitems_mutex_
+
+Guards syncitems_: the GUI thread (add/remove/edit sync items) mutates it while the sync worker
+thread reads a snapshot of it concurrently.
+
+## ssh_accounts_mutex_
+
+Guards ssh_accounts_: the GUI thread (SshAccountsDialog) mutates it while the sync worker thread
+searches it concurrently.
+
+## find
+
+find/find_by_name return copies, not pointers into syncitems_: a raw pointer would be written by the GUI thread without the lock (and could dangle after add/remove reallocates) while the sync thread snapshots the vector. Mutations go through update_by_name()/erase_by_name() instead.
+
+## syncitems
+
+Returns a snapshot copy, not a reference: the sync worker thread reads this concurrently with GUI-thread add()/set()/remove()/erase() calls, and SyncDir/ SyncFile/SyncTree hold their SyncItem for the duration of a (possibly slow) copy, so a live reference into syncitems_ could be reallocated/erased from under them.
+
+## ssh-account-access
+
+No direct ssh_accounts_ reference is exposed: callers on different threads must not iterate/mutate the shared vector without going through the lock.
+
+## update_ssh_account_references
+
+Keeps sync items pointing at a renamed/edited SSH account working: their embedded account snapshot (see SyncItem::rename_ssh_account_reference) is updated in place wherever it still matches oldName. Call after a successful update_ssh_account() whose old name you captured beforehand.
+
+## migrate_legacy_config
+
+One-time move so users keep their settings after the config directory changed.
+
+## exclusions-node-format
+
+Mirrors write_sync_item()'s exclusionsNode: a JSON array of plain strings, each pushed with an
+empty key (i.first) and the pattern itself as the node's own data (i.second.data()).
+
+## defaulted-flag-reads
+
+Default instead of the throwing get<>(): config files written before this flag existed must keep
+loading, and off is the documented default.
+
+## delete-mode-default
+
+Default instead of the throwing get<>() above: a config file written before the delete mode
+existed must keep loading, and the safer recycle bin mode is what it then falls back to.
+
+## read_stored_password
+
+Same rules as read_ssh_accounts(): a value without the encryption marker is genuine legacy
+plaintext, while a failed decryption must not be handed on - the ciphertext blob would end up
+being sent as the password.
+
+## logging-notification-defaults
+
+Defaulted reads: the notification keys did not exist in older configurations, and the throwing
+get<> above would have taken the whole Logging section down with them.
+
+## recycle-bin-path-default
+
+Read with a default, unlike the fields in get_settings(): a config file written before the
+recycle bin existed has no such key, and the throwing get<>() would discard every other setting
+with it.
+
+## per-account-error-handling
+
+Caught per account, not around the whole loop: one malformed entry must not discard every other
+account - see interpret_sync_item()'s per-item handling below for the same reasoning.
+
+## no-ciphertext-fallback
+
+Do NOT fall back to storedPassword here: it is the raw "$AES256GCM$..." ciphertext blob, not a
+usable password - using it as one would submit garbage to the SSH server with no indication of
+what actually went wrong (lost/changed key).
+
+## smtp-password-encryption
+
+Encrypted like the SSH passwords; an empty password stays empty so that read_stored_password()
+does not have to tell "unset" from "undecryptable".
+
+## untranslated-type-key
+
+The untranslated key, not the displayed text: a configuration written with one language must
+stay readable with any other.

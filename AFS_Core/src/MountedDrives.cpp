@@ -124,8 +124,7 @@ bool MountedDrives::refresh(const string& mount_point, const std::wstring&)
     return retval;
 }
 
-// Deepest fstab mountpoint (other than "/") that is a path prefix of 'path'.
-std::optional<std::string> MountedDrives::fstab_mountpoint_for(const fs::path& path) const
+std::optional<std::string> MountedDrives::fstab_mountpoint_for(const fs::path& path) const  // [MountedDrives.md#fstab_mountpoint_for]
 {
     const std::string p = path.string();
     std::optional<std::string> best;
@@ -154,9 +153,7 @@ bool MountedDrives::mountpoint_active(const std::string& mountpoint) const
 }
 
 #elif defined(_MACOS)
-// macOS has no /proc; the BSD getmntinfo() syscall wrapper returns the
-// currently mounted filesystems directly from the kernel instead.
-bool MountedDrives::refresh(const string& mount_point, const std::wstring&)
+bool MountedDrives::refresh(const string& mount_point, const std::wstring&)  // [MountedDrives.md#macos-refresh]
 {
     log_debug(L"MountedDrives::refresh");
     mounted_drives_.clear();

@@ -5,9 +5,7 @@
 
 namespace AFS_Core {
 
-// One turn of the conversation, in the order a chat API expects them. Requests
-// are stateless, so the whole history travels with every request.
-struct ChatTurn {
+struct ChatTurn {  // [ChatTypes.md#chat-turn]
     bool         from_user = true;   // false: an earlier answer of the assistant
     std::wstring text;
 };

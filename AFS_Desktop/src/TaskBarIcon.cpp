@@ -55,23 +55,15 @@ void TaskBarIcon::OnMenuSub(wxCommandEvent&)
     wxMessageBox("You clicked on a submenu!");
 }
 
-// Overridables
 wxMenu* TaskBarIcon::CreatePopupMenu()
 {
     wxMenu* menu = new wxMenu;
-    //menu->Append(PU_RESTORE, "&Restore main window");
     menu->Append(PU_RESTORE, "&Hauptfenster wieder herstellen");
-    //menu->AppendSeparator();
-    //menu->AppendSeparator();
-    //menu->AppendCheckItem(PU_CHECKMARK, "Test &check mark");
-    //menu->AppendSeparator();
-    /* OSX has built-in quit menu for the dock menu, but not for the status item */
-#ifdef __WXOSX__
+#ifdef __WXOSX__  // OSX has a built-in quit menu for the dock menu, but not for the status item
     if (OSXIsStatusItem())
 #endif
     {
         menu->AppendSeparator();
-        //menu->Append(PU_EXIT, "E&xit");
         menu->Append(PU_EXIT, "Ver&lassen");
     }
     return menu;

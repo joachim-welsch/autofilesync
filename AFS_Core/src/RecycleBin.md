@@ -1,0 +1,28 @@
+# RecycleBin
+
+Module comment for RecycleBin.h / RecycleBin.cpp.
+
+## RecycleBin
+
+Items are addressed by a path relative to the current working directory. The path is mirrored
+inside the bin, so restore_item() can put the file back where it came from.
+
+## add_item-outside-cwd
+
+Same, but for a source that lies outside the current working directory: it is stored in the bin
+under the relative path 'item', which lets the caller pick the name there (a timestamp prefix,
+say).
+
+## check_relative
+
+An absolute path or a ".." component would place the item outside path_, which the bin must
+never touch.
+
+## move
+
+rename() fails across filesystem boundaries (EXDEV), which happens as soon as the bin lives on
+another drive than the file.
+
+## list_items
+
+Reads the directory instead of a member list, so items survive a restart.

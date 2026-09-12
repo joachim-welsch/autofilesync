@@ -18,12 +18,7 @@ using std::string;
 namespace {
     const wstring BASE_DIR = TestPaths::scratch_dir() + L"/difficult_dirnames";
 
-    // Gleiche Kategorien wie DifficultFilenameTests, aber ohne Dateiendung und
-    // ohne eingebetteten Backslash: der wird von dieser App an mehreren
-    // Stellen als Pfadtrenner interpretiert (DIR_SEPARATOR, win_to_sftp_path,
-    // ...), ein Backslash *im Verzeichnisnamen* wuerde also Trennzeichen- statt
-    // Namensverarbeitung testen - ein anderes Thema als hier.
-    const std::vector<string> DIFFICULT_DIR_NAMES = {
+    const std::vector<string> DIFFICULT_DIR_NAMES = {  // [DifficultDirnameTests.md#DIFFICULT_DIR_NAMES]
         string(150, 'b'),
         "Verzeichnis mit Leerzeichen",
         "   mehrfache   Leerzeichen   ",
@@ -37,22 +32,13 @@ namespace {
         "-rf",
     };
 
-    // Wandelt einen nativ (UTF-8) aufgebauten Pfad in die wstring-Form um, die
-    // SyncItem::source()/target() erwarten - derselbe Umweg wie im Rest der
-    // App (siehe util::string_to_wstring), nicht ein rohes Verbreitern.
-    wstring to_sync_path(const fs::path& p)
+    wstring to_sync_path(const fs::path& p)  // [DifficultDirnameTests.md#to_sync_path]
     {
         return util::string_to_wstring(p.string());
     }
 }
 
-// SyncDir kopiert nur Dateien innerhalb eines Verzeichnisses, nie
-// Unterverzeichnisse - der schwierige Name steckt hier also im Quell- und
-// Zielverzeichnis selbst, so wie ein Benutzer ihn als Sync-Pfad eintragen
-// wuerde. Das uebt genau den Codepfad, den SyncDirTests/SyncSshDirTests mit
-// gewoehnlichen Namen schon abdecken, hier aber mit den schwierigen Namen aus
-// DifficultFilenameTests fuer das Verzeichnis statt fuer die Datei.
-TEST(DifficultDirnameTests, DirsWithDifficultNamesSyncToTwoTargets)
+TEST(DifficultDirnameTests, DirsWithDifficultNamesSyncToTwoTargets)  // [DifficultDirnameTests.md#DirsWithDifficultNamesSyncToTwoTargets]
 {
     const fs::path source_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_dir_quelle";
     const fs::path target1_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_dir_ziel1";
@@ -62,10 +48,7 @@ TEST(DifficultDirnameTests, DirsWithDifficultNamesSyncToTwoTargets)
     fs::remove_all(target1_root);
     fs::remove_all(target2_root);
     fs::create_directories(source_root);
-    // SyncDir legt nur die letzte Ebene des Ziels an (create_target_dir_if_not_exist
-    // ruft fs::create_directory(), nicht create_directories()); die Eltern
-    // muessen also schon existieren.
-    fs::create_directories(target1_root);
+    fs::create_directories(target1_root);  // [DifficultDirnameTests.md#parents-must-exist]
     fs::create_directories(target2_root);
 
     Synchronize::start();
@@ -94,10 +77,7 @@ TEST(DifficultDirnameTests, DirsWithDifficultNamesSyncToTwoTargets)
     fs::remove_all(target2_root);
 }
 
-// SyncTree rekursiert selbst durch die Verzeichnisstruktur - die schwierigen
-// Namen stecken hier als Unterverzeichnisse in EINEM Baum, den SyncTree
-// selbst per fs::directory_iterator entdecken und im Ziel nachbilden muss.
-TEST(DifficultDirnameTests, TreeWithDifficultSubdirNamesSyncsToTwoTargets)
+TEST(DifficultDirnameTests, TreeWithDifficultSubdirNamesSyncsToTwoTargets)  // [DifficultDirnameTests.md#TreeWithDifficultSubdirNamesSyncsToTwoTargets]
 {
     const fs::path source_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_tree_quelle";
     const fs::path target1_root = fs::path(util::wstring_to_string(BASE_DIR)) / "sync_tree_ziel1";

@@ -45,7 +45,6 @@ public:
 	friend class Synchronize;
 };
 
-//##############################################################
 inline
 void SyncControler::count_files(std::size_t count_files)
 {

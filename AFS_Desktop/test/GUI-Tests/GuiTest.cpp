@@ -27,9 +27,7 @@ std::string readFile(const fs::path& pathname)
     return content.str();
 }
 
-// Names and sizes are enough to spot every change a synchronisation could
-// cause: a copied, deleted or overwritten file changes one of them.
-std::vector<std::string> entriesOf(const fs::path& directory)
+std::vector<std::string> entriesOf(const fs::path& directory)  // [GuiTest.md#entriesOf]
 {
     std::vector<std::string> entries;
     for (const auto& entry : fs::recursive_directory_iterator(directory))
@@ -62,10 +60,7 @@ void GuiTest::SetUp()
 
 void GuiTest::TearDown()
 {
-    // Re-reading the untouched file undoes every in-memory change and clears the
-    // "unsaved changes" flag, which would otherwise make the application ask for
-    // saving while it shuts down.
-    Config::instance().read(GuiTestSandbox::configFile().wstring());
+    Config::instance().read(GuiTestSandbox::configFile().wstring());  // [GuiTest.md#reread-clears-unsaved-changes]
     if (ListCtrl* list = syncItemList())
         list->update();
     const ApplicationState after = captureState();
@@ -75,9 +70,7 @@ void GuiTest::TearDown()
     EXPECT_EQ(before_.sourceEntries, after.sourceEntries) << "Das Quellverzeichnis wurde verändert.";
     EXPECT_EQ(before_.targetEntries, after.targetEntries) << "Das Zielverzeichnis wurde verändert.";
     ModalDialogWatcher& watcher = ModalDialogWatcher::instance();
-    // Both branches have to be a wxString: mixing it with a string literal makes
-    // the conditional ambiguous, since either side converts to the other.
-    const std::vector<wxString>& unexpected = watcher.unexpectedDialogs();
+    const std::vector<wxString>& unexpected = watcher.unexpectedDialogs();  // [GuiTest.md#both-branches-wxstring]
     EXPECT_TRUE(unexpected.empty())
         << "Unerwarteter Dialog: " << (unexpected.empty() ? wxString() : unexpected.front());
     EXPECT_FALSE(watcher.hasPendingExpectations()) << "Ein erwarteter Dialog wurde nie geöffnet.";

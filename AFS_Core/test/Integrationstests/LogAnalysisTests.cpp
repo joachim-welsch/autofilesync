@@ -14,9 +14,7 @@ using namespace AFS_Core;
 namespace fs = std::filesystem;
 
 namespace {
-// Points Logging at a temporary file for the duration of the test and
-// restores the previous path afterwards, mirroring LogCutTests.cpp.
-class ScopedLogPath {
+class ScopedLogPath {  // [LogAnalysisTests.md#ScopedLogPath]
     fs::path path_;
     std::wstring previous_;
 public:
@@ -45,9 +43,7 @@ TEST(LogAnalysisTests, ReturnsWholeFileWhenUnderBudget)
     EXPECT_NE(result.find(L"second entry"), std::wstring::npos);
 }
 
-// The excerpt must start at a real log entry, not mid-line: a truncated first
-// line would misrepresent the entry it belongs to.
-TEST(LogAnalysisTests, TruncatesToWholeLinesWhenOverBudget)
+TEST(LogAnalysisTests, TruncatesToWholeLinesWhenOverBudget)  // [LogAnalysisTests.md#TruncatesToWholeLinesWhenOverBudget]
 {
     ScopedLogPath scoped("2024-01-01 10:00:00.000 Info\told entry that must be dropped\n"
                           "2024-01-01 10:00:01.000 Error\trecent entry that must survive\n");
@@ -81,10 +77,7 @@ TEST(LogAnalysisTests, DoesNotFlagUnrelatedQuestions)
     EXPECT_FALSE(looks_like_log_question(L"Was ist Autofilesync?"));
 }
 
-// The chat question ChatDialog::onSend() actually routes through the log path
-// for: detection must fire, and the excerpt it attaches to the request must
-// contain the warning entries the question asks about.
-TEST(LogAnalysisTests, WarningsQuestionIsRecognisedAndFindsWarningEntries)
+TEST(LogAnalysisTests, WarningsQuestionIsRecognisedAndFindsWarningEntries)  // [LogAnalysisTests.md#WarningsQuestionIsRecognisedAndFindsWarningEntries]
 {
     ScopedLogPath scoped("2024-01-01 10:00:00.000 Info\tsync started\n"
                           "2024-01-01 10:00:01.000 Warning\tZielverzeichnis fast voll\n"

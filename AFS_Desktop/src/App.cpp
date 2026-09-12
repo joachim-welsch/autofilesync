@@ -17,9 +17,7 @@
 #endif
 
 
-#ifdef _GUITEST
-// The GUI test binary brings its own main() (Google Test); apart from the entry
-// point the application under test is built exactly like the shipped one.
+#ifdef _GUITEST  // [App.md#guitest-entry-point]
 
 using namespace AFS_Core;
 
@@ -31,9 +29,7 @@ IMPLEMENT_APP(App);
 using utilwx::tul;
 
 namespace {
-// Same two places as the help book: next to the executable in a build tree or
-// an installation, among the resources inside the macOS bundle.
-std::filesystem::path messageCatalogueDir()
+std::filesystem::path messageCatalogueDir()  // [App.md#messageCatalogueDir]
 {
     wxFileName exe(wxStandardPaths::Get().GetExecutablePath());
     exe.SetFullName(wxEmptyString);
@@ -54,15 +50,9 @@ bool App::OnInit()
     setlocale(LC_ALL, "de_DE.UTF-8");
     wxLocale locale;
     locale.Init(wxLANGUAGE_GERMAN);
-    // gettext takes the language from LANGUAGE/LC_MESSAGES, so a translated run
-    // needs no rebuild: LANGUAGE=en autofilesync.
-    translation::init(messageCatalogueDir());
+    translation::init(messageCatalogueDir());  // [App.md#language-from-environment]
     if (singleInstanceChecker_.IsAnotherRunning()) {
-        // wxLogError alone is easy to miss headlessly (a cron/systemd
-        // --console trigger with no display attached) - log it to the app's
-        // own log too, now that the log path actually resolves to somewhere
-        // real by default (see the Logging default-path fix).
-        log_error(L"Start abgebrochen: eine andere Instanz von AutoFileSync läuft bereits.");
+        log_error(L"Start abgebrochen: eine andere Instanz von AutoFileSync läuft bereits.");  // [App.md#log-single-instance]
         wxLogError(_(L"AutoFileSync läuft bereits."));
 		return false;
 	}
@@ -102,8 +92,7 @@ int App::OnExit()
 void App::OnInitCmdLine(wxCmdLineParser& parser)
 {
     parser.SetDesc(g_cmdLineDesc);
-    // must refuse '/' as parameter starter or cannot use "/path" style paths
-    parser.SetSwitchChars(wxT("-"));
+    parser.SetSwitchChars(wxT("-"));  // must refuse '/' as a switch starter, or "/path" style paths break
 }
 
 bool App::OnCmdLineParsed(wxCmdLineParser& parser)

@@ -21,17 +21,13 @@ namespace fs = std::filesystem;
 TEST(SyncFileTests, CheckSyncNotExistingFile)
 {
 	Synchronize::create(SyncType::Single);
-    //Synchronize::instance().start_logging(LogLevel::Debug, L"C:\\temp\\test.log");
     log_debug(L"~~~ Start test: CheckSyncNotExistingFile");
 	SyncItem si;
     si.sync_cycle(0);
 	si.source(SOURCE_PATH_NAME);
 	si.target(TARGET_DIR);
     tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
-    // Missing is the target *file*, not its directory: SyncFile copies into
-    // an existing directory, so without this the test only passed on a scratch
-    // area some earlier run had already created.
-    fs::create_directories(TARGET_DIR);
+    fs::create_directories(TARGET_DIR);  // [SyncFileTests.md#target-dir-must-exist]
     tu::erase_test_file(TARGET_PATH_NAME);
 	std::size_t copy_count = 0;
 	SyncFile test(si, copy_count, false, true);
@@ -46,7 +42,6 @@ TEST(SyncFileTests, CheckSyncNotExistingFile)
 
 TEST(SyncFileTests, CheckNotSyncExistingFile)
 {
-	//log_debug(L"~~~ Start test: CheckNotSyncExistingFile");
 	Synchronize::start();
 	SyncItem si;
     si.sync_cycle(0);
@@ -64,9 +59,7 @@ TEST(SyncFileTests, CheckNotSyncExistingFile)
 
 TEST(SyncFileTests, CheckSyncChangedSizeFile)
 {
-	//log_debug(L"~~~ Start test: CheckSyncChangedSizeFile");
-	// TODO CheckSyncChangedSizeFileSameSize
-	Synchronize::start();
+	Synchronize::start();  // TODO CheckSyncChangedSizeFileSameSize
 	SyncItem si;
     si.sync_cycle(0);
 	si.source(SOURCE_PATH_NAME);
@@ -74,11 +67,7 @@ TEST(SyncFileTests, CheckSyncChangedSizeFile)
     CompareItems ci;
     ci.size(true);
     si.compare_items(ci);
-    // Source must be the larger file: FileDifference only maps a size
-    // difference to SourceModified (which copyToTarget acts on without extra
-    // flags) when the source is bigger - a bigger destination means
-    // DestModified instead, which needs copy_when_target_newer() to copy.
-    tu::copy_file(LARGER_RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
+    tu::copy_file(LARGER_RESOURCE_PATH_NAME, SOURCE_PATH_NAME);  // [SyncFileTests.md#source-must-be-larger]
     tu::copy_file(RESOURCE_PATH_NAME, TARGET_PATH_NAME);
 	std::size_t copy_count = 0;
 	SyncFile test(si, copy_count, false, true);
@@ -91,7 +80,6 @@ TEST(SyncFileTests, CheckSyncChangedSizeFile)
 
 TEST(SyncFileTests, CheckSyncChangedFileTime)
 {
-    //log_debug(L"~~~ Start test: CheckSyncChangedFileTime");
     Synchronize::start();
     SyncItem si;
     si.sync_cycle(0);
@@ -114,7 +102,6 @@ TEST(SyncFileTests, CheckSyncChangedFileTime)
 
 TEST(SyncFileTests, CheckSyncDoNotChangeTargetDirWithFile)
 {
-    //log_debug(L"~~~ Start test: CheckSyncDoNotChangeTargetDirWithFile");
     Synchronize::start();
     SyncItem si;
     si.sync_cycle(0);
@@ -136,12 +123,7 @@ TEST(SyncFileTests, CheckSyncDoNotChangeTargetDirWithFile)
     std::filesystem::remove(TARGET_PATH_NAME + L".bak");
 }
 
-// Regression test: the "count files" pre-pass (onlyCount=true) must behave like
-// SyncBase::sync_dir_entry() already does for Dir/Tree items - increment the
-// counter without touching the filesystem. SyncFile::operator()() used to
-// ignore only_count_ entirely and perform the real copy immediately, so a
-// single-file SyncItem's "count" pass wasn't a dry run at all.
-TEST(SyncFileTests, CheckOnlyCountDoesNotCopy)
+TEST(SyncFileTests, CheckOnlyCountDoesNotCopy)  // [SyncFileTests.md#CheckOnlyCountDoesNotCopy]
 {
     Synchronize::start();
     SyncItem si;
@@ -157,18 +139,10 @@ TEST(SyncFileTests, CheckOnlyCountDoesNotCopy)
     EXPECT_FALSE(fs::exists(TARGET_PATH_NAME)); // ... but nothing was actually copied
     std::filesystem::remove(SOURCE_PATH_NAME);
 }
-// Regression test (Fehler 1, round 4): save_copy_file() used to "return true"
-// for ANY SSH copy result before evaluating it, so a failed or aborted SSH
-// transfer was reported as success - the pre-copy .bak rename was never rolled
-// back (destination replaced by nothing/a truncated file) and callers went on
-// to e.g. delete the source (del_aftercopy). Only the content verification may
-// be skipped for SSH, not the error handling.
-TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)
+TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)  // [SyncFileTests.md#FailedSshCopyRestoresBackupAndReportsFailure]
 {
     Synchronize::start();
-    // Account with an empty host: the connect fails immediately and locally,
-    // keeping the test deterministic without network or DNS.
-    SshAccount acc;
+    SshAccount acc;  // [SyncFileTests.md#empty-host-fails-locally]
     acc.set_name("afx_bad_ssh");
     acc.set_host("");
     acc.set_user("nobody");
@@ -189,10 +163,7 @@ TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)
     EXPECT_FALSE(sf.test_save_copy_file(source, dest));
     ASSERT_TRUE(fs::exists(dest)); // .bak rolled back over the destination
     {
-        // Eigener Block: Windows verweigert das Loeschen einer noch geoeffneten
-        // Datei, waehrend POSIX sie einfach unlinkt - ohne close() scheiterte
-        // das fs::remove() unten mit "wird von einem anderen Prozess verwendet".
-        std::ifstream in(util::wstring_to_string(dest));
+        std::ifstream in(util::wstring_to_string(dest));  // [SyncFileTests.md#own-block-for-windows]
         std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
         EXPECT_EQ(content, "original");
     }
@@ -204,18 +175,9 @@ TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)
         if (accounts[i].name() == "afx_bad_ssh") { Config::instance().remove_ssh_account(i); break; }
 }
 
-// Reaches the file-local helper in SyncFile.cpp; no header declares it. The
-// default argument (call_wait = true) lives at the definition, so it must be
-// passed explicitly here.
-namespace AFS_Core { void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait); }
+namespace AFS_Core { void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait); }  // [SyncFileTests.md#set_last_write_time]
 
-// Regression test (Fehler 3, round 4): set_last_write_time() retried in a
-// "do { ... } while (ec)" loop with no exit condition. A persistent error
-// (target drive unplugged, file deleted) spun the sync thread forever in
-// 100ms sleeps; SyncControler::stop_sync() then busy-waited on it from the
-// GUI thread, freezing the application on shutdown. The retry loop must be
-// bounded and give up on persistent errors.
-TEST(SyncFileTests, SetLastWriteTimeGivesUpOnPersistentError)
+TEST(SyncFileTests, SetLastWriteTimeGivesUpOnPersistentError)  // [SyncFileTests.md#SetLastWriteTimeGivesUpOnPersistentError]
 {
     Synchronize::start(); // stop not requested: the bounded retry path itself must terminate
     const auto start = std::chrono::steady_clock::now();
@@ -224,13 +186,7 @@ TEST(SyncFileTests, SetLastWriteTimeGivesUpOnPersistentError)
     EXPECT_LT(elapsed.count(), 10); // bounded (~1s with 10 x 100ms retries), not an endless loop
 }
 
-// Regression test (Fehler 10, round 5): copy_dest_to_source() called both
-// set_last_write_time() (which already calls wait_for_updated_filetime()
-// internally by default) AND wait_for_updated_filetime() again explicitly right
-// after - doubling the wait for every two-way-sync back-copy (up to ~20s
-// instead of ~10s in the worst case). copy_source_to_dest() has no such issue -
-// it uses the plain util::set_last_write_time(), which never waits.
-TEST(SyncFileTests, CopyDestToSourceDoesNotDoubleWaitForFiletime)
+TEST(SyncFileTests, CopyDestToSourceDoesNotDoubleWaitForFiletime)  // [SyncFileTests.md#CopyDestToSourceDoesNotDoubleWaitForFiletime]
 {
     Synchronize::start();
     const fs::path base = fs::temp_directory_path() / ("autofilesync_synctest_" + std::to_string(getpid()));
@@ -256,13 +212,7 @@ TEST(SyncFileTests, CopyDestToSourceDoesNotDoubleWaitForFiletime)
     fs::remove_all(base);
 }
 
-// Fehler 8 (round 6): SyncException passed a hardcoded "Fehler" to its
-// runtime_error base instead of the real message, so every catch site
-// logging ex.what() (there is no dedicated catch(SyncException&) anywhere -
-// it's always caught via catch(std::exception&) or catch(...)) silently
-// dropped the actual diagnostic move_file_to_backup() had built (which file,
-// which underlying rename error).
-TEST(SyncFileTests, SyncExceptionWhatReturnsTheRealMessage)
+TEST(SyncFileTests, SyncExceptionWhatReturnsTheRealMessage)  // [SyncFileTests.md#SyncExceptionWhatReturnsTheRealMessage]
 {
     SyncException ex(L"Testfehler: Umlaut äöü");
     EXPECT_STREQ(ex.what(), "Testfehler: Umlaut äöü");
@@ -271,8 +221,7 @@ TEST(SyncFileTests, SyncExceptionWhatReturnsTheRealMessage)
 
 namespace {
 
-// Legt eine Quelldatei der Groesse 0 an und raeumt Quelle wie Ziel auf.
-class EmptyFileTest : public ::testing::Test {
+class EmptyFileTest : public ::testing::Test {  // [SyncFileTests.md#EmptyFileTest]
 protected:
     void SetUp() override
     {
@@ -305,9 +254,7 @@ protected:
 
 } // namespace
 
-// Vorgabe: eine leere Quelldatei wird nicht kopiert. Groesse 0 ist haeufiger
-// ein abgebrochener Schreibvorgang als eine gewollt leere Datei.
-TEST_F(EmptyFileTest, EmptySourceFileIsNotCopiedByDefault)
+TEST_F(EmptyFileTest, EmptySourceFileIsNotCopiedByDefault)  // [SyncFileTests.md#EmptySourceFileIsNotCopiedByDefault]
 {
     SyncItem si = item();
     ASSERT_FALSE(si.sync_empty_files());
@@ -318,9 +265,7 @@ TEST_F(EmptyFileTest, EmptySourceFileIsNotCopiedByDefault)
         << "ohne das Flag darf eine leere Quelldatei das Ziel nicht erreichen";
 }
 
-// Mit dem Flag wird sie kopiert - Platzhalterdateien (.gitkeep), Sperr- und
-// Markierungsdateien sind genau dafuer da, leer zu sein.
-TEST_F(EmptyFileTest, SyncEmptyFilesCopiesTheEmptySourceFile)
+TEST_F(EmptyFileTest, SyncEmptyFilesCopiesTheEmptySourceFile)  // [SyncFileTests.md#SyncEmptyFilesCopiesTheEmptySourceFile]
 {
     SyncItem si = item();
     si.sync_empty_files(true);
@@ -332,9 +277,7 @@ TEST_F(EmptyFileTest, SyncEmptyFilesCopiesTheEmptySourceFile)
     EXPECT_EQ(copy_count, 1u) << "die kopierte Datei muss auch gezaehlt werden";
 }
 
-// Der gefaehrliche Fall: die Quelle ist leer, das Ziel nicht. Ohne das Flag
-// bleibt der Zielinhalt erhalten - das ist der eigentliche Zweck der Vorgabe.
-TEST_F(EmptyFileTest, EmptySourceDoesNotWipeANonEmptyTargetByDefault)
+TEST_F(EmptyFileTest, EmptySourceDoesNotWipeANonEmptyTargetByDefault)  // [SyncFileTests.md#EmptySourceDoesNotWipeANonEmptyTargetByDefault]
 {
     std::ofstream(util::wstring_to_string(TARGET_PATH_NAME)) << "wertvoller Inhalt";
     SyncItem si = item();
@@ -346,10 +289,7 @@ TEST_F(EmptyFileTest, EmptySourceDoesNotWipeANonEmptyTargetByDefault)
         << "eine leere Quelle darf einen vorhandenen Zielinhalt nicht loeschen";
 }
 
-// Mit dem Flag spiegelt die Synchronisation die Quelle, auch wenn das heisst,
-// dass ein vorhandener Zielinhalt durch eine leere Datei ersetzt wird. Das ist
-// gewollt und hier festgehalten, damit die Tragweite des Flags dokumentiert ist.
-TEST_F(EmptyFileTest, SyncEmptyFilesReplacesANonEmptyTarget)
+TEST_F(EmptyFileTest, SyncEmptyFilesReplacesANonEmptyTarget)  // [SyncFileTests.md#SyncEmptyFilesReplacesANonEmptyTarget]
 {
     std::ofstream(util::wstring_to_string(TARGET_PATH_NAME)) << "wird ersetzt";
     SyncItem si = item();
@@ -361,8 +301,7 @@ TEST_F(EmptyFileTest, SyncEmptyFilesReplacesANonEmptyTarget)
     EXPECT_EQ(fs::file_size(TARGET_PATH_NAME), 0u);
 }
 
-// Zaehlmodus fasst nichts an, auch nicht mit eingeschaltetem Flag.
-TEST_F(EmptyFileTest, OnlyCountDoesNotCopyTheEmptyFile)
+TEST_F(EmptyFileTest, OnlyCountDoesNotCopyTheEmptyFile)  // [SyncFileTests.md#OnlyCountDoesNotCopyTheEmptyFile]
 {
     SyncItem si = item();
     si.sync_empty_files(true);

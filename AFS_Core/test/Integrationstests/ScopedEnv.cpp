@@ -4,11 +4,11 @@
   #include <windows.h>
 #endif
 
-ScopedEnv::ScopedEnv(std::string name, const char* value)   // value == nullptr -> löschen
+ScopedEnv::ScopedEnv(std::string name, const char* value)   // value == nullptr -> unset the variable
     : m_name(std::move(name))
 {
     if (const char* old = std::getenv(m_name.c_str()))
-        m_saved = old;                            // sofort kopieren!
+        m_saved = old;                            // copied now: apply() below changes what getenv() returned
     apply(m_name.c_str(), value);
 }
 
@@ -20,8 +20,8 @@ ScopedEnv::~ScopedEnv()
 void ScopedEnv::apply(const char* name, const char* value)
 {
 #ifdef _WIN32
-    _putenv_s(name, value ? value : "");   // "" löscht im CRT-Block
-    SetEnvironmentVariableA(name, value);  // nullptr löscht im Win32-Block
+    _putenv_s(name, value ? value : "");   // "" unsets it in the CRT block
+    SetEnvironmentVariableA(name, value);  // nullptr unsets it in the Win32 block
 #else
     if (value) setenv(name, value, 1); else unsetenv(name);
 #endif

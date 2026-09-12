@@ -18,11 +18,9 @@ using SshAccounts = std::vector<SshAccount>;
 class Config {
     Settings    settings_;
     SyncItems   syncitems_;
-    mutable std::mutex syncitems_mutex_;   // guards syncitems_: GUI thread (add/remove/edit sync items) mutates it
-                                           // while the sync worker thread reads a snapshot of it concurrently
+    mutable std::mutex syncitems_mutex_;    // [Config.md#syncitems_mutex_]
     SshAccounts ssh_accounts_;
-    mutable std::mutex ssh_accounts_mutex_; // guards ssh_accounts_: GUI thread (SshAccountsDialog) mutates it
-                                           // while the sync worker thread searches it concurrently
+    mutable std::mutex ssh_accounts_mutex_;  // [Config.md#ssh_accounts_mutex_]
     std::wstring pathname_;
     bool changed_ = false;
     bool ready_ = false;
@@ -58,33 +56,18 @@ public:
     bool erase_by_name(const std::wstring& name);
     void pathname(std::wstring_view p);
     const std::wstring& pathname() const { return pathname_; }
-    // find/find_by_name return copies, not pointers into syncitems_: a raw pointer
-    // would be written by the GUI thread without the lock (and could dangle after
-    // add/remove reallocates) while the sync thread snapshots the vector.
-    // Mutations go through update_by_name()/erase_by_name() instead.
-    std::optional<SyncItem> find(const std::wstring& path, bool source = true) const;
+    std::optional<SyncItem> find(const std::wstring& path, bool source = true) const;  // [Config.md#find]
     std::optional<SyncItem> find_by_name(const std::wstring& name) const;
     bool update_by_name(const std::wstring& name, const SyncItem& updated);
     SyncItem item(unsigned) const;
-    // Returns a snapshot copy, not a reference: the sync worker thread reads this
-    // concurrently with GUI-thread add()/set()/remove()/erase() calls, and SyncDir/
-    // SyncFile/SyncTree hold their SyncItem for the duration of a (possibly slow)
-    // copy, so a live reference into syncitems_ could be reallocated/erased from
-    // under them.
-    SyncItems syncitems() const;
+    SyncItems syncitems() const;  // [Config.md#syncitems]
     void refresh_last_sync(const std::wstring& name);
-    // No direct ssh_accounts_ reference is exposed: callers on different threads
-    // must not iterate/mutate the shared vector without going through the lock.
-    std::optional<SshAccount> find_ssh_account_by_name(const std::string& name) const;
+    std::optional<SshAccount> find_ssh_account_by_name(const std::string& name) const;  // [Config.md#ssh-account-access]
     std::optional<SshAccount> ssh_account_at(std::size_t index) const;
     SshAccounts ssh_accounts_snapshot() const;
     bool remove_ssh_account(std::size_t index);
     bool update_ssh_account(std::size_t index, const SshAccount& updated);
-    // Keeps sync items pointing at a renamed/edited SSH account working: their
-    // embedded account snapshot (see SyncItem::rename_ssh_account_reference) is
-    // updated in place wherever it still matches oldName. Call after a
-    // successful update_ssh_account() whose old name you captured beforehand.
-    bool update_ssh_account_references(const std::string& old_name, const SshAccount& new_account);
+    bool update_ssh_account_references(const std::string& old_name, const SshAccount& new_account);  // [Config.md#update_ssh_account_references]
     bool ssh_account_referenced_by_any_item(const std::string& name) const;
     Settings& settings() { return settings_; }
     const Settings& settings() const { return settings_; }

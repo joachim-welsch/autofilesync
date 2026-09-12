@@ -39,27 +39,21 @@ SplitterWindow::SplitterWindow(wxFrame *parent)
 
 void SplitterWindow::OnPositionChanged(wxSplitterEvent& event)
 {
-    //wxLogStatus(m_frame, "Position has changed, now = %d (or %d)",
-    //            event.GetSashPosition(), GetSashPosition());
     event.Skip();
 }
 
 void SplitterWindow::OnPositionChanging(wxSplitterEvent& event)
 {
-    //wxLogStatus(m_frame, "Position is changing, now = %d (or %d)",
-    //            event.GetSashPosition(), GetSashPosition());
     event.Skip();
 }
 
 void SplitterWindow::OnDClick(wxSplitterEvent& event)
 {
-    //parent_->SetStatusText("Splitter double clicked", 1);
     event.Skip();
 }
 
 void SplitterWindow::OnUnsplitEvent(wxSplitterEvent& event)
 {
-    //parent_->SetStatusText("Splitter unsplit", 1);
     event.Skip();
 }
 
@@ -98,13 +92,7 @@ std::wstring SplitterWindow::selectedTargetPath() const
 
 bool SplitterWindow::mouseClicked() const
 {
-    // Both calls must always happen: TreeCtrl::mouseClicked() only resets its
-    // latch once it has been polled from "the 2 instances" it expects (a
-    // static counter shared across all TreeCtrl objects, reset at count==2).
-    // "||" short-circuits and skips the second call whenever the first
-    // returns true, so that reset never fired for the left tree - its latch
-    // stayed true forever after one click, once left_ != right_ in click state.
-    bool leftClicked = left_->mouseClicked();
+    bool leftClicked = left_->mouseClicked();  // [SplitterWindow.md#both-trees-polled]
     bool rightClicked = right_->mouseClicked();
     return leftClicked || rightClicked;
 }

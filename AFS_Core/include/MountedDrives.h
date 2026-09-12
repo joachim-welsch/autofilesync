@@ -28,11 +28,7 @@ class MountedDrives {
     MountInfos mounted_drives_;
     MountInfos requested_drives_;
     CheckTime  check_time_;
-    // Guards all three members above: drive_mounted() is called from the sync
-    // worker thread for every file compared, and this is a process-wide
-    // singleton, so any other caller (present or future) races it without
-    // this lock. Private helpers below assume the caller already holds it.
-    mutable std::mutex mutex_;
+    mutable std::mutex mutex_;  // [MountedDrives.md#mutex_]
 
     bool refresh(const std::string& device, const std::wstring& name);
     bool time_elapsed() const;

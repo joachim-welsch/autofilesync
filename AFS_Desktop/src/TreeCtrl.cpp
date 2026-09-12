@@ -39,7 +39,6 @@ TreeCtrl::TreeCtrl(Canvas* parent, const wxWindowID id,
     , parent_(parent)
 {
     CreateImageList();
-    //CreateStateImageList(false);
     AddRootItemToTree();
 }
 
@@ -56,7 +55,6 @@ void TreeCtrl::OnMouseLeftDown(wxMouseEvent& evt)
 
 void TreeCtrl::AddRootItemToTree()
 {
-    //int image = 0; // wxGetApp().ShowImages() ? MyTreeCtrl::TreeCtrlIcon_Folder : -1;
     rootId_ = AddRoot("PC", TreeCtrlIcon_Folder, TreeCtrlIcon_Folder, new TreeItemData("PC"));
     if (!HasFlag(wxTR_HIDE_ROOT) /* && image != -1*/)
     {
@@ -77,31 +75,14 @@ void TreeCtrl::CreateImageList(int size)
     else
         imageSize_ = size;
 
-    // Make an image list containing small icons
     wxImageList* images = new wxImageList(size, size, true);
 
-    // should correspond to TreeCtrlIcon_xxx enum
-    //wxBusyCursor wait;
-    wxIcon icons[5];
-
-    //if (m_alternateImages)
-    //{
-        icons[TreeCtrlIcon_File] = wxIcon(icon1_xpm);
-        icons[TreeCtrlIcon_FileSelected] = wxIcon(icon2_xpm);
-        icons[TreeCtrlIcon_Folder] = wxIcon(icon3_xpm);
-        icons[TreeCtrlIcon_FolderSelected] = wxIcon(icon4_xpm);
-        icons[TreeCtrlIcon_FolderOpened] = wxIcon(icon5_xpm);
-    //}
-    //else
-    //{
-    //    wxSize iconSize(size, size);
-
-    //    icons[TreeCtrlIcon_File] =
-    //        icons[TreeCtrlIcon_FileSelected] = wxArtProvider::GetIcon(wxART_NORMAL_FILE, wxART_LIST, iconSize);
-    //    icons[TreeCtrlIcon_Folder] =
-    //        icons[TreeCtrlIcon_FolderSelected] =
-    //        icons[TreeCtrlIcon_FolderOpened] = wxArtProvider::GetIcon(wxART_FOLDER, wxART_LIST, iconSize);
-    //}
+    wxIcon icons[5];  // should correspond to the TreeCtrlIcon_xxx enum
+    icons[TreeCtrlIcon_File] = wxIcon(icon1_xpm);
+    icons[TreeCtrlIcon_FileSelected] = wxIcon(icon2_xpm);
+    icons[TreeCtrlIcon_Folder] = wxIcon(icon3_xpm);
+    icons[TreeCtrlIcon_FolderSelected] = wxIcon(icon4_xpm);
+    icons[TreeCtrlIcon_FolderOpened] = wxIcon(icon5_xpm);
     for (size_t i = 0; i < WXSIZEOF(icons); i++)
     {
         int sizeOrig = icons[0].GetWidth();
@@ -119,48 +100,6 @@ void TreeCtrl::CreateImageList(int size)
 
 void TreeCtrl::CreateStateImageList(bool /*del*/)
 {
-    //if (del)
-    //{
-    //    SetStateImageList(NULL);
-    //    return;
-    //}
-
-    //wxImageList* states;
-    //wxBusyCursor wait;
-
-    //if (m_alternateStates)
-    //{
-    //    wxIcon icons[5];
-    //    icons[0] = wxIcon(state1_xpm);  // yellow
-    //    icons[1] = wxIcon(state2_xpm);  // green
-    //    icons[2] = wxIcon(state3_xpm);  // red
-    //    icons[3] = wxIcon(state4_xpm);  // blue
-    //    icons[4] = wxIcon(state5_xpm);  // black
-
-    //    int width = icons[0].GetWidth(),
-    //        height = icons[0].GetHeight();
-
-    //    // Make an state image list containing small icons
-    //    states = new wxImageList(width, height, true);
-
-    //    for (size_t i = 0; i < WXSIZEOF(icons); i++)
-    //        states->Add(icons[i]);
-    //}
-    //else
-    //{
-    //    wxIcon icons[2];
-    //    icons[0] = wxIcon(unchecked_xpm);
-    //    icons[1] = wxIcon(checked_xpm);
-    //    int width = icons[0].GetWidth(),
-    //        height = icons[0].GetHeight();
-
-    //    // Make an state image list containing small icons
-    //    states = new wxImageList(width, height, true);
-
-    //    for (size_t i = 0; i < WXSIZEOF(icons); i++)
-    //        states->Add(icons[i]);
-    //}
-    //AssignStateImageList(states);
 }
 
 wxTreeItemId TreeCtrl::rootId() const
@@ -171,24 +110,13 @@ wxTreeItemId TreeCtrl::rootId() const
 wxTreeItemId TreeCtrl::addBranch(const wstring& l, Tree& tree, SyncItemType syncType)
 {
     vector<wstring> strs;
-    // SSH paths ("account:/remote/...") and local Unix/macOS paths use '/'
-    // exclusively and never contain '\'; only Windows local paths do. Detect
-    // from the actual path instead of hardcoding '\', or every non-Windows
-    // path shows up as a single flat leaf instead of a folder hierarchy.
-    const bool backslashPath = l.find(L'\\') != wstring::npos;
+    const bool backslashPath = l.find(L'\\') != wstring::npos;  // [TreeCtrl.md#separator-detected-from-path]
     boost::split(strs, l, boost::is_any_of(backslashPath ? "\\" : "/"));
-    // A leading/trailing/doubled separator (e.g. a Dir item's path ending in
-    // '/') otherwise produces an empty segment, showing up as a spurious
-    // unnamed node in the tree.
-    strs.erase(std::remove_if(strs.begin(), strs.end(), [](const wstring& s) { return s.empty(); }), strs.end());
+    strs.erase(std::remove_if(strs.begin(), strs.end(), [](const wstring& s) { return s.empty(); }), strs.end());  // [TreeCtrl.md#empty-segments-removed]
     int image = 0;
     wxTreeItemId id = rootId_;
     const wchar_t separator = backslashPath ? L'\\' : L'/';
-    // A leaf's registered path must match the SyncItem's source()/target() verbatim
-    // (Config::find() compares them for string equality to enable the tree view's
-    // context menu), so a leading separator stripped from strs above has to be put
-    // back here - only the empty segments it produced were the problem.
-    wstring path = l.substr(0, l.find_first_not_of(separator));
+    wstring path = l.substr(0, l.find_first_not_of(separator));  // [TreeCtrl.md#leading-separator-restored]
     for (const wstring& i: strs) {
         path += i;
         wxTreeItemId parentId = id;

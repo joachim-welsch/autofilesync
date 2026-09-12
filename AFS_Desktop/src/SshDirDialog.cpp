@@ -26,13 +26,11 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
 {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Connection info
     wxStaticText* connInfo = new wxStaticText(this, wxID_STATIC, 
         wxString::Format(_("Verbindung: %s@%s"), wxString::FromUTF8(account_.user()),
             wxString::FromUTF8(account_.host())));
     mainSizer->Add(connInfo, 0, wxEXPAND | wxALL, 5);
 
-    // Path bar with buttons
     wxBoxSizer* pathSizer = new wxBoxSizer(wxHORIZONTAL);
     
     homeButton_ = new wxButton(this, ID_SSH_DIR_HOME_BUTTON, _("Home"),
@@ -49,7 +47,6 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     
     mainSizer->Add(pathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // List control for directory contents
     listCtrl_ = new wxListCtrl(this, ID_SSH_DIR_LIST, wxDefaultPosition,
         wxSize(500, 300), wxLC_REPORT | wxLC_SINGLE_SEL);
     
@@ -59,14 +56,11 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     
     mainSizer->Add(listCtrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
     
-    // Bind double-click
     listCtrl_->Bind(wxEVT_LEFT_DCLICK, &SshDirDialog::onListDClick, this);
 
-    // Status text
     statusText_ = new wxStaticText(this, wxID_STATIC, _(""));
     mainSizer->Add(statusText_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Buttons
     wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 5);
 
@@ -75,7 +69,6 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     Fit();
     Centre();
 
-    // Load initial directory
     populateList(currentPath_);
 }
 
@@ -122,15 +115,13 @@ void SshDirDialog::renderList()
 
     long index = 0;
     for (const auto& entry : entries_) {
-        // Remote-Dateinamen kommen als UTF-8 vom SFTP-Server.
-        wxString displayName = wxString::FromUTF8(entry.name);
+        wxString displayName = wxString::FromUTF8(entry.name);  // remote file names arrive as UTF-8 from the SFTP server
         if (entry.is_directory) {
             displayName = "[" + displayName + "]";
         }
 
         long item = listCtrl_->InsertItem(index, displayName);
 
-        // Size (only for files)
         if (entry.is_regular_file) {
             wxString sizeStr;
             if (entry.size_bytes < 1024) {
@@ -147,7 +138,6 @@ void SshDirDialog::renderList()
 
         listCtrl_->SetItem(item, 2, entry.last_modified_iso);
 
-        // Store whether it's a directory in item data
         listCtrl_->SetItemData(item, entry.is_directory ? 1 : 0);
 
         index++;
@@ -160,10 +150,8 @@ void SshDirDialog::onListDClick(wxMouseEvent&)
     if (sel == -1)
         return;
     
-    // Check if it's a directory
     if (listCtrl_->GetItemData(sel) == 1) {
         wxString itemText = listCtrl_->GetItemText(sel);
-        // Remove brackets from directory name
         if (itemText.StartsWith("[") && itemText.EndsWith("]")) {
             itemText = itemText.Mid(1, itemText.Length() - 2);
         }
@@ -185,7 +173,6 @@ void SshDirDialog::onListSelect(wxListEvent& event)
         return;
     
     wxString itemText = listCtrl_->GetItemText(sel);
-    // Remove brackets from directory name
     if (itemText.StartsWith("[") && itemText.EndsWith("]")) {
         itemText = itemText.Mid(1, itemText.Length() - 2);
     }

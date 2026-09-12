@@ -24,10 +24,7 @@ namespace fs = std::filesystem;
 
 namespace {
 
-// The variables Config::get_root_pathname() derives the configuration path from -
-// APPDATA plus USERPROFILE for the legacy location on Windows, HOME (and
-// XDG_CONFIG_HOME on Linux) elsewhere.
-const char* const REDIRECTED_VARIABLES[] = {
+const char* const REDIRECTED_VARIABLES[] = {  // [ConfigTests.md#REDIRECTED_VARIABLES]
 #ifdef _WIN32
     "APPDATA", "USERPROFILE"
 #else
@@ -50,8 +47,7 @@ void set_env_var(const char* name, const std::string& value)
 #endif
 }
 
-// An empty value is how the CRT deletes a variable; POSIX has its own call.
-void unset_env_var(const char* name)
+void unset_env_var(const char* name)  // an empty value is how the CRT deletes a variable; POSIX has its own call
 {
 #ifdef _WIN32
     _putenv_s(name, "");
@@ -69,15 +65,12 @@ int process_id()
 #endif
 }
 
-// Points the environment at a fresh temp directory so Config::get_root_pathname()
-// can be exercised without touching the real user configuration.
-class ConfigPathTest : public ::testing::Test {
+class ConfigPathTest : public ::testing::Test {  // [ConfigTests.md#ConfigPathTest]
 protected:
     fs::path test_home_;
     std::vector<std::pair<const char*, std::optional<std::string>>> saved_variables_;
 
-    // Where get_root_pathname() puts the file once the environment is redirected.
-    fs::path expected_config_path() const
+    fs::path expected_config_path() const  // where get_root_pathname() puts the file once the environment is redirected
     {
 #ifdef _WIN32
         return test_home_ / "AppData" / "autofilesync" / "autofilesync.json";
@@ -129,9 +122,7 @@ std::string read_file(const fs::path& path)
     return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
-// Writes a config file in the pre-encryption format (plaintext "password" field)
-// to verify existing users' configs still load after upgrading.
-void write_legacy_plaintext_config(const fs::path& path, const std::wstring& name,
+void write_legacy_plaintext_config(const fs::path& path, const std::wstring& name,  // [ConfigTests.md#write_legacy_plaintext_config]
     const std::wstring& host, const std::wstring& user, const std::wstring& password)
 {
     boost::property_tree::wptree account_node, accounts_node, root;
@@ -148,10 +139,7 @@ void write_legacy_plaintext_config(const fs::path& path, const std::wstring& nam
 
 } // namespace
 
-// XDG_CONFIG_HOME is a Linux/freedesktop.org convention only: on macOS
-// Config::get_root_pathname() always resolves under Library/Application Support,
-// on Windows under APPDATA, so these two apply to Linux alone.
-#if !defined(_MACOS) && !defined(_WIN32)
+#if !defined(_MACOS) && !defined(_WIN32)  // [ConfigTests.md#xdg-linux-only]
 TEST_F(ConfigPathTest, HonorsXdgConfigHome)
 {
     const fs::path xdg_home = test_home_ / "xdg";
@@ -247,10 +235,7 @@ TEST_F(ConfigPathTest, SshAccountPasswordRoundTripsThroughSaveAndLoad)
 TEST_F(ConfigPathTest, SshAccountPasswordWithSpecialCharactersRoundTrips)
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
-    // Passwords are arbitrary UTF-8 byte sequences; every stage of the chain
-    // (AES-GCM, base64, JSON with its wide-string node values) has to hand back
-    // exactly the same bytes, including the ones a JSON writer must escape.
-    const std::string secret = "a!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ äöüÄÖÜß€";
+    const std::string secret = "a!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ äöüÄÖÜß€";  // [ConfigTests.md#utf8-password-roundtrip]
     Config::instance().reset();
     SshAccount account;
     account.set_name("pi");
@@ -292,13 +277,7 @@ TEST_F(ConfigPathTest, LegacyPlaintextPasswordIsEncryptedOnNextSave)
     EXPECT_NE(file_content.find("AES256GCM"), std::string::npos);
 }
 
-// Regression test for Fehler 9: sshAccounts() used to hand out a live reference
-// to the internal vector, so a GUI-thread erase()/edit could reallocate or
-// mutate elements while a sync-thread search was iterating - classic
-// concurrent-modification UB. Config now only exposes locked, copying
-// accessors; hammering add/remove/find from multiple threads at once must
-// not crash and must always see a consistent (never partially-erased) state.
-TEST_F(ConfigPathTest, ConcurrentSshAccountAccessDoesNotCrash)
+TEST_F(ConfigPathTest, ConcurrentSshAccountAccessDoesNotCrash)  // [ConfigTests.md#ConcurrentSshAccountAccessDoesNotCrash]
 {
     Config::instance().reset();
     for (int i = 0; i < 5; ++i) {
@@ -347,10 +326,7 @@ TEST_F(ConfigPathTest, ConcurrentSshAccountAccessDoesNotCrash)
     Config::instance().reset();
 }
 
-// syncitems_ is read by the sync worker thread (via the snapshot returned from
-// syncitems()) while the GUI thread concurrently adds/removes items - the same
-// hazard already covered above for ssh_accounts_.
-TEST_F(ConfigPathTest, ConcurrentSyncItemAccessDoesNotCrash)
+TEST_F(ConfigPathTest, ConcurrentSyncItemAccessDoesNotCrash)  // [ConfigTests.md#ConcurrentSyncItemAccessDoesNotCrash]
 {
     Config::instance().reset();
     for (int i = 0; i < 5; ++i)
@@ -391,12 +367,7 @@ TEST_F(ConfigPathTest, ConcurrentSyncItemAccessDoesNotCrash)
     Config::instance().reset();
 }
 
-// refresh_last_sync() is how Synchronize writes the result of syncing a snapshot
-// copy back onto the live SyncItem in Config (see Fehler 2: the worker no
-// longer holds a reference into syncitems_ directly). Without this write-back,
-// last_sync() would stay at its initial value forever and per-item sync_cycle
-// throttling (pause_elapsed() in Synchronize.cpp) would silently break.
-TEST_F(ConfigPathTest, RefreshLastSyncUpdatesTheLiveItem)
+TEST_F(ConfigPathTest, RefreshLastSyncUpdatesTheLiveItem)  // [ConfigTests.md#RefreshLastSyncUpdatesTheLiveItem]
 {
     Config::instance().reset();
     Config::instance().add(SyncItem(L"item", SyncItemType::File, L"src", L"dst", L""));
@@ -414,12 +385,7 @@ TEST_F(ConfigPathTest, RefreshLastSyncUpdatesTheLiveItem)
     Config::instance().reset();
 }
 
-// Fehler 5: write() used to open pathname directly with std::ios_base::out,
-// which truncates it immediately - a write_json failure partway through left
-// a half-written/corrupt file with the previous, working config gone. write()
-// now writes to a "<pathname>.tmp" file and renames it over pathname, so a
-// failure must leave the original file completely untouched.
-TEST_F(ConfigPathTest, WriteFailureDoesNotCorruptExistingConfig)
+TEST_F(ConfigPathTest, WriteFailureDoesNotCorruptExistingConfig)  // [ConfigTests.md#WriteFailureDoesNotCorruptExistingConfig]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
@@ -428,9 +394,7 @@ TEST_F(ConfigPathTest, WriteFailureDoesNotCorruptExistingConfig)
     const std::string original_content = read_file(target_path);
     ASSERT_FALSE(original_content.empty());
 
-    // Make the temp file write() would create fail by pre-occupying its path
-    // with a directory - opening it as an output file fails.
-    const fs::path tmp_path = target_path.wstring() + L".tmp";
+    const fs::path tmp_path = target_path.wstring() + L".tmp";  // [ConfigTests.md#occupied-temp-path]
     fs::create_directory(tmp_path);
 
     Config::instance().add(SyncItem(L"should-not-be-saved", SyncItemType::File, L"src2", L"dst2", L""));
@@ -441,12 +405,7 @@ TEST_F(ConfigPathTest, WriteFailureDoesNotCorruptExistingConfig)
     Config::instance().reset();
 }
 
-// Fehler 7 (round 4): find()/find_by_name() used to hand out raw SyncItem*
-// into the mutex-guarded vector; the GUI then wrote through that pointer
-// without the lock (and it dangled after add/remove reallocated the vector)
-// while the sync thread concurrently copied the vector. They now return
-// copies, and writes go through update_by_name() under the lock.
-TEST_F(ConfigPathTest, FindByNameReturnsCopyAndUpdateByNameWritesBack)
+TEST_F(ConfigPathTest, FindByNameReturnsCopyAndUpdateByNameWritesBack)  // [ConfigTests.md#FindByNameReturnsCopyAndUpdateByNameWritesBack]
 {
     Config::instance().reset();
     Config::instance().add(SyncItem(L"item", SyncItemType::File, L"src", L"dst", L""));
@@ -454,10 +413,8 @@ TEST_F(ConfigPathTest, FindByNameReturnsCopyAndUpdateByNameWritesBack)
     auto copy = Config::instance().find_by_name(L"item");
     ASSERT_TRUE(copy.has_value());
     copy->source(L"changed_src");
-    // Mutating the copy must not touch Config's live item ...
-    EXPECT_EQ(Config::instance().find_by_name(L"item")->source(), L"src");
-    // ... only the explicit locked write-back does.
-    EXPECT_TRUE(Config::instance().update_by_name(L"item", *copy));
+    EXPECT_EQ(Config::instance().find_by_name(L"item")->source(), L"src");  // the copy must not touch Config's live item
+    EXPECT_TRUE(Config::instance().update_by_name(L"item", *copy));  // only the explicit locked write-back does
     EXPECT_EQ(Config::instance().find_by_name(L"item")->source(), L"changed_src");
 
     EXPECT_TRUE(Config::instance().erase_by_name(L"item"));
@@ -469,8 +426,7 @@ TEST_F(ConfigPathTest, FindByNameReturnsCopyAndUpdateByNameWritesBack)
 TEST_F(ConfigPathTest, ConcurrentUpdateByNameAndSnapshotDoesNotCrash)
 {
     Config::instance().reset();
-    // Long strings force heap allocation, making a torn unlocked write visible.
-    const std::wstring long_a(256, L'a');
+    const std::wstring long_a(256, L'a');  // long strings force heap allocation, making a torn unlocked write visible
     const std::wstring long_b(256, L'b');
     Config::instance().add(SyncItem(L"item", SyncItemType::File, long_a, L"dst", L""));
 
@@ -506,16 +462,9 @@ TEST_F(ConfigPathTest, ConcurrentUpdateByNameAndSnapshotDoesNotCrash)
     Config::instance().reset();
 }
 
-// Fehler 9 (round 4): interpret_json() ignored interpret_sync_item()'s return
-// value and added the half-initialized SyncItem anyway. One malformed entry
-// (e.g. a missing mandatory field) produced a ghost item - enabled by default,
-// type Undefined, empty paths - that showed up in the GUI and ran in every
-// sync pass. Malformed entries must be skipped while the valid rest loads.
-TEST_F(ConfigPathTest, MalformedSyncItemIsSkippedNotHalfLoaded)
+TEST_F(ConfigPathTest, MalformedSyncItemIsSkippedNotHalfLoaded)  // [ConfigTests.md#MalformedSyncItemIsSkippedNotHalfLoaded]
 {
-    const fs::path config_path = test_home_ / "broken_item.json";
-    // First entry lacks "name" (and more), second is complete - the loop must
-    // survive the broken one and still load the good one.
+    const fs::path config_path = test_home_ / "broken_item.json";  // [ConfigTests.md#broken-first-entry]
     write_file(config_path, R"({
         "Syncitems": {
             "Syncitem": {
@@ -549,13 +498,7 @@ TEST_F(ConfigPathTest, MalformedSyncItemIsSkippedNotHalfLoaded)
     Config::instance().reset();
 }
 
-// Fehler 5 (round 5): a SyncItem's embedded SSH account is a snapshot taken
-// when its source/target path was set, not a live lookup by name (see
-// SyncItem::source()/target() via get_account_from_path()). Renaming or editing
-// the account in SshAccountsDialog left existing items pointing at a name/
-// credentials that no longer resolve in Config, so they silently failed every
-// sync pass afterward with no indication why.
-TEST_F(ConfigPathTest, RenamingSshAccountUpdatesReferencingSyncItems)
+TEST_F(ConfigPathTest, RenamingSshAccountUpdatesReferencingSyncItems)  // [ConfigTests.md#RenamingSshAccountUpdatesReferencingSyncItems]
 {
     Config::instance().reset();
     SshAccount acc;
@@ -567,8 +510,7 @@ TEST_F(ConfigPathTest, RenamingSshAccountUpdatesReferencingSyncItems)
 
     SyncItem si(L"item", SyncItemType::File, L"oldname:/src", L"/local/dst", L"");
     ASSERT_TRUE(si.ssh_source());
-    Config::instance().add(si, true);
-    // Not referencing the renamed account: must be left untouched.
+    Config::instance().add(si, true);  // not referencing the renamed account: must be left untouched
     SyncItem unrelated(L"other", SyncItemType::File, L"/local/src2", L"/local/dst2", L"");
     Config::instance().add(unrelated, true);
 
@@ -584,22 +526,13 @@ TEST_F(ConfigPathTest, RenamingSshAccountUpdatesReferencingSyncItems)
     EXPECT_TRUE(Config::instance().ssh_account_referenced_by_any_item("newname"));
     EXPECT_EQ(items[1].source(), L"/local/src2"); // unrelated item unchanged
 
-    // Renaming an account nothing references is a no-op, not an error.
-    EXPECT_FALSE(Config::instance().update_ssh_account_references("nonexistent", renamed));
+    EXPECT_FALSE(Config::instance().update_ssh_account_references("nonexistent", renamed));  // [ConfigTests.md#rename-without-references]
     Config::instance().reset();
 }
 
-// Fehler 3 (round 6): a single malformed SSH account entry aborted the whole
-// read_ssh_accounts() loop, and a single malformed Settings/Logging field
-// aborted interpret_json() before SshAccounts/Syncitems were even read - one
-// bad field anywhere near the top of the file could make every sync item and
-// every other SSH account appear to vanish. Both sections are now resilient:
-// per-account for SshAccounts (mirroring the existing per-item Syncitems
-// handling), and non-fatal for Settings/Logging.
-TEST_F(ConfigPathTest, MalformedSshAccountIsSkippedNotAllAccountsLost)
+TEST_F(ConfigPathTest, MalformedSshAccountIsSkippedNotAllAccountsLost)  // [ConfigTests.md#MalformedSshAccountIsSkippedNotAllAccountsLost]
 {
-    const fs::path config_path = test_home_ / "broken_account.json";
-    // First account lacks "password" (and more); second is complete.
+    const fs::path config_path = test_home_ / "broken_account.json";  // first account lacks "password" (and more); second is complete
     write_file(config_path, R"({
         "SshAccounts": {
             "SshAccount": {
@@ -625,10 +558,7 @@ TEST_F(ConfigPathTest, MalformedSshAccountIsSkippedNotAllAccountsLost)
 
 TEST_F(ConfigPathTest, MalformedSettingsDoesNotBlockSyncitemsAndAccounts)
 {
-    const fs::path config_path = test_home_ / "broken_settings.json";
-    // "Settings" node present but missing every field it needs; "Logging"
-    // absent entirely (also handled via get_child_optional, but exercises
-    // the same non-fatal-failure path for Settings specifically here).
+    const fs::path config_path = test_home_ / "broken_settings.json";  // [ConfigTests.md#missing-settings-fields]
     write_file(config_path, R"({
         "Settings": {
             "StartMinimzed": "true"
@@ -667,18 +597,9 @@ TEST_F(ConfigPathTest, MalformedSettingsDoesNotBlockSyncitemsAndAccounts)
     Config::instance().reset();
 }
 
-// Fehler 4 (round 7): read_ssh_accounts() used decrypted.value_or(storedPassword),
-// conflating "genuine legacy plaintext" (decrypt() returns nullopt because
-// there's no marker) with "encrypted but failed to decrypt" (decrypt() also
-// returns nullopt, e.g. the encryption key was lost/changed) - the second
-// case silently used the raw "$AES256GCM$..." ciphertext blob as the literal
-// SSH password instead of surfacing that decryption failed.
-TEST_F(ConfigPathTest, FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword)
+TEST_F(ConfigPathTest, FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword)  // [ConfigTests.md#FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword]
 {
-    const fs::path config_path = test_home_ / "bad_password.json";
-    // Well-formed marker + base64 blob (long enough to pass the corruption
-    // length check) that can never authenticate against any key - decrypt()
-    // must fail, and the account's password must not become this raw string.
+    const fs::path config_path = test_home_ / "bad_password.json";  // [ConfigTests.md#undecryptable-password]
     write_file(config_path, R"({
         "SshAccounts": {
             "SshAccount": {
@@ -698,11 +619,7 @@ TEST_F(ConfigPathTest, FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword
     Config::instance().reset();
 }
 
-// Exclusions feature: get_exclusions() was a TODO stub that always returned
-// empty, so exclusion patterns written to the config file were silently
-// dropped on the next load - write_sync_item() already wrote them correctly,
-// but nothing read them back.
-TEST_F(ConfigPathTest, ExclusionsRoundTripThroughSaveAndLoad)
+TEST_F(ConfigPathTest, ExclusionsRoundTripThroughSaveAndLoad)  // [ConfigTests.md#ExclusionsRoundTripThroughSaveAndLoad]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
@@ -745,9 +662,7 @@ TEST_F(ConfigPathTest, BackupProofRoundTripsThroughSaveAndLoad)
     Config::instance().reset();
 }
 
-// A config file written before the flag existed has no "backup_proof" node;
-// loading it must fall back to the default instead of throwing.
-TEST_F(ConfigPathTest, BackupProofDefaultsToFalseForOlderConfigFiles)
+TEST_F(ConfigPathTest, BackupProofDefaultsToFalseForOlderConfigFiles)  // [ConfigTests.md#BackupProofDefaultsToFalseForOlderConfigFiles]
 {
     const fs::path config_path = test_home_ / "autofilesync.json";
     write_file(config_path, R"({
@@ -779,12 +694,7 @@ TEST_F(ConfigPathTest, BackupProofDefaultsToFalseForOlderConfigFiles)
     Config::instance().reset();
 }
 
-// "Gelöschte Dateien im Ziel ebenfalls löschen" is persisted under the
-// syncflags key "syncDeletions" (write_sync_item/get_sync_flags). The option
-// deletes user data, so a silent loss of the flag on save/load - or a silent
-// gain of it - is the kind of defect that has to be caught here rather than
-// in the field.
-TEST_F(ConfigPathTest, DeleteInTargetRoundTripsThroughSaveAndLoad)
+TEST_F(ConfigPathTest, DeleteInTargetRoundTripsThroughSaveAndLoad)  // [ConfigTests.md#DeleteInTargetRoundTripsThroughSaveAndLoad]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
@@ -804,9 +714,7 @@ TEST_F(ConfigPathTest, DeleteInTargetRoundTripsThroughSaveAndLoad)
     Config::instance().reset();
 }
 
-// The opposite direction matters just as much: an item saved with the option
-// off must never come back with it on.
-TEST_F(ConfigPathTest, DeleteInTargetStaysOffThroughSaveAndLoad)
+TEST_F(ConfigPathTest, DeleteInTargetStaysOffThroughSaveAndLoad)  // [ConfigTests.md#DeleteInTargetStaysOffThroughSaveAndLoad]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
@@ -824,10 +732,7 @@ TEST_F(ConfigPathTest, DeleteInTargetStaysOffThroughSaveAndLoad)
     Config::instance().reset();
 }
 
-// A config file written before the flag existed has no "syncDeletions" node.
-// Loading it must default to off - defaulting to on would start deleting
-// target files on the next sync of an item the user never opted in for.
-TEST_F(ConfigPathTest, DeleteInTargetDefaultsToFalseForOlderConfigFiles)
+TEST_F(ConfigPathTest, DeleteInTargetDefaultsToFalseForOlderConfigFiles)  // [ConfigTests.md#DeleteInTargetDefaultsToFalseForOlderConfigFiles]
 {
     const fs::path config_path = test_home_ / "legacy_syncdeletions.json";
     write_file(config_path, R"({
@@ -859,11 +764,7 @@ TEST_F(ConfigPathTest, DeleteInTargetDefaultsToFalseForOlderConfigFiles)
     Config::instance().reset();
 }
 
-// "Leere Dateien synchronisieren" wird unter dem syncflags-Schluessel
-// "sync_empty_files" abgelegt. Wie bei syncDeletions gilt: geht das Flag beim
-// Speichern oder Laden verloren - oder kommt es ungefragt dazu -, aendert sich
-// das Verhalten an den Daten des Benutzers.
-TEST_F(ConfigPathTest, SyncEmptyFilesRoundTripsThroughSaveAndLoad)
+TEST_F(ConfigPathTest, SyncEmptyFilesRoundTripsThroughSaveAndLoad)  // [ConfigTests.md#SyncEmptyFilesRoundTripsThroughSaveAndLoad]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
     Config::instance().reset();
@@ -901,11 +802,7 @@ TEST_F(ConfigPathTest, SyncEmptyFilesStaysOffThroughSaveAndLoad)
     Config::instance().reset();
 }
 
-// Eine Konfigurationsdatei aus der Zeit vor dem Flag kennt den Schluessel
-// nicht. Sie muss mit ausgeschaltetem Flag laden - andernfalls faengt eine
-// bestehende Installation nach dem Update ungefragt an, leere Dateien zu
-// uebertragen und dabei womoeglich gefuellte Zieldateien zu ueberschreiben.
-TEST_F(ConfigPathTest, SyncEmptyFilesDefaultsToFalseForOlderConfigFiles)
+TEST_F(ConfigPathTest, SyncEmptyFilesDefaultsToFalseForOlderConfigFiles)  // [ConfigTests.md#SyncEmptyFilesDefaultsToFalseForOlderConfigFiles]
 {
     const fs::path config_path = test_home_ / "legacy_syncemptyfiles.json";
     write_file(config_path, R"({
@@ -982,9 +879,7 @@ TEST_F(ConfigPathTest, DeleteModeRoundTripsThroughSaveAndLoad)
     Config::instance().reset();
 }
 
-// A config file written before the delete mode existed has no DeleteMode key:
-// it must fall back to the recoverable mode rather than fail the Settings node.
-TEST_F(ConfigPathTest, ConfigWithoutDeleteModeFallsBackToRecycleBin)
+TEST_F(ConfigPathTest, ConfigWithoutDeleteModeFallsBackToRecycleBin)  // [ConfigTests.md#ConfigWithoutDeleteModeFallsBackToRecycleBin]
 {
     const fs::path config_path = test_home_ / "legacy_deletemode.json";
     write_file(config_path, R"({
@@ -1007,10 +902,7 @@ TEST_F(ConfigPathTest, ConfigWithoutDeleteModeFallsBackToRecycleBin)
     Config::instance().reset();
 }
 
-// A config file written before the recycle bin existed has no RecycleBinPath
-// key: it must keep the configured path instead of blanking it, and must not
-// take the rest of the Settings node down with it.
-TEST_F(ConfigPathTest, ConfigWithoutRecycleBinPathKeepsCurrentPath)
+TEST_F(ConfigPathTest, ConfigWithoutRecycleBinPathKeepsCurrentPath)  // [ConfigTests.md#ConfigWithoutRecycleBinPathKeepsCurrentPath]
 {
     const fs::path config_path = test_home_ / "legacy_settings.json";
     write_file(config_path, R"({

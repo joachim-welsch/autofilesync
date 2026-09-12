@@ -25,11 +25,7 @@ std::string read_file(const fs::path& path)
 
 } // namespace
 
-// Regression guard for Fehler 3: libssh2_init()/libssh2_exit() are process-global
-// and not reference-counted, so calling them per SSH session/object races with any
-// other thread still using libssh2. Only Libssh2Init.cpp may call them directly;
-// every other translation unit must go through ensure_libssh2_initialized().
-TEST(Libssh2LifecycleTest, OnlyLibssh2InitCppCallsLibssh2InitOrExit)
+TEST(Libssh2LifecycleTest, OnlyLibssh2InitCppCallsLibssh2InitOrExit)  // [Libssh2InitTests.md#OnlyLibssh2InitCppCallsLibssh2InitOrExit]
 {
     const fs::path lib_dir = LIB_SOURCE_DIR;
     for (const auto& entry : fs::directory_iterator(lib_dir)) {
@@ -51,10 +47,7 @@ TEST(Libssh2LifecycleTest, OnlyLibssh2InitCppCallsLibssh2InitOrExit)
 
 #ifdef _WIN32
 
-// Repeated calls must not re-run libssh2_init(), which would corrupt the shared
-// crypto backend state out from under any session still using it; libssh2 must
-// stay usable afterward.
-TEST(Libssh2LifecycleTest, EnsureLibssh2InitializedIsIdempotent)
+TEST(Libssh2LifecycleTest, EnsureLibssh2InitializedIsIdempotent)  // [Libssh2InitTests.md#EnsureLibssh2InitializedIsIdempotent]
 {
     for (int i = 0; i < 50; ++i)
         ensure_libssh2_initialized();
@@ -65,9 +58,7 @@ TEST(Libssh2LifecycleTest, EnsureLibssh2InitializedIsIdempotent)
         libssh2_session_free(session);
 }
 
-// Simulates the GUI thread and the sync worker thread racing to initialize
-// libssh2 at the same time - exactly the scenario Fehler 3 broke.
-TEST(Libssh2LifecycleTest, EnsureLibssh2InitializedIsThreadSafe)
+TEST(Libssh2LifecycleTest, EnsureLibssh2InitializedIsThreadSafe)  // [Libssh2InitTests.md#EnsureLibssh2InitializedIsThreadSafe]
 {
     std::vector<std::thread> threads;
     for (int i = 0; i < 16; ++i)

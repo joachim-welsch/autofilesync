@@ -11,14 +11,7 @@ wxBEGIN_EVENT_TABLE(ChatDialog, wxDialog)
 wxEND_EVENT_TABLE()
 
 namespace {
-// Bounded by response time, not by n_batch/n_ctx: fitting inside the token
-// budget (see LlamaClient::ensureLoaded()) isn't enough on its own - CPU
-// prompt processing of a several-thousand-token excerpt measured minutes,
-// not seconds, on ordinary hardware (see the LogFrageWirdImChatBeantwortet
-// GUI test, which used to time out at 3000 chars). 500 chars measured well
-// under a minute for a real answer; kept small deliberately since larger
-// values were not just slower but disproportionately slower.
-constexpr std::size_t maxLogExcerptChars = 500;
+constexpr std::size_t maxLogExcerptChars = 500;  // [ChatDialog.md#maxLogExcerptChars]
 }
 
 ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title)
@@ -44,17 +37,12 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title)
 
     SetSizer(mainSizer);
     Centre();
-    // A key handler on the control, not in the event table: the table belongs to
-    // the dialog and never sees the keys the text field consumes.
-    input_->Bind(wxEVT_KEY_DOWN, &ChatDialog::onInputKey, this);
+    input_->Bind(wxEVT_KEY_DOWN, &ChatDialog::onInputKey, this);  // [ChatDialog.md#key-handler-on-control]
     if (!LlamaClient::available())
         status_->SetLabel(_(L"Kein Modell konfiguriert (AUTOFILESYNC_LLAMA_MODEL)."));
     else
         status_->SetLabel(_(L"Strg+Eingabe sendet."));
-    // Deferred: the dialog is not shown yet at construction time (MainWindow::onChat
-    // creates it, then calls Show()), and a widget that is not yet realised cannot
-    // reliably take the X input focus - the very first keystroke could go nowhere.
-    input_->CallAfter(&wxTextCtrl::SetFocus);
+    input_->CallAfter(&wxTextCtrl::SetFocus);  // [ChatDialog.md#deferred-focus]
 }
 
 ChatDialog::~ChatDialog()
@@ -101,13 +89,8 @@ void ChatDialog::onSend(wxCommandEvent&)
     input_->Clear();
     appendTurn(_("Du"), question);
     history_.push_back({ true, question.ToStdWstring() });
-    // The history is copied for the async call: the dialog keeps accepting
-    // input while the request runs, so the member must not be read from there on.
-    const ChatHistory snapshot = history_;
-    // A question about the log gets the current excerpt folded into just this
-    // request (see LlamaClient::analyzeLog); history_ itself only ever keeps
-    // the plain question, or every later turn would resend the whole excerpt.
-    if (looks_like_log_question(question.ToStdWstring())) {
+    const ChatHistory snapshot = history_;  // [ChatDialog.md#history-snapshot]
+    if (looks_like_log_question(question.ToStdWstring())) {  // [ChatDialog.md#log-excerpt-per-request]
         const std::wstring excerpt = read_recent_log_entries(maxLogExcerptChars);
         runAsync([client = client_, snapshot, excerpt]() { return client->analyze_log(snapshot, excerpt); });
     }
@@ -121,9 +104,7 @@ void ChatDialog::onReply(wxThreadEvent& event)
     const wxString text = event.GetString();
     if (event.GetInt() == 1) {
         appendTurn(_("Assistent"), text);
-        // Only a real answer belongs in the history; an error message would be
-        // sent back as if the assistant had said it.
-        history_.push_back({ false, text.ToStdWstring() });
+        history_.push_back({ false, text.ToStdWstring() });  // [ChatDialog.md#only-answers-in-history]
     }
     else
         appendTurn(_("Fehler"), text);
@@ -132,9 +113,7 @@ void ChatDialog::onReply(wxThreadEvent& event)
 
 void ChatDialog::onInputKey(wxKeyEvent& event)
 {
-    // Plain Enter inserts a line break in the multi-line field, so sending needs
-    // a modifier.
-    if (event.GetKeyCode() == WXK_RETURN && event.ControlDown() && sendButton_->IsEnabled()) {
+    if (event.GetKeyCode() == WXK_RETURN && event.ControlDown() && sendButton_->IsEnabled()) {  // [ChatDialog.md#ctrl-enter-sends]
         wxCommandEvent unused;
         onSend(unused);
         return;
@@ -144,8 +123,5 @@ void ChatDialog::onInputKey(wxKeyEvent& event)
 
 void ChatDialog::onClose(wxCloseEvent&)
 {
-    // Hidden rather than destroyed: the conversation stays available when the
-    // user opens the chat again, and a request still running has a live window
-    // to deliver its answer to.
-    Hide();
+    Hide();  // [ChatDialog.md#hidden-not-destroyed]
 }

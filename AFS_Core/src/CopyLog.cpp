@@ -43,8 +43,7 @@ namespace {
         wstring retval;
         for (wchar_t c : item_name)
             retval += (c < 32 || forbidden.find(c) != wstring::npos) ? L'_' : c;
-        // Trailing dots and blanks are not preserved by Windows file names.
-        while (!retval.empty() && (retval.back() == L'.' || retval.back() == L' '))
+        while (!retval.empty() && (retval.back() == L'.' || retval.back() == L' '))  // [CopyLog.md#trailing-dots-and-blanks]
             retval.pop_back();
         return retval.empty() ? wstring(L"Sicherungsnachweis") : retval;
     }
@@ -53,10 +52,7 @@ namespace {
     {
         pt::wptree entry;
         entry.put(wstring(L"Zeitstempel"), local_timestamp());
-        // Repeated in every entry although the file name already carries it:
-        // as_file_name() may have changed the name, and an entry that is copied
-        // out of the file has to stay attributable on its own.
-        entry.put(wstring(L"Name"), item.name());
+        entry.put(wstring(L"Name"), item.name());  // [CopyLog.md#name-in-every-entry]
         entry.put(wstring(L"Quelle"), item.source());
         entry.put(wstring(L"Ziel"), item.target());
         entry.put(wstring(L"Dateien"), std::to_wstring(files));

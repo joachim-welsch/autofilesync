@@ -42,9 +42,7 @@ std::string known_hosts_file_path()
     return profile ? std::string(profile) + "\\.ssh\\known_hosts" : "known_hosts";
 }
 
-// Maps libssh2's hostkey type to the matching LIBSSH2_KNOWNHOST_KEY_* flag
-// so libssh2_knownhost_checkp compares against the right key type.
-int known_host_key_type_mask(int hostkey_type)
+int known_host_key_type_mask(int hostkey_type)  // [SshHostKeyVerification.md#known_host_key_type_mask]
 {
     switch (hostkey_type) {
     case LIBSSH2_HOSTKEY_TYPE_RSA: return LIBSSH2_KNOWNHOST_KEY_SSHRSA;

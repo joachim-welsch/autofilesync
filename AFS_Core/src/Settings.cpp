@@ -3,9 +3,7 @@
 
 namespace AFS_Core {
 
-// Console mode comes from the command line, not from the configuration file,
-// so it survives a reload of the configuration.
-void Settings::reset()
+void Settings::reset()  // [Settings.md#reset]
 {
     const bool console_mode = console_mode_;
     *this = Settings();

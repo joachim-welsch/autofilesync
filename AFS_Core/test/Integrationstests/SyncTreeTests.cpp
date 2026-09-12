@@ -29,17 +29,14 @@ namespace
     }
 }
 
-// Test: Synchronisation eines verschachtelten Verzeichnisbaums
 TEST(SyncTreeTests, SyncTreeWithNestedDirectories)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle verschachtelte Verzeichnisstruktur
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "subdir1/subdir2");
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "subdir3");
 
-    // Erstelle Dateien in verschiedenen Ebenen
     std::ofstream(wstring_to_string(SOURCE_PATH) + "root_file.txt") << "root content";
     std::ofstream(wstring_to_string(SOURCE_PATH) + "subdir1/sub1_file.txt") << "subdir1 content";
     std::ofstream(wstring_to_string(SOURCE_PATH) + "subdir1/subdir2/sub2_file.txt") << "subdir2 content";
@@ -56,15 +53,12 @@ TEST(SyncTreeTests, SyncTreeWithNestedDirectories)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe, dass Zielverzeichnis existiert
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH)));
 
-    // Prüfe, dass alle Verzeichnisse kopiert wurden
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/subdir1"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/subdir1/subdir2"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/subdir3"));
 
-    // Prüfe, dass alle Dateien kopiert wurden
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/root_file.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/subdir1/sub1_file.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/subdir1/subdir2/sub2_file.txt"));
@@ -74,13 +68,11 @@ TEST(SyncTreeTests, SyncTreeWithNestedDirectories)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation eines leeren Verzeichnisbaums
 TEST(SyncTreeTests, SyncTreeEmptyStructure)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle nur leere Verzeichnisstruktur
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "empty1/empty2/empty3");
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "empty4");
 
@@ -95,7 +87,6 @@ TEST(SyncTreeTests, SyncTreeEmptyStructure)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe, dass Struktur kopiert wurde
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH)));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/empty1/empty2/empty3"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/empty4"));
@@ -104,13 +95,11 @@ TEST(SyncTreeTests, SyncTreeEmptyStructure)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit gemischtem Baum (Dateien und Verzeichnisse)
 TEST(SyncTreeTests, SyncTreeMixedContent)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle gemischte Struktur
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "dir1");
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "dir2/nested");
 
@@ -131,7 +120,6 @@ TEST(SyncTreeTests, SyncTreeMixedContent)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe alle Dateien
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/file1.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/dir1/file2.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/dir1/file3.md"));
@@ -142,18 +130,15 @@ TEST(SyncTreeTests, SyncTreeMixedContent)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit bestehenden Zieldateien
 TEST(SyncTreeTests, SyncTreeWithExistingTarget)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle Quellstruktur
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "subdir");
     std::ofstream(wstring_to_string(SOURCE_PATH) + "new_file.txt") << "new";
     std::ofstream(wstring_to_string(SOURCE_PATH) + "subdir/sub_file.txt") << "sub";
 
-    // Erstelle bereits existierende Zielstruktur
     std::filesystem::create_directories(wstring_to_string(TARGET_PATH) + "/old_subdir");
     std::ofstream(wstring_to_string(TARGET_PATH) + "/old_file.txt") << "old";
     std::ofstream(wstring_to_string(TARGET_PATH) + "/old_subdir/old_sub_file.txt") << "old_sub";
@@ -169,7 +154,6 @@ TEST(SyncTreeTests, SyncTreeWithExistingTarget)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe neue Dateien wurden kopiert
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/new_file.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/subdir/sub_file.txt"));
 
@@ -177,13 +161,11 @@ TEST(SyncTreeTests, SyncTreeWithExistingTarget)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit vielen Dateien
 TEST(SyncTreeTests, SyncTreeWithManyFiles)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle Verzeichnis mit vielen Dateien
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "many_files");
 
     const int file_count = 100;
@@ -203,7 +185,6 @@ TEST(SyncTreeTests, SyncTreeWithManyFiles)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe, dass alle Dateien kopiert wurden
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/many_files"));
     for (int i = 0; i < file_count; ++i) {
         std::string filename = wstring_to_string(TARGET_PATH) + "/many_files/file_" + std::to_string(i) + ".txt";
@@ -214,13 +195,11 @@ TEST(SyncTreeTests, SyncTreeWithManyFiles)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit verschiedenen Dateitypen
 TEST(SyncTreeTests, SyncTreeWithDifferentFileTypes)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle Dateien mit verschiedenen Endungen
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH));
 
     std::ofstream(wstring_to_string(SOURCE_PATH) + "document.txt") << "Text file";
@@ -241,7 +220,6 @@ TEST(SyncTreeTests, SyncTreeWithDifferentFileTypes)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe alle verschiedenen Dateitypen
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/document.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/script.sh"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/config.json"));
@@ -253,13 +231,11 @@ TEST(SyncTreeTests, SyncTreeWithDifferentFileTypes)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit tiefer Verzeichnishierarchie
 TEST(SyncTreeTests, SyncTreeWithDeepHierarchy)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle sehr tiefe Verzeichnisstruktur
     std::string deep_path = wstring_to_string(SOURCE_PATH);
     for (int i = 0; i < 10; ++i) {
         deep_path += "level" + std::to_string(i) + "/";
@@ -278,7 +254,6 @@ TEST(SyncTreeTests, SyncTreeWithDeepHierarchy)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe, dass die tiefe Struktur kopiert wurde
     std::string target_deep_path = wstring_to_string(TARGET_PATH);
     for (int i = 0; i < 10; ++i) {
         target_deep_path += "/level" + std::to_string(i);
@@ -289,13 +264,11 @@ TEST(SyncTreeTests, SyncTreeWithDeepHierarchy)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit Dateien mit speziellen Zeichen im Namen
 TEST(SyncTreeTests, SyncTreeWithSpecialCharacters)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle Dateien mit speziellen Zeichen (Unix-kompatibel)
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH));
 
     std::ofstream(wstring_to_string(SOURCE_PATH) + "file_with_spaces.txt") << "spaces";
@@ -314,7 +287,6 @@ TEST(SyncTreeTests, SyncTreeWithSpecialCharacters)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe alle Dateien mit speziellen Zeichen
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/file_with_spaces.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/file-with-dashes.txt"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/file_with_underscores.txt"));
@@ -324,7 +296,6 @@ TEST(SyncTreeTests, SyncTreeWithSpecialCharacters)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit großer Datei
 TEST(SyncTreeTests, SyncTreeWithLargeFile)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
@@ -332,7 +303,6 @@ TEST(SyncTreeTests, SyncTreeWithLargeFile)
 
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH));
 
-    // Erstelle eine größere Datei (1 MB)
     std::ofstream large_file(wstring_to_string(SOURCE_PATH) + "large_file.dat", std::ios::binary);
     std::string chunk(1024, 'X');
     for (int i = 0; i < 1024; ++i) {
@@ -351,10 +321,8 @@ TEST(SyncTreeTests, SyncTreeWithLargeFile)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe, dass die große Datei kopiert wurde
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/large_file.dat"));
 
-    // Prüfe Dateigröße
     auto source_size = std::filesystem::file_size(wstring_to_string(SOURCE_PATH) + "large_file.dat");
     auto target_size = std::filesystem::file_size(wstring_to_string(TARGET_PATH) + "/large_file.dat");
     EXPECT_EQ(source_size, target_size);
@@ -363,20 +331,17 @@ TEST(SyncTreeTests, SyncTreeWithLargeFile)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation mit komplexer gemischter Struktur
 TEST(SyncTreeTests, SyncTreeComplexStructure)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 
-    // Erstelle komplexe Struktur mit mehreren Ebenen
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "project/src/main");
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "project/src/utils");
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "project/tests");
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "project/docs");
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "project/build");
 
-    // Dateien in verschiedenen Verzeichnissen
     std::ofstream(wstring_to_string(SOURCE_PATH) + "project/README.md") << "# Project";
     std::ofstream(wstring_to_string(SOURCE_PATH) + "project/src/main/main.cpp") << "int main() {}";
     std::ofstream(wstring_to_string(SOURCE_PATH) + "project/src/main/config.h") << "#pragma once";
@@ -396,7 +361,6 @@ TEST(SyncTreeTests, SyncTreeComplexStructure)
     SyncTree test(si, copy_count, false);
     test();
 
-    // Prüfe komplette Struktur
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/project/README.md"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/project/src/main/main.cpp"));
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/project/src/main/config.h"));
@@ -410,7 +374,6 @@ TEST(SyncTreeTests, SyncTreeComplexStructure)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Nur Dateien zählen ohne Kopieren (CountFiles)
 TEST(SyncTreeTests, SyncTreeCountFilesOnly)
 {
     copy_resource_to_test_dir();
@@ -423,29 +386,18 @@ TEST(SyncTreeTests, SyncTreeCountFilesOnly)
     si.target(COUNT_TEST_TARGET_PATH);
 
     std::size_t copy_count = 0;
-    // Letzter Parameter 'true' bedeutet: nur zählen, nicht kopieren
-    SyncTree test(si, copy_count, true);
+    SyncTree test(si, copy_count, true);  // the last parameter 'true' means count only, do not copy
     test();
 
-    // Prüfe, dass genau 4 Dateien gezählt wurden
     EXPECT_EQ(copy_count, 4);
 
-    // Prüfe, dass KEINE Dateien tatsächlich kopiert wurden
     EXPECT_FALSE(std::filesystem::exists(wstring_to_string(COUNT_TEST_TARGET_PATH)));
 
     tu::erase_test_dir(COUNT_TEST_SOURCE_PATH, true);
     tu::erase_test_dir(COUNT_TEST_TARGET_PATH, true);
 }
 
-// Regression test for Fehler 3: SyncTree::sync_branch() recursed via
-// fs::directory_entry::is_directory(), which follows symlinks by default,
-// with no cycle detection. On Linux the kernel's own ELOOP guard eventually
-// aborts a self-referencing symlink chain (confirmed: ~40 levels, ~80 wasted
-// directories physically created in the target) before the process crashes
-// from stack exhaustion - so a plain "does it crash" check is not reliable
-// across platforms/filesystems. The deterministic, portable assertion is
-// that a symlinked directory must never be descended into at all.
-TEST(SyncTreeTests, SyncTreeSymlinkCycleDoesNotCrash)
+TEST(SyncTreeTests, SyncTreeSymlinkCycleDoesNotCrash)  // [SyncTreeTests.md#SyncTreeSymlinkCycleDoesNotCrash]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -453,15 +405,11 @@ TEST(SyncTreeTests, SyncTreeSymlinkCycleDoesNotCrash)
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "subdir");
     std::ofstream(wstring_to_string(SOURCE_PATH) + "file.txt") << "content";
     const std::string loop_path = wstring_to_string(SOURCE_PATH) + "subdir/loop";
-    // Symlink inside the tree pointing back to the tree's own root - a cycle.
-    try {
+    try {  // a symlink inside the tree pointing back to the tree's own root - a cycle
         std::filesystem::create_directory_symlink(wstring_to_string(SOURCE_PATH), loop_path);
     }
     catch (const std::filesystem::filesystem_error& e) {
-        // Windows verlangt fuer Symlinks SeCreateSymbolicLinkPrivilege, also
-        // Entwicklermodus oder eine erhoehte Sitzung. Fehlt beides, laesst sich
-        // die Vorbedingung nicht herstellen - ueberspringen statt scheitern.
-        tu::erase_test_dir(SOURCE_PATH, true);
+        tu::erase_test_dir(SOURCE_PATH, true);  // [SyncTreeTests.md#symlink-privilege]
         GTEST_SKIP() << "Symlink nicht anlegbar (fehlende Berechtigung): " << e.what();
     }
 
@@ -485,12 +433,7 @@ TEST(SyncTreeTests, SyncTreeSymlinkCycleDoesNotCrash)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Fehler 1 (round 7): like SyncDir, SyncTree only ever enumerated the source
-// side at every recursion level, so delete_in_target/two_way_sync had no code
-// path for Tree items either. Verifies both the top level and a *nested*
-// subdirectory level correctly detect a target-only file (proving the fix
-// applies per recursion level, not just once at the top).
-TEST(SyncTreeTests, DeleteInTargetRemovesFileMissingFromSourceAtEveryLevel)
+TEST(SyncTreeTests, DeleteInTargetRemovesFileMissingFromSourceAtEveryLevel)  // [SyncTreeTests.md#DeleteInTargetRemovesFileMissingFromSourceAtEveryLevel]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -552,12 +495,7 @@ TEST(SyncTreeTests, TwoWaySyncCopiesTargetOnlyFileBackToSourceAtNestedLevel)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Exclusions feature: an excluded *directory* must be skipped entirely (never
-// even entered), not just filtered file-by-file - the whole point of
-// excluding e.g. "node_modules" or ".git" as a subtree, matching how the
-// symlink-loop protection above already treats directories specially rather
-// than relying on per-file filtering.
-TEST(SyncTreeTests, ExcludedDirectoryIsNeverEnteredNotJustFilteredFileByFile)
+TEST(SyncTreeTests, ExcludedDirectoryIsNeverEnteredNotJustFilteredFileByFile)  // [SyncTreeTests.md#ExcludedDirectoryIsNeverEnteredNotJustFilteredFileByFile]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -617,10 +555,7 @@ TEST(SyncTreeTests, ExcludedFileIsSkippedAtEveryNestedLevel)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// See SyncDirTests.DeleteInTargetKeepsTargetWhenSourceDirIsGone - for a tree
-// the stakes are higher still, since a whole backup hierarchy hangs off the
-// target. An unavailable source root must leave every level untouched.
-TEST(SyncTreeTests, DeleteInTargetKeepsTargetWhenSourceDirIsGone)
+TEST(SyncTreeTests, DeleteInTargetKeepsTargetWhenSourceDirIsGone)  // [SyncTreeTests.md#DeleteInTargetKeepsTargetWhenSourceDirIsGone]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -648,12 +583,7 @@ TEST(SyncTreeTests, DeleteInTargetKeepsTargetWhenSourceDirIsGone)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// A source subdirectory that disappears while the source root still exists:
-// only that branch's target counterpart may be affected, and since SyncTree
-// never descends into a target-only directory, its files stay. Pins down the
-// current, deliberate boundary of the option - deletions are mirrored per
-// file, not for whole directories.
-TEST(SyncTreeTests, DeleteInTargetLeavesTargetOnlyDirectoriesAlone)
+TEST(SyncTreeTests, DeleteInTargetLeavesTargetOnlyDirectoriesAlone)  // [SyncTreeTests.md#DeleteInTargetLeavesTargetOnlyDirectoriesAlone]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -684,10 +614,7 @@ TEST(SyncTreeTests, DeleteInTargetLeavesTargetOnlyDirectoriesAlone)
 
 namespace {
 
-// See the identical fixture in SyncDirTests.cpp / FileDifferenceTests.cpp:
-// ".invalid" can never resolve, so every SSH call fails fast without needing
-// a real server.
-class SyncTreeUnreachableSshSourceTest : public ::testing::Test {
+class SyncTreeUnreachableSshSourceTest : public ::testing::Test {  // [SyncTreeTests.md#SyncTreeUnreachableSshSourceTest]
 protected:
     void SetUp() override
     {
@@ -710,11 +637,7 @@ protected:
 
 } // namespace
 
-// ssh_list_dir() cannot distinguish "connection failed" from "empty directory",
-// so the target-only pass runs over the whole target at every recursion level.
-// FileDifference's per-file check is what keeps the files - assert it holds
-// for the nested level too, where a tree has most of its data.
-TEST_F(SyncTreeUnreachableSshSourceTest, DeleteInTargetKeepsTargetWhenSshSourceIsUnreachable)
+TEST_F(SyncTreeUnreachableSshSourceTest, DeleteInTargetKeepsTargetWhenSshSourceIsUnreachable)  // [SyncTreeTests.md#DeleteInTargetKeepsTargetWhenSshSourceIsUnreachable]
 {
     tu::erase_test_dir(TARGET_PATH, true);
     std::filesystem::create_directories(wstring_to_string(TARGET_PATH) + "/subdir");

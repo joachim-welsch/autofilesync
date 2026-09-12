@@ -97,8 +97,7 @@ namespace tu {
 	}
 #endif
 
-	// Windows liefert '\' und ggf. abweichende Groß-/Kleinschreibung zurück.
-	bool path_contains(std::wstring haystack, std::wstring needle)
+	bool path_contains(std::wstring haystack, std::wstring needle)  // [FileUtil.md#path_contains]
 	{
 		auto normalize = [](std::wstring& s) {
 			std::replace(s.begin(), s.end(), L'\\', L'/');

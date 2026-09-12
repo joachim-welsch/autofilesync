@@ -41,20 +41,15 @@ std::atomic<int> ssh_is_directory_call_count{0};
 std::string win_to_sftp_path(const std::string& win)
 {
     std::string p = win;
-    // Backslashes -> Slashes
     std::replace(p.begin(), p.end(), '\\', '/');
-    // "C:/..." -> "/C:/..."
-    if (p.size() >= 2 && std::isalpha(p[0]) && p[1] == ':')
+    if (p.size() >= 2 && std::isalpha(p[0]) && p[1] == ':')  // "C:/..." becomes "/C:/..."
         p = "/" + p;
     return p;
 }
 
 #ifdef _WIN32
 namespace {
-    // SFTP write calls may legitimately write fewer bytes than requested
-    // (short write); only a negative return is an error. Treating a short
-    // write as failure made large uploads abort sporadically.
-    bool sftp_write_all(LIBSSH2_SFTP_HANDLE* file, const char* data, size_t length)
+    bool sftp_write_all(LIBSSH2_SFTP_HANDLE* file, const char* data, size_t length)  // [SyncFileSsh.md#short-write]
     {
         while (length > 0) {
             ssize_t written = libssh2_sftp_write(file, data, length);
@@ -81,9 +76,7 @@ namespace {
 
     static WinsockInit winsock_init;
 
-    // Resolves hostname or IP address to sockaddr_in
-    // Returns true on success, false on failure
-    bool resolve_host(const std::string& host, sockaddr_in& sin)
+    bool resolve_host(const std::string& host, sockaddr_in& sin)  // [SyncFileSsh.md#resolve_host]
     {
         sin = {};
         sin.sin_family = AF_INET;
@@ -94,14 +87,12 @@ namespace {
             return true;
         }
 #else
-        // First try to parse as IP address
-        sin.sin_addr.s_addr = inet_addr(host.c_str());
+        sin.sin_addr.s_addr = inet_addr(host.c_str());  // first try to parse the text as an IP address
         if (sin.sin_addr.s_addr != INADDR_NONE) {
             return true;
         }
 #endif
-        // If not a valid IP, try to resolve hostname
-        addrinfo hints{};
+        addrinfo hints{};  // if not a valid IP, try to resolve it as a hostname
         hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
 
@@ -139,8 +130,7 @@ std::string get_remote_path(const wstring& path)
 
 #ifdef _UNIX
 namespace {
-    // 64 KiB per request stays within what every SFTP server accepts
-    constexpr size_t SFTP_BUFFER_SIZE = 65536;
+    constexpr size_t SFTP_BUFFER_SIZE = 65536;  // 64 KiB per request stays within what every SFTP server accepts
     constexpr int WRITE_FLAGS = O_WRONLY | O_CREAT | O_TRUNC;
     constexpr mode_t DIRECTORY_MODE = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 
@@ -156,8 +146,7 @@ namespace {
         return CopyResult::Error;
     }
 
-    // Resolves "account:/path", connects and returns the remote part of the path
-    std::optional<std::string> connect_to(const wstring& path, SftpConnection& connection)
+    std::optional<std::string> connect_to(const wstring& path, SftpConnection& connection)  // [SyncFileSsh.md#connect_to]
     {
         const auto account = get_account_from_path(path);
         if (!account) {
@@ -173,10 +162,7 @@ namespace {
         return get_remote_path(path);
     }
 
-    // SFTP write calls may legitimately write fewer bytes than requested
-    // (short write); only a negative return is an error. Treating a short
-    // write as failure made large uploads abort sporadically.
-    bool sftp_write_all(sftp_file file, const char* data, size_t length)
+    bool sftp_write_all(sftp_file file, const char* data, size_t length)  // [SyncFileSsh.md#short-write]
     {
         while (length > 0) {
             ssize_t written = sftp_write(file, data, length);
@@ -356,10 +342,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     while (const auto attr = connection.read_dir(dir.get()))
         if (!is_dot_entry(attr->name))
             entries.push_back(to_dir_entry(*attr));
-    // sftp_readdir returns NULL for both EOF and error - only sftp_dir_eof
-    // tells them apart. A connection dropped mid-listing must not pass off
-    // the partial listing silently as the complete directory.
-    if (!sftp_dir_eof(dir.get()))
+    if (!sftp_dir_eof(dir.get()))  // [SyncFileSsh.md#readdir-eof-vs-error]
         log_error(L"Remote-Verzeichnis unvollständig gelesen: " + string_to_wstring(*remote_path) + L" - " + string_to_wstring(connection.error()));
     return entries;
 }
@@ -482,7 +465,6 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         result = CopyResult::Error;
     }
     
-    // Aufräumen
     local_file.close();
     libssh2_sftp_close(remote_file);
     libssh2_sftp_shutdown(sftp_session);
@@ -841,7 +823,6 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         result = CopyResult::Error;
     }
     
-    // Aufräumen
     local_file.close();
     libssh2_sftp_close(remote_file);
     libssh2_sftp_shutdown(sftp_session);
@@ -1288,8 +1269,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
             entries.push_back(entry);
         }
     }
-    // 0 is EOF, negative is an error mid-listing - see the UNIX variant above.
-    if (rc < 0)
+    if (rc < 0)  // 0 is EOF, negative is an error mid-listing - see the UNIX variant above
         log_error(L"Remote-Verzeichnis unvollständig gelesen: " + string_to_wstring(remote_path));
 
     libssh2_sftp_closedir(dir);

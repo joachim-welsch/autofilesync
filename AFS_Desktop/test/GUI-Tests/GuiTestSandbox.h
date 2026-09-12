@@ -4,11 +4,7 @@
 
 namespace guitest {
 
-// Throw-away HOME/XDG_CONFIG_HOME for the whole test run, so a GUI test can
-// never read or damage the developer's real configuration. create() must run
-// before wxWidgets starts: Config and wxStandardPaths resolve their paths from
-// the environment as soon as the application initialises.
-class GuiTestSandbox {
+class GuiTestSandbox {  // [GuiTestSandbox.md#GuiTestSandbox]
 public:
     static void create();
     static void remove();

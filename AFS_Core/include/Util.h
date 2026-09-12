@@ -12,9 +12,7 @@ namespace util {
 
     unsigned long current_pid();
 
-    // Throws std::invalid_argument or std::out_of_range like std::stoi, so a
-    // configuration value outside 0..65535 is rejected instead of truncated.
-    uint16_t to_uint16_t(const std::wstring& s);
+    uint16_t to_uint16_t(const std::wstring& s);  // [Util.md#to_uint16_t]
 
     inline
     std::wstring to_string(bool b)
@@ -39,11 +37,8 @@ namespace util {
 
     bool volume_exists(const std::wstring& drive_name, const std::wstring& volume_name);
     bool drive_exists(const std::wstring& drive_name);
-    // Puts "YYYY-MM-DD_hh-mm-ss-mmm_" in front of the file name, leaving the
-    // directory part untouched. The time defaults to the moment of the call;
-    // pass one explicitly to get a reproducible name.
     std::filesystem::path with_timestamp_prefix(const std::filesystem::path& pathname,
-        std::chrono::system_clock::time_point time = std::chrono::system_clock::now());
+        std::chrono::system_clock::time_point time = std::chrono::system_clock::now());  // [Util.md#with_timestamp_prefix]
     void handle_last_error(std::filesystem::filesystem_error const& ex);
     bool wildmatch(const std::wstring& input, const std::wstring& wildcard);
     bool files_equal(const std::wstring& input1, const std::wstring& input2);

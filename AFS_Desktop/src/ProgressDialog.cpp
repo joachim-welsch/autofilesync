@@ -54,22 +54,13 @@ void ProgressDialog::onUpdateCancelButton(wxUpdateUIEvent& event)
 void ProgressDialog::OnCancel(wxCommandEvent& event)
 {
     {
-        // Released before the wait loop below: wxSafeYield() there pumps the
-        // event queue on this same (GUI) thread, and any CallAfter()-queued
-        // call into e.g. setProgress()/canBeClosed() that also locks mutex_
-        // would deadlock against a still-held, non-recursive lock.
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);  // [ProgressDialog.md#lock-released-before-wait]
         canBeClosed_ = true;
         timer_.Stop();
         gauge_->SetValue(range_);
         waiting_ = true;
     }
-    // requestStop() only signals; the actual wait happens here, not inside
-    // SyncControler::stopSync()'s std::this_thread::sleep_for() loop, which
-    // blocks the GUI thread outright - clicking Cancel used to freeze the
-    // whole window for as long as the current copy step took to notice the
-    // stop request.
-    syncControler_.request_stop();
+    syncControler_.request_stop();  // [ProgressDialog.md#cancel-waits-here]
     wxBusyCursor busyCursor;
     while (!syncControler_.sync_finished())
     {
@@ -90,9 +81,7 @@ void ProgressDialog::onTimerUpdate(wxTimerEvent&)
 
 void ProgressDialog::canBeClosed(bool yesNo)
 {
-    // gauge_ is a wx widget and may only be touched on the GUI thread; callers
-    // (e.g. the sync worker thread) get marshalled there via CallAfter().
-    if (!wxThread::IsMain()) {
+    if (!wxThread::IsMain()) {  // [ProgressDialog.md#gui-thread-only]
         CallAfter(&ProgressDialog::canBeClosed, yesNo);
         return;
     }

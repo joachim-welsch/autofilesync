@@ -17,18 +17,13 @@ using std::wstring;
 
 namespace {
 #ifndef _MACOS
-// Shared by the Windows service key and the systemd unit; launchd addresses the
-// same daemon through the reverse DNS label of its LaunchAgent instead.
-constexpr wchar_t serviceName[] = L"backgroundsync";
+constexpr wchar_t serviceName[] = L"backgroundsync";  // [BackgroundService.md#serviceName]
 #endif
 
 #ifdef WIN32
-// "sc start" returns as soon as the SCM has accepted the control, so this cap
-// only guards against a hung service control manager.
-constexpr DWORD elevationTimeout = 30000;
+constexpr DWORD elevationTimeout = 30000;  // [BackgroundService.md#elevationTimeout]
 
-// CloseServiceHandle is not CloseHandle, so util::AutoHandle does not fit here.
-class ScHandle {
+class ScHandle {  // CloseServiceHandle is not CloseHandle, so util::AutoHandle does not fit
     SC_HANDLE handle_;
 public:
     explicit ScHandle(SC_HANDLE handle): handle_(handle) {}
@@ -55,15 +50,7 @@ wstring failure(const wstring& action, DWORD error)
     return L"Der Hintergrunddienst konnte nicht " + action + L" werden:\n" + systemMessage(error);
 }
 
-// The GUI runs unelevated while service control needs administrator rights.
-// Handing the command to sc.exe with the runas verb asks the user once through
-// the UAC prompt instead of failing with a message they cannot act on.
-//
-// ShellExecuteW would only report whether sc.exe could be launched. Since it
-// runs hidden, everything it ran into afterwards - a failed logon of the
-// service account, for one - stayed invisible and the start looked successful.
-// SEE_MASK_NOCLOSEPROCESS keeps the handle so that its exit code can be read.
-wstring elevate(const wstring& verb, const wstring& action)
+wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundService.md#elevate]
 {
     const wstring parameters = verb + L" " + serviceName;
     SHELLEXECUTEINFOW info{};
@@ -81,9 +68,7 @@ wstring elevate(const wstring& verb, const wstring& action)
     }
     if (info.hProcess == nullptr)
         return L"";
-    // sc.exe passes the error of the control it forwarded on as its exit code,
-    // so 1069 here is the SCM's "logon failed" for the service account.
-    WaitForSingleObject(info.hProcess, elevationTimeout);
+    WaitForSingleObject(info.hProcess, elevationTimeout);  // [BackgroundService.md#sc-exit-code]
     DWORD exitCode = 0;
     const bool known = GetExitCodeProcess(info.hProcess, &exitCode) != FALSE;
     CloseHandle(info.hProcess);
@@ -92,9 +77,7 @@ wstring elevate(const wstring& verb, const wstring& action)
     return failure(action, exitCode);
 }
 
-// Opened with the least access that still allows the requested control, so that
-// a member of the Administrators group succeeds without the UAC detour.
-wstring withService(DWORD access, const wstring& verb, const wstring& action, bool (*control)(SC_HANDLE))
+wstring withService(DWORD access, const wstring& verb, const wstring& action, bool (*control)(SC_HANDLE))  // [BackgroundService.md#withService]
 {
     ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
     if (manager == nullptr)
@@ -107,9 +90,7 @@ wstring withService(DWORD access, const wstring& verb, const wstring& action, bo
     return GetLastError() == ERROR_ACCESS_DENIED ? elevate(verb, action) : failure(action, GetLastError());
 }
 
-// SERVICE_QUERY_STATUS is granted to every user, so the state is available
-// without the administrator rights that starting and stopping require.
-BackgroundService::State queryState()
+BackgroundService::State queryState()  // [BackgroundService.md#queryState-access]
 {
     ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
     if (manager == nullptr)
@@ -123,11 +104,7 @@ BackgroundService::State queryState()
     return status.dwCurrentState == SERVICE_STOPPED ? BackgroundService::State::Stopped : BackgroundService::State::Running;
 }
 #elif _MACOS
-// launchd is the counterpart of the systemd unit. The daemon runs as a
-// LaunchAgent of the logged in user because it synchronises that user's
-// directories with their credentials, so every call addresses the gui domain
-// of the current session rather than the system one.
-constexpr wchar_t launchAgentLabel[] = L"com.autofilesync.backgroundsync";
+constexpr wchar_t launchAgentLabel[] = L"com.autofilesync.backgroundsync";  // [BackgroundService.md#launchAgentLabel]
 
 wxString agentPlistPath()
 {
@@ -139,9 +116,7 @@ wxString serviceTarget() { return domainTarget() + "/" + wxString(launchAgentLab
 
 struct LaunchctlResult { long status = -1; wxArrayString output, errors; };
 
-// wxEXEC_NOEVENTS keeps this out of a nested event loop: the query runs while
-// the menu is opening, where re-entrant event dispatch would be unsafe.
-LaunchctlResult runLaunchctl(const wxString& arguments)
+LaunchctlResult runLaunchctl(const wxString& arguments)  // [BackgroundService.md#runLaunchctl]
 {
     LaunchctlResult result;
     result.status = wxExecute("launchctl " + arguments, result.output, result.errors, wxEXEC_SYNC | wxEXEC_NOEVENTS);
@@ -166,10 +141,7 @@ wstring notInstalled()
         + agentPlistPath().ToStdWstring() + L".";
 }
 
-// "launchctl list" prints a PID entry only while the process actually exists.
-// An agent that is registered but has since exited is loaded without running,
-// which is a stopped service from the user's point of view.
-BackgroundService::State queryState()
+BackgroundService::State queryState()  // [BackgroundService.md#launchctl-list-pid]
 {
     if (!wxFileExists(agentPlistPath()))
         return BackgroundService::State::NotInstalled;
@@ -182,10 +154,7 @@ BackgroundService::State queryState()
     return BackgroundService::State::Stopped;
 }
 
-// Two steps because a stop unregisters the agent while a daemon that exited on
-// its own stays registered: bootstrap covers the first case, kickstart the
-// second, and kickstart on an already running agent is a no-op.
-wstring startAgent()
+wstring startAgent()  // [BackgroundService.md#startAgent]
 {
     if (!wxFileExists(agentPlistPath()))
         return notInstalled();
@@ -198,11 +167,7 @@ wstring startAgent()
     return started.status == 0 ? L"" : launchctlFailure(L"gestartet", started);
 }
 
-// bootout returns once launchd has accepted the request, not once the daemon
-// has ended - and this one needs a moment to finish its synchronisation pass.
-// Reporting success right away would leave the menu showing a running service
-// that the user just stopped, so the command waits for the state it promises.
-bool waitUntilUnregistered()
+bool waitUntilUnregistered()  // [BackgroundService.md#waitUntilUnregistered]
 {
     constexpr int attempts = 50, pollInterval = 100; // 5 s, ample for one pass to end
     for (int attempt = 0; attempt < attempts; ++attempt) {
@@ -213,9 +178,7 @@ bool waitUntilUnregistered()
     return false;
 }
 
-// bootout unregisters the agent. Merely killing the process would not do:
-// launchd restarts a KeepAlive agent immediately afterwards.
-wstring stopAgent()
+wstring stopAgent()  // [BackgroundService.md#stopAgent]
 {
     if (listAgent().status != 0)
         return L""; // an agent that is not registered is already stopped
@@ -227,9 +190,7 @@ wstring stopAgent()
     return L"";
 }
 #elif _UNIX
-// systemctl asks polkit for the missing rights itself, so no elevation detour
-// is needed here.
-wstring runSystemctl(const wstring& verb, const wstring& action)
+wstring runSystemctl(const wstring& verb, const wstring& action)  // [BackgroundService.md#runSystemctl]
 {
     wxArrayString output, errors;
     const wxString command = wxString::Format("systemctl %s %s", wxString(verb), wxString(serviceName));
@@ -243,11 +204,7 @@ wstring runSystemctl(const wstring& verb, const wstring& action)
     return L"Der Hintergrunddienst konnte nicht " + action + L" werden:\n" + reason.ToStdWstring();
 }
 
-// "systemctl show" reports an unknown unit as LoadState=not-found and still
-// exits with 0, which "is-active" cannot distinguish from a stopped service.
-// wxEXEC_NOEVENTS keeps this out of a nested event loop: the query runs while
-// the menu is opening, where re-entrant event dispatch would be unsafe.
-BackgroundService::State queryState()
+BackgroundService::State queryState()  // [BackgroundService.md#queryState-systemctl]
 {
     wxArrayString output, errors;
     const wxString command = wxString::Format("systemctl show %s -p LoadState -p ActiveState", wxString(serviceName));
@@ -279,8 +236,7 @@ State state()
 wstring start()
 {
 #ifdef WIN32
-    // An already running service is what the user asked for, not an error.
-    return withService(SERVICE_START, L"start", L"gestartet",
+    return withService(SERVICE_START, L"start", L"gestartet",  // an already running service is what the user asked for
         [](SC_HANDLE service) { return StartServiceW(service, 0, nullptr) != FALSE || GetLastError() == ERROR_SERVICE_ALREADY_RUNNING; });
 #elif _MACOS
     return startAgent();

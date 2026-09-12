@@ -57,10 +57,7 @@ TEST_F(FileDeleteTest, RecycleBinModeMovesFileIntoBin)
     EXPECT_TRUE(has_timestamp_prefix(items[0], L"data\\.txt"));
 }
 
-// The bin mirrors the origin below itself, so a restore can tell where the file
-// came from - and two files of the same name from different directories do not
-// land on top of each other.
-TEST_F(FileDeleteTest, RecycleBinModeMirrorsTheOriginDirectory)
+TEST_F(FileDeleteTest, RecycleBinModeMirrorsTheOriginDirectory)  // [FileDeleteTests.md#RecycleBinModeMirrorsTheOriginDirectory]
 {
     const fs::path source = create_file("sub/data.txt");
 

@@ -11,24 +11,19 @@ namespace tu {
 
     bool erase_test_dir(const std::wstring& fn, bool display_error)
     {
-        // Prüfe, ob das Verzeichnis existiert
         if (!std::filesystem::exists(fn)) {
-            return true; // Verzeichnis existiert nicht, nichts zu löschen
+            return true; // directory does not exist, nothing to delete
         }
 
         try {
-            // Iteriere durch alle Dateien und Unterverzeichnisse im Verzeichnis
             for (const auto& entry : std::filesystem::directory_iterator(fn)) {
                 if (entry.is_directory()) {
-                    // Rekursiv Unterverzeichnisse loeschen
                     erase_test_dir(entry.path().wstring(), display_error);
                 }
                 else {
-                    // Datei loeschen
                     std::filesystem::remove(entry.path());
                 }
             }
-            // Loesche das Verzeichnis selbst
             std::filesystem::remove_all(fn);
             return true;
         }
@@ -66,7 +61,6 @@ namespace tu {
             std::filesystem::path dest_path(dest_dir);
             auto dest_file = dest_path / source_file.filename();
 
-            // Skip directories, only check regular files
             if (std::filesystem::is_directory(source_file)) {
                 continue;
             }
@@ -74,7 +68,6 @@ namespace tu {
             if (!std::filesystem::exists(dest_file)) {
                 return false; // File not copied
             }
-            // Only check if file size matches
             if (std::filesystem::file_size(source_file) != std::filesystem::file_size(dest_file)) {
                 return false; // File size is different
             }

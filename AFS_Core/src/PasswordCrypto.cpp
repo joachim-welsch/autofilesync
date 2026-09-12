@@ -28,19 +28,7 @@ constexpr size_t KEY_LEN = 32;
 constexpr size_t NONCE_LEN = 12;
 constexpr size_t TAG_LEN = 16;
 
-// Generates a random key on first use and stores it next to the config with
-// owner-only permissions, like an SSH private key; reused afterward so
-// previously encrypted passwords stay decryptable across runs.
-//
-// Cached in memory per key file path: load_or_create_key() re-reads from disk on
-// every call, so if persisting a freshly generated key fails (read-only
-// filesystem, missing directory), an uncached implementation would hand out a
-// *different* random key to every subsequent call - even the very next
-// decrypt() of what the preceding encrypt() just produced would fail. The
-// cache keeps a run internally consistent; only surviving an actual restart
-// still depends on the write below succeeding, which is why that failure is
-// logged.
-std::mutex key_cache_mutex;
+std::mutex key_cache_mutex;  // [PasswordCrypto.md#key-cache]
 std::map<std::filesystem::path, std::array<unsigned char, KEY_LEN>> key_cache;
 
 std::array<unsigned char, KEY_LEN> load_or_create_key(const std::filesystem::path& key_file)
@@ -69,9 +57,7 @@ std::array<unsigned char, KEY_LEN> load_or_create_key(const std::filesystem::pat
         persisted = static_cast<bool>(out);
     }
 #else
-    // O_EXCL makes the file owner-only (mode 0600) from the moment it exists,
-    // avoiding the window a separate chmod() call after creation would leave.
-    int fd = open(key_file.string().c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    int fd = open(key_file.string().c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);  // [PasswordCrypto.md#key-file-permissions]
     if (fd >= 0) {
         persisted = write(fd, key.data(), key.size()) == static_cast<ssize_t>(key.size());
         close(fd);

@@ -23,10 +23,7 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-// The recycle bin path is process wide state that GuiTest::TearDown() does not
-// cover, and the deleted file has to be put back where the sandbox snapshot
-// expects it - both must happen even when an assertion ends the test early.
-class RestoredState {
+class RestoredState {  // [SettingsRecycleBinTest.md#RestoredState]
 public:
     RestoredState(): binPath_(RecycleBin::instance().bin_path()) {}
     ~RestoredState() {
@@ -72,10 +69,7 @@ TEST_F(GuiTest, NeuerPapierkorbPfadWirdUebernommenUndDateiDorthinVerschoben)
         << "Der Zeitstempel fehlt im Namen im Papierkorb.";
     EXPECT_EQ(readFile(binPath / items[0]), contentBefore) << "Der Inhalt hat das Verschieben nicht überlebt.";
 
-    // Puts the sandbox back the way GuiTest::TearDown() expects it; restoreItem()
-    // cannot be used here because it restores relative to the working directory,
-    // not to the absolute place the file came from.
-    fs::rename(binPath / items[0], deletedFile);
+    fs::rename(binPath / items[0], deletedFile);  // [SettingsRecycleBinTest.md#manual-restore]
     fs::remove_all(binPath);
 }
 

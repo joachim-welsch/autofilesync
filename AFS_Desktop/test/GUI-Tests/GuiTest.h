@@ -9,8 +9,7 @@ class ListCtrl;
 
 namespace guitest {
 
-// Snapshot of everything a GUI test is required to leave untouched.
-struct ApplicationState {
+struct ApplicationState {  // snapshot of everything a GUI test is required to leave untouched
     std::vector<std::string> syncItemNames;
     std::vector<std::string> sshAccountNames;
     std::string configFile;
@@ -18,11 +17,7 @@ struct ApplicationState {
     std::vector<std::string> targetEntries;
 };
 
-// Base of every GUI test. It enforces the rule from CLAUDE.md that after a GUI
-// test the configuration and the source and target file systems are in the same
-// state as before: TearDown() drops what the test changed in memory and then
-// compares the whole state against the snapshot taken in SetUp().
-class GuiTest: public ::testing::Test {
+class GuiTest: public ::testing::Test {  // [GuiTest.md#GuiTest]
 protected:
     void SetUp() override;
     void TearDown() override;

@@ -36,8 +36,7 @@ private:
     wxTextCtrl* backupProofPathBox_ = nullptr;
     wxCheckBox* emailActiveCheck_ = nullptr;
     wxTextCtrl* emailBox_ = nullptr;
-    // The server the notification is sent through.
-    wxTextCtrl* smtpServerBox_ = nullptr;
+    wxTextCtrl* smtpServerBox_ = nullptr;  // the server the notification is sent through
     wxSpinCtrl* smtpPortCtrl_ = nullptr;
     wxTextCtrl* smtpUserBox_ = nullptr;
     wxTextCtrl* smtpPasswordBox_ = nullptr;

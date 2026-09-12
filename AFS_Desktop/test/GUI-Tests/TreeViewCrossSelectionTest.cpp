@@ -22,11 +22,7 @@ const wxString syncItemName = "guitest-baumansicht-gegenseite";
 
 }
 
-// A left click on a SyncItem's own node in one tree should reveal and select
-// its counterpart (source<->target) in the other tree, so both sides always
-// point at the same SyncItem - see MainWindow::findSyncItem() and
-// Canvas::onItemLeftClicked().
-TEST_F(GuiTest, LinksclickImBaumZeigtDenPfadAufDerAnderenSeite)
+TEST_F(GuiTest, LinksclickImBaumZeigtDenPfadAufDerAnderenSeite)  // [TreeViewCrossSelectionTest.md#LinksclickImBaumZeigtDenPfadAufDerAnderenSeite]
 {
     const SyncItemInput input{syncItemName,
         GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
@@ -59,8 +55,7 @@ TEST_F(GuiTest, LinksclickImBaumZeigtDenPfadAufDerAnderenSeite)
     EXPECT_EQ(targetTree->GetSelection(), targetItem)
         << "Der Klick auf den Quellordner haette den zugehoerigen Zielordner auswaehlen sollen.";
 
-    // And the other way round: clicking the target side reveals the source.
-    sourceTree->SelectItem(sourceTree->GetRootItem(), false);
+    sourceTree->SelectItem(sourceTree->GetRootItem(), false);  // and the other way round: clicking the target side reveals the source
     targetTree->EnsureVisible(targetItem);
     pump();
     ASSERT_TRUE(clickOn(*targetTree, targetItem)) << "Der Zielordner konnte nicht angeklickt werden.";

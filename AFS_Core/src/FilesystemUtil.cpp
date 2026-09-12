@@ -174,8 +174,7 @@ static std::optional<std::string> mountpoint_of_mountinfo_line(const std::string
 {
     std::istringstream iss(line);
     std::string field;
-    // Field 5 of /proc/self/mountinfo is the mount point with octal escapes
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 5; ++i)  // field 5 of /proc/self/mountinfo is the mount point with octal escapes
         if (!(iss >> field)) return std::nullopt;
     return without_trailing_slash(decode_mountinfo_escapes(field));
 }
@@ -191,8 +190,7 @@ static std::optional<fs::path> nonroot_covering_mountpoint(const fs::path& targe
     std::ifstream mountinfo("/proc/self/mountinfo");
     if (!mountinfo) return std::nullopt;
     const std::string t = without_trailing_slash(normalize_best_effort(target).string());
-    // The deepest covering mount is the longest one; "/" covers everything and is never reported
-    std::string deepest;
+    std::string deepest;  // the deepest covering mount is the longest one; "/" covers everything and is never reported
     for (std::string line; std::getline(mountinfo, line);) {
         auto mp = mountpoint_of_mountinfo_line(line);
         if (mp && *mp != "/" && mount_covers(*mp, t) && mp->size() > deepest.size()) deepest = *mp;
@@ -205,11 +203,9 @@ static std::optional<fs::path> nonroot_covering_mountpoint(const fs::path& targe
 std::optional<fs::path> is_mountpoint(const fs::path& path)
 {
 #ifdef __linux__
-    // mountinfo is the most robust source on Linux; it also knows bind mounts.
-    return nonroot_covering_mountpoint(path);
+    return nonroot_covering_mountpoint(path);  // mountinfo is the most robust source on Linux; it also knows bind mounts
 #else
-    // Fallback: device boundary between path and parent; misses bind mounts.
-    fs::path p = normalize_best_effort(path);
+    fs::path p = normalize_best_effort(path);  // fallback: device boundary between path and parent; misses bind mounts
     struct stat cur{}, par{};
     if (!lstat_ok(p, cur)) return std::nullopt;
 
@@ -225,15 +221,12 @@ std::optional<fs::path> is_mountpoint(const fs::path& path)
 std::optional<fs::path> get_mount_root(const fs::path& in)
 {
 #ifdef WIN32
-    // 'in' is used unnormalized: normalize_best_effort may return UNC paths.
-    if (in.has_root_name()) {
+    if (in.has_root_name()) {  // 'in' is used unnormalized: normalize_best_effort may return UNC paths
         fs::path root = in.root_name();
         root /= "\\";
         return root;
     }
-    // Handle Unix-style paths (e.g., "/home/...") on Windows
-    // These can occur when using WSL paths or cross-platform test data
-    std::wstring path_str = in.wstring();
+    std::wstring path_str = in.wstring();  // [FilesystemUtil.md#unix-style-paths-on-windows]
     if (!path_str.empty() && path_str[0] == L'/') {
         return fs::path("/");
     }
@@ -241,8 +234,7 @@ std::optional<fs::path> get_mount_root(const fs::path& in)
 #else
     fs::path current = normalize_best_effort(in);
 
-    // Climb up until something exists.
-    struct stat st_cur{};
+    struct stat st_cur{};  // climb up until something exists
     while (!lstat_ok(current, st_cur)) {
         if (!current.has_parent_path()) return std::nullopt;
         current = current.parent_path();
@@ -254,8 +246,7 @@ std::optional<fs::path> get_mount_root(const fs::path& in)
         if (!lstat_ok(parent, st_par)) return std::nullopt;
 
         if (st_cur.st_dev != st_par.st_dev) {
-            // the device changes here, so 'current' is the mount point
-            return current.empty() ? fs::path("/") : current;
+            return current.empty() ? fs::path("/") : current;  // the device changes here, so 'current' is the mount point
         }
 
         if (current == "/") {

@@ -25,11 +25,9 @@ SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
 {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Create list control with editable labels
     listCtrl_ = new wxListCtrl(this, ID_SSHACCOUNTS_LIST, wxDefaultPosition, 
         wxSize(500, 200), wxLC_REPORT | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
     
-    // Add columns
     listCtrl_->InsertColumn(0, _("Name"), wxLIST_FORMAT_LEFT, 120);
     listCtrl_->InsertColumn(1, _("Host"), wxLIST_FORMAT_LEFT, 150);
     listCtrl_->InsertColumn(2, _("Benutzer"), wxLIST_FORMAT_LEFT, 100);
@@ -37,7 +35,6 @@ SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
     
     mainSizer->Add(listCtrl_, 1, wxEXPAND | wxALL, 10);
 
-    // Create button panel
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     
     addButton_ = new wxButton(this, ID_SSHACCOUNTS_ADD, _(L"Hinzufügen"));
@@ -49,7 +46,6 @@ SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
     buttonSizer->Add(deleteButton_, 0, wxRIGHT, 5);
     buttonSizer->AddStretchSpacer();
     
-    // OK/Cancel buttons
     wxButton* okButton = new wxButton(this, wxID_OK, _("OK"));
     wxButton* cancelButton = new wxButton(this, wxID_CANCEL, _("Abbrechen"));
     buttonSizer->Add(okButton, 0, wxRIGHT, 5);
@@ -62,7 +58,6 @@ SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
     Fit();
     Centre();
     
-    // Bind double-click event
     listCtrl_->Bind(wxEVT_LEFT_DCLICK, &SshAccountsDialog::onListDClick, this);
     
     populateList();
@@ -79,12 +74,9 @@ void SshAccountsDialog::populateList()
     const SshAccounts accounts = Config::instance().ssh_accounts_snapshot();
     long index = 0;
     for (const auto& account : accounts) {
-        // FromUTF8: die Konfiguration haelt diese Felder als UTF-8, die
-        // implizite Konvertierung wuerde sie in der ANSI-Codepage lesen.
-        long item = listCtrl_->InsertItem(index, wxString::FromUTF8(account.name()));
+        long item = listCtrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
         listCtrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
         listCtrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
-        // Show password as asterisks for security
         listCtrl_->SetItem(item, 3, wxString(account.password().empty() ? "" : "********"));
         index++;
     }
@@ -130,10 +122,7 @@ void SshAccountsDialog::onDelete(wxCommandEvent&)
 
     wxString message = wxString::Format(_(L"Soll der SSH-Account '%s' wirklich gelöscht werden?"),
         wxString::FromUTF8(account->name()));
-    // Unlike a rename, a deletion has no valid account left to point items at
-    // - the best this dialog can do is warn instead of letting them silently
-    // start failing every sync pass.
-    if (Config::instance().ssh_account_referenced_by_any_item(account->name()))
+    if (Config::instance().ssh_account_referenced_by_any_item(account->name()))  // [SshAccountsDialog.md#deletion-warns]
         message += _("\n\nAchtung: Es gibt Synchronisationen, die diesen Account verwenden. Diese werden danach fehlschlagen.");
 
     int answer = wxMessageBox(message, _(L"Löschen bestätigen"), wxYES_NO | wxICON_QUESTION, this);
@@ -186,9 +175,7 @@ void SshAccountsDialog::onEndLabelEdit(wxListEvent& event)
     }
     account->set_name(newName);
     Config::instance().update_ssh_account(static_cast<size_t>(sel), *account);
-    // Keeps sync items using this account under its old name from silently
-    // failing every pass afterward (see Config::updateSshAccountReferences).
-    Config::instance().update_ssh_account_references(oldName, *account);
+    Config::instance().update_ssh_account_references(oldName, *account);  // [SshAccountsDialog.md#account-references-updated]
 }
 
 void SshAccountsDialog::editSelectedItem()
@@ -206,9 +193,7 @@ void SshAccountsDialog::editSelectedItem()
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(account.value());
         Config::instance().update_ssh_account(static_cast<size_t>(sel), account.value());
-        // Keeps sync items using this account under its old name/credentials
-        // from silently failing every pass afterward.
-        Config::instance().update_ssh_account_references(oldName, account.value());
+        Config::instance().update_ssh_account_references(oldName, account.value());  // [SshAccountsDialog.md#account-references-updated]
         populateList();
     }
 }
