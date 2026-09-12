@@ -19,7 +19,6 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     mainSizer->AddStretchSpacer()->SetMinSize(400, 10);
 
-    // Create name field
     wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* nameLabel = new wxStaticText(this, wxID_STATIC, _("Name"));
     nameLabel->SetMinSize(wxSize(80, nameLabel->GetMinSize().y));
@@ -28,7 +27,6 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     nameSizer->Add(nameBox_, 1);
     mainSizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP | wxBOTTOM, 5);
 
-    // Create host field
     wxBoxSizer* hostSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* hostLabel = new wxStaticText(this, wxID_STATIC, _("Host"));
     hostLabel->SetMinSize(wxSize(80, hostLabel->GetMinSize().y));
@@ -37,7 +35,6 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     hostSizer->Add(hostBox_, 1);
     mainSizer->Add(hostSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create user field
     wxBoxSizer* userSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* userLabel = new wxStaticText(this, wxID_STATIC, _("Benutzer"));
     userLabel->SetMinSize(wxSize(80, userLabel->GetMinSize().y));
@@ -46,7 +43,6 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     userSizer->Add(userBox_, 1);
     mainSizer->Add(userSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create password field
     wxBoxSizer* passwordSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* passwordLabel = new wxStaticText(this, wxID_STATIC, _("Passwort"));
     passwordLabel->SetMinSize(wxSize(80, passwordLabel->GetMinSize().y));
@@ -56,7 +52,6 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     passwordSizer->Add(passwordBox_, 1);
     mainSizer->Add(passwordSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create button field
     wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 5);
 
@@ -72,11 +67,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
 SshAccountDialog::~SshAccountDialog()
 {}
 
-// Counterpart of saveData(): passwords are stored as UTF-8 bytes. FromUTF8()
-// yields an empty string for anything else, so a password written by an older
-// version that encoded it in the local codepage still has to go through the
-// locale converter instead of being wiped when the dialog is reopened.
-static wxString passwordFromAccount(const std::string& stored)
+static wxString passwordFromAccount(const std::string& stored)  // [SshAccountDialog.md#passwordFromAccount]
 {
     const wxString password = wxString::FromUTF8(stored);
     return password.IsEmpty() && !stored.empty() ? wxString::FromUTF8(stored) : password;
@@ -84,10 +75,7 @@ static wxString passwordFromAccount(const std::string& stored)
 
 void SshAccountDialog::setData(const SshAccount& account)
 {
-    // FromUTF8 statt impliziter Konvertierung: die Konfiguration haelt diese
-    // Felder als UTF-8, wxString wuerde sie sonst ueber wxConvLibc in der
-    // ANSI-Codepage lesen und aus "Buero" mit Umlaut Buchstabensalat machen.
-    name_ = wxString::FromUTF8(account.name());
+    name_ = wxString::FromUTF8(account.name());  // [SshAccountDialog.md#utf8-fields]
     user_ = wxString::FromUTF8(account.user());
     host_ = wxString::FromUTF8(account.host());
     password_ = passwordFromAccount(account.password());
@@ -95,12 +83,7 @@ void SshAccountDialog::setData(const SshAccount& account)
 
 void SshAccountDialog::saveData(SshAccount& account)
 {
-    // ToStdString() converts with the locale converter, which yields an empty
-    // string for every character the current codepage cannot represent - a
-    // password containing "€" or "ä" would silently be lost on Windows. UTF-8
-    // keeps every character and is what SSH expects on the wire (RFC 4252),
-    // und die Konfiguration speichert diese Felder ohnehin als UTF-8.
-    account.set_name(std::string(name_.ToUTF8()));
+    account.set_name(std::string(name_.ToUTF8()));  // [SshAccountDialog.md#utf8-on-the-wire]
     account.set_user(std::string(user_.ToUTF8()));
     account.set_host(std::string(host_.ToUTF8()));
     account.set_password(std::string(password_.ToUTF8()));
@@ -126,19 +109,16 @@ bool SshAccountDialog::TransferDataFromWindow()
 
 std::optional<wxString> validateSshAccountName(const wxString& name)
 {
-    // Name muss länger als ein Buchstabe sein
     if (name.length() < 2)
         return _("Der Name muss mindestens 2 Zeichen lang sein.");
 
-    // Name darf keine Sonderzeichen enthalten (nur Buchstaben, Zahlen und Unterstrich)
-    for (size_t i = 0; i < name.length(); ++i) {
+    for (size_t i = 0; i < name.length(); ++i) {  // only letters, digits and the underscore are allowed
         wxChar c = name[i];
         if (!wxIsalnum(c) && c != '_' && c != '-')
             return _("Der Name darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthalten.");
     }
 
-    // Insbesondere kein ":" erlaubt (wird als Trenner im Pfad verwendet)
-    if (name.Contains(":"))
+    if (name.Contains(":"))  // ':' separates the account name from the path, so a name must not contain one
         return _("Der Name darf keinen Doppelpunkt enthalten.");
 
     return std::nullopt;
@@ -154,11 +134,7 @@ bool SshAccountDialog::Validate()
         return false;
     }
 
-    // name_ still holds the original name at Validate() time (setData() set
-    // it, TransferDataFromWindow() only runs after Validate() succeeds) -
-    // comparing against it, not just checking for any existing match, also
-    // allows leaving an existing account's own name unchanged.
-    if (name != name_ && Config::instance().find_ssh_account_by_name(std::string(name.ToUTF8())) != std::nullopt) {
+    if (name != name_ && Config::instance().find_ssh_account_by_name(std::string(name.ToUTF8())) != std::nullopt) {  // [SshAccountDialog.md#name-compared-against-original]
         wxMessageBox(wxString::Format(_("SSH-Account '%s' existiert bereits."), name), _("Validierungsfehler"),
             wxOK | wxICON_WARNING, this);
         nameBox_->SetFocus();

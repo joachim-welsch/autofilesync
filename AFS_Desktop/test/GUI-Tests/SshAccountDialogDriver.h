@@ -12,13 +12,8 @@ struct SshAccountInput {
     wxString password;
 };
 
-// Fills the "SSH-Verbindung hinzufügen" dialog the way a user would and confirms
-// it with OK. Pass the result to ModalDialogWatcher::expect().
-DialogAction fillSshAccountDialog(const SshAccountInput& input);
+DialogAction fillSshAccountDialog(const SshAccountInput& input);  // [SshAccountDialogDriver.md#fillSshAccountDialog]
 
-// Presses "Hinzufügen" in the "SSH-Verbindungen" dialog and closes it with OK.
-// The add dialog opens nested inside this one, so its own expectation has to be
-// announced right after this one.
-DialogAction addSshAccountAndClose();
+DialogAction addSshAccountAndClose();  // [SshAccountDialogDriver.md#addSshAccountAndClose]
 
 }

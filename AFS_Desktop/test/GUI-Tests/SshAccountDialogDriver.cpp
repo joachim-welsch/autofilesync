@@ -8,9 +8,7 @@
 namespace guitest {
 namespace {
 
-// Each field reports itself: without that, a failed interaction is
-// indistinguishable from a broken feature - both end as "not created".
-bool enterValues(wxDialog& dialog, const SshAccountInput& input)
+bool enterValues(wxDialog& dialog, const SshAccountInput& input)  // [SshAccountDialogDriver.md#enterValues]
 {
     const struct { wxWindowID id; wxString text; const char* label; } fields[] = {
         { ID_SSH_NAME_BOX, input.name, "Name" },
@@ -36,10 +34,7 @@ DialogAction fillSshAccountDialog(const SshAccountInput& input)
         const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
             && enterValues(dialog, input)
             && clickWhenEnabled(find(dialog, wxID_OK));
-        // Leaving the dialog open would hang the test in its modal loop; the
-        // cancel result tells the test that the interaction, not the feature,
-        // is what failed.
-        if (!confirmed)
+        if (!confirmed)  // [SshAccountDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };
 }
@@ -47,9 +42,7 @@ DialogAction fillSshAccountDialog(const SshAccountInput& input)
 DialogAction addSshAccountAndClose()
 {
     return [](wxDialog& dialog) {
-        // The click returns only after the nested add dialog has been closed
-        // again, so the account is already in the configuration here.
-        if (waitUntil([&dialog] { return dialog.IsShownOnScreen(); }))
+        if (waitUntil([&dialog] { return dialog.IsShownOnScreen(); }))  // [SshAccountDialogDriver.md#nested-dialog-already-closed]
             clickOn(find(dialog, ID_SSHACCOUNTS_ADD));
         dialog.EndModal(wxID_OK);
     };

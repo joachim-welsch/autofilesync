@@ -19,32 +19,26 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     mainSizer->AddStretchSpacer()->SetMinSize(20, 10);
 
-    // Create auto start field
     wxBoxSizer* startAutostartSizer = new wxBoxSizer(wxHORIZONTAL);
     autoStartCB_ = new wxCheckBox(this, wxID_ANY, "Anwendung automatisch starten");
     startAutostartSizer->Add(autoStartCB_, 1);
     mainSizer->Add(startAutostartSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create start sync at start field
     wxBoxSizer* startSyncAtStartSizer = new wxBoxSizer(wxHORIZONTAL);
     startSyncAtStartCB_ = new wxCheckBox(this, wxID_ANY, "Synchronisation bei Programmstart starten");
     startSyncAtStartSizer->Add(startSyncAtStartCB_, 1);
     mainSizer->Add(startSyncAtStartSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create start minimized field
     wxBoxSizer* startMinimizedSizer = new wxBoxSizer(wxHORIZONTAL);
     startMinimizedCB_ = new wxCheckBox(this, wxID_ANY, "Start minimiert");
     startMinimizedSizer->Add(startMinimizedCB_, 1);
     mainSizer->Add(startMinimizedSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create minimize instead of close field
     wxBoxSizer* minimizeInsteadOfCloseSizer = new wxBoxSizer(wxHORIZONTAL);
     minimizeInsteadOfCloseCB_ = new wxCheckBox(this, wxID_ANY, L"Minimieren statt schließen?");
     minimizeInsteadOfCloseSizer->Add(minimizeInsteadOfCloseCB_, 1);
     mainSizer->Add(minimizeInsteadOfCloseSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create minimize instead of close field
-    
     wxBoxSizer* showBoxSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* showBoxLable = new wxStaticText(this, wxID_STATIC, _("Meldungen im Dialog anzeigen:"));
     mainSizer->Add(showBoxSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM | wxTOP, 5);
@@ -58,14 +52,12 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     showMessageBoxSizer->Add(messageBoxInfoCB_);
     mainSizer->Add(showMessageBoxSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create delete mode field
     const wxString deleteModes[] = { "In Papierkorb verschieben", L"Endgültig löschen" };
     deleteModeRB_ = new wxRadioBox(this, ID_DELETE_MODE_RADIO, _(L"Löschmodus"), wxDefaultPosition, wxDefaultSize,
         WXSIZEOF(deleteModes), deleteModes, 1, wxRA_SPECIFY_COLS);
     deleteModeRB_->Bind(wxEVT_RADIOBOX, &SettingsDialog::onDeleteModeChanged, this);
     mainSizer->Add(deleteModeRB_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // Create recycle bin path field
     wxBoxSizer* recycleBinSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* recycleBinLable = new wxStaticText(this, wxID_STATIC, _("Papierkorb:"));
     recycleBinSizer->Add(recycleBinLable, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
@@ -77,7 +69,6 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     recycleBinPathBtn_->Bind(wxEVT_BUTTON, &SettingsDialog::onPickRecycleBinPath, this);
     mainSizer->Add(recycleBinSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    //Create button field
     wxSizer* buttonSizer = CreateButtonSizer(wxOK);
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM, 5);
 
@@ -106,9 +97,7 @@ bool SettingsDialog::TransferDataToWindow()
     return true;
 }
 
-// The path has no meaning while files are deleted permanently; showing it as
-// editable would suggest otherwise.
-void SettingsDialog::enableRecycleBinPath()
+void SettingsDialog::enableRecycleBinPath()  // [SettingsDialog.md#enableRecycleBinPath]
 {
     const bool usesBin = deleteModeRB_->GetSelection() == 0;
     recycleBinPathBox_->Enable(usesBin);
@@ -120,9 +109,7 @@ void SettingsDialog::onDeleteModeChanged(wxCommandEvent&)
     enableRecycleBinPath();
 }
 
-// The directory need not exist yet: RecycleBin::addItem() creates it on demand,
-// so an empty entry falls back to the bin's default path instead of failing.
-void SettingsDialog::onPickRecycleBinPath(wxCommandEvent&)
+void SettingsDialog::onPickRecycleBinPath(wxCommandEvent&)  // [SettingsDialog.md#onPickRecycleBinPath]
 {
     wxString start = recycleBinPathBox_->GetValue();
     if (start.empty() || !wxDirExists(start))

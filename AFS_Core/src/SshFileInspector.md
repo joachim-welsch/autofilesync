@@ -1,0 +1,33 @@
+# SshFileInspector
+
+Module comment for SshFileInspector.h / SshFileInspector.cpp.
+
+## SshFileInspector
+
+Connects, verifies the host key and logs in; throws if any of that fails, so a constructed
+object means the remote side is up.
+
+## inspect_file
+
+remote_path is the path on the remote side without the account prefix ("/home/user/data", not
+"account:/home/user/data"); Windows paths are transcribed here ("C:\dir" -> "/C:/dir").
+exists=false means "connected and definitely absent"; any other failure throws so that a
+connection problem does not look like a deleted file.
+
+## path-separators
+
+Configured paths may use either separator (Settings.cpp stores them as entered); the remote sftp
+server only understands slashes.
+
+## absence-vs-failure
+
+Only a confirmed "no such file" may report exists=false: the caller (read_ssh_file_info) treats
+that as safe-to-delete for delete_in_target. Any other failure (permission denied, dropped
+session) must not be mistaken for an absent file - throw into the caller's error path.
+
+## no-double-path-translation
+
+Only the spelling is adjusted ("C:\dir" -> "/C:/dir"). The parameter is the remote path without
+account prefix; running get_remote_path() over it again would cut a drive letter path at its
+colon ("C:\temp\x" -> "/temp/x"), which only ever worked because the Windows SFTP server looks
+up "/temp" on the system drive.

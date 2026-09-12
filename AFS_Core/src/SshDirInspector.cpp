@@ -46,8 +46,7 @@ namespace {
         return entry;
     }
 
-    // Fills exists and is_directory; false with error_message set when the path cannot be listed
-    bool require_directory(const SftpConnection& connection, const std::string& remote_path, RemoteDirInfo& info)
+    bool require_directory(const SftpConnection& connection, const std::string& remote_path, RemoteDirInfo& info)  // [SshDirInspector.md#require_directory]
     {
         info.path = remote_path;
         const auto attr = connection.stat(remote_path);
@@ -120,14 +119,11 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
         if (S_ISDIR(attr->permissions) && !S_ISLNK(attr->permissions))
             inspect_dir_recursive_impl(full_path, result);
     }
-    // NULL from sftp_readdir means EOF or error; only sftp_dir_eof tells them
-    // apart, and a partial listing must not pass as complete.
-    if (!sftp_dir_eof(dir.get()))
+    if (!sftp_dir_eof(dir.get()))  // [SshDirInspector.md#readdir-eof-vs-error]
         result.error_message = "Verzeichnis unvollständig gelesen: " + remote_path;
 }
 
 #else
-// Windows implementation on libssh2
 
 #ifdef _WIN32
 
@@ -284,8 +280,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
         info.entries.push_back(entry);
     }
 
-    // 0 is EOF, negative means an error in the middle of the listing
-    if (read_rc < 0)
+    if (read_rc < 0)  // 0 is EOF, negative means an error in the middle of the listing
         info.error_message = "Verzeichnis unvollständig gelesen: " + remote_path;
 
     libssh2_sftp_closedir(dir_handle);
@@ -374,8 +369,7 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
         }
     }
 
-    // 0 is EOF, negative means an error in the middle of the listing
-    if (read_rc < 0)
+    if (read_rc < 0)  // 0 is EOF, negative means an error in the middle of the listing
         result.error_message = "Verzeichnis unvollständig gelesen: " + remote_path;
 
     libssh2_sftp_closedir(dir_handle);

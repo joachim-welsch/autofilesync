@@ -10,11 +10,7 @@ namespace guitest {
 
 using DialogAction = std::function<void(wxDialog&)>;
 
-// The single modal hook of the test run. A dialog a test announced through
-// expect() is driven from inside its own modal loop; every other modal dialog
-// is cancelled and recorded, so an unforeseen popup fails the test instead of
-// blocking it forever.
-class ModalDialogWatcher: public wxModalDialogHook {
+class ModalDialogWatcher: public wxModalDialogHook {  // [ModalDialogWatcher.md#ModalDialogWatcher]
 public:
     static ModalDialogWatcher& instance();
     void expect(const wxString& title, DialogAction action);

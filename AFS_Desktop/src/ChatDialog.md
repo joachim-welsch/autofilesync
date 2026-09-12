@@ -1,0 +1,73 @@
+# ChatDialog
+
+Module comment for ChatDialog.h / ChatDialog.cpp.
+
+## ChatDialog
+
+Chat with the assistant. Modeless, so a long answer never blocks the rest of the program, and
+hidden instead of destroyed on close so the conversation survives until the program ends.
+
+## Pending
+
+Shared with the worker thread. The worker may only reach the dialog while it holds the lock and
+dialog_ is still set; the destructor clears it under the same lock, so an answer arriving after
+the dialog is gone is dropped instead of being posted to a destroyed window.
+
+## runAsync
+
+Runs call() on a worker thread and posts its ChatReply back to onReply().
+
+## client_
+
+Shared rather than a plain member: the worker thread needs the loaded model to stay alive for
+the send() call, and LlamaClient's llama_model/ llama_context members are non-copyable.
+
+## ID_CHAT_TRANSCRIPT
+
+Stable id for the read-only transcript, otherwise wxID_ANY: GUI tests need it to read the
+conversation back via FindWindowById().
+
+## maxLogExcerptChars
+
+Bounded by response time, not by n_batch/n_ctx: fitting inside the token budget (see
+LlamaClient::ensureLoaded()) isn't enough on its own - CPU prompt processing of a
+several-thousand-token excerpt measured minutes, not seconds, on ordinary hardware (see the
+LogFrageWirdImChatBeantwortet GUI test, which used to time out at 3000 chars). 500 chars
+measured well under a minute for a real answer; kept small deliberately since larger values were
+not just slower but disproportionately slower.
+
+## key-handler-on-control
+
+A key handler on the control, not in the event table: the table belongs to the dialog and never
+sees the keys the text field consumes.
+
+## deferred-focus
+
+Deferred: the dialog is not shown yet at construction time (MainWindow::onChat creates it, then
+calls Show()), and a widget that is not yet realised cannot reliably take the X input focus -
+the very first keystroke could go nowhere.
+
+## history-snapshot
+
+The history is copied for the async call: the dialog keeps accepting input while the request
+runs, so the member must not be read from there on.
+
+## log-excerpt-per-request
+
+A question about the log gets the current excerpt folded into just this request (see
+LlamaClient::analyzeLog); history_ itself only ever keeps the plain question, or every later
+turn would resend the whole excerpt.
+
+## only-answers-in-history
+
+Only a real answer belongs in the history; an error message would be sent back as if the
+assistant had said it.
+
+## ctrl-enter-sends
+
+Plain Enter inserts a line break in the multi-line field, so sending needs a modifier.
+
+## hidden-not-destroyed
+
+Hidden rather than destroyed: the conversation stays available when the user opens the chat
+again, and a request still running has a live window to deliver its answer to.

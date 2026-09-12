@@ -26,9 +26,7 @@ using fsu::file_exists;
 using util::files_equal;
 
 #ifdef _TEST
-// Counts calls to the free wait_for_updated_filetime() below, so a regression
-// test can catch a caller waiting for the same filetime confirmation twice.
-std::atomic<int> wait_for_updated_filetime_call_count{0};
+std::atomic<int> wait_for_updated_filetime_call_count{0};  // [SyncFile.md#wait_for_updated_filetime_call_count]
 #endif
 
 static void move_file_to_backup(const wstring& dest_filename)
@@ -76,10 +74,7 @@ void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_ti
 {
     log_debug(L"set_last_write_time " + fn.wstring() + L" filetime: " + string_to_wstring(util::to_string(modify_time)));
     std::error_code ec;
-    // Bounded retries: transient errors right after a copy settle quickly, but a
-    // persistent one (target drive unplugged) must not spin forever - the GUI's
-    // stop_sync() busy-waits for this thread to finish.
-    for (int attempt = 0; attempt < 10; ++attempt) {
+    for (int attempt = 0; attempt < 10; ++attempt) {  // [SyncFile.md#bounded-retries]
         fs::last_write_time(fn, modify_time, ec);
         if (!ec)
             break;
@@ -143,8 +138,7 @@ CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
     return copy_normal_file(src, dest, sync_item_);
 }
 
-// Removes a failed or aborted copy and puts the previous target back.
-static void restore_backup(const wstring& dest, const wstring& bak_filename)
+static void restore_backup(const wstring& dest, const wstring& bak_filename)  // [SyncFile.md#restore_backup]
 {
     util::remove_file(dest);
     if (file_exists(bak_filename))
@@ -162,10 +156,7 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
             return false;
     }
     const CopyResult copy_ok = core_copy_function(src, dest);
-    // SSH skips only the content verification below (TODO); Error/Stopped must
-    // still run the cleanup/restore paths, or a failed transfer is reported as
-    // success - the caller would then e.g. delete the source (del_aftercopy).
-    if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK)
+    if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK)  // [SyncFile.md#ssh-skips-verification-only]
         return true;
     if (copy_ok == CopyResult::OK && !files_equal(src, dest)) {
         log_error(L"Kopiere: ", src, dest, L"Überprüfung der kopierten Datei ergab Abweichungen");
@@ -211,24 +202,17 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
         && (fdiff == FDResult::SourceNotExits || fdiff == FDResult::DestModified);
     if (!delete_target && !copy_to_target && !copy_to_source)
         return;
-    // only_count_ means "count only" - it must not touch the filesystem, the
-    // way SyncBase::sync_dir_entry() already handles it for Dir/Tree items.
-    if (only_count_) {
+    if (only_count_) {  // [SyncFile.md#only-count-touches-nothing]
         ++copy_count_;
         return;
     }
-    // An empty file is more often an aborted write than an intentionally empty
-    // file; copying it over an existing one would lose data. Placeholders like
-    // .gitkeep need sync_empty_files.
-    if (delete_target)
+    if (delete_target)  // [SyncFile.md#empty-source-file]
         delete_target_file(source, destination);
     else if (copy_to_target && (fd.source_size() > 0 || sync_item_.sync_empty_files()))
         copy_source_to_dest(source, destination, filesize);
     else if (copy_to_target)
         log_warning(L"Leere Quelldatei wurde nicht kopiert: ", source);
-    // The target file is the one being copied here, so its size is the
-    // volume moved - filesize is the source's (see FileDifference).
-    else if (fd.dest_size() > 0 || sync_item_.sync_empty_files())
+    else if (fd.dest_size() > 0 || sync_item_.sync_empty_files())  // [SyncFile.md#volume-is-target-size]
         copy_dest_to_source(destination, source, fd.dest_size());
     else
         log_warning(L"Leere Zieldatei wurde nicht kopiert: ", destination);
@@ -237,10 +221,7 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
 void SyncFile::delete_target_file(const wstring& source, const wstring& destination)
 {
     log_info(L"Lösche Zieldatei, da Quelle nicht existiert: ", destination, L"Quelle:", source);
-    // util::remove_file() interprets "account:/path" as a bogus local path and
-    // silently does nothing for it. A remote file cannot go into the local
-    // recycle bin without downloading it first, so SSH targets stay a permanent delete.
-    const bool removed = ssh_dest() ? ssh_remove_file(destination) : delete_file(destination);
+    const bool removed = ssh_dest() ? ssh_remove_file(destination) : delete_file(destination);  // [SyncFile.md#ssh-target-delete]
     if (!removed) {
         log_error(L"Loeschen der Zieldatei fehlgeschlagen: ", destination);
         report_sync_error(L"Loeschen der Zieldatei fehlgeschlagen: " + destination);
@@ -255,15 +236,11 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     #ifdef _WXWIDGETS
         Synchronize::set_progress_message(L"Kopiere \n" + source + L"\nzu\n" + destination + L"...", size);
     #endif
-    // Every failure returns before the bookkeeping below: a copy that did not
-    // happen must neither count as done nor let del_aftercopy delete the source.
-    try {
+    try {  // [SyncFile.md#failures-return-early]
         pre_copy(source, destination);
         if (!save_copy_file(source, destination))
             return;
-        // fs::last_write_time() only resolves a local path; an SSH source keeps
-        // the time the transfer produced (see pre_copy()'s TODO).
-        if (!ssh_source())
+        if (!ssh_source())  // [SyncFile.md#local-only-filetime]
             util::set_last_write_time(destination, fs::last_write_time(source));
         log_info(L"Quelle zu Ziel kopiert: ", source, L"nach", destination);
     }
@@ -284,8 +261,7 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     }
     ++copy_count_;
     report_sync_volume(size);
-    // An SSH source cannot be deleted through the local filesystem.
-    if (sync_item_.del_aftercopy() && !ssh_source())
+    if (sync_item_.del_aftercopy() && !ssh_source())  // an SSH source cannot be deleted through the local filesystem
         delete_file(source);
 }
 
@@ -299,8 +275,7 @@ void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     #endif
     try {
         pre_copy(destination, source);
-        // fs::last_write_time() only resolves a local path - see copy_source_to_dest().
-        fs::file_time_type modify_time{};
+        fs::file_time_type modify_time{};  // fs::last_write_time() only resolves a local path - see copy_source_to_dest()
         if (!ssh_dest())
             modify_time = fs::last_write_time(destination);
         if (!save_copy_file(destination, source))

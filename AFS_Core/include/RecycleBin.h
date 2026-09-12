@@ -5,10 +5,7 @@
 
 namespace AFS_Core {
 
-// Items are addressed by a path relative to the current working directory. The
-// path is mirrored inside the bin, so restore_item() can put the file back where
-// it came from.
-class RecycleBin {
+class RecycleBin {  // [RecycleBin.md#RecycleBin]
 public:
 	using ItemList = std::vector<std::filesystem::path>;
 private:
@@ -18,21 +15,16 @@ private:
 	~RecycleBin();
 	RecycleBin(const RecycleBin&) = delete;
 	RecycleBin& operator=(const RecycleBin&) = delete;
-	// The helpers below assume the caller already holds mutex_.
-	bool check_relative(const std::filesystem::path& item) const;
+	bool check_relative(const std::filesystem::path& item) const;  // the private helpers below assume a held mutex_
 	bool move(const std::filesystem::path& from, const std::filesystem::path& to) const;
 public:
 	static RecycleBin& instance();
 	void bin_path(const std::filesystem::path& path);
 	std::filesystem::path bin_path() const;
 	bool add_item(const std::filesystem::path& item);
-	// Same, but for a source that lies outside the current working directory:
-	// it is stored in the bin under the relative path 'item', which lets the
-	// caller pick the name there (a timestamp prefix, say).
-	bool add_item(const std::filesystem::path& source, const std::filesystem::path& item);
+	bool add_item(const std::filesystem::path& source, const std::filesystem::path& item);  // [RecycleBin.md#add_item-outside-cwd]
 	bool restore_item(const std::filesystem::path& item);
-	// By value: a reference would outlive the lock that protects the bin.
-	ItemList list_items() const;
+	ItemList list_items() const;  // by value: a reference would outlive the lock that protects the bin
 };
 
 } // namespace AFS_Core

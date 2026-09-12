@@ -16,8 +16,7 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-// Only characters wxUIActionSimulator can produce on a plain keyboard layout.
-const wxString syncItemName = "guitest-sicherung";
+const wxString syncItemName = "guitest-sicherung";  // only characters wxUIActionSimulator can produce on a plain keyboard layout
 
 }
 

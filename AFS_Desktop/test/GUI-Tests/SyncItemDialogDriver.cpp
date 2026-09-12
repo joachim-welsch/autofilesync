@@ -7,11 +7,7 @@
 namespace guitest {
 namespace {
 
-// Type and wildcard keep the values the dialog starts with ("Datei", "*.*"):
-// they are already valid, and neither is reachable with plain key strokes.
-// Each field reports itself: without that, a failed interaction is
-// indistinguishable from a broken feature - both end as "not created".
-bool enterValues(wxDialog& dialog, const SyncItemInput& input)
+bool enterValues(wxDialog& dialog, const SyncItemInput& input)  // [SyncItemDialogDriver.md#enterValues]
 {
     const struct { wxWindowID id; wxString text; const char* label; } fields[] = {
         { ID_NAME_BOX, input.name, "Name" },
@@ -36,10 +32,7 @@ DialogAction fillSyncItemDialog(const SyncItemInput& input)
         const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
             && enterValues(dialog, input)
             && clickWhenEnabled(find(dialog, wxID_OK));
-        // Leaving the dialog open would hang the test in its modal loop; the
-        // cancel result tells the test that the interaction, not the feature,
-        // is what failed.
-        if (!confirmed)
+        if (!confirmed)  // [SyncItemDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };
 }

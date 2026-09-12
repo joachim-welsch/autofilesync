@@ -16,21 +16,9 @@ using namespace AFS_Core;
 using util::wstring_to_string;
 namespace fs = std::filesystem;
 
-// Reproduces the sync abort logged as
-//   Error  /home/welschj/Schreibtisch  mmserver:/home/welschj/  wstring_convert::to_bytes
-// SyncItem::source()/target() and SshPath::path() rebuild an SSH path with
-// std::wstring(bytes.begin(), bytes.end()). char is signed, so every byte of a
-// non-ASCII UTF-8 sequence widens to a negative wchar_t (0xc3 -> 0xffffffc3),
-// a value codecvt_utf8 cannot encode. The next wstring_to_string() of that path
-// - and every log line does one - throws std::range_error("wstring_convert::to_bytes").
-// SyncFile's own catch handler logs the target as well, so the exception escapes
-// from there and takes the whole directory branch with it.
-namespace {
+namespace {  // [SshPathEncodingTests.md#overview]
     constexpr char ACCOUNT_NAME[] = "mmserver";
-    // RFC 2606 reserves .invalid, so the name never resolves: the tests cannot
-    // reach a real host or write to the user's known_hosts. The defect fires
-    // before any connection attempt anyway.
-    constexpr char UNREACHABLE_HOST[] = "autofilesync.invalid";
+    constexpr char UNREACHABLE_HOST[] = "autofilesync.invalid";  // [SshPathEncodingTests.md#UNREACHABLE_HOST]
     const std::wstring REMOTE_DIR = L"mmserver:/tmp/autofilesync_test/ssh_target";
     const std::wstring LOCAL_SOURCE_DIR = TestPaths::scratch_dir() + L"/ssh_path_encoding_src";
 }
@@ -49,9 +37,7 @@ protected:
         added_accounts_.push_back(name);
     }
     void SetUp() override { add_account(ACCOUNT_NAME); }
-    // Config is a process-wide singleton: an account left behind would change
-    // which paths the following tests resolve as SSH paths.
-    void TearDown() override
+    void TearDown() override  // [SshPathEncodingTests.md#TearDown]
     {
         for (const auto& name : added_accounts_) {
             const auto accounts = Config::instance().ssh_accounts_snapshot();
@@ -85,9 +71,7 @@ TEST_F(SshPathEncodingTest, SshSourceWithUmlautStaysConvertible)
     EXPECT_EQ(item.source(), source);
 }
 
-// SshPath::path() widens the account name the same way, so an umlaut in the
-// account name alone is enough - no matter what the remote path looks like.
-TEST_F(SshPathEncodingTest, SshAccountNameWithUmlautStaysConvertible)
+TEST_F(SshPathEncodingTest, SshAccountNameWithUmlautStaysConvertible)  // [SshPathEncodingTests.md#SshAccountNameWithUmlautStaysConvertible]
 {
     add_account("Büro");
     const std::wstring target = L"Büro:/tmp/autofilesync_test/ssh_target";
@@ -98,9 +82,7 @@ TEST_F(SshPathEncodingTest, SshAccountNameWithUmlautStaysConvertible)
     EXPECT_EQ(item.target(), target);
 }
 
-// The reported failure end to end: one file with an umlaut in its name makes
-// SyncTree report the conversion error for the whole item instead of syncing.
-TEST_F(SshPathEncodingTest, TreeSyncToSshTargetDoesNotAbortOnUmlautFilename)
+TEST_F(SshPathEncodingTest, TreeSyncToSshTargetDoesNotAbortOnUmlautFilename)  // [SshPathEncodingTests.md#TreeSyncToSshTargetDoesNotAbortOnUmlautFilename]
 {
     fs::remove_all(LOCAL_SOURCE_DIR);
     fs::create_directories(LOCAL_SOURCE_DIR);

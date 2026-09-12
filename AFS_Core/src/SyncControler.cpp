@@ -46,9 +46,7 @@ bool SyncControler::sync_finished() const
 
 void SyncControler::set_sync_finished() // called by Workerthread
 {
-	// GUI updates (ProgressDialog) must happen on the GUI thread; onTimer()
-	// polls sync_finished() there and closes/deletes the dialog itself.
-	log_debug(L"SyncControler::set_sync_finished()");
+	log_debug(L"SyncControler::set_sync_finished()");  // [SyncControler.md#set_sync_finished]
 	state_ = SyncCtrlState::SyncFinished;
 }
 
@@ -60,11 +58,7 @@ void SyncControler::destroy_synchronize()
 
 void SyncControler::request_stop()
 {
-	// Non-blocking half of stop_sync(): signals the worker thread to stop and
-	// returns immediately, letting the caller wait however suits it (e.g.
-	// ProgressDialog::OnCancel() needs to keep pumping the GUI event queue
-	// while waiting, which this class has no business knowing about).
-	log_debug(L"SyncControler::request_stop()");
+	log_debug(L"SyncControler::request_stop()");  // [SyncControler.md#request_stop]
 	if (state_ != SyncCtrlState::SyncActive)
 		return;
 	Synchronize::stop();

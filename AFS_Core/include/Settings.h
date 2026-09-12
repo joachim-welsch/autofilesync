@@ -7,9 +7,7 @@ namespace AFS_Core {
 enum class DeleteMode { RecycleBin, Permanent };
 
 class Settings {
-    // Recoverable deletion is the safer default and also what a config file
-    // written before this setting existed falls back to.
-    DeleteMode delete_mode_          = DeleteMode::RecycleBin;
+    DeleteMode delete_mode_          = DeleteMode::RecycleBin;  // [Settings.md#delete_mode_]
     bool console_mode_               = false;
     bool start_minimized_            = false;
     bool minimize_instead_of_close_    = false;
@@ -18,10 +16,7 @@ class Settings {
     bool show_errors_                = false;
     bool show_warnings_              = false;
     bool show_infos_                 = false;
-    // Directory the proofs of backup go into, one file per sync item. Empty
-    // means none are written, whatever a single sync item asks for - there is
-    // nowhere to put them.
-    std::wstring backup_proof_path_;
+    std::wstring backup_proof_path_;  // [Settings.md#backup_proof_path_]
 public:
     void set_console_mode() { console_mode_=true; }
     bool console_mode() const { return console_mode_; }

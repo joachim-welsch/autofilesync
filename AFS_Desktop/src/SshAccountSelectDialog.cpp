@@ -16,12 +16,10 @@ SshAccountSelectDialog::SshAccountSelectDialog(wxWindow* parent,
 {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Info text
     wxStaticText* infoText = new wxStaticText(this, wxID_STATIC,
         _(L"Wählen Sie eine SSH-Verbindung aus:"));
     mainSizer->Add(infoText, 0, wxEXPAND | wxALL, 10);
 
-    // List control
     listCtrl_ = new wxListCtrl(this, ID_SSH_SELECT_LIST, wxDefaultPosition,
         wxSize(400, 200), wxLC_REPORT | wxLC_SINGLE_SEL);
     
@@ -31,10 +29,8 @@ SshAccountSelectDialog::SshAccountSelectDialog(wxWindow* parent,
     
     mainSizer->Add(listCtrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     
-    // Bind double-click
     listCtrl_->Bind(wxEVT_LEFT_DCLICK, &SshAccountSelectDialog::onListDClick, this);
 
-    // Buttons
     wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 10);
 
@@ -57,8 +53,7 @@ void SshAccountSelectDialog::populateList()
     const SshAccounts accounts = Config::instance().ssh_accounts_snapshot();
     long index = 0;
     for (const auto& account : accounts) {
-        // FromUTF8 - siehe SshAccountsDialog::updateList().
-        long item = listCtrl_->InsertItem(index, wxString::FromUTF8(account.name()));
+        long item = listCtrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
         listCtrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
         listCtrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
         index++;

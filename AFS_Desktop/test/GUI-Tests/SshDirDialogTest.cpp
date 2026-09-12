@@ -22,9 +22,7 @@ namespace {
 constexpr char kTestHost[] = "localhost";
 constexpr char kTestUser[] = "testuser";
 constexpr char kTestPassword[] = "testpassword";
-// Own directory per test run, distinct from the fixtures the Integrationtests
-// project keeps under the same account, so the two suites cannot collide.
-constexpr char kSortProbeDir[] = "/tmp/autofilesync_guitest_sshdirdialog_sort_probe";
+constexpr char kSortProbeDir[] = "/tmp/autofilesync_guitest_sshdirdialog_sort_probe";  // [SshDirDialogTest.md#kSortProbeDir]
 constexpr std::array<const char*, 3> kSortProbeFilesUnsorted = {"zeta.txt", "alpha.txt", "mango.txt"};
 
 SshAccount testAccount()
@@ -37,10 +35,7 @@ SshAccount testAccount()
     return account;
 }
 
-// Bare libssh/SFTP session for fixture setup: SshDirInspector only lists and
-// reads directories, it has no upload/mkdir - those are only needed here, to
-// build the small remote directory the sort test navigates into.
-class RawSftpSession {
+class RawSftpSession {  // [SshDirDialogTest.md#RawSftpSession]
 public:
     RawSftpSession()
     {
@@ -85,10 +80,7 @@ std::string fileInProbeDir(const char* name)
     return std::string(kSortProbeDir) + "/" + name;
 }
 
-// Best-effort: an interrupted previous run may have left the directory behind,
-// so removal happens before creation too and neither treats a missing file as
-// an error.
-void removeSortProbeDir(sftp_session sftp)
+void removeSortProbeDir(sftp_session sftp)  // [SshDirDialogTest.md#removeSortProbeDir]
 {
     for (const char* name : kSortProbeFilesUnsorted)
         sftp_unlink(sftp, fileInProbeDir(name).c_str());
@@ -110,13 +102,7 @@ void createSortProbeDir(sftp_session sftp)
 
 }
 
-// Drives the Home and Sort-by-name buttons SshDirDialog got alongside Up and
-// Refresh: Home should jump to the account's login directory, and Sort should
-// reorder the currently shown entries ascending, then descending, without a
-// new server round trip. Needs the local SSH test server from
-// test/Integrationstests/SSH_TESTS_README.md and skips itself when that is
-// not reachable, the same way the SSH Integrationtests do.
-class SshDirDialogTest: public GuiTest {
+class SshDirDialogTest: public GuiTest {  // [SshDirDialogTest.md#SshDirDialogTest]
 protected:
     void SetUp() override
     {
@@ -135,8 +121,7 @@ protected:
         try {
             RawSftpSession session;
             removeSortProbeDir(session.get());
-        } catch (const std::exception&) {
-            // Server already unreachable - nothing left to clean up on it.
+        } catch (const std::exception&) {  // server already unreachable - nothing left to clean up on it
         }
         GuiTest::TearDown();
     }

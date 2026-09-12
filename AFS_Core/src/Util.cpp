@@ -54,10 +54,7 @@ uint16_t to_uint16_t(const std::wstring& s)
 
 std::wstring with_trailing_char(const std::wstring& s, wchar_t c)
 {
-    // s.empty() must be checked first: *rbegin() on an empty string is UB
-    // (hard iterator-debug assert on MSVC). Empty input keeps the contract
-    // "result ends with c".
-    if (!s.empty() && s.back() == c)
+    if (!s.empty() && s.back() == c)  // [Util.md#with_trailing_char-empty-input]
         return s;
     return s + c;
 }
@@ -140,10 +137,7 @@ static std::tm utc_time(std::time_t tt)
     return tm;
 }
 
-// floor() instead of system_clock::to_time_t(): to_time_t may round to the
-// nearest second, which would pair a rounded-up second with the milliseconds of
-// the original one and yield a timestamp that never existed.
-static std::wstring timestamp(std::chrono::system_clock::time_point time)
+static std::wstring timestamp(std::chrono::system_clock::time_point time)  // [Util.md#timestamp]
 {
     using namespace std::chrono;
     const auto second = floor<seconds>(time);
@@ -157,9 +151,7 @@ static std::wstring timestamp(std::chrono::system_clock::time_point time)
 
 fs::path with_timestamp_prefix(const fs::path& pathname, std::chrono::system_clock::time_point time)
 {
-    // A path ending in a separator (or an empty one) has no file name to
-    // prefix; prefixing the last directory instead would silently rename it.
-    if (pathname.filename().empty())
+    if (pathname.filename().empty())  // [Util.md#filename-required]
         return pathname;
     return pathname.parent_path() / (timestamp(time) + L"_" + pathname.filename().wstring());
 }
@@ -178,11 +170,7 @@ void handle_last_error(std::filesystem::filesystem_error const& ex)
 
 static std::wregex wildcard_to_regex(const std::wstring& wildcard, bool case_sensitive = true)
 {
-    // Everything except the wildcard metacharacters * and ? must be escaped:
-    // an unescaped '.' made "*.txt" match "abXtxt", parentheses turned into
-    // regex groups so "Fotos (2020)*" never matched its own files, and an
-    // unbalanced '[' or '(' threw std::regex_error on every comparison.
-    std::wstring regex;
+    std::wstring regex;  // [Util.md#wildcard-escaping]
     regex.reserve(wildcard.size() * 2);
     for (wchar_t c : wildcard) {
         switch (c) {
@@ -238,8 +226,7 @@ bool files_equal(const wstring& input1, const wstring& input2)
 static std::time_t to_time_t(const fs::file_time_type& ft)
 {
     using namespace std::chrono;
-#ifdef _MACOS
-    // clock_cast is unavailable in Apple's libc++
+#ifdef _MACOS  // clock_cast is unavailable in Apple's libc++
     const auto sys = file_clock::to_sys(ft);
 #else
     const auto sys = clock_cast<system_clock>(ft);
@@ -257,8 +244,7 @@ string to_string(const fs::file_time_type& ft)
 
 bool equal(const std::filesystem::file_time_type& a, const std::filesystem::file_time_type& b)
 {
-#ifdef _MACOS
-    // clock_cast is unavailable in Apple's libc++, so use file_clock::to_sys instead
+#ifdef _MACOS  // clock_cast is unavailable in Apple's libc++, so file_clock::to_sys is used
     return std::chrono::file_clock::to_sys(a) == std::chrono::file_clock::to_sys(b);
 #else
     return a == b;
@@ -267,8 +253,7 @@ bool equal(const std::filesystem::file_time_type& a, const std::filesystem::file
 
 bool greater(const std::filesystem::file_time_type& a, const std::filesystem::file_time_type& b)
 {
-#ifdef _MACOS
-    // clock_cast is unavailable in Apple's libc++, so use file_clock::to_sys instead
+#ifdef _MACOS  // clock_cast is unavailable in Apple's libc++, so file_clock::to_sys is used
     return std::chrono::file_clock::to_sys(a) > std::chrono::file_clock::to_sys(b);
 #else
     return a > b;
@@ -294,9 +279,7 @@ bool rename_file(const std::wstring& oldname, const std::wstring& newname)
 bool remove_file(const std::wstring& name, LogLevel ll)
 {
     try {
-        // fs::remove() answers false when there was nothing to remove, which
-        // is not an error but must not be reported as a deletion either.
-        return fs::remove(name);
+        return fs::remove(name);  // [Util.md#remove-returns-false]
     }
     catch (const fs::filesystem_error& ex) {
         if (ll != LogLevel::None)

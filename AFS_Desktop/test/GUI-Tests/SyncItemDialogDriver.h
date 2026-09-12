@@ -11,8 +11,6 @@ struct SyncItemInput {
     wxString target;
 };
 
-// Fills the "Allgemein" tab of a SyncItemDialog the way a user would and
-// confirms it with OK. Pass the result to ModalDialogWatcher::expect().
-DialogAction fillSyncItemDialog(const SyncItemInput& input);
+DialogAction fillSyncItemDialog(const SyncItemInput& input);  // [SyncItemDialogDriver.md#fillSyncItemDialog]
 
 }

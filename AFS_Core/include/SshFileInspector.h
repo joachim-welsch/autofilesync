@@ -35,16 +35,9 @@ class SshFileInspector {
 #endif
     SshAccount account_;
 public:
-  // Connects, verifies the host key and logs in; throws if any of that fails,
-  // so a constructed object means the remote side is up.
-  SshFileInspector(const SshAccount& account);
+  SshFileInspector(const SshAccount& account);  // [SshFileInspector.md#SshFileInspector]
   ~SshFileInspector();
-  // remote_path is the path on the remote side without the account prefix
-  // ("/home/user/data", not "account:/home/user/data"); Windows paths are
-  // transcribed here ("C:\dir" -> "/C:/dir"). exists=false means "connected
-  // and definitely absent"; any other failure throws so that a connection
-  // problem does not look like a deleted file.
-  RemoteFileInfo inspect_file(const std::string& remote_path);
+  RemoteFileInfo inspect_file(const std::string& remote_path);  // [SshFileInspector.md#inspect_file]
 };
 
 } // namespace AFS_Core

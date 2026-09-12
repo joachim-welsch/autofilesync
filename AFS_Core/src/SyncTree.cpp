@@ -25,8 +25,7 @@ SyncTree::SyncTree(const SyncItem& si, std::size_t& copy_count, bool only_count)
     : SyncBase(si, copy_count, only_count)
 {}
 
-// SSH/SFTP paths always use '/', regardless of the client platform
-wchar_t SyncTree::source_separator() const
+wchar_t SyncTree::source_separator() const  // SSH/SFTP paths always use '/', regardless of the client platform
 {
     return sync_item_.ssh_source() ? L'/' : DIR_SEPARATOR;
 }
@@ -47,8 +46,7 @@ std::vector<SyncTree::Entry> SyncTree::list_source(const wstring& sourcename) co
     for (const fs::directory_entry& entry : fs::directory_iterator(with_trailing_char(sourcename, DIR_SEPARATOR))) {
         try {
             entries.push_back({entry.path().filename().wstring(), entry.is_directory(), entry.is_regular_file(), entry.is_symlink()});
-        } catch (const std::exception& e) {
-            // One unreadable entry (e.g. a name that cannot be converted) must not hide the rest of the directory
+        } catch (const std::exception& e) {  // one unreadable entry must not hide the rest of the directory
             log_error(sourcename, string_to_wstring(e.what()));
         }
     }
@@ -63,9 +61,7 @@ void SyncTree::sync_tree(const wstring& sourcename, const wstring& targetname, c
     try {
         create_target_dir_if_not_exist(targetname);
         const std::set<wstring> source_names = sync_entries(sourcename, targetname, wildcard);
-        // Target-only subdirectories are intentionally out of scope here (see
-        // sync_target_only_entries()'s doc comment) - only files at this level.
-        if (!Synchronize::stopping())
+        if (!Synchronize::stopping())  // [SyncTree.md#target-only-files-at-this-level]
             sync_target_only_entries(sourcename, targetname, wildcard, source_names);
     }
     catch (const std::exception& e) {
@@ -78,12 +74,7 @@ void SyncTree::sync_tree(const wstring& sourcename, const wstring& targetname, c
     }
 }
 
-// Returns every name seen in this directory level's source listing, so the
-// target-only pass can tell "not in source" from "wildcard-excluded, ignore" -
-// see SyncBase::sync_target_only_entries(). Subdirectory names are included,
-// so a target file sharing a source subdirectory's name is never mistaken for
-// an orphan.
-std::set<wstring> SyncTree::sync_entries(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
+std::set<wstring> SyncTree::sync_entries(const wstring& sourcename, const wstring& targetname, const wstring& wildcard)  // [SyncTree.md#sync_entries]
 {
     std::set<wstring> source_names;
     for (const Entry& entry : list_source(sourcename)) {
@@ -97,10 +88,7 @@ std::set<wstring> SyncTree::sync_entries(const wstring& sourcename, const wstrin
 
 void SyncTree::sync_entry(const Entry& entry, const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
-    // Never follow a symlink to a directory: a link back to an ancestor would
-    // recurse forever. An SSH listing cannot tell what a link points to without
-    // an extra round trip, so there every symlink is skipped.
-    if (entry.is_symlink && !entry.is_regular_file)
+    if (entry.is_symlink && !entry.is_regular_file)  // [SyncTree.md#symlinks-never-followed]
         log_info(L"Symlink wird nicht verfolgt: ", with_trailing_char(sourcename, source_separator()) + entry.name);
     else if (entry.is_directory)
         sync_subtree(entry.name, sourcename, targetname, wildcard);
@@ -110,9 +98,7 @@ void SyncTree::sync_entry(const Entry& entry, const wstring& sourcename, const w
 
 void SyncTree::sync_subtree(const wstring& name, const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
-    // An excluded directory is skipped as a whole, not filtered per contained
-    // file: a subtree like "node_modules" is never entered.
-    if (is_excluded(name, sync_item_.exclusions()))
+    if (is_excluded(name, sync_item_.exclusions()))  // [SyncTree.md#excluded-directories]
         log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + name);
     else
         sync_tree(with_trailing_char(sourcename, source_separator()) + name, with_trailing_char(targetname, target_separator()) + name, wildcard);

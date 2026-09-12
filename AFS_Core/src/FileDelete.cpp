@@ -15,10 +15,7 @@ bool delete_file(const std::wstring& pathname)
     if (Config::instance().settings().delete_mode() == DeleteMode::Permanent)
         return util::remove_file(pathname, LogLevel::Error);
     const fs::path source(pathname);
-    // relative_path() strips the root ("C:\" resp. "/") so the origin's
-    // directory structure is rebuilt below the bin; the timestamp prefix keeps
-    // files deleted repeatedly from the same place apart.
-    const fs::path item = util::with_timestamp_prefix(source.relative_path());
+    const fs::path item = util::with_timestamp_prefix(source.relative_path());  // [FileDelete.md#recycle-bin-layout]
     if (!RecycleBin::instance().add_item(source, item)) {
         log_error(L"Verschieben in den Papierkorb fehlgeschlagen: ", pathname);
         return false;

@@ -68,10 +68,7 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, u
         return true;
     }
     catch (const std::exception& e) {
-        // Connection/auth failure, not a confirmed-absent file: must not be
-        // mistaken for "source deleted", or SyncFile deletes the destination
-        // (Fehler 2) the moment delete_in_target() is enabled.
-        log_error(L"SSH-Fehler beim Lesen von " + fname + L": " + string_to_wstring(e.what()));
+        log_error(L"SSH-Fehler beim Lesen von " + fname + L": " + string_to_wstring(e.what()));  // [FileDifference.md#ssh-error-is-not-absence]
         drive_mounted = false;
         return false;
     }

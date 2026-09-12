@@ -27,12 +27,9 @@ class Logging {
     std::wstring	editor_path_name_ = L"/usr/bin/nautilus";
 #endif
 	uint16_t		retention_days_ = 7;
-	// Recipient for the levels that need a person to act (see LogLevel).
-	// Off by default: an install must not start sending anywhere unasked.
-	bool			notify_email_active_ = false;
+	bool			notify_email_active_ = false;  // [Logging.md#notify_email_active_]
 	std::wstring	notify_email_;
-	// The account the notification is sent through.
-	SmtpAccount		smtp_;
+	SmtpAccount		smtp_;  // the account the notification is sent through
 	std::string		last_notified_;
 	std::chrono::steady_clock::time_point last_notify_time_{};
 	FILE*			fos_ = nullptr;

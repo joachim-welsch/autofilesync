@@ -17,8 +17,7 @@
 #else
     #ifdef _WIN32
         #include <winsock2.h>
-        #include <ws2tcpip.h>
-        // MinGW: Link with -lws2_32 -lssh2 in Makefile/CMakeLists.txt
+        #include <ws2tcpip.h>  // MinGW: link with -lws2_32 -lssh2 in Makefile/CMakeLists.txt
     #endif
 #endif
 
@@ -49,16 +48,10 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 {
     RemoteFileInfo info{};
     info.last_modified_iso = "N/A";
-    // Configured paths may use either separator (Settings.cpp stores them as
-    // entered); the remote sftp server only understands slashes.
-    const std::string sftp_path = win_to_sftp_path(remote_path);
+    const std::string sftp_path = win_to_sftp_path(remote_path);  // [SshFileInspector.md#path-separators]
     const auto attributes = connection_.stat(sftp_path);
     if (!attributes) {
-        // Only a confirmed "no such file" may report exists=false: the caller
-        // (read_ssh_file_info) treats that as safe-to-delete for delete_in_target.
-        // Any other failure (permission denied, dropped session) must not be
-        // mistaken for an absent file - throw into the caller's error path.
-        const int err = sftp_get_error(connection_.sftp());
+        const int err = sftp_get_error(connection_.sftp());  // [SshFileInspector.md#absence-vs-failure]
         if (err == SSH_FX_NO_SUCH_FILE || err == SSH_FX_NO_SUCH_PATH)
             return info;
         throw std::runtime_error("SFTP-Stat fehlgeschlagen (Fehlercode " + std::to_string(err) + "): " + sftp_path);
@@ -72,7 +65,6 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 
 #else
 #ifdef _WIN32
-// Windows implementation on libssh2
 
 static void init_winsock()
 {
@@ -185,21 +177,13 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
     }
     auto sftp_path = remote_path;
 #ifdef WIN32
-    // Only the spelling is adjusted ("C:\dir" -> "/C:/dir"). The parameter is
-    // the remote path without account prefix; running get_remote_path() over
-    // it again would cut a drive letter path at its colon ("C:\temp\x" ->
-    // "/temp/x"), which only ever worked because the Windows SFTP server
-    // looks up "/temp" on the system drive.
-    sftp_path = win_to_sftp_path(remote_path);
+    sftp_path = win_to_sftp_path(remote_path);  // [SshFileInspector.md#no-double-path-translation]
 #endif
     LIBSSH2_SFTP_ATTRIBUTES attrs;
     int rc = libssh2_sftp_stat(sftp_session_ptr_, sftp_path.c_str(), &attrs);
 
     if (rc != 0) {
-        // Only a confirmed "no such file" may report exists=false - see the
-        // UNIX variant above. Other errors (permission denied, session error)
-        // must throw into the caller's error path.
-        const unsigned long err = libssh2_sftp_last_error(sftp_session_ptr_);
+        const unsigned long err = libssh2_sftp_last_error(sftp_session_ptr_);  // [SshFileInspector.md#absence-vs-failure]
         if (rc == LIBSSH2_ERROR_SFTP_PROTOCOL
             && (err == LIBSSH2_FX_NO_SUCH_FILE || err == LIBSSH2_FX_NO_SUCH_PATH)) {
             info.exists = false;
@@ -221,8 +205,7 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
     return info;
 }
 
-#else
-// Fallback for unsupported platforms
+#else  // fallback for unsupported platforms
 
 SshFileInspector::SshFileInspector(const SshAccount& account) 
     : account_(account)

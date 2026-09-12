@@ -16,9 +16,7 @@ using util::string_to_wstring;
 using util::wstring_to_string;
 
 namespace {
-// Sent as the "system" turn on every request: the model has no other way to
-// know what Autofilesync is, since there is no RAG/document lookup.
-const string SYSTEM_PROMPT =
+const string SYSTEM_PROMPT =  // [LlamaClient.md#SYSTEM_PROMPT]
     "Du bist der eingebaute Assistent von Autofilesync, einem Programm zur "
     "benutzerfreundlichen automatischen Synchronisation von Dateien und Verzeichnisbaeumen "
     "unter Windows und Linux. Antworte auf Deutsch, kurz und konkret bezogen auf Autofilesync.\n"
@@ -33,9 +31,7 @@ const string SYSTEM_PROMPT =
     "Wenn du eine Frage nicht sicher aus diesem Wissen beantworten kannst, sag das offen, "
     "statt Funktionen zu erfinden, die es nicht gibt.";
 
-// Sent in front of the excerpt for analyze_log(): a plain log dump without an
-// instruction leaves the model guessing what kind of answer is wanted.
-const wstring LOG_ANALYSIS_INSTRUCTION =
+const wstring LOG_ANALYSIS_INSTRUCTION =  // [LlamaClient.md#LOG_ANALYSIS_INSTRUCTION]
     L"Der folgende Ausschnitt stammt aus der Autofilesync-Logdatei (neueste Eintraege stehen "
     L"zuletzt). Nutze ihn, um die anschliessende Frage des Nutzers zu beantworten. Enthaelt der "
     L"Ausschnitt dafuer nichts Passendes, sag das offen, statt etwas zu erfinden.\n\n";
@@ -63,9 +59,7 @@ bool LlamaClient::ensure_loaded(wstring& error)
                 L" auf eine GGUF-Datei setzen und das Programm neu starten.";
         return false;
     }
-    // Idempotent and required exactly once before any other llama_* call;
-    // cheapest to do lazily here rather than force every caller to remember it.
-    static const bool BACKEND_READY = (llama_backend_init(), true);
+    static const bool BACKEND_READY = (llama_backend_init(), true);  // [LlamaClient.md#backend-init]
     (void)BACKEND_READY;
     llama_model_params model_params = llama_model_default_params();
     model_params.n_gpu_layers = 0; // CPU only: no assumption about the user's GPU/driver setup
@@ -76,15 +70,7 @@ bool LlamaClient::ensure_loaded(wstring& error)
     }
     llama_context_params ctx_params = llama_context_default_params();
     ctx_params.n_ctx = 8192;
-    // n_batch is deliberately left at its library default (2048), not raised
-    // to match n_ctx: send() hands the whole prompt to llama_decode() in one
-    // llama_batch_get_one() call, and a several-thousand-token prompt (e.g. a
-    // log excerpt) submitted as a single batch this large measured drastically
-    // slower on the CPU backend than the same tokens processed within the
-    // default batch size - minutes instead of seconds. send() checks the
-    // prompt against llama_n_batch() before ever calling decode, so a prompt
-    // this large is refused outright, not hung.
-    const auto threads = static_cast<int32_t>(std::max(1u, std::thread::hardware_concurrency()));
+    const auto threads = static_cast<int32_t>(std::max(1u, std::thread::hardware_concurrency()));  // [LlamaClient.md#batch-size]
     ctx_params.n_threads = threads;
     ctx_params.n_threads_batch = threads;
     llama_context* ctx = llama_init_from_model(model, ctx_params);
@@ -101,9 +87,7 @@ bool LlamaClient::ensure_loaded(wstring& error)
 
 wstring LlamaClient::build_prompt(const ChatHistory& history) const
 {
-    // llama_chat_message.content points into these, so they must outlive the
-    // llama_chat_apply_template() calls below.
-    std::vector<string> contents;
+    std::vector<string> contents;  // [LlamaClient.md#contents-lifetime]
     contents.reserve(history.size() + 1);
     contents.push_back(SYSTEM_PROMPT);
     for (const ChatTurn& turn : history)
@@ -140,9 +124,7 @@ ChatReply LlamaClient::send(const ChatHistory& history)
         return { false, L"Das Modell unterstuetzt kein bekanntes Chat-Format." };
 
     llama_context* ctx = context_.get();
-    // Every turn re-sends the whole history (see ChatTypes.h), so the previous
-    // turn's KV cache is stale weight, not something to build on.
-    llama_memory_clear(llama_get_memory(ctx), true);
+    llama_memory_clear(llama_get_memory(ctx), true);  // [LlamaClient.md#kv-cache-cleared]
 
     const string utf8_prompt = wstring_to_string(prompt);
     std::vector<llama_token> tokens(utf8_prompt.size() + 32);
@@ -154,12 +136,7 @@ ChatReply LlamaClient::send(const ChatHistory& history)
             tokens.data(), static_cast<int32_t>(tokens.size()), true, true);
     }
     tokens.resize(n_tokens);
-    // Checked against n_batch, not just n_ctx: send() submits the whole prompt
-    // to llama_decode() as a single batch (see ensure_loaded()), so a prompt
-    // that fits the context window can still exceed what one batch may carry -
-    // GGML_ASSERT(n_tokens_all <= n_batch) aborts the whole process instead of
-    // just this request, and there is no recovering from that here.
-    if (tokens.empty() || static_cast<uint32_t>(tokens.size()) >= llama_n_ctx(ctx)
+    if (tokens.empty() || static_cast<uint32_t>(tokens.size()) >= llama_n_ctx(ctx)  // [LlamaClient.md#prompt-size-check]
         || static_cast<uint32_t>(tokens.size()) >= llama_n_batch(ctx)) {
         log_error(L"LlamaClient: Prompt zu lang, Tokens: ", std::to_wstring(tokens.size()));
         return { false, L"Die Unterhaltung ist laenger als das Kontextfenster des Modells." };
@@ -175,9 +152,7 @@ ChatReply LlamaClient::send(const ChatHistory& history)
     llama_sampler_chain_add(sampler.get(), llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
 
     string answer;
-    // Thinking and answer share this budget - a fixed cap keeps one runaway
-    // reply from filling the whole context window.
-    constexpr int MAX_NEW_TOKENS = 2048;
+    constexpr int MAX_NEW_TOKENS = 2048;  // [LlamaClient.md#token-budget]
     for (int i = 0; i < MAX_NEW_TOKENS; ++i) {
         llama_token token = llama_sampler_sample(sampler.get(), ctx, -1);
         llama_sampler_accept(sampler.get(), token);

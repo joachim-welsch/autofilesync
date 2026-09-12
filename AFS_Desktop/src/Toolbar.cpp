@@ -3,14 +3,10 @@
 #include "utilwx.h"
 #include "TextResources.h"
 #ifdef _UNIX
-    // sudo apt install imagemagick
-    // convert stop.bmp stop.xpm
-    // edit stop.xpm and rename stop to stop_xpm
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wwrite-strings"
 
-    //#include "../icons/sample_xpm.xpm"
-    #include "../bitmaps/new.xpm"
+    #include "../bitmaps/new.xpm"  // [Toolbar.md#xpm-icons]
     #include "../bitmaps/edit.xpm"
     #include "../bitmaps/save.xpm"
     #include "../bitmaps/delete.xpm"

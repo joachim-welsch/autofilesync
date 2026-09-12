@@ -21,7 +21,6 @@ SyncFlags::SyncFlags(bool del_aftercopy, bool tws, bool cwtn, bool fsp, bool ena
     , enabled_(enabled)
 {}
 
-// FilesystemPath //////////////////////////////////////////////////////////////////////////////////////////////////
 FilesystemPath::FilesystemPath()
     : SyncPath(SyncPathType::Filesystem)
 {}
@@ -46,14 +45,11 @@ void FilesystemPath::set_path(const std::wstring& path)
     path_ = path;
 }
 
-// SshPath //////////////////////////////////////////////////////////////////////////////////////////////////
 SshPath::SshPath()
     : SyncPath(SyncPathType::Ssh)
 {}
 
-// Stores the path without its account prefix ("laptop:/home/x" -> "/home/x");
-// path() puts the prefix back.
-SshPath::SshPath(const SshAccount& account, const std::wstring& path)
+SshPath::SshPath(const SshAccount& account, const std::wstring& path)  // [SyncItem.md#SshPath-strips-account-prefix]
     : SyncPath(SyncPathType::Ssh)
     , account_(account)
     , path_(path)
@@ -99,10 +95,7 @@ static optional<CompareItem> str_to_compare_item(const std::wstring& s)
     return nullopt;
 }
 
-// The gettext message ids are the German strings the configuration has stored
-// since the first version, which is why sync_item_type_key() can keep writing them
-// while sync_item_type_to_str() shows the translation.
-constexpr std::pair<SyncItemType, const char*> SYNC_ITEM_TYPE_IDS[] = {
+constexpr std::pair<SyncItemType, const char*> SYNC_ITEM_TYPE_IDS[] = {  // [SyncItem.md#SYNC_ITEM_TYPE_IDS]
     {SyncItemType::File, "Datei"},
     {SyncItemType::Dir, "Verzeichnis"},
     {SyncItemType::Tree, "Verzeichnisbaum"},
@@ -126,15 +119,12 @@ wstring sync_item_type_to_str(SyncItemType st)
 
 SyncItemType str_to_sync_item_type(const std::wstring& str)
 {
-    // Both spellings have to be understood: the untranslated key from the
-    // configuration file and the translated text a dialog hands back.
-    for (const auto& [type, msgid] : SYNC_ITEM_TYPE_IDS)
+    for (const auto& [type, msgid] : SYNC_ITEM_TYPE_IDS)  // [SyncItem.md#sync_item_type_from_str]
         if (str == util::string_to_wstring(msgid) || str == translation::translate(msgid))
             return type;
     return SyncItemType::Undefined;
 }
 
-// CompareItems /////////////////////////////////////////////////////////////////////////////////////////////////
 CompareItems::CompareItems() : std::set<CompareItem>{CompareItem::content}
 {}
 
@@ -184,7 +174,6 @@ void CompareItems::content(bool is_set)
         erase(CompareItem::content);
 }
 
-// Exclusions /////////////////////////////////////////////////////////////////////////////////////////////////
 bool is_excluded(const wstring& name, const Exclusions& exclusions)
 {
     for (const auto& pattern : exclusions)
@@ -193,7 +182,6 @@ bool is_excluded(const wstring& name, const Exclusions& exclusions)
     return false;
 }
 
-// SyncItem /////////////////////////////////////////////////////////////////////////////////////////////////
 SyncItem::SyncItem(const wstring& name, SyncItemType type, const wstring& s, const wstring& t, const wstring& w)
     : name_(name)
     , type_(type)
@@ -246,10 +234,7 @@ void SyncItem::source(const std::wstring& s)
     auto account_opt = get_account_from_path(s);
     if (account_opt.has_value()) {
         log_debug("SyncItem::source: SSH account found");
-        // SshPath strips the account prefix itself; the detour over the narrow
-        // get_remote_path() only re-widened the UTF-8 bytes one by one and turned
-        // every non-ASCII character into an unencodable wchar_t.
-        source_ = std::make_unique<SshPath>(account_opt.value(), s);
+        source_ = std::make_unique<SshPath>(account_opt.value(), s);  // [SyncItem.md#ssh-path-without-round-trip]
     } else {
         source_ = std::make_unique<FilesystemPath>(s);
     }
@@ -261,9 +246,7 @@ void SyncItem::target(const std::wstring& t)
     auto account_opt = get_account_from_path(t);
     if (account_opt.has_value()) {
         log_debug("SyncItem::target: SSH account found");
-        // See SyncItem::source() - SshPath removes the prefix without a
-        // narrow/wide round trip.
-        target_ = std::make_unique<SshPath>(account_opt.value(), t);
+        target_ = std::make_unique<SshPath>(account_opt.value(), t);  // [SyncItem.md#ssh-path-without-round-trip]
     } else {
         target_ = std::make_unique<FilesystemPath>(t);
     }
@@ -296,12 +279,7 @@ SshPath* SyncItem::ssh_path(const std::unique_ptr<SyncPath>& path) const
 
 bool SyncItem::rename_ssh_account_reference(const std::string& old_name, const SshAccount& new_account)
 {
-    // source_/target_ hold a *copy* of the SshAccount taken when the path was
-    // set (see source()/target() above), not a live lookup - so renaming or
-    // editing the account in Config leaves existing items pointing at a name
-    // that no longer resolves. Config calls this on every item after a
-    // successful account edit to keep them in sync.
-    bool changed = false;
+    bool changed = false;  // [SyncItem.md#rename-account-references]
     for (SshPath* path : { ssh_path(source_), ssh_path(target_) })
         if (path && path->account().name() == old_name) {
             path->set_account(new_account);

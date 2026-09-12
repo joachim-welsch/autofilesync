@@ -42,12 +42,7 @@ std::wstring string_to_wstring(const std::string& s)
     return result;
 }
 #else
-// Hand-written instead of std::wstring_convert: that one throws std::range_error
-// on the first byte that is not valid UTF-8, and file names on Linux are
-// arbitrary bytes. These conversions run inside every log call, including the
-// ones in catch handlers, so they must never throw; invalid input becomes
-// U+FFFD instead.
-namespace {
+namespace {  // [StrUtil.md#utf8-conversions-never-throw]
     constexpr char32_t REPLACEMENT_CHAR = 0xFFFD;
 
     bool is_continuation(unsigned char c)
@@ -55,8 +50,7 @@ namespace {
         return (c & 0xC0) == 0x80;
     }
 
-    // Decodes one code point starting at s[pos] and advances pos past it.
-    char32_t decode_utf8(const std::string& s, size_t& pos)
+    char32_t decode_utf8(const std::string& s, size_t& pos)  // [StrUtil.md#decode_utf8]
     {
         const auto lead = static_cast<unsigned char>(s[pos++]);
         if (lead < 0x80)

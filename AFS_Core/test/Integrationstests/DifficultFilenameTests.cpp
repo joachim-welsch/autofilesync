@@ -14,26 +14,12 @@ using std::wstring;
 using std::string;
 
 namespace {
-    // Alle drei Verzeichnisse liegen unter dem Scratch-Verzeichnis (ein
-    // Unterverzeichnis von /tmp) und sind selbst ASCII-only - die schwierigen
-    // Zeichen stecken ausschliesslich in den Dateinamen darunter
-    // (DIFFICULT_NAMES), nie im Verzeichnispfad. So bleibt jede
-    // wstring-Konvertierung des Verzeichnispfads unkritisch; nur der native
-    // (UTF-8) Dateiname selbst muss die Sonderfaelle ueberstehen.
-    const wstring BASE_DIR = TestPaths::scratch_dir() + L"/difficult_filenames";
+    const wstring BASE_DIR = TestPaths::scratch_dir() + L"/difficult_filenames";  // [DifficultFilenameTests.md#BASE_DIR]
     const wstring SOURCE_DIR = BASE_DIR + L"/quelle";
     const wstring TARGET1_DIR = BASE_DIR + L"/ziel1";
     const wstring TARGET2_DIR = BASE_DIR + L"/ziel2";
 
-    // Absichtlich moeglichst schwierige, aber unter Linux gueltige Dateinamen
-    // (nur '/' und NUL sind dort in einem Dateinamen wirklich verboten): sehr
-    // lang, mit Leerzeichen (fuehrend/mehrfach/abschliessend), Shell-
-    // Sonderzeichen samt eingebettetem Backslash, ein verstecktes Dotfile,
-    // ein Name nur aus Punkten, Unicode/Emoji, ein eingebetteter
-    // Zeilenumbruch, ein abschliessender Punkt und ein fuehrender
-    // Bindestrich (koennte in einer Shell faelschlich als Option gelesen
-    // werden).
-    const std::vector<string> DIFFICULT_NAMES = {
+    const std::vector<string> DIFFICULT_NAMES = {  // [DifficultFilenameTests.md#DIFFICULT_NAMES]
         string(200, 'a') + ".txt",
         "Datei mit Leerzeichen.txt",
         "   mehrfache   Leerzeichen   .txt",
@@ -54,9 +40,7 @@ namespace {
             std::ofstream(dir / name).close();
     }
 
-    // Prueft, dass jeder schwierige Name im Zielverzeichnis als leere Datei
-    // angekommen ist.
-    void expect_all_present_and_empty(const fs::path& dir)
+    void expect_all_present_and_empty(const fs::path& dir)  // [DifficultFilenameTests.md#expect_all_present_and_empty]
     {
         for (const auto& name : DIFFICULT_NAMES) {
             const fs::path file = dir / name;
@@ -68,11 +52,7 @@ namespace {
     }
 }
 
-// Kopiert eine leere Datei unter moeglichst vielen schwierigen Dateinamen
-// (lang, Leerzeichen, Sonderzeichen, Unicode, ...) von einem Quell- in zwei
-// verschiedene Zielverzeichnisse unter /tmp und prueft, dass alle Namen
-// unversehrt und leer ankommen.
-TEST(DifficultFilenameTests, EmptyFilesWithDifficultNamesSyncToTwoTargets)
+TEST(DifficultFilenameTests, EmptyFilesWithDifficultNamesSyncToTwoTargets)  // [DifficultFilenameTests.md#EmptyFilesWithDifficultNamesSyncToTwoTargets]
 {
     fs::remove_all(BASE_DIR);
     create_empty_files(SOURCE_DIR);
@@ -84,10 +64,7 @@ TEST(DifficultFilenameTests, EmptyFilesWithDifficultNamesSyncToTwoTargets)
         si.sync_item_type(SyncItemType::Dir);
         si.source(SOURCE_DIR);
         si.target(target);
-        // Ohne dieses Flag werden 0-Byte-Quelldateien absichtlich
-        // uebersprungen (siehe SyncFileTests: leere Dateien gelten sonst als
-        // abgebrochener Schreibvorgang) - hier sind sie aber gewollt leer.
-        si.sync_empty_files(true);
+        si.sync_empty_files(true);  // [DifficultFilenameTests.md#sync-empty-files-needed]
         std::size_t copy_count = 0;
         SyncDir sync(si, copy_count, false);
         sync();

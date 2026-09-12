@@ -27,9 +27,7 @@ using std::wstring_view;
 
 #ifdef WIN32
 namespace {
-// Reads the Win32 environment block instead of the CRT cache so that values
-// set at runtime are seen.
-std::wstring env_var(const wchar_t* name)
+std::wstring env_var(const wchar_t* name)  // [Logging.md#env_var]
 {
 	DWORD len = GetEnvironmentVariableW(name, nullptr, 0);
 	if (len == 0)
@@ -43,10 +41,7 @@ std::wstring env_var(const wchar_t* name)
 
 std::wstring get_default_log_file_path()
 {
-	// As on Linux (~/.cache/autofilesync) the log belongs in the user's own data
-	// directory, not in %TEMP%: cleanup tools purge that, and all users of the
-	// machine would share one file name. Logging::create_dir() creates it on demand.
-	std::wstring base = env_var(L"LOCALAPPDATA");
+	std::wstring base = env_var(L"LOCALAPPDATA");  // [Logging.md#windows-log-location]
 	if (base.empty())
 		base = env_var(L"APPDATA");
 	if (base.empty()) {
@@ -57,8 +52,7 @@ std::wstring get_default_log_file_path()
 	if (!base.empty())
 		return base + L"\\autofilesync\\autofilesync.log";
 
-	// Last resort when the environment is completely empty (service context).
-	wchar_t temp_path[MAX_PATH];
+	wchar_t temp_path[MAX_PATH];  // last resort when the environment is completely empty (service context)
 	DWORD len = GetTempPathW(MAX_PATH, temp_path);
 	if (len > 0 && len < MAX_PATH) {
 		return std::wstring(temp_path) + L"autofilesync.log";
@@ -66,13 +60,7 @@ std::wstring get_default_log_file_path()
 	return L"C:\\Temp\\autofilesync.log";
 }
 #else
-// Logging.h's non-WIN32 default used to be a hardcoded developer path
-// (/home/welschj/temp/autofilesync.log) - the equivalent of this function
-// simply was never written for Linux/macOS, so it fell back to a literal
-// path that exists on exactly one machine. On any other install, logging
-// silently produced nothing (open_file() failing is now tolerated, not
-// fixed) unless a config file already existed and happened to override it.
-std::wstring get_default_log_file_path()
+std::wstring get_default_log_file_path()  // [Logging.md#get_default_log_file_path]
 {
 	const char* home = getenv("HOME");
 	if (!home)
@@ -92,17 +80,14 @@ Logging& Logging::instance()
 	return *instance_;
 }
 
-// Counts from the last enumerator, so the table below covers every level.
-// Leaving None out made log_level_str(LogLevel::None) read past the end.
-constexpr int count_enum_elements()
+constexpr int count_enum_elements()  // [Logging.md#count_enum_elements]
 {
 	return static_cast<int>(LogLevel::None) + 1;
 }
 
 static constexpr std::array<std::string_view, count_enum_elements()> LOG_LEVEL_NAMES = {"Debug", "Info", "Warning", "Error", "FatalError", "None"};
 
-// How long the same fatal error stays silent after it was reported once.
-constexpr auto NOTIFY_REPEAT_INTERVAL = std::chrono::minutes(30);
+constexpr auto NOTIFY_REPEAT_INTERVAL = std::chrono::minutes(30);  // [Logging.md#NOTIFY_REPEAT_INTERVAL]
 
 Logging::~Logging()
 {
@@ -120,11 +105,7 @@ void Logging::close_file()
 void create_dir(const wstring& file_path_name)
 {
 	fs::path log_path(file_path_name);
-	// The error_code overload: a path whose parent conflicts with an existing
-	// non-directory file (bad user input, a stale file left where a directory
-	// should be) must not throw here - open_file() below already tolerates
-	// fopen() failing afterward and must get the chance to.
-	std::error_code ec;
+	std::error_code ec;  // [Logging.md#create_dir-never-throws]
 	fs::create_directories(log_path.parent_path(), ec);
 }
 
@@ -134,14 +115,7 @@ void Logging::open_file()
 	if (fos_ != nullptr)
 		return;
 	create_dir(file_path_name_);
-	fos_=std::fopen(wstring_to_string(file_path_name_).c_str(), "a");
-	// Never throw: an invalid/unwritable path (bad user input in LoggingDialog,
-	// a directory removed since the last run) must not turn into an uncaught
-	// exception. set_log_file_path_name() calls this after already close_file()-ing
-	// the previous handle, and LogCut::close_files() calls it unconditionally
-	// from MainWindow's constructor on every single startup - either path
-	// throwing would crash the whole application instead of just leaving
-	// logging disabled (write() already handles fos_ == nullptr gracefully).
+	fos_=std::fopen(wstring_to_string(file_path_name_).c_str(), "a");  // [Logging.md#open_file-never-throws]
 }
 
 void Logging::erase_file()
@@ -156,10 +130,7 @@ void Logging::erase_file()
 
 LogLevel Logging::get_from_string(const wstring_view& ll)
 {
-	// "None" is not accepted: a configuration that switches the log off
-	// entirely would be indistinguishable from a typo, which gets the safe
-	// default below - Error keeps the levels that need a person to act.
-	for (int i = 0; i < static_cast<int>(LogLevel::None); ++i)
+	for (int i = 0; i < static_cast<int>(LogLevel::None); ++i)  // [Logging.md#log-level-from-string]
 		if (ll == string_to_wstring(std::string(LOG_LEVEL_NAMES[i])))
 			return static_cast<LogLevel>(i);
 	return LogLevel::Error;
@@ -258,17 +229,10 @@ void Logging::log(LogLevel level, const std::wstring& msg)
 
 void Logging::write_to_file(const std::ostringstream& os)
 {
-	// Locked for the whole call: close_file()/open_file() (log rotation, called
-	// concurrently from GUI/worker threads) must not fclose() fos_ out from
-	// under an in-flight write, or this dereferences a dangling/null FILE*.
-	std::lock_guard<std::mutex> lock(mutex_);
+	std::lock_guard<std::mutex> lock(mutex_);  // [Logging.md#write_to_file-locking]
 	if (!file_open())
 		return;
-	// Never throw from here: LOG_ macros run inside catch handlers and worker
-	// threads - an exception escaping them terminates the process exactly when
-	// something else (e.g. a full disk) is already going wrong. Failures are
-	// silently dropped; there is nowhere sensible left to report them.
-	if (fprintf(fos_, "%s", os.str().c_str()) < 1)
+	if (fprintf(fos_, "%s", os.str().c_str()) < 1)  // [Logging.md#write-failures-dropped]
 		return;
 	if (std::fflush(fos_) != 0)
 		return;
@@ -279,18 +243,14 @@ void Logging::write_to_file(const std::ostringstream& os)
 #endif
 }
 
-// Notified outside write_to_file(): that call holds mutex_, which every accessor
-// below takes as well, and sending blocks on the network.
-void Logging::write(LogLevel level, const std::ostringstream& os)
+void Logging::write(LogLevel level, const std::ostringstream& os)  // [Logging.md#write-notifies-outside-lock]
 {
 	write_to_file(os);
 	if (level == LogLevel::FatalError)
 		notify_fatal(os.str());
 }
 
-// Strips the timestamped head write_head() put in front, so that the same error
-// reported again is recognised as the same error.
-static string error_text(const string& log_line)
+static string error_text(const string& log_line)  // [Logging.md#error_text]
 {
 	auto separator = log_line.find('\t');
 	return separator == string::npos ? log_line : log_line.substr(separator + 1);
@@ -306,17 +266,12 @@ void Logging::notify_fatal(const string& log_line)
 		return;
 	if (!notify_again(error_text(log_line)))
 		return;
-	// Sent synchronously although it delays the caller: a fatal error is often
-	// followed by the process going down, and a detached thread would be killed
-	// with it before the mail is on its way.
-	const string error = send_mail(account, recipient, L"autofilesync: schwerwiegender Fehler", log_line);
+	const string error = send_mail(account, recipient, L"autofilesync: schwerwiegender Fehler", log_line);  // [Logging.md#mail-sent-synchronously]
 	if (!error.empty())
 		log(LogLevel::Error, "Benachrichtigung an " + wstring_to_string(recipient) + " fehlgeschlagen: ", error);
 }
 
-// Identical errors repeat: the daemon retries the same failing sync every cycle
-// and would otherwise send one mail per cycle. A different error always passes.
-bool Logging::notify_again(const string& message)
+bool Logging::notify_again(const string& message)  // [Logging.md#notify_again]
 {
 	std::lock_guard<std::mutex> lock(mutex_);
 	const auto now = std::chrono::steady_clock::now();

@@ -23,10 +23,7 @@ Canvas::Canvas(wxWindow* parent, const wxString& heading)
 	heading_ = new wxStaticText(this, wxID_ANY, heading, wxDefaultPosition, wxDefaultSize,
 		wxALIGN_CENTRE_HORIZONTAL | wxST_NO_AUTORESIZE);
 	heading_->SetFont(heading_->GetFont().Bold());
-	// No wxTR_EDIT_LABELS: nothing binds EVT_TREE_BEGIN/END_LABEL_EDIT, and Tree::path()
-	// resolves by wxTreeItemId, not label text, so an inline rename would just show a
-	// misleading label without renaming anything.
-	long style = wxTR_DEFAULT_STYLE | wxTR_HAS_VARIABLE_ROW_HEIGHT | wxSUNKEN_BORDER;
+	long style = wxTR_DEFAULT_STYLE | wxTR_HAS_VARIABLE_ROW_HEIGHT | wxSUNKEN_BORDER;  // [Canvas.md#no-inline-rename]
     treeCtrl_ = new TreeCtrl(this, ID_SRC_TREE_CTRL, wxDefaultPosition, wxDefaultSize, style);
 }
 
@@ -60,8 +57,7 @@ void Canvas::ShowContextMenu(const wxPoint& pos)
 void Canvas::OnContextMenu(wxContextMenuEvent& event)
 {
     wxPoint point = event.GetPosition();
-    // If from keyboard
-    if (point.x == -1 && point.y == -1) {
+    if (point.x == -1 && point.y == -1) {  // (-1,-1) means the menu came from the keyboard
         wxSize size = GetSize();
         point.x = size.x / 2;
         point.y = size.y / 2;

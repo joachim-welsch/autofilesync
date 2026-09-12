@@ -22,13 +22,7 @@ using tu::path_contains;
 using tu::to_utf8;
 namespace fs = std::filesystem;
 
-// Regression test for Fehler 4: Logging::write() read and used the shared
-// FILE* fos_ without holding mutex_, while close_file()/open_file() (triggered
-// by log rotation, e.g. LogCut) did lock it. A rotation racing an in-flight
-// write could fclose() fos_ out from under it, leaving write() to dereference
-// a dangling or null FILE*. Hammering rotation and logging concurrently from
-// multiple threads must not crash.
-TEST(LoggingConcurrencyTest, ConcurrentRotationAndLoggingDoesNotCrash)
+TEST(LoggingConcurrencyTest, ConcurrentRotationAndLoggingDoesNotCrash)  // [LoggingConcurrencyTests.md#ConcurrentRotationAndLoggingDoesNotCrash]
 {
     const fs::path log_file = fs::temp_directory_path() / ("autofilesync_logging_test_" + std::to_string(getpid()) + ".log");
     fs::remove(log_file);
@@ -51,8 +45,7 @@ TEST(LoggingConcurrencyTest, ConcurrentRotationAndLoggingDoesNotCrash)
             while (!stop.load()) {
                 try {
                     log_info(L"concurrency test message");
-                } catch (const std::exception&) {
-                    // transient I/O errors are not what this test is about
+                } catch (const std::exception&) {  // transient I/O errors are not what this test is about
                 }
             }
         });
@@ -68,12 +61,7 @@ TEST(LoggingConcurrencyTest, ConcurrentRotationAndLoggingDoesNotCrash)
     fs::remove(log_file);
 }
 
-// Fehler 4 (round 5): write() threw std::runtime_error when fprintf/fflush
-// failed (e.g. disk full). LOG_ macros run inside catch handlers and worker
-// threads, so that exception escaped them and terminated the process exactly
-// when something was already going wrong. Logging to /dev/full makes the
-// flush fail deterministically; it must be swallowed, not thrown.
-TEST(LoggingTests, WriteFailureDoesNotThrow)
+TEST(LoggingTests, WriteFailureDoesNotThrow)  // [LoggingConcurrencyTests.md#WriteFailureDoesNotThrow]
 {
     const std::wstring previous_path = Logging::instance().get_log_file_path_name();
     const LogLevel previous_level = Logging::instance().get_log_level();
@@ -85,20 +73,10 @@ TEST(LoggingTests, WriteFailureDoesNotThrow)
         Logging::instance().set_log_file_path_name(previous_path);
 }
 
-// Fehler (round 6): open_file() threw std::runtime_error when the log path
-// could not be opened (missing/unwritable directory). set_log_file_path_name()
-// calls it right after close_file()-ing the previous handle - reachable from
-// LoggingDialog's OK handler with bad user input - and LogCut::close_files()
-// calls it unconditionally at the end of every LogCut() run, which
-// MainWindow's constructor invokes unguarded on every single application
-// startup. Either path throwing would crash the whole app instead of just
-// leaving logging disabled.
-TEST(LoggingTests, OpenFileOnUnwritablePathDoesNotThrow)
+TEST(LoggingTests, OpenFileOnUnwritablePathDoesNotThrow)  // [LoggingConcurrencyTests.md#OpenFileOnUnwritablePathDoesNotThrow]
 {
     const std::wstring previous_path = Logging::instance().get_log_file_path_name();
-    // A path whose parent is a regular file, not a directory: create_directories
-    // and fopen() can never succeed for it.
-    const std::filesystem::path blocker = std::filesystem::temp_directory_path()
+    const std::filesystem::path blocker = std::filesystem::temp_directory_path()  // [LoggingConcurrencyTests.md#blocked-parent-path]
         / ("afx_logging_blocker_" + std::to_string(getpid()));
     { std::ofstream(blocker) << "not a directory"; }
     const std::wstring bad_path = (blocker / "sub" / "afx.log").wstring();
@@ -110,15 +88,8 @@ TEST(LoggingTests, OpenFileOnUnwritablePathDoesNotThrow)
     std::filesystem::remove(blocker);
 }
 
-// Fehler 6 (round 6): the non-WIN32 default log path was a hardcoded
-// developer path (/home/welschj/temp/autofilesync.log) - the Linux/macOS
-// equivalent of get_default_log_file_path() (already implemented for Windows via
-// GetTempPathW) simply didn't exist, so every install other than that one
-// machine got a default log location nobody else could write to. Verified by
-// pointing HOME/XDG_CACHE_HOME at a fake location and checking the computed
-// path actually derives from them, rather than being a fixed string.
 #ifndef _WIN32
-TEST(LoggingTests, DefaultLogFilePathHonorsHomeEnvVar)
+TEST(LoggingTests, DefaultLogFilePathHonorsHomeEnvVar)  // [LoggingConcurrencyTests.md#DefaultLogFilePathHonorsHomeEnvVar]
 {
     const char* saved_home = getenv("HOME");
     const char* saved_xdg_cache = getenv("XDG_CACHE_HOME");
@@ -135,9 +106,7 @@ TEST(LoggingTests, DefaultLogFilePathHonorsHomeEnvVar)
 #else
 TEST(LoggingTests, DefaultLogFilePathHonorsLocalAppDataEnvVar)
 {
-    // Alle drei setzen, damit auch der Fallback-Pfad ins Fake-Verzeichnis zeigt
-    // und der Test nicht versehentlich ins echte Profil schreibt.
-    ScopedEnv local("LOCALAPPDATA", R"(C:\Temp\afx_fake_home_for_logging_test\Local)");
+    ScopedEnv local("LOCALAPPDATA", R"(C:\Temp\afx_fake_home_for_logging_test\Local)");  // [LoggingConcurrencyTests.md#fake-home-for-every-variable]
     ScopedEnv roaming("APPDATA", R"(C:\Temp\afx_fake_home_for_logging_test\Roaming)");
     ScopedEnv profile("USERPROFILE", R"(C:\Temp\afx_fake_home_for_logging_test)");
 

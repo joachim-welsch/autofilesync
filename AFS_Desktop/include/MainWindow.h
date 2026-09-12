@@ -64,7 +64,6 @@ private:
 	void restoreSizeAndPosition();
 	void createTaskBar();
 
-	// event handlers
 	void onQuit(wxCommandEvent& event);
 	void onAbout(wxCommandEvent& event);
 
@@ -83,8 +82,7 @@ private:
     void onFileSave(wxCommandEvent&);
     void onFileSaveAs(wxCommandEvent&);
     void onEditSync(wxCommandEvent& event);
-    // Shared by EditSync and DeleteSync: both require a sync item to be selected.
-    void onUpdateSyncItemSelected(wxUpdateUIEvent& event);
+    void onUpdateSyncItemSelected(wxUpdateUIEvent& event);  // [MainWindow.md#onUpdateSyncItemSelected]
     void onEditSshAccounts(wxCommandEvent& event);
     void onEditSettings(wxCommandEvent& event);
     void onEditLogging(wxCommandEvent& event);
@@ -94,9 +92,7 @@ private:
     void onChat(wxCommandEvent&);
     void onMenuOpen(wxMenuEvent& event);
     void updateBackgroundServiceMenu();
-    // Shared by both background service commands: report success in the status
-    // bar, failures in a dialog because they need the user to react.
-    void reportBackgroundService(const std::wstring& error, const wxString& success);
+    void reportBackgroundService(const std::wstring& error, const wxString& success);  // [MainWindow.md#reportBackgroundService]
     void onStartSingleSync(wxCommandEvent& event);
     void onStartContinuousSync(wxCommandEvent& event);
     void onStopContinuousSync(wxCommandEvent& event);
@@ -115,9 +111,7 @@ private:
 	wxTimer         statusTimer_;
 	Toolbar         toolbar_;
 	TaskBarIcon*    taskBarIcon_ = nullptr;
-	// Kept alive once created: the chat is hidden rather than destroyed on
-	// close, so the conversation survives until the program ends.
-	ChatDialog*     chatDialog_ = nullptr;
+	ChatDialog*     chatDialog_ = nullptr;  // [MainWindow.md#chatDialog_]
 	bool            init_ = true;
 	wxHtmlHelpController*   htmlHelpController_ = nullptr;
 

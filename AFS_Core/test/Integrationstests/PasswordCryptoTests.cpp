@@ -59,8 +59,7 @@ TEST_F(PasswordCryptoTest, SameInputEncryptsDifferentlyEachTime)
     const std::string first = passwordcrypto::encrypt(plaintext, key_file_);
     const std::string second = passwordcrypto::encrypt(plaintext, key_file_);
 
-    // A fresh random nonce per call is what makes GCM safe to reuse a key with.
-    EXPECT_NE(first, second);
+    EXPECT_NE(first, second);  // a fresh random nonce per call is what makes GCM safe to reuse a key with
     EXPECT_EQ(passwordcrypto::decrypt(first, key_file_), plaintext);
     EXPECT_EQ(passwordcrypto::decrypt(second, key_file_), plaintext);
 }
@@ -98,12 +97,7 @@ TEST_F(PasswordCryptoTest, KeyFileIsCreatedWithOwnerOnlyPermissions)
 
     ASSERT_TRUE(fs::exists(key_file_));
 #ifdef _WIN32
-    // Windows kennt die POSIX-Rechtebits nicht: std::filesystem synthetisiert
-    // sie und meldet immer Vollzugriff fuer Gruppe und Andere, unabhaengig von
-    // der tatsaechlichen ACL. Die Aussage ist hier also nicht pruefbar - und
-    // passwordcrypto setzt auf Windows auch keine einschraenkende ACL, die
-    // Schluesseldatei liegt nur im Benutzerprofil.
-    GTEST_SKIP() << "POSIX-Rechtebits gibt es unter Windows nicht";
+    GTEST_SKIP() << "POSIX-Rechtebits gibt es unter Windows nicht";  // [PasswordCryptoTests.md#windows-has-no-posix-bits]
 #else
     const auto perms = fs::status(key_file_).permissions();
     EXPECT_EQ(perms & fs::perms::group_all, fs::perms::none);
@@ -116,25 +110,14 @@ TEST_F(PasswordCryptoTest, ReusesPersistedKeyAcrossCalls)
     const std::string encrypted = passwordcrypto::encrypt("correct horse battery staple", key_file_);
     ASSERT_TRUE(fs::exists(key_file_));
 
-    // Decrypting in a "new process" (same key file, freshly loaded) must still work.
-    const auto decrypted = passwordcrypto::decrypt(encrypted, key_file_);
+    const auto decrypted = passwordcrypto::decrypt(encrypted, key_file_);  // [PasswordCryptoTests.md#decrypt-after-reload]
 
     EXPECT_EQ(decrypted, "correct horse battery staple");
 }
 
-// Fehler 6 (round 5): load_or_create_key() re-read/re-generated the key from
-// disk on every call with no in-memory cache. If persisting a freshly
-// generated key failed (unwritable directory), every subsequent call -
-// including the very next decrypt() of what the preceding encrypt() just
-// produced, in the same process - got a *different* random key, so
-// decryption failed even without an actual restart. The key is now cached in
-// memory per key-file path so a run stays internally consistent regardless
-// of whether the on-disk key could be persisted.
-TEST(PasswordCryptoTests, RoundTripsWithinProcessEvenWhenKeyPersistenceFails)
+TEST(PasswordCryptoTests, RoundTripsWithinProcessEvenWhenKeyPersistenceFails)  // [PasswordCryptoTests.md#RoundTripsWithinProcessEvenWhenKeyPersistenceFails]
 {
-    // A key file whose parent is a regular file, not a directory: creating
-    // the parent and opening the key file for writing can never succeed.
-    const fs::path blocker = fs::temp_directory_path() / ("afx_pwcrypto_blocker_" + std::to_string(getpid()));
+    const fs::path blocker = fs::temp_directory_path() / ("afx_pwcrypto_blocker_" + std::to_string(getpid()));  // [PasswordCryptoTests.md#blocked-key-parent]
     { std::ofstream(blocker) << "not a directory"; }
     const fs::path key_file = blocker / "secret.key";
 
@@ -144,9 +127,7 @@ TEST(PasswordCryptoTests, RoundTripsWithinProcessEvenWhenKeyPersistenceFails)
     ASSERT_TRUE(decrypted.has_value());
     EXPECT_EQ(*decrypted, plaintext);
 
-    // A second, independent encrypt/decrypt pair must also round-trip -
-    // proves the cached key is reused, not just "got lucky" on the first call.
-    const std::string ciphertext2 = passwordcrypto::encrypt(plaintext, key_file);
+    const std::string ciphertext2 = passwordcrypto::encrypt(plaintext, key_file);  // [PasswordCryptoTests.md#second-round-trip]
     auto decrypted2 = passwordcrypto::decrypt(ciphertext2, key_file);
     ASSERT_TRUE(decrypted2.has_value());
     EXPECT_EQ(*decrypted2, plaintext);

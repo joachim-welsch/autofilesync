@@ -6,8 +6,7 @@
 namespace AFS_Core {
 
 class SyncTree: SyncBase {
-    // Common view of a local or SSH directory entry
-    struct Entry {
+    struct Entry {  // common view of a local or SSH directory entry
         std::wstring name;
         bool is_directory;
         bool is_regular_file;

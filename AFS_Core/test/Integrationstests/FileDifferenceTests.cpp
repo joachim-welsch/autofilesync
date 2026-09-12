@@ -17,12 +17,7 @@ namespace fs = std::filesystem;
 
 namespace {
 
-// Registers an SSH account whose host name can never resolve (RFC 2606
-// reserves the ".invalid" TLD for exactly this), so every connection attempt
-// fails fast and deterministically without depending on a real SSH server -
-// this exercises the same failure path as a genuine "SSH-Verbindungsfehler"
-// (Fehler 2) portably, in any environment.
-class FileDifferenceSshTest : public ::testing::Test {
+class FileDifferenceSshTest : public ::testing::Test {  // [FileDifferenceTests.md#FileDifferenceSshTest]
 protected:
     fs::path test_dir_;
 
@@ -53,13 +48,7 @@ protected:
 
 } // namespace
 
-// Regression test for Fehler 2: read_ssh_file_info() returns false on a
-// connection/auth failure (invalid host, timeout, wrong credentials) without
-// ever setting drive_mounted=false, so FileDifference cannot tell "the SSH
-// source is unreachable" apart from "the source file was genuinely deleted"
-// (Result::SourceNotExits) - the latter is exactly what SyncFile treats as
-// safe to act on when delete_in_target() is enabled.
-TEST_F(FileDifferenceSshTest, UnreachableSshSourceIsNotReportedAsSourceNotExists)
+TEST_F(FileDifferenceSshTest, UnreachableSshSourceIsNotReportedAsSourceNotExists)  // [FileDifferenceTests.md#UnreachableSshSourceIsNotReportedAsSourceNotExists]
 {
     const fs::path target_file = test_dir_ / "target.txt";
     std::ofstream(target_file) << "target content";
@@ -75,10 +64,7 @@ TEST_F(FileDifferenceSshTest, UnreachableSshSourceIsNotReportedAsSourceNotExists
         << "an unreachable SSH source must not be reported the same way as a deleted source file";
 }
 
-// Same defect, but asserting the actual user-visible consequence: with
-// delete_in_target enabled, a transient SSH failure on the source side must not
-// delete the (perfectly intact) destination file.
-TEST_F(FileDifferenceSshTest, UnreachableSshSourceDoesNotDeleteExistingTarget)
+TEST_F(FileDifferenceSshTest, UnreachableSshSourceDoesNotDeleteExistingTarget)  // [FileDifferenceTests.md#UnreachableSshSourceDoesNotDeleteExistingTarget]
 {
     const fs::path target_file = test_dir_ / "target.txt";
     std::ofstream(target_file) << "target content";
@@ -99,14 +85,7 @@ TEST_F(FileDifferenceSshTest, UnreachableSshSourceDoesNotDeleteExistingTarget)
 
 namespace {
 
-// Local-filesystem fixture for Fehler 5: content-only comparison cannot tell
-// which side changed, only that they differ. With two-way sync, blindly
-// reporting SourceModified silently discards a destination-only edit; the
-// fix falls back to mtime as a tie-breaker, but only when two_way_sync is set,
-// since one-way sync must keep always reporting SourceModified (SyncFile
-// does not act on DestModified there unless copy_when_target_newer() is set,
-// so anything else would stop the file from syncing at all).
-class TwoWaySyncContentComparisonTest : public ::testing::Test {
+class TwoWaySyncContentComparisonTest : public ::testing::Test {  // [FileDifferenceTests.md#TwoWaySyncContentComparisonTest]
 protected:
     fs::path test_dir_;
     fs::path source_file_;
@@ -145,9 +124,7 @@ TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncPicksDestWhenDestIsNewerAndOnl
     write_file_with_time(source_file_, "old content", now - std::chrono::hours(1));
     write_file_with_time(dest_file_, "new content", now);
 
-    // FileDifference stores source/dest as references: they must outlive fd(),
-    // so bind them to stable named locals rather than passing temporaries.
-    const std::wstring source = source_file_.wstring();
+    const std::wstring source = source_file_.wstring();  // [FileDifferenceTests.md#references-must-outlive]
     const std::wstring dest = dest_file_.wstring();
     CompareItems ci; // default: content only
     FileDifference fd(source, dest, ci, SSHPATH::none, /*two_way_sync=*/true);
@@ -175,10 +152,7 @@ TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncPicksSourceWhenSourceIsNewerAn
 TEST_F(TwoWaySyncContentComparisonTest, OneWaySyncStillReportsSourceModifiedRegardlessOfTime)
 {
     const auto now = std::chrono::system_clock::now();
-    // Destination is newer, but this is one-way sync (two_way_sync defaults to
-    // false): must keep reporting SourceModified, or SyncFile would stop
-    // syncing this file entirely (see class comment above).
-    write_file_with_time(source_file_, "old content", now - std::chrono::hours(1));
+    write_file_with_time(source_file_, "old content", now - std::chrono::hours(1));  // [FileDifferenceTests.md#one-way-keeps-sourcemodified]
     write_file_with_time(dest_file_, "new content", now);
 
     const std::wstring source = source_file_.wstring();
@@ -190,10 +164,7 @@ TEST_F(TwoWaySyncContentComparisonTest, OneWaySyncStillReportsSourceModifiedRega
     EXPECT_EQ(fd.result(), FileDifference::Result::SourceModified);
 }
 
-// End-to-end version of the first test: with the destination genuinely newer,
-// two-way sync must copy destination -> source, preserving the edit, instead
-// of silently overwriting the destination with the older source content.
-TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncPreservesNewerDestinationEditInsteadOfOverwritingIt)
+TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncPreservesNewerDestinationEditInsteadOfOverwritingIt)  // [FileDifferenceTests.md#TwoWaySyncPreservesNewerDestinationEditInsteadOfOverwritingIt]
 {
     const auto now = std::chrono::system_clock::now();
     write_file_with_time(source_file_, "old content", now - std::chrono::hours(1));
@@ -218,21 +189,11 @@ TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncPreservesNewerDestinationEditI
     EXPECT_EQ(dest_content, "new content") << "the destination itself must stay untouched";
 }
 
-// Fehler 1/round 7 follow-up: FileDifference's "else if" short-circuited the
-// destination read entirely whenever the source was missing, so dest_size()
-// silently stayed at 0 for a SourceNotExits result - even though the
-// destination file genuinely exists with real content. copy_dest_to_source()
-// only fires when fd.dest_size() > 0, so two_way_sync picking up a file that
-// exists only in the destination silently did nothing (logged "Leere
-// Zieldatei wurde nicht kopiert" for a file that was never actually empty).
-TEST_F(TwoWaySyncContentComparisonTest, DestSizeIsReadEvenWhenSourceIsMissing)
+TEST_F(TwoWaySyncContentComparisonTest, DestSizeIsReadEvenWhenSourceIsMissing)  // [FileDifferenceTests.md#DestSizeIsReadEvenWhenSourceIsMissing]
 {
     std::ofstream(dest_file_) << "exists only in destination";
 
-    // FileDifference stores source/dest as references - they must outlive
-    // the object, so keep them as named locals rather than passing
-    // source_file_.wstring()/dest_file_.wstring() temporaries directly.
-    const std::wstring source = source_file_.wstring();
+    const std::wstring source = source_file_.wstring();  // [FileDifferenceTests.md#references-must-outlive]
     const std::wstring dest = dest_file_.wstring();
     FileDifference fd(source, dest, CompareItems(), SSHPATH::none, true);
     fd();

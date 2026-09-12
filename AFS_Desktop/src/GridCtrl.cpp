@@ -10,10 +10,7 @@ using std::wstring;
 using std::nullopt;
 
 namespace {
-	// Untergrenze fuer die Name-Spalte (Zeilenbeschriftung), damit sie bei
-	// kurzen Namen nicht unnoetig schmal wird; laengere Namen weiten sie per
-	// wxGRID_AUTOSIZE in addDataItems() darueber hinaus auf.
-	constexpr int kMinRowLabelSize = 150;
+	constexpr int kMinRowLabelSize = 150;  // [GridCtrl.md#kMinRowLabelSize]
 }
 
 wxBEGIN_EVENT_TABLE(GridCtrl, wxGrid)
@@ -57,31 +54,23 @@ private:
 	wxDECLARE_NO_COPY_CLASS(CustomColumnHeaderRenderer);
 };
 
-// And a custom attributes provider which uses custom column header renderer
-// defined above
 class CustomColumnHeadersProvider : public wxGridCellAttrProvider
 {
 public:
-	// by default custom column renderer is not used, call
-	// UseCustomColHeaders() to enable it
-	CustomColumnHeadersProvider()
+	CustomColumnHeadersProvider()  // [GridCtrl.md#CustomColumnHeadersProvider]
 		: m_customOddRenderer(*wxYELLOW, *wxBLUE),
 		m_customEvenRenderer(*wxWHITE, *wxBLACK),
 		m_useCustom(false)
 	{
 	}
 
-	// enable or disable the use of custom renderer for column headers
 	void UseCustomColHeaders(bool use = true) { m_useCustom = use; }
 
 protected:
 	virtual const wxGridColumnHeaderRenderer& GetColumnHeaderRenderer(int col) wxOVERRIDE
 	{
-		// if enabled, use custom renderers
 		if (m_useCustom)
 		{
-			// and use different ones for odd and even columns -- just to show
-			// that we can
 			return col % 2 ? m_customOddRenderer : m_customEvenRenderer;
 		}
 
@@ -115,10 +104,7 @@ GridCtrl::GridCtrl(wxWindow* parent,
 	SetColSize(2, 200);
 	SetColLabelSize(25);
 	SetRowLabelSize(kMinRowLabelSize);
-	// wxGrid centres row labels by default; a name longer than the column
-	// then gets clipped on both sides instead of staying readable from the
-	// start.
-	SetRowLabelAlignment(wxALIGN_LEFT, wxALIGN_CENTRE);
+	SetRowLabelAlignment(wxALIGN_LEFT, wxALIGN_CENTRE);  // [GridCtrl.md#row-label-alignment]
 }
 
 
@@ -138,9 +124,7 @@ void GridCtrl::addDataItems()
 
 		index++;
 	}
-	// Name-Spalte an den laengsten aktuell angezeigten Namen anpassen, damit
-	// er immer vollstaendig sichtbar bleibt statt abgeschnitten zu werden.
-	SetRowLabelSize(wxGRID_AUTOSIZE);
+	SetRowLabelSize(wxGRID_AUTOSIZE);  // [GridCtrl.md#autosize-row-label]
 	if (GetRowLabelSize() < kMinRowLabelSize)
 		SetRowLabelSize(kMinRowLabelSize);
 	adjustColumnWidths(GetSize().GetWidth());
@@ -156,10 +140,7 @@ wstring GridCtrl::getSelected() const
 
 void GridCtrl::update()
 {
-	// Rebuilding rows from scratch drops any selection/cursor position;
-	// restore it by name so editing (or deleting) an item doesn't force the
-	// user to re-click it before they can edit/delete it again.
-	const wstring selectedName = getSelected();
+	const wstring selectedName = getSelected();  // [GridCtrl.md#selection-restored]
 	DeleteRows(0, GetNumberRows());
 	addDataItems();
 	if (!selectedName.empty()) {
@@ -184,9 +165,7 @@ void GridCtrl::OnModifyEntry(wxGridEvent& ev)
 		found = Config::instance().find_by_name(name.ToStdWstring());
 	if (!found.has_value()) // click on a row label with no matching item
 		return;
-	// found is a copy; write it back under Config's lock via the original name
-	// (the dialog may have renamed it).
-	const std::wstring originalName = found->name();
+	const std::wstring originalName = found->name();  // [GridCtrl.md#copy-written-back]
 	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);
@@ -204,10 +183,7 @@ void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
 	auto& cfg = Config::instance();
 	auto found = Config::instance().find_by_name(name.ToStdWstring());
 	if (found != std::nullopt) {
-		// SyncItemDialog disables its OK button while source/target are empty
-		// (onUpdateOkButton); the grid's inline cell edit has no such gate, so
-		// it must reject the same case explicitly instead of silently saving it.
-		if ((col == 1 || col == 2) && value.IsEmpty()) {
+		if ((col == 1 || col == 2) && value.IsEmpty()) {  // [GridCtrl.md#empty-source-or-target-rejected]
 			wxMessageBox(_(L"Quelle und Ziel dürfen nicht leer sein."), _("Fehler"), wxOK | wxICON_WARNING, this);
 			SetCellValue(row, col, col == 1 ? found->source() : found->target());
 			ev.Skip();
@@ -218,21 +194,17 @@ void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
 		case 1:	found->source(value.ToStdWstring()); break;
 		case 2:	found->target(value.ToStdWstring()); break;
 		}
-		// found is a copy; write it back under Config's lock (also sets changed).
-		cfg.update_by_name(name.ToStdWstring(), *found);
+		cfg.update_by_name(name.ToStdWstring(), *found);  // [GridCtrl.md#copy-written-back]
 	}
 	ev.Skip();
 }
 
 void GridCtrl::adjustColumnWidths(int windowWidth)
 {
-	// Calculate available width (subtract row label width and scrollbar)
 	int availableWidth = windowWidth - GetRowLabelSize() - 20;
 	if (availableWidth < 100) return;
 	
-	// Column 0 (Aktiv) has fixed width
 	const int aktivWidth = 50;
-	// Remaining width is split between Source and Target columns
 	int remainingWidth = availableWidth - aktivWidth;
 	int colWidth = remainingWidth / 2;
 	

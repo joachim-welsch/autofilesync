@@ -9,11 +9,7 @@ using namespace AFS_Core;
 namespace guitest {
 namespace {
 
-// The mode is set first: it decides whether the path field is enabled at all,
-// and typing into a disabled field would silently do nothing. Each step reports
-// itself: without that, a failed interaction is indistinguishable from a broken
-// feature - both end as "the value was not taken over".
-bool enterValues(wxDialog& dialog, const wxString& recycleBinPath, DeleteMode deleteMode)
+bool enterValues(wxDialog& dialog, const wxString& recycleBinPath, DeleteMode deleteMode)  // [SettingsDialogDriver.md#enterValues]
 {
     if (!selectRadioOption(find(dialog, ID_DELETE_MODE_RADIO), deleteMode == DeleteMode::Permanent ? 1 : 0)) {
         ADD_FAILURE() << "Der Löschmodus konnte im Dialog nicht ausgewählt werden.";
@@ -35,10 +31,7 @@ DialogAction fillSettingsDialog(const wxString& recycleBinPath, DeleteMode delet
         const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
             && enterValues(dialog, recycleBinPath, deleteMode)
             && clickWhenEnabled(find(dialog, wxID_OK));
-        // Leaving the dialog open would hang the test in its modal loop; the
-        // cancel result tells the test that the interaction, not the feature,
-        // is what failed.
-        if (!confirmed)
+        if (!confirmed)  // [SettingsDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };
 }

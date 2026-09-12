@@ -36,10 +36,7 @@ wstring ListCtrl::getSelected() const
 
 void ListCtrl::update()
 {
-	// Rebuilding items from scratch drops any selection; restore it by name
-	// so editing an item doesn't force the user to re-click it before they
-	// can edit/delete it again.
-	const wstring selectedName = getSelected();
+	const wstring selectedName = getSelected();  // [ListCtrl.md#selection-restored]
 	ClearAll();
 	addDataItems();
 	if (!selectedName.empty()) {
@@ -61,9 +58,7 @@ void ListCtrl::OnDClick(wxMouseEvent&)
 		found = Config::instance().find_by_name(syncName);
 	if (!found.has_value()) // double-click on empty list area, or item no longer exists
 		return;
-	// found is a copy; write it back under Config's lock via the original name
-	// (the dialog may have renamed it).
-	const std::wstring originalName = found->name();
+	const std::wstring originalName = found->name();  // [ListCtrl.md#copy-written-back]
 	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);

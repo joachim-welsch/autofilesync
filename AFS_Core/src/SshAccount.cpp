@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "SshAccount.h"
 
-// Getter
-
 namespace AFS_Core {
 
 const std::string& SshAccount::name() const
@@ -25,7 +23,6 @@ const std::string& SshAccount::password() const
     return password_;
 }
 
-// Setter
 void SshAccount::set_name(const std::string& name)
 {
     name_ = name;

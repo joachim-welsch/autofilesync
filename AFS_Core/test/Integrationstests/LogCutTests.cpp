@@ -16,9 +16,7 @@ using namespace AFS_Core;
 namespace fs = std::filesystem;
 
 namespace {
-// get_time_from_line() parses via mktime (local time), so the fixture timestamp
-// must be formatted in local time as well.
-std::string local_timestamp(std::chrono::system_clock::time_point tp)
+std::string local_timestamp(std::chrono::system_clock::time_point tp)  // [LogCutTests.md#local_timestamp]
 {
     std::time_t t = std::chrono::system_clock::to_time_t(tp);
     std::tm tm = *std::localtime(&t);
@@ -28,13 +26,7 @@ std::string local_timestamp(std::chrono::system_clock::time_point tp)
 }
 }
 
-// Fehler 8 (round 4): cut() latched its "too old" flag on the first expired
-// line and never reset it. Logs are chronological (oldest lines first), so as
-// soon as the retention span was ever exceeded, the whole log - including all
-// current entries - was discarded on every program start (MainWindow runs
-// LogCut in its constructor). Expiry must be decided per timestamped line;
-// timestamp-less continuation lines follow the preceding timestamped line.
-TEST(LogCutTests, KeepsRecentLinesAfterExpiredOnes)
+TEST(LogCutTests, KeepsRecentLinesAfterExpiredOnes)  // [LogCutTests.md#KeepsRecentLinesAfterExpiredOnes]
 {
     const fs::path log_path = fs::temp_directory_path() / ("autofilesync_logcut_" + std::to_string(getpid()) + ".log");
     fs::remove(log_path);
@@ -53,9 +45,7 @@ TEST(LogCutTests, KeepsRecentLinesAfterExpiredOnes)
 
     std::string result;
     {
-        // Eigener Block: Windows verweigert das Loeschen einer noch geoeffneten
-        // Datei (siehe fs::remove() am Ende), POSIX unlinkt sie klaglos.
-        std::ifstream in(log_path);
+        std::ifstream in(log_path);  // [LogCutTests.md#own-block-for-windows]
         std::stringstream content;
         content << in.rdbuf();
         result = content.str();

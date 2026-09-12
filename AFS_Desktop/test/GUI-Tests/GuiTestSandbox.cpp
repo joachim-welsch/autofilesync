@@ -17,9 +17,7 @@ namespace {
 fs::path sandboxRoot;
 
 #ifdef _WIN32
-// Both blocks are needed: the configuration reads its paths through the CRT
-// environment (_wdupenv_s), wxWidgets through the Win32 one.
-void setEnvironmentVariable(const wchar_t* name, const fs::path& value)
+void setEnvironmentVariable(const wchar_t* name, const fs::path& value)  // [GuiTestSandbox.md#setEnvironmentVariable]
 {
     _wputenv_s(name, value.c_str());
     SetEnvironmentVariableW(name, value.c_str());
@@ -43,9 +41,7 @@ int currentProcessId()
 void redirectUserDirectories()
 {
 #ifdef _WIN32
-    // Config::getRootPathname() builds the configuration path from APPDATA and
-    // the path it migrates from out of USERPROFILE; wxGetHomeDir() asks HOME first.
-    setEnvironmentVariable(L"APPDATA", GuiTestSandbox::root() / "AppData");
+    setEnvironmentVariable(L"APPDATA", GuiTestSandbox::root() / "AppData");  // [GuiTestSandbox.md#which-variables-matter]
     setEnvironmentVariable(L"USERPROFILE", GuiTestSandbox::root());
     setEnvironmentVariable(L"HOME", GuiTestSandbox::root());
 #else
@@ -60,11 +56,7 @@ void writeFile(const fs::path& pathname, const std::string& content)
     std::ofstream(pathname) << content;
 }
 
-// Enough of a configuration to keep the start-up quiet: an unreadable or
-// missing file makes Config::read() pop up a message box before any test runs.
-// The log path is written with forward slashes - a Windows path with
-// backslashes would be an invalid escape sequence for the JSON parser.
-std::string minimalConfig()
+std::string minimalConfig()  // [GuiTestSandbox.md#minimalConfig]
 {
     return std::string("{\n")
         + "  \"Settings\": {\"StartMinimzed\": \"false\", \"MinimizeInsteadOfClose\": \"false\","

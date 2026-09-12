@@ -40,9 +40,3 @@ void MyDaemon::run() {
     }
     Synchronize::destroy();
 }
-
-// void MyDaemon::logMessage(const std::string& message) {
-//     auto now = std::chrono::system_clock::now();
-//     auto now_c = std::chrono::system_clock::to_time_t(now);
-//     logFile_ << std::put_time(std::localtime(&now_c), "%F %T") << " - " << message << std::endl;
-// }

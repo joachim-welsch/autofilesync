@@ -26,7 +26,6 @@ static const wxCmdLineEntryDesc g_cmdLineDesc[] =
 {
     { wxCMD_LINE_SWITCH, "h", "help", "show this help message", wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
     { wxCMD_LINE_SWITCH, "c", "console", "start console version", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
-        // ... your other command line options here... 
 
     { wxCMD_LINE_NONE }
 };

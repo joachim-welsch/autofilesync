@@ -32,9 +32,7 @@ bool ssh_remove_file(const std::wstring& path);
 std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path);
 
 #ifdef _TEST
-// Counts real SSH directory checks (each one is a full connect), so tests can
-// verify Synchronize's per-target cache actually avoids reconnecting.
-extern std::atomic<int> ssh_is_directory_call_count;
+extern std::atomic<int> ssh_is_directory_call_count;  // [SyncFileSsh.md#ssh_is_directory_call_count]
 #endif
 
 } // namespace AFS_Core

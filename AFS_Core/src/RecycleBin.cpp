@@ -42,9 +42,7 @@ RecycleBin& RecycleBin::instance()
     return obj;
 }
 
-// An absolute path or a ".." component would place the item outside path_,
-// which the bin must never touch.
-bool RecycleBin::check_relative(const fs::path& item) const
+bool RecycleBin::check_relative(const fs::path& item) const  // [RecycleBin.md#check_relative]
 {
     if (item.empty() || item.is_absolute() || item.has_root_name()) {
         log_error(L"Papierkorb: absoluter Pfad nicht erlaubt", item.wstring());
@@ -58,9 +56,7 @@ bool RecycleBin::check_relative(const fs::path& item) const
     return true;
 }
 
-// rename() fails across filesystem boundaries (EXDEV), which happens as soon as
-// the bin lives on another drive than the file.
-bool RecycleBin::move(const fs::path& from, const fs::path& to) const
+bool RecycleBin::move(const fs::path& from, const fs::path& to) const  // [RecycleBin.md#move]
 {
     std::error_code ec;
     fs::rename(from, to, ec);
@@ -133,8 +129,7 @@ bool RecycleBin::restore_item(const fs::path& item)
     return true;
 }
 
-// Reads the directory instead of a member list, so items survive a restart.
-RecycleBin::ItemList RecycleBin::list_items() const
+RecycleBin::ItemList RecycleBin::list_items() const  // [RecycleBin.md#list_items]
 {
     std::lock_guard<std::mutex> lock(mutex_);
     ItemList items;

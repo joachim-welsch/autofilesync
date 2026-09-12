@@ -14,20 +14,17 @@ using namespace SyncDirTests;
 using namespace util;
 TEST(SyncDirTests, /*DISABLED_*/CheckSyncExistingFiles)
 {
-    // Create temporary test source directory (not using shared SourcePath)
     std::wstring test_source_path = SOURCE_PATH;
     std::wstring test_target_path = TARGET_PATH;
     
     tu::erase_test_dir(test_source_path, false);
     tu::erase_test_dir(test_target_path, false);
     
-    // Create test structure
     std::filesystem::create_directories(wstring_to_string(test_source_path) + "subdir");
     std::ofstream(wstring_to_string(test_source_path) + "file1.txt") << "content1";
     std::ofstream(wstring_to_string(test_source_path) + "file2.txt") << "content2";
     std::ofstream(wstring_to_string(test_source_path) + "subdir/file3.txt") << "content3";
     
-	//log_debug(L"~~~ Start test: CheckSyncExistingFiles");
 	Synchronize::start();
 	SyncItem si;
 	si.sync_cycle(0);
@@ -44,7 +41,6 @@ TEST(SyncDirTests, /*DISABLED_*/CheckSyncExistingFiles)
     tu::erase_test_dir(test_target_path, true);
 }
 
-// Test: Synchronisation, wenn Quellverzeichnis leer ist
 TEST(SyncDirTests, SyncEmptySourceDir)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
@@ -65,16 +61,13 @@ TEST(SyncDirTests, SyncEmptySourceDir)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation, wenn Zielverzeichnis bereits existiert und Dateien enthält
 TEST(SyncDirTests, SyncWithExistingTargetFiles)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
     std::filesystem::create_directory(SOURCE_PATH);
     std::filesystem::create_directory(TARGET_PATH);
-    // Datei im Zielverzeichnis anlegen
     std::ofstream(wstring_to_string(TARGET_PATH) + "/old_file.txt") << "alt";
-    // Datei im Quellverzeichnis anlegen
     std::ofstream(wstring_to_string(SOURCE_PATH) + "/new_file.txt") << "neu";
     Synchronize::start();
     SyncItem si;
@@ -85,15 +78,12 @@ TEST(SyncDirTests, SyncWithExistingTargetFiles)
     std::size_t copy_count = 0;
     SyncDir test(si, copy_count, false);
     test();
-    // Die neue Datei muss im Ziel sein
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/new_file.txt"));
-    // Die alte Datei sollte noch existieren (je nach gewünschtem Verhalten ggf. anpassen)
-    EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/old_file.txt"));
+    EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH) + "/old_file.txt"));  // [SyncDirTests.md#old-file-remains]
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Test: Synchronisation, wenn Quellverzeichnis nicht existiert
 TEST(SyncDirTests, SyncNonExistentSourceDir)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
@@ -106,20 +96,13 @@ TEST(SyncDirTests, SyncNonExistentSourceDir)
     si.target(TARGET_PATH);
     std::size_t copy_count = 0;
     SyncDir test(si, copy_count, false);
-    // Sollte keine Exception werfen, aber auch nichts tun
-    EXPECT_NO_THROW(test());
+    EXPECT_NO_THROW(test());  // should throw nothing and do nothing either
     EXPECT_TRUE(std::filesystem::exists(wstring_to_string(TARGET_PATH)));
     EXPECT_TRUE(std::filesystem::is_empty(wstring_to_string(TARGET_PATH)));
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Fehler 2 (round 7): sync_dir_entry() passed subdirectories through to
-// FileDifference unfiltered - fs::file_size() fails for a directory, which
-// was misread as "source file not found." Harmless with delete_in_target off
-// (confirmed here: the subdirectory is neither copied nor deleted), but with
-// delete_in_target on it could delete an unrelated same-named *file* in the
-// target. Verifies the subdirectory itself is left alone either way.
-TEST(SyncDirTests, SubdirectoryInSourceIsNeitherCopiedNorTreatedAsMissing)
+TEST(SyncDirTests, SubdirectoryInSourceIsNeitherCopiedNorTreatedAsMissing)  // [SyncDirTests.md#SubdirectoryInSourceIsNeitherCopiedNorTreatedAsMissing]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -127,9 +110,7 @@ TEST(SyncDirTests, SubdirectoryInSourceIsNeitherCopiedNorTreatedAsMissing)
     std::filesystem::create_directories(SOURCE_PATH + L"subdir");
     std::ofstream(wstring_to_string(SOURCE_PATH) + "subdir/nested.txt") << "nested";
     std::filesystem::create_directories(TARGET_PATH);
-    // Pre-existing target file that happens to share the subdirectory's name -
-    // this must survive even with delete_in_target enabled.
-    std::ofstream(wstring_to_string(TARGET_PATH) + "/subdir") << "unrelated target file";
+    std::ofstream(wstring_to_string(TARGET_PATH) + "/subdir") << "unrelated target file";  // [SyncDirTests.md#same-named-target-file]
 
     Synchronize::start();
     SyncItem si;
@@ -150,13 +131,7 @@ TEST(SyncDirTests, SubdirectoryInSourceIsNeitherCopiedNorTreatedAsMissing)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Fehler 1 (round 7): SyncDir/SyncTree only ever enumerated the source side,
-// so a file removed from the source was never noticed - delete_in_target
-// ("Gelöschte Dateien im Ziel ebenfalls löschen") had no code path that could
-// ever fire for Dir/Tree items, even though the dialog explicitly enables
-// the checkbox for exactly these types. Verifies a target-only file (no
-// counterpart in source) is now deleted when the option is enabled.
-TEST(SyncDirTests, DeleteInTargetRemovesFileMissingFromSource)
+TEST(SyncDirTests, DeleteInTargetRemovesFileMissingFromSource)  // [SyncDirTests.md#DeleteInTargetRemovesFileMissingFromSource]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -184,9 +159,7 @@ TEST(SyncDirTests, DeleteInTargetRemovesFileMissingFromSource)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Without delete_in_target (and without two_way_sync), a target-only file must be
-// left alone entirely - this is the existing, still-correct default.
-TEST(SyncDirTests, TargetOnlyFileIsUntouchedWithoutDeleteInTargetOrTwoWaySync)
+TEST(SyncDirTests, TargetOnlyFileIsUntouchedWithoutDeleteInTargetOrTwoWaySync)  // [SyncDirTests.md#TargetOnlyFileIsUntouchedWithoutDeleteInTargetOrTwoWaySync]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -211,10 +184,7 @@ TEST(SyncDirTests, TargetOnlyFileIsUntouchedWithoutDeleteInTargetOrTwoWaySync)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// A wildcard-excluded target file must survive delete_in_target: it was never
-// "managed" by this sync item in either direction, matching how the
-// source-to-target pass already treats non-matching files as invisible.
-TEST(SyncDirTests, DeleteInTargetSparesWildcardExcludedFiles)
+TEST(SyncDirTests, DeleteInTargetSparesWildcardExcludedFiles)  // [SyncDirTests.md#DeleteInTargetSparesWildcardExcludedFiles]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -240,10 +210,7 @@ TEST(SyncDirTests, DeleteInTargetSparesWildcardExcludedFiles)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// two_way_sync must copy a target-only file *back* to source instead of
-// deleting it - the two options are mutually exclusive in effect per file
-// (deleteTarget is checked first in SyncFile's decision logic).
-TEST(SyncDirTests, TwoWaySyncCopiesTargetOnlyFileBackToSource)
+TEST(SyncDirTests, TwoWaySyncCopiesTargetOnlyFileBackToSource)  // [SyncDirTests.md#TwoWaySyncCopiesTargetOnlyFileBackToSource]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -271,9 +238,7 @@ TEST(SyncDirTests, TwoWaySyncCopiesTargetOnlyFileBackToSource)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Exclusions feature: a file matching an exclusion pattern must never be
-// synced, even though it matches an empty (match-everything) wildcard.
-TEST(SyncDirTests, ExcludedFileIsNotCopied)
+TEST(SyncDirTests, ExcludedFileIsNotCopied)  // [SyncDirTests.md#ExcludedFileIsNotCopied]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -302,10 +267,7 @@ TEST(SyncDirTests, ExcludedFileIsNotCopied)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// An excluded file must also survive delete_in_target: it is not managed by
-// this sync item in either direction, so a pre-existing target-side copy
-// (from before the exclusion was added, say) must not get deleted either.
-TEST(SyncDirTests, DeleteInTargetSparesExcludedFiles)
+TEST(SyncDirTests, DeleteInTargetSparesExcludedFiles)  // [SyncDirTests.md#DeleteInTargetSparesExcludedFiles]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -333,11 +295,7 @@ TEST(SyncDirTests, DeleteInTargetSparesExcludedFiles)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Auf Verzeichnisebene muss das Flag genauso greifen: SyncDir reicht jede
-// Datei einzeln an SyncFile weiter, die leeren duerfen dabei nicht als
-// Sonderfall verlorengehen - und die nicht leeren muessen unabhaengig davon
-// weiter kopiert werden.
-TEST(SyncDirTests, SyncEmptyFilesCopiesEmptyFilesInADirectory)
+TEST(SyncDirTests, SyncEmptyFilesCopiesEmptyFilesInADirectory)  // [SyncDirTests.md#SyncEmptyFilesCopiesEmptyFilesInADirectory]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -364,8 +322,7 @@ TEST(SyncDirTests, SyncEmptyFilesCopiesEmptyFilesInADirectory)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// Ohne das Flag bleibt die leere Datei liegen, die gefuellte wird kopiert.
-TEST(SyncDirTests, EmptyFilesAreSkippedInADirectoryByDefault)
+TEST(SyncDirTests, EmptyFilesAreSkippedInADirectoryByDefault)  // [SyncDirTests.md#EmptyFilesAreSkippedInADirectoryByDefault]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -391,12 +348,7 @@ TEST(SyncDirTests, EmptyFilesAreSkippedInADirectoryByDefault)
     tu::erase_test_dir(TARGET_PATH, true);
 }
 
-// The worst case for this option: the source is not "empty", it is *gone*
-// (drive unplugged, network share not mounted, directory removed). Every
-// target file then looks like an orphan, so a naive target-only pass would
-// wipe the entire backup. Only the directory_iterator throwing before
-// sync_target_only_entries() is reached prevents that - assert it stays that way.
-TEST(SyncDirTests, DeleteInTargetKeepsTargetWhenSourceDirIsGone)
+TEST(SyncDirTests, DeleteInTargetKeepsTargetWhenSourceDirIsGone)  // [SyncDirTests.md#DeleteInTargetKeepsTargetWhenSourceDirIsGone]
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
@@ -426,10 +378,7 @@ TEST(SyncDirTests, DeleteInTargetKeepsTargetWhenSourceDirIsGone)
 
 namespace {
 
-// Registers an SSH account whose host can never resolve (RFC 2606 reserves
-// ".invalid"), so the connection fails fast and deterministically without a
-// real server - see the identical fixture in FileDifferenceTests.cpp.
-class SyncDirUnreachableSshSourceTest : public ::testing::Test {
+class SyncDirUnreachableSshSourceTest : public ::testing::Test {  // [SyncDirTests.md#SyncDirUnreachableSshSourceTest]
 protected:
     void SetUp() override
     {
@@ -452,14 +401,7 @@ protected:
 
 } // namespace
 
-// The SSH counterpart of the test above, and a nastier one: ssh_list_dir()
-// returns an empty vector on a connection or authentication failure, which is
-// indistinguishable from "the remote directory is empty" - so the target-only
-// pass does run, over every file in the target. What saves the data is the
-// per-file check in FileDifference (a failed SSH read reports "drive gone",
-// not SourceNotExits). This test pins that second line of defence down at the
-// SyncDir level, where the mass deletion would actually happen.
-TEST_F(SyncDirUnreachableSshSourceTest, DeleteInTargetKeepsTargetWhenSshSourceIsUnreachable)
+TEST_F(SyncDirUnreachableSshSourceTest, DeleteInTargetKeepsTargetWhenSshSourceIsUnreachable)  // [SyncDirTests.md#DeleteInTargetKeepsTargetWhenSshSourceIsUnreachable]
 {
     tu::erase_test_dir(TARGET_PATH, true);
     std::filesystem::create_directories(TARGET_PATH);
@@ -482,13 +424,9 @@ TEST_F(SyncDirUnreachableSshSourceTest, DeleteInTargetKeepsTargetWhenSshSourceIs
     EXPECT_TRUE(std::filesystem::exists(TARGET_PATH + L"/backup2.txt"));
 }
 
-// The target directory used to be created with create_directory(), so a target
-// whose parent did not exist yet - a fresh backup drive, a path one level
-// deeper than anything present - failed on every run and the item never synced.
-TEST(SyncDirTests, SyncCreatesTargetDirWhoseParentIsMissing)
+TEST(SyncDirTests, SyncCreatesTargetDirWhoseParentIsMissing)  // [SyncDirTests.md#SyncCreatesTargetDirWhoseParentIsMissing]
 {
-    // Built through fs::path so the separators are the platform's own.
-    const std::wstring missing_parent = (std::filesystem::path(TestPaths::scratch_dir()) / L"missing_parent").wstring();
+    const std::wstring missing_parent = (std::filesystem::path(TestPaths::scratch_dir()) / L"missing_parent").wstring();  // [SyncDirTests.md#platform-separators]
     const std::wstring target_path = (std::filesystem::path(missing_parent) / L"dir").wstring();
     tu::erase_test_dir(missing_parent, false);
     tu::erase_test_dir(SOURCE_PATH, false);

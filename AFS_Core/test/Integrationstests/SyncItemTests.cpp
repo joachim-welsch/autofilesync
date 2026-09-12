@@ -1,12 +1,7 @@
 #include "pch.h"
 #include "SyncItem.h"
 
-// Exclusions feature: is_excluded() reuses the same */? wildcard syntax the
-// existing wildcard field already uses (via util::wildmatch()), matched
-// against the entry's own name (not a full path) - consistent with how the
-// wildcard field itself is applied throughout SyncDir/SyncTree.
-
-using namespace AFS_Core;
+using namespace AFS_Core;  // [SyncItemTests.md#exclusions-wildcard-syntax]
 
 TEST(SyncItemTests, IsExcludedMatchesAnyPatternInTheList)
 {
@@ -28,8 +23,7 @@ TEST(SyncItemTests, IsExcludedWithEmptyListExcludesNothing)
     EXPECT_FALSE(is_excluded(L"anything.txt", exclusions));
 }
 
-// SyncItem persists/copies its exclusion list like any other field.
-TEST(SyncItemTests, SyncItemStoresAndCopiesExclusions)
+TEST(SyncItemTests, SyncItemStoresAndCopiesExclusions)  // [SyncItemTests.md#SyncItemStoresAndCopiesExclusions]
 {
     Exclusions exclusions;
     exclusions.push_back(L"*.log");
@@ -41,9 +35,7 @@ TEST(SyncItemTests, SyncItemStoresAndCopiesExclusions)
     EXPECT_EQ(copy.exclusions()[0], L"*.log");
 }
 
-// sync_item_type_to_str() is translated (GNU gettext), sync_item_type_key() is not:
-// the configuration file must stay readable no matter which language wrote it.
-TEST(SyncItemTests, SyncItemTypeKeyStaysUntranslated)
+TEST(SyncItemTests, SyncItemTypeKeyStaysUntranslated)  // [SyncItemTests.md#SyncItemTypeKeyStaysUntranslated]
 {
     EXPECT_EQ(sync_item_type_key(SyncItemType::File), L"Datei");
     EXPECT_EQ(sync_item_type_key(SyncItemType::Dir), L"Verzeichnis");

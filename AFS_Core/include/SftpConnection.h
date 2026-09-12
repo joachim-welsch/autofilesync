@@ -12,8 +12,7 @@ using SftpFile = std::unique_ptr<sftp_file_struct, int(*)(sftp_file)>;
 using SftpDir = std::unique_ptr<sftp_dir_struct, int(*)(sftp_dir)>;
 using SftpAttributes = std::unique_ptr<sftp_attributes_struct, void(*)(sftp_attributes)>;
 
-// Owns one libssh session with its SFTP channel; both are released in the destructor
-class SftpConnection {
+class SftpConnection {  // owns one libssh session with its SFTP channel; both are released in the destructor
     ssh_session ssh_ = nullptr;
     sftp_session sftp_ = nullptr;
     void release();
@@ -24,8 +23,7 @@ public:
     SftpConnection(const SftpConnection&) = delete;
     SftpConnection& operator=(const SftpConnection&) = delete;
     ~SftpConnection();
-    // Connects, verifies the host key and logs in; throws std::runtime_error when a step fails
-    void connect(const SshAccount& account);
+    void connect(const SshAccount& account);  // [SftpConnection.md#connect]
     ssh_session ssh() const { return ssh_; }
     sftp_session sftp() const { return sftp_; }
     std::string error() const;
