@@ -95,23 +95,29 @@ static optional<CompareItem> str_to_compare_item(const std::wstring& s)
     return nullopt;
 }
 
-constexpr std::pair<SyncItemType, const char*> SYNC_ITEM_TYPE_IDS[] = {  // [SyncItem.md#SYNC_ITEM_TYPE_IDS]
-    {SyncItemType::File, "Datei"},
-    {SyncItemType::Dir, "Verzeichnis"},
-    {SyncItemType::Tree, "Verzeichnisbaum"},
+struct SyncItemTypeNames {  // [SyncItem.md#SYNC_ITEM_TYPE_NAMES]
+    SyncItemType type;
+    const char* key;
+    const char* msgid;
+};
+
+constexpr SyncItemTypeNames SYNC_ITEM_TYPE_NAMES[] = {
+    {SyncItemType::File, "Datei", translation::msgid("sync_item_type_file")},
+    {SyncItemType::Dir, "Verzeichnis", translation::msgid("sync_item_type_dir")},
+    {SyncItemType::Tree, "Verzeichnisbaum", translation::msgid("sync_item_type_tree")},
 };
 
 wstring sync_item_type_key(SyncItemType st)
 {
-    for (const auto& [type, msgid] : SYNC_ITEM_TYPE_IDS)
+    for (const auto& [type, key, msgid] : SYNC_ITEM_TYPE_NAMES)
         if (type == st)
-            return util::string_to_wstring(msgid);
+            return util::string_to_wstring(key);
     return L"";
 }
 
 wstring sync_item_type_to_str(SyncItemType st)
 {
-    for (const auto& [type, msgid] : SYNC_ITEM_TYPE_IDS)
+    for (const auto& [type, key, msgid] : SYNC_ITEM_TYPE_NAMES)
         if (type == st)
             return translation::translate(msgid);
     return L"";
@@ -119,8 +125,9 @@ wstring sync_item_type_to_str(SyncItemType st)
 
 SyncItemType str_to_sync_item_type(const std::wstring& str)
 {
-    for (const auto& [type, msgid] : SYNC_ITEM_TYPE_IDS)  // [SyncItem.md#sync_item_type_from_str]
-        if (str == util::string_to_wstring(msgid) || str == translation::translate(msgid))
+    for (const auto& [type, key, msgid] : SYNC_ITEM_TYPE_NAMES)  // [SyncItem.md#sync_item_type_from_str]
+        if (str == util::string_to_wstring(key) || str == util::string_to_wstring(msgid)
+            || str == translation::translate(msgid))
             return type;
     return SyncItemType::Undefined;
 }

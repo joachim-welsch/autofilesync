@@ -5,6 +5,7 @@
 #include "Synchronize.h"
 #include "Util.h"
 #include "Logging.h"
+#include "Translation.h"
 #include "Global.h"
 #include "CopyLog.h"
 
@@ -63,8 +64,8 @@ void SyncDir::operator()()
         report_sync_error(source + L": " + string_to_wstring(e.what()));
     }
     catch (...) {
-        log_error(source, destination, L" - Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler: " + source);
+        log_error(source, destination, L" - " + translation::translate("unknown_error"));
+        report_sync_error(translation::translate("unknown_error_for") + source);
     }
 }
 

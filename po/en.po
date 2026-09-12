@@ -2,22 +2,788 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: autofilesync\n"
-"PO-Revision-Date: 2026-09-04 00:00+0000\n"
+"PO-Revision-Date: 2026-09-12 00:00+0000\n"
 "Last-Translator: autofilesync\n"
 "Language-Team: en\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en\n"
 
-#: AFS_Core/src/syncitem.cpp
-msgid "Datei"
+#: AFS_Core/src/CheckPath.cpp:90 AFS_Core/src/SyncFileSsh.cpp:154
+#: AFS_Core/src/SyncFileSsh.cpp:358 AFS_Core/src/SyncFileSsh.cpp:722
+#: AFS_Core/src/SyncFileSsh.cpp:843 AFS_Core/src/SyncFileSsh.cpp:929
+#: AFS_Core/src/SyncFileSsh.cpp:1011 AFS_Core/src/SyncFileSsh.cpp:1097
+#: AFS_Core/src/SyncFileSsh.cpp:1183
+msgid "ssh_account_not_found_for"
+msgstr "SSH account not found for: "
+
+#: AFS_Core/src/CheckPath.cpp:99
+msgid "ssh_path_not_exist"
+msgstr "SSH path does not exist: "
+
+#: AFS_Core/src/CheckPath.cpp:103 AFS_Core/src/CheckPath.cpp:107
+msgid "ssh_path_not_reachable"
+msgstr "SSH path not reachable: "
+
+#: AFS_Core/src/CheckPath.cpp:130
+msgid "source_dir_not_reachable"
+msgstr "Source directory not reachable: "
+
+#: AFS_Core/src/CheckPath.cpp:134
+msgid "target_dir_not_reachable"
+msgstr "Target directory not reachable: "
+
+#: AFS_Core/src/CheckPath.cpp:164
+msgid "invalid_path"
+msgstr "Invalid path: "
+
+#: AFS_Core/src/Config.cpp:36 AFS_Core/src/Config.cpp:38
+msgid "config_file_not_exist"
+msgstr "Configuration file does not exist: "
+
+#: AFS_Core/src/Config.cpp:47 AFS_Core/src/Config.cpp:49
+msgid "config_read_exception"
+msgstr "Exception while reading the configuration: "
+
+#: AFS_Core/src/Config.cpp:145
+msgid "config_migrated_from"
+msgstr "Configuration migrated from: "
+
+#: AFS_Core/src/Config.cpp:147
+msgid "config_migration_failed"
+msgstr "Migration of the configuration failed from: "
+
+#: AFS_Core/src/Config.cpp:305
+msgid "config_read_sync_settings"
+msgstr "Reading sync settings: "
+
+#: AFS_Core/src/Config.cpp:318
+msgid "smtp_password_not_decryptable"
+msgstr "The SMTP password could not be decrypted"
+
+#: AFS_Core/src/Config.cpp:351
+msgid "config_read_logging_settings"
+msgstr "Reading logging settings: "
+
+#: AFS_Core/src/Config.cpp:371
+msgid "config_read_settings"
+msgstr "read settings: "
+
+#: AFS_Core/src/Config.cpp:373
+msgid "config_settings_read_error"
+msgstr "Error reading the settings: "
+
+#: AFS_Core/src/Config.cpp:397
+msgid "ssh_password_not_decryptable"
+msgstr "The password could not be decrypted for SSH account: "
+
+#: AFS_Core/src/Config.cpp:402
+msgid "ssh_account_entry_skipped"
+msgstr "Skipping a faulty SSH account entry: "
+
+#: AFS_Core/src/Config.cpp:412
+msgid "config_read_error"
+msgstr "Error reading the configuration."
+
+#: AFS_Core/src/Config.cpp:426
+msgid "sync_item_entry_skipped"
+msgstr "Skipping a faulty sync item entry."
+
+#: AFS_Core/src/Config.cpp:551 AFS_Core/src/Config.cpp:553
+msgid "config_write_error"
+msgstr "Error writing the configuration: "
+
+#: AFS_Core/src/Config.cpp:571 AFS_Core/src/Config.cpp:573
+msgid "config_not_readable"
+msgstr "The configuration could not be read."
+
+#: AFS_Core/src/CopyLog.cpp:86
+msgid "backup_proof_not_readable"
+msgstr "Backup proof not readable, entry discarded: "
+
+#: AFS_Core/src/CopyLog.cpp:102
+msgid "backup_proof_not_writable"
+msgstr "The backup proof could not be written: "
+
+#: AFS_Core/src/CopyLog.cpp:116
+msgid "error_list_capped"
+msgstr "Further errors were not recorded."
+
+#: AFS_Core/src/CopyLog.cpp:156
+msgid "backup_proof_dir_not_creatable"
+msgstr "The directory for backup proofs cannot be created: "
+
+#: AFS_Core/src/FileDelete.cpp:21
+msgid "file_move_to_recycle_bin_failed"
+msgstr "Moving to the recycle bin failed: "
+
+#: AFS_Core/src/FileDelete.cpp:24
+msgid "file_moved_to_recycle_bin"
+msgstr "Moved to the recycle bin: "
+
+#: AFS_Core/src/FileDifference.cpp:48
+msgid "ssh_path_invalid"
+msgstr "Invalid SSH path: "
+
+#: AFS_Core/src/FileDifference.cpp:56
+msgid "ssh_account_not_found"
+msgstr "SSH account not found: "
+
+#: AFS_Core/src/FileDifference.cpp:72
+msgid "ssh_read_error_for"
+msgstr "SSH error while reading "
+
+#: AFS_Core/src/FileDifference.cpp:132
+msgid "comparing"
+msgstr "Comparing"
+
+#: AFS_Core/src/FileDifference.cpp:132
+msgid "comparing_with"
+msgstr "with"
+
+#: AFS_Core/src/FilesystemUtil.cpp:55
+msgid "file_not_exist"
+msgstr "The file does not exist"
+
+#: AFS_Core/src/FilesystemUtil.cpp:57
+msgid "drive_not_mounted"
+msgstr "The drive is not mounted"
+
+#: AFS_Core/src/FilesystemUtil.cpp:59
+msgid "file_attributes_unreadable"
+msgstr "Cannot read the file attributes"
+
+#: AFS_Core/src/FilesystemUtil.cpp:61
+msgid "file_time_invalid"
+msgstr "Invalid file time"
+
+#: AFS_Core/src/FilesystemUtil.cpp:63
+msgid "file_info_read_error"
+msgstr "Error reading the file information"
+
+#: AFS_Core/src/FilesystemUtil.cpp:65 AFS_Core/src/SyncBase.cpp:70
+#: AFS_Core/src/SyncDir.cpp:67 AFS_Core/src/SyncFile.cpp:259
+#: AFS_Core/src/SyncFile.cpp:299 AFS_Core/src/SyncFile.cpp:326
+#: AFS_Core/src/Synchronize.cpp:277 AFS_Core/src/SyncTree.cpp:73
+#: AFS_Core/src/Util.cpp:275 AFS_Core/src/Util.cpp:290
+#: AFS_Core/src/Util.cpp:306
+msgid "unknown_error"
+msgstr "Unknown error"
+
+#: AFS_Core/src/LlamaClient.cpp:20
+msgid "assistant_system_prompt"
+msgstr ""
+"You are the built-in assistant of Autofilesync, a program for the user-friendly automatic synchronisation of files and directory trees on Windows and Linux. Answer in English, briefly and concretely with respect to Autofilesync.\n"
+"Core concepts:\n"
+"- The user sets up synchronisations from a source and a target directory; Autofilesync reconciles their content automatically as soon as something changes there.\n"
+"- A GUI program (wxWidgets) is used to configure the synchronisations.\n"
+"- A background service/daemon runs the same configuration in the background without an open user interface.\n"
+"- The highest goal is robustness, then operation so intuitive that inexperienced users understand it without documentation.\n"
+"If you cannot answer a question with confidence from this knowledge, say so openly instead of inventing features that do not exist."
+
+#: AFS_Core/src/LlamaClient.cpp:21
+msgid "assistant_log_analysis_instruction"
+msgstr "The following excerpt comes from the Autofilesync log file (the newest entries are last). Use it to answer the user's question that follows. If the excerpt contains nothing suitable for that, say so openly instead of inventing something."
+
+#: AFS_Core/src/LlamaClient.cpp:42
+msgid "assistant_no_model_configured"
+msgstr "No local model configured. Please point %1 at a GGUF file and restart the program."
+
+#: AFS_Core/src/LlamaClient.cpp:51
+msgid "assistant_model_not_loadable"
+msgstr "The model could not be loaded: "
+
+#: AFS_Core/src/LlamaClient.cpp:62
+msgid "assistant_model_context_failed"
+msgstr "No context could be created for the model."
+
+#: AFS_Core/src/LlamaClient.cpp:104 AFS_Core/src/LlamaClient.cpp:159
+msgid "assistant_nothing_to_send"
+msgstr "There is nothing to send."
+
+#: AFS_Core/src/LlamaClient.cpp:107
+msgid "assistant_unknown_chat_format"
+msgstr "The model supports no known chat format."
+
+#: AFS_Core/src/LlamaClient.cpp:125
+msgid "assistant_conversation_too_long"
+msgstr "The conversation is longer than the model's context window."
+
+#: AFS_Core/src/LlamaClient.cpp:128
+msgid "assistant_prompt_failed"
+msgstr "The prompt could not be processed."
+
+#: AFS_Core/src/LlamaClient.cpp:152
+msgid "assistant_empty_answer"
+msgstr "The answer contained no text."
+
+#: AFS_Core/src/LlamaClient.cpp:161
+msgid "assistant_log_file_unreadable"
+msgstr "The log file is empty or could not be read."
+
+#: AFS_Core/src/LlamaClient.cpp:164
+msgid "assistant_question_label"
+msgstr "Question: "
+
+#: AFS_Core/src/LogCut.cpp:49
+msgid "log_file_not_shortenable"
+msgstr "The log file could not be shortened: "
+
+#: AFS_Core/src/Logging.cpp:270
+msgid "fatal_error_mail_subject"
+msgstr "autofilesync: fatal error"
+
+#: AFS_Core/src/Logging.cpp:272
+msgid "notification_failed"
+msgstr "Notification to %1 failed: "
+
+#: AFS_Core/src/MountedDrives.cpp:48
+msgid "mount_point_query_error"
+msgstr "Error retrieving the mount point: "
+
+#: AFS_Core/src/PasswordCrypto.cpp:49
+msgid "crypto_key_generation_failed"
+msgstr "Could not generate a cryptographically secure key."
+
+#: AFS_Core/src/PasswordCrypto.cpp:68
+msgid "crypto_key_not_storable"
+msgstr "The key for encrypted passwords could not be stored, passwords will be unreadable after a restart: "
+
+#: AFS_Core/src/PasswordCrypto.cpp:110
+msgid "crypto_encryption_unavailable"
+msgstr "Encryption not available, the password is not stored."
+
+#: AFS_Core/src/PasswordCrypto.cpp:141
+msgid "crypto_password_corrupted"
+msgstr "The encrypted password is corrupted."
+
+#: AFS_Core/src/PasswordCrypto.cpp:155
+msgid "crypto_decryption_unavailable"
+msgstr "Decryption not available."
+
+#: AFS_Core/src/PasswordCrypto.cpp:167
+msgid "crypto_decryption_failed"
+msgstr "Decryption of the password failed (wrong key or corrupted data)."
+
+#: AFS_Core/src/RecycleBin.cpp:27
+msgid "recycle_bin_dir_not_creatable"
+msgstr "Recycle bin: the directory cannot be created"
+
+#: AFS_Core/src/RecycleBin.cpp:49
+msgid "recycle_bin_absolute_path"
+msgstr "Recycle bin: an absolute path is not allowed"
+
+#: AFS_Core/src/RecycleBin.cpp:54
+msgid "recycle_bin_path_escapes"
+msgstr "Recycle bin: the path leads out of the recycle bin"
+
+#: AFS_Core/src/RecycleBin.cpp:68
+msgid "recycle_bin_move_failed"
+msgstr "Recycle bin: moving failed"
+
+#: AFS_Core/src/RecycleBin.cpp:73
+msgid "recycle_bin_source_not_deletable"
+msgstr "Recycle bin: the source file could not be deleted"
+
+#: AFS_Core/src/RecycleBin.cpp:102
+msgid "recycle_bin_file_not_exist"
+msgstr "Recycle bin: the file does not exist"
+
+#: AFS_Core/src/RecycleBin.cpp:120
+msgid "recycle_bin_file_not_inside"
+msgstr "Recycle bin: the file is not in the recycle bin"
+
+#: AFS_Core/src/RecycleBin.cpp:124
+msgid "recycle_bin_target_exists"
+msgstr "Recycle bin: the target already exists"
+
+#: AFS_Core/src/RecycleBin.cpp:143
+msgid "recycle_bin_dir_unreadable"
+msgstr "Recycle bin: the directory is not readable"
+
+#: AFS_Core/src/SftpConnection.cpp:43 AFS_Core/src/SshDirInspector.cpp:177
+#: AFS_Core/src/SshFileInspector.cpp:117 AFS_Core/src/SyncFileSsh.cpp:386
+#: AFS_Core/src/SyncFileSsh.cpp:757 AFS_Core/src/SyncFileSsh.cpp:871
+#: AFS_Core/src/SyncFileSsh.cpp:957 AFS_Core/src/SyncFileSsh.cpp:1039
+#: AFS_Core/src/SyncFileSsh.cpp:1125 AFS_Core/src/SyncFileSsh.cpp:1211
+msgid "ssh_session_create_error"
+msgstr "Error creating the SSH session"
+
+#: AFS_Core/src/SftpConnection.cpp:48
+msgid "libssh_connect_error"
+msgstr "Connection error: "
+
+#: AFS_Core/src/SftpConnection.cpp:50 AFS_Core/src/SshDirInspector.cpp:189
+#: AFS_Core/src/SshFileInspector.cpp:129
+msgid "host_key_verification_failed"
+msgstr "Host key verification failed: possible man-in-the-middle attack."
+
+#: AFS_Core/src/SftpConnection.cpp:52
+msgid "libssh_auth_error"
+msgstr "Authentication error: "
+
+#: AFS_Core/src/SftpConnection.cpp:55 AFS_Core/src/SyncFileSsh.cpp:416
+#: AFS_Core/src/SyncFileSsh.cpp:787 AFS_Core/src/SyncFileSsh.cpp:901
+#: AFS_Core/src/SyncFileSsh.cpp:987 AFS_Core/src/SyncFileSsh.cpp:1069
+#: AFS_Core/src/SyncFileSsh.cpp:1155 AFS_Core/src/SyncFileSsh.cpp:1241
+msgid "sftp_session_create_error"
+msgstr "Error creating the SFTP session"
+
+#: AFS_Core/src/SftpConnection.cpp:57 AFS_Core/src/SshDirInspector.cpp:201
+#: AFS_Core/src/SshFileInspector.cpp:143
+msgid "sftp_init_failed"
+msgstr "SFTP initialisation failed"
+
+#: AFS_Core/src/SmtpMailer.cpp:155
+msgid "smtp_connection_not_openable"
+msgstr "The connection to %1 could not be opened"
+
+#: AFS_Core/src/SmtpMailer.cpp:157
+msgid "smtp_no_connection_to"
+msgstr "no connection to "
+
+#: AFS_Core/src/SmtpMailer.cpp:186
+msgid "smtp_tls_init_failed"
+msgstr "TLS could not be initialised"
+
+#: AFS_Core/src/SmtpMailer.cpp:195 AFS_Core/src/SmtpMailer.cpp:200
+msgid "smtp_tls_layer_failed"
+msgstr "The TLS layer could not be created"
+
+#: AFS_Core/src/SmtpMailer.cpp:206
+msgid "smtp_tls_handshake_failed"
+msgstr "The TLS handshake with %1 failed (check the certificate)"
+
+#: AFS_Core/src/SmtpMailer.cpp:209
+msgid "smtp_read_buffer_failed"
+msgstr "The read buffer for %1 could not be created"
+
+#: AFS_Core/src/SmtpMailer.cpp:222
+msgid "smtp_no_starttls"
+msgstr "%1 offers no STARTTLS: "
+
+#: AFS_Core/src/SmtpMailer.cpp:240
+msgid "smtp_login_rejected"
+msgstr "Login to %1 rejected"
+
+#: AFS_Core/src/SmtpMailer.cpp:296
+msgid "smtp_send_failed"
+msgstr "Sending to %1 failed"
+
+#: AFS_Core/src/SmtpMailer.cpp:309
+msgid "smtp_no_answer_from"
+msgstr "no answer from "
+
+#: AFS_Core/src/SmtpMailer.cpp:314
+msgid "smtp_truncated_answer_from"
+msgstr "truncated answer from "
+
+#: AFS_Core/src/SmtpMailer.cpp:321
+msgid "smtp_unexpected_answer"
+msgstr "unexpected answer from %1: "
+
+#: AFS_Core/src/SmtpMailer.cpp:334 AFS_Core/src/SmtpMailer.cpp:342
+msgid "smtp_server_answers"
+msgstr "%1 answers: "
+
+#: AFS_Core/src/SmtpMailer.cpp:351
+msgid "smtp_not_configured"
+msgstr "The SMTP server or the sender is not configured"
+
+#: AFS_Core/src/SmtpMailer.cpp:353
+msgid "smtp_no_recipient"
+msgstr "no recipient"
+
+#: AFS_Core/src/SshDirInspector.cpp:55 AFS_Core/src/SshDirInspector.cpp:238
+#: AFS_Core/src/SshDirInspector.cpp:313
+msgid "path_not_exist"
+msgstr "The path does not exist: "
+
+#: AFS_Core/src/SshDirInspector.cpp:61 AFS_Core/src/SshDirInspector.cpp:246
+#: AFS_Core/src/SshDirInspector.cpp:321
+msgid "path_not_a_dir"
+msgstr "The path is not a directory: "
+
+#: AFS_Core/src/SshDirInspector.cpp:79 AFS_Core/src/SshDirInspector.cpp:112
+#: AFS_Core/src/SshDirInspector.cpp:254 AFS_Core/src/SshDirInspector.cpp:333
+#: AFS_Core/src/SyncFileSsh.cpp:340 AFS_Core/src/SyncFileSsh.cpp:1250
+msgid "remote_dir_open_error"
+msgstr "Error opening the remote directory: "
+
+#: AFS_Core/src/SshDirInspector.cpp:86
+msgid "dir_read_error"
+msgstr "Error reading the directory: "
+
+#: AFS_Core/src/SshDirInspector.cpp:94 AFS_Core/src/SshDirInspector.cpp:298
+msgid "home_dir_unknown"
+msgstr "The home directory could not be determined: "
+
+#: AFS_Core/src/SshDirInspector.cpp:124 AFS_Core/src/SshDirInspector.cpp:285
+#: AFS_Core/src/SshDirInspector.cpp:374 AFS_Core/src/SyncFileSsh.cpp:347
+#: AFS_Core/src/SyncFileSsh.cpp:1274
+msgid "remote_dir_read_incomplete"
+msgstr "The remote directory was read incompletely: "
+
+#: AFS_Core/src/SshDirInspector.cpp:142 AFS_Core/src/SshFileInspector.cpp:78
+msgid "wsastartup_failed"
+msgstr "WSAStartup failed"
+
+#: AFS_Core/src/SshDirInspector.cpp:149 AFS_Core/src/SshFileInspector.cpp:102
+#: AFS_Core/src/SyncFileSsh.cpp:367 AFS_Core/src/SyncFileSsh.cpp:738
+#: AFS_Core/src/SyncFileSsh.cpp:852 AFS_Core/src/SyncFileSsh.cpp:938
+#: AFS_Core/src/SyncFileSsh.cpp:1020 AFS_Core/src/SyncFileSsh.cpp:1106
+#: AFS_Core/src/SyncFileSsh.cpp:1192
+msgid "socket_create_error"
+msgstr "Error creating the socket"
+
+#: AFS_Core/src/SshDirInspector.cpp:160 AFS_Core/src/SshFileInspector.cpp:96
+#: AFS_Core/src/SyncFileSsh.cpp:373 AFS_Core/src/SyncFileSsh.cpp:744
+#: AFS_Core/src/SyncFileSsh.cpp:858 AFS_Core/src/SyncFileSsh.cpp:944
+#: AFS_Core/src/SyncFileSsh.cpp:1026 AFS_Core/src/SyncFileSsh.cpp:1112
+#: AFS_Core/src/SyncFileSsh.cpp:1198
+msgid "host_name_not_resolvable"
+msgstr "The host name could not be resolved: "
+
+#: AFS_Core/src/SshDirInspector.cpp:168 AFS_Core/src/SshFileInspector.cpp:109
+#: AFS_Core/src/SyncFileSsh.cpp:750 AFS_Core/src/SyncFileSsh.cpp:864
+#: AFS_Core/src/SyncFileSsh.cpp:950 AFS_Core/src/SyncFileSsh.cpp:1032
+#: AFS_Core/src/SyncFileSsh.cpp:1118 AFS_Core/src/SyncFileSsh.cpp:1204
+msgid "server_connect_failed"
+msgstr "The connection to the server failed"
+
+#: AFS_Core/src/SshDirInspector.cpp:184 AFS_Core/src/SshFileInspector.cpp:124
+#: AFS_Core/src/SyncFileSsh.cpp:393 AFS_Core/src/SyncFileSsh.cpp:764
+#: AFS_Core/src/SyncFileSsh.cpp:878 AFS_Core/src/SyncFileSsh.cpp:964
+#: AFS_Core/src/SyncFileSsh.cpp:1046 AFS_Core/src/SyncFileSsh.cpp:1132
+#: AFS_Core/src/SyncFileSsh.cpp:1218
+msgid "ssh_handshake_failed"
+msgstr "The SSH handshake failed"
+
+#: AFS_Core/src/SshDirInspector.cpp:195 AFS_Core/src/SshFileInspector.cpp:137
+#: AFS_Core/src/SyncFileSsh.cpp:407 AFS_Core/src/SyncFileSsh.cpp:778
+#: AFS_Core/src/SyncFileSsh.cpp:892 AFS_Core/src/SyncFileSsh.cpp:978
+#: AFS_Core/src/SyncFileSsh.cpp:1060 AFS_Core/src/SyncFileSsh.cpp:1146
+#: AFS_Core/src/SyncFileSsh.cpp:1232
+msgid "ssh_auth_failed"
+msgstr "Authentication failed"
+
+#: AFS_Core/src/SshFileInspector.cpp:58 AFS_Core/src/SshFileInspector.cpp:194
+msgid "sftp_stat_failed"
+msgstr "SFTP stat failed (error code "
+
+#: AFS_Core/src/SshFileInspector.cpp:216
+msgid "ssh_unsupported_platform"
+msgstr "SSH is not supported on this platform."
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:21
+msgid "host_key_not_storable"
+msgstr "The host key could not be stored: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:24
+#: AFS_Core/src/SshHostKeyVerification.cpp:91
+msgid "host_key_stored"
+msgstr "New host key stored for: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:27
+#: AFS_Core/src/SshHostKeyVerification.cpp:95
+msgid "host_key_changed"
+msgstr "The host key has changed, possible man-in-the-middle attack: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:30
+#: AFS_Core/src/SshHostKeyVerification.cpp:99
+msgid "host_key_verification_failed_for"
+msgstr "Host key verification failed for: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:67
+msgid "host_key_not_readable"
+msgstr "The host key could not be read: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:73
+msgid "known_hosts_store_failed"
+msgstr "The known hosts store could not be created"
+
+#: AFS_Core/src/SyncArbiter.cpp:47
+msgid "arbiter_announce_failed"
+msgstr "SyncArbiter: announcement failed, error "
+
+#: AFS_Core/src/SyncArbiter.cpp:51
+msgid "arbiter_lock_file_failed"
+msgstr "SyncArbiter: the lock file cannot be created, error "
+
+#: AFS_Core/src/SyncArbiter.cpp:55
+msgid "arbiter_own_lock_taken"
+msgstr "SyncArbiter: this program's own lock is already taken, the synchronisation continues anyway."
+
+#: AFS_Core/src/SyncArbiter.cpp:120
+msgid "arbiter_service_not_releasing"
+msgstr "SyncArbiter: the background service does not release the synchronisation, the GUI synchronises anyway."
+
+#: AFS_Core/src/SyncBase.cpp:43
+msgid "ssh_dir_create_error"
+msgstr "Error creating the SSH directory: "
+
+#: AFS_Core/src/SyncBase.cpp:44
+msgid "ssh_target_dir_not_creatable"
+msgstr "The SSH target directory cannot be created: "
+
+#: AFS_Core/src/SyncBase.cpp:51
+msgid "target_dir_create_error"
+msgstr "Error creating the target directory: "
+
+#: AFS_Core/src/SyncBase.cpp:52
+msgid "target_dir_not_creatable"
+msgstr "The target directory cannot be created: "
+
+#: AFS_Core/src/SyncBase.cpp:71 AFS_Core/src/SyncDir.cpp:68
+#: AFS_Core/src/SyncFile.cpp:327 AFS_Core/src/SyncTree.cpp:74
+msgid "unknown_error_for"
+msgstr "Unknown error: "
+
+#: AFS_Core/src/SyncFile.cpp:48
+msgid "rename_error"
+msgstr "Error: %1, while renaming %2 to %3"
+
+#: AFS_Core/src/SyncFile.cpp:87
+msgid "file_time_not_settable"
+msgstr "The file time could not be set: "
+
+#: AFS_Core/src/SyncFile.cpp:162 AFS_Core/src/SyncFile.cpp:168
+#: AFS_Core/src/SyncFile.cpp:254 AFS_Core/src/SyncFile.cpp:259
+#: AFS_Core/src/SyncFile.cpp:294 AFS_Core/src/SyncFile.cpp:299
+#: AFS_Core/src/SyncFile.cpp:321 AFS_Core/src/SyncFile.cpp:325
+msgid "copying_label"
+msgstr "Copying: "
+
+#: AFS_Core/src/SyncFile.cpp:162
+msgid "copy_verification_differs"
+msgstr "Verification of the copied file found differences"
+
+#: AFS_Core/src/SyncFile.cpp:163
+msgid "copied_file_differs"
+msgstr "The copied file differs: "
+
+#: AFS_Core/src/SyncFile.cpp:168
+msgid "copy_failed"
+msgstr "Copying failed"
+
+#: AFS_Core/src/SyncFile.cpp:169
+msgid "copy_failed_for"
+msgstr "Copying failed: "
+
+#: AFS_Core/src/SyncFile.cpp:174
+msgid "copy_cancelled"
+msgstr "Copying cancelled: "
+
+#: AFS_Core/src/SyncFile.cpp:190
+msgid "file_attributes_change"
+msgstr "Changing the file attributes: "
+
+#: AFS_Core/src/SyncFile.cpp:214
+msgid "empty_source_not_copied"
+msgstr "The empty source file was not copied: "
+
+#: AFS_Core/src/SyncFile.cpp:218
+msgid "empty_target_not_copied"
+msgstr "The empty target file was not copied: "
+
+#: AFS_Core/src/SyncFile.cpp:223
+msgid "target_deleted_source_missing"
+msgstr "Deleting the target file because the source does not exist: "
+
+#: AFS_Core/src/SyncFile.cpp:224
+msgid "source_label"
+msgstr "Source:"
+
+#: AFS_Core/src/SyncFile.cpp:227 AFS_Core/src/SyncFile.cpp:228
+msgid "target_delete_failed"
+msgstr "Deleting the target file failed: "
+
+#: AFS_Core/src/SyncFile.cpp:238 AFS_Core/src/SyncFile.cpp:275
+msgid "copy_progress"
+msgstr ""
+"Copying \n"
+"%1\n"
+"to\n"
+"%2..."
+
+#: AFS_Core/src/SyncFile.cpp:246
+msgid "copied_source_to_target"
+msgstr "Source copied to target: "
+
+#: AFS_Core/src/SyncFile.cpp:246 AFS_Core/src/SyncFile.cpp:286
+msgid "to_label"
+msgstr "to"
+
+#: AFS_Core/src/SyncFile.cpp:260 AFS_Core/src/SyncFile.cpp:300
+msgid "unknown_copy_error"
+msgstr "Unknown error while copying: "
+
+#: AFS_Core/src/SyncFile.cpp:286
+msgid "copied_target_to_source"
+msgstr "Target to source: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:186 AFS_Core/src/SyncFileSsh.cpp:458
+msgid "local_file_write_error"
+msgstr "Error writing the local file"
+
+#: AFS_Core/src/SyncFileSsh.cpp:188 AFS_Core/src/SyncFileSsh.cpp:465
+msgid "remote_file_read_error"
+msgstr "Error reading the remote file"
+
+#: AFS_Core/src/SyncFileSsh.cpp:198 AFS_Core/src/SyncFileSsh.cpp:816
+msgid "remote_file_write_error"
+msgstr "Error writing the remote file"
+
+#: AFS_Core/src/SyncFileSsh.cpp:200 AFS_Core/src/SyncFileSsh.cpp:823
+msgid "local_file_read_error"
+msgstr "Error reading the local file"
+
+#: AFS_Core/src/SyncFileSsh.cpp:211 AFS_Core/src/SyncFileSsh.cpp:691
+msgid "target_file_write_error"
+msgstr "Error writing the target file"
+
+#: AFS_Core/src/SyncFileSsh.cpp:213 AFS_Core/src/SyncFileSsh.cpp:698
+msgid "source_file_read_error"
+msgstr "Error reading the source file"
+
+#: AFS_Core/src/SyncFileSsh.cpp:242 AFS_Core/src/SyncFileSsh.cpp:426
+msgid "remote_file_open_error"
+msgstr "Error opening the remote file: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:245 AFS_Core/src/SyncFileSsh.cpp:273
+#: AFS_Core/src/SyncFileSsh.cpp:437 AFS_Core/src/SyncFileSsh.cpp:731
+msgid "local_file_open_error"
+msgstr "Error opening the local file: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:261 AFS_Core/src/SyncFileSsh.cpp:651
+msgid "source_file_open_error"
+msgstr "Error opening the source file: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:264 AFS_Core/src/SyncFileSsh.cpp:667
+msgid "target_file_open_error"
+msgstr "Error opening the target file: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:280 AFS_Core/src/SyncFileSsh.cpp:798
+msgid "remote_file_open_write_error"
+msgstr "Error opening the remote file for writing: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:314 AFS_Core/src/SyncFileSsh.cpp:1081
+msgid "remote_dir_create_error"
+msgstr "Error creating the remote directory: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:326 AFS_Core/src/SyncFileSsh.cpp:1165
+msgid "remote_file_delete_error"
+msgstr "Error deleting the remote file: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:379
+msgid "ssh_connect_error_for_host"
+msgstr "SSH connection error to host: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:485
+msgid "ssh_account_not_found_source"
+msgstr "SSH account not found for the source: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:493
+msgid "ssh_account_not_found_target"
+msgstr "SSH account not found for the target: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:502
+msgid "source_socket_create_error"
+msgstr "Error creating the source socket"
+
+#: AFS_Core/src/SyncFileSsh.cpp:508
+msgid "source_host_name_resolve_error"
+msgstr "Error resolving the source host name: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:514
+msgid "ssh_connect_error_source"
+msgstr "SSH connection error (source)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:521
+msgid "source_ssh_session_create_error"
+msgstr "Error creating the source SSH session"
+
+#: AFS_Core/src/SyncFileSsh.cpp:528
+msgid "ssh_handshake_error_source"
+msgstr "SSH handshake error (source)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:542
+msgid "ssh_auth_error_source"
+msgstr "SSH authentication error (source)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:551
+msgid "source_sftp_session_create_error"
+msgstr "Error creating the source SFTP session"
+
+#: AFS_Core/src/SyncFileSsh.cpp:560
+msgid "target_socket_create_error"
+msgstr "Error creating the target socket"
+
+#: AFS_Core/src/SyncFileSsh.cpp:570
+msgid "target_host_name_resolve_error"
+msgstr "Error resolving the target host name: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:580
+msgid "ssh_connect_error_target"
+msgstr "SSH connection error (target)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:591
+msgid "target_ssh_session_create_error"
+msgstr "Error creating the target SSH session"
+
+#: AFS_Core/src/SyncFileSsh.cpp:602
+msgid "ssh_handshake_error_target"
+msgstr "SSH handshake error (target)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:624
+msgid "ssh_auth_error_target"
+msgstr "SSH authentication error (target)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:637
+msgid "target_sftp_session_create_error"
+msgstr "Error creating the target SFTP session"
+
+#: AFS_Core/src/Synchronize.cpp:55
+msgid "no_sync_active"
+msgstr "No synchronisation is active."
+
+#: AFS_Core/src/Synchronize.cpp:225
+msgid "source_or_target_not_reachable"
+msgstr "Source or target not reachable: "
+
+#: AFS_Core/src/Synchronize.cpp:270
+msgid "sync_item_failed"
+msgstr "Synchronize::sync_item failed for: "
+
+#: AFS_Core/src/Synchronize.cpp:276
+msgid "sync_item_unknown_error"
+msgstr "Unknown error in Synchronize::sync_item for: "
+
+#: AFS_Core/src/SyncItem.cpp:105
+msgid "sync_item_type_file"
 msgstr "File"
 
-#: AFS_Core/src/syncitem.cpp
-msgid "Verzeichnis"
+#: AFS_Core/src/SyncItem.cpp:106
+msgid "sync_item_type_dir"
 msgstr "Directory"
 
-#: AFS_Core/src/syncitem.cpp
-msgid "Verzeichnisbaum"
+#: AFS_Core/src/SyncItem.cpp:107
+msgid "sync_item_type_tree"
 msgstr "Directory tree"
+
+#: AFS_Core/src/SyncTree.cpp:93
+msgid "symlink_not_followed"
+msgstr "The symlink is not followed: "
+
+#: AFS_Core/src/Util.cpp:52
+msgid "value_out_of_uint16_range"
+msgstr "Value outside 0..65535: "
+
+#: AFS_Core/src/Util.cpp:97
+msgid "proc_mounts_not_openable"
+msgstr "/proc/mounts cannot be opened"
+
+#: AFS_Core/src/Util.cpp:272 AFS_Core/src/Util.cpp:275
+msgid "file_rename_error"
+msgstr "Error renaming the file: "

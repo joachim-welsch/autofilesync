@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <Logging.h>
+#include <Translation.h>
 #ifdef WIN32
     #include <Windows.h>
 #else
@@ -43,15 +44,15 @@ void SyncArbiter::publish_active()
 #ifdef WIN32
     active_event_ = CreateEventW(nullptr, TRUE, TRUE, event_name(role_));
     if (active_event_ == nullptr)
-        log_warning(L"SyncArbiter: Ankuendigung fehlgeschlagen, Fehler ", std::to_wstring(GetLastError()));
+        log_warning(translation::translate("arbiter_announce_failed"), std::to_wstring(GetLastError()));
 #else
     active_lock_fd_ = open(lock_path(role_).c_str(), O_RDWR | O_CREAT, 0600);
     if (active_lock_fd_ < 0) {
-        log_warning(L"SyncArbiter: Sperrdatei nicht anlegbar, Fehler ", std::to_wstring(errno));
+        log_warning(translation::translate("arbiter_lock_file_failed"), std::to_wstring(errno));
         return;
     }
     if (flock(active_lock_fd_, LOCK_EX | LOCK_NB) != 0)
-        log_warning(L"SyncArbiter: eigene Sperre bereits vergeben, Synchronisation laeuft trotzdem weiter.");
+        log_warning(translation::translate("arbiter_own_lock_taken"));
 #endif
 }
 
@@ -116,7 +117,7 @@ bool SyncArbiter::acquire(const std::atomic_bool& abort)
             return false;
         }
         if (std::chrono::steady_clock::now() >= deadline) {
-            log_warning(L"SyncArbiter: Hintergrunddienst gibt die Synchronisation nicht frei, GUI synchronisiert trotzdem.");
+            log_warning(translation::translate("arbiter_service_not_releasing"));
             break;
         }
         std::this_thread::sleep_for(POLL_INTERVAL);

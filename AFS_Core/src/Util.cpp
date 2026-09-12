@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Util.h"
+#include "Translation.h"
 #include <sstream>
 #include <fstream>
 #include <iomanip>
@@ -48,7 +49,7 @@ uint16_t to_uint16_t(const std::wstring& s)
 {
     const int value = std::stoi(s);
     if (value < 0 || value > std::numeric_limits<uint16_t>::max())
-        throw std::out_of_range("Wert ausserhalb von 0..65535: " + wstring_to_string(s));
+        throw std::out_of_range(translation::translate_utf8("value_out_of_uint16_range") + wstring_to_string(s));
     return static_cast<uint16_t>(value);
 }
 
@@ -93,7 +94,7 @@ bool volume_exists(const wstring& drive_name, const wstring& volume_name)
 #ifdef _UNIX
     std::ifstream mounts("/proc/mounts");
     if (!mounts.is_open()) {
-        log_error(L"/proc/mounts kann nicht geoeffnet werden");
+        log_error(translation::translate("proc_mounts_not_openable"));
         return false;
     }
     const string volume = wstring_to_string(volume_name);
@@ -268,10 +269,10 @@ bool rename_file(const std::wstring& oldname, const std::wstring& newname)
         return true;
     }
     catch (const fs::filesystem_error& ex) {
-        log_error(L"Fehler beim Umbenennen der Datei: " + string_to_wstring(ex.what()));
+        log_error(translation::translate("file_rename_error") + string_to_wstring(ex.what()));
     }
     catch (...) {
-        log_error(L"Fehler beim Umbenennen der Datei: ", oldname, L"Unbekannter Fehler");
+        log_error(translation::translate("file_rename_error"), oldname, translation::translate("unknown_error"));
     }
     return false;
 }
@@ -286,7 +287,7 @@ bool remove_file(const std::wstring& name, LogLevel ll)
             Logging::instance().log(ll, L"Error removing file: " + string_to_wstring(ex.what()));
     }
     catch (...) {
-        log_error(L"remove_file: ", name, L"Unbekannter Fehler");
+        log_error(L"remove_file: ", name, translation::translate("unknown_error"));
     }
     return false;
 }
@@ -302,7 +303,7 @@ bool set_last_write_time(const std::wstring& fn, const fs::file_time_type& modif
             Logging::instance().log(ll, L"Error setting last write time: " + string_to_wstring(ex.what()));
     }
     catch (...) {
-        log_error(L"set_last_write_time: ", fn, L"Unbekannter Fehler");
+        log_error(L"set_last_write_time: ", fn, translation::translate("unknown_error"));
     }
     return false;
 }

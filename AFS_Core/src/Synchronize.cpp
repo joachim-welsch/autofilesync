@@ -23,6 +23,7 @@
 #include "SyncControler.h"
 #include "MountedDrives.h"
 #include "CopyLog.h"
+#include "Translation.h"
 #include <FilesystemUtil.h>
 #include <utility>
 #include <mutex>
@@ -51,7 +52,7 @@ Synchronize& Synchronize::instance()
     log_debug(L"Synchronize::instance()");
     Synchronize* inst = this_.load();
     if (inst == nullptr)
-        throw std::runtime_error("Keine Synchronisation aktiv.");
+        throw std::runtime_error(translation::translate_utf8("no_sync_active"));
     return *inst;
 }
 
@@ -221,7 +222,7 @@ void Synchronize::report_unreachable(const SyncItem& i)
 {
     bool& reachable = item_reachable_.try_emplace(i.name(), true).first->second;
     if (std::exchange(reachable, false))
-        report_sync_error(L"Quelle oder Ziel nicht erreichbar: " + i.source() + L" -> " + i.target());
+        report_sync_error(translation::translate("source_or_target_not_reachable") + i.source() + L" -> " + i.target());
 }
 
 void Synchronize::prove_sync_item(SyncItem& i)
@@ -266,14 +267,14 @@ void Synchronize::run_sync_item(SyncItem& i)
         return;
     }
     catch (const std::exception& ex) {
-        log_error(L"Synchronize::sync_item fehlgeschlagen fuer: ", i.name());
+        log_error(translation::translate("sync_item_failed"), i.name());
         log_error(string_to_wstring(ex.what()));
         report_sync_error(string_to_wstring(ex.what()));
         return;
     }
     catch (...) {
-        log_error(L"Unbekannter Fehler in Synchronize::sync_item fuer: ", i.name());
-        report_sync_error(L"Unbekannter Fehler");
+        log_error(translation::translate("sync_item_unknown_error"), i.name());
+        report_sync_error(translation::translate("unknown_error"));
         return;
     }
     if (sync_type_ != SyncType::CountFiles)

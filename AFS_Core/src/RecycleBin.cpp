@@ -2,6 +2,7 @@
 #include "RecycleBin.h"
 #include "FilesystemUtil.h"
 #include "Logging.h"
+#include "Translation.h"
 #include "Util.h"
 #include <system_error>
 
@@ -23,7 +24,7 @@ bool create_parent(const fs::path& path)
     std::error_code ec;
     fs::create_directories(path.parent_path(), ec);
     if (ec)
-        log_fatal(L"Papierkorb: Verzeichnis kann nicht angelegt werden", path.parent_path().wstring());
+        log_fatal(translation::translate("recycle_bin_dir_not_creatable"), path.parent_path().wstring());
     return !ec;
 }
 }
@@ -45,12 +46,12 @@ RecycleBin& RecycleBin::instance()
 bool RecycleBin::check_relative(const fs::path& item) const  // [RecycleBin.md#check_relative]
 {
     if (item.empty() || item.is_absolute() || item.has_root_name()) {
-        log_error(L"Papierkorb: absoluter Pfad nicht erlaubt", item.wstring());
+        log_error(translation::translate("recycle_bin_absolute_path"), item.wstring());
         return false;
     }
     for (const auto& part : item.lexically_normal())
         if (part == "..") {
-            log_error(L"Papierkorb: Pfad fuehrt aus dem Papierkorb heraus", item.wstring());
+            log_error(translation::translate("recycle_bin_path_escapes"), item.wstring());
             return false;
         }
     return true;
@@ -64,12 +65,12 @@ bool RecycleBin::move(const fs::path& from, const fs::path& to) const  // [Recyc
         return true;
     fs::copy_file(from, to, fs::copy_options::overwrite_existing, ec);
     if (ec) {
-        log_error(L"Papierkorb: Verschieben fehlgeschlagen", from.wstring(), to.wstring(), util::string_to_wstring(ec.message()));
+        log_error(translation::translate("recycle_bin_move_failed"), from.wstring(), to.wstring(), util::string_to_wstring(ec.message()));
         return false;
     }
     fs::remove(from, ec);
     if (ec) {
-        log_error(L"Papierkorb: Quelldatei konnte nicht geloescht werden", from.wstring());
+        log_error(translation::translate("recycle_bin_source_not_deletable"), from.wstring());
         return false;
     }
     return true;
@@ -98,7 +99,7 @@ bool RecycleBin::add_item(const fs::path& source, const fs::path& item)
     if (!check_relative(item))
         return false;
     if (!entry_exists(source)) {
-        log_error(L"Papierkorb: Datei existiert nicht", source.wstring());
+        log_error(translation::translate("recycle_bin_file_not_exist"), source.wstring());
         return false;
     }
     const fs::path target = path_ / item.lexically_normal();
@@ -116,11 +117,11 @@ bool RecycleBin::restore_item(const fs::path& item)
     const fs::path target = item.lexically_normal();
     const fs::path source = path_ / target;
     if (!entry_exists(source)) {
-        log_error(L"Papierkorb: Datei liegt nicht im Papierkorb", item.wstring());
+        log_error(translation::translate("recycle_bin_file_not_inside"), item.wstring());
         return false;
     }
     if (entry_exists(target)) {
-        log_error(L"Papierkorb: Ziel existiert bereits", target.wstring());
+        log_error(translation::translate("recycle_bin_target_exists"), target.wstring());
         return false;
     }
     if (!create_parent(target) || !move(source, target))
@@ -139,7 +140,7 @@ RecycleBin::ItemList RecycleBin::list_items() const  // [RecycleBin.md#list_item
     for (auto it = fs::recursive_directory_iterator(path_, ec);
          it != fs::recursive_directory_iterator(); it.increment(ec)) {
         if (ec) {
-            log_error(L"Papierkorb: Verzeichnis nicht lesbar", path_.wstring());
+            log_error(translation::translate("recycle_bin_dir_unreadable"), path_.wstring());
             break;
         }
         if (!it->is_directory(ec))

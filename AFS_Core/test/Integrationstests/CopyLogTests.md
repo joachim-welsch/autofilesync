@@ -41,4 +41,6 @@ there.
 ## capped-list-marker
 
 The last entry says the list is incomplete, so a capped list is never mistaken for the full
-account of what went wrong.
+account of what went wrong. Compared through translation::translate(), not against a literal:
+the marker is a translated message, and pinning the test to one language would make it fail in
+every other one.

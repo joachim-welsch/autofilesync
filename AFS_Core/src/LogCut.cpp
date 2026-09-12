@@ -5,6 +5,7 @@
 #include <ctime>
 #include <filesystem>
 #include "StrUtil.h"
+#include "Translation.h"
 
 namespace AFS_Core {
 
@@ -45,7 +46,7 @@ void LogCut::close_files()
 	fs::rename(log_.get_log_file_path_name() + L".tmp", log_.get_log_file_path_name(), ec);
 	log_.open_file();
 	if (ec)
-		log_error(L"Logdatei konnte nicht gekuerzt werden: ", log_.get_log_file_path_name(), util::string_to_wstring(ec.message()));
+		log_error(translation::translate("log_file_not_shortenable"), log_.get_log_file_path_name(), util::string_to_wstring(ec.message()));
 }
 
 void LogCut::operator()()

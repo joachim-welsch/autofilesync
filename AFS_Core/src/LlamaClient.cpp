@@ -6,6 +6,7 @@
 #include <vector>
 #include <llama.h>
 #include <Logging.h>
+#include "Translation.h"
 #include "Util.h"
 
 namespace AFS_Core {
@@ -16,25 +17,8 @@ using util::string_to_wstring;
 using util::wstring_to_string;
 
 namespace {
-const string SYSTEM_PROMPT =  // [LlamaClient.md#SYSTEM_PROMPT]
-    "Du bist der eingebaute Assistent von Autofilesync, einem Programm zur "
-    "benutzerfreundlichen automatischen Synchronisation von Dateien und Verzeichnisbaeumen "
-    "unter Windows und Linux. Antworte auf Deutsch, kurz und konkret bezogen auf Autofilesync.\n"
-    "Kernkonzepte:\n"
-    "- Der Nutzer legt Synchronisationen aus einem Quell- und einem Zielverzeichnis an; "
-    "Autofilesync gleicht deren Inhalt automatisch ab, sobald sich dort etwas aendert.\n"
-    "- Ein GUI-Programm (wxWidgets) dient der Konfiguration der Synchronisationen.\n"
-    "- Ein Hintergrunddienst/Daemon fuehrt dieselbe Konfiguration ohne offene "
-    "Bedienoberflaeche im Hintergrund aus.\n"
-    "- Oberstes Ziel ist Robustheit, danach eine so intuitive Bedienung, dass unerfahrene "
-    "Nutzer sie ohne Dokumentation verstehen.\n"
-    "Wenn du eine Frage nicht sicher aus diesem Wissen beantworten kannst, sag das offen, "
-    "statt Funktionen zu erfinden, die es nicht gibt.";
-
-const wstring LOG_ANALYSIS_INSTRUCTION =  // [LlamaClient.md#LOG_ANALYSIS_INSTRUCTION]
-    L"Der folgende Ausschnitt stammt aus der Autofilesync-Logdatei (neueste Eintraege stehen "
-    L"zuletzt). Nutze ihn, um die anschliessende Frage des Nutzers zu beantworten. Enthaelt der "
-    L"Ausschnitt dafuer nichts Passendes, sag das offen, statt etwas zu erfinden.\n\n";
+constexpr const char* SYSTEM_PROMPT = translation::msgid("assistant_system_prompt");  // [LlamaClient.md#SYSTEM_PROMPT]
+constexpr const char* LOG_ANALYSIS_INSTRUCTION = translation::msgid("assistant_log_analysis_instruction");  // [LlamaClient.md#LOG_ANALYSIS_INSTRUCTION]
 }
 
 void LlamaClient::ModelDeleter::operator()(llama_model* model) const { llama_model_free(model); }
@@ -55,8 +39,7 @@ bool LlamaClient::ensure_loaded(wstring& error)
         return true;
     const char* path = std::getenv(MODEL_PATH_VARIABLE);
     if (path == nullptr || *path == '\0') {
-        error = L"Kein lokales Modell konfiguriert. Bitte " + string_to_wstring(MODEL_PATH_VARIABLE) +
-                L" auf eine GGUF-Datei setzen und das Programm neu starten.";
+        error = translation::translate("assistant_no_model_configured", {string_to_wstring(MODEL_PATH_VARIABLE)});
         return false;
     }
     static const bool BACKEND_READY = (llama_backend_init(), true);  // [LlamaClient.md#backend-init]
@@ -65,7 +48,7 @@ bool LlamaClient::ensure_loaded(wstring& error)
     model_params.n_gpu_layers = 0; // CPU only: no assumption about the user's GPU/driver setup
     llama_model* model = llama_model_load_from_file(path, model_params);
     if (model == nullptr) {
-        error = L"Modell konnte nicht geladen werden: " + string_to_wstring(path);
+        error = translation::translate("assistant_model_not_loadable") + string_to_wstring(path);
         return false;
     }
     llama_context_params ctx_params = llama_context_default_params();
@@ -76,7 +59,7 @@ bool LlamaClient::ensure_loaded(wstring& error)
     llama_context* ctx = llama_init_from_model(model, ctx_params);
     if (ctx == nullptr) {
         llama_model_free(model);
-        error = L"Fuer das Modell konnte kein Kontext erstellt werden.";
+        error = translation::translate("assistant_model_context_failed");
         return false;
     }
     model_.reset(model);
@@ -89,7 +72,7 @@ wstring LlamaClient::build_prompt(const ChatHistory& history) const
 {
     std::vector<string> contents;  // [LlamaClient.md#contents-lifetime]
     contents.reserve(history.size() + 1);
-    contents.push_back(SYSTEM_PROMPT);
+    contents.push_back(translation::translate_utf8(SYSTEM_PROMPT));
     for (const ChatTurn& turn : history)
         contents.push_back(wstring_to_string(turn.text));
     std::vector<llama_chat_message> messages;
@@ -118,10 +101,10 @@ ChatReply LlamaClient::send(const ChatHistory& history)
     if (!ensure_loaded(error))
         return { false, error };
     if (history.empty())
-        return { false, L"Es gibt nichts zu senden." };
+        return { false, translation::translate("assistant_nothing_to_send") };
     const wstring prompt = build_prompt(history);
     if (prompt.empty())
-        return { false, L"Das Modell unterstuetzt kein bekanntes Chat-Format." };
+        return { false, translation::translate("assistant_unknown_chat_format") };
 
     llama_context* ctx = context_.get();
     llama_memory_clear(llama_get_memory(ctx), true);  // [LlamaClient.md#kv-cache-cleared]
@@ -139,10 +122,10 @@ ChatReply LlamaClient::send(const ChatHistory& history)
     if (tokens.empty() || static_cast<uint32_t>(tokens.size()) >= llama_n_ctx(ctx)  // [LlamaClient.md#prompt-size-check]
         || static_cast<uint32_t>(tokens.size()) >= llama_n_batch(ctx)) {
         log_error(L"LlamaClient: Prompt zu lang, Tokens: ", std::to_wstring(tokens.size()));
-        return { false, L"Die Unterhaltung ist laenger als das Kontextfenster des Modells." };
+        return { false, translation::translate("assistant_conversation_too_long") };
     }
     if (llama_decode(ctx, llama_batch_get_one(tokens.data(), static_cast<int32_t>(tokens.size()))) != 0)
-        return { false, L"Der Prompt konnte nicht verarbeitet werden." };
+        return { false, translation::translate("assistant_prompt_failed") };
 
     std::unique_ptr<llama_sampler, void(*)(llama_sampler*)> sampler(
         llama_sampler_chain_init(llama_sampler_chain_default_params()), llama_sampler_free);
@@ -166,18 +149,19 @@ ChatReply LlamaClient::send(const ChatHistory& history)
             break;
     }
     if (answer.empty())
-        return { false, L"Die Antwort enthielt keinen Text." };
+        return { false, translation::translate("assistant_empty_answer") };
     return { true, string_to_wstring(answer) };
 }
 
 ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& log_excerpt)
 {
     if (history.empty())
-        return { false, L"Es gibt nichts zu senden." };
+        return { false, translation::translate("assistant_nothing_to_send") };
     if (log_excerpt.empty())
-        return { false, L"Die Logdatei ist leer oder konnte nicht gelesen werden." };
+        return { false, translation::translate("assistant_log_file_unreadable") };
     ChatHistory with_excerpt = history;
-    with_excerpt.back().text = LOG_ANALYSIS_INSTRUCTION + log_excerpt + L"\n\nFrage: " + with_excerpt.back().text;
+    with_excerpt.back().text = translation::translate(LOG_ANALYSIS_INSTRUCTION) + L"\n\n" + log_excerpt +
+        L"\n\n" + translation::translate("assistant_question_label") + with_excerpt.back().text;
     return send(with_excerpt);
 }
 

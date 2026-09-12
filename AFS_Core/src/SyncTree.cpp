@@ -5,6 +5,7 @@
 #include "Util.h"
 #include "Synchronize.h"
 #include "Logging.h"
+#include "Translation.h"
 #include "CopyLog.h"
 #include <filesystem>
 
@@ -69,8 +70,8 @@ void SyncTree::sync_tree(const wstring& sourcename, const wstring& targetname, c
         report_sync_error(sourcename + L": " + string_to_wstring(e.what()));
     }
     catch (...) {
-        log_error(sourcename, targetname, L" - Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler: " + sourcename);
+        log_error(sourcename, targetname, L" - " + translation::translate("unknown_error"));
+        report_sync_error(translation::translate("unknown_error_for") + sourcename);
     }
 }
 
@@ -89,7 +90,7 @@ std::set<wstring> SyncTree::sync_entries(const wstring& sourcename, const wstrin
 void SyncTree::sync_entry(const Entry& entry, const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
 {
     if (entry.is_symlink && !entry.is_regular_file)  // [SyncTree.md#symlinks-never-followed]
-        log_info(L"Symlink wird nicht verfolgt: ", with_trailing_char(sourcename, source_separator()) + entry.name);
+        log_info(translation::translate("symlink_not_followed"), with_trailing_char(sourcename, source_separator()) + entry.name);
     else if (entry.is_directory)
         sync_subtree(entry.name, sourcename, targetname, wildcard);
     else if (entry.is_regular_file)

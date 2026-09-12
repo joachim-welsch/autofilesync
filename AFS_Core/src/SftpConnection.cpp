@@ -3,6 +3,7 @@
 #include "SftpConnection.h"
 #include "SshConnectTimeout.h"
 #include "SshHostKeyVerification.h"
+#include "Translation.h"
 #include <stdexcept>
 
 namespace AFS_Core {
@@ -35,25 +36,25 @@ void SftpConnection::fail(const std::string& message)
     throw std::runtime_error(message);
 }
 
-void SftpConnection::connect(const SshAccount& account)
+void SftpConnection::connect(const SshAccount& account)  // [SftpConnection.md#libssh-message-ids]
 {
     ssh_ = ssh_new();
     if (!ssh_)
-        fail("Fehler beim Erstellen der SSH Session.");
+        fail(translation::translate_utf8("ssh_session_create_error"));
     ssh_options_set(ssh_, SSH_OPTIONS_HOST, account.host().c_str());
     ssh_options_set(ssh_, SSH_OPTIONS_USER, account.user().c_str());
     apply_ssh_connect_timeout(ssh_);
     if (ssh_connect(ssh_) != SSH_OK)
-        fail("Verbindungsfehler: " + error());
+        fail(translation::translate_utf8("libssh_connect_error") + error());
     if (!verify_ssh_host_key(ssh_, account.host()))
-        fail("Host-Key-Prüfung fehlgeschlagen: mögliche Man-in-the-Middle-Attacke.");
+        fail(translation::translate_utf8("host_key_verification_failed"));
     if (ssh_userauth_password(ssh_, nullptr, account.password().c_str()) != SSH_AUTH_SUCCESS)
-        fail("Authentifizierungsfehler: " + error());
+        fail(translation::translate_utf8("libssh_auth_error") + error());
     sftp_ = sftp_new(ssh_);
     if (!sftp_)
-        fail("Fehler beim Erstellen der SFTP Session.");
+        fail(translation::translate_utf8("sftp_session_create_error"));
     if (sftp_init(sftp_) != SSH_OK)
-        fail("Fehler beim Initialisieren von SFTP.");
+        fail(translation::translate_utf8("sftp_init_failed"));
 }
 
 std::string SftpConnection::error() const

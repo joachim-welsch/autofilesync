@@ -7,6 +7,7 @@
 #include "SyncFile.h"
 #include "SyncFileSsh.h"
 #include "Synchronize.h"
+#include "Translation.h"
 #include "Util.h"
 #include <filesystem>
 
@@ -39,16 +40,16 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)
     const wstring destination = targetdir.empty() ? sync_item_.target() : targetdir;
     if (sync_item_.ssh_target()) {
         if (!ssh_exists(destination) && !ssh_mkdir(destination)) {
-            log_error(L"Fehler beim Erstellen des SSH-Verzeichnisses: " + destination);
-            report_sync_error(L"SSH-Zielverzeichnis nicht anlegbar: " + destination);
+            log_error(translation::translate("ssh_dir_create_error") + destination);
+            report_sync_error(translation::translate("ssh_target_dir_not_creatable") + destination);
         }
         return;
     }
     std::error_code ec;
     fs::create_directories(without_volume_spec(destination), ec);
     if (ec) {
-        log_error(L"Fehler beim Erstellen des Zielverzeichnisses: ", destination, string_to_wstring(ec.message()));
-        report_sync_error(L"Zielverzeichnis nicht anlegbar: " + destination);
+        log_error(translation::translate("target_dir_create_error"), destination, string_to_wstring(ec.message()));
+        report_sync_error(translation::translate("target_dir_not_creatable") + destination);
     }
 }
 
@@ -66,8 +67,8 @@ void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstri
         log_error(source, dest, string_to_wstring(e.what()));
         report_sync_error(source + L": " + string_to_wstring(e.what()));
     } catch (...) {
-        log_error(source, dest, L" - Unbekannter Fehler");
-        report_sync_error(L"Unbekannter Fehler: " + source);
+        log_error(source, dest, L" - " + translation::translate("unknown_error"));
+        report_sync_error(translation::translate("unknown_error_for") + source);
     }
 }
 

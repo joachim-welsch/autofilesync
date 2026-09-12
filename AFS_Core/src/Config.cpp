@@ -13,6 +13,7 @@
 #include <FilesystemUtil.h>
 #include "Logging.h"
 #include "RecycleBin.h"
+#include "Translation.h"
 
 namespace AFS_Core {
 
@@ -32,9 +33,9 @@ boost::property_tree::wptree parse_json_file(wchar_t const* filename)
     boost::property_tree::wptree pt;
     if (!fsu::file_exists(filename)) {
 #ifdef _WXWIDGETS
-        wxMessageBox(wxString("Konfigurationsdatei existiert nicht: ") + wxString(filename));
+        wxMessageBox(wxString(translation::translate("config_file_not_exist")) + wxString(filename));
 #endif
-        log_fatal(L"Konfigurationsdatei existiert nicht: ", filename);
+        log_fatal(translation::translate("config_file_not_exist"), filename);
             return pt;
     }
     try {
@@ -43,9 +44,9 @@ boost::property_tree::wptree parse_json_file(wchar_t const* filename)
     }
     catch (std::exception& ex) {
 #ifdef _WXWIDGETS
-        wxMessageBox(wxString("Ausnahme beim Lesen der Konfiguration: ") + ex.what());
+        wxMessageBox(wxString(translation::translate("config_read_exception")) + ex.what());
 #endif
-        log_fatal(L"Ausnahme beim Lesen der Konfiguration: ", util::string_to_wstring(ex.what()), filename);
+        log_fatal(translation::translate("config_read_exception"), util::string_to_wstring(ex.what()), filename);
     }
     return pt;
 }
@@ -141,9 +142,9 @@ void migrate_legacy_config(const wstring& new_path)  // [Config.md#migrate_legac
     std::error_code ec;
     std::filesystem::create_directories(std::filesystem::path(new_path).parent_path(), ec);
     if (util::rename_file(old_path, new_path))
-        log_info(L"Konfiguration migriert von: ", old_path, new_path);
+        log_info(translation::translate("config_migrated_from"), old_path, new_path);
     else
-        log_error(L"Migration der Konfiguration fehlgeschlagen von: ", old_path, new_path);
+        log_error(translation::translate("config_migration_failed"), old_path, new_path);
 }
 
 std::filesystem::path password_key_file_path()
@@ -301,7 +302,7 @@ bool interpret_sync_item(boost::property_tree::wptree syncitem_node, SyncItem& s
         si.wildcard(wildcard);
         si.sync_cycle(to_uint16_t(syncitem_node.get<wstring>(L"SyncCycle")));
     } catch (std::exception& ex) {
-        log_error("Lese Sync-Einstellungen: ", ex.what());
+        log_error(translation::translate_utf8("config_read_sync_settings"), ex.what());
         return false;
     }
     return true;
@@ -314,7 +315,7 @@ static wstring read_stored_password(const wstring& stored)  // [Config.md#read_s
         return stored;
     if (auto decrypted = passwordcrypto::decrypt(value, password_key_file_path()))
         return string_to_wstring(*decrypted);
-    log_error("SMTP-Passwort konnte nicht entschluesselt werden");
+    log_error(translation::translate_utf8("smtp_password_not_decryptable"));
     return {};
 }
 
@@ -347,7 +348,7 @@ bool Config::read_logging_setup(boost::property_tree::wptree& root)
         }
     }
     catch (std::exception& ex) {
-        log_error("Lese Logging-Einstellungen: ", ex.what());
+        log_error(translation::translate_utf8("config_read_logging_settings"), ex.what());
         return false;
     }
     return true;
@@ -367,9 +368,9 @@ bool Config::read_settings(boost::property_tree::wptree& root)
     }
     catch (std::exception& ex) {
         #ifdef _WXWIDGETS
-            wxMessageBox(wxString("read settings: ") + ex.what());
+            wxMessageBox(wxString(translation::translate("config_read_settings")) + ex.what());
         #endif
-        log_error("Fehler beim Lesen der Einstellungen: ", ex.what());
+        log_error(translation::translate_utf8("config_settings_read_error"), ex.what());
         return false;
     }
     return true;
@@ -393,12 +394,12 @@ bool Config::read_ssh_accounts(boost::property_tree::wptree& root)
             } else if (auto decrypted = passwordcrypto::decrypt(stored_password, password_key_file_path())) {
                 account.set_password(*decrypted);
             } else {
-                log_fatal("Passwort konnte nicht entschluesselt werden fuer SSH-Account: ", account.name());  // [Config.md#no-ciphertext-fallback]
+                log_fatal(translation::translate_utf8("ssh_password_not_decryptable"), account.name());  // [Config.md#no-ciphertext-fallback]
             }
             add(account, true);
         }
         catch (std::exception& ex) {
-            log_error("Fehlerhafter SSH-Account-Eintrag wird uebersprungen: ", ex.what());
+            log_error(translation::translate_utf8("ssh_account_entry_skipped"), ex.what());
             all_ok = false;
         }
     }
@@ -408,7 +409,7 @@ bool Config::read_ssh_accounts(boost::property_tree::wptree& root)
 bool Config::interpret_json(boost::property_tree::wptree&& root)
 {
     if (root.empty()) {
-        log_fatal("Fehler beim Lesen der Konfiguration.");
+        log_fatal(translation::translate_utf8("config_read_error"));
         return false;
     }
     read_settings(root);
@@ -422,7 +423,7 @@ bool Config::interpret_json(boost::property_tree::wptree&& root)
         if (interpret_sync_item(iter->second, si))
             add(si, true);
         else
-            log_error(L"Fehlerhafter Syncitem-Eintrag wird übersprungen.");
+            log_error(translation::translate("sync_item_entry_skipped"));
     }
     return true;
 }
@@ -547,9 +548,9 @@ bool Config::write(const std::wstring& pathname)
         }
         catch (std::exception& ex) {
 #ifdef _WXWIDGETS
-            wxMessageBox(wxString("Fehler beim Schreiben der Konfiguration: ") + ex.what());
+            wxMessageBox(wxString(translation::translate("config_write_error")) + ex.what());
 #endif
-            log_fatal("Fehler beim Schreiben der Konfiguration: ", ex.what());
+            log_fatal(translation::translate_utf8("config_write_error"), ex.what());
             util::remove_file(tmp_pathname);
             return false;
         }
@@ -567,9 +568,9 @@ bool Config::read(std::wstring_view pathname)
     if (!interpret_json(parse_json_file(pathname.data()))) {
         reset();
 #ifdef _WXWIDGETS
-        wxMessageBox(wxString("Konfiguration konnte nicht gelesen werden."));
+        wxMessageBox(wxString(translation::translate("config_not_readable")));
 #endif
-        log_fatal("Konfiguration konnte nicht gelesen werden.");
+        log_fatal(translation::translate_utf8("config_not_readable"));
         return false;
     }
     ready_ = true;

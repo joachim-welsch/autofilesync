@@ -22,7 +22,8 @@ endif()
 
 # Message catalogues: msgfmt turns po/<language>.po into the layout gettext
 # looks for next to the executable (locale/<language>/LC_MESSAGES/autofilesync.mo).
-# Optional - without msgfmt the programs show the untranslated German message ids.
+# Without msgfmt the programs show the bare message ids: the ids are technical
+# keys, so there is no language left to fall back on.
 # Defined before the subdirectories so that AFS_Desktop can depend on the target.
 find_program(MSGFMT_EXECUTABLE msgfmt)
 if(MSGFMT_EXECUTABLE)

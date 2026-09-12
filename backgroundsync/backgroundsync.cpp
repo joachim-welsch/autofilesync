@@ -2,6 +2,7 @@
 #include <chrono>
 #include <thread>
 #include "Logging.h"
+#include "Translation.h"
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -20,6 +21,8 @@ void signalHandler(int /*signal*/) {
 
 int main(int argc, char *argv[])
 {
+    AFS_Core::translation::init_locale("de_DE.UTF-8");  // a unit file usually names no language at all
+    AFS_Core::translation::init(AFS_Core::translation::locale_dir());  // before the first message, catalogues beside the binary as in the GUI
     myDaemon = std::make_unique<MyDaemon>();
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);
