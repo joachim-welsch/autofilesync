@@ -117,6 +117,40 @@ beidem, warnt das Skript und baut weiter.
 
 **Ausgabe:** `AFS_Desktop\x64\<Typ>\autofilesync.exe`
 
+### Installationspaket (MSI)
+
+`makeWindowsInstaller.cmd` erzeugt `build\AutoFileSync-<Version>.msi` – das
+Gegenstück zu `makeMacOSInstaller.sh`. Voraussetzung ist das WiX-Werkzeug
+(`dotnet tool install --global wix`); die UI-Erweiterung lädt das Skript selbst
+nach, und zwar in der Version von `wix` selbst, weil eine neuere sich nicht
+laden lässt.
+
+```cmd
+makeWindowsInstaller.cmd              :: Release bauen und paketieren
+makeWindowsInstaller.cmd -NoBuild     :: vorhandenen Build verwenden
+makeWindowsInstaller.cmd -Output C:\Temp
+```
+
+Das Skript stellt die Nutzlast in `build\windows_installer\payload` zusammen –
+Programmdatei, die vcpkg-Laufzeitbibliotheken, `help\` und `locale\` – und
+prüft sie gegen eine Liste geforderter Einträge, bevor WiX daraus ein Paket
+macht. Fehlt ein Katalog oder eine DLL, bricht es dort ab statt ein Paket
+auszuliefern, das erst beim Anwender auffällt.
+
+Das Paket installiert nach `%ProgramFiles%\AutoFileSync`, legt eine Verknüpfung
+im Startmenü an und ersetzt bei jeder Installation die vorherige – auch eine
+derselben Version, weil WiX pro Build einen neuen ProductCode vergibt und sich
+zwei Pakete sonst nebeneinandersetzen. Ein eigener Dialog fragt zusätzlich nach
+einem Starticon auf dem Desktop; der Haken ist vorbelegt, still steuert ihn
+`INSTALLDESKTOPSHORTCUT` (leer heißt kein Icon):
+
+```cmd
+msiexec /i build\AutoFileSync-<Version>.msi INSTALLDESKTOPSHORTCUT="" /qn
+```
+
+Die Produktdefinition steht in `AFS_Desktop/installer/autofilesync.wxs`, die
+Versionsnummer kommt wie beim macOS-Bündel aus `AFS_Desktop/include/Version.h`.
+
 ## Projekt-Struktur
 
 Das Projekt besteht aus zwei Teilen: **AFS_Core** (Synchronisationskern,

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Windows installation package. Built by makeWindowsInstaller.ps1, which stages
+  the payload and passes PayloadDir and Version in; nothing here reaches into
+  the build tree, so the package always describes exactly what was staged.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Package Name="AutoFileSync"
+           Manufacturer="Joachim Welsch"
+           Version="$(Version)"
+           UpgradeCode="{7E2C4A61-9F3D-4C58-B0E7-2A6D1F84C093}"
+           Scope="perMachine"
+           Compressed="yes"
+           Language="1031"
+           Codepage="1252">
+
+    <!-- Every version replaces the installed one; two AutoFileSync entries in
+         the program list would each own the same install directory.
+         AllowSameVersionUpgrades, weil WiX pro Build einen neuen ProductCode
+         vergibt: ohne das gilt ein neues Paket derselben Version nicht als
+         Upgrade und stellt sich neben das installierte, statt es abzuloesen. -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="Eine neuere Version von AutoFileSync ist bereits installiert." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="afs.ico" SourceFile="$(IconFile)" />
+    <Property Id="ARPPRODUCTICON" Value="afs.ico" />
+    <!-- Erst nach CostFinalize steht das Zielverzeichnis fest; ohne diese Zeile
+         bleibt der Eintrag in "Apps & Features" ohne Installationsort. -->
+    <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLFOLDER]" After="CostFinalize" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="AutoFileSync" />
+    </StandardDirectory>
+
+    <!-- Vorgabe angehakt, und Secure, weil die Eigenschaft sonst aus der
+         Oberflaeche nicht in die erhoehte Ausfuehrungssequenz uebernommen wird
+         und die Verknuepfung trotz Haken ausbliebe. -->
+    <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" Secure="yes" />
+
+    <Feature Id="Main" Title="AutoFileSync" Level="1">
+      <ComponentGroupRef Id="Payload" />
+      <ComponentGroupRef Id="Shortcuts" />
+    </Feature>
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <!-- Straight from the welcome page to the directory page: the licence
+         dialog would need a licence text, and the project has not settled one
+         (BUILD.md still carries the placeholder). Behind the directory page
+         follows ShortcutDlg; its NewDialog needs a higher Order than the one
+         the dialog set publishes, so it replaces the jump to VerifyReadyDlg. -->
+    <UI>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" />
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" />
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="ShortcutDlg"
+               Order="10" Condition="WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID=&quot;1&quot;" />
+      <Publish Dialog="ShortcutDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg" />
+      <Publish Dialog="ShortcutDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" />
+      <!-- Nur im Erstinstallationszweig: im Wartungsmodus fuehrt "Zurueck" zur
+           Auswahl Aendern/Reparieren, und dort kommt ShortcutDlg nicht vor. -->
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="ShortcutDlg"
+               Order="10" Condition="NOT Installed" />
+    </UI>
+  </Package>
+
+  <!-- The whole staged tree, harvested as it stands: program, the vcpkg
+       runtime libraries, help\ and locale\. The program looks for the last two
+       beside its own binary, so the layout must survive into the install
+       directory unchanged. -->
+  <Fragment>
+    <ComponentGroup Id="Payload" Directory="INSTALLFOLDER">
+      <Files Include="$(PayloadDir)\**" />
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramMenuFolder" />
+    <StandardDirectory Id="DesktopFolder" />
+    <ComponentGroup Id="Shortcuts">
+      <Component Directory="ProgramMenuFolder" Guid="{1C8F5B47-3E92-4A70-9D61-58B4E7C2A0F5}">
+        <Shortcut Id="StartMenuShortcut"
+                  Name="AutoFileSync"
+                  Target="[INSTALLFOLDER]autofilesync.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="afs.ico" />
+        <!-- A shortcut cannot be a key path; the registry value gives the
+             component one that uninstall can remove again. -->
+        <RegistryValue Root="HKMU" Key="Software\AutoFileSync" Name="StartMenuShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+      <Component Directory="DesktopFolder" Guid="{6D93A2E8-47B1-4F0C-8A35-E1274B9C60DA}"
+                 Condition="INSTALLDESKTOPSHORTCUT">
+        <Shortcut Id="DesktopShortcut"
+                  Name="AutoFileSync"
+                  Target="[INSTALLFOLDER]autofilesync.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="afs.ico" />
+        <RegistryValue Root="HKMU" Key="Software\AutoFileSync" Name="DesktopShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Eigener Dialog, weil sich die Dialoge der UI-Erweiterung nicht
+       nachtraeglich um ein Bedienelement erweitern lassen. Masse und
+       Schriften sind die der Erweiterung, damit er sich einreiht. -->
+  <Fragment>
+    <UI>
+      <Dialog Id="ShortcutDlg" Width="370" Height="270" Title="[ProductName] Setup">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44"
+                 TabSkip="no" Text="WixUI_Bmp_Banner" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes"
+                 NoPrefix="yes" Text="{\WixUI_Font_Title}Verknüpfungen" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes"
+                 NoPrefix="yes" Text="Wo soll AutoFileSync zu finden sein?" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="StartMenuText" Type="Text" X="20" Y="60" Width="330" Height="12"
+                 NoPrefix="yes" Text="Im Startmenü wird AutoFileSync immer eingetragen." />
+        <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="20" Y="82" Width="330" Height="17"
+                 Property="INSTALLDESKTOPSHORTCUT" CheckBoxValue="1"
+                 Text="Starticon auf dem Desktop anlegen" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17"
+                 Text="!(loc.WixUIBack)" />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes"
+                 Text="!(loc.WixUINext)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes"
+                 Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+    </UI>
+  </Fragment>
+</Wix>
