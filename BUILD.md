@@ -80,6 +80,43 @@ noch die alte Aufteilung; er ist zu löschen und neu zu erzeugen. Der llama.cpp-
 Checkout lässt sich dabei mit `-DFETCHCONTENT_SOURCE_DIR_LLAMA_CPP=<Pfad>`
 weiterverwenden.
 
+## Build unter Windows
+
+Windows baut nicht über CMake, sondern über `AFS_Desktop\autofilesync.sln`: dort
+stehen die Pfade zu wxWidgets, Boost und vcpkg, die diese Plattform braucht.
+`build.cmd` im Wurzelverzeichnis erledigt das Gegenstück zu `build.sh`:
+
+```cmd
+build.cmd              :: Release
+build.cmd -d           :: Debug
+build.cmd clean -d     :: Build-Verzeichnis löschen und Debug bauen
+```
+
+Voraussetzung ist ein vcpkg mit `vcpkg integrate install` und den Paketen aus
+`vcpkg.json`. Die Solution liegt nicht neben dem Manifest, MSBuild baut also im
+klassischen Modus – die Pakete müssen im globalen vcpkg-Baum stehen und aus dem
+vcpkg-Verzeichnis heraus installiert werden (im Repo-Verzeichnis erzwingt das
+`vcpkg.json` den Manifest-Modus, der keine Paketargumente annimmt):
+
+```cmd
+cd C:\Entwicklung\extlib\vcpkg
+vcpkg install "gettext[core,tools]:x64-windows" libssh2:x64-windows llama-cpp:x64-windows
+```
+
+Das Feature `tools` ist nötig, weil `msgfmt` sonst nicht mitkommt: das Paket
+`gettext` liefert ohne es nur die Laufzeitbibliothek `libintl`.
+
+Es sucht MSBuild über `vswhere`, baut `Configuration=<Typ>|Platform=x64` und
+übersetzt anschließend die Kataloge aus `po/` nach
+`AFS_Desktop\x64\<Typ>\locale\<sprache>\LC_MESSAGES\autofilesync.mo` – den
+Schritt hat das Projekt selbst nicht (siehe unten). `msgfmt` sucht es im PATH
+und sonst unter `<vcpkg>\installed\x64-windows\tools\gettext\bin`; das
+vcpkg-Verzeichnis kommt aus `%VCPKG_ROOT%` oder aus der von
+`vcpkg integrate install` hinterlegten `vcpkg.path.txt`. Findet es keines von
+beidem, warnt das Skript und baut weiter.
+
+**Ausgabe:** `AFS_Desktop\x64\<Typ>\autofilesync.exe`
+
 ## Projekt-Struktur
 
 Das Projekt besteht aus zwei Teilen: **AFS_Core** (Synchronisationskern,
@@ -167,12 +204,13 @@ msgid ändert das Dateiformat nicht.
 
 Der CMake-Build erzwingt libintl; die `.vcxproj`-Projekte holen es über vcpkg
 (`gettext` in `vcpkg.json`), definieren `AFS_WITH_GETTEXT` und linken `intl.lib`.
-Heißt die Bibliothek in `vcpkg_installed\<triplet>\lib` anders (vcpkg kennt auch
+Heißt die Bibliothek in `installed\x64-windows\lib` anders (vcpkg kennt auch
 `libintl` und `intl-8`), ist der Eintrag in `AdditionalDependencies` anzupassen.
 
 Einen `msgfmt`-Schritt haben die Projekte **nicht**: die `.mo`-Dateien müssen neben
-der Exe liegen, sonst zeigt auch ein Windows-Build die Schlüssel. Entweder das
-`locale`-Verzeichnis aus einem CMake-Build daneben kopieren oder von Hand erzeugen:
+der Exe liegen, sonst zeigt auch ein Windows-Build die Schlüssel. `build.cmd` erledigt
+das nach dem Linken; wer aus Visual Studio heraus baut, kopiert das `locale`-Verzeichnis
+aus einem CMake-Build daneben oder erzeugt es von Hand:
 
 ```cmd
 md locale\de\LC_MESSAGES locale\en\LC_MESSAGES
