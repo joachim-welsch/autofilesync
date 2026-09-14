@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)installed\&lt;triplet&gt;\include;..\AFS_Core\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud; C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\$(VcpkgTriplet)\include;..\AFS_Core\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud; C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,7 +78,7 @@
       <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)installed\&lt;triplet&gt;\include;..\AFS_Core\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\$(VcpkgTriplet)\include;..\AFS_Core\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
