@@ -75,7 +75,7 @@ bool CheckPath::path_exists(const wstring& pathname, bool must_exist) const
     if (path_contains_volume_name(pathname) && !volume_exists(drive_name, volume_name(pathname)))
         return false;
     if (!must_exist)  // [CheckPath.md#target-need-not-exist]
-        return ::drive_exists(drive_name);
+        return drive_exists(drive_name);
     std::error_code ec;
     return fs::exists(without_volume_spec(pathname), ec);
 #endif
