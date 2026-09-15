@@ -12,8 +12,8 @@ namespace AFS_Core {
 
 class LlamaClient {  // [LlamaClient.md#LlamaClient]
 public:
-    static constexpr char MODEL_PATH_VARIABLE[] = "AUTOFILESYNC_LLAMA_MODEL";
     static bool available();  // [LlamaClient.md#available]
+    static std::wstring missing_model_hint();  // [LlamaClient.md#missing_model_hint]
 
     LlamaClient() = default;
     ~LlamaClient();

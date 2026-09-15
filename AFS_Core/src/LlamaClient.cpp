@@ -6,6 +6,7 @@
 #include <vector>
 #include <llama.h>
 #include <Logging.h>
+#include "ModelLocation.h"
 #include "Translation.h"
 #include "Util.h"
 
@@ -28,27 +29,33 @@ LlamaClient::~LlamaClient() = default;
 
 bool LlamaClient::available()
 {
-    const char* path = std::getenv(MODEL_PATH_VARIABLE);
     std::error_code ec;
-    return path != nullptr && *path != '\0' && std::filesystem::exists(path, ec);
+    return std::filesystem::is_regular_file(model_location::find(), ec);
+}
+
+wstring LlamaClient::missing_model_hint()
+{
+    return translation::translate("assistant_no_model_configured",
+        {model_location::directory().wstring(), string_to_wstring(model_location::PATH_VARIABLE)});
 }
 
 bool LlamaClient::ensure_loaded(wstring& error)
 {
     if (context_)
         return true;
-    const char* path = std::getenv(MODEL_PATH_VARIABLE);
-    if (path == nullptr || *path == '\0') {
-        error = translation::translate("assistant_no_model_configured", {string_to_wstring(MODEL_PATH_VARIABLE)});
+    const std::filesystem::path path = model_location::find();
+    if (path.empty()) {
+        error = missing_model_hint();
         return false;
     }
     static const bool BACKEND_READY = (llama_backend_init(), true);  // [LlamaClient.md#backend-init]
     (void)BACKEND_READY;
     llama_model_params model_params = llama_model_default_params();
     model_params.n_gpu_layers = 0; // CPU only: no assumption about the user's GPU/driver setup
-    llama_model* model = llama_model_load_from_file(path, model_params);
+    const std::u8string utf8_path = path.u8string();  // [LlamaClient.md#utf8-path]
+    llama_model* model = llama_model_load_from_file(reinterpret_cast<const char*>(utf8_path.c_str()), model_params);
     if (model == nullptr) {
-        error = translation::translate("assistant_model_not_loadable") + string_to_wstring(path);
+        error = translation::translate("assistant_model_not_loadable") + path.wstring();
         return false;
     }
     llama_context_params ctx_params = llama_context_default_params();

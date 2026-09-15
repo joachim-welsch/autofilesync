@@ -95,6 +95,7 @@
     <ClCompile Include="..\..\src\App.cpp" />
     <ClCompile Include="..\..\src\ChatDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LogAnalysis.cpp" />
     <ClCompile Include="..\..\src\BackgroundService.cpp" />
     <ClCompile Include="..\..\src\Canvas.cpp" />

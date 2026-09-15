@@ -169,8 +169,10 @@ erteilen.
 ## 5. Chat-Assistent (optional)
 
 Der eingebaute Assistent rechnet lokal über llama.cpp und benötigt eine
-Modelldatei im GGUF-Format. Den Pfad liest das Programm aus der
-Umgebungsvariablen `AUTOFILESYNC_LLAMA_MODEL`.
+Modelldatei im GGUF-Format. Das Programm nimmt die Datei aus der
+Umgebungsvariablen `AUTOFILESYNC_LLAMA_MODEL`, falls gesetzt, sonst die dem
+Namen nach erste `*.gguf` in
+`~/Library/Application Support/autofilesync/models/` – dort auch ohne Neustart.
 
 ```bash
 ./setup_llama_macos.sh
@@ -246,17 +248,16 @@ Die Zeile `export AUTOFILESYNC_LLAMA_MODEL=...` in `~/.zshrc` und
 
 ## 8. Fehlerbehebung
 
-### „Kein lokales Modell konfiguriert"
+### „Kein lokales Modell gefunden"
 
-Die Variable `AUTOFILESYNC_LLAMA_MODEL` ist im Prozess nicht gesetzt.
+Weder ist `AUTOFILESYNC_LLAMA_MODEL` im Prozess gesetzt, noch liegt eine
+`*.gguf` im Modellverzeichnis.
 
 ```bash
-launchctl getenv AUTOFILESYNC_LLAMA_MODEL
+ls ~/Library/Application\ Support/autofilesync/models/
 ```
 
-Liefert der Aufruf nichts, richtet `./setup_llama_macos.sh` die Variable ein.
-Liefert er einen Pfad, wurde das Programm vor dem Setzen gestartet und muss neu
-gestartet werden.
+Ist das Verzeichnis leer, richtet `./setup_llama_macos.sh` das Modell ein.
 
 ### „Modell konnte nicht geladen werden"
 

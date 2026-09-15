@@ -38,8 +38,10 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title)
     SetSizer(mainSizer);
     Centre();
     input_->Bind(wxEVT_KEY_DOWN, &ChatDialog::onInputKey, this);  // [ChatDialog.md#key-handler-on-control]
-    if (!LlamaClient::available())
-        status_->SetLabel(_(L"Kein Modell konfiguriert (AUTOFILESYNC_LLAMA_MODEL)."));
+    if (!LlamaClient::available()) {
+        appendTurn(_("Hinweis"), LlamaClient::missing_model_hint());  // [ChatDialog.md#hint-in-transcript]
+        status_->SetLabel(_(L"Kein Modell gefunden."));
+    }
     else
         status_->SetLabel(_(L"Strg+Eingabe sendet."));
     input_->CallAfter(&wxTextCtrl::SetFocus);  // [ChatDialog.md#deferred-focus]

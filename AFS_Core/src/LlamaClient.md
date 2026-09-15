@@ -4,14 +4,25 @@ Module comment for LlamaClient.h / LlamaClient.cpp.
 
 ## LlamaClient
 
-Runs a GGUF model locally through llama.cpp - no network, no API key. The model file comes from
-AUTOFILESYNC_LLAMA_MODEL; nothing is loaded until the first send(), so an unset variable costs
-nothing at startup.
+Runs a GGUF model locally through llama.cpp - no network, no API key. Which file is decided by
+model_location::find() (see ModelLocation.md); nothing is loaded until the first send(), so a
+missing model costs nothing at startup.
 
 ## available
 
-True if the variable points at a file that exists; does not load the model, so this is cheap
-enough to call whenever the chat window opens.
+True if a model file was found; does not load the model, so this is cheap enough to call whenever
+the chat window opens.
+
+## missing_model_hint
+
+Names both ways to provide a model - the directory and the variable - because the user reading
+it has neither, and a hint naming only the variable is useless to someone who never opened an
+environment settings dialog.
+
+## utf8-path
+
+llama.cpp takes the file name as UTF-8 and widens it itself on Windows; the narrow path string
+would be in the ANSI code page there and break on non-ASCII user names.
 
 ## send
 

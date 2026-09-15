@@ -188,7 +188,7 @@ msgstr "Der folgende Ausschnitt stammt aus der Autofilesync-Logdatei (neueste Ei
 
 #: AFS_Core/src/LlamaClient.cpp:42
 msgid "assistant_no_model_configured"
-msgstr "Kein lokales Modell konfiguriert. Bitte %1 auf eine GGUF-Datei setzen und das Programm neu starten."
+msgstr "Kein lokales Modell gefunden. Bitte eine GGUF-Datei in den Ordner %1 legen oder %2 auf eine GGUF-Datei setzen."
 
 #: AFS_Core/src/LlamaClient.cpp:51
 msgid "assistant_model_not_loadable"

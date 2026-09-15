@@ -170,12 +170,14 @@
     <ClCompile Include="SynchronizeTests.cpp" />
     <ClCompile Include="CheckPathTests.cpp" />
     <ClCompile Include="LogCutTests.cpp" />
+    <ClCompile Include="ModelLocationTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshTreeTests.cpp" />
     <ClCompile Include="SshPathEncodingTests.cpp" />
     <ClCompile Include="SshTest.cpp" />
     <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp" />
+    <ClCompile Include="$(LibDir)\src\ModelLocation.cpp" />
     <ClCompile Include="$(LibDir)\src\LogCut.cpp" />
     <ClCompile Include="$(LibDir)\src\Logging.cpp" />
     <ClCompile Include="$(LibDir)\src\SmtpMailer.cpp" />
