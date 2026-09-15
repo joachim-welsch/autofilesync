@@ -63,6 +63,11 @@ turn would resend the whole excerpt.
 Only a real answer belongs in the history; an error message would be sent back as if the
 assistant had said it.
 
+## hint-in-transcript
+
+The hint names a directory path and does not fit the one-line status label; the read-only
+transcript wraps it and lets the user copy the path.
+
 ## ctrl-enter-sends
 
 Plain Enter inserts a line break in the multi-line field, so sending needs a modifier.

@@ -63,6 +63,9 @@
     <ClCompile Include="LogCutTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="ModelLocationTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
     <ClCompile Include="SyncSshFileTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
@@ -76,6 +79,9 @@
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\ModelLocation.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\LogCut.cpp">

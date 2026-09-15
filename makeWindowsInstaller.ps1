@@ -24,6 +24,7 @@ $stagingDir = Join-Path $root 'build\windows_installer'
 $payloadDir = Join-Path $stagingDir 'payload'
 $wxs = Join-Path $root 'AFS_Desktop\installer\autofilesync.wxs'
 $icon = Join-Path $root 'AFS_Desktop\icons\afs.ico'
+$modelSetup = 'setup_llama_windows.ps1', 'setup_llama_windows.cmd'
 if (-not $Output) { $Output = Join-Path $root 'build' }
 
 # Version.h ist die einzige Quelle der Versionsnummer - wie afs_version() unter macOS.
@@ -53,11 +54,13 @@ function Copy-Payload {
         if (-not (Test-Path $source)) { throw "Im Build fehlt $directory - erwartet in $buildDir." }
         Copy-Item -Recurse $source (Join-Path $payloadDir $directory)
     }
+    foreach ($script in $modelSetup) { Copy-Item (Join-Path $root $script) $payloadDir }
 }
 
 # Die Laufzeit-DLLs stehen hier namentlich, damit eine fehlende auffaellt statt
 # mitzufehlen: intl-8 und iconv-2 haben genau so einmal gefehlt, und die Exe
-# startet ohne sie gar nicht erst.
+# startet ohne sie gar nicht erst. Ohne die Setup-Skripte zeigt der
+# Startmenue-Eintrag fuer das Chat-Modell ins Leere.
 function Test-Payload {
     $required = @(
         'autofilesync.exe',
@@ -65,7 +68,7 @@ function Test-Payload {
         'libssl-3-x64.dll', 'libcrypto-3-x64.dll',
         'llama.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu.dll',
         'help\help.htb'
-    )
+    ) + $modelSetup
     foreach ($language in (Get-ChildItem (Join-Path $root 'po') -Filter '*.po')) {
         $required += "locale\$($language.BaseName)\LC_MESSAGES\autofilesync.mo"
     }

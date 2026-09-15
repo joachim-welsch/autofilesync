@@ -90,6 +90,19 @@
         <RegistryValue Root="HKMU" Key="Software\AutoFileSync" Name="StartMenuShortcut"
                        Type="integer" Value="1" KeyPath="yes" />
       </Component>
+      <!-- Das Modell fuer den Chat-Assistenten ist mehrere GB gross und passt
+           nicht ins Paket; dieser Eintrag laedt es nach, ohne dass jemand eine
+           Konsole bedienen muss. -Pause haelt das Fenster fuer das Ergebnis offen. -->
+      <Component Directory="ProgramMenuFolder" Guid="{3B7E9D14-6A2C-4F85-9E03-C51D8A47B62E}">
+        <Shortcut Id="ModelSetupShortcut"
+                  Name="AutoFileSync - Chat-Assistent einrichten"
+                  Target="[INSTALLFOLDER]setup_llama_windows.cmd"
+                  Arguments="-Pause"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="afs.ico" />
+        <RegistryValue Root="HKMU" Key="Software\AutoFileSync" Name="ModelSetupShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
       <Component Directory="DesktopFolder" Guid="{6D93A2E8-47B1-4F0C-8A35-E1274B9C60DA}"
                  Condition="INSTALLDESKTOPSHORTCUT">
         <Shortcut Id="DesktopShortcut"

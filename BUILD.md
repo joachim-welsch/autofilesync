@@ -151,6 +151,23 @@ msiexec /i build\AutoFileSync-<Version>.msi INSTALLDESKTOPSHORTCUT="" /qn
 Die Produktdefinition steht in `AFS_Desktop/installer/autofilesync.wxs`, die
 Versionsnummer kommt wie beim macOS-Bündel aus `AFS_Desktop/include/Version.h`.
 
+Das Modell für den Chat-Assistenten ist nicht im Paket – es ist mehrere GB groß
+und hängt vom Arbeitsspeicher ab. Das Paket legt dafür im Startmenü
+„AutoFileSync - Chat-Assistent einrichten“ an; der Eintrag startet
+`setup_llama_windows.cmd`, das ein passendes Modell nach
+`%LOCALAPPDATA%\autofilesync\models` lädt. Dort findet das Programm es ohne
+Umgebungsvariable und ohne Neustart. Aus dem Repository heraus:
+
+```cmd
+setup_llama_windows.cmd                      :: Größe nach Arbeitsspeicher
+setup_llama_windows.cmd -Size 3b             :: Größe erzwingen
+setup_llama_windows.cmd -Model D:\m.gguf     :: vorhandene Datei, setzt AUTOFILESYNC_LLAMA_MODEL
+```
+
+Gesucht wird in dieser Reihenfolge: `AUTOFILESYNC_LLAMA_MODEL`, falls gesetzt,
+sonst die dem Namen nach erste `*.gguf` im Modellverzeichnis
+(`model_location::find()`).
+
 ## Projekt-Struktur
 
 Das Projekt besteht aus zwei Teilen: **AFS_Core** (Synchronisationskern,

@@ -236,8 +236,20 @@ alle übrigen Funktionen sind davon unberührt.
 ## 10. Chat-Assistent (optional)
 
 Der eingebaute Assistent rechnet lokal über llama.cpp und benötigt eine
-Modelldatei im GGUF-Format. Der Pfad wird über die Umgebungsvariable
-`AUTOFILESYNC_LLAMA_MODEL` bekannt gegeben:
+Modelldatei im GGUF-Format. Am einfachsten liegt sie im Modellverzeichnis des
+Benutzers; dort findet das Programm sie von selbst, auch ohne Neustart:
+
+```bash
+mkdir -p ~/.local/share/autofilesync/models
+cp ~/Downloads/<modell>.gguf ~/.local/share/autofilesync/models/
+```
+
+Ist `XDG_DATA_HOME` gesetzt, tritt es an die Stelle von `~/.local/share`.
+Liegen mehrere Modelle dort, nimmt das Programm das dem Dateinamen nach erste.
+
+Soll eine Datei außerhalb dieses Verzeichnisses für alle Benutzer dienen, wird
+ihr Pfad über die Umgebungsvariable `AUTOFILESYNC_LLAMA_MODEL` bekannt gegeben;
+sie geht dem Modellverzeichnis vor:
 
 ```bash
 sudo mkdir -p /opt/autofilesync/models
@@ -258,8 +270,8 @@ EOF
 sudo chmod 755 /usr/local/bin/autofilesync
 ```
 
-Ohne gesetzte Variable meldet der Chat-Dialog „Kein lokales Modell
-konfiguriert"; der Rest des Programms funktioniert normal.
+Ohne Modell meldet der Chat-Dialog „Kein lokales Modell gefunden" und nennt
+das Modellverzeichnis; der Rest des Programms funktioniert normal.
 
 ## 11. Installation prüfen
 
