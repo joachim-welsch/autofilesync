@@ -78,13 +78,14 @@ cd ~/Entwicklung/autofilesync
 ./build.sh -r
 ```
 
-Das Ergebnis ist `build/Release/autofilesync`.
+Das Ergebnis sind `build/Release/autofilesync` und der Hintergrunddienst
+`build/Release/backgroundsync`.
 
 Alternativ direkt mit CMake:
 
 ```bash
 cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release
-cmake --build build/Release --target autofilesync -j $(nproc)
+cmake --build build/Release --target autofilesync backgroundsync -j $(nproc)
 ```
 
 Hinweise zum ersten Durchlauf:
@@ -208,16 +209,17 @@ wird auch beim automatischen Start gefunden.
 ## 9. Hintergrunddienst (optional)
 
 Der Dienst `backgroundsync` synchronisiert mit derselben Konfiguration weiter,
-während die GUI nicht läuft. Er ist ein eigenständiges Projekt; die GUI steuert
-ihn nur über `systemctl` (Menü **Dienst**).
+während die GUI nicht läuft. `./build.sh` baut ihn zusammen mit der GUI nach
+`build/Release/backgroundsync` (Abschnitt 3); die GUI steuert ihn nur über
+`systemctl` (Menü **Dienst**).
 
 ```bash
-cd ~/Entwicklung/backgroundsync
-./build.sh
-./install.sh
+cd ~/Entwicklung/autofilesync
+./build.sh -r
+backgroundsync/install.sh
 ```
 
-`install.sh` kopiert die Programmdatei nach `/usr/sbin/backgroundsync`, die
+`install.sh` kopiert `build/Release/backgroundsync` nach `/usr/sbin/backgroundsync`, die
 Unit-Datei nach `/etc/systemd/system/backgroundsync.service` und aktiviert den
 Dienst. Vor dem Aufruf ist `backgroundsync.service` anzupassen – vor allem
 `User=`, `Group=` und die `Wants=`/`After=`-Einträge für die Laufwerke, auf denen
@@ -307,6 +309,7 @@ wieder zu starten:
 ```bash
 sudo systemctl stop backgroundsync.service
 # ... Installation ...
+sudo install -m 755 build/Release/backgroundsync /usr/sbin/backgroundsync
 sudo systemctl start backgroundsync.service
 ```
 

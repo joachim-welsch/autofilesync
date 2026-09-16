@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
             echo "  -d, --debug     Build Debug version (default: Release)"
             echo "  -r, --release   Build Release version"
             echo "  clean           Clean build directory before building"
-            echo "  strip           Strip debug symbols from binary"
+            echo "  strip           Strip debug symbols from the binaries"
             echo "  -h, --help      Show this help message"
             echo ""
             echo "Examples:"
@@ -92,41 +92,40 @@ cmake -S "${SCRIPT_DIR}" \
 echo -e "${YELLOW}Building project...${NC}"
 cmake --build "${BUILD_DIR}" \
       --config ${BUILD_TYPE} \
-      --target autofilesync \
+      --target autofilesync backgroundsync \
       -j "$(getconf _NPROCESSORS_ONLN)"
 
-# macOS builds an app bundle instead of a plain executable
+# macOS builds an app bundle instead of a plain executable; the daemon stays a plain executable
+DAEMON="${BUILD_DIR}/backgroundsync"
 if [ "$(uname)" == "Darwin" ]; then
     APP="${BUILD_DIR}/autofilesync.app"
     EXECUTABLE="${APP}/Contents/MacOS/autofilesync"
     INSTALL_HINT="cp -R ${APP} /Applications/"
     RUN_HINT="open ${APP}"
+    DAEMON_INSTALL_HINT="see INSTALL-macOS.md (LaunchAgent)"
 else
     EXECUTABLE="${BUILD_DIR}/autofilesync"
     INSTALL_HINT="sudo cp ${EXECUTABLE} /usr/local/bin/"
     RUN_HINT="${EXECUTABLE}"
+    DAEMON_INSTALL_HINT="sudo install -m 755 ${DAEMON} /usr/sbin/backgroundsync"
 fi
 
 # Check if build was successful
-if [ -f "${EXECUTABLE}" ]; then
+if [ -f "${EXECUTABLE}" ] && [ -f "${DAEMON}" ]; then
     echo -e "${GREEN}=== Build successful! ===${NC}"
-    echo -e "Executable: ${EXECUTABLE}"
-
-    # Show file size
-    SIZE=$(du -h "${EXECUTABLE}" | cut -f1)
-    echo -e "Size: ${SIZE}"
     echo -e "Build type: ${BUILD_TYPE}"
-
-    # Strip symbols for smaller binary (optional)
-    if [ "$STRIP" == true ]; then
-        echo -e "${YELLOW}Stripping debug symbols...${NC}"
-        strip "${EXECUTABLE}"
-        SIZE_STRIPPED=$(du -h "${EXECUTABLE}" | cut -f1)
-        echo -e "Size after strip: ${SIZE_STRIPPED}"
-    fi
+    for BINARY in "${EXECUTABLE}" "${DAEMON}"; do
+        echo -e "Executable: ${BINARY} ($(du -h "${BINARY}" | cut -f1))"
+        # Strip symbols for smaller binary (optional)
+        if [ "$STRIP" == true ]; then
+            strip "${BINARY}"
+            echo -e "  Size after strip: $(du -h "${BINARY}" | cut -f1)"
+        fi
+    done
 
     echo -e "\n${GREEN}To install:${NC}"
     echo -e "  ${INSTALL_HINT}"
+    echo -e "  ${DAEMON_INSTALL_HINT}"
     echo -e "\n${GREEN}To run:${NC}"
     echo -e "  ${RUN_HINT}"
 else
