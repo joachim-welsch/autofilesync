@@ -322,6 +322,19 @@ Auf macOS steuern die Tests echte Maus- und Tastaturereignisse auf dem aktiven
 Desktop (`wxUIActionSimulator`); dafür braucht das ausführende Terminal die
 Berechtigung Systemeinstellungen → Datenschutz & Sicherheit → Bedienungshilfen.
 
+### Windows
+`run_Tests.cmd` baut und startet beide Testarten: die Integrationstests über
+`AFS_Core\test\Integrationstests\Integrationtests.sln` (MSBuild, vcpkg-Manifest),
+die GUI-Tests über `run_GUI_Tests.bat`. Beide laufen auch dann, wenn die erste
+fehlschlägt; am Ende steht eine Zusammenfassung, der Exit-Code ist 1, sobald eine
+fehlschlägt.
+```cmd
+run_Tests.cmd                              :: beide, Debug
+run_Tests.cmd integration --filter *Ssh*   :: nur Integrationstests, gtest-Filter
+run_Tests.cmd gui --no-build -r            :: nur GUI-Tests, vorhandener Release-Build
+```
+Die GUI-Tests übernehmen auch hier Maus und Tastatur des aktiven Desktops.
+
 ## Installation
 
 Siehe [INSTALL-Linux.md](INSTALL-Linux.md) (Linux) bzw.

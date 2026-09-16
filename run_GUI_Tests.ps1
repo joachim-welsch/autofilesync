@@ -116,6 +116,13 @@ if (-not $NoBuild) {
     Write-Host "Uebersetze GUI-Tests ($Configuration)..."
     Push-Location $guiDir
     try { Invoke-InVcEnv "cl @`"$clRsp`"" } finally { Pop-Location }
+    # wxBITMAP() und wxICON() lesen unter Windows aus dem Ressourcenabschnitt; ohne
+    # ihn meldet wxWidgets bei jedem Toolbar-Aufbau Assertions und das Fenster hat
+    # kein Symbol. Die Pfade in der .rc sind relativ zu AFS_Desktop.
+    $res = Join-Path $buildDir 'autofilesync.res'
+    Push-Location (Join-Path $root 'AFS_Desktop')
+    try { Invoke-InVcEnv "rc /nologo /fo `"$res`" autofilesync.rc" } finally { Pop-Location }
+
 
     $wxLibs = "wxmsw33${wxSuffix}_html.lib", "wxmsw33${wxSuffix}_core.lib", "wxmsw33${wxSuffix}_adv.lib",
               "wxbase33${wxSuffix}.lib", "wxtiff$(if ($debug) {'d'}).lib", "wxjpeg$(if ($debug) {'d'}).lib",
@@ -127,6 +134,7 @@ if (-not $NoBuild) {
                   "/LIBPATH:`"$gtestLibDir`"", "/LIBPATH:`"$vcpkgLibDir`"", "/LIBPATH:`"$wxLibDir`"",
                   "/LIBPATH:`"$llamaLibDir`"", "/LIBPATH:`"$ggmlLibDir`"")
     foreach ($o in (Get-ChildItem "$buildDir\*.obj")) { $linkArgs += "`"$($o.FullName)`"" }
+    $linkArgs += "`"$res`""
     $linkArgs += 'gtest.lib', 'libssh2.lib', 'libssl.lib', 'libcrypto.lib', 'ws2_32.lib', 'crypt32.lib'
     $linkArgs += 'llama.lib', 'ggml.lib', 'ggml-cpu.lib', 'ggml-base.lib'
     $linkArgs += $wxLibs
