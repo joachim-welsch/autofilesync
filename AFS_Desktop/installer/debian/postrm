@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+DROPIN_DIR=/etc/systemd/system/backgroundsync.service.d
+if [ "$1" = purge ]; then
+    rm -f "${DROPIN_DIR}/user.conf"
+    rmdir "${DROPIN_DIR}" 2>/dev/null || true
+fi
+if [ -d /run/systemd/system ] && { [ "$1" = remove ] || [ "$1" = purge ]; }; then
+    systemctl daemon-reload || true
+fi
+exit 0

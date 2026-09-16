@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+UNIT=backgroundsync.service
+[ -d /run/systemd/system ] || exit 0
+case "$1" in
+    remove|upgrade|deconfigure)
+        systemctl stop "${UNIT}" || true
+        ;;
+esac
+[ "$1" = remove ] && systemctl disable "${UNIT}" || true
+exit 0
