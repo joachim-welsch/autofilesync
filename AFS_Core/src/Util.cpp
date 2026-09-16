@@ -224,7 +224,7 @@ bool files_equal(const wstring& input1, const wstring& input2)
     return std::feof(f1.get()) && std::feof(f2.get());
 }
 
-static std::time_t to_time_t(const fs::file_time_type& ft)
+std::time_t to_time_t(const fs::file_time_type& ft)  // [Util.md#file-time-conversions]
 {
     using namespace std::chrono;
 #ifdef _MACOS  // clock_cast is unavailable in Apple's libc++
@@ -233,6 +233,17 @@ static std::time_t to_time_t(const fs::file_time_type& ft)
     const auto sys = clock_cast<system_clock>(ft);
 #endif
     return system_clock::to_time_t(time_point_cast<system_clock::duration>(sys));
+}
+
+fs::file_time_type to_file_time(std::time_t tt)  // [Util.md#file-time-conversions]
+{
+    using namespace std::chrono;
+    const auto sys = system_clock::from_time_t(tt);
+#ifdef _MACOS
+    return time_point_cast<fs::file_time_type::duration>(file_clock::from_sys(sys));
+#else
+    return time_point_cast<fs::file_time_type::duration>(clock_cast<file_clock>(sys));
+#endif
 }
 
 string to_string(const fs::file_time_type& ft)

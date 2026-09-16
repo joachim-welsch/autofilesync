@@ -26,3 +26,17 @@ Resolves "account:/path", connects and returns the remote part of the path
 sftp_readdir returns NULL for both EOF and error - only sftp_dir_eof tells them apart. A
 connection dropped mid-listing must not pass off the partial listing silently as the complete
 directory.
+
+## transfer-keeps-the-modification-time
+
+A transfer carries the modification time of the file it copies, in every direction: the upload
+stamps the remote copy with sftp_setstat(), the download stamps the local one, and a remote to
+remote copy passes the source's time on. Without it a remote copy always looked newer than the
+original it came from, which makes every comparison by time over SSH useless - see
+FileDifference.md#ssh-content-fallback.
+
+The stamp happens after the handle of the written file is closed: a server that updates the
+modification time when it closes the file would otherwise overwrite it again. A failed stamp is
+logged but leaves the result at OK - the file itself arrived, and reporting an error would make
+the caller restore its backup over a perfectly good copy.
+

@@ -122,20 +122,22 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
     log_debug(L"endof wait_for_updated_filetime");
 }
 
-static CopyResult copy_normal_file(const wstring& src, const wstring& dest, const SyncItem& si)
+static CopyResult copy_normal_file(const wstring& src, const wstring& dest)  // [SyncFile.md#copy-direction-follows-the-paths]
 {
-    if (si.ssh_source() && si.ssh_target())
+    const bool ssh_src = get_account_from_path(src).has_value();
+    const bool ssh_dest = get_account_from_path(dest).has_value();
+    if (ssh_src && ssh_dest)
         return copy_ssh_to_ssh(src, dest);
-    if (si.ssh_source())
+    if (ssh_src)
         return copy_ssh_to_fs(src, dest);
-    if (si.ssh_target())
+    if (ssh_dest)
         return copy_fs_to_ssh(src, dest);
     return fs::copy_file(src, dest, fs::copy_options::update_existing) ? CopyResult::OK : CopyResult::Error;
 }
 
 CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
 {
-    return copy_normal_file(src, dest, sync_item_);
+    return copy_normal_file(src, dest);
 }
 
 static void restore_backup(const wstring& dest, const wstring& bak_filename)  // [SyncFile.md#restore_backup]
@@ -143,6 +145,12 @@ static void restore_backup(const wstring& dest, const wstring& bak_filename)  //
     util::remove_file(dest);
     if (file_exists(bak_filename))
         util::rename_file(bak_filename, dest);
+}
+
+static void discard_backup(const wstring& bak_filename)  // [SyncFile.md#discard_backup]
+{
+    if (file_exists(bak_filename))
+        util::remove_file(bak_filename);
 }
 
 bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
@@ -156,8 +164,10 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
             return false;
     }
     const CopyResult copy_ok = core_copy_function(src, dest);
-    if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK)  // [SyncFile.md#ssh-skips-verification-only]
+    if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK) {  // [SyncFile.md#ssh-skips-verification-only]
+        discard_backup(bak_filename);
         return true;
+    }
     if (copy_ok == CopyResult::OK && !files_equal(src, dest)) {
         log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_verification_differs"));
         report_sync_error(translation::translate("copied_file_differs") + dest);
@@ -175,6 +185,7 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
         restore_backup(dest, bak_filename);
         return false;
     }
+    discard_backup(bak_filename);
     return true;
 }
 
@@ -241,7 +252,7 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
         pre_copy(source, destination);
         if (!save_copy_file(source, destination))
             return;
-        if (!ssh_source())  // [SyncFile.md#local-only-filetime]
+        if (ssh_ == SSHPATH::none)  // [SyncFile.md#local-only-filetime]
             util::set_last_write_time(destination, fs::last_write_time(source));
         log_info(translation::translate("copied_source_to_target"), source, translation::translate("to_label"), destination);
     }
@@ -277,11 +288,11 @@ void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     try {
         pre_copy(destination, source);
         fs::file_time_type modify_time{};  // fs::last_write_time() only resolves a local path - see copy_source_to_dest()
-        if (!ssh_dest())
+        if (ssh_ == SSHPATH::none)
             modify_time = fs::last_write_time(destination);
         if (!save_copy_file(destination, source))
             return;
-        if (!ssh_dest())
+        if (ssh_ == SSHPATH::none)  // [SyncFile.md#local-only-filetime]
             set_last_write_time(source, modify_time);
         log_info(translation::translate("copied_target_to_source"), destination, translation::translate("to_label"), source);
     }

@@ -51,6 +51,9 @@
     <ClCompile Include="SyncTreeTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="TwoWaySyncTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
     <ClCompile Include="MountedDrivesTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
@@ -73,6 +76,9 @@
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="SyncSshTreeTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncSshTwoWayTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="SshPathEncodingTests.cpp">

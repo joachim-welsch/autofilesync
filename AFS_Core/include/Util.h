@@ -33,6 +33,9 @@ namespace util {
 
     std::string to_string(const std::filesystem::file_time_type& ft);
 
+    std::time_t to_time_t(const std::filesystem::file_time_type& ft);  // [Util.md#file-time-conversions]
+    std::filesystem::file_time_type to_file_time(std::time_t tt);
+
     std::wstring with_trailing_char(const std::wstring& s, wchar_t c);
 
     bool volume_exists(const std::wstring& drive_name, const std::wstring& volume_name);

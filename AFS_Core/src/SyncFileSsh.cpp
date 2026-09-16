@@ -5,6 +5,7 @@
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
 #include "SftpConnection.h"
+#include <filesystem>
 #include <fstream>
 #include <cstring>
 #include <memory>
@@ -48,6 +49,23 @@ std::string win_to_sftp_path(const std::string& win)
     return p;
 }
 
+namespace {
+    void keep_local_time(const wstring& local_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    {
+        std::error_code ec;
+        std::filesystem::last_write_time(local_path, util::to_file_time(mtime), ec);
+        if (ec)
+            log_error(translation::translate("file_time_not_settable"), local_path, string_to_wstring(ec.message()));
+    }
+
+    std::time_t local_time_of(const wstring& path)
+    {
+        std::error_code ec;
+        const auto time = std::filesystem::last_write_time(path, ec);
+        return ec ? 0 : util::to_time_t(time);
+    }
+}
+
 #ifdef _WIN32
 namespace {
     bool sftp_write_all(LIBSSH2_SFTP_HANDLE* file, const char* data, size_t length)  // [SyncFileSsh.md#short-write]
@@ -60,6 +78,16 @@ namespace {
             length -= static_cast<size_t>(written);
         }
         return true;
+    }
+
+    void keep_remote_time(LIBSSH2_SFTP* sftp, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    {
+        LIBSSH2_SFTP_ATTRIBUTES attributes{};
+        attributes.flags = LIBSSH2_SFTP_ATTR_ACMODTIME;
+        attributes.atime = static_cast<unsigned long>(mtime);
+        attributes.mtime = static_cast<unsigned long>(mtime);
+        if (libssh2_sftp_setstat(sftp, remote_path.c_str(), &attributes) != 0)
+            log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
     }
 
     class WinsockInit {
@@ -213,6 +241,16 @@ namespace {
         return bytes_read < 0 ? copy_failed(translation::translate("source_file_read_error")) : CopyResult::OK;
     }
 
+    void keep_remote_time(const SftpConnection& connection, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    {
+        sftp_attributes_struct attributes{};
+        attributes.flags = SSH_FILEXFER_ATTR_ACMODTIME;
+        attributes.atime = static_cast<uint32_t>(mtime);
+        attributes.mtime = static_cast<uint32_t>(mtime);
+        if (sftp_setstat(connection.sftp(), remote_path.c_str(), &attributes) != SSH_OK)
+            log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
+    }
+
     SshDirEntry to_dir_entry(const sftp_attributes_struct& attr)
     {
         SshDirEntry entry;
@@ -240,10 +278,17 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     const SftpFile remote_file = connection.open(*remote_path, O_RDONLY, 0);
     if (!remote_file)
         return copy_failed(translation::translate("remote_file_open_error") + string_to_wstring(*remote_path));
-    std::ofstream local_file(wstring_to_string(dest), std::ios::binary);
-    if (!local_file.is_open())
-        return copy_failed(translation::translate("local_file_open_error") + dest);
-    return download(remote_file.get(), local_file);
+    const SftpAttributes attributes = connection.stat(*remote_path);
+    CopyResult result = CopyResult::Error;
+    {
+        std::ofstream local_file(wstring_to_string(dest), std::ios::binary);
+        if (!local_file.is_open())
+            return copy_failed(translation::translate("local_file_open_error") + dest);
+        result = download(remote_file.get(), local_file);
+    }
+    if (result == CopyResult::OK && attributes)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_local_time(dest, attributes->mtime);
+    return result;
 }
 
 CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
@@ -259,10 +304,17 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     const SftpFile src_file = source.open(*src_path, O_RDONLY, 0);
     if (!src_file)
         return copy_failed(translation::translate("source_file_open_error") + string_to_wstring(*src_path));
-    const SftpFile dest_file = target.open(*dest_path, WRITE_FLAGS, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (!dest_file)
-        return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(*dest_path));
-    return transfer(src_file.get(), dest_file.get());
+    const SftpAttributes attributes = source.stat(*src_path);
+    CopyResult result = CopyResult::Error;
+    {
+        const SftpFile dest_file = target.open(*dest_path, WRITE_FLAGS, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (!dest_file)
+            return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(*dest_path));
+        result = transfer(src_file.get(), dest_file.get());
+    }
+    if (result == CopyResult::OK && attributes)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_remote_time(target, *dest_path, attributes->mtime);
+    return result;
 }
 
 CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
@@ -275,10 +327,16 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     const auto remote_path = connect_to(dest, connection);
     if (!remote_path)
         return CopyResult::Error;
-    const SftpFile remote_file = connection.open(*remote_path, WRITE_FLAGS, S_IRUSR | S_IWUSR);
-    if (!remote_file)
-        return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(*remote_path));
-    return upload(local_file, remote_file.get());
+    CopyResult result = CopyResult::Error;
+    {
+        const SftpFile remote_file = connection.open(*remote_path, WRITE_FLAGS, S_IRUSR | S_IWUSR);
+        if (!remote_file)
+            return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(*remote_path));
+        result = upload(local_file, remote_file.get());
+    }
+    if (result == CopyResult::OK)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_remote_time(connection, *remote_path, local_time_of(src));
+    return result;
 }
 
 bool ssh_exists(const std::wstring& path)
@@ -465,8 +523,13 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         log_error(translation::translate("remote_file_read_error"));
         result = CopyResult::Error;
     }
-    
+
+    LIBSSH2_SFTP_ATTRIBUTES attributes{};
+    const bool attributes_read = libssh2_sftp_fstat(remote_file, &attributes) == 0;
+
     local_file.close();
+    if (result == CopyResult::OK && attributes_read)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_local_time(dest, static_cast<std::time_t>(attributes.mtime));
     libssh2_sftp_close(remote_file);
     libssh2_sftp_shutdown(sftp_session);
     libssh2_session_disconnect(session, "Normal Shutdown");
@@ -698,8 +761,13 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         log_error(translation::translate("source_file_read_error"));
         result = CopyResult::Error;
     }
-    
+
+    LIBSSH2_SFTP_ATTRIBUTES attributes{};
+    const bool attributes_read = libssh2_sftp_fstat(src_file, &attributes) == 0;
+
     libssh2_sftp_close(dest_file);
+    if (result == CopyResult::OK && attributes_read)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_remote_time(dest_sftp_session, dest_remote_path, static_cast<std::time_t>(attributes.mtime));
     libssh2_sftp_close(src_file);
     libssh2_sftp_shutdown(dest_sftp_session);
     libssh2_session_disconnect(dest_session, "Normal Shutdown");
@@ -826,6 +894,8 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     
     local_file.close();
     libssh2_sftp_close(remote_file);
+    if (result == CopyResult::OK)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_remote_time(sftp_session, remote_path, local_time_of(src));
     libssh2_sftp_shutdown(sftp_session);
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

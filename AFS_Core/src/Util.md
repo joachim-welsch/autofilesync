@@ -38,3 +38,11 @@ its own files, and an unbalanced '[' or '(' threw std::regex_error on every comp
 
 fs::remove() answers false when there was nothing to remove, which is not an error but must not
 be reported as a deletion either.
+
+## file-time-conversions
+
+The epoch of file_time_type is neither the Unix epoch nor the same on every platform, so a
+conversion has to go through the clocks rather than through the raw duration. Both directions
+are needed wherever a foreign timestamp meets a local one: SFTP reports seconds since the Unix
+epoch, and that is also what is sent back to a server.
+

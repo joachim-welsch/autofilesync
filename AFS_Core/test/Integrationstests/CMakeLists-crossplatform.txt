@@ -67,6 +67,7 @@ set(TEST_SOURCES
     LoggingConcurrencyTests.cpp
     Libssh2InitTests.cpp
     SyncTreeTests.cpp
+    TwoWaySyncTests.cpp
     MountedDrivesTests.cpp
     SynchronizeTests.cpp
     CheckPathTests.cpp
@@ -75,6 +76,7 @@ set(TEST_SOURCES
     SyncSshFileTests.cpp
     SyncSshDirTests.cpp
     SyncSshTreeTests.cpp
+    SyncSshTwoWayTests.cpp
 )
 
 set(LIB_SOURCES

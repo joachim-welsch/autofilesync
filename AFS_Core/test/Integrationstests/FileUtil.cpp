@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FileUtil.h"
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <chrono>
 
@@ -13,6 +14,20 @@ using std::exception;
 namespace fs = std::filesystem;
 
 namespace tu {
+
+	void write_text_file(const fs::path& file, const std::string& content, std::chrono::seconds age)
+	{
+		fs::create_directories(file.parent_path());
+		std::ofstream(file) << content;
+		if (age != std::chrono::seconds(0))  // [FileUtil.md#write_text_file]
+			fs::last_write_time(file, fs::file_time_type::clock::now() - age);
+	}
+
+	std::string read_text_file(const fs::path& file)
+	{
+		std::ifstream in(file);
+		return std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	}
 
 	bool erase_test_file(const wstring& fn)
 	{

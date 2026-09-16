@@ -38,7 +38,14 @@ FileDifference::FileDifference(const wstring& source, const wstring& dest, const
     , ci_(ci)
     , ssh_(ssh)
     , two_way_sync_(two_way_sync)
-{}
+{
+    if (ssh_ != SSHPATH::none && ci_.content()) {  // [FileDifference.md#ssh-content-fallback]
+        ci_.content(false);
+        ci_.size(true);
+        ci_.time(true);
+        log_debug(L"content comparison is not available for SSH paths - comparing size and time instead");
+    }
+}
 
 
 static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, uint64_t& filesize, fs::file_time_type& last_write_time)
@@ -63,8 +70,7 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, u
         if (!info.exists)
             return false; // successfully connected and confirmed absent - safe to treat as SourceNotExits
         filesize = info.size_bytes;
-        const auto since_epoch = std::chrono::system_clock::from_time_t(info.raw_mtime).time_since_epoch();
-        last_write_time = fs::file_time_type(std::chrono::duration_cast<fs::file_time_type::duration>(since_epoch));
+        last_write_time = util::to_file_time(info.raw_mtime);  // [FileDifference.md#remote-time-conversion]
         drive_mounted = true;
         return true;
     }
@@ -108,11 +114,18 @@ uint64_t FileDifference::operator()()
     return sourcesize_;
 }
 
+static bool newer(fs::file_time_type a, fs::file_time_type b, SSHPATH ssh)  // [FileDifference.md#second-resolution]
+{
+    if (ssh == SSHPATH::none)
+        return util::greater(a, b);
+    return util::to_time_t(a) > util::to_time_t(b);
+}
+
 FileDifference::Result FileDifference::compare_metadata(fs::file_time_type sourcetime, fs::file_time_type desttime) const
 {
-    if (ci_.time() && util::greater(desttime, sourcetime))
+    if (ci_.time() && newer(desttime, sourcetime, ssh_))
         return Result::DestModified;
-    if (ci_.time() && util::greater(sourcetime, desttime))
+    if (ci_.time() && newer(sourcetime, desttime, ssh_))
         return Result::SourceModified;
     if (ci_.size() && sourcesize_ > destsize_)
         return Result::SourceModified;
@@ -121,12 +134,8 @@ FileDifference::Result FileDifference::compare_metadata(fs::file_time_type sourc
     return Result::Equal;
 }
 
-void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_time_type desttime)
+void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_time_type desttime)  // [FileDifference.md#ssh-content-fallback]
 {
-    if (ssh_ != SSHPATH::none) {
-        log_debug(L"Content-Vergleich fuer SSH-Pfade uebersprungen");
-        return;
-    }
     if (sourcesize_ > 1000000) {
         std::wostringstream os;
         os << translation::translate("comparing") << L'\n' << source_ << L'\n' << translation::translate("comparing_with") << L'\n' << dest_ << L"...";

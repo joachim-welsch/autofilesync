@@ -175,6 +175,7 @@
     <ClCompile Include="LoggingConcurrencyTests.cpp" />
     <ClCompile Include="Libssh2InitTests.cpp" />
     <ClCompile Include="SyncTreeTests.cpp" />
+    <ClCompile Include="TwoWaySyncTests.cpp" />
     <!-- MountedDrivesTests.cpp prueft /etc/fstab bzw. /proc/mounts und ruft
          MountedDrives::setFstabPathForTest(), das es im Windows-Zweig nicht gibt.
          Solange der Test nicht portiert ist, kann er hier ausgeschlossen werden:
@@ -189,6 +190,7 @@
     <ClCompile Include="SyncSshFileTests.cpp" />
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshTreeTests.cpp" />
+    <ClCompile Include="SyncSshTwoWayTests.cpp" />
     <ClCompile Include="SshPathEncodingTests.cpp" />
     <ClCompile Include="SshTest.cpp" />
     <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp" />
