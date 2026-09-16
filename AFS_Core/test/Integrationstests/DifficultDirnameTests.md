@@ -9,11 +9,23 @@ embedded backslash: this application reads that as a path separator in several p
 (DIR_SEPARATOR, win_to_sftp_path, ...), so a backslash *inside a directory name* would test
 separator handling instead of name handling - a different subject from this one.
 
+## windows-names
+
+Same restriction as DifficultFilenameTests.md#windows-names: Win32 forbids `<>?*` and line
+breaks and strips trailing spaces and dots from directory names, so only the representable
+variants remain. The 150 characters of the long name already fit below MAX_PATH together with
+the temp directory and "/datei.txt".
+
+## utf8-paths
+
+Same reason as DifficultFilenameTests.md#utf8-paths: fs::path(std::string) reads the ANSI code
+page on Windows, util::string_to_wstring reads UTF-8 - the test would create one name and sync
+another.
+
 ## to_sync_path
 
-Converts a path built natively (UTF-8) into the wstring form SyncItem::source()/target() expect
-- the same detour the rest of the application takes (see util::string_to_wstring), not a raw
-widening.
+Converts a path into the wstring form SyncItem::source()/target() expect via its UTF-8 form - the
+same detour the rest of the application takes (see util::string_to_wstring), not a raw widening.
 
 ## DirsWithDifficultNamesSyncToTwoTargets
 

@@ -18,6 +18,22 @@ metacharacters including an embedded backslash, a hidden dotfile, a name made of
 Unicode/emoji, an embedded line break, a trailing dot, and a leading hyphen (which a shell could
 mistake for an option).
 
+## windows-names
+
+Win32 cannot create most of the Linux-only names: `<>:"/\|?*` and control characters such as the
+line break are forbidden, and a trailing space or dot is silently stripped - such a file would
+exist under a different name, so the test would compare two normalised paths instead of testing
+anything. Windows therefore keeps only the categories it can represent. The long name is shorter
+because the application is not long-path aware: temp directory, BASE_DIR and the name must stay
+below MAX_PATH (260), otherwise the source file cannot even be created.
+
+## utf8-paths
+
+The names are UTF-8 literals (/utf-8 on MSVC). A plain fs::path(std::string) interprets narrow
+strings in the ANSI code page on Windows, so a Unicode name would land on disk garbled - and the
+check would pass anyway, because it garbles the name the same way. Going through std::u8string
+states the encoding explicitly and is correct on every platform.
+
 ## expect_all_present_and_empty
 
 Checks that every difficult name arrived in the target directory as an empty file.
