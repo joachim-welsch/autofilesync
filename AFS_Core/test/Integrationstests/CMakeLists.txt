@@ -37,6 +37,7 @@ set(SOURCES
     LoggingConcurrencyTests.cpp
     Libssh2InitTests.cpp
     SyncTreeTests.cpp
+    TwoWaySyncTests.cpp
     MountedDrivesTests.cpp
     SynchronizeTests.cpp
     SyncArbiterTests.cpp
@@ -47,6 +48,7 @@ set(SOURCES
     SyncSshFileTests.cpp
     SyncSshDirTests.cpp
     SyncSshTreeTests.cpp
+    SyncSshTwoWayTests.cpp
     SshPathEncodingTests.cpp
     SshTest.cpp
 )

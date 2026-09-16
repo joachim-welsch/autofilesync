@@ -17,6 +17,21 @@ thread to finish.
 
 Removes a failed or aborted copy and puts the previous target back.
 
+## discard_backup
+
+The counterpart for the successful copy: the ".bak" exists only so restore_backup() has
+something to put back, so it must not outlive the copy it protected. A leftover would not just
+waste the space of a second full copy - with two_way_sync it is a source-only file for the next
+pass and gets copied to the other side, and the sync never settles.
+
+## copy-direction-follows-the-paths
+
+Which of the four copy functions applies follows from the two paths, not from the SyncItem:
+copy_dest_to_source() passes them the other way round, so deciding by ssh_source()/ssh_target()
+picked the opposite direction for every copy back from the target - e.g. copy_fs_to_ssh() with
+the remote path as its local source, which can only fail. get_account_from_path() is the same
+classification SyncItem uses when it builds its paths.
+
 ## ssh-skips-verification-only
 
 SSH skips only the content verification below (TODO); Error/Stopped must still run the
@@ -51,5 +66,6 @@ count as done nor let del_aftercopy delete the source.
 
 ## local-only-filetime
 
-fs::last_write_time() only resolves a local path; an SSH source keeps the time the transfer
-produced (see pre_copy()'s TODO).
+fs::last_write_time() only resolves a local path, so the time is stamped here only when both
+sides are local. Every transfer with an SSH side brings the modification time along itself (see
+SyncFileSsh.md#transfer-keeps-the-modification-time).
