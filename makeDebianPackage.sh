@@ -51,9 +51,14 @@ check_dependencies()
     [ -x "$(distribution_wx_config)" ] || fail "wxWidgets der Distribution fehlt: sudo apt install libwxgtk3.2-dev"  # a self-built wxWidgets under /usr/local does not exist on the target systems
 }
 
+distribution_library_dir()
+{
+    echo "/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+}
+
 distribution_wx_config()
 {
-    echo "/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/wx/config/gtk3-unicode-3.2"
+    echo "$(distribution_library_dir)/wx/config/gtk3-unicode-3.2"
 }
 
 existing_llama_checkout()
@@ -133,8 +138,8 @@ stage_desktop_integration()
 shared_library_depends()
 {
     printf 'Source: autofilesync\n\nPackage: autofilesync\nArchitecture: any\n' > "${BUILD_DIR}/debian/control"  # dpkg-shlibdeps insists on a source package around the binaries
-    (cd "${BUILD_DIR}" && dpkg-shlibdeps -O -e"${STAGING}/usr/lib/autofilesync/autofilesync" -e"${STAGING}/usr/sbin/backgroundsync") \
-        | sed -n 's/^shlibs:Depends=//p'
+    (cd "${BUILD_DIR}" && dpkg-shlibdeps -O -l"$(distribution_library_dir)" -e"${STAGING}/usr/lib/autofilesync/autofilesync" -e"${STAGING}/usr/sbin/backgroundsync") \
+        | sed -n 's/^shlibs:Depends=//p'  # -l: ld.so.conf searches /usr/local/lib first, where a self-built wxWidgets hides the packaged one
 }
 
 write_control()
