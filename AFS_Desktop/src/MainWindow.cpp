@@ -632,7 +632,10 @@ void MainWindow::updateBackgroundServiceMenu()  // [MainWindow.md#updateBackgrou
 
 void MainWindow::onStartBackgroundService(wxCommandEvent&)
 {
-    reportBackgroundService(BackgroundService::start(), "Hintergrunddienst gestartet.");
+    const std::wstring error = BackgroundService::start();
+    if (error.empty())
+        log_info(L"Hintergrunddienst gestartet.");
+    reportBackgroundService(error, "Hintergrunddienst gestartet.");
 }
 
 void MainWindow::onStopBackgroundService(wxCommandEvent&)

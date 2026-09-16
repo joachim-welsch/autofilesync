@@ -14,8 +14,7 @@ ExecStart=/usr/sbin/backgroundsync
 Restart=on-failure
 User=welschj
 Group=welschj
-WorkingDirectory=/opt/backgroundsync
-Environment="CONFIG_FILE=/opt/backgroundsync/config.yml"
+WorkingDirectory=~
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=backgroundsync

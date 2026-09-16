@@ -32,7 +32,7 @@ funktioniert also gleichermaßen.
 sudo apt update
 sudo apt install build-essential cmake git pkg-config \
                  libwxgtk3.2-dev libboost-filesystem-dev \
-                 libssh-dev libssl-dev imagemagick
+                 libssh-dev libssl-dev imagemagick gettext
 ```
 
 ### Fedora
@@ -40,7 +40,7 @@ sudo apt install build-essential cmake git pkg-config \
 ```bash
 sudo dnf install gcc-c++ cmake git pkgconf-pkg-config \
                  wxGTK-devel boost-devel \
-                 libssh-devel openssl-devel ImageMagick
+                 libssh-devel openssl-devel ImageMagick gettext
 ```
 
 ### Mindestversionen
@@ -220,10 +220,13 @@ backgroundsync/install.sh
 ```
 
 `install.sh` kopiert `build/Release/backgroundsync` nach `/usr/sbin/backgroundsync`, die
+Übersetzungen nach `/usr/share/locale/<sprache>/LC_MESSAGES/autofilesync.mo`, die
 Unit-Datei nach `/etc/systemd/system/backgroundsync.service` und aktiviert den
 Dienst. Vor dem Aufruf ist `backgroundsync.service` anzupassen – vor allem
 `User=`, `Group=` und die `Wants=`/`After=`-Einträge für die Laufwerke, auf denen
-die Synchronisationsziele liegen.
+die Synchronisationsziele liegen. Der Dienst liest die Konfiguration des unter
+`User=` eingetragenen Benutzers (`~/.config/autofilesync/autofilesync.json`) und
+protokolliert daher in dieselbe Protokolldatei wie die GUI.
 
 Zustand prüfen:
 
@@ -303,14 +306,11 @@ sudo install -m 755 build/Release/autofilesync /opt/autofilesync/autofilesync
 sudo install -m 644 help/* /opt/autofilesync/help/
 ```
 
-Läuft der Hintergrunddienst, ist er vor dem Aktualisieren zu stoppen und danach
-wieder zu starten:
+Ist der Hintergrunddienst installiert, aktualisiert ihn `install.sh`; es stoppt
+ihn vorher und startet ihn danach wieder:
 
 ```bash
-sudo systemctl stop backgroundsync.service
-# ... Installation ...
-sudo install -m 755 build/Release/backgroundsync /usr/sbin/backgroundsync
-sudo systemctl start backgroundsync.service
+backgroundsync/install.sh
 ```
 
 ## 13. Deinstallation
@@ -318,6 +318,7 @@ sudo systemctl start backgroundsync.service
 ```bash
 sudo systemctl disable --now backgroundsync.service 2>/dev/null || true
 sudo rm -f /etc/systemd/system/backgroundsync.service /usr/sbin/backgroundsync
+sudo rm -f /usr/share/locale/*/LC_MESSAGES/autofilesync.mo
 sudo systemctl daemon-reload
 
 sudo rm -rf /opt/autofilesync
