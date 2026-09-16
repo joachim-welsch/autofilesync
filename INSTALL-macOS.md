@@ -139,16 +139,31 @@ einen Agenten mit `KeepAlive` sofort neu startet.
 
 ### Einrichten
 
-Der Daemon ist ein eigenes Projekt. Er wird dort gebaut und eingerichtet:
+`./build.sh -r` baut den Daemon zusammen mit dem GUI-Programm nach
+`build/Release/backgroundsync`. Eingerichtet wird er als LaunchAgent – ohne
+`sudo`:
 
 ```bash
-cd ~/Entwicklung/backgroundsync
-./installMacOS.sh
+cd ~/Entwicklung/autofilesync
+./build.sh -r
+DIR="$HOME/Library/Application Support/autofilesync"
+mkdir -p "$DIR" ~/Library/LaunchAgents
+install -m 755 build/Release/backgroundsync "$DIR/backgroundsync"
+cat > ~/Library/LaunchAgents/com.autofilesync.backgroundsync.plist <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>com.autofilesync.backgroundsync</string>
+    <key>ProgramArguments</key><array><string>$DIR/backgroundsync</string></array>
+    <key>RunAtLoad</key><true/>
+    <key>KeepAlive</key><true/>
+</dict>
+</plist>
+PLIST
 ```
 
-Das Skript legt die Programmdatei nach `~/Library/Application Support/autofilesync/`,
-schreibt den LaunchAgent und startet den Dienst – ohne `sudo`. Einzelheiten und
-Optionen stehen in `MACOS.md` des Daemon-Projekts.
+Gestartet wird der Dienst anschließend über das Menü **Hintergrunddienst**.
 
 Ohne eingerichteten LaunchAgent bleibt das Menü bei „nicht installiert", und
 beide Befehle sind ausgegraut.
@@ -163,8 +178,7 @@ sonst still fehl**, während das Menü einen laufenden Dienst zeigt.
 Systemeinstellungen → Datenschutz & Sicherheit → Festplattenvollzugriff →
 `~/Library/Application Support/autofilesync/backgroundsync` hinzufügen.
 
-Mit `./installMacOS.sh --no-start` lässt sich der Zugriff vor dem ersten Lauf
-erteilen.
+Den Zugriff am besten nach dem Einrichten und vor dem ersten Start erteilen.
 
 ## 5. Chat-Assistent (optional)
 

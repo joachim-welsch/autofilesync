@@ -1,18 +1,13 @@
 #!/bin/bash
+# The daemon is built together with the GUI by the build script in the project root.
 set -euo pipefail
-
-# Parse command line arguments
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 BUILD_RELEASE=false
 BUILD_DEBUG=false
-
 while getopts "rd" opt; do
   case $opt in
-    r)
-      BUILD_RELEASE=true
-      ;;
-    d)
-      BUILD_DEBUG=true
-      ;;
+    r) BUILD_RELEASE=true ;;
+    d) BUILD_DEBUG=true ;;
     \?)
       echo "Usage: $0 [-r] [-d]"
       echo "  -r  Build Release version"
@@ -22,29 +17,10 @@ while getopts "rd" opt; do
       ;;
   esac
 done
-
-# If no options specified, build both
 if [ "$BUILD_RELEASE" = false ] && [ "$BUILD_DEBUG" = false ]; then
   BUILD_RELEASE=true
   BUILD_DEBUG=true
 fi
-
-# Build Release version
-if [ "$BUILD_RELEASE" = true ]; then
-  echo "Building Release version..."
-  mkdir -p build/release
-  cd build/release
-  cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../..
-  cmake --build . --config Release --target backgroundsync
-  cd ../..
-fi
-
-# Build Debug version
-if [ "$BUILD_DEBUG" = true ]; then
-  echo "Building Debug version..."
-  mkdir -p build/debug
-  cd build/debug
-  cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug ../..
-  cmake --build . --config Debug --target backgroundsync
-  cd ../..
-fi
+[ "$BUILD_RELEASE" = true ] && "${SOURCE_DIR}/build.sh" -r
+[ "$BUILD_DEBUG" = true ] && "${SOURCE_DIR}/build.sh" -d
+exit 0
