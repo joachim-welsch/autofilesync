@@ -1,0 +1,14 @@
+Package: autofilesync
+Version: @VERSION@
+Architecture: @ARCHITECTURE@
+Maintainer: @MAINTAINER@
+Installed-Size: @INSTALLED_SIZE@
+Depends: @DEPENDS@
+Recommends: wx3.2-i18n
+Section: utils
+Priority: optional
+Description: automatic synchronisation of files and directory trees
+ AutoFileSync keeps files and whole directory trees in sync, locally and
+ over SSH. The graphical program autofilesync configures and runs the
+ synchronisation; the systemd service backgroundsync continues it with the
+ same configuration while the program is closed.

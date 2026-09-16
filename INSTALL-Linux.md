@@ -7,6 +7,33 @@ Hintergrunddienst.
 Getestet unter Ubuntu 24.04 LTS. Für andere Distributionen unterscheiden sich
 nur die Paketnamen in Schritt 1.
 
+## Debian-Paket (Debian, Ubuntu)
+
+Statt der manuellen Schritte unten lässt sich ein Paket bauen, das GUI,
+Hintergrunddienst, Übersetzungen, Hilfe, Menüeintrag und Symbole enthält:
+
+```bash
+sudo apt install libwxgtk3.2-dev dpkg-dev imagemagick   # zusätzlich zu Schritt 1
+./makeDebianPackage.sh
+sudo apt install ./build/autofilesync_<version>_<arch>.deb
+```
+
+Das Paket wird gegen das wxWidgets der Distribution gebaut (ein selbst
+übersetztes unter `/usr/local` gibt es auf den Zielrechnern nicht) und mit
+`GGML_NATIVE=OFF`, damit es auch auf anderen CPUs läuft. Programm:
+`/usr/lib/autofilesync/` (Starter `/usr/bin/autofilesync`), Hilfe:
+`/usr/share/autofilesync/help/`, Übersetzungen:
+`/usr/share/locale/<sprache>/LC_MESSAGES/autofilesync.mo`, Dienst:
+`/usr/sbin/backgroundsync` mit `/usr/lib/systemd/system/backgroundsync.service`.
+
+Bei der Installation mit `sudo` trägt das Paket den aufrufenden Benutzer in
+`/etc/systemd/system/backgroundsync.service.d/user.conf` ein und aktiviert den
+Dienst. Ohne diese Datei startet der Dienst nicht, damit er nie mit der
+Konfiguration von root synchronisiert. Weitere Laufwerksabhängigkeiten
+(`Wants=`/`After=` für Mounts) gehören ebenfalls in diese Drop-in-Datei.
+`apt purge autofilesync` entfernt sie wieder; Konfiguration und Protokoll im
+Benutzerverzeichnis bleiben erhalten.
+
 ## Übersicht: was wohin installiert wird
 
 | Inhalt | Zielpfad |

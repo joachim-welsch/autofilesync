@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=AutoFileSync
+GenericName=File Synchronisation
+GenericName[de]=Dateisynchronisation
+Comment=Automatic synchronisation of files and directories
+Comment[de]=Automatische Synchronisation von Dateien und Verzeichnissen
+Exec=autofilesync
+Icon=autofilesync
+Terminal=false
+Categories=Utility;FileTools;
+Keywords=sync;backup;ssh;
+Keywords[de]=Synchronisation;Sicherung;Backup;ssh;
