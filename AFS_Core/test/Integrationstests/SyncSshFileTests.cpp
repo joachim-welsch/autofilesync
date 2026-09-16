@@ -350,7 +350,7 @@ TEST_F(SyncSshFileCopyTest, CopyRemoteFileToLocal)
 #ifdef _UNIX  // create the remote file first, from /etc/hosts which exists
     std::wstring src_path = L"localhost:/etc/hosts";
 #else
-	std::wstring srcPath = L"localhost:C:\\Windows\\System32\\drivers\\etc\\hosts";
+    std::wstring src_path = L"localhost:C:\\Windows\\System32\\drivers\\etc\\hosts";
 #endif
     std::wstring dest_path = tu::concat_temp(tu::concat_path(L"ssh_copy_test", L"hosts_from_remote.txt"));
     namespace fs = std::filesystem;

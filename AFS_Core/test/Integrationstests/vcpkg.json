@@ -6,6 +6,7 @@
     "gtest",
     "libssh2",
     "openssl",
-    "boost-property-tree"
+    "boost-property-tree",
+    "gettext-libintl"
   ]
 }

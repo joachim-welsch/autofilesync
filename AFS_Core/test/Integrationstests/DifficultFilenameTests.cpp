@@ -20,30 +20,40 @@ namespace {
     const wstring TARGET2_DIR = BASE_DIR + L"/ziel2";
 
     const std::vector<string> DIFFICULT_NAMES = {  // [DifficultFilenameTests.md#DIFFICULT_NAMES]
-        string(200, 'a') + ".txt",
         "Datei mit Leerzeichen.txt",
         "   mehrfache   Leerzeichen   .txt",
-        "datei_mit_leerzeichen_am_ende.txt ",
-        "special!@#$%^&*()_+-=[]{};'\\,~`<>?.txt",
         ".versteckte_datei.txt",
         "...nur_punkte....txt",
         "Ünïcödé_日本語_😀_Prüfung.txt",
+        "-rf.txt",
+#ifdef _UNIX
+        string(200, 'a') + ".txt",
+        "datei_mit_leerzeichen_am_ende.txt ",
+        "special!@#$%^&*()_+-=[]{};'\\,~`<>?.txt",
         "zeilen\numbruch.txt",
         "abschliessender_punkt.txt.",
-        "-rf.txt",
+#else
+        string(150, 'a') + ".txt",  // [DifficultFilenameTests.md#windows-names]
+        "special!@#$%^&()_+-=[]{};',~`.txt",
+#endif
     };
+
+    fs::path from_utf8(const string& name)  // [DifficultFilenameTests.md#utf8-paths]
+    {
+        return fs::path(std::u8string(name.begin(), name.end()));
+    }
 
     void create_empty_files(const fs::path& dir)
     {
         fs::create_directories(dir);
         for (const auto& name : DIFFICULT_NAMES)
-            std::ofstream(dir / name).close();
+            std::ofstream(dir / from_utf8(name)).close();
     }
 
     void expect_all_present_and_empty(const fs::path& dir)  // [DifficultFilenameTests.md#expect_all_present_and_empty]
     {
         for (const auto& name : DIFFICULT_NAMES) {
-            const fs::path file = dir / name;
+            const fs::path file = dir / from_utf8(name);
             EXPECT_TRUE(fs::exists(file)) << "fehlt: " << name;
             if (fs::exists(file)) {
                 EXPECT_EQ(fs::file_size(file), 0u) << "nicht leer: " << name;

@@ -14,11 +14,11 @@ namespace SyncFileTests
     const std::wstring TARGET_PATH_NAME = TARGET_DIR + TARGET_FILE;
     const std::wstring LARGER_TARGET_PATH_NAME = TARGET_DIR + LARGER_SOURCE_FILENAME;
 #else
-    const std::wstring ResourcePath = L"C:\\Entwicklung\\autofilesync\\AFS_Core\\test\\resources\\files\\";
-    const std::wstring SourcePath = L"C:\\temp\\test\\source\\";
-    const std::wstring TargetDir = L"C:\\temp\\test\\dest\\";
-    const std::wstring TargetPathName = TargetDir + TargetFile;
-    const std::wstring LargerTargetPathName = TargetDir + L"\\" + LargerSourceFilename;
+    const std::wstring RESOURCE_PATH = L"C:\\Entwicklung\\autofilesync\\AFS_Core\\test\\resources\\files\\";
+    const std::wstring SOURCE_PATH = L"C:\\temp\\test\\source\\";
+    const std::wstring TARGET_DIR = L"C:\\temp\\test\\dest\\";
+    const std::wstring TARGET_PATH_NAME = TARGET_DIR + TARGET_FILE;
+    const std::wstring LARGER_TARGET_PATH_NAME = TARGET_DIR + LARGER_SOURCE_FILENAME;
 #endif
 
     const std::wstring RESOURCE_PATH_NAME = RESOURCE_PATH + SOURCE_FILENAME;

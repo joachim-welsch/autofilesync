@@ -92,6 +92,10 @@
     <ClCompile Include="AddSshAccountTest.cpp" />
     <ClCompile Include="SettingsRecycleBinTest.cpp" />
     <ClCompile Include="ChatLogQuestionTest.cpp" />
+    <ClCompile Include="BackgroundServiceMenuTest.cpp" />
+    <ClCompile Include="SshDirDialogTest.cpp" />
+    <ClCompile Include="TreeViewContextMenuTest.cpp" />
+    <ClCompile Include="TreeViewCrossSelectionTest.cpp" />
     <ClCompile Include="..\..\src\App.cpp" />
     <ClCompile Include="..\..\src\ChatDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />
@@ -117,7 +121,9 @@
     <ClCompile Include="..\..\src\SettingsDialog.cpp" />
     <ClCompile Include="..\..\src\SourceCanvas.cpp" />
     <ClCompile Include="..\..\src\SplitterWindow.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SftpConnection.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SshAccount.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SshConnectTimeout.cpp" />
     <ClCompile Include="..\..\src\SshAccountDialog.cpp" />
     <ClCompile Include="..\..\src\SshAccountSelectDialog.cpp" />
     <ClCompile Include="..\..\src\SshAccountsDialog.cpp" />
