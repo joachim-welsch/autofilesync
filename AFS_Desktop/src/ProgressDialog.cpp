@@ -26,6 +26,8 @@ ProgressDialog::ProgressDialog(wxWindow* parent, wxWindowID id,
     gauge_ = new wxGauge(this, wxID_ANY, range_, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL, wxDefaultValidator, wxASCII_STR(wxGaugeNameStr));
     gauge_->SetValue(0);
     mainSizer->Add(gauge_, 1, wxEXPAND | wxALL, 10);
+    current_file_ = new wxStaticText(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE | wxST_NO_AUTORESIZE);  // long paths must not widen the dialog
+    mainSizer->Add(current_file_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     wxSizer* buttonSizer = CreateButtonSizer(wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 5);
     SetSizer(mainSizer);
@@ -77,6 +79,8 @@ void ProgressDialog::onTimerUpdate(wxTimerEvent&)
     SyncMessage sm = syncControler_.get_message();
     if (!sm.msg().empty())
         gauge_->SetValue(sm.filenumber());
+    if (!sm.file().empty())
+        current_file_->SetLabelText(sm.file());
 }
 
 void ProgressDialog::canBeClosed(bool yesNo)

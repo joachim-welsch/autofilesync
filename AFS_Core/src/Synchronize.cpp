@@ -144,11 +144,11 @@ void Synchronize::start()
     stop_ = false;
 }
 #endif
-void Synchronize::set_progress_message(const std::wstring& m, int64_t sourcesize)
+void Synchronize::set_progress_message(const std::wstring& m, const std::wstring& file, int64_t sourcesize)
 {
     Synchronize* this_ptr = this_.load();
     if (this_ptr)
-        this_ptr->messages_.push(SyncMessage(m, this_ptr->count_files_, sourcesize));
+        this_ptr->messages_.push(SyncMessage(m, file, this_ptr->count_files_, sourcesize));
 }
 
 SyncMessage Synchronize::get_message()
