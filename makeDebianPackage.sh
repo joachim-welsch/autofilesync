@@ -96,6 +96,7 @@ stage_programs()
 {
     install -D -m 755 "${BUILD_DIR}/autofilesync" "${STAGING}/usr/lib/autofilesync/autofilesync"
     install -D -m 755 "${BUILD_DIR}/backgroundsync" "${STAGING}/usr/sbin/backgroundsync"
+    install -D -m 755 "${DEBIAN_DIR}/wait-network-mounts" "${STAGING}/usr/lib/autofilesync/wait-network-mounts"
     strip --strip-unneeded "${STAGING}/usr/lib/autofilesync/autofilesync" "${STAGING}/usr/sbin/backgroundsync"
     mkdir -p "${STAGING}/usr/bin"
     ln -s ../lib/autofilesync/autofilesync "${STAGING}/usr/bin/autofilesync"  # the program finds help and catalogues beside its resolved /proc/self/exe
@@ -157,6 +158,25 @@ write_control()
     (cd "${STAGING}" && find usr -type f -exec md5sum {} + | sort -k2) > "${STAGING}/DEBIAN/md5sums"
 }
 
+readable_by_apt()
+{
+    local path; path="$(realpath "$1")"
+    [ -n "$(find "${path}" -maxdepth 0 -perm -o+r)" ] || return 1
+    while [ "${path}" != / ]; do
+        path="$(dirname "${path}")"
+        [ -n "$(find "${path}" -maxdepth 0 -perm -o+x)" ] || return 1  # apt downloads as user _apt, which needs traversal rights on every parent
+    done
+}
+
+install_hint()
+{
+    if readable_by_apt "$1"; then
+        echo "Installieren: sudo apt install $(realpath "$1")"
+    else
+        echo "Installieren: install -m 644 $(realpath "$1") /tmp/ && sudo apt install /tmp/$(basename "$1")"
+    fi
+}
+
 [ -n "$(version)" ] || fail "Version aus AFS_Desktop/include/Version.h nicht lesbar."
 check_dependencies
 [ "${SKIP_BUILD}" = true ] || build_release
@@ -177,4 +197,4 @@ dpkg-deb --root-owner-group -Zxz --build "${STAGING}" "${PACKAGE}" >/dev/null
 
 info "=== Fertig ==="
 echo "Paket: ${PACKAGE} ($(du -h "${PACKAGE}" | cut -f1))"
-echo "Installieren: sudo apt install ${PACKAGE}"
+install_hint "${PACKAGE}"

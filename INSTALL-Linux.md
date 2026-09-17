@@ -29,8 +29,11 @@ Das Paket wird gegen das wxWidgets der Distribution gebaut (ein selbst
 Bei der Installation mit `sudo` trägt das Paket den aufrufenden Benutzer in
 `/etc/systemd/system/backgroundsync.service.d/user.conf` ein und aktiviert den
 Dienst. Ohne diese Datei startet der Dienst nicht, damit er nie mit der
-Konfiguration von root synchronisiert. Weitere Laufwerksabhängigkeiten
-(`Wants=`/`After=` für Mounts) gehören ebenfalls in diese Drop-in-Datei.
+Konfiguration von root synchronisiert. Vor dem Start wartet der Dienst bis zu
+60 s auf die Netzlaufwerke aus `/etc/fstab` (`/usr/lib/autofilesync/wait-network-mounts`),
+auch auf solche mit `nofail`. Laufwerke, die systemd nicht einhängen konnte,
+überspringt er. Weitere Laufwerksabhängigkeiten (`Wants=`/`After=` für Mounts)
+gehören in die Drop-in-Datei.
 `apt purge autofilesync` entfernt sie wieder; Konfiguration und Protokoll im
 Benutzerverzeichnis bleiben erhalten.
 
