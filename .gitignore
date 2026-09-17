@@ -1,6 +1,7 @@
 temp.txt
 autofilesync
 /.vs
+*.vcxproj.user
 AFS_Core/test/Integrationstests/.vs
 AFS_Core/test/Integrationstests/Integrat.*
 AFS_Core/test/Integrationstests/x64
