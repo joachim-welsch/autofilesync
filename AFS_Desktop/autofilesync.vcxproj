@@ -101,9 +101,9 @@
     <ResourceCompile Include="autofilesync.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="GUI-Test.txt" />
-    <Text Include="HowTo.txt" />
-    <Text Include="ToDo.txt" />
+    <Text Include="..\GUI-Test.txt" />
+    <Text Include="..\HowTo.txt" />
+    <Text Include="..\ToDo.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp" />
@@ -174,9 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.github\copilot-instructions.md" />
-    <None Include="build_wxwidgets.bat" />
     <None Include="copy_libssh2.bat" />
-    <None Include="Directory.Build.props" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="autofilesync_postbuild.xml" />

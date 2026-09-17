@@ -35,13 +35,13 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="GUI-Test.txt">
+    <Text Include="..\GUI-Test.txt">
       <Filter>Documentation</Filter>
     </Text>
-    <Text Include="HowTo.txt">
+    <Text Include="..\HowTo.txt">
       <Filter>Documentation</Filter>
     </Text>
-    <Text Include="ToDo.txt">
+    <Text Include="..\ToDo.txt">
       <Filter>Documentation</Filter>
     </Text>
   </ItemGroup>
@@ -146,11 +146,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="add_libssh2_to_project.py" />
-    <None Include="build_wxwidgets.bat" />
     <None Include="..\.github\copilot-instructions.md" />
     <None Include="copy_libssh2.bat" />
-    <None Include="Directory.Build.props" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="autofilesync_postbuild.xml" />
