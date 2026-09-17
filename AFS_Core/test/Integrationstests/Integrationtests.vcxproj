@@ -171,6 +171,9 @@
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="PasswordCryptoTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
+    <ClCompile Include="UtilTests.cpp" />
+    <ClCompile Include="FilesystemUtilTests.cpp" />
+    <ClCompile Include="RecycleBinTests.cpp" />
     <ClCompile Include="FileDifferenceTests.cpp" />
     <ClCompile Include="LoggingConcurrencyTests.cpp" />
     <ClCompile Include="Libssh2InitTests.cpp" />

@@ -39,6 +39,15 @@
     <ClCompile Include="StrUtilTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="UtilTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="FilesystemUtilTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="RecycleBinTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
     <ClCompile Include="FileDifferenceTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
