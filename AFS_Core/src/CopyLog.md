@@ -19,6 +19,30 @@ Appends one entry to <directory>/<sanitised item name>.json, creating the file a
 as needed. Returns false if the entry did not reach the file - which is worth logging, since a
 missing proof is the one thing this feature must not do quietly.
 
+## entries_of
+
+The list of entries is the only member of the file's root. Its name is translated when the file
+is created and never looked up afterwards: a file begun in one language is continued under the
+name it has, because a second list under the name of the current language would split the proof
+in two. push_back() instead of put_child(): the latter reads a '.' in the name as a path
+separator, and the name comes out of a catalogue.
+
+## add_field
+
+push_back() instead of put() for the same reason as in entries_of: a translated field name may
+contain a '.'.
+
+## build_entry
+
+Field names and status are written in the language of the moment, so a file that outlives a
+change of language holds entries in both. That is accepted: every entry is complete in itself,
+and rewriting the older ones would mean altering evidence.
+
+## untranslated-file-name
+
+The name of the file decides which file an entry is appended to. Translated, it would start a
+second file for the same sync item after a change of language.
+
 ## trailing-dots-and-blanks
 
 Trailing dots and blanks are not preserved by Windows file names.

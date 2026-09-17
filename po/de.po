@@ -98,9 +98,53 @@ msgstr "Fehler beim Schreiben der Konfiguration: "
 msgid "config_not_readable"
 msgstr "Konfiguration konnte nicht gelesen werden."
 
+#: AFS_Core/src/CopyLog.cpp:67
+msgid "backup_proof_field_timestamp"
+msgstr "Zeitstempel"
+
+#: AFS_Core/src/CopyLog.cpp:68
+msgid "backup_proof_field_name"
+msgstr "Name"
+
+#: AFS_Core/src/CopyLog.cpp:69
+msgid "backup_proof_field_source"
+msgstr "Quelle"
+
+#: AFS_Core/src/CopyLog.cpp:70
+msgid "backup_proof_field_target"
+msgstr "Ziel"
+
+#: AFS_Core/src/CopyLog.cpp:71
+msgid "backup_proof_field_files"
+msgstr "Dateien"
+
+#: AFS_Core/src/CopyLog.cpp:72
+msgid "backup_proof_field_volume"
+msgstr "Datenvolumen"
+
+#: AFS_Core/src/CopyLog.cpp:73
+msgid "backup_proof_field_status"
+msgstr "Status"
+
+#: AFS_Core/src/CopyLog.cpp:74
+msgid "backup_proof_status_successful"
+msgstr "Erfolgreich"
+
+#: AFS_Core/src/CopyLog.cpp:74
+msgid "backup_proof_status_failed"
+msgstr "Fehlgeschlagen"
+
+#: AFS_Core/src/CopyLog.cpp:76
+msgid "backup_proof_field_errors"
+msgstr "Fehler"
+
 #: AFS_Core/src/CopyLog.cpp:86
 msgid "backup_proof_not_readable"
 msgstr "Sicherungsnachweis nicht lesbar, Eintrag verworfen: "
+
+#: AFS_Core/src/CopyLog.cpp:94
+msgid "backup_proof_entries_key"
+msgstr "Sicherungsnachweise"
 
 #: AFS_Core/src/CopyLog.cpp:102
 msgid "backup_proof_not_writable"

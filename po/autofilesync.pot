@@ -106,8 +106,52 @@ msgstr ""
 msgid "config_not_readable"
 msgstr ""
 
+#: AFS_Core/src/CopyLog.cpp:67
+msgid "backup_proof_field_timestamp"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:68
+msgid "backup_proof_field_name"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:69
+msgid "backup_proof_field_source"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:70
+msgid "backup_proof_field_target"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:71
+msgid "backup_proof_field_files"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:72
+msgid "backup_proof_field_volume"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:73
+msgid "backup_proof_field_status"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:74
+msgid "backup_proof_status_successful"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:74
+msgid "backup_proof_status_failed"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:76
+msgid "backup_proof_field_errors"
+msgstr ""
+
 #: AFS_Core/src/CopyLog.cpp:86
 msgid "backup_proof_not_readable"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp:94
+msgid "backup_proof_entries_key"
 msgstr ""
 
 #: AFS_Core/src/CopyLog.cpp:102

@@ -19,8 +19,6 @@ using std::wstring;
 
 namespace {
 
-    const wstring ENTRIES_KEY = L"Sicherungsnachweise";
-
     thread_local SyncReport* current_report = nullptr;
 
     wstring local_timestamp()
@@ -46,28 +44,36 @@ namespace {
             retval += (c < 32 || forbidden.find(c) != wstring::npos) ? L'_' : c;
         while (!retval.empty() && (retval.back() == L'.' || retval.back() == L' '))  // [CopyLog.md#trailing-dots-and-blanks]
             retval.pop_back();
-        return retval.empty() ? wstring(L"Sicherungsnachweis") : retval;
+        return retval.empty() ? wstring(L"Sicherungsnachweis") : retval;  // [CopyLog.md#untranslated-file-name]
     }
 
-    pt::wptree build_entry(const SyncItem& item, std::size_t files, const SyncReport& report)
+    void add_field(pt::wptree& entry, const wstring& name, const wstring& value)  // [CopyLog.md#add_field]
     {
+        entry.push_back(std::make_pair(name, pt::wptree(value)));
+    }
+
+    pt::wptree error_list(const WStringVector& messages)
+    {
+        pt::wptree errors;
+        for (const wstring& message : messages)
+            add_field(errors, L"", message);
+        return errors;
+    }
+
+    pt::wptree build_entry(const SyncItem& item, std::size_t files, const SyncReport& report)  // [CopyLog.md#build_entry]
+    {
+        using translation::translate;
         pt::wptree entry;
-        entry.put(wstring(L"Zeitstempel"), local_timestamp());
-        entry.put(wstring(L"Name"), item.name());  // [CopyLog.md#name-in-every-entry]
-        entry.put(wstring(L"Quelle"), item.source());
-        entry.put(wstring(L"Ziel"), item.target());
-        entry.put(wstring(L"Dateien"), std::to_wstring(files));
-        entry.put(wstring(L"Datenvolumen"), std::to_wstring(report.bytes_transferd()));
-        entry.put(wstring(L"Status"), wstring(report.successful() ? L"Erfolgreich" : L"Fehlgeschlagen"));
-        if (!report.errors().empty()) {
-            pt::wptree errors;
-            for (const wstring& message : report.errors()) {
-                pt::wptree node;
-                node.put(wstring(L""), message);
-                errors.push_back(std::make_pair(wstring(L""), node));
-            }
-            entry.push_back(std::make_pair(wstring(L"Fehler"), errors));
-        }
+        add_field(entry, translate("backup_proof_field_timestamp"), local_timestamp());
+        add_field(entry, translate("backup_proof_field_name"), item.name());  // [CopyLog.md#name-in-every-entry]
+        add_field(entry, translate("backup_proof_field_source"), item.source());
+        add_field(entry, translate("backup_proof_field_target"), item.target());
+        add_field(entry, translate("backup_proof_field_files"), std::to_wstring(files));
+        add_field(entry, translate("backup_proof_field_volume"), std::to_wstring(report.bytes_transferd()));
+        add_field(entry, translate("backup_proof_field_status"),
+            report.successful() ? translate("backup_proof_status_successful") : translate("backup_proof_status_failed"));
+        if (!report.errors().empty())
+            entry.push_back(std::make_pair(translate("backup_proof_field_errors"), error_list(report.errors())));
         return entry;
     }
 
@@ -88,6 +94,13 @@ namespace {
             read = false;
         }
         return root;
+    }
+
+    pt::wptree& entries_of(pt::wptree& root)  // [CopyLog.md#entries_of]
+    {
+        if (root.empty())
+            root.push_back(std::make_pair(translation::translate("backup_proof_entries_key"), pt::wptree()));
+        return root.front().second;
     }
 
     bool write_copy_log_file(const fs::path& file, const pt::wptree& root)
@@ -162,9 +175,7 @@ bool write_copy_log(const fs::path& directory, const SyncItem& item, std::size_t
     pt::wptree root = read_copy_log_file(file, readable);
     if (!readable)
         return false;
-    pt::wptree& entries = root.count(ENTRIES_KEY) ? root.get_child(ENTRIES_KEY)
-                                                : root.put_child(ENTRIES_KEY, pt::wptree());
-    entries.push_back(std::make_pair(wstring(L""), build_entry(item, files, report)));
+    entries_of(root).push_back(std::make_pair(wstring(L""), build_entry(item, files, report)));
     return write_copy_log_file(file, root);
 }
 

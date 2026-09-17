@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 #include <thread>
 
 using namespace AFS_Core;
@@ -18,8 +19,6 @@ namespace pt = boost::property_tree;
 using std::wstring;
 
 namespace {
-    const wstring ENTRIES_KEY = L"Sicherungsnachweise";
-
     pt::wptree read_proof(const fs::path& file)  // [CopyLogTests.md#read_proof]
     {
         pt::wptree root;
@@ -28,11 +27,29 @@ namespace {
         return root;
     }
 
+    const pt::wptree& member(const pt::wptree& entry, const char* msgid)  // [CopyLogTests.md#member]
+    {
+        const auto found = entry.find(translation::translate(msgid));
+        if (found == entry.not_found())
+            throw std::runtime_error(std::string("missing in the proof: ") + msgid);
+        return found->second;
+    }
+
+    wstring field(const pt::wptree& entry, const char* msgid)
+    {
+        return member(entry, msgid).data();
+    }
+
+    const pt::wptree& errors_of(const pt::wptree& entry)
+    {
+        return member(entry, "backup_proof_field_errors");
+    }
+
     std::vector<pt::wptree> entries_of(const fs::path& file)
     {
         std::vector<pt::wptree> retval;
         const pt::wptree root = read_proof(file);  // [CopyLogTests.md#named-root]
-        for (const auto& entry : root.get_child(ENTRIES_KEY))
+        for (const auto& entry : root.front().second)  // [CopyLogTests.md#entries_of]
             retval.push_back(entry.second);
         return retval;
     }
@@ -96,14 +113,14 @@ TEST_F(CopyLogTest, SyncWithProofEnabledWritesEntryWithAllFields)
     const auto entries = entries_of(file);
     ASSERT_EQ(entries.size(), 1u);
     const pt::wptree& entry = entries[0];
-    EXPECT_EQ(entry.get<wstring>(L"Name"), L"sicherung");
-    EXPECT_EQ(entry.get<wstring>(L"Quelle"), source_.wstring());
-    EXPECT_EQ(entry.get<wstring>(L"Ziel"), target_.wstring());
-    EXPECT_EQ(entry.get<wstring>(L"Dateien"), L"1");
-    EXPECT_EQ(entry.get<wstring>(L"Datenvolumen"), std::to_wstring(fs::file_size(source_ / "a.txt")));
-    EXPECT_EQ(entry.get<wstring>(L"Status"), L"Erfolgreich");
-    EXPECT_EQ(entry.get<wstring>(L"Zeitstempel").size(), 19u);  // only the shape of "YYYY-MM-TT hh:mm:ss" is deterministic here
-    EXPECT_FALSE(entry.get_child_optional(L"Fehler").has_value());
+    EXPECT_EQ(field(entry, "backup_proof_field_name"), L"sicherung");
+    EXPECT_EQ(field(entry, "backup_proof_field_source"), source_.wstring());
+    EXPECT_EQ(field(entry, "backup_proof_field_target"), target_.wstring());
+    EXPECT_EQ(field(entry, "backup_proof_field_files"), L"1");
+    EXPECT_EQ(field(entry, "backup_proof_field_volume"), std::to_wstring(fs::file_size(source_ / "a.txt")));
+    EXPECT_EQ(field(entry, "backup_proof_field_status"), translation::translate("backup_proof_status_successful"));
+    EXPECT_EQ(field(entry, "backup_proof_field_timestamp").size(), 19u);  // only the shape of "YYYY-MM-TT hh:mm:ss" is deterministic here
+    EXPECT_EQ(entry.find(translation::translate("backup_proof_field_errors")), entry.not_found());
 }
 
 TEST_F(CopyLogTest, PassWithoutActivityWritesNoEntry)  // [CopyLogTests.md#PassWithoutActivityWritesNoEntry]
@@ -136,8 +153,8 @@ TEST_F(CopyLogTest, FurtherActivityIsAppendedToTheSameFile)
 
     const auto entries = entries_of(copy_log_file_path(proof_dir_, L"sicherung"));
     ASSERT_EQ(entries.size(), 2u);
-    EXPECT_EQ(entries[0].get<wstring>(L"Dateien"), L"1");
-    EXPECT_EQ(entries[1].get<wstring>(L"Dateien"), L"1");
+    EXPECT_EQ(field(entries[0], "backup_proof_field_files"), L"1");
+    EXPECT_EQ(field(entries[1], "backup_proof_field_files"), L"1");
 }
 
 TEST_F(CopyLogTest, ItemWithoutProofFlagWritesNothing)
@@ -173,9 +190,9 @@ TEST_F(CopyLogTest, FailedRunIsRecordedAsFehlgeschlagenWithMessages)
 
     const auto entries = entries_of(copy_log_file_path(proof_dir_, L"sicherung"));
     ASSERT_EQ(entries.size(), 1u);
-    EXPECT_EQ(entries[0].get<wstring>(L"Status"), L"Fehlgeschlagen");
+    EXPECT_EQ(field(entries[0], "backup_proof_field_status"), translation::translate("backup_proof_status_failed"));
     std::vector<wstring> messages;
-    for (const auto& error : entries[0].get_child(L"Fehler"))
+    for (const auto& error : errors_of(entries[0]))
         messages.push_back(error.second.data());
     ASSERT_EQ(messages.size(), 2u);
     EXPECT_EQ(messages[0], L"Kopieren fehlgeschlagen: a.txt");
@@ -195,8 +212,8 @@ TEST_F(CopyLogTest, SyncFailureEndsUpInTheProof)  // [CopyLogTests.md#SyncFailur
     ASSERT_TRUE(fs::exists(file));
     const auto entries = entries_of(file);
     ASSERT_EQ(entries.size(), 1u);
-    EXPECT_EQ(entries[0].get<wstring>(L"Status"), L"Fehlgeschlagen");
-    EXPECT_FALSE(entries[0].get_child(L"Fehler").empty());
+    EXPECT_EQ(field(entries[0], "backup_proof_field_status"), translation::translate("backup_proof_status_failed"));
+    EXPECT_FALSE(errors_of(entries[0]).empty());
 }
 
 TEST_F(CopyLogTest, UnreachableSourceIsProvenOnceNotOncePerPass)  // [CopyLogTests.md#UnreachableSourceIsProvenOnceNotOncePerPass]
@@ -228,7 +245,7 @@ TEST_F(CopyLogTest, ItemNameWithPathCharactersBecomesAUsableFileName)
     const fs::path file = copy_log_file_path(proof_dir_, name);
     EXPECT_EQ(file.parent_path(), proof_dir_);
     ASSERT_TRUE(fs::exists(file));
-    EXPECT_EQ(entries_of(file)[0].get<wstring>(L"Name"), name);  // [CopyLogTests.md#name-survives-sanitising]
+    EXPECT_EQ(field(entries_of(file)[0], "backup_proof_field_name"), name);  // [CopyLogTests.md#name-survives-sanitising]
 }
 
 TEST_F(CopyLogTest, UnreadableProofFileIsNotOverwritten)  // [CopyLogTests.md#UnreadableProofFileIsNotOverwritten]
@@ -244,6 +261,32 @@ TEST_F(CopyLogTest, UnreadableProofFileIsNotOverwritten)  // [CopyLogTests.md#Un
     std::ifstream in(file);
     std::string stored((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     EXPECT_EQ(stored, content);
+}
+
+TEST_F(CopyLogTest, NewProofFileNamesItsEntriesInTheCurrentLanguage)  // [CopyLogTests.md#NewProofFileNamesItsEntriesInTheCurrentLanguage]
+{
+    SyncReport report;
+
+    ASSERT_TRUE(write_copy_log(proof_dir_, proven_item(), 1, report));
+
+    const pt::wptree root = read_proof(copy_log_file_path(proof_dir_, L"sicherung"));
+    ASSERT_EQ(root.size(), 1u);
+    EXPECT_EQ(root.front().first, translation::translate("backup_proof_entries_key"));
+}
+
+TEST_F(CopyLogTest, ProofFileBegunInAnotherLanguageIsContinuedNotSplit)  // [CopyLogTests.md#ProofFileBegunInAnotherLanguageIsContinuedNotSplit]
+{
+    fs::create_directories(proof_dir_);
+    const fs::path file = copy_log_file_path(proof_dir_, L"sicherung");
+    std::ofstream(file) << R"({ "Preuves.de.sauvegarde": [ { "Name": "sicherung" } ] })";
+
+    SyncReport report;
+    ASSERT_TRUE(write_copy_log(proof_dir_, proven_item(), 1, report));
+
+    const pt::wptree root = read_proof(file);
+    ASSERT_EQ(root.size(), 1u);
+    EXPECT_EQ(root.front().first, L"Preuves.de.sauvegarde");
+    EXPECT_EQ(root.front().second.size(), 2u);
 }
 
 TEST_F(CopyLogTest, ErrorListIsCappedInsteadOfGrowingWithoutLimit)
