@@ -47,6 +47,7 @@ private:
     void onUpdateCancelButton(wxUpdateUIEvent& event);
 
     wxGauge* gauge_ = nullptr;
+    wxStaticText* current_file_ = nullptr;
     wxTimer timer_;
     uint32_t range_ = 0;
     DECLARE_EVENT_TABLE()

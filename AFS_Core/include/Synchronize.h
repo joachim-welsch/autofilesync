@@ -81,7 +81,7 @@ public:
         void start_logging(LogLevel, const std::wstring& lfname);
         int loop_iterations() const { return loop_iterations_; }
     #endif
-    static void set_progress_message(const std::wstring&, int64_t sourcesize);
+    static void set_progress_message(const std::wstring&, const std::wstring& file, int64_t sourcesize);
     SyncMessage get_message();
     SyncControler& sync_controler() const;
     static bool stopping();

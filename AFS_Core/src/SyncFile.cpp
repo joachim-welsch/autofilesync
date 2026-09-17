@@ -246,7 +246,7 @@ void SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     if (drive_not_exist(destination, ssh_dest()))
         return;
     #ifdef _WXWIDGETS
-        Synchronize::set_progress_message(translation::translate("copy_progress", {source, destination}), size);
+        Synchronize::set_progress_message(translation::translate("copy_progress", {source, destination}), source, size);
     #endif
     try {  // [SyncFile.md#failures-return-early]
         pre_copy(source, destination);
@@ -283,7 +283,7 @@ void SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     if (drive_not_exist(source, ssh_source()))
         return;
     #ifdef _WXWIDGETS
-        Synchronize::set_progress_message(translation::translate("copy_progress", {destination, source}), size);
+        Synchronize::set_progress_message(translation::translate("copy_progress", {destination, source}), destination, size);
     #endif
     try {
         pre_copy(destination, source);

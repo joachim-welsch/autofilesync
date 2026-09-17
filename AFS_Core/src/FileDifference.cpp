@@ -139,7 +139,7 @@ void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_tim
     if (sourcesize_ > 1000000) {
         std::wostringstream os;
         os << translation::translate("comparing") << L'\n' << source_ << L'\n' << translation::translate("comparing_with") << L'\n' << dest_ << L"...";
-        Synchronize::set_progress_message(os.str(), sourcesize_);
+        Synchronize::set_progress_message(os.str(), L"", sourcesize_);
     }
     if (util::files_equal(source_, dest_))
         return;
