@@ -33,6 +33,10 @@ set(SOURCES
     FileDeleteTests.cpp
     PasswordCryptoTests.cpp
     StrUtilTests.cpp
+    ScopedEnv.cpp
+    UtilTests.cpp
+    FilesystemUtilTests.cpp
+    RecycleBinTests.cpp
     FileDifferenceTests.cpp
     LoggingConcurrencyTests.cpp
     Libssh2InitTests.cpp
