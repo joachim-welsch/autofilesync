@@ -1,0 +1,40 @@
+#!/bin/bash
+# Waits for the network file systems of /etc/fstab before backgroundsync starts.
+# After=remote-fs.target is not enough: systemd does not order "nofail" mounts before it.
+TIMEOUT_SECONDS=60  # below the default TimeoutStartSec of 90 s, so a missing server never blocks the service
+NETWORK_TYPES=",cifs,smb3,nfs,nfs4,fuse.sshfs,sshfs,davfs,glusterfs,ceph,9p,"
+
+is_network_mount()
+{
+    [[ "${NETWORK_TYPES}" == *",$1,"* || ",$2," == *",_netdev,"* ]]
+}
+
+is_mounted_on_demand()
+{
+    [[ ",$1," == *",noauto,"* || ",$1," == *",x-systemd.automount,"* ]]
+}
+
+has_given_up()
+{
+    systemctl -q is-failed "$(systemd-escape --path --suffix=mount "$1")"
+}
+
+pending_mounts()
+{
+    local target type options path
+    while read -r target type options; do
+        is_network_mount "${type}" "${options}" && ! is_mounted_on_demand "${options}" || continue
+        printf -v path '%b' "${target}"  # --raw escapes blanks in paths as \x20
+        mountpoint -q "${path}" || has_given_up "${path}" || echo "${path}"
+    done < <(findmnt --fstab --noheadings --raw --output TARGET,FSTYPE,OPTIONS)
+}
+
+deadline=$((SECONDS + TIMEOUT_SECONDS))
+while pending="$(pending_mounts)" && [ -n "${pending}" ]; do
+    if ((SECONDS >= deadline)); then
+        echo "Netzlaufwerke nach ${TIMEOUT_SECONDS} s nicht eingehängt, Start trotzdem:" ${pending}
+        exit 0
+    fi
+    sleep 2
+done
+exit 0

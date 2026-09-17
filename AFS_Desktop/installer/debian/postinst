@@ -24,9 +24,10 @@ update_service()
     [ -d /run/systemd/system ] || return 0
     systemctl daemon-reload
     if [ -z "$1" ] && [ -f "${DROPIN}" ]; then
-        systemctl enable --now "${UNIT}" || true
-    elif systemctl -q is-enabled "${UNIT}"; then
-        systemctl restart "${UNIT}" || true
+        systemctl enable "${UNIT}" || true
+    fi
+    if systemctl -q is-enabled "${UNIT}"; then
+        systemctl restart "${UNIT}" || true  # restart, not start: an already running daemon still executes the replaced binary
     fi
 }
 
