@@ -4,6 +4,7 @@
 #include <thread>
 #include <Logging.h>
 #include <Translation.h>
+#include <string>
 #ifdef WIN32
     #include <Windows.h>
 #else
@@ -11,7 +12,6 @@
     #include <sys/file.h>
     #include <unistd.h>
     #include <cerrno>
-    #include <string>
 #endif
 
 namespace AFS_Core {
@@ -20,16 +20,23 @@ namespace {
 constexpr auto POLL_INTERVAL = std::chrono::milliseconds(200);
 constexpr auto FOREGROUND_WAIT_LIMIT = std::chrono::seconds(60);
 
+#ifdef _TEST
+constexpr bool TEST_SCOPE = true;  // [SyncArbiter.md#TEST_SCOPE]
+#else
+constexpr bool TEST_SCOPE = false;
+#endif
+
 #ifdef WIN32
-const wchar_t* event_name(SyncRole role)
+std::wstring event_name(SyncRole role)
 {
-    return role == SyncRole::Foreground ? L"Global\\AutoFileSyncForegroundSync" : L"Global\\AutoFileSyncBackgroundSync";
+    const std::wstring name = role == SyncRole::Foreground ? L"Global\\AutoFileSyncForegroundSync" : L"Global\\AutoFileSyncBackgroundSync";
+    return TEST_SCOPE ? name + L"Test" : name;
 }
 #else
 std::string lock_path(SyncRole role)
 {
     const std::string suffix = role == SyncRole::Foreground ? "foreground" : "background";
-    return "/tmp/autofilesync-" + std::to_string(getuid()) + "-" + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
+    return "/tmp/autofilesync-" + std::to_string(getuid()) + (TEST_SCOPE ? "-test-" : "-") + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
 }
 #endif
 
@@ -42,7 +49,7 @@ SyncRole other_role(SyncRole role)
 void SyncArbiter::publish_active()
 {
 #ifdef WIN32
-    active_event_ = CreateEventW(nullptr, TRUE, TRUE, event_name(role_));
+    active_event_ = CreateEventW(nullptr, TRUE, TRUE, event_name(role_).c_str());
     if (active_event_ == nullptr)
         log_warning(translation::translate("arbiter_announce_failed"), std::to_wstring(GetLastError()));
 #else
@@ -75,7 +82,7 @@ void SyncArbiter::withdraw_active()
 bool SyncArbiter::other_side_active() const
 {
 #ifdef WIN32
-    HANDLE other = OpenEventW(SYNCHRONIZE, FALSE, event_name(other_role(role_)));
+    HANDLE other = OpenEventW(SYNCHRONIZE, FALSE, event_name(other_role(role_)).c_str());
     if (other != nullptr) {
         CloseHandle(other);
         return true;
