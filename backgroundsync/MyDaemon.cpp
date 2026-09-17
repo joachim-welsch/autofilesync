@@ -36,7 +36,7 @@ void MyDaemon::stop() {
 }
 
 void MyDaemon::run() {
-    Synchronize::create(SyncType::Continuous);
+    Synchronize::create(SyncType::Continuous, nullptr, SyncRole::Background);
     while (running_.load()) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
