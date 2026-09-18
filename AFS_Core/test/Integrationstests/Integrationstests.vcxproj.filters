@@ -44,7 +44,6 @@
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="MountedDrivesTests.cpp" />
-    <ClCompile Include="LoggingTests.cpp" />
     <ClCompile Include="..\..\src\Util.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -99,9 +98,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="SyncDirTests.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="LoggingTests.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="SshTest.h">
