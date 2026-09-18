@@ -39,6 +39,7 @@ void MyDaemon::stop() {
 void MyDaemon::run() {
     Synchronize::create(SyncType::Continuous, nullptr, SyncRole::Background);
     while (running_.load()) {
+        cut_log_daily_();
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     Synchronize::destroy();

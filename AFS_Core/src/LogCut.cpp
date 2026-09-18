@@ -85,4 +85,12 @@ void LogCut::cut()
 	}
 }
 
+void DailyLogCut::operator()(TimePoint now)
+{
+	if (now < next_cut_)
+		return;
+	next_cut_ = now + std::chrono::hours(24);
+	LogCut()();
+}
+
 } // namespace AFS_Core

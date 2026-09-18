@@ -4,6 +4,7 @@
 #include <thread>
 #include <atomic>
 #include <csignal>
+#include <LogCut.h>
 
 class MyDaemon {
 public:
@@ -18,4 +19,5 @@ private:
 
     std::atomic<bool> running_;
     std::thread workerThread_;
+    AFS_Core::DailyLogCut cut_log_daily_;
 };

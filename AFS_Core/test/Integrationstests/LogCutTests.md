@@ -19,3 +19,10 @@ timestamp-less continuation lines follow the preceding timestamped line.
 
 A block of its own: Windows refuses to delete a file that is still open (see the fs::remove() at
 the end), POSIX unlinks it without complaint.
+
+## DailyLogCutTest
+
+An expired line in the log shows whether a call has cut: it is gone after a cut
+and still there otherwise. The time is handed in, so the tests cover a whole day
+without waiting. The line is appended with the log handle closed, as the handle
+of Logging and the stream of the test must not write to the file at once.
