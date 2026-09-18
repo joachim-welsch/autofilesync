@@ -25,3 +25,11 @@ Decided per timestamped line, never latched: logs are chronological (old lines f
 sticky flag would discard everything after the first expired line - including all current
 entries. Lines without a parseable timestamp (multi-line entries) follow the preceding
 timestamped line.
+
+## DailyLogCut
+
+The GUI cuts the log at every start. The daemon runs for weeks, so it has to cut
+while running: it calls this once per pass of its loop, and the log is cut at the
+first call and then whenever 24 hours have gone by. system_clock rather than
+steady_clock, because the steady clock stands still while a laptop is suspended
+and the day would never end. The time is a parameter only for the tests.

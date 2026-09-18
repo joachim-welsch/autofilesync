@@ -22,5 +22,12 @@ public:
 	void operator()();
 };
 
+class DailyLogCut {  // [LogCut.md#DailyLogCut]
+	using TimePoint = std::chrono::system_clock::time_point;
+
+	TimePoint	next_cut_ = (TimePoint::min)();
+public:
+	void operator()(TimePoint now = std::chrono::system_clock::now());
+};
 
 } // namespace AFS_Core
