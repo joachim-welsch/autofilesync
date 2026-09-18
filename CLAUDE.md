@@ -79,7 +79,9 @@ Konstanten werden Makros wenn immer möglich bevorzugt.
 ### Unittests
 
 ### Integrationstests
-Die gesamte Funktionalität soll getestet werden
+Die gesamte Funktionalität soll getestet werden.
+Nach jedem Test muss aufgeräumt werden, sodass der Zustand des Dateisystems nach dem Test wie vorher ist.
+Das Logging soll im temp-Verzeichnis erfolgen und die Logdatei soll auch nach dem Test wieder gelöscht werden.
 
 ### GUI-Tests
 Nach jedem GUI-Test soll der gleiche Zustand in der Konfiguration und im Quell- und Target-Dateisystem sein wie vor dem GUI-Test.

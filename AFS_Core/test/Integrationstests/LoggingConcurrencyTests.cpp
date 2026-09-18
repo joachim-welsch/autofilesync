@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <FileUtil.h>
+#include "ScopedLog.h"
 #include <ThStrUtil.h>
 #ifndef _WIN32
 #include <unistd.h>
@@ -24,11 +25,7 @@ namespace fs = std::filesystem;
 
 TEST(LoggingConcurrencyTest, ConcurrentRotationAndLoggingDoesNotCrash)  // [LoggingConcurrencyTests.md#ConcurrentRotationAndLoggingDoesNotCrash]
 {
-    const fs::path log_file = fs::temp_directory_path() / ("autofilesync_logging_test_" + std::to_string(getpid()) + ".log");
-    fs::remove(log_file);
-
-    Logging::instance().set_log_file_path_name(log_file.wstring());
-    Logging::instance().set_log_level(LogLevel::Debug);
+    const tu::ScopedLog log(fs::temp_directory_path() / ("autofilesync_logging_test_" + std::to_string(getpid()) + ".log"), LogLevel::Debug);
 
     std::atomic<bool> stop{false};
 
@@ -56,9 +53,6 @@ TEST(LoggingConcurrencyTest, ConcurrentRotationAndLoggingDoesNotCrash)  // [Logg
     rotator.join();
     for (auto& t : loggers)
         t.join();
-
-    Logging::instance().close_file();
-    fs::remove(log_file);
 }
 
 TEST(LoggingTests, WriteFailureDoesNotThrow)  // [LoggingConcurrencyTests.md#WriteFailureDoesNotThrow]

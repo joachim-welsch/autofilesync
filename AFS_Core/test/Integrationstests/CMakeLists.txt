@@ -55,11 +55,12 @@ set(SOURCES
     SyncSshTwoWayTests.cpp
     SshPathEncodingTests.cpp
     SshTest.cpp
+    TestMain.cpp
 )
 
 add_executable(Integrationtests ${SOURCES})
 target_include_directories(Integrationtests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Integrationtests PRIVATE afs_core_test GTest::GTest GTest::Main)
+target_link_libraries(Integrationtests PRIVATE afs_core_test GTest::GTest)
 # Root of AFS_Core: the fixtures find test/resources and test/tree below it.
 target_compile_definitions(Integrationtests PRIVATE LIB_SOURCE_DIR="${AFS_CORE_DIR}")
 

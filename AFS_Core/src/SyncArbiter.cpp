@@ -5,6 +5,7 @@
 #include <Logging.h>
 #include <Translation.h>
 #include <string>
+#include <filesystem>
 #ifdef WIN32
     #include <Windows.h>
 #else
@@ -36,7 +37,8 @@ std::wstring event_name(SyncRole role)
 std::string lock_path(SyncRole role)
 {
     const std::string suffix = role == SyncRole::Foreground ? "foreground" : "background";
-    return "/tmp/autofilesync-" + std::to_string(getuid()) + (TEST_SCOPE ? "-test-" : "-") + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
+    const std::string dir = TEST_SCOPE ? std::filesystem::temp_directory_path().string() : "/tmp";  // [SyncArbiter.md#TEST_SCOPE]
+    return dir + "/autofilesync-" + std::to_string(getuid()) + (TEST_SCOPE ? "-test-" : "-") + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
 }
 #endif
 
