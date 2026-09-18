@@ -8,7 +8,7 @@ namespace AFS_Core {
 class FileDifference {
 public:
     enum class Result { Equal, SourceModified, DestModified, DestNotExists, SourceNotExits,
-                        SourceDriveNotMounted, DestDriveNotMounted, Undefined };
+                        SourceDriveNotMounted, DestDriveNotMounted, ContentConflict, Undefined };
 private:
     const std::wstring  source_;
     const std::wstring  dest_;

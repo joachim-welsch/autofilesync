@@ -70,10 +70,20 @@ fs::last_write_time() only resolves a local path, so the time is stamped here on
 sides are local. Every transfer with an SSH side brings the modification time along itself (see
 SyncFileSsh.md#transfer-keeps-the-modification-time).
 
-## newer-target-reported-once
+## reported-once
 
 A target that is newer than its source is left alone unless the item copies
 newer targets or syncs both ways. Without a message the user cannot tell why
 the file never arrives. Continuous sync meets the same file every cycle, so the
 target is remembered and reported only once; it is forgotten as soon as the
 file no longer differs this way, so a recurrence is reported again.
+
+The same bookkeeping serves every difference that is left alone on purpose, one
+ReportedOnce per kind of message.
+
+## content-conflict
+
+A two-way item whose files have the same time and size but different content
+(see FileDifference.md#content-conflict) is not copied in either direction. It is
+an error because the two sides stay different until the user decides which one
+is right, and it goes to the sync report as well, so a backup proof shows it.

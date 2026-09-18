@@ -29,16 +29,35 @@ using fsu::file_exists;
 using util::files_equal;
 
 namespace {
-std::mutex newer_targets_mutex;
-std::set<wstring> newer_targets;  // [SyncFile.md#newer-target-reported-once]
+class ReportedOnce {  // [SyncFile.md#reported-once]
+    std::mutex mutex_;
+    std::set<wstring> reported_;
+public:
+    bool first_report(const wstring& destination, bool applies)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (applies)
+            return reported_.insert(destination).second;
+        reported_.erase(destination);
+        return false;
+    }
+};
+
+ReportedOnce newer_targets;
+ReportedOnce content_conflicts;
 
 void report_newer_target(const wstring& source, const wstring& destination, bool target_newer)
 {
-    std::lock_guard<std::mutex> lock(newer_targets_mutex);
-    if (!target_newer)
-        newer_targets.erase(destination);
-    else if (newer_targets.insert(destination).second)
+    if (newer_targets.first_report(destination, target_newer))
         log_info(translation::translate("target_newer_not_copied"), source, L"->", destination);
+}
+
+void report_content_conflict(const wstring& source, const wstring& destination, bool conflict)  // [SyncFile.md#content-conflict]
+{
+    if (!content_conflicts.first_report(destination, conflict))
+        return;
+    log_error(translation::translate("content_conflict_not_copied"), source, L"<->", destination);
+    report_sync_error(translation::translate("content_conflict_not_copied") + L" " + source + L" <-> " + destination);
 }
 }
 
@@ -229,6 +248,7 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
         && (fdiff == FDResult::SourceNotExits || fdiff == FDResult::DestModified);
     if (!delete_target && !copy_to_target && !copy_to_source) {
         report_newer_target(source, destination, fdiff == FDResult::DestModified);
+        report_content_conflict(source, destination, fdiff == FDResult::ContentConflict);
         return;
     }
     if (only_count_) {  // [SyncFile.md#only-count-touches-nothing]

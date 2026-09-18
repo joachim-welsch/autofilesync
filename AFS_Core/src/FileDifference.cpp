@@ -27,6 +27,7 @@ static wstring to_wstring(FileDifference::Result r)
     case Result::SourceNotExits: return L"SourceNotExits";
     case Result::SourceDriveNotMounted: return L"SourceDriveNotMounted";
     case Result::DestDriveNotMounted: return L"DestDriveNotMounted";
+    case Result::ContentConflict: return L"ContentConflict";
     case Result::Undefined: break;
     }
     return L"Undefined";
@@ -143,7 +144,10 @@ void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_tim
     }
     if (util::files_equal(source_, dest_))
         return;
-    result_ = two_way_sync_ && util::greater(desttime, sourcetime) ? Result::DestModified : Result::SourceModified;
+    if (two_way_sync_ && sourcesize_ == destsize_ && util::equal(sourcetime, desttime))
+        result_ = Result::ContentConflict;  // [FileDifference.md#content-conflict]
+    else
+        result_ = two_way_sync_ && util::greater(desttime, sourcetime) ? Result::DestModified : Result::SourceModified;
 }
 
 } // namespace AFS_Core

@@ -640,6 +640,10 @@ msgid "source_label"
 msgstr "Source:"
 
 #: AFS_Core/src/SyncFile.cpp
+msgid "content_conflict_not_copied"
+msgstr "Not synchronized because time and size are equal but the content differs:"
+
+#: AFS_Core/src/SyncFile.cpp
 msgid "target_newer_not_copied"
 msgstr "Not copied because the target is newer than the source:"
 
