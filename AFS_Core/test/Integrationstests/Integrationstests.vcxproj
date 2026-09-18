@@ -147,6 +147,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SshTest.cpp" />
+    <ClCompile Include="TestMain.cpp" />
     <ClCompile Include="SyncDirTests.cpp" />
     <ClCompile Include="SyncFileTests.cpp" />
     <ClCompile Include="SyncSshDirTests.cpp" />

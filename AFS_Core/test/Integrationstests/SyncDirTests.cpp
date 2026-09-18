@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "SshAccount.h"
 #include <Logging.h>
+#include "ScopedRecycleBin.h"
 #include <StrUtil.h>
 
 using namespace AFS_Core;
@@ -65,8 +66,8 @@ TEST(SyncDirTests, SyncWithExistingTargetFiles)
 {
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
-    std::filesystem::create_directory(SOURCE_PATH);
-    std::filesystem::create_directory(TARGET_PATH);
+    std::filesystem::create_directories(SOURCE_PATH);
+    std::filesystem::create_directories(TARGET_PATH);
     std::ofstream(wstring_to_string(TARGET_PATH) + "/old_file.txt") << "alt";
     std::ofstream(wstring_to_string(SOURCE_PATH) + "/new_file.txt") << "neu";
     Synchronize::start();
@@ -133,6 +134,7 @@ TEST(SyncDirTests, SubdirectoryInSourceIsNeitherCopiedNorTreatedAsMissing)  // [
 
 TEST(SyncDirTests, DeleteInTargetRemovesFileMissingFromSource)  // [SyncDirTests.md#DeleteInTargetRemovesFileMissingFromSource]
 {
+    const tu::ScopedRecycleBin recycle_bin;
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
     std::filesystem::create_directories(SOURCE_PATH);

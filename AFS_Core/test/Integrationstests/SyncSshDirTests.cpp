@@ -113,7 +113,6 @@ TEST_F(SyncSshDirTest, SyncRemoteDirToLocal)
     namespace fs = std::filesystem;
 
     fs::create_directories(SyncSshDirTestConfig::SRC_TEST_DIR);
-    fs::create_directories(SyncSshDirTestConfig::DEST_TEST_DIR);
 
     std::ofstream(tu::concat_path(SyncSshDirTestConfig::SRC_TEST_DIR, "sshd_config")) << "test";
     std::ofstream(tu::concat_path(SyncSshDirTestConfig::SRC_TEST_DIR, "other.txt")) << "other";
@@ -235,7 +234,6 @@ TEST_F(SyncSshDirTest, SyncDirectoryWithFiles)  // [SyncSshDirTests.md#sync-dir-
     namespace fs = std::filesystem;
     
     fs::create_directories(SyncSshDirTestConfig::SRC_TEST_DIR);
-    fs::create_directories(SyncSshDirTestConfig::DEST_TEST_DIR);
 
     std::ofstream(tu::concat_path(SyncSshDirTestConfig::SRC_TEST_DIR, "root.txt")) << "root";
     std::ofstream(tu::concat_path(SyncSshDirTestConfig::SRC_TEST_DIR, "data.txt")) << "data";

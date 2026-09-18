@@ -196,6 +196,7 @@
     <ClCompile Include="SyncSshTwoWayTests.cpp" />
     <ClCompile Include="SshPathEncodingTests.cpp" />
     <ClCompile Include="SshTest.cpp" />
+    <ClCompile Include="TestMain.cpp" />
     <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp" />
     <ClCompile Include="$(LibDir)\src\ModelLocation.cpp" />
     <ClCompile Include="$(LibDir)\src\LlamaClient.cpp" />

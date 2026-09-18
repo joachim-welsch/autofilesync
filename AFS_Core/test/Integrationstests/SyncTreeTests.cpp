@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "SshAccount.h"
 #include <Logging.h>
+#include "ScopedRecycleBin.h"
 #include <filesystem>
 #include <fstream>
 #include <StrUtil.h>
@@ -435,6 +436,7 @@ TEST(SyncTreeTests, SyncTreeSymlinkCycleDoesNotCrash)  // [SyncTreeTests.md#Sync
 
 TEST(SyncTreeTests, DeleteInTargetRemovesFileMissingFromSourceAtEveryLevel)  // [SyncTreeTests.md#DeleteInTargetRemovesFileMissingFromSourceAtEveryLevel]
 {
+    const tu::ScopedRecycleBin recycle_bin;
     tu::erase_test_dir(SOURCE_PATH, true);
     tu::erase_test_dir(TARGET_PATH, true);
     std::filesystem::create_directories(wstring_to_string(SOURCE_PATH) + "subdir");

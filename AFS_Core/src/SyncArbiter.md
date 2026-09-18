@@ -30,3 +30,6 @@ account - which they must anyway to share the configuration under the user's pro
 The test build announces itself under names of its own. With the shared names every test that
 synchronises would wait for the passes of a daemon installed on the same machine, and the tests
 of the arbiter itself would arbitrate against that daemon instead of against each other.
+The test build also keeps its lock files in the temp directory of the process, which the test
+run owns and removes, while the programs need the fixed /tmp: daemon and GUI may run with
+different TMPDIR values and would otherwise never meet.

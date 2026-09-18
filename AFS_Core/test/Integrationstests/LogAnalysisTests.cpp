@@ -3,6 +3,7 @@
 #include <Logging.h>
 #include <filesystem>
 #include <fstream>
+#include "ScopedLog.h"
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -55,13 +56,8 @@ TEST(LogAnalysisTests, TruncatesToWholeLinesWhenOverBudget)  // [LogAnalysisTest
 
 TEST(LogAnalysisTests, ReturnsEmptyForMissingFile)
 {
-    const std::wstring previous = Logging::instance().get_log_file_path_name();
-    const fs::path missing = fs::temp_directory_path() / ("autofilesync_loganalysis_missing_" + std::to_string(getpid()) + ".log");
-    fs::remove(missing);
-    Logging::instance().set_log_file_path_name(missing.wstring());
+    const tu::ScopedLog log(fs::temp_directory_path() / ("autofilesync_loganalysis_missing_" + std::to_string(getpid()) + ".log"));
     EXPECT_TRUE(read_recent_log_entries(1000).empty());
-    if (!previous.empty())
-        Logging::instance().set_log_file_path_name(previous);
 }
 
 TEST(LogAnalysisTests, RecognisesLogAndProtokollKeywordsCaseInsensitively)

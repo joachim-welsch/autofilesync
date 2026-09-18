@@ -237,13 +237,7 @@ class SyncSshFileCopyTest : public ::testing::Test {
 protected:
     const std::string TEST_FILENAME = "ssh_copy_test_file.txt";
     const std::string TEST_CONTENT = "Dies ist ein Test für SSH-Kopieren vom Laptop!";
-#ifdef _UNIX
-    const std::string LOCAL_TEST_DIR = std::string(getenv("HOME")) + "/tmp/ssh_copy_test";
-    const std::string REMOTE_TEST_DIR = std::string(getenv("HOME")) + "/tmp/ssh_copy_test_remote";
-#else
-	const std::string LOCAL_TEST_DIR = fsu::home_dir() + "\\tmp\\ssh_copy_test";
-	const std::string REMOTE_TEST_DIR = fsu::home_dir() + "\\tmp\\ssh_copy_test_remote";
-#endif
+    const std::string LOCAL_TEST_DIR = (std::filesystem::temp_directory_path() / "ssh_copy_test").string();  // [SyncSshFileTests.md#local-test-dir]
 
     void SetUp() override {
         SKIP_WITHOUT_SSH_SERVER();

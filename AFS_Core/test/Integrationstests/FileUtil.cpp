@@ -84,7 +84,7 @@ namespace tu {
 	std::string test_temp_dir()
 	{
 #ifdef _UNIX
-		return "/tmp";
+		return temp_dir();  // [FileUtil.md#test-dirs-follow-the-temp-dir]
 #else
 		return "C:\\temp";
 #endif
@@ -92,13 +92,13 @@ namespace tu {
 
 #ifdef _UNIX
 	std::string test_source_dir()
-	{ 
-		return "/tmp/test/source";
+	{
+		return (fs::path(test_temp_dir()) / "test" / "source").string();
 	}
 
 	std::string test_dest_dir()
 	{
-		return "/tmp/test/dest";
+		return (fs::path(test_temp_dir()) / "test" / "dest").string();
 	}
 #else
 	std::string test_source_dir()

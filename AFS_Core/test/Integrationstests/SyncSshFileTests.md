@@ -61,3 +61,9 @@ src_path has to point where the file was actually just created.
 ## SyncSshFileTestConfig
 
 SSH test configuration. These values have to be adapted to the local test environment.
+
+## local-test-dir
+
+In the temp directory, not below the home directory: TearDown() removes the
+whole directory again, and the tests that build their paths with concat_temp()
+use the same one, so nothing of them outlives the fixture either.

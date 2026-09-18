@@ -16,8 +16,10 @@ class FileDeleteTest : public ::testing::Test {
 protected:
     fs::path root_;
     fs::path bin_;
+    fs::path previous_bin_;
 
     void SetUp() override {
+        previous_bin_ = RecycleBin::instance().bin_path();
         root_ = fs::temp_directory_path() / "filedelete_test";
         fs::remove_all(root_);
         fs::create_directories(root_ / "sub");
@@ -28,6 +30,7 @@ protected:
 
     void TearDown() override {
         Config::instance().reset();
+        RecycleBin::instance().bin_path(previous_bin_);
         fs::remove_all(root_);
     }
 
