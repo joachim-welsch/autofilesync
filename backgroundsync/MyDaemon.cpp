@@ -22,6 +22,7 @@ void MyDaemon::start() {
     const std::wstring path_name = Config::get_root_pathname();  // the GUI's file, so both sync the same items
     Config::instance().pathname(path_name);
     Config::instance().read(path_name);
+    Logging::instance().open_file();  // read() leaves the file closed when the configured name equals the default name
     log_info(L"Daemon is running...");
     workerThread_ = std::thread(&MyDaemon::run, this);
 }
