@@ -96,3 +96,16 @@ the enumerator - so that a line can be attributed without guessing from its
 text. The GUI is the default; the daemon announces itself before its first
 message. The readers of the file (LogCut, LogAnalysis) only parse the timestamp
 at the start of a line, which the marker leaves untouched.
+
+## follow_replaced_file
+
+The GUI program and the daemon write to the same file, and LogCut in either of
+them replaces it by renaming a shortened copy over it. The handle of the other
+process then still points to the old, now nameless file, and everything it
+writes is lost until it restarts. Before each write the open handle is therefore
+compared with the file the path names now (device and inode); when they differ,
+or the path is gone, the file is opened anew. A handle that is closed on purpose
+- LogCut of the own process is at work - stays closed. The check costs one
+fstat() and one stat() per message, little next to the fsync() that follows.
+Windows needs none of this: there a file that another process holds open cannot
+be replaced.

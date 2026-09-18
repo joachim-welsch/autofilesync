@@ -44,3 +44,16 @@ path actually derives from them, rather than being a fixed string.
 
 All three are set so that the fallback path also points into the fake directory and the test
 never writes into the real profile.
+
+## ScratchLogTest
+
+Redirects the log to a scratch file and restores path, level and origin
+afterwards, since Logging is a process-wide singleton the other tests share.
+The assertions compare everything behind the timestamp, so they pin the exact
+place of the marker: between timestamp and level.
+
+## WritingFollowsAFileReplacedByAnotherProcess
+
+Replays what LogCut of the other program does: a shortened copy is renamed over
+the log while this process holds it open. The next message must land in the file
+the path names now.
