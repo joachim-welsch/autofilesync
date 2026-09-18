@@ -641,6 +641,10 @@ msgid "source_label"
 msgstr ""
 
 #: AFS_Core/src/SyncFile.cpp
+msgid "content_conflict_not_copied"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp
 msgid "target_newer_not_copied"
 msgstr ""
 

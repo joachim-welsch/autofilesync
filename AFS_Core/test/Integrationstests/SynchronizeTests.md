@@ -71,3 +71,9 @@ its source and that neither copies newer targets nor syncs both ways. After at
 least three passes the log must hold the "target is newer" info exactly once,
 and the target must be untouched. The paths carry the pid, so nothing an earlier
 test made SyncFile remember can suppress the message.
+
+## ContentConflictIsLoggedExactlyOnceAcrossPasses
+
+Runs the real continuous loop over a two-way item whose files have the same time
+and size but different content. After at least three passes the log must hold
+the conflict exactly once, at level Error, and both files must be untouched.

@@ -57,3 +57,13 @@ SourceNotExits result - even though the destination file genuinely exists with r
 copy_dest_to_source() only fires when fd.dest_size() > 0, so two_way_sync picking up a file that
 exists only in the destination silently did nothing (logged "Leere Zieldatei wurde nicht
 kopiert" for a file that was never actually empty).
+
+## TwoWaySyncReportsAConflictWhenOnlyTheContentDiffers
+
+Same time, same size, different content: two-way sync cannot tell which side
+holds the newer edit, so neither SourceModified nor DestModified is acceptable.
+
+## OneWaySyncKnowsNoContentConflict
+
+One-way sync has a defined direction; the same pair of files still means that
+the source goes to the target.

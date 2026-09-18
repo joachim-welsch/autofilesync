@@ -149,6 +149,36 @@ TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncPicksSourceWhenSourceIsNewerAn
     EXPECT_EQ(fd.result(), FileDifference::Result::SourceModified);
 }
 
+TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncReportsAConflictWhenOnlyTheContentDiffers)  // [FileDifferenceTests.md#TwoWaySyncReportsAConflictWhenOnlyTheContentDiffers]
+{
+    const auto now = std::chrono::system_clock::now();
+    write_file_with_time(source_file_, "content A", now);
+    write_file_with_time(dest_file_, "content B", now);
+
+    const std::wstring source = source_file_.wstring();
+    const std::wstring dest = dest_file_.wstring();
+    CompareItems ci;
+    FileDifference fd(source, dest, ci, SSHPATH::none, /*two_way_sync=*/true);
+    fd();
+
+    EXPECT_EQ(fd.result(), FileDifference::Result::ContentConflict);
+}
+
+TEST_F(TwoWaySyncContentComparisonTest, OneWaySyncKnowsNoContentConflict)  // [FileDifferenceTests.md#OneWaySyncKnowsNoContentConflict]
+{
+    const auto now = std::chrono::system_clock::now();
+    write_file_with_time(source_file_, "content A", now);
+    write_file_with_time(dest_file_, "content B", now);
+
+    const std::wstring source = source_file_.wstring();
+    const std::wstring dest = dest_file_.wstring();
+    CompareItems ci;
+    FileDifference fd(source, dest, ci, SSHPATH::none);
+    fd();
+
+    EXPECT_EQ(fd.result(), FileDifference::Result::SourceModified);
+}
+
 TEST_F(TwoWaySyncContentComparisonTest, OneWaySyncStillReportsSourceModifiedRegardlessOfTime)
 {
     const auto now = std::chrono::system_clock::now();

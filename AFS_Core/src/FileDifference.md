@@ -34,3 +34,10 @@ instead.
 SFTP reports the modification time in whole seconds while a local file carries sub-second
 precision, so a file and its own copy differ by up to one second. Comparing the seconds is what
 keeps that difference from looking like a change and sending the file across on every pass.
+
+## content-conflict
+
+Two-way sync copies the newer file over the older one. When time and size are
+equal but the content differs, neither side is the newer one, and copying in
+either direction would destroy an edit. The result is therefore its own value,
+which SyncFile leaves untouched and reports as an error.

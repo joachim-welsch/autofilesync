@@ -172,6 +172,60 @@ TEST(SynchronizeTests, NewerTargetIsLoggedExactlyOnceAcrossPasses)  // [Synchron
     fs::remove_all(test_dir, ec);
 }
 
+TEST(SynchronizeTests, ContentConflictIsLoggedExactlyOnceAcrossPasses)  // [SynchronizeTests.md#ContentConflictIsLoggedExactlyOnceAcrossPasses]
+{
+    namespace fs = std::filesystem;
+    using namespace std::chrono;
+    const fs::path test_dir = fs::temp_directory_path() / ("autofilesync_contentconflict_passes_" + std::to_string(getpid()));
+    fs::remove_all(test_dir);
+    fs::create_directories(test_dir / "source");
+    fs::create_directories(test_dir / "target");
+    const fs::path source = test_dir / "source" / "vokabeln.txt";
+    const fs::path target = test_dir / "target" / "vokabeln.txt";
+    std::ofstream(source) << "Stand A";
+    std::ofstream(target) << "Stand B";
+    fs::last_write_time(source, fs::last_write_time(target));
+    const std::wstring previous_log = Logging::instance().get_log_file_path_name();
+    const LogLevel previous_level = Logging::instance().get_log_level();
+    const fs::path log = test_dir / "sync.log";
+    Logging::instance().set_log_file_path_name(log.wstring());
+    Logging::instance().set_log_level(LogLevel::Info);
+
+    Config::instance().reset();
+    SyncItem si(L"content conflict", SyncItemType::File, source.wstring(), target.wstring(), L"*");
+    si.sync_cycle(0);
+    si.two_way_sync(true);
+    CompareItems all;
+    all.content(true);
+    all.size(true);
+    all.time(true);
+    si.compare_items(all);
+    Config::instance().add(si, true);
+
+    Synchronize* sync = Synchronize::create(SyncType::Continuous);
+    ASSERT_TRUE(sync != nullptr);
+    for (int i = 0; i < 80 && sync->loop_iterations() < 4; ++i)
+        std::this_thread::sleep_for(milliseconds(100));
+    const int passes = sync->loop_iterations();
+    Synchronize::destroy();
+
+    EXPECT_GE(passes, 3) << "the message must have had several passes to repeat itself";
+    const std::string message = util::wstring_to_string(translation::translate("content_conflict_not_copied"));
+    EXPECT_EQ(count_lines_containing(log, "Error\t" + message), 1);
+    EXPECT_EQ(count_lines_containing(log, target.string()), 1) << "no other message may name the untouched target";
+    std::string source_content, target_content;
+    std::getline(std::ifstream(source) >> std::ws, source_content);
+    std::getline(std::ifstream(target) >> std::ws, target_content);
+    EXPECT_EQ(source_content, "Stand A");
+    EXPECT_EQ(target_content, "Stand B");
+
+    Logging::instance().set_log_level(previous_level);
+    Logging::instance().set_log_file_path_name(previous_log);
+    Config::instance().reset();
+    std::error_code ec;
+    fs::remove_all(test_dir, ec);
+}
+
 #include "SyncControler.h"  // [SynchronizeTests.md#request-stop-must-not-block]
 TEST(SyncControlerTests, RequestStopReturnsImmediatelyUnlikeStopSync)
 {
