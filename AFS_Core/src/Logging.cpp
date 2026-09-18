@@ -15,6 +15,7 @@
 	#include <Windows.h>
 #else
     #include <unistd.h>
+    #include <sys/stat.h>
 #endif
 
 namespace AFS_Core {
@@ -113,10 +114,38 @@ void create_dir(const wstring& file_path_name)
 void Logging::open_file()
 {
 	std::lock_guard<std::mutex> lock(mutex_);
+	open_file_locked();
+}
+
+void Logging::open_file_locked()
+{
 	if (fos_ != nullptr)
 		return;
 	create_dir(file_path_name_);
 	fos_=std::fopen(wstring_to_string(file_path_name_).c_str(), "a");  // [Logging.md#open_file-never-throws]
+}
+
+bool Logging::file_replaced() const  // [Logging.md#follow_replaced_file]
+{
+#ifdef WIN32
+	return false;
+#else
+	struct stat open_file_stat{}, path_stat{};
+	if (fstat(fileno(fos_), &open_file_stat) != 0)
+		return false;
+	if (stat(wstring_to_string(file_path_name_).c_str(), &path_stat) != 0)
+		return true;
+	return open_file_stat.st_ino != path_stat.st_ino || open_file_stat.st_dev != path_stat.st_dev;
+#endif
+}
+
+void Logging::follow_replaced_file()
+{
+	if (!file_open() || !file_replaced())
+		return;
+	std::fclose(fos_);
+	fos_ = nullptr;
+	open_file_locked();
 }
 
 void Logging::erase_file()
@@ -231,6 +260,7 @@ void Logging::log(LogLevel level, const std::wstring& msg)
 void Logging::write_to_file(const std::ostringstream& os)
 {
 	std::lock_guard<std::mutex> lock(mutex_);  // [Logging.md#write_to_file-locking]
+	follow_replaced_file();
 	if (!file_open())
 		return;
 	if (fprintf(fos_, "%s", os.str().c_str()) < 1)  // [Logging.md#write-failures-dropped]

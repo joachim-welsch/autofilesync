@@ -51,6 +51,9 @@ class Logging {
 	void notify_fatal(const std::string& log_line);
 	bool notify_again(const std::string& message);
     bool file_open() const { return fos_ != nullptr; } // caller must already hold mutex_
+	void open_file_locked();  // caller must already hold mutex_
+	bool file_replaced() const;  // caller must already hold mutex_
+	void follow_replaced_file();  // caller must already hold mutex_
 public:
 	virtual ~Logging();
 	static Logging& instance();
