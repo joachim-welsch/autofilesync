@@ -104,7 +104,6 @@
   <ItemGroup>
     <ClInclude Include="DirUtil.h" />
     <ClInclude Include="FileUtil.h" />
-    <ClInclude Include="LoggingTests.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SshTest.h" />
     <ClInclude Include="StdAfx.h" />
@@ -139,7 +138,6 @@
     <ClCompile Include="..\..\src\SyncTree.cpp" />
     <ClCompile Include="DirUtil.cpp" />
     <ClCompile Include="FileUtil.cpp" />
-    <ClCompile Include="LoggingTests.cpp" />
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="MountedDrivesTests.cpp" />
     <ClCompile Include="pch.cpp">
