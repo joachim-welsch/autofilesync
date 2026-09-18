@@ -5,6 +5,8 @@
 #include "FileUtil.h"
 #include "DirUtil.h"
 #include <Util.h>
+#include <Logging.h>
+#include <Translation.h>
 #include <thread>
 #include <chrono>
 #include <filesystem>
@@ -105,6 +107,69 @@ TEST(SynchronizeTests, SshTargetDirCheckIsCachedAcrossPasses)  // [SynchronizeTe
     Config::instance().reset();
     std::error_code ec;
     std::filesystem::remove_all(dir, ec);
+}
+
+namespace {
+int count_lines_containing(const std::filesystem::path& file, const std::string& text)
+{
+    std::ifstream in(file);
+    int count = 0;
+    for (std::string line; std::getline(in, line);)
+        if (line.find(text) != std::string::npos)
+            ++count;
+    return count;
+}
+}
+
+TEST(SynchronizeTests, NewerTargetIsLoggedExactlyOnceAcrossPasses)  // [SynchronizeTests.md#NewerTargetIsLoggedExactlyOnceAcrossPasses]
+{
+    namespace fs = std::filesystem;
+    using namespace std::chrono;
+    const fs::path test_dir = fs::temp_directory_path() / ("autofilesync_newertarget_passes_" + std::to_string(getpid()));
+    fs::remove_all(test_dir);
+    fs::create_directories(test_dir / "source");
+    fs::create_directories(test_dir / "target");
+    const fs::path source = test_dir / "source" / "vokabeln.txt";
+    const fs::path target = test_dir / "target" / "vokabeln.txt";
+    std::ofstream(source) << "alter Stand";
+    std::ofstream(target) << "neuer Stand";
+    fs::last_write_time(source, fs::last_write_time(target) - hours(1));
+    const std::wstring previous_log = Logging::instance().get_log_file_path_name();
+    const LogLevel previous_level = Logging::instance().get_log_level();
+    const fs::path log = test_dir / "sync.log";
+    Logging::instance().set_log_file_path_name(log.wstring());
+    Logging::instance().set_log_level(LogLevel::Info);
+
+    Config::instance().reset();
+    SyncItem si(L"newer target", SyncItemType::File, source.wstring(), target.wstring(), L"*");
+    si.sync_cycle(0);
+    CompareItems by_time;
+    by_time.content(false);
+    by_time.size(false);
+    by_time.time(true);
+    si.compare_items(by_time);
+    Config::instance().add(si, true);
+
+    Synchronize* sync = Synchronize::create(SyncType::Continuous);
+    ASSERT_TRUE(sync != nullptr);
+    for (int i = 0; i < 80 && sync->loop_iterations() < 4; ++i)
+        std::this_thread::sleep_for(milliseconds(100));
+    const int passes = sync->loop_iterations();
+    Synchronize::destroy();
+
+    EXPECT_GE(passes, 3) << "the message must have had several passes to repeat itself";
+    EXPECT_EQ(count_lines_containing(log, util::wstring_to_string(translation::translate("target_newer_not_copied"))), 1);
+    EXPECT_EQ(count_lines_containing(log, target.string()), 1) << "no other message may name the untouched target";
+    std::ifstream kept(target);
+    std::string content;
+    std::getline(kept, content);
+    EXPECT_EQ(content, "neuer Stand");
+
+    Logging::instance().set_log_level(previous_level);
+    Logging::instance().set_log_file_path_name(previous_log);
+    Config::instance().reset();
+    std::error_code ec;
+    fs::remove_all(test_dir, ec);
 }
 
 #include "SyncControler.h"  // [SynchronizeTests.md#request-stop-must-not-block]

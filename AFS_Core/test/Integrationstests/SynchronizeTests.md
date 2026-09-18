@@ -63,3 +63,11 @@ Cleanup via destroy_synchronize() (its ~Synchronize() signals stop_ and joins th
 directly), not sc.sync_finished(): state_ only transitions to SyncFinished under #ifdef
 _WXWIDGETS - not compiled into this wx-less test binary - so waiting on it here would hang
 forever.
+
+## NewerTargetIsLoggedExactlyOnceAcrossPasses
+
+Runs the real continuous loop over an item whose target is one hour newer than
+its source and that neither copies newer targets nor syncs both ways. After at
+least three passes the log must hold the "target is newer" info exactly once,
+and the target must be untouched. The paths carry the pid, so nothing an earlier
+test made SyncFile remember can suppress the message.

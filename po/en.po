@@ -639,6 +639,10 @@ msgstr "Deleting the target file because the source does not exist: "
 msgid "source_label"
 msgstr "Source:"
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "target_newer_not_copied"
+msgstr "Not copied because the target is newer than the source:"
+
 #: AFS_Core/src/SyncFile.cpp:227 AFS_Core/src/SyncFile.cpp:228
 msgid "target_delete_failed"
 msgstr "Deleting the target file failed: "

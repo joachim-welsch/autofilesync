@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "SyncFile.h"
 #include <filesystem>
+#include <mutex>
+#include <set>
 #include <sstream>
 #include <thread>
 #include "Global.h"
@@ -25,6 +27,20 @@ using util::string_to_wstring;
 using util::to_string;
 using fsu::file_exists;
 using util::files_equal;
+
+namespace {
+std::mutex newer_targets_mutex;
+std::set<wstring> newer_targets;  // [SyncFile.md#newer-target-reported-once]
+
+void report_newer_target(const wstring& source, const wstring& destination, bool target_newer)
+{
+    std::lock_guard<std::mutex> lock(newer_targets_mutex);
+    if (!target_newer)
+        newer_targets.erase(destination);
+    else if (newer_targets.insert(destination).second)
+        log_info(translation::translate("target_newer_not_copied"), source, L"->", destination);
+}
+}
 
 #ifdef _TEST
 std::atomic<int> wait_for_updated_filetime_call_count{0};  // [SyncFile.md#wait_for_updated_filetime_call_count]
@@ -211,8 +227,10 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
         || (fdiff == FDResult::DestModified && sync_item_.copy_when_target_newer());
     const bool copy_to_source = !copy_to_target && sync_item_.two_way_sync()
         && (fdiff == FDResult::SourceNotExits || fdiff == FDResult::DestModified);
-    if (!delete_target && !copy_to_target && !copy_to_source)
+    if (!delete_target && !copy_to_target && !copy_to_source) {
+        report_newer_target(source, destination, fdiff == FDResult::DestModified);
         return;
+    }
     if (only_count_) {  // [SyncFile.md#only-count-touches-nothing]
         ++copy_count_;
         return;

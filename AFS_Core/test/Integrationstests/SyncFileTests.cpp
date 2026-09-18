@@ -311,3 +311,86 @@ TEST_F(EmptyFileTest, OnlyCountDoesNotCopyTheEmptyFile)  // [SyncFileTests.md#On
     EXPECT_EQ(copy_count, 1u);
     EXPECT_FALSE(fs::exists(TARGET_PATH_NAME));
 }
+
+namespace {
+
+class NewerTargetTest : public ::testing::Test {  // [SyncFileTests.md#NewerTargetTest]
+protected:
+    const fs::path log_path_ = fs::temp_directory_path() / ("autofilesync_newertarget_" + std::to_string(getpid()) + ".log");
+    std::wstring previous_log_path_;
+    LogLevel previous_level_ = LogLevel::Info;
+
+    void SetUp() override
+    {
+        Synchronize::start();
+        previous_log_path_ = Logging::instance().get_log_file_path_name();
+        previous_level_ = Logging::instance().get_log_level();
+        fs::remove(log_path_);
+        Logging::instance().set_log_file_path_name(log_path_.wstring());
+        Logging::instance().set_log_level(LogLevel::Info);
+        fs::create_directories(SOURCE_PATH);
+        fs::create_directories(TARGET_DIR);
+        std::ofstream(util::wstring_to_string(SOURCE_PATH_NAME)) << "alt";
+        std::ofstream(util::wstring_to_string(TARGET_PATH_NAME)) << "neu";
+        const auto target_time = fs::last_write_time(TARGET_PATH_NAME);
+        fs::last_write_time(SOURCE_PATH_NAME, target_time);
+        sync();  // [SyncFileTests.md#NewerTargetTest]
+        fs::last_write_time(SOURCE_PATH_NAME, target_time - hours(1));
+    }
+
+    void TearDown() override
+    {
+        Logging::instance().set_log_level(previous_level_);
+        Logging::instance().set_log_file_path_name(previous_log_path_);
+        fs::remove(log_path_);
+        tu::erase_test_file(SOURCE_PATH_NAME);
+        tu::erase_test_file(TARGET_PATH_NAME);
+    }
+
+    void sync() const
+    {
+        SyncItem si;
+        si.sync_cycle(0);
+        si.sync_item_type(SyncItemType::File);
+        si.source(SOURCE_PATH_NAME);
+        si.target(TARGET_PATH_NAME);
+        CompareItems by_time;
+        by_time.content(false);
+        by_time.size(false);
+        by_time.time(true);
+        si.compare_items(by_time);
+        std::size_t copy_count = 0;
+        SyncFile(si, copy_count)();
+    }
+
+    int reports() const
+    {
+        std::ifstream log(log_path_);
+        const std::string target = util::wstring_to_string(TARGET_PATH_NAME);
+        int count = 0;
+        for (std::string line; std::getline(log, line);)
+            if (line.find(target) != std::string::npos)
+                ++count;
+        return count;
+    }
+};
+
+} // namespace
+
+TEST_F(NewerTargetTest, NewerTargetIsReportedOnlyOnce)  // [SyncFileTests.md#NewerTargetIsReportedOnlyOnce]
+{
+    sync();
+    sync();
+    EXPECT_EQ(reports(), 1);
+}
+
+TEST_F(NewerTargetTest, NewerTargetIsReportedAgainAfterItWasResolved)  // [SyncFileTests.md#NewerTargetIsReportedAgainAfterItWasResolved]
+{
+    sync();
+    const auto target_time = fs::last_write_time(TARGET_PATH_NAME);
+    fs::last_write_time(SOURCE_PATH_NAME, target_time);
+    sync();
+    fs::last_write_time(SOURCE_PATH_NAME, target_time - hours(1));
+    sync();
+    EXPECT_EQ(reports(), 2);
+}
