@@ -241,6 +241,25 @@ namespace {
         return bytes_read < 0 ? copy_failed(translation::translate("source_file_read_error")) : CopyResult::OK;
     }
 
+    constexpr uint32_t PERMISSION_BITS = 0777;  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
+
+    void keep_local_permissions(const wstring& local_path, uint32_t permissions)  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
+    {
+        std::error_code ec;
+        std::filesystem::permissions(local_path, static_cast<std::filesystem::perms>(permissions & PERMISSION_BITS), ec);
+        if (ec)
+            log_error(translation::translate("file_attributes_change"), local_path, string_to_wstring(ec.message()));
+    }
+
+    void keep_remote_permissions(const SftpConnection& connection, const std::string& remote_path, uint32_t permissions)  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
+    {
+        sftp_attributes_struct attributes{};
+        attributes.flags = SSH_FILEXFER_ATTR_PERMISSIONS;
+        attributes.permissions = (permissions & PERMISSION_BITS) | S_IWUSR;  // [SyncFileSsh.md#remote-target-stays-writable]
+        if (sftp_setstat(connection.sftp(), remote_path.c_str(), &attributes) != SSH_OK)
+            log_error(translation::translate("file_attributes_change"), string_to_wstring(remote_path), string_to_wstring(connection.error()));
+    }
+
     void keep_remote_time(const SftpConnection& connection, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
     {
         sftp_attributes_struct attributes{};
@@ -286,8 +305,10 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
             return copy_failed(translation::translate("local_file_open_error") + dest);
         result = download(remote_file.get(), local_file);
     }
-    if (result == CopyResult::OK && attributes)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    if (result == CopyResult::OK && attributes) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_local_permissions(dest, attributes->permissions);
         keep_local_time(dest, attributes->mtime);
+    }
     return result;
 }
 
@@ -312,8 +333,10 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
             return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(*dest_path));
         result = transfer(src_file.get(), dest_file.get());
     }
-    if (result == CopyResult::OK && attributes)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    if (result == CopyResult::OK && attributes) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        keep_remote_permissions(target, *dest_path, attributes->permissions);
         keep_remote_time(target, *dest_path, attributes->mtime);
+    }
     return result;
 }
 
