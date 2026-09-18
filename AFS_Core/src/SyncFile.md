@@ -69,3 +69,11 @@ count as done nor let del_aftercopy delete the source.
 fs::last_write_time() only resolves a local path, so the time is stamped here only when both
 sides are local. Every transfer with an SSH side brings the modification time along itself (see
 SyncFileSsh.md#transfer-keeps-the-modification-time).
+
+## newer-target-reported-once
+
+A target that is newer than its source is left alone unless the item copies
+newer targets or syncs both ways. Without a message the user cannot tell why
+the file never arrives. Continuous sync meets the same file every cycle, so the
+target is remembered and reported only once; it is forgotten as soon as the
+file no longer differs this way, so a recurrence is reported again.

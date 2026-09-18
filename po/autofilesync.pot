@@ -640,6 +640,10 @@ msgstr ""
 msgid "source_label"
 msgstr ""
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "target_newer_not_copied"
+msgstr ""
+
 #: AFS_Core/src/SyncFile.cpp:227 AFS_Core/src/SyncFile.cpp:228
 msgid "target_delete_failed"
 msgstr ""

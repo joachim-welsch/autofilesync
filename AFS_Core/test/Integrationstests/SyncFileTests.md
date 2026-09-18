@@ -96,3 +96,19 @@ flag is documented.
 ## OnlyCountDoesNotCopyTheEmptyFile
 
 Counting mode touches nothing, not even with the flag switched on.
+
+## NewerTargetTest
+
+Redirects the log to a scratch file at level Info, so the only lines naming the
+target are the "target is newer" reports. The source is made one hour older than
+the target; the item neither copies newer targets nor syncs both ways.
+SyncFile remembers reported targets for the whole process, so SetUp first syncs
+the pair with equal times to make it forget what an earlier test reported.
+
+## NewerTargetIsReportedOnlyOnce
+
+Continuous sync meets the same newer target every cycle; the log must name it once.
+
+## NewerTargetIsReportedAgainAfterItWasResolved
+
+Once both files have the same time the target is forgotten, so a later recurrence is reported again.

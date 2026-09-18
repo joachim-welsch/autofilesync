@@ -639,6 +639,10 @@ msgstr "Lösche Zieldatei, da Quelle nicht existiert: "
 msgid "source_label"
 msgstr "Quelle:"
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "target_newer_not_copied"
+msgstr "Nicht kopiert, weil das Ziel neuer ist als die Quelle:"
+
 #: AFS_Core/src/SyncFile.cpp:227 AFS_Core/src/SyncFile.cpp:228
 msgid "target_delete_failed"
 msgstr "Loeschen der Zieldatei fehlgeschlagen: "
