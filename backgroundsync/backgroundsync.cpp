@@ -28,12 +28,14 @@ int main(int argc, char *argv[])
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);
     myDaemon->start();
-    syslog(LOG_INFO, "backgroundsys läuft...");
-    AFS_Core::log_info(L"backgroundsys gestartet", L"");
+    syslog(LOG_INFO, "backgroundsync läuft...");
+    AFS_Core::log_info(L"backgroundsync gestartet", L"");
     while (!stopRequested) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     myDaemon->stop();
+    syslog(LOG_INFO, "backgroundsync beendet");
+    AFS_Core::log_info(L"backgroundsync beendet", L"");  // after stop(), so it is the daemon's last entry
     return 0;
 }
 
