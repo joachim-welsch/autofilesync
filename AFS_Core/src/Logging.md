@@ -87,3 +87,12 @@ going down, and a detached thread would be killed with it before the mail is on 
 
 Identical errors repeat: the daemon retries the same failing sync every cycle and would
 otherwise send one mail per cycle. A different error always passes.
+
+## LogOrigin
+
+The GUI program and the daemon share one configuration and therefore one log
+file. Each line carries the writer in front of the level - G or D, the value of
+the enumerator - so that a line can be attributed without guessing from its
+text. The GUI is the default; the daemon announces itself before its first
+message. The readers of the file (LogCut, LogAnalysis) only parse the timestamp
+at the start of a line, which the marker leaves untouched.
