@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 {
     AFS_Core::translation::init_locale("de_DE.UTF-8");  // a unit file usually names no language at all
     AFS_Core::translation::init(AFS_Core::translation::locale_dir());  // before the first message; installed to /usr/sbin there is no locale dir beside it, so gettext searches the system path
+    AFS_Core::Logging::instance().origin(AFS_Core::LogOrigin::Daemon);  // the GUI writes to the same file
     myDaemon = std::make_unique<MyDaemon>();
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);

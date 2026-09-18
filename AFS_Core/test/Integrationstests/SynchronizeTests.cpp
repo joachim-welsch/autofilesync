@@ -211,7 +211,7 @@ TEST(SynchronizeTests, ContentConflictIsLoggedExactlyOnceAcrossPasses)  // [Sync
 
     EXPECT_GE(passes, 3) << "the message must have had several passes to repeat itself";
     const std::string message = util::wstring_to_string(translation::translate("content_conflict_not_copied"));
-    EXPECT_EQ(count_lines_containing(log, "Error\t" + message), 1);
+    EXPECT_EQ(count_lines_containing(log, " Error\t" + message), 1);
     EXPECT_EQ(count_lines_containing(log, target.string()), 1) << "no other message may name the untouched target";
     std::string source_content, target_content;
     std::getline(std::ifstream(source) >> std::ws, source_content);

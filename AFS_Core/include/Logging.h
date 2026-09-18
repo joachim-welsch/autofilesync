@@ -10,6 +10,7 @@
 namespace AFS_Core {
 
 enum class LogLevel { Debug, Info, Warning, Error, FatalError, None };
+enum class LogOrigin : char { Gui = 'G', Daemon = 'D' };  // [Logging.md#LogOrigin]
 
 std::wstring get_default_log_file_path();
 
@@ -19,6 +20,7 @@ class Logging {
 	static std::once_flag 	init_instance_flag_;
 	mutable std::mutex 		mutex_;
 	LogLevel				level_ = LogLevel::Info;
+	LogOrigin				origin_ = LogOrigin::Gui;
 #ifdef WIN32
 	std::wstring	file_path_name_ = get_default_log_file_path();
 	std::wstring	editor_path_name_ = L"C:\\windows\\notepad";
@@ -65,6 +67,8 @@ public:
 	void set_log_file_path_name(const std::wstring&);
 	void set_editor_path_name(const std::wstring&);
 	void set_log_level(LogLevel level);
+	LogOrigin origin() const { std::lock_guard<std::mutex> lock(mutex_); return origin_; }
+	void origin(LogOrigin origin) { std::lock_guard<std::mutex> lock(mutex_); origin_ = origin; }
 	uint16_t retention_days() const { std::lock_guard<std::mutex> lock(mutex_); return retention_days_; }
 	void retention_days(uint16_t days) { std::lock_guard<std::mutex> lock(mutex_); retention_days_ = days; }
 	bool notify_email_active() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_active_; }

@@ -160,7 +160,7 @@ std::string timestamp()
 
 void Logging::write_head(std::ostream& os, LogLevel level)
 {
-	os << timestamp() << " " << Logging::log_level_str(level) << '\t';
+	os << timestamp() << " " << static_cast<char>(origin()) << " " << Logging::log_level_str(level) << '\t';
 }
 
 std::wstring Logging::get_log_file_path_name()
