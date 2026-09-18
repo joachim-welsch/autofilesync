@@ -364,6 +364,23 @@ TEST_F(SyncSshFileCopyTest, CopyRemoteFileToLocal)
     fs::remove(dest_path);
 }
 
+#ifdef _UNIX
+TEST_F(SyncSshFileCopyTest, CopyRemoteFileToLocalKeepsThePermissions)  // [SyncSshFileTests.md#CopyRemoteFileToLocalKeepsThePermissions]
+{
+    ensure_account_in_config();
+    namespace fs = std::filesystem;
+    const fs::path source = fs::path(LOCAL_TEST_DIR) / TEST_FILENAME;
+    const fs::path dest = fs::path(LOCAL_TEST_DIR) / "copy_with_permissions.txt";
+    const fs::perms source_perms = fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec | fs::perms::others_read;
+    fs::permissions(source, source_perms);
+
+    const CopyResult result = copy_ssh_to_fs(L"localhost:" + source.wstring(), dest.wstring());
+
+    ASSERT_EQ(result, CopyResult::OK);
+    EXPECT_EQ(fs::status(dest).permissions(), source_perms);
+}
+#endif
+
 TEST_F(SyncSshFileCopyTest, CopyLargeFileToRemote)
 {
     ensure_account_in_config();

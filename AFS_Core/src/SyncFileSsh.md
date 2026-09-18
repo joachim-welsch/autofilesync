@@ -40,3 +40,20 @@ modification time when it closes the file would otherwise overwrite it again. A 
 logged but leaves the result at OK - the file itself arrived, and reporting an error would make
 the caller restore its backup over a perfectly good copy.
 
+## copy-from-ssh-keeps-the-permissions
+
+A copy from an SSH source takes over the permissions of the source, to a local
+target as well as to another SSH target. The local file used to get the default
+of the process, so a file that was private on the server (rw-------) became
+readable for everybody on arrival. Only the nine permission bits: setuid, setgid
+and sticky are not carried over, a synchronisation must not hand out such
+rights. Set before the time, and like the time after the file is closed and
+without touching the result - the file itself arrived. Windows keeps its
+behaviour: POSIX permissions have no counterpart there.
+
+## remote-target-stays-writable
+
+A remote target is overwritten in place the next time the source changes, which
+a target without write permission would refuse. The owner therefore always keeps
+the right to write. A local target needs no such exception: SyncFile moves the
+old file aside and the download creates a new one.

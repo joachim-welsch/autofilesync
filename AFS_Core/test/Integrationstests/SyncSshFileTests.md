@@ -67,3 +67,9 @@ SSH test configuration. These values have to be adapted to the local test enviro
 In the temp directory, not below the home directory: TearDown() removes the
 whole directory again, and the tests that build their paths with concat_temp()
 use the same one, so nothing of them outlives the fixture either.
+
+## CopyRemoteFileToLocalKeepsThePermissions
+
+The source gets permissions no umask produces for a new file (rwxr-xr--), so
+the copy can only show them when they were taken over. Others may read: the
+file is fetched through the SSH server as the SSH test user.
