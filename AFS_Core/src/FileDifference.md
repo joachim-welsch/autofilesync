@@ -7,6 +7,11 @@ Module comment for FileDifference.h / FileDifference.cpp.
 Connection/auth failure, not a confirmed-absent file: must not be mistaken for "source deleted",
 or SyncFile deletes the destination (Fehler 2) the moment delete_in_target() is enabled.
 
+## unreachable-is-a-warning
+
+A host that cannot be reached is an expected state, not an error - see
+SftpConnection.md#SshUnreachable. It counts as "drive not mounted" like every other failure here.
+
 ## ssh-content-fallback
 
 A content comparison needs both files locally, so it cannot run for an SSH path. Skipping it left

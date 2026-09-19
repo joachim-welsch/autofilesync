@@ -1,5 +1,6 @@
 #pragma once
 #include <chrono>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -34,6 +35,8 @@ class Logging {
 	SmtpAccount		smtp_;  // the account the notification is sent through
 	std::string		last_notified_;
 	std::chrono::steady_clock::time_point last_notify_time_{};
+	struct Repetition { std::chrono::steady_clock::time_point written; unsigned suppressed = 0; };
+	std::map<std::string, Repetition> repetitions_;  // [Logging.md#repetitions_]
 	FILE*			fos_ = nullptr;
 
 	static void init_singleton()
@@ -47,7 +50,9 @@ class Logging {
 
 	void write_head(std::ostream& os, LogLevel level);
 	void write(LogLevel level, const std::ostringstream& os);
-	void write_to_file(const std::ostringstream& os);
+	void write_to_file(LogLevel level, std::string line);
+	bool report_again(std::string& line);  // caller must already hold mutex_
+	void forget_expired_repetitions(std::chrono::steady_clock::time_point now);  // caller must already hold mutex_
 	void notify_fatal(const std::string& log_line);
 	bool notify_again(const std::string& message);
     bool file_open() const { return fos_ != nullptr; } // caller must already hold mutex_

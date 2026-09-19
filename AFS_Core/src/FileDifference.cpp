@@ -75,6 +75,11 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, u
         drive_mounted = true;
         return true;
     }
+    catch (const SshUnreachable& e) {
+        log_warning(translation::translate("ssh_not_reachable_for") + fname + L": " + string_to_wstring(e.what()));  // [FileDifference.md#unreachable-is-a-warning]
+        drive_mounted = false;
+        return false;
+    }
     catch (const std::exception& e) {
         log_error(translation::translate("ssh_read_error_for") + fname + L": " + string_to_wstring(e.what()));  // [FileDifference.md#ssh-error-is-not-absence]
         drive_mounted = false;
