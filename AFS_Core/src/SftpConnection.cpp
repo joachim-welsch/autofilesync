@@ -36,6 +36,12 @@ void SftpConnection::fail(const std::string& message)
     throw std::runtime_error(message);
 }
 
+void SftpConnection::unreachable(const std::string& message)
+{
+    release();
+    throw SshUnreachable(message);
+}
+
 void SftpConnection::connect(const SshAccount& account)  // [SftpConnection.md#libssh-message-ids]
 {
     ssh_ = ssh_new();
@@ -45,7 +51,7 @@ void SftpConnection::connect(const SshAccount& account)  // [SftpConnection.md#l
     ssh_options_set(ssh_, SSH_OPTIONS_USER, account.user().c_str());
     apply_ssh_connect_timeout(ssh_);
     if (ssh_connect(ssh_) != SSH_OK)
-        fail(translation::translate_utf8("libssh_connect_error") + error());
+        unreachable(translation::translate_utf8("libssh_connect_error") + error());
     if (!verify_ssh_host_key(ssh_, account.host()))
         fail(translation::translate_utf8("host_key_verification_failed"));
     if (ssh_userauth_password(ssh_, nullptr, account.password().c_str()) != SSH_AUTH_SUCCESS)

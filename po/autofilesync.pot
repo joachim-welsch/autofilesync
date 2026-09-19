@@ -186,6 +186,10 @@ msgstr ""
 msgid "ssh_read_error_for"
 msgstr ""
 
+#: AFS_Core/src/FileDifference.cpp
+msgid "ssh_not_reachable_for"
+msgstr ""
+
 #: AFS_Core/src/FileDifference.cpp:132
 msgid "comparing"
 msgstr ""
@@ -281,6 +285,10 @@ msgstr ""
 
 #: AFS_Core/src/Logging.cpp:272
 msgid "notification_failed"
+msgstr ""
+
+#: AFS_Core/src/Logging.cpp
+msgid "log_message_repeated"
 msgstr ""
 
 #: AFS_Core/src/MountedDrives.cpp:48

@@ -93,7 +93,7 @@ SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspec
     hints.ai_socktype = SOCK_STREAM;
     
     if (getaddrinfo(account.host().c_str(), "22", &hints, &result) != 0) {
-        throw std::runtime_error(translation::translate_utf8("host_name_not_resolvable") + account.host());
+        throw SshUnreachable(translation::translate_utf8("host_name_not_resolvable") + account.host());
     }
     
     sock_ = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
@@ -106,7 +106,7 @@ SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspec
         freeaddrinfo(result);
         closesocket(sock_);
         sock_ = INVALID_SOCKET;
-        throw std::runtime_error(translation::translate_utf8("server_connect_failed"));
+        throw SshUnreachable(translation::translate_utf8("server_connect_failed"));
     }
     freeaddrinfo(result);
     

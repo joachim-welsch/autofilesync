@@ -136,6 +136,15 @@ protected:
         std::filesystem::remove(log_path_);
     }
 
+    std::size_t lines_with(const std::string& text) const
+    {
+        std::ifstream log(log_path_);
+        std::size_t count = 0;
+        for (std::string line; std::getline(log, line);)
+            count += line.find(text) != std::string::npos;
+        return count;
+    }
+
     std::string line_with(const std::string& text) const
     {
         std::ifstream log(log_path_);
@@ -154,6 +163,23 @@ TEST_F(ScratchLogTest, GuiIsTheDefaultOrigin)
 {
     log_info(L"message of the gui");
     EXPECT_EQ(line_with("message of the gui").substr(TIMESTAMP_LENGTH), " G Info\tmessage of the gui");
+}
+
+TEST_F(ScratchLogTest, RepeatedWarningIsWrittenOnce)
+{
+    for (int i = 0; i < 5; ++i) {
+        log_warning(L"host of the source not reachable");
+        log_error(L"host of the target not reachable");  // [LoggingConcurrencyTests.md#alternating-messages]
+    }
+    EXPECT_EQ(lines_with("host of the source not reachable"), 1u);
+    EXPECT_EQ(lines_with("host of the target not reachable"), 1u);
+}
+
+TEST_F(ScratchLogTest, RepeatedInfoIsWrittenEveryTime)
+{
+    for (int i = 0; i < 3; ++i)
+        log_info(L"progress reported again");
+    EXPECT_EQ(lines_with("progress reported again"), 3u);
 }
 
 TEST_F(ScratchLogTest, DaemonMarksItsLinesWithD)

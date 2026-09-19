@@ -89,6 +89,8 @@ constexpr int count_enum_elements()  // [Logging.md#count_enum_elements]
 
 static constexpr std::array<std::string_view, count_enum_elements()> LOG_LEVEL_NAMES = {"Debug", "Info", "Warning", "Error", "FatalError", "None"};
 
+constexpr auto LOG_REPEAT_INTERVAL = std::chrono::minutes(30);  // [Logging.md#LOG_REPEAT_INTERVAL]
+constexpr size_t MAX_REPETITIONS = 256;  // [Logging.md#MAX_REPETITIONS]
 constexpr auto NOTIFY_REPEAT_INTERVAL = std::chrono::minutes(30);  // [Logging.md#NOTIFY_REPEAT_INTERVAL]
 
 Logging::~Logging()
@@ -154,6 +156,7 @@ void Logging::erase_file()
 	{
 		std::lock_guard<std::mutex> lock(mutex_);
 		remove(wstring_to_string(file_path_name_).c_str());
+		repetitions_.clear();  // [Logging.md#repetitions-follow-the-file]
 	}
 	open_file();
 }
@@ -240,6 +243,7 @@ void Logging::set_log_file_path_name(const std::wstring& new_log_pathname)
 	{
 		std::lock_guard<std::mutex> lock(mutex_);
 		file_path_name_ = new_log_pathname;
+		repetitions_.clear();  // [Logging.md#repetitions-follow-the-file]
 	}
 	open_file();
 }
@@ -257,13 +261,48 @@ void Logging::log(LogLevel level, const std::wstring& msg)
 	log(level, wstring_to_string(msg));
 }
 
-void Logging::write_to_file(const std::ostringstream& os)
+static string error_text(const string& log_line)  // [Logging.md#error_text]
+{
+	auto separator = log_line.find('\t');
+	return separator == string::npos ? log_line : log_line.substr(separator + 1);
+}
+
+void Logging::forget_expired_repetitions(std::chrono::steady_clock::time_point now)
+{
+	if (repetitions_.size() < MAX_REPETITIONS)
+		return;
+	std::erase_if(repetitions_, [now](const auto& entry) { return now - entry.second.written >= LOG_REPEAT_INTERVAL; });
+	if (repetitions_.size() >= MAX_REPETITIONS)
+		repetitions_.clear();
+}
+
+bool Logging::report_again(string& line)  // [Logging.md#report_again]
+{
+	const auto now = std::chrono::steady_clock::now();
+	forget_expired_repetitions(now);
+	const auto [entry, first_time] = repetitions_.try_emplace(error_text(line), Repetition{now});
+	if (first_time)
+		return true;
+	Repetition& repetition = entry->second;
+	if (now - repetition.written < LOG_REPEAT_INTERVAL) {
+		++repetition.suppressed;
+		return false;
+	}
+	if (repetition.suppressed > 0 && !line.empty())
+		line.insert(line.size() - 1, " " + translation::translate_utf8("log_message_repeated", {std::to_string(repetition.suppressed)}));  // in front of the line break
+	repetition = Repetition{now};
+	return true;
+}
+
+void Logging::write_to_file(LogLevel level, string line)
 {
 	std::lock_guard<std::mutex> lock(mutex_);  // [Logging.md#write_to_file-locking]
+	if (level >= LogLevel::Warning && !report_again(line))
+		return;
 	follow_replaced_file();
 	if (!file_open())
 		return;
-	if (fprintf(fos_, "%s", os.str().c_str()) < 1)  // [Logging.md#write-failures-dropped]
+	if (fprintf(fos_, "%s", line.c_str()) < 1)  // [Logging.md#write-failures-dropped]
 		return;
 	if (std::fflush(fos_) != 0)
 		return;
@@ -276,15 +315,9 @@ void Logging::write_to_file(const std::ostringstream& os)
 
 void Logging::write(LogLevel level, const std::ostringstream& os)  // [Logging.md#write-notifies-outside-lock]
 {
-	write_to_file(os);
+	write_to_file(level, os.str());
 	if (level == LogLevel::FatalError)
 		notify_fatal(os.str());
-}
-
-static string error_text(const string& log_line)  // [Logging.md#error_text]
-{
-	auto separator = log_line.find('\t');
-	return separator == string::npos ? log_line : log_line.substr(separator + 1);
 }
 
 void Logging::notify_fatal(const string& log_line)

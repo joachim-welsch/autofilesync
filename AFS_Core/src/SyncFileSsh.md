@@ -21,6 +21,11 @@ Resolves hostname or IP address to sockaddr_in Returns true on success, false on
 
 Resolves "account:/path", connects and returns the remote part of the path
 
+## unreachable-is-a-warning
+
+A host that cannot be reached is an expected state, not an error - see
+SftpConnection.md#SshUnreachable.
+
 ## readdir-eof-vs-error
 
 sftp_readdir returns NULL for both EOF and error - only sftp_dir_eof tells them apart. A

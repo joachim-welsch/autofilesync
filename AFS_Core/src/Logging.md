@@ -35,6 +35,34 @@ log_level_str(LogLevel::None) read past the end.
 
 How long the same fatal error stays silent after it was reported once.
 
+## repetitions_
+
+The messages from Warning upwards that were written lately, without their timestamped head, each
+with the time it was written and how often it has been held back since.
+
+## report_again
+
+The daemon retries a failing sync every cycle - an SSH host that is switched off produced one
+identical line per second. The same message is therefore written once and then held back for
+LOG_REPEAT_INTERVAL; the next one after that carries the number of held back repetitions. The
+messages are remembered by their text and not only the last one, because the failing source and
+target of one item alternate. Debug and Info are never held back: they report progress, and the
+same line twice there means it happened twice.
+
+## LOG_REPEAT_INTERVAL
+
+How long the same warning or error stays silent after it was written once.
+
+## MAX_REPETITIONS
+
+Bounds repetitions_: a failing tree produces one distinct message per file. Beyond the bound the
+expired entries go, and if that is not enough all of them - the price is one repeated line.
+
+## repetitions-follow-the-file
+
+A new or emptied log file starts without history, so the first occurrence is in the file the
+reader looks at.
+
 ## create_dir-never-throws
 
 The error_code overload: a path whose parent conflicts with an existing non-directory file (bad

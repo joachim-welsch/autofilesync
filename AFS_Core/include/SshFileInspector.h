@@ -12,6 +12,7 @@
 #endif
 
 #include "SshAccount.h"
+#include "SshUnreachable.h"
 
 namespace AFS_Core {
 

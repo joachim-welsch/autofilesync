@@ -57,3 +57,8 @@ place of the marker: between timestamp and level.
 Replays what LogCut of the other program does: a shortened copy is renamed over
 the log while this process holds it open. The next message must land in the file
 the path names now.
+
+## alternating-messages
+
+The failing source and target of one item alternate in the log, so remembering only the last
+message would hold nothing back.

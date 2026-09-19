@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include "SshAccount.h"
+#include "SshUnreachable.h"
 
 namespace AFS_Core {
 
@@ -17,6 +18,7 @@ class SftpConnection {  // owns one libssh session with its SFTP channel; both a
     sftp_session sftp_ = nullptr;
     void release();
     [[noreturn]] void fail(const std::string& message);
+    [[noreturn]] void unreachable(const std::string& message);
 public:
     SftpConnection() = default;
     explicit SftpConnection(const SshAccount& account);

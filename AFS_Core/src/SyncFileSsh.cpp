@@ -184,6 +184,9 @@ namespace {
         }
         try {
             connection.connect(*account);
+        } catch (const SshUnreachable& e) {
+            log_warning(L"SSH: " + string_to_wstring(e.what()));  // [SyncFileSsh.md#unreachable-is-a-warning]
+            return std::nullopt;
         } catch (const std::exception& e) {
             log_error(L"SSH: " + string_to_wstring(e.what()));
             return std::nullopt;
@@ -451,13 +454,13 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
+        log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return CopyResult::Error;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("ssh_connect_error_for_host") + string_to_wstring(account.host()));
+        log_warning(translation::translate("ssh_connect_error_for_host") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return CopyResult::Error;
     }
@@ -591,13 +594,13 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
 
     sockaddr_in src_sin{};
     if (!resolve_host(src_account.host(), src_sin)) {
-        log_error(translation::translate("source_host_name_resolve_error") + string_to_wstring(src_account.host()));
+        log_warning(translation::translate("source_host_name_resolve_error") + string_to_wstring(src_account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(src_sock);
         return CopyResult::Error;
     }
 
     if (connect(src_sock, (struct sockaddr*)&src_sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("ssh_connect_error_source"));
+        log_warning(translation::translate("ssh_connect_error_source"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(src_sock);
         return CopyResult::Error;
     }
@@ -653,7 +656,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     
     sockaddr_in dest_sin{};
     if (!resolve_host(dest_account.host(), dest_sin)) {
-        log_error(translation::translate("target_host_name_resolve_error") + string_to_wstring(dest_account.host()));
+        log_warning(translation::translate("target_host_name_resolve_error") + string_to_wstring(dest_account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
@@ -663,7 +666,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     }
 
     if (connect(dest_sock, (struct sockaddr*)&dest_sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("ssh_connect_error_target"));
+        log_warning(translation::translate("ssh_connect_error_target"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
@@ -832,13 +835,13 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
+        log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return CopyResult::Error;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("server_connect_failed"));
+        log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return CopyResult::Error;
     }
@@ -948,13 +951,13 @@ bool ssh_exists(const std::wstring& path)
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
+        log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("server_connect_failed"));
+        log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
@@ -1034,13 +1037,13 @@ bool ssh_is_directory(const std::wstring& path)
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
+        log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("server_connect_failed"));
+        log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
@@ -1116,13 +1119,13 @@ bool ssh_mkdir(const std::wstring& path)
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
+        log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("server_connect_failed"));
+        log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
@@ -1202,13 +1205,13 @@ bool ssh_remove_file(const std::wstring& path)
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
+        log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("server_connect_failed"));
+        log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
     }
@@ -1288,13 +1291,13 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 
     sockaddr_in sin{};
     if (!resolve_host(account.host(), sin)) {
-        log_error(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));
+        log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return entries;
     }
 
     if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
-        log_error(translation::translate("server_connect_failed"));
+        log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return entries;
     }
