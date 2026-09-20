@@ -1,6 +1,4 @@
-claude
-*******
-Installer: claude --resume bd999abb-7277-49d8-af62-224b91a3fc22
+Dateirechte sollen beim Sync erhalten bleiben.
 
 Fehler:
 *******
@@ -20,7 +18,7 @@ Für Version 0.1:
 
 Für Version 1.0:
 ****************
-- Meldungen in MessageBox anzeigen 
+- Meldungen in MessageBox anzeigen
   + konfigurierbar
   + abwählbar machen
 - Fehlerbehandlung für Fallunterscheidung in getfileinfo: ungültiger Pfadname, keine Berechtigung, keine Datei

@@ -74,6 +74,7 @@ Konstanten werden Makros wenn immer möglich bevorzugt.
 - Zu jedem Modul wird eine Kommentardatei gepflegt und zwar im src-Verzeichnis. Hier wird der mehrzeilige Kommentar abgelegt.
 - Inline-Kommentar ist im Quelltext nur hinter dem Code erlaubt. Inline-Kommentare stehen auf derselben Zeile wie der Code. Zeilen, die nur Kommentar enthalten sind strikt verboten.
 - Im Inline-Kommentar sollten Sprungmarken zum Modulkommentar stehen, wenn es um die Erklärung eines Abschnitts des Codes geht.
+- Ausnahme: Der Lizenz-Header am Dateianfang (GPLv3-Hinweis in allen AFS_Core-Quelldateien) ist als Kommentarblock erlaubt und in neuen AFS_Core-Dateien Pflicht. Er wird unverändert aus einer vorhandenen Datei übernommen.
 ## Tests
 
 ### Unittests
