@@ -7,6 +7,8 @@
 namespace guitest {
 namespace {
 
+constexpr int CLOSE_TIMEOUT_MILLISECONDS = 2000;  // a dialog that OK does not close is being kept open by a message box, not by slowness
+
 bool enterText(wxDialog& dialog, wxWindowID id, const wxString& text, const char* label)
 {
     if (replaceText(find(dialog, id), text))
@@ -86,7 +88,7 @@ DialogAction fillSyncItemDialog(const SyncItemInput& input)
         const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
             && enterValues(dialog, input)
             && clickWhenEnabled(find(dialog, wxID_OK))
-            && waitUntil([&dialog] { return !dialog.IsShown(); });  // [SyncItemDialogDriver.md#rejected-input-keeps-the-dialog-open]
+            && waitUntil([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS);  // [SyncItemDialogDriver.md#rejected-input-keeps-the-dialog-open]
         if (!confirmed)  // [SyncItemDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };

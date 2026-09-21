@@ -1,0 +1,166 @@
+#include "GuiTest.h"
+#include "EventPump.h"
+#include "GuiTestSandbox.h"
+#include "ModalDialogWatcher.h"
+#include "SyncActions.h"
+#include "SyncItemDialogDriver.h"
+#include "UserActions.h"
+#include "ViewActions.h"
+#include "Config.h"
+#include "GridCtrl.h"
+#include "ListCtrl.h"
+#include "id.h"
+#include "TextResources.h"
+#include "utilwx.h"
+
+using namespace AFS_Core;
+
+using utilwx::tul;
+
+namespace guitest {
+namespace {
+
+const wxString ITEM_NAME = "guitest-verwalten";
+const wxString CONFIRM_DELETE = _(L"Löschen bestätigen");
+
+SyncItemInput sandboxSync(const wxString& name = ITEM_NAME)
+{
+    return SyncItemInput{name, GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
+}
+
+SyncItemInput withNewSource(const SyncItemInput& input)
+{
+    SyncItemInput edited = input;
+    edited.source = (GuiTestSandbox::root() / "neue-quelle").string();
+    return edited;
+}
+
+long listRowOf(ListCtrl& list, const wxString& name)
+{
+    for (long row = 0; row < list.GetItemCount(); ++row)
+        if (list.GetItemText(row) == name)
+            return row;
+    return -1;
+}
+
+std::wstring sourceOf(const wxString& name)
+{
+    const auto item = Config::instance().find_by_name(name.ToStdWstring());
+    return item ? item->source() : L"<fehlt>";
+}
+
+}
+
+TEST_F(GuiTest, SynchronisationBearbeitenUeberMenueUebernimmtNeueQuelle)  // [SyncItemManagementTest.md#edit-routes]
+{
+    const SyncItemInput input = sandboxSync();
+    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    ListCtrl* list = syncItemList();
+    ASSERT_NE(list, nullptr);
+    ASSERT_TRUE(clickOn(*list, listRowOf(*list, ITEM_NAME))) << "Die Zeile ließ sich nicht anklicken.";
+
+    const SyncItemInput edited = withNewSource(input);
+    ModalDialogWatcher::instance().expect(txt::EditSynchronisation, fillSyncItemDialog(edited));
+    activateMenuItem(mainWindow(), tul(id::EditSync));
+    pump();
+
+    EXPECT_EQ(sourceOf(ITEM_NAME), edited.source.ToStdWstring()) << "Die neue Quelle kam nicht in die Konfiguration.";
+    EXPECT_TRUE(listShows(ITEM_NAME.ToStdWstring()));
+}
+
+TEST_F(GuiTest, SynchronisationBearbeitenUeberDoppelklickInListe)  // [SyncItemManagementTest.md#edit-routes]
+{
+    const SyncItemInput input = sandboxSync();
+    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    ListCtrl* list = syncItemList();
+    ASSERT_NE(list, nullptr);
+
+    const SyncItemInput edited = withNewSource(input);
+    ModalDialogWatcher::instance().expect(txt::EditSynchronisation, fillSyncItemDialog(edited));
+    ASSERT_TRUE(clickOn(*list, listRowOf(*list, ITEM_NAME), true)) << "Der Doppelklick ließ sich nicht ausführen.";
+    pump();
+
+    EXPECT_EQ(sourceOf(ITEM_NAME), edited.source.ToStdWstring()) << "Der Doppelklick öffnete keinen Dialog oder die Änderung kam nicht an.";
+}
+
+TEST_F(GuiTest, SynchronisationBearbeitenUeberZeilenkopfInTabelle)  // [SyncItemManagementTest.md#edit-routes]
+{
+    const SyncItemInput input = sandboxSync();
+    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    const ListViewRestored restored(mainWindow());
+    showView(mainWindow(), id::View_Grid);
+    GridCtrl* grid = gridView(mainWindow());
+    ASSERT_NE(grid, nullptr) << "Die Tabellenansicht wurde nicht angezeigt.";
+    ASSERT_EQ(grid->GetNumberRows(), 1);
+    ASSERT_EQ(grid->GetRowLabelValue(0), ITEM_NAME);
+
+    const SyncItemInput edited = withNewSource(input);
+    ModalDialogWatcher::instance().expect(txt::EditSynchronisation, fillSyncItemDialog(edited));
+    ASSERT_TRUE(clickOnRowLabel(*grid, 0)) << "Der Zeilenkopf ließ sich nicht anklicken.";
+    pump();
+
+    EXPECT_EQ(sourceOf(ITEM_NAME), edited.source.ToStdWstring()) << "Der Klick auf den Zeilenkopf öffnete keinen Dialog oder die Änderung kam nicht an.";
+    EXPECT_EQ(grid->GetCellValue(0, 1), edited.source) << "Die Tabelle zeigt die neue Quelle nicht.";
+}
+
+TEST_F(GuiTest, SynchronisationLoeschenFragtNachUndEntfernt)  // [SyncItemManagementTest.md#delete]
+{
+    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+    ListCtrl* list = syncItemList();
+    ASSERT_NE(list, nullptr);
+    ASSERT_TRUE(clickOn(*list, listRowOf(*list, ITEM_NAME)));
+
+    ModalDialogWatcher::instance().answer(CONFIRM_DELETE, wxID_YES);
+    activateMenuItem(mainWindow(), tul(id::DeleteSync));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Es wurde ohne Rückfrage gelöscht.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains(ITEM_NAME)) << "Die Rückfrage nennt die Synchronisation nicht.";
+    EXPECT_FALSE(Config::instance().find_by_name(ITEM_NAME.ToStdWstring()).has_value()) << "Die Synchronisation steht noch in der Konfiguration.";
+    EXPECT_FALSE(listShows(ITEM_NAME.ToStdWstring())) << "Die Synchronisation steht noch in der Liste.";
+}
+
+TEST_F(GuiTest, SynchronisationLoeschenAbbrechenBehaelt)  // [SyncItemManagementTest.md#delete]
+{
+    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+    ListCtrl* list = syncItemList();
+    ASSERT_NE(list, nullptr);
+    ASSERT_TRUE(clickOn(*list, listRowOf(*list, ITEM_NAME)));
+
+    ModalDialogWatcher::instance().answer(CONFIRM_DELETE, wxID_NO);
+    activateMenuItem(mainWindow(), tul(id::DeleteSync));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u);
+    EXPECT_TRUE(Config::instance().find_by_name(ITEM_NAME.ToStdWstring()).has_value()) << "Trotz Nein wurde gelöscht.";
+    EXPECT_TRUE(listShows(ITEM_NAME.ToStdWstring()));
+}
+
+TEST_F(GuiTest, LeererNameWirdAbgelehnt)  // [SyncItemManagementTest.md#rejected-names]
+{
+    ModalDialogWatcher::instance().expect(txt::AddSynchronisation, fillSyncItemDialog(sandboxSync("")));
+    ModalDialogWatcher::instance().answer("Fehler", wxID_OK);
+
+    activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der leere Name wurde ohne Meldung angenommen.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), "Der Name darf nicht leer sein.");
+    EXPECT_TRUE(Config::instance().syncitems().empty()) << "Eine Synchronisation ohne Namen wurde angelegt.";
+}
+
+TEST_F(GuiTest, DoppelterNameWirdAbgelehnt)  // [SyncItemManagementTest.md#rejected-names]
+{
+    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+
+    ModalDialogWatcher::instance().expect(txt::AddSynchronisation, fillSyncItemDialog(sandboxSync()));
+    ModalDialogWatcher::instance().answer("Fehler", wxID_OK);
+    activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der doppelte Name wurde ohne Meldung angenommen.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("existiert schon"));
+    EXPECT_EQ(Config::instance().syncitems().size(), 1u) << "Die Synchronisation wurde doppelt angelegt.";
+}
+
+}

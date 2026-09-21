@@ -80,25 +80,29 @@ der Zustand des Controllers nach dem Start des Kopierlaufs zurueckgesetzt
 wurde. "Gilt nicht fuer Typ Datei" ist eine Dialogregel und wandert als
 TypDateiSperrtLoeschenImZiel nach Phase 2.
 
-Phase 2 - Synchronisation verwalten und Ansichten (syncitems)
--------------------------------------------------------------
-SynchronisationBearbeitenUeberMenueUebernimmtNeueQuelle
-SynchronisationBearbeitenUeberDoppelklickInListe
-SynchronisationBearbeitenUeberZeilenkopfInTabelle
-SynchronisationLoeschenFragtNachUndEntfernt
-SynchronisationLoeschenAbbrechenBehaelt
-LeererNameWirdAbgelehnt
-DoppelterNameWirdAbgelehnt
-OkNurMitQuelleZielTypUndVergleichskriterium
-ZweiWegeSyncSperrtKopierenWennZielNeuer
-TypDateiSperrtLoeschenImZiel
-AusschluesseWerdenZeilenweiseGespeichert
-ZyklusIstAuf1Bis60Begrenzt
-KontextmenueInListeUndTabelleBearbeitetUndLoescht
-AnsichtWechselZeigtGleicheSynchronisationen
-AktivPerKlickInTabelleAendertKonfiguration
-LeereQuelleInTabelleWirdAbgelehntUndZurueckgesetzt
-BaumZeigtDateiUndOrdnerSymbole
+Phase 2 - Synchronisation verwalten und Ansichten (syncitems) - fertig
+-----------------------------------------------------------------------
+SyncItemManagementTest   SynchronisationBearbeitenUeberMenueUebernimmtNeueQuelle
+                         SynchronisationBearbeitenUeberDoppelklickInListe
+                         SynchronisationBearbeitenUeberZeilenkopfInTabelle
+                         SynchronisationLoeschenFragtNachUndEntfernt
+                         SynchronisationLoeschenAbbrechenBehaelt
+                         LeererNameWirdAbgelehnt
+                         DoppelterNameWirdAbgelehnt
+SyncItemDialogRulesTest  OkNurMitQuelleZielTypUndVergleichskriterium
+                         ZweiWegeSyncSperrtKopierenWennZielNeuer
+                         TypDateiSperrtLoeschenImZiel
+                         ZyklusIstAuf1Bis60Begrenzt
+                         BearbeitenZeigtDieGespeichertenAusschluesseZeilenweise
+ViewsTest                AnsichtWechselZeigtGleicheSynchronisationen
+                         KontextmenueInListeAktivWennZeileAusgewaehlt
+                         KontextmenueInTabelleAktivWennZeileAusgewaehlt
+                         AktivPerKlickInTabelleAendertKonfiguration
+                         LeereQuelleInTabelleWirdAbgelehntUndZurueckgesetzt
+                         BaumZeigtDateiUndOrdnerSymbole
+
+Neu in der Infrastruktur: ViewActions (Ansicht wechseln, Baum/Tabelle finden,
+ListViewRestored), UserActions fuer Listenzeile, Zeilenkopf und Tabellenzelle.
 
 Phase 3 - Konfiguration, Einstellungen, Logging (config, settings, logging, backupproof)
 ---------------------------------------------------------------------------------------

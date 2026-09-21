@@ -14,7 +14,7 @@ class ModalDialogWatcher: public wxModalDialogHook {  // [ModalDialogWatcher.md#
 public:
     static ModalDialogWatcher& instance();
     void expect(const wxString& title, DialogAction action);
-    void answer(const wxString& title, int buttonId);  // [ModalDialogWatcher.md#answer]
+    void answer(const wxString& title, int buttonId);  // wxID_OK, wxID_YES, wxID_NO ... - the dialog's return code, not the wxYES/wxNO style flags [ModalDialogWatcher.md#answer]
     bool hasPendingExpectations() const { return !expected_.empty(); }
     const std::vector<wxString>& unexpectedDialogs() const { return unexpected_; }
     const std::vector<wxString>& answeredMessages() const { return answered_; }

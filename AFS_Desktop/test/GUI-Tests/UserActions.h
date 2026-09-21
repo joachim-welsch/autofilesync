@@ -3,6 +3,8 @@
 #include <wx/frame.h>
 #include <wx/string.h>
 #include <wx/window.h>
+#include <wx/grid.h>
+#include <wx/listctrl.h>
 #include <wx/treectrl.h>
 #include <filesystem>
 
@@ -12,6 +14,9 @@ wxWindow* find(wxWindow& parent, wxWindowID id);
 wxString valueOf(wxWindow* control);
 bool clickOn(wxWindow* control);
 bool clickOn(wxTreeCtrl& tree, wxTreeItemId item);  // [UserActions.md#clickOn-tree-item]
+bool clickOn(wxListCtrl& list, long item, bool doubleClick = false);  // [UserActions.md#clickOn-list-item]
+bool clickOnRowLabel(wxGrid& grid, int row);  // [UserActions.md#clickOnRowLabel]
+bool changeGridCell(wxGrid& grid, int row, int col, const wxString& value);  // [UserActions.md#changeGridCell]
 bool typeInto(wxWindow* field, const wxString& text);
 bool replaceText(wxWindow* field, const wxString& text);  // [UserActions.md#replaceText]
 bool replaceLines(wxWindow* field, const wxString& lines);  // [UserActions.md#replaceLines]

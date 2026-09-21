@@ -137,6 +137,52 @@ bool clickOn(wxTreeCtrl& tree, wxTreeItemId item)
 
 namespace {
 
+bool clickAt(const wxPoint& screenPoint, bool doubleClick)
+{
+    wxUIActionSimulator simulator;
+    if (!simulator.MouseMove(screenPoint))
+        return false;
+    pump(20);
+    if (!(doubleClick ? simulator.MouseDblClick() : simulator.MouseClick()))
+        return false;
+    pump(20);
+    return true;
+}
+
+}
+
+bool clickOn(wxListCtrl& list, long item, bool doubleClick)  // [UserActions.md#clickOn-list-item]
+{
+    wxRect rect;
+    if (!list.IsShownOnScreen() || !list.GetItemRect(item, rect))
+        return false;
+    return clickAt(list.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2)), doubleClick);
+}
+
+bool clickOnRowLabel(wxGrid& grid, int row)  // [UserActions.md#clickOnRowLabel]
+{
+    if (!grid.IsShownOnScreen() || row < 0 || row >= grid.GetNumberRows())
+        return false;
+    const wxRect cell = grid.CellToRect(row, 0);
+    int x = 0, y = 0;
+    grid.CalcScrolledPosition(0, cell.y, &x, &y);
+    wxWindow* labels = grid.GetGridRowLabelWindow();
+    return clickAt(labels->ClientToScreen(wxPoint(grid.GetRowLabelSize() / 2, y + cell.height / 2)), false);
+}
+
+bool changeGridCell(wxGrid& grid, int row, int col, const wxString& value)  // [UserActions.md#changeGridCell]
+{
+    if (row < 0 || row >= grid.GetNumberRows() || col < 0 || col >= grid.GetNumberCols())
+        return false;
+    grid.SetCellValue(row, col, value);
+    wxGridEvent event(grid.GetId(), wxEVT_GRID_CELL_CHANGED, &grid, row, col);
+    grid.GetEventHandler()->ProcessEvent(event);
+    pump();
+    return true;
+}
+
+namespace {
+
 bool typeText(const wxString& text)
 {
     wxUIActionSimulator simulator;
