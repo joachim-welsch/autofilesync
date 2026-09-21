@@ -12,6 +12,13 @@ Both blocks are needed: the configuration reads its paths through the CRT enviro
 Config::getRootPathname() builds the configuration path from APPDATA and the path it migrates
 from out of USERPROFILE; wxGetHomeDir() asks HOME first.
 
+## homedrive-homepath
+
+fsu::home_dir() builds the home directory from HOMEDRIVE and HOMEPATH on Windows, and the
+recycle bin's default path hangs on it. Without these two the application under test
+emptied into - and a test once emptied - the developer's real `~/.recyclebin`. HOMEPATH
+carries the path without the drive and with a leading backslash, the way Windows sets it.
+
 ## minimalConfig
 
 Enough of a configuration to keep the start-up quiet: an unreadable or missing file makes
