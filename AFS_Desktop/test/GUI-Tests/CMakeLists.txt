@@ -60,6 +60,8 @@ set(TEST_SOURCES
     LoggingTest.cpp
     SshAccountsTest.cpp
     SshSyncTest.cpp
+    WindowAndHelpTest.cpp
+    ChatDialogTest.cpp
 )
 
 # The complete application under test - the same source list as the shipped
