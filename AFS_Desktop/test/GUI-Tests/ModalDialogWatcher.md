@@ -24,3 +24,15 @@ A message box is answered from inside the hook, before it is shown: on Windows w
 the native MessageBox with its own modal loop, in which a queued action would never run. The
 hook returns the button id instead, wxWidgets then skips showing the box and reports that id
 as the result. The message text is kept so the test can assert what the user would have read.
+
+## choosePath
+
+The native file and directory dialogs cannot be driven by the simulator, but their ShowModal()
+goes through the modal hook on every platform, and a return code other than wxID_NONE skips
+the native window. The path is set on the dialog object before the hook answers OK, which is
+what the caller reads through GetPath() afterwards - the same as a user choosing that path.
+
+## nameOf
+
+A native file or directory dialog carries no window title - the text the user sees as its
+caption is its "message" - so that is what an expectation for one is matched against.

@@ -2,12 +2,21 @@
 
 Module comment for SettingsDialogDriver.h / SettingsDialogDriver.cpp.
 
+## SettingsInput
+
+Every setting is optional: a test names what it wants changed, the rest keeps the current
+values the dialog opened with. The delete mode goes first because it decides whether the
+path field is enabled at all, and typing into a disabled field would silently do nothing.
+
+## checkboxes-by-label
+
+The dialog gives its check boxes no ids, so they are found by the label the user reads. A
+renamed label fails the driver with that label in the message, not silently.
+
 ## enterValues
 
-The mode is set first: it decides whether the path field is enabled at all, and typing into a
-disabled field would silently do nothing. Each step reports itself: without that, a failed
-interaction is indistinguishable from a broken feature - both end as "the value was not taken
-over".
+Each step reports itself: without that, a failed interaction is indistinguishable from a
+broken feature - both end as "the value was not taken over".
 
 ## cancel-instead-of-hanging
 
@@ -16,5 +25,6 @@ that the interaction, not the feature, is what failed.
 
 ## fillSettingsDialog
 
-Enters a recycle bin path and a delete mode in the "Globale Einstellungen" dialog the way a user
-would and confirms it with OK. Pass the result to ModalDialogWatcher::expect().
+Enters the given settings in the "Globale Einstellungen" dialog the way a user would and
+confirms it with OK. Pass the result to ModalDialogWatcher::expect(). The two-argument form
+is the original one for the recycle bin.

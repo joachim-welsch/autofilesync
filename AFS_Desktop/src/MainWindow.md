@@ -116,3 +116,10 @@ The second status field belongs to the synchronisation's state (SyncInterface::s
 the first keeps the transient messages with their own timer, so a "Konfiguration gespeichert"
 never hides what the synchronisation is doing. Refreshed on the timer tick and right after
 Start, Stopp and Einmal, so the user does not wait a second for the answer to a click.
+
+## onViewLog
+
+wxExecute reports a command it cannot start through wxLogError, which wxWidgets shows as a
+dialog of its own; the user would then see two boxes for one missing editor. Only the
+application's box with the message the help describes is kept. Found by
+GuiTest.LogDateiAnzeigenOhneEditorZeigtFehler.
