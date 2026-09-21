@@ -132,3 +132,20 @@ The tool has to exist and be enabled, so a greyed-out tool fails the way it woul
 Line breaks go in as the Return key, not as a character: an injected '\n' is not a key press
 and a multi-line wxTextCtrl ignores it. The field must be multi-line, a single-line one would
 swallow the Return as "OK".
+
+## clickOn-list-item
+
+Clicks the row's on-screen rectangle, so the list's own selection handling and - with a
+double click - ListCtrl::OnDClick run the way they do for a user.
+
+## clickOnRowLabel
+
+The row labels live in their own child window of the grid, positioned in scrolled
+coordinates; the cell rectangle gives the row's height and unscrolled top, which is scrolled
+here. A click on the label is what opens the edit dialog in the grid view.
+
+## changeGridCell
+
+In-place editing differs per platform and cell editor (the bool editor toggles on a click,
+the text editor needs Enter to end), so the value is set and the "cell changed" event sent -
+the same handler that ends a real edit, GridCtrl::OnCellValueChanged.

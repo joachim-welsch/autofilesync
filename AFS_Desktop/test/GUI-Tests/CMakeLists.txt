@@ -38,6 +38,7 @@ set(TEST_SOURCES
     LoggingDialogDriver.cpp
     SandboxTree.cpp
     SyncActions.cpp
+    ViewActions.cpp
     AddSyncItemTest.cpp
     BackgroundServiceMenuTest.cpp
     AddSshAccountTest.cpp
@@ -50,6 +51,9 @@ set(TEST_SOURCES
     ContinuousSyncTest.cpp
     ProgressDialogTest.cpp
     SyncOptionsTest.cpp
+    SyncItemManagementTest.cpp
+    SyncItemDialogRulesTest.cpp
+    ViewsTest.cpp
 )
 
 # The complete application under test - the same source list as the shipped

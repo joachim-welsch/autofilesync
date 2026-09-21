@@ -86,6 +86,7 @@
     <ClInclude Include="SettingsDialogDriver.h" />
     <ClInclude Include="SshAccountDialogDriver.h" />
     <ClInclude Include="SyncActions.h" />
+    <ClInclude Include="ViewActions.h" />
     <ClInclude Include="SyncItemDialogDriver.h" />
     <ClInclude Include="UserActions.h" />
   </ItemGroup>
@@ -102,6 +103,7 @@
     <ClCompile Include="LoggingDialogDriver.cpp" />
     <ClCompile Include="SandboxTree.cpp" />
     <ClCompile Include="SyncActions.cpp" />
+    <ClCompile Include="ViewActions.cpp" />
     <ClCompile Include="AddSyncItemTest.cpp" />
     <ClCompile Include="AddSshAccountTest.cpp" />
     <ClCompile Include="SettingsRecycleBinTest.cpp" />
@@ -114,6 +116,9 @@
     <ClCompile Include="ContinuousSyncTest.cpp" />
     <ClCompile Include="ProgressDialogTest.cpp" />
     <ClCompile Include="SyncOptionsTest.cpp" />
+    <ClCompile Include="SyncItemManagementTest.cpp" />
+    <ClCompile Include="SyncItemDialogRulesTest.cpp" />
+    <ClCompile Include="ViewsTest.cpp" />
     <ClCompile Include="..\..\src\App.cpp" />
     <ClCompile Include="..\..\src\ChatDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />

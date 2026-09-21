@@ -45,6 +45,9 @@
     <ClCompile Include="SyncActions.cpp">
       <Filter>Testrahmen</Filter>
     </ClCompile>
+    <ClCompile Include="ViewActions.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
     <ClCompile Include="AddSyncItemTest.cpp">
       <Filter>Testrahmen</Filter>
     </ClCompile>
