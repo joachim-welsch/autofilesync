@@ -1190,10 +1190,8 @@ bool ssh_mkdir(const std::wstring& path)
     int rc = libssh2_sftp_mkdir(sftp_session, remote_path.c_str(),
         LIBSSH2_SFTP_S_IRWXU | LIBSSH2_SFTP_S_IRGRP | LIBSSH2_SFTP_S_IXGRP | LIBSSH2_SFTP_S_IROTH | LIBSSH2_SFTP_S_IXOTH);
     bool success = (rc == 0);
-    if (!success) {
-        unsigned long e = libssh2_sftp_last_error(sftp_session);
+    if (!success)
         log_error(translation::translate("remote_dir_create_error") + string_to_wstring(remote_path));
-    }
     
     libssh2_sftp_shutdown(sftp_session);
     libssh2_session_disconnect(session, "Normal Shutdown");

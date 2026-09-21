@@ -297,8 +297,8 @@ TEST_F(SyncSshFileCopyTest, CopyLocalFileToRemote)
 
     fs::create_directories(tu::test_source_dir());
     fs::permissions(fs::path(tu::test_source_dir()).parent_path(), fs::perms::all);  // [SyncSshFileTests.md#shared-parent-permissions]
-    const std::string TEST_FILENAME = tu::concat_path(tu::test_source_dir(), "data.txt");
-    std::ofstream(TEST_FILENAME) << "data";
+    const std::string local_file = tu::concat_path(tu::test_source_dir(), "data.txt");
+    std::ofstream(local_file) << "data";
 
     const std::string test_remote_filename = "localhost:" + tu::concat_path(tu::test_dest_dir(), "data.txt");;
     const std::wstring remote_dest_parent = L"localhost:" + string_to_wstring(fs::path(tu::test_dest_dir()).parent_path().string());  // [SyncSshFileTests.md#target-dir-must-exist]
@@ -311,7 +311,7 @@ TEST_F(SyncSshFileCopyTest, CopyLocalFileToRemote)
     SyncItem si;
     si.sync_cycle(0);
     si.sync_item_type(SyncItemType::Dir);
-    si.source(string_to_wstring(TEST_FILENAME));
+    si.source(string_to_wstring(local_file));
     si.target(string_to_wstring(test_remote_filename));
 
     std::size_t copy_count = 0;
@@ -324,15 +324,13 @@ TEST_F(SyncSshFileCopyTest, CopyLocalFileToRemote)
 
     EXPECT_TRUE(info.exists) << "Remote-Datei wurde nicht gefunden";
     EXPECT_GT(info.size_bytes, 0) << "Remote-Datei ist leer";
-    std::filesystem::remove(string_to_wstring(TEST_FILENAME));
+    std::filesystem::remove(string_to_wstring(local_file));
     ssh_remove_file(string_to_wstring(test_remote_filename));  // [SyncSshFileTests.md#ssh-delete-needed]
 }
 
 TEST_F(SyncSshFileCopyTest, CopyLocalFileToRemoteTmp)
 {
     ensure_account_in_config();
-    
-    const std::string TEST_FILENAME = "ssh_copy_test_file.txt";
     const std::string test_remote_filename = "ssh_copy_test_file_remote.txt";
 
     std::string src_path = tu::concat_temp(tu::concat_path("ssh_copy_test", TEST_FILENAME));
