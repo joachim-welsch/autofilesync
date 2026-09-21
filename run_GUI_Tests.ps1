@@ -99,7 +99,10 @@ if (-not $NoBuild) {
                 (Join-Path $wxLibDir $wxSetupDir), (Join-Path $WxDir 'include'),
                 (Join-Path $llamaPkgDir 'include'), (Join-Path $ggmlPkgDir 'include')
 
-    $clArgs = @('/nologo', '/c', '/EHsc', '/std:c++20', '/MP')
+    # /utf-8 wie in den vcxproj-Dateien: die Quellen sind UTF-8 ohne BOM, sonst
+    # liest cl sie in der ANSI-Codepage und Umlaute in L"..."-Literalen werden
+    # zu Buchstabensalat in der Oberflaeche.
+    $clArgs = @('/nologo', '/c', '/EHsc', '/std:c++20', '/MP', '/utf-8')
     if ($debug) { $clArgs += '/MDd', '/Zi' } else { $clArgs += '/MD', '/O2' }
     foreach ($d in $defines) { $clArgs += "/D$d" }
     foreach ($i in $includes) { $clArgs += "/I`"$i`"" }
