@@ -119,6 +119,9 @@
     <ClCompile Include="SyncItemManagementTest.cpp" />
     <ClCompile Include="SyncItemDialogRulesTest.cpp" />
     <ClCompile Include="ViewsTest.cpp" />
+    <ClCompile Include="ConfigFileTest.cpp" />
+    <ClCompile Include="SettingsTest.cpp" />
+    <ClCompile Include="LoggingTest.cpp" />
     <ClCompile Include="..\..\src\App.cpp" />
     <ClCompile Include="..\..\src\ChatDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />

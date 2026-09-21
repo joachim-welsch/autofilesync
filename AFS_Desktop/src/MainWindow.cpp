@@ -598,8 +598,8 @@ void MainWindow::onViewGrid(wxCommandEvent&)
 void MainWindow::onViewLog(wxCommandEvent&)
 {
     wxString commandLine = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
-    long pid = 0;
-    pid = wxExecute(commandLine);
+    const wxLogNull noWxErrorDialog;  // [MainWindow.md#onViewLog]
+    const long pid = wxExecute(commandLine);
     if (pid == 0) {
 		wxMessageBox("Der konfigurierte Editor konnte nicht gestartet werden.", "Fehler");
 	}

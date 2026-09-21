@@ -104,28 +104,36 @@ ViewsTest                AnsichtWechselZeigtGleicheSynchronisationen
 Neu in der Infrastruktur: ViewActions (Ansicht wechseln, Baum/Tabelle finden,
 ListViewRestored), UserActions fuer Listenzeile, Zeilenkopf und Tabellenzelle.
 
-Phase 3 - Konfiguration, Einstellungen, Logging (config, settings, logging, backupproof)
----------------------------------------------------------------------------------------
-SpeichernSchreibtDateiUndMeldetInStatuszeile
-SpeichernAlsHaengtJsonAnUndFragtBeiUeberschreiben
-OeffnenMitUngespeichertenAenderungenFragtNach
-OeffnenEinerDefektenDateiBehaeltAlteKonfiguration
-BeendenMitAenderungenFragtSpeichern
-MinimierenStattSchliessenVerstecktAnstattZuBeenden
-MeldungsfilterUnterdruecktInfoBox
-AutostartSchreibtRunEintrag
-EndgueltigLoeschenLoeschtOhnePapierkorb
-LogPfadUndLevelWerdenUebernommen
-KuerzereHistorieKuerztLogSofort
-EmailAktivOhneAdresseWirdAbgelehnt
-EmailAktivOhneServerOderAbsenderWirdAbgelehnt
-BackupNachweisWirdNachLaufGeschrieben
-LogDateiAnzeigenOhneEditorZeigtFehler
+Phase 3 - Konfiguration, Einstellungen, Logging (config, settings, logging, backupproof) - fertig
+------------------------------------------------------------------------------------------------
+ConfigFileTest   SpeichernSchreibtDateiUndMeldetInStatuszeile
+                 SpeichernUeberWerkzeugleisteSchreibtDatei
+                 SpeichernAlsHaengtJsonAnUndFragtBeiUeberschreiben
+                 SpeichernAlsNeinBeiUeberschreibenLaesstDateiUnberuehrt
+                 OeffnenMitUngespeichertenAenderungenFragtNach
+                 OeffnenEinerDefektenDateiBehaeltAlteKonfiguration
+SettingsTest     EinstellungenKommenInDieKonfiguration
+                 MinimierenStattSchliessenVerstecktAnstattZuBeenden
+                 EndgueltigLoeschenLoeschtOhnePapierkorb
+                 AutostartSchreibtRunEintrag (Windows)
+LoggingTest      LogPfadUndLevelWerdenUebernommen
+                 KuerzereHistorieKuerztLogSofort
+                 EmailAktivOhneAdresseWirdAbgelehnt
+                 EmailAktivOhneServerOderAbsenderWirdAbgelehnt
+                 EmailMitAllenAngabenWirdUebernommen
+                 BackupNachweisWirdNachLaufGeschrieben
+                 LogDateiAnzeigenOhneEditorZeigtFehler
 
-Die nativen Datei- und Verzeichnisdialoge (wxFileDialog, wxDirDialog) sind mit
-dem Simulator nicht steuerbar. Entscheidung fuer Phase 3: im _GUITEST-Build
-liefern sie einen vorher hinterlegten Pfad, sonst werden die Pfade nur ueber
-die Textfelder getestet.
+Native Datei- und Verzeichnisdialoge: ihr ShowModal() laeuft auf allen
+Plattformen durch den Modal-Hook, deshalb beantwortet
+ModalDialogWatcher::choosePath() sie mit einem Pfad, ohne dass sie
+erscheinen - ohne Aenderung am Programm. SettingsDialogDriver fuellt jetzt
+alle Haekchen des Dialogs.
+
+Gefunden und behoben: "Log-Datei anzeigen" ohne startbaren Editor zeigte
+zwei Boxen, die von wxWidgets ("Execution of command ... failed") und die
+eigene. Nicht getestet: Beenden mit Aenderungen (verlaesst die Hauptschleife
+des Testprozesses); die Rueckfrage "Speichern?" ist ueber Oeffnen abgedeckt.
 
 Phase 4 - SSH (ssh), alle mit SKIP_WITHOUT_SSH_SERVER
 -----------------------------------------------------
@@ -161,6 +169,9 @@ Offene Punkte
   aus (Toolbar.cpp), nicht die Hilfe. Vor dem Test in Phase 5 klaeren.
 - Laufzeit: der Chat-Test braucht allein rund 50 s. Langsame Tests kommen in
   eine eigene Fixture SlowGuiTest, damit --filter sie ausklammern kann.
+- Die Meldungsfilter Fehler/Warnung/Info der globalen Einstellungen werden
+  nirgends ausgewertet (show_errors, show_warnings, show_infos landen nur in
+  der Konfiguration). Entweder anbinden oder aus dem Dialog nehmen.
 - "Einmal synchronisieren" innerhalb der Pause einer Synchronisation zeigt
   dieselbe Box wie bei fehlenden Dateien ("Es wurden keine zu
   synchronisierenden Dateien gefunden."). Der Benutzer erfaehrt nicht, dass

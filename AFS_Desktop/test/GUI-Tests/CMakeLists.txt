@@ -54,6 +54,9 @@ set(TEST_SOURCES
     SyncItemManagementTest.cpp
     SyncItemDialogRulesTest.cpp
     ViewsTest.cpp
+    ConfigFileTest.cpp
+    SettingsTest.cpp
+    LoggingTest.cpp
 )
 
 # The complete application under test - the same source list as the shipped

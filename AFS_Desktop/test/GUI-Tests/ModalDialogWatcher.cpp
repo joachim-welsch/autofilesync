@@ -1,4 +1,6 @@
 #include "ModalDialogWatcher.h"
+#include <wx/dirdlg.h>
+#include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 
 namespace guitest {
@@ -23,6 +25,37 @@ void ModalDialogWatcher::answer(const wxString& title, int buttonId)
     expected_.push_back({title, DialogAction(), buttonId});
 }
 
+void ModalDialogWatcher::choosePath(const wxString& title, const wxString& path)
+{
+    expected_.push_back({title, DialogAction(), wxID_OK, path});
+}
+
+namespace {
+
+wxString nameOf(wxDialog& dialog)  // [ModalDialogWatcher.md#nameOf]
+{
+    if (auto* fileDialog = dynamic_cast<wxFileDialog*>(&dialog))
+        return fileDialog->GetMessage();
+    if (auto* dirDialog = dynamic_cast<wxDirDialog*>(&dialog))
+        return dirDialog->GetMessage();
+    return dialog.GetTitle();
+}
+
+bool setChosenPath(wxDialog& dialog, const wxString& path)  // [ModalDialogWatcher.md#choosePath]
+{
+    if (auto* fileDialog = dynamic_cast<wxFileDialog*>(&dialog)) {
+        fileDialog->SetPath(path);
+        return true;
+    }
+    if (auto* dirDialog = dynamic_cast<wxDirDialog*>(&dialog)) {
+        dirDialog->SetPath(path);
+        return true;
+    }
+    return false;
+}
+
+}
+
 void ModalDialogWatcher::reset()
 {
     expected_.clear();
@@ -32,15 +65,21 @@ void ModalDialogWatcher::reset()
 
 int ModalDialogWatcher::Enter(wxDialog* dialog)
 {
-    if (expected_.empty() || expected_.front().title != dialog->GetTitle()) {
-        unexpected_.push_back(dialog->GetTitle());
+    const wxString name = nameOf(*dialog);
+    if (expected_.empty() || expected_.front().title != name) {
+        unexpected_.push_back(name);
         return wxID_CANCEL;
     }
     const Expectation expectation = expected_.front();
     expected_.pop_front();
+    if (!expectation.path.empty()) {
+        if (!setChosenPath(*dialog, expectation.path))
+            unexpected_.push_back(name + " (kein Datei- oder Verzeichnisdialog)");
+        return expectation.answer;
+    }
     if (expectation.answer != wxID_NONE) {  // [ModalDialogWatcher.md#answer]
         auto* messageDialog = dynamic_cast<wxMessageDialog*>(dialog);
-        answered_.push_back(messageDialog != nullptr ? messageDialog->GetMessage() : dialog->GetTitle());
+        answered_.push_back(messageDialog != nullptr ? messageDialog->GetMessage() : name);
         return expectation.answer;
     }
     dialog->CallAfter([dialog, action = expectation.action] { action(*dialog); });  // [ModalDialogWatcher.md#queued-not-called]
