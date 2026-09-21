@@ -49,6 +49,7 @@ public:
 	void createMenu();
 	Menu& menu() { return menu_; }
 	SyncInterface& syncInterface() { return syncInterface_; }
+	TaskBarIcon* taskBarIcon() { return taskBarIcon_; }
 	wxHelpControllerBase& GetHelpController() { return *htmlHelpController_; }
 private:
 	void init();

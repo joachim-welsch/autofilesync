@@ -28,4 +28,6 @@ private:
     ApplicationState before_;
 };
 
+class SlowGuiTest: public GuiTest {};  // [GuiTest.md#SlowGuiTest]
+
 }

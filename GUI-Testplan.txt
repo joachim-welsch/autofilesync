@@ -156,25 +156,34 @@ Fixture SshGuiTest mit einem Probeverzeichnis je Prozess; SshDirDialogTest
 baut darauf auf. SshAccountDialogDriver kann bearbeiten, loeschen und in der
 Liste umbenennen.
 
-Phase 5 - Dienst, Taskleiste, Assistent, Hilfe, Instanz (service)
------------------------------------------------------------------
-HintergrunddienstStartOhneDienstZeigtFehlerbox
-TaskbarMenueWiederherstellenZeigtFenster
-TaskbarDoppelklickZeigtFenster
-AnsichtHintergrundVerstecktFenster
-InfoDialogZeigtVersion
-HilfeOeffnetHilfebuch
-ChatStrgEingabeSendet
-ChatLeereEingabeTutNichts
-ChatSchliessenVerstecktUndMenueZeigtWieder
-ZweiteInstanzWirdAbgewiesen
+Phase 5 - Dienst, Taskleiste, Assistent, Hilfe (service) - fertig
+------------------------------------------------------------------
+WindowAndHelpTest  AnsichtHintergrundVerstecktFensterUndTaskleisteZeigtEsWieder
+                   TaskbarDoppelklickZeigtFenster
+                   InfoDialogZeigtVersion
+                   HilfeOeffnetHilfebuch
+                   WerkzeugleisteHilfeOeffnetHilfebuch
+                   HintergrunddienstStartOhneDienstZeigtFehlerbox
+                   (uebersprungen, wenn der Dienst installiert ist: Start und
+                   Stopp brauchen dann Administratorrechte)
+ChatDialogTest     ChatLeereEingabeTutNichts
+                   ChatSchliessenVerstecktUndMenueZeigtWieder
+                   ChatStrgEingabeSendet (SlowGuiTest)
+
+Langsame Tests laufen unter der Fixture SlowGuiTest; ein schneller Lauf
+laesst sie mit --gtest_filter=-SlowGuiTest.* aus (run_Tests.cmd gui
+--filter -SlowGuiTest.*). Der Toolbar-Knopf mit dem Hilfesymbol oeffnet
+jetzt die Hilfe (id::Help) statt des Info-Dialogs.
+
+Nicht getestet: ZweiteInstanzWirdAbgewiesen. Der Testprozess heisst nicht
+autofilesync, der Instanzwaechter wuerde ihn nicht erkennen, und eine zweite
+Instanz zeigt ihre Absage in einem Meldungsfenster, das ein Kindprozess
+nicht schliessen kann. Braucht einen Aufruf ohne Oberflaeche.
+
+Stand: 89 GUI-Tests, jede Hilfeseite hat mindestens einen Test.
 
 Offene Punkte
 -------------
-- Der Toolbar-Knopf mit dem Hilfesymbol und Tooltip "Hilfe" loest id::About
-  aus (Toolbar.cpp), nicht die Hilfe. Vor dem Test in Phase 5 klaeren.
-- Laufzeit: der Chat-Test braucht allein rund 50 s. Langsame Tests kommen in
-  eine eigene Fixture SlowGuiTest, damit --filter sie ausklammern kann.
 - validateSshAccountName prueft den Doppelpunkt nach der Zeichenregel, die ihn
   schon abfaengt; der Benutzer sieht nie die Doppelpunkt-Meldung. Toter Zweig.
 - Die Meldungsfilter Fehler/Warnung/Info der globalen Einstellungen werden

@@ -61,7 +61,7 @@ void Toolbar::create(wxFrame* parent)
 	toolbar_->AddTool(tul(id::StartSync), wxEmptyString, wxBITMAP(start), _(tbtxt::StartSync));
 
 	toolbar_->AddStretchableSpace();
-	toolbar_->AddTool(tul(id::About), wxEmptyString, wxBITMAP(help), _(tbtxt::Help));
+	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), _(tbtxt::Help));
 	toolbar_->Realize();
 }
 

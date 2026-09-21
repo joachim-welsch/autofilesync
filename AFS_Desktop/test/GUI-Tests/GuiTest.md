@@ -29,3 +29,9 @@ Base of every GUI test. It enforces the rule from CLAUDE.md that after a GUI tes
 configuration and the source and target file systems are in the same state as before: TearDown()
 drops what the test changed in memory and then compares the whole state against the snapshot
 taken in SetUp().
+
+## SlowGuiTest
+
+Same fixture, different name: a test that waits for the local language model takes a minute
+or two, and the name lets a quick run leave them out (`--gtest_filter=-SlowGuiTest.*`) without
+losing them from the full run.

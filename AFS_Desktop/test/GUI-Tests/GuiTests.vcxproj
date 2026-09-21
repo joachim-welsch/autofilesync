@@ -126,6 +126,8 @@
     <ClCompile Include="LoggingTest.cpp" />
     <ClCompile Include="SshAccountsTest.cpp" />
     <ClCompile Include="SshSyncTest.cpp" />
+    <ClCompile Include="WindowAndHelpTest.cpp" />
+    <ClCompile Include="ChatDialogTest.cpp" />
     <ClCompile Include="..\..\src\App.cpp" />
     <ClCompile Include="..\..\src\ChatDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />
