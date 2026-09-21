@@ -39,6 +39,7 @@ set(TEST_SOURCES
     SandboxTree.cpp
     SyncActions.cpp
     ViewActions.cpp
+    SshTestServer.cpp
     AddSyncItemTest.cpp
     BackgroundServiceMenuTest.cpp
     AddSshAccountTest.cpp
@@ -57,6 +58,8 @@ set(TEST_SOURCES
     ConfigFileTest.cpp
     SettingsTest.cpp
     LoggingTest.cpp
+    SshAccountsTest.cpp
+    SshSyncTest.cpp
 )
 
 # The complete application under test - the same source list as the shipped
