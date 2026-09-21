@@ -17,6 +17,12 @@ flag, which would otherwise make the application ask for saving while it shuts d
 Both branches have to be a wxString: mixing it with a string literal makes the conditional
 ambiguous, since either side converts to the other.
 
+## mainWindow
+
+Typed as MainWindow, not wxFrame: the sync tests read the state of SyncInterface and the menu
+through it, and it is the only top-level window the application ever creates. Tests that only
+need a frame still get one - MainWindow is a wxFrame.
+
 ## GuiTest
 
 Base of every GUI test. It enforces the rule from CLAUDE.md that after a GUI test the

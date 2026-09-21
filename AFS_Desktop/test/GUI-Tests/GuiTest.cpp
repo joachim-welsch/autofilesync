@@ -77,9 +77,9 @@ void GuiTest::TearDown()
     watcher.reset();
 }
 
-wxFrame& GuiTest::mainWindow() const
+MainWindow& GuiTest::mainWindow() const
 {
-    return *static_cast<wxFrame*>(wxTheApp->GetTopWindow());
+    return *static_cast<MainWindow*>(wxTheApp->GetTopWindow());
 }
 
 ListCtrl* GuiTest::syncItemList() const

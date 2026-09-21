@@ -33,6 +33,18 @@
     <ClCompile Include="SshAccountDialogDriver.cpp">
       <Filter>Testrahmen</Filter>
     </ClCompile>
+    <ClCompile Include="SettingsDialogDriver.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggingDialogDriver.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="SandboxTree.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncActions.cpp">
+      <Filter>Testrahmen</Filter>
+    </ClCompile>
     <ClCompile Include="AddSyncItemTest.cpp">
       <Filter>Testrahmen</Filter>
     </ClCompile>

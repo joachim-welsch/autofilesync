@@ -14,9 +14,15 @@ bool clickOn(wxWindow* control);
 bool clickOn(wxTreeCtrl& tree, wxTreeItemId item);  // [UserActions.md#clickOn-tree-item]
 bool typeInto(wxWindow* field, const wxString& text);
 bool replaceText(wxWindow* field, const wxString& text);  // [UserActions.md#replaceText]
+bool replaceLines(wxWindow* field, const wxString& lines);  // [UserActions.md#replaceLines]
 bool selectRadioOption(wxWindow* radioBox, int option);
+bool selectEntry(wxWindow* control, const wxString& entry);  // [UserActions.md#selectEntry]
+bool setCheckBox(wxWindow* checkBox, bool checked);  // [UserActions.md#setCheckBox]
+bool setSpinValue(wxWindow* spin, int value);  // [UserActions.md#setSpinValue]
+bool showNotebookPage(wxWindow& dialog, const wxString& pageTitle);  // [UserActions.md#showNotebookPage]
 bool clickWhenEnabled(wxWindow* control, int timeoutMilliseconds = 5000);
 void activateMenuItem(wxFrame& frame, int menuItemId);
+bool activateToolbarTool(wxFrame& frame, int toolId);  // [UserActions.md#activateToolbarTool]
 wxTreeItemId findTreeItemForPath(wxTreeCtrl& tree, const std::filesystem::path& path);  // [UserActions.md#findTreeItemForPath]
 
 }

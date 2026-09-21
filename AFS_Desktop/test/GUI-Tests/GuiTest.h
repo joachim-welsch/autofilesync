@@ -1,7 +1,7 @@
 #pragma once
 
+#include "MainWindow.h"
 #include <gtest/gtest.h>
-#include <wx/frame.h>
 #include <string>
 #include <vector>
 
@@ -21,7 +21,7 @@ class GuiTest: public ::testing::Test {  // [GuiTest.md#GuiTest]
 protected:
     void SetUp() override;
     void TearDown() override;
-    wxFrame& mainWindow() const;
+    MainWindow& mainWindow() const;  // [GuiTest.md#mainWindow]
     ListCtrl* syncItemList() const;
     bool listShows(const std::wstring& syncItemName) const;
 private:
