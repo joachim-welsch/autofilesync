@@ -1,7 +1,13 @@
 #include "UserActions.h"
 #include "EventPump.h"
+#include <wx/checkbox.h>
+#include <wx/choice.h>
+#include <wx/listbox.h>
+#include <wx/notebook.h>
 #include <wx/radiobox.h>
+#include <wx/spinctrl.h>
 #include <wx/textctrl.h>
+#include <wx/toolbar.h>
 #include <wx/uiaction.h>
 #include <cctype>
 #include <string_view>
@@ -162,18 +168,93 @@ bool replaceText(wxWindow* field, const wxString& text)
     return valueOf(field) == text;
 }
 
+bool replaceLines(wxWindow* field, const wxString& lines)  // [UserActions.md#replaceLines]
+{
+    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
+    if (textCtrl == nullptr || !textCtrl->IsMultiLine() || !clickOn(field))
+        return false;
+    textCtrl->SelectAll();
+    wxUIActionSimulator simulator;
+    bool first = true;
+    for (const wxString& line : wxSplit(lines, '\n')) {
+        if (!first && !simulator.Char(WXK_RETURN))
+            return false;
+        if (!typeText(line))
+            return false;
+        first = false;
+    }
+    return valueOf(field) == lines;
+}
+
+namespace {
+
+void sendCommand(wxWindow& control, wxEventType type, int value)
+{
+    wxCommandEvent event(type, control.GetId());
+    event.SetEventObject(&control);
+    event.SetInt(value);
+    control.GetEventHandler()->ProcessEvent(event);
+    pump();
+}
+
+}
+
 bool selectRadioOption(wxWindow* radioBox, int option)  // [UserActions.md#selectRadioOption]
 {
     wxRadioBox* box = dynamic_cast<wxRadioBox*>(radioBox);
     if (box == nullptr || option < 0 || option >= static_cast<int>(box->GetCount()))
         return false;
     box->SetSelection(option);
-    wxCommandEvent event(wxEVT_RADIOBOX, box->GetId());
-    event.SetEventObject(box);
-    event.SetInt(option);
-    box->GetEventHandler()->ProcessEvent(event);
-    pump();
+    sendCommand(*box, wxEVT_RADIOBOX, option);
     return box->GetSelection() == option;
+}
+
+bool selectEntry(wxWindow* control, const wxString& entry)  // [UserActions.md#selectEntry]
+{
+    wxControlWithItems* box = dynamic_cast<wxControlWithItems*>(control);
+    const int index = box != nullptr ? box->FindString(entry) : wxNOT_FOUND;
+    if (index == wxNOT_FOUND)
+        return false;
+    box->SetSelection(index);
+    sendCommand(*box, dynamic_cast<wxListBox*>(control) != nullptr ? wxEVT_LISTBOX : wxEVT_CHOICE, index);
+    return box->GetSelection() == index;
+}
+
+bool setCheckBox(wxWindow* checkBox, bool checked)  // [UserActions.md#setCheckBox]
+{
+    wxCheckBox* box = dynamic_cast<wxCheckBox*>(checkBox);
+    if (box == nullptr || !box->IsEnabled())
+        return false;
+    if (box->GetValue() != checked && !clickOn(box))
+        return false;
+    return box->GetValue() == checked;
+}
+
+bool setSpinValue(wxWindow* spin, int value)  // [UserActions.md#setSpinValue]
+{
+    wxSpinCtrl* control = dynamic_cast<wxSpinCtrl*>(spin);
+    if (control == nullptr)
+        return false;
+    control->SetValue(value);
+    sendCommand(*control, wxEVT_SPINCTRL, control->GetValue());
+    return control->GetValue() == value;
+}
+
+bool showNotebookPage(wxWindow& dialog, const wxString& pageTitle)  // [UserActions.md#showNotebookPage]
+{
+    for (wxWindow* child : dialog.GetChildren()) {
+        wxNotebook* notebook = dynamic_cast<wxNotebook*>(child);
+        if (notebook == nullptr)
+            continue;
+        for (size_t page = 0; page < notebook->GetPageCount(); ++page) {
+            if (notebook->GetPageText(page) != pageTitle)
+                continue;
+            notebook->ChangeSelection(page);
+            pump();
+            return notebook->GetSelection() == static_cast<int>(page);
+        }
+    }
+    return false;
 }
 
 bool clickWhenEnabled(wxWindow* control, int timeoutMilliseconds)
@@ -190,6 +271,18 @@ void activateMenuItem(wxFrame& frame, int menuItemId)
     wxCommandEvent event(wxEVT_MENU, menuItemId);  // [UserActions.md#activateMenuItem]
     event.SetEventObject(&frame);
     frame.GetEventHandler()->ProcessEvent(event);
+}
+
+bool activateToolbarTool(wxFrame& frame, int toolId)  // [UserActions.md#activateToolbarTool]
+{
+    wxToolBar* toolbar = frame.GetToolBar();
+    if (toolbar == nullptr || toolbar->FindById(toolId) == nullptr || !toolbar->GetToolEnabled(toolId))
+        return false;
+    wxCommandEvent event(wxEVT_TOOL, toolId);
+    event.SetEventObject(toolbar);
+    toolbar->GetEventHandler()->ProcessEvent(event);
+    pump();
+    return true;
 }
 
 namespace {

@@ -51,6 +51,27 @@ UserActions       Klicken und Tippen ueber wxUIActionSimulator. Getippt wird
 EventPump         wxYield-Schleifen, damit die vom X-Server zugestellten
                   Eingaben und die EVT_UPDATE_UI-Ereignisse verarbeitet werden.
 GuiTest           Basisklasse aller GUI-Tests, setzt die Regel aus CLAUDE.md um.
+SandboxTree       Ein Dateibaum fuer Quelle oder Ziel einer Synchronisation,
+                  unterhalb der Sandbox angelegt und beim Verlassen des Tests
+                  wieder entfernt - auch wenn der Test scheitert.
+SyncActions       Loest "Einmal synchronisieren" aus und wartet auf das Ende
+                  des Laufs, so wie die Menuesperren und der Fortschritts-
+                  dialog es sehen.
+Dialog-Driver     Fuellen einen Dialog wie ein Benutzer und bestaetigen ihn:
+                  SyncItemDialogDriver (alle drei Reiter), SshAccountDialog-
+                  Driver, SettingsDialogDriver, LoggingDialogDriver. Jeder
+                  Schritt meldet sich selbst, damit eine gescheiterte Bedienung
+                  von einer kaputten Funktion unterscheidbar bleibt.
+
+Meldungsboxen werden ueber ModalDialogWatcher::answer() beantwortet, bevor
+sie erscheinen: unter Windows ist wxMessageBox die native MessageBox mit
+eigener Schleife, in der eine nachgereichte Aktion nie liefe. Der Text bleibt
+fuer die Pruefung erhalten.
+
+Testplan
+--------
+Welche Funktionen getestet werden und in welcher Reihenfolge die Tests
+entstehen, steht in GUI-Testplan.txt.
 
 Zustandsregel
 -------------
@@ -91,7 +112,9 @@ setzt. Dauerhaft entschaerft man es mit
 
 Das Skript uebersetzt die Quellen aus GuiTests.vcxproj mit cl.exe und braucht
 weder Visual Studio noch das NuGet-Paket; Google Test kommt aus dem
-vcpkg-Baum. Die Pfade zu wxWidgets, vcpkg und Boost sind Parameter, die
+vcpkg-Baum. Es baut mit gettext und uebersetzt die Kataloge aus po\ nach
+locale\ neben das Testprogramm, damit die Testfenster dieselben Texte zeigen
+wie das Programm. Die Pfade zu wxWidgets, vcpkg und Boost sind Parameter, die
 Vorgaben passen zum hiesigen extlib-Verzeichnis. Voreinstellung ist Debug:
 in manchen extlib-Baeumen liegen unter lib\vc_x64_lib x86-Bibliotheken fuer
 Release, womit sich die Tests nicht linken lassen.
@@ -119,3 +142,6 @@ AddSyncItemTest   Legt ueber "Datei/Neu/Synchronisation" eine Synchronisation an
 AddSshAccountTest Legt ueber "SSH-Verbindungen/Hinzufuegen" eine SSH-Verbindung
                   mit einem Passwort aus Sonderzeichen an und prueft, dass der
                   Dialog es annimmt und unveraendert in der Konfiguration steht.
+SettingsRecycleBinTest, BackgroundServiceMenuTest, TreeViewContextMenuTest,
+TreeViewCrossSelectionTest, ChatLogQuestionTest, SshDirDialogTest, SyncOnceTest
+                  Siehe die jeweilige .md-Datei neben dem Test.

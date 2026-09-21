@@ -35,6 +35,9 @@ set(TEST_SOURCES
     SyncItemDialogDriver.cpp
     SshAccountDialogDriver.cpp
     SettingsDialogDriver.cpp
+    LoggingDialogDriver.cpp
+    SandboxTree.cpp
+    SyncActions.cpp
     AddSyncItemTest.cpp
     BackgroundServiceMenuTest.cpp
     AddSshAccountTest.cpp
@@ -43,6 +46,7 @@ set(TEST_SOURCES
     TreeViewContextMenuTest.cpp
     TreeViewCrossSelectionTest.cpp
     SshDirDialogTest.cpp
+    SyncOnceTest.cpp
 )
 
 # The complete application under test - the same source list as the shipped

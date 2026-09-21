@@ -97,3 +97,38 @@ instead of appending to it.
 
 Walks the tree the same way TreeCtrl::addBranch() built it: one child node per path segment, the
 filesystem root itself excluded. Invalid if any segment has no matching node.
+
+## selectEntry
+
+wxChoice opens a native popup list whose entries the simulator cannot locate, and wxListBox
+exposes no portable item rectangle, so the entry is selected directly and the command the
+selection would produce is sent - the same handler as for a real pick, see selectRadioOption.
+
+## setCheckBox
+
+A real click, because the dialog's rules (two-way sync locking "copy when target newer") hang
+on the click's command event. Only the difference to the wanted state is clicked, so the
+helper is idempotent. A disabled box reports failure: clicking it would silently do nothing.
+
+## setSpinValue
+
+Typing into a wxSpinCtrl differs per platform (the text part is an internal child on MSW), so
+the value is set and the spin command sent instead, like selectRadioOption.
+
+## showNotebookPage
+
+Controls on a page that is not shown are not on screen, and clicking them fails. The page is
+switched through the notebook itself: the dialogs do not react to page changes, so nothing is
+skipped by not clicking the tab.
+
+## activateToolbarTool
+
+wx exposes no cross-platform rectangle of a toolbar tool to click on, so the command a click
+would produce is sent through the toolbar's handler - wxEVT_TOOL is what the click ends up as.
+The tool has to exist and be enabled, so a greyed-out tool fails the way it would for a user.
+
+## replaceLines
+
+Line breaks go in as the Return key, not as a character: an injected '\n' is not a key press
+and a multi-line wxTextCtrl ignores it. The field must be multi-line, a single-line one would
+swallow the Return as "OK".

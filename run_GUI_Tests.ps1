@@ -71,6 +71,24 @@ function Invoke-InVcEnv([string]$command) {
     if ($LASTEXITCODE -ne 0) { throw "Fehlgeschlagen (Exit $LASTEXITCODE): $command" }
 }
 
+# Die Anwendung sucht die Kataloge unter locale\ neben der Programmdatei, wie
+# build.cmd sie fuer autofilesync.exe ablegt. msgfmt liegt im vcpkg-Baum unter
+# tools\gettext, nicht auf dem PATH.
+function Compile-MessageCatalogues {
+    $vcpkgTools = Join-Path $VcpkgDir 'tools\gettext\bin\msgfmt.exe'
+    $msgfmt = if (Test-Path $vcpkgTools) { $vcpkgTools } else { (Get-Command msgfmt -ErrorAction SilentlyContinue).Source }
+    if (-not $msgfmt) {
+        Write-Warning 'msgfmt nicht gefunden - die Testfenster zeigen Message-IDs statt Texten.'
+        return
+    }
+    foreach ($po in Get-ChildItem (Join-Path $root 'po\*.po')) {
+        $moDir = Join-Path $buildDir "locale\$($po.BaseName)\LC_MESSAGES"
+        New-Item -ItemType Directory -Force $moDir | Out-Null
+        & $msgfmt -o (Join-Path $moDir 'autofilesync.mo') $po.FullName
+        if ($LASTEXITCODE -ne 0) { throw "msgfmt fehlgeschlagen fuer $($po.Name)" }
+    }
+}
+
 function Get-ProjectSources {
     $projectFile = Join-Path $guiDir 'GuiTests.vcxproj'
     $xml = [xml](Get-Content $projectFile)
@@ -90,9 +108,12 @@ if (-not $NoBuild) {
     if (-not (Test-Path $gtestLibDir)) { throw "Google Test fehlt: $gtestLibDir" }
 
     New-Item -ItemType Directory -Force $buildDir | Out-Null
+    # AFS_WITH_GETTEXT wie in GuiTests.vcxproj: ohne libintl zeigen die getesteten
+    # Fenster die Message-IDs statt der Texte, die der Benutzer sieht.
     $defines = '_GUITEST', 'wxUSE_HELP', '_WXWIDGETS', 'WIN32', 'X64', '_CONSOLE',
                '_CRT_SECURE_NO_DEPRECATE=1', '_CRT_NON_CONFORMING_SWPRINTFS=1',
-               '_SCL_SECURE_NO_WARNINGS=1', '__WXMSW__', '_UNICODE', 'UNICODE', 'NOPCH'
+               '_SCL_SECURE_NO_WARNINGS=1', '__WXMSW__', '_UNICODE', 'UNICODE', 'NOPCH',
+               'AFS_WITH_GETTEXT'
     if ($debug) { $defines += '_DEBUG' } else { $defines += 'NDEBUG' }
     $includes = $guiDir, (Join-Path $root 'AFS_Desktop\include'), (Join-Path $root 'AFS_Core\include'),
                 (Join-Path $GTestDir 'include'), (Join-Path $VcpkgDir 'include'), $BoostDir,
@@ -138,7 +159,7 @@ if (-not $NoBuild) {
                   "/LIBPATH:`"$llamaLibDir`"", "/LIBPATH:`"$ggmlLibDir`"")
     foreach ($o in (Get-ChildItem "$buildDir\*.obj")) { $linkArgs += "`"$($o.FullName)`"" }
     $linkArgs += "`"$res`""
-    $linkArgs += 'gtest.lib', 'libssh2.lib', 'libssl.lib', 'libcrypto.lib', 'ws2_32.lib', 'crypt32.lib'
+    $linkArgs += 'gtest.lib', 'libssh2.lib', 'libssl.lib', 'libcrypto.lib', 'ws2_32.lib', 'crypt32.lib', 'intl.lib'
     $linkArgs += 'llama.lib', 'ggml.lib', 'ggml-cpu.lib', 'ggml-base.lib'
     $linkArgs += $wxLibs
     $linkArgs += 'kernel32.lib', 'user32.lib', 'gdi32.lib', 'comdlg32.lib', 'winspool.lib', 'winmm.lib',
@@ -148,6 +169,7 @@ if (-not $NoBuild) {
     Set-Content -Path $linkRsp -Value $linkArgs -Encoding ascii
     Write-Host "Linke $exe..."
     Invoke-InVcEnv "link /nologo @`"$linkRsp`""
+    Compile-MessageCatalogues
 }
 
 if (-not (Test-Path $exe)) { throw "Testprogramm nicht gefunden: $exe" }

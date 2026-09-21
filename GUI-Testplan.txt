@@ -1,0 +1,148 @@
+Testplan GUI
+============
+
+Ziel
+----
+Jede Funktion, die ein Benutzer ueber die Oberflaeche erreicht, hat einen
+GUI-Test, der sie so ausloest wie der Benutzer und das Ergebnis an drei Stellen
+prueft: in der Oberflaeche (Liste, Tabelle, Statuszeile, Dialogzustand), in der
+Konfiguration (Config::instance()) und im Dateisystem der Sandbox. Die
+Hilfeseiten unter AFS_Desktop/help sind die Anforderungsliste: jede dort
+beschriebene Funktion bekommt mindestens einen Test. Das Konzept der Tests
+steht in GUI-Test.txt.
+
+Grundsaetze
+-----------
+1. Ein Test prueft eine Benutzererwartung und heisst wie sie, als deutscher
+   Satz: TEST_F(GuiTest, GeloeschteSynchronisationVerschwindetAusListe). Eine
+   Datei pro Thema, daneben die Modulkommentardatei (.md).
+2. Eingaben gehen ueber die echte Oberflaeche (UserActions, Dialog-Driver);
+   Menuebefehle ueber activateMenuItem, weil der Simulator keine Menueleiste
+   oeffnen kann.
+3. Jede Meldungsbox ist eine Zusicherung: erwartete Boxen werden ueber
+   ModalDialogWatcher::answer() beantwortet, unerwartete lassen den Test
+   scheitern.
+4. Umgebungsabhaengiges wird uebersprungen, nicht nachgebaut: SSH-Tests ohne
+   Testserver, Dienststeuerung ohne installierten Dienst. E-Mail wird nie
+   versendet, nur die Eingabepruefung getestet.
+5. Die Tests laufen ohne Administratorrechte. Was UAC braucht, wird
+   uebersprungen.
+6. Nach jedem Test herrscht der Zustand von vorher (GuiTest::TearDown prueft
+   das). Testdaten legt ein Test in einem SandboxTree an, der sich beim
+   Verlassen des Tests selbst entfernt.
+
+Phase 0 - Infrastruktur
+-----------------------
+SandboxTree         Legt einen benannten Dateibaum unter der Sandbox an
+                    (Pfad -> Inhalt) und entfernt ihn im Destruktor.
+SyncActions         syncOnce(): "Einmal synchronisieren" ausloesen und auf das
+                    Ende warten; waitUntilSyncFinished() fuer Start/Stopp.
+UserActions         selectChoice, setCheckBox, setSpinValue, showNotebookPage,
+                    activateToolbarTool.
+ModalDialogWatcher  answer(): Meldungsbox mit einer Schaltflaeche beantworten,
+                    der Text bleibt fuer die Pruefung erhalten.
+SyncItemDialogDriver  Typ, Platzhalter, alle Optionen, Zyklus, Ausschluesse.
+LoggingDialogDriver   Beide Reiter des Logging-Dialogs.
+run_GUI_Tests.ps1   Baut mit AFS_WITH_GETTEXT und libintl und uebersetzt die
+                    Kataloge, damit die Testfenster dieselben Texte zeigen wie
+                    das Programm.
+
+Phase 1 - Synchronisation ausfuehren (runsync, synconce, options)
+-----------------------------------------------------------------
+EinmalSynchronisierenKopiertDateiInsZiel
+EinmalSynchronisierenVerzeichnisbaumKopiertAlleEbenen
+EinmalSynchronisierenOhneAenderungMeldetNichtsZuTun
+StartOhneSynchronisationZeigtHinweis
+StartUndStoppLaufenMehrerePassesUndStoppenSauber
+StartMenueIstGesperrtWaehrendDesLaufs
+ToolbarStartUndStoppSchaltenUm
+FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich
+AbbrechenImFortschrittsdialogBeendetDenLauf
+InaktiveSynchronisationWirdUebersprungen
+ZweiWegeSyncKopiertInBeideRichtungen
+QuelleNachKopierenLoeschenEntferntDieQuelldatei
+GeloeschteDateienImZielLoeschenEntferntVerwaisteDatei
+GeloeschteDateienImZielLoeschenGiltNichtFuerTypDatei
+GenerationenprinzipLegtBakDateiAn
+LeereDateienWerdenNurMitOptionKopiert
+VergleichNachInhaltKopiertGeaenderteDateiGleicherGroesse
+PlatzhalterBeschraenktAufPassendeDateien
+AusschluesseHaltenDateienZurueck
+
+Phase 2 - Synchronisation verwalten und Ansichten (syncitems)
+-------------------------------------------------------------
+SynchronisationBearbeitenUeberMenueUebernimmtNeueQuelle
+SynchronisationBearbeitenUeberDoppelklickInListe
+SynchronisationBearbeitenUeberZeilenkopfInTabelle
+SynchronisationLoeschenFragtNachUndEntfernt
+SynchronisationLoeschenAbbrechenBehaelt
+LeererNameWirdAbgelehnt
+DoppelterNameWirdAbgelehnt
+OkNurMitQuelleZielTypUndVergleichskriterium
+ZweiWegeSyncSperrtKopierenWennZielNeuer
+TypDateiSperrtLoeschenImZiel
+AusschluesseWerdenZeilenweiseGespeichert
+ZyklusIstAuf1Bis60Begrenzt
+KontextmenueInListeUndTabelleBearbeitetUndLoescht
+AnsichtWechselZeigtGleicheSynchronisationen
+AktivPerKlickInTabelleAendertKonfiguration
+LeereQuelleInTabelleWirdAbgelehntUndZurueckgesetzt
+BaumZeigtDateiUndOrdnerSymbole
+
+Phase 3 - Konfiguration, Einstellungen, Logging (config, settings, logging, backupproof)
+---------------------------------------------------------------------------------------
+SpeichernSchreibtDateiUndMeldetInStatuszeile
+SpeichernAlsHaengtJsonAnUndFragtBeiUeberschreiben
+OeffnenMitUngespeichertenAenderungenFragtNach
+OeffnenEinerDefektenDateiBehaeltAlteKonfiguration
+BeendenMitAenderungenFragtSpeichern
+MinimierenStattSchliessenVerstecktAnstattZuBeenden
+MeldungsfilterUnterdruecktInfoBox
+AutostartSchreibtRunEintrag
+EndgueltigLoeschenLoeschtOhnePapierkorb
+LogPfadUndLevelWerdenUebernommen
+KuerzereHistorieKuerztLogSofort
+EmailAktivOhneAdresseWirdAbgelehnt
+EmailAktivOhneServerOderAbsenderWirdAbgelehnt
+BackupNachweisWirdNachLaufGeschrieben
+LogDateiAnzeigenOhneEditorZeigtFehler
+
+Die nativen Datei- und Verzeichnisdialoge (wxFileDialog, wxDirDialog) sind mit
+dem Simulator nicht steuerbar. Entscheidung fuer Phase 3: im _GUITEST-Build
+liefern sie einen vorher hinterlegten Pfad, sonst werden die Pfade nur ueber
+die Textfelder getestet.
+
+Phase 4 - SSH (ssh), alle mit SKIP_WITHOUT_SSH_SERVER
+-----------------------------------------------------
+SshVerbindungBearbeitenAendertHost
+SshVerbindungLoeschenFragtNachUndWarntBeiVerwendung
+SshVerbindungUmbenennenAktualisiertVerweise
+SshNameZuKurzWirdAbgelehnt
+SshNameMitDoppelpunktWirdAbgelehnt
+SshDoppelterNameWirdAbgelehnt
+SshOkNurMitHostUndBenutzer
+SshButtonOeffnetAuswahlUndVerzeichnisdialogUndSetztPfad
+SshVerzeichnisdialogDoppelklickSteigtAb
+SshVerzeichnisdialogPfadfeldMitEnterNavigiert
+SshVerzeichnisdialogZeigtFehlerBeiUnbekanntemPfad
+EinmalSynchronisierenNachSshLegtDateiAufServerAb
+
+Phase 5 - Dienst, Taskleiste, Assistent, Hilfe, Instanz (service)
+-----------------------------------------------------------------
+HintergrunddienstStartOhneDienstZeigtFehlerbox
+TaskbarMenueWiederherstellenZeigtFenster
+TaskbarDoppelklickZeigtFenster
+AnsichtHintergrundVerstecktFenster
+InfoDialogZeigtVersion
+HilfeOeffnetHilfebuch
+ChatStrgEingabeSendet
+ChatLeereEingabeTutNichts
+ChatSchliessenVerstecktUndMenueZeigtWieder
+ZweiteInstanzWirdAbgewiesen
+
+Offene Punkte
+-------------
+- Der Toolbar-Knopf mit dem Hilfesymbol und Tooltip "Hilfe" loest id::About
+  aus (Toolbar.cpp), nicht die Hilfe. Vor dem Test in Phase 5 klaeren.
+- Laufzeit: der Chat-Test braucht allein rund 50 s. Langsame Tests kommen in
+  eine eigene Fixture SlowGuiTest, damit --filter sie ausklammern kann.
