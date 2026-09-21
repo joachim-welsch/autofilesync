@@ -44,6 +44,8 @@ void redirectUserDirectories()
     setEnvironmentVariable(L"APPDATA", GuiTestSandbox::root() / "AppData");  // [GuiTestSandbox.md#which-variables-matter]
     setEnvironmentVariable(L"USERPROFILE", GuiTestSandbox::root());
     setEnvironmentVariable(L"HOME", GuiTestSandbox::root());
+    setEnvironmentVariable(L"HOMEDRIVE", GuiTestSandbox::root().root_name());  // [GuiTestSandbox.md#homedrive-homepath]
+    setEnvironmentVariable(L"HOMEPATH", GuiTestSandbox::root().relative_path().wstring().insert(0, L"\\"));
 #else
     setEnvironmentVariable("HOME", GuiTestSandbox::root());
     setEnvironmentVariable("XDG_CONFIG_HOME", GuiTestSandbox::root() / ".config");

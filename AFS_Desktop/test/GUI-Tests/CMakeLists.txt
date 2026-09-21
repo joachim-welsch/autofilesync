@@ -49,6 +49,7 @@ set(TEST_SOURCES
     SyncOnceTest.cpp
     ContinuousSyncTest.cpp
     ProgressDialogTest.cpp
+    SyncOptionsTest.cpp
 )
 
 # The complete application under test - the same source list as the shipped

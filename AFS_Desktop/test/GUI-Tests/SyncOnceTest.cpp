@@ -7,6 +7,7 @@
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
 #include "Config.h"
+#include <filesystem>
 #include "id.h"
 #include "utilwx.h"
 
@@ -18,6 +19,7 @@ namespace guitest {
 namespace {
 
 const wxString NO_FILES_FOUND = "Es wurden keine zu synchronisierenden Dateien gefunden.";
+constexpr int PAUSE_MILLISECONDS = 1100;  // the item's sync cycle is 1 s, a run inside it is skipped
 
 SyncItemInput dirSync(const SandboxTree& tree, const wxString& name)
 {
@@ -67,17 +69,34 @@ TEST_F(GuiTest, EinmalSynchronisierenVerzeichnisKopiertKeineUnterverzeichnisse) 
     EXPECT_FALSE(tree.exists("ziel/a")) << "Typ Verzeichnis hat ein Unterverzeichnis mitkopiert.";
 }
 
-TEST_F(GuiTest, EinmalSynchronisierenOhneAenderungMeldetNichtsZuTun)  // [SyncOnceTest.md#nothing-to-do]
+TEST_F(GuiTest, EinmalSynchronisierenOhneAenderungKopiertNichts)  // [SyncOnceTest.md#nothing-to-do]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "unveraendert", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
     ASSERT_TRUE(addSyncItem(mainWindow(), dirSync(tree, "guitest-unveraendert")));
     ASSERT_TRUE(syncOnce(mainWindow()));
     ASSERT_TRUE(tree.exists("ziel/bericht.txt"));
+    const auto copiedAt = std::filesystem::last_write_time(tree.path("ziel/bericht.txt"));
+
+    pump(PAUSE_MILLISECONDS);
+    ASSERT_TRUE(syncOnce(mainWindow()));
+
+    EXPECT_EQ(std::filesystem::last_write_time(tree.path("ziel/bericht.txt")), copiedAt) << "Die unveränderte Datei wurde erneut kopiert.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().empty());
+    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::SyncOnce)));
+}
+
+TEST_F(GuiTest, EinmalSynchronisierenInDerPauseMeldetNichtsZuTun)  // [SyncOnceTest.md#pause]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "pause", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
+    SyncItemInput input = dirSync(tree, "guitest-pause");
+    input.options.syncCycleSeconds = 60;  // long enough that the second run surely falls into the pause
+    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    ASSERT_TRUE(syncOnce(mainWindow()));
 
     ModalDialogWatcher::instance().answer("Info", wxID_OK);
     ASSERT_TRUE(syncOnce(mainWindow()));
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der zweite Lauf hat den Hinweis nicht gezeigt.";
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Lauf in der Pause zeigte keinen Hinweis.";
     EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), NO_FILES_FOUND);
     EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::SyncOnce))) << "\"Einmal synchronisieren\" bleibt nach dem Hinweis gesperrt.";
 }

@@ -47,27 +47,37 @@ run_GUI_Tests.ps1   Baut mit AFS_WITH_GETTEXT und libintl und uebersetzt die
                     Kataloge, damit die Testfenster dieselben Texte zeigen wie
                     das Programm.
 
-Phase 1 - Synchronisation ausfuehren (runsync, synconce, options)
------------------------------------------------------------------
-EinmalSynchronisierenKopiertDateiInsZiel
-EinmalSynchronisierenVerzeichnisbaumKopiertAlleEbenen
-EinmalSynchronisierenOhneAenderungMeldetNichtsZuTun
-StartOhneSynchronisationZeigtHinweis
-StartUndStoppLaufenMehrerePassesUndStoppenSauber
-StartMenueIstGesperrtWaehrendDesLaufs
-ToolbarStartUndStoppSchaltenUm
-FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich
-AbbrechenImFortschrittsdialogBeendetDenLauf
-InaktiveSynchronisationWirdUebersprungen
-ZweiWegeSyncKopiertInBeideRichtungen
-QuelleNachKopierenLoeschenEntferntDieQuelldatei
-GeloeschteDateienImZielLoeschenEntferntVerwaisteDatei
-GeloeschteDateienImZielLoeschenGiltNichtFuerTypDatei
-GenerationenprinzipLegtBakDateiAn
-LeereDateienWerdenNurMitOptionKopiert
-VergleichNachInhaltKopiertGeaenderteDateiGleicherGroesse
-PlatzhalterBeschraenktAufPassendeDateien
-AusschluesseHaltenDateienZurueck
+Phase 1 - Synchronisation ausfuehren (runsync, synconce, options) - fertig
+--------------------------------------------------------------------------
+SyncOnceTest        EinmalSynchronisierenKopiertDateiInsZiel
+                    EinmalSynchronisierenVerzeichnisbaumKopiertAlleEbenen
+                    EinmalSynchronisierenVerzeichnisKopiertKeineUnterverzeichnisse
+                    EinmalSynchronisierenOhneAenderungKopiertNichts
+                    EinmalSynchronisierenInDerPauseMeldetNichtsZuTun
+                    InaktiveSynchronisationWirdUebersprungen
+                    StartOhneSynchronisationZeigtHinweis
+ContinuousSyncTest  StartUndStoppLaufenMehrerePassesUndStoppenSauber
+                    StartMenueIstGesperrtWaehrendDesLaufs
+                    ToolbarStartUndStoppSchaltenUm
+ProgressDialogTest  FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich
+                    AbbrechenImFortschrittsdialogBeendetDenLauf
+SyncOptionsTest     ZweiWegeSyncKopiertInBeideRichtungen
+                    QuelleNachKopierenLoeschenEntferntDieQuelldatei
+                    GeloeschteDateienImZielLoeschenEntferntVerwaisteDatei
+                    OhneOptionBleibtVerwaisteDateiImZiel
+                    GenerationenprinzipLegtBakDateiAn
+                    LeereDateienWerdenNurMitOptionKopiert
+                    VergleichNachInhaltKopiertGeaenderteDateiGleicherGroesse
+                    VergleichNachDatumUebersiehtGeaenderteDateiGleicherGroesse
+                    PlatzhalterBeschraenktAufPassendeDateien
+                    AusschluesseHaltenDateienZurueck
+
+Gefunden und behoben: Stopp verliess den fortlaufenden Modus nicht, wenn
+gerade kein Lauf aktiv war (Timer startete neu bzw. wiederholte die
+"Achtung"-Box), und Abbrechen im Fortschrittsdialog wurde ignoriert, weil
+der Zustand des Controllers nach dem Start des Kopierlaufs zurueckgesetzt
+wurde. "Gilt nicht fuer Typ Datei" ist eine Dialogregel und wandert als
+TypDateiSperrtLoeschenImZiel nach Phase 2.
 
 Phase 2 - Synchronisation verwalten und Ansichten (syncitems)
 -------------------------------------------------------------
@@ -146,3 +156,7 @@ Offene Punkte
   aus (Toolbar.cpp), nicht die Hilfe. Vor dem Test in Phase 5 klaeren.
 - Laufzeit: der Chat-Test braucht allein rund 50 s. Langsame Tests kommen in
   eine eigene Fixture SlowGuiTest, damit --filter sie ausklammern kann.
+- "Einmal synchronisieren" innerhalb der Pause einer Synchronisation zeigt
+  dieselbe Box wie bei fehlenden Dateien ("Es wurden keine zu
+  synchronisierenden Dateien gefunden."). Der Benutzer erfaehrt nicht, dass
+  nur die Pause noch laeuft. Text oder Verhalten klaeren.

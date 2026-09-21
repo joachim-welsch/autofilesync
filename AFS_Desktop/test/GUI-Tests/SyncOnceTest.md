@@ -18,9 +18,18 @@ of tests shares a layout and checks the one entry that must be missing for the f
 
 ## nothing-to-do
 
-The second run over an unchanged tree has nothing to count and ends in the "Info" box before
-any copying. The box is answered by the watcher; the test reads its text back, because the
-box is the only way the user learns why nothing happened.
+The count pass counts every file the synchronisation considers, not the ones that differ, so
+a second run over an unchanged tree compares and copies nothing without a message. The
+unchanged write time of the target is the proof that nothing was copied. The run waits out
+the item's pause first, see below.
+
+## pause
+
+Every synchronisation has a pause (the sync cycle, 1 s by default) and a run inside it skips
+the item. "Einmal synchronisieren" twice in quick succession therefore counts nothing and
+shows the "Info" box - the same box as for an inactive item, so the box is the only thing the
+user learns. The test pins that behaviour down; whether the text should mention the pause
+is a question for the plan's open points.
 
 ## start-without-sync-item
 
