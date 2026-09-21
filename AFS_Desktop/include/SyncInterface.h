@@ -43,6 +43,7 @@ public:
     void onTimer();
     void startContinuousSync();
     void stopContinuousSync();
+    wxString stateText() const;  // [SyncInterface.md#stateText]
     SyncControler& syncControler() { return syncControler_; }
     SyncType actSyncType() const { return actSyncType_; }
     void setActSyncType(SyncType type) { actSyncType_ = type; }

@@ -57,6 +57,7 @@ private:
 	void createToolBar();
 	void createHelp();
     void updateMenu();
+    void updateSyncState();  // [MainWindow.md#updateSyncState]
     void createSplitterWindow();
 	void createListWindow();
 	void createGridWindow();

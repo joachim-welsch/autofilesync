@@ -57,6 +57,7 @@ SyncOnceTest        EinmalSynchronisierenKopiertDateiInsZiel
                     InaktiveSynchronisationWirdUebersprungen
                     StartOhneSynchronisationZeigtHinweis
 ContinuousSyncTest  StartUndStoppLaufenMehrerePassesUndStoppenSauber
+                    StatuszeileZeigtZustandDerSynchronisation
                     StartMenueIstGesperrtWaehrendDesLaufs
                     ToolbarStartUndStoppSchaltenUm
 ProgressDialogTest  FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich

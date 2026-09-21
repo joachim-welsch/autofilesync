@@ -109,3 +109,10 @@ afs.icns in every size the Dock asks for. Setting it here would replace that wit
 Always a real shutdown: onClose() already decided to minimize instead and returns before calling
 this, so getting here must stop sync and actually exit regardless of the "minimize instead of
 close" setting.
+
+## updateSyncState
+
+The second status field belongs to the synchronisation's state (SyncInterface::stateText);
+the first keeps the transient messages with their own timer, so a "Konfiguration gespeichert"
+never hides what the synchronisation is doing. Refreshed on the timer tick and right after
+Start, Stopp and Einmal, so the user does not wait a second for the answer to a click.
