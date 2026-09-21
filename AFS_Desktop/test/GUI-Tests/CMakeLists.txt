@@ -47,6 +47,8 @@ set(TEST_SOURCES
     TreeViewCrossSelectionTest.cpp
     SshDirDialogTest.cpp
     SyncOnceTest.cpp
+    ContinuousSyncTest.cpp
+    ProgressDialogTest.cpp
 )
 
 # The complete application under test - the same source list as the shipped

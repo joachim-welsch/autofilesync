@@ -111,6 +111,8 @@
     <ClCompile Include="TreeViewContextMenuTest.cpp" />
     <ClCompile Include="TreeViewCrossSelectionTest.cpp" />
     <ClCompile Include="SyncOnceTest.cpp" />
+    <ClCompile Include="ContinuousSyncTest.cpp" />
+    <ClCompile Include="ProgressDialogTest.cpp" />
     <ClCompile Include="..\..\src\App.cpp" />
     <ClCompile Include="..\..\src\ChatDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />

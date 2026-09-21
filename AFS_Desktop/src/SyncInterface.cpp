@@ -102,13 +102,13 @@ void SyncInterface::onTimer()
     if (!Config::exists() || !Config::instance().ready())
         return;
     if (syncControler_.sync_finished()) {
+        syncControler_.reset_state();  // [SyncInterface.md#reset-before-the-next-run]
         if (actSyncType_ == SyncType::CountFiles)
             countFilesFinished();
         else if (actSyncType_ == SyncType::Single)
             syncOnceFinished();
         else if (actSyncType_ == SyncType::Continuous)
             continuousSyncFinished();
-        syncControler_.reset_state();
     }
     if (actSyncType_ == SyncType::Continuous && !Synchronize::has_instance())
         onSync();
@@ -210,6 +210,8 @@ void SyncInterface::stopContinuousSync()
     menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
     menu_.syncMenu()->Enable(tul(id::StopSync), false);
     syncControler_.stop_sync();
+    continuousSyncFinished();  // [SyncInterface.md#stop-leaves-continuous-mode]
+    syncControler_.reset_state();
 }
 
 void SyncInterface::stopSync()
