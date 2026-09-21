@@ -20,3 +20,19 @@ it can never dismiss, without ever having synced anything.
 Poll for actual completion instead of calling stopSync(): that requests an early stop, aborting
 mid-item and syncing only whatever the worker thread happened to reach in the few CPU cycles
 before this call.
+
+## stop-leaves-continuous-mode
+
+Stop ends the continuous mode here and not on the next timer tick: stop_sync() returns at
+once when no run is active - within the first second after Start, or with an empty
+configuration - and the tick would then find "Continuous" without an instance and start
+the next run, or, without sync items, show the "Achtung" box again every second. Found by
+GuiTest.StartOhneSynchronisationZeigtHinweis.
+
+## reset-before-the-next-run
+
+The state is reset before the finished handlers run, because countFilesFinished() starts
+the copy run right away: resetting afterwards put the controller back to "Waiting" while
+that run was active, and request_stop() - the progress dialog's Cancel - then returned
+without doing anything, so Cancel let every "Einmal synchronisieren" run through to the
+end. Found by GuiTest.AbbrechenImFortschrittsdialogBeendetDenLauf.
