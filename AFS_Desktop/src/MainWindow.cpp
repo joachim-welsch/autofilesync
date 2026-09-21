@@ -100,6 +100,7 @@ MainWindow::MainWindow(wxWindow *parent,
 	setTitle();
 	restoreSizeAndPosition();
 	CreateStatusBar(2);
+	updateSyncState();
 	createToolBar();
 	createListWindow();
 	createHelp();
@@ -131,6 +132,11 @@ MainWindow::~MainWindow()
 void MainWindow::onStatusTimer(wxTimerEvent&)
 {
     SetStatusText("");
+}
+
+void MainWindow::updateSyncState()
+{
+    SetStatusText(syncInterface_.stateText(), 1);
 }
 
 void MainWindow::setTitle()
@@ -430,6 +436,7 @@ void MainWindow::onStartSingleSync(wxCommandEvent& WXUNUSED(event))
 		menu_.syncMenu()->Enable(tul(id::StartSync), false);
 		menu_.syncMenu()->Enable(tul(id::SyncOnce), false);
 	}
+	updateSyncState();
 }
 
 void MainWindow::onStartContinuousSync(wxCommandEvent& WXUNUSED(event))
@@ -437,6 +444,7 @@ void MainWindow::onStartContinuousSync(wxCommandEvent& WXUNUSED(event))
 	log_debug(L"MainWindow::onStartContinuousSync()");  
 	syncInterface_.startContinuousSync();
 	toolbar_.setStarted(true);
+	updateSyncState();
 }
 
 void MainWindow::onStopContinuousSync(wxCommandEvent& WXUNUSED(event))
@@ -444,6 +452,7 @@ void MainWindow::onStopContinuousSync(wxCommandEvent& WXUNUSED(event))
 	log_debug(L"MainWindow::onStopContinuousSync()");
 	syncInterface_.stopContinuousSync();
 	toolbar_.setStarted(false);
+	updateSyncState();
 }
 
 void MainWindow::setConsoleMode()
@@ -466,6 +475,7 @@ void MainWindow::onTimer(wxTimerEvent&)
 		return;
 	updateMenu();
 	syncInterface_.onTimer();
+	updateSyncState();
 	if (init_) {
 		init_ = false;
 		init();

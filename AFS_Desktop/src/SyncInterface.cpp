@@ -1,5 +1,6 @@
 #include "SyncInterface.h"
 #include "SyncControler.h"
+#include "SyncItem.h"
 #include "ProgressDialog.h"
 #include "Synchronize.h"
 #include "Menu.h"
@@ -7,6 +8,7 @@
 #include "Logging.h"
 #include "id.h"
 #include "utilwx.h"
+#include <optional>
 
 using namespace AFS_Core;
 
@@ -81,8 +83,6 @@ void SyncInterface::countFilesFinished()
         startSync();
     }
     else {
-        if (parentFrame())
-            parentFrame()->SetStatusText("");
         wxMessageBox("Es wurden keine zu synchronisierenden Dateien gefunden.", "Info");
         actSyncType_ = SyncType::None;
         menu_.syncMenu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
@@ -131,20 +131,14 @@ bool SyncInterface::startSync()
 {
     log_debug(L"SyncInterface::startSync()");
     if (actSyncType_ == SyncType::CountFiles) {
-        if (parentFrame())
-            parentFrame()->SetStatusText(L"Zähle Dateien für Synchronization ...");
         wxBusyCursor busyCursor;
         wxYield();
     }
     else if (actSyncType_ == SyncType::Single) {
         if (countFiles_ == 0) {
-            if (parentFrame())
-                parentFrame()->SetStatusText("");
             wxMessageBox("Es wurden keine zu synchronisierenden Dateien gefunden.", "Info");
             return false;
         }
-        if (parentFrame())
-            parentFrame()->SetStatusText("");
         openProgressDialog(countFiles_);
     }
     if (!syncControler_.start_sync(actSyncType_)) {
@@ -212,6 +206,40 @@ void SyncInterface::stopContinuousSync()
     syncControler_.stop_sync();
     continuousSyncFinished();  // [SyncInterface.md#stop-leaves-continuous-mode]
     syncControler_.reset_state();
+}
+
+namespace {
+
+std::optional<std::chrono::seconds> remainingPause()  // [SyncInterface.md#remainingPause]
+{
+    std::optional<std::chrono::steady_clock::duration> shortest;
+    for (const auto& item : Config::instance().syncitems()) {
+        if (!item.enabled())
+            continue;
+        const auto remaining = item.last_sync() + std::chrono::seconds(item.sync_cycle()) - std::chrono::steady_clock::now();
+        if (remaining <= std::chrono::steady_clock::duration::zero())
+            return std::nullopt;
+        if (!shortest || remaining < *shortest)
+            shortest = remaining;
+    }
+    if (!shortest)
+        return std::nullopt;
+    return std::chrono::ceil<std::chrono::seconds>(*shortest);
+}
+
+}
+
+wxString SyncInterface::stateText() const
+{
+    switch (actSyncType_) {
+    case SyncType::None: return _("Synchronisation gestoppt");
+    case SyncType::CountFiles: return _(L"Zähle Dateien …");
+    case SyncType::Single: return _(L"Einmalige Synchronisation läuft …");
+    case SyncType::Continuous: break;
+    }
+    if (const auto pause = remainingPause())
+        return wxString::Format(_(L"Pausiert – nächster Durchlauf in %d s"), static_cast<int>(pause->count()));
+    return _(L"Synchronisation läuft …");
 }
 
 void SyncInterface::stopSync()

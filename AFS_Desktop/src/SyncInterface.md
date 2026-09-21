@@ -36,3 +36,17 @@ the copy run right away: resetting afterwards put the controller back to "Waitin
 that run was active, and request_stop() - the progress dialog's Cancel - then returned
 without doing anything, so Cancel let every "Einmal synchronisieren" run through to the
 end. Found by GuiTest.AbbrechenImFortschrittsdialogBeendetDenLauf.
+
+## stateText
+
+One line for the status bar saying what the synchronisation is doing right now, refreshed by
+the main window on every timer tick: stopped, counting, a single run, a running pass, or
+paused with the seconds until the next pass. The pause is the state a user wonders about
+most - nothing visibly happens - so it is spelled out instead of shown as "running".
+
+## remainingPause
+
+The continuous run skips every item whose pause has not elapsed, so the run is paused only
+while all enabled items are; one due item means work is about to happen. The shortest
+remaining pause is what the user waits for. A fresh item's last_sync is TimePoint::min, which
+makes it due at once.

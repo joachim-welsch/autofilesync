@@ -39,6 +39,11 @@ SyncItemInput dirSync(const SandboxTree& tree, const wxString& name)
     return input;
 }
 
+wxString syncState(MainWindow& window)
+{
+    return window.GetStatusBar()->GetStatusText(1);
+}
+
 bool copied(const SandboxTree& tree, const char* file)
 {
     return waitUntil([&tree, file] { return tree.exists(file); }, PASS_TIMEOUT_MILLISECONDS);
@@ -65,6 +70,26 @@ TEST_F(GuiTest, StartUndStoppLaufenMehrerePassesUndStoppenSauber)  // [Continuou
     EXPECT_FALSE(tree.exists("ziel/dritte.txt")) << "Nach Stopp wurde weiter kopiert.";
     EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::StartSync)));
     EXPECT_FALSE(syncMenuItemEnabled(mainWindow(), tul(id::StopSync)));
+}
+
+TEST_F(GuiTest, StatuszeileZeigtZustandDerSynchronisation)  // [ContinuousSyncTest.md#StatuszeileZeigtZustandDerSynchronisation]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "statuszeile", {{"quelle/erste.txt", "1"}, {"ziel/", ""}});
+    SyncItemInput input = dirSync(tree, "guitest-statuszeile");
+    input.options.syncCycleSeconds = 60;
+    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    const RunningSync running(mainWindow());
+    ASSERT_EQ(syncState(mainWindow()), "Synchronisation gestoppt");
+
+    activateMenuItem(mainWindow(), tul(id::StartSync));
+    ASSERT_TRUE(copied(tree, "ziel/erste.txt"));
+    ASSERT_TRUE(waitUntil([this] { return syncState(mainWindow()).StartsWith("Pausiert"); }, PASS_TIMEOUT_MILLISECONDS))
+        << "Nach dem Durchlauf zeigt die Statuszeile nicht die Pause, sondern: " << syncState(mainWindow());
+    EXPECT_TRUE(syncState(mainWindow()).Matches(L"Pausiert * in * s")) << syncState(mainWindow());
+
+    activateMenuItem(mainWindow(), tul(id::StopSync));
+    ASSERT_TRUE(waitUntilSyncFinished(mainWindow()));
+    EXPECT_EQ(syncState(mainWindow()), "Synchronisation gestoppt");
 }
 
 TEST_F(GuiTest, StartMenueIstGesperrtWaehrendDesLaufs)
