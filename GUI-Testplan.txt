@@ -135,20 +135,26 @@ zwei Boxen, die von wxWidgets ("Execution of command ... failed") und die
 eigene. Nicht getestet: Beenden mit Aenderungen (verlaesst die Hauptschleife
 des Testprozesses); die Rueckfrage "Speichern?" ist ueber Oeffnen abgedeckt.
 
-Phase 4 - SSH (ssh), alle mit SKIP_WITHOUT_SSH_SERVER
------------------------------------------------------
-SshVerbindungBearbeitenAendertHost
-SshVerbindungLoeschenFragtNachUndWarntBeiVerwendung
-SshVerbindungUmbenennenAktualisiertVerweise
-SshNameZuKurzWirdAbgelehnt
-SshNameMitDoppelpunktWirdAbgelehnt
-SshDoppelterNameWirdAbgelehnt
-SshOkNurMitHostUndBenutzer
-SshButtonOeffnetAuswahlUndVerzeichnisdialogUndSetztPfad
-SshVerzeichnisdialogDoppelklickSteigtAb
-SshVerzeichnisdialogPfadfeldMitEnterNavigiert
-SshVerzeichnisdialogZeigtFehlerBeiUnbekanntemPfad
-EinmalSynchronisierenNachSshLegtDateiAufServerAb
+Phase 4 - SSH (ssh) - fertig
+----------------------------
+SshAccountsTest   SshVerbindungBearbeitenAendertHost
+(ohne Server)     SshVerbindungLoeschenFragtNachUndWarntBeiVerwendung
+                  SshVerbindungLoeschenOhneVerwendungWarntNicht
+                  SshVerbindungUmbenennenAktualisiertVerweise
+                  SshNameZuKurzWirdAbgelehnt
+                  SshNameMitDoppelpunktWirdAbgelehnt
+                  SshDoppelterNameWirdAbgelehnt
+                  SshOkNurMitHostUndBenutzer
+SshSyncTest       SshVerzeichnisdialogDoppelklickSteigtAb
+(SshGuiTest,      SshVerzeichnisdialogPfadfeldMitEnterNavigiert
+ uebersprungen    SshVerzeichnisdialogZeigtFehlerBeiUnbekanntemPfad
+ ohne Server)     SshButtonOeffnetAuswahlUndVerzeichnisdialogUndSetztPfad
+                  EinmalSynchronisierenNachSshLegtDateiAufServerAb
+
+SshTestServer buendelt Testkonto, Roh-SFTP-Sitzung (RemoteSftp) und die
+Fixture SshGuiTest mit einem Probeverzeichnis je Prozess; SshDirDialogTest
+baut darauf auf. SshAccountDialogDriver kann bearbeiten, loeschen und in der
+Liste umbenennen.
 
 Phase 5 - Dienst, Taskleiste, Assistent, Hilfe, Instanz (service)
 -----------------------------------------------------------------
@@ -169,6 +175,8 @@ Offene Punkte
   aus (Toolbar.cpp), nicht die Hilfe. Vor dem Test in Phase 5 klaeren.
 - Laufzeit: der Chat-Test braucht allein rund 50 s. Langsame Tests kommen in
   eine eigene Fixture SlowGuiTest, damit --filter sie ausklammern kann.
+- validateSshAccountName prueft den Doppelpunkt nach der Zeichenregel, die ihn
+  schon abfaengt; der Benutzer sieht nie die Doppelpunkt-Meldung. Toter Zweig.
 - Die Meldungsfilter Fehler/Warnung/Info der globalen Einstellungen werden
   nirgends ausgewertet (show_errors, show_warnings, show_infos landen nur in
   der Konfiguration). Entweder anbinden oder aus dem Dialog nehmen.
