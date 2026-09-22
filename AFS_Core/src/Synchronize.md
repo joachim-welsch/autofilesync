@@ -14,7 +14,9 @@ Only touched by the worker thread (sync_item), so no lock is needed.
 ## item_reachable_
 
 Last known reachability per item name, so an item that stays unreachable is reported once
-instead of once per pass. Same thread as above.
+instead of once per pass - to the log as an error and to the backup proof. The log line is what
+the GUI's summary box after a single run picks up; CheckPath's own lines are Info. Same thread
+as above.
 
 ## constructor-clears-stop
 

@@ -239,8 +239,11 @@ void Synchronize::sync_item(SyncItem& i)
 void Synchronize::report_unreachable(const SyncItem& i)
 {
     bool& reachable = item_reachable_.try_emplace(i.name(), true).first->second;
-    if (std::exchange(reachable, false))
-        report_sync_error(translation::translate("source_or_target_not_reachable") + i.source() + L" -> " + i.target());
+    if (!std::exchange(reachable, false))
+        return;
+    const wstring message = translation::translate("source_or_target_not_reachable") + i.source() + L" -> " + i.target();
+    log_error(message);  // [Synchronize.md#item_reachable_]
+    report_sync_error(message);
 }
 
 void Synchronize::prove_sync_item(SyncItem& i)

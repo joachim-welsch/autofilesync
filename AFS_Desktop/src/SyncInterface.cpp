@@ -8,7 +8,9 @@
 #include "Logging.h"
 #include "id.h"
 #include "utilwx.h"
+#include <algorithm>
 #include <optional>
+#include <vector>
 
 using namespace AFS_Core;
 
@@ -50,10 +52,68 @@ void SyncInterface::openProgressDialog(uint32_t nFiles)
     syncControler_.register_progress_dialog(progressDialog_);
 }
 
+namespace {
+
+constexpr std::size_t MAX_LINES_IN_BOX = 15;  // [SyncInterface.md#runMessagesText]
+
+bool wanted(const LogMessage& message, const Settings& settings)
+{
+    switch (message.level) {
+    case LogLevel::Info: return settings.show_infos();
+    case LogLevel::Warning: return settings.show_warnings();
+    default: return settings.show_errors();
+    }
+}
+
+wxString levelLabel(LogLevel level)
+{
+    switch (level) {
+    case LogLevel::Info: return _("Info");
+    case LogLevel::Warning: return _("Warnung");
+    default: return _("Fehler");
+    }
+}
+
+wxString runMessagesText(const std::vector<LogMessage>& messages)  // [SyncInterface.md#runMessagesText]
+{
+    wxString text;
+    std::size_t shown = 0;
+    for (const LogMessage& message : messages) {
+        if (shown++ == MAX_LINES_IN_BOX) {
+            text += wxString::Format(_(L"… und %zu weitere Meldungen, siehe Protokoll."), messages.size() - MAX_LINES_IN_BOX);
+            break;
+        }
+        text += levelLabel(message.level) + ": " + wxString::FromUTF8(message.text) + "\n";
+    }
+    return text;
+}
+
+LogLevel highestLevel(const std::vector<LogMessage>& messages)
+{
+    LogLevel highest = LogLevel::Info;
+    for (const LogMessage& message : messages)
+        highest = std::max(highest, message.level);
+    return highest;
+}
+
+}
+
+void SyncInterface::showRunMessages()
+{
+    Logging::instance().collect_messages(false);
+    std::vector<LogMessage> messages = Logging::instance().take_collected_messages();
+    const Settings& settings = Config::instance().settings();
+    std::erase_if(messages, [&settings](const LogMessage& message) { return !wanted(message, settings); });
+    if (messages.empty() || silentMode())
+        return;
+    const LogLevel highest = highestLevel(messages);
+    const long icon = highest == LogLevel::Info ? wxICON_INFORMATION : highest == LogLevel::Warning ? wxICON_WARNING : wxICON_ERROR;
+    wxMessageBox(runMessagesText(messages), _("Synchronisation") + ": " + levelLabel(highest), wxOK | icon, &parentWindow_);
+}
+
 void SyncInterface::syncOnceFinished()
 {
     log_debug(L"SyncInterface::syncOnceFinished()");
-    syncControler_.display_errormessages(false);
     syncControler_.destroy_synchronize();
     if (progressDialog_ != nullptr) {
         progressDialog_->canBeClosed(true);
@@ -64,6 +124,7 @@ void SyncInterface::syncOnceFinished()
     menu_.syncMenu()->Enable(tul(id::StartSync), true);
     menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
     actSyncType_ = SyncType::None;
+    showRunMessages();
 }
 
 void SyncInterface::countFilesFinished()
@@ -87,6 +148,7 @@ void SyncInterface::countFilesFinished()
         actSyncType_ = SyncType::None;
         menu_.syncMenu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
         menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
+        showRunMessages();
     }
 }
 
@@ -120,7 +182,7 @@ bool SyncInterface::singleSync()
         return Config::instance().ready() && !Config::instance().syncitems().empty() && !Synchronize::has_instance();
     };
     if (canSync()) {
-        syncControler_.display_errormessages(true);
+        Logging::instance().collect_messages(true);  // [SyncInterface.md#showRunMessages]
         actSyncType_ = SyncType::CountFiles;
         return startSync();
     }

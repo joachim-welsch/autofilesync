@@ -137,3 +137,14 @@ or the path is gone, the file is opened anew. A handle that is closed on purpose
 fstat() and one stat() per message, little next to the fsync() that follows.
 Windows needs none of this: there a file that another process holds open cannot
 be replaced.
+
+## collected_
+
+The messages of one run, collected for the GUI, which shows them as a summary box after
+"Einmal synchronisieren" according to the user's Fehler/Warnung/Info filters. Collecting is
+independent of the log level: a user who keeps the log at Error can still ask for the infos
+of a run in a box, so should_log() lets Info and above through while collecting and
+write_to_file() applies the level itself. The head (timestamp, origin, level) is stripped and
+the line break dropped - the box shows the text, the level goes with it as a value. Capped at
+MAX_COLLECTED so a run over thousands of files cannot grow the vector without bound; the box
+tells the user to look into the log for the rest.

@@ -63,6 +63,7 @@ set(SOURCES
     SyncArbiterTests.cpp
     CheckPathTests.cpp
     LogCutTests.cpp
+    LoggingCollectTests.cpp
     LogAnalysisTests.cpp
     ModelLocationTests.cpp
     SyncSshFileTests.cpp

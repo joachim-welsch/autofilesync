@@ -3,6 +3,7 @@
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
 #include "SandboxTree.h"
+#include "RestoredSettings.h"
 #include "SettingsDialogDriver.h"
 #include "UserActions.h"
 #include "Config.h"
@@ -29,19 +30,6 @@ void applySettings(MainWindow& window, const SettingsInput& input)
     activateMenuItem(window, tul(id::EditSettings));
     pump();
 }
-
-class RestoredSettings {  // [SettingsTest.md#RestoredSettings]
-public:
-    RestoredSettings(): settings_(Config::instance().settings()), binPath_(RecycleBin::instance().bin_path()) {}
-    ~RestoredSettings()
-    {
-        Config::instance().settings() = settings_;
-        RecycleBin::instance().bin_path(binPath_);
-    }
-private:
-    Settings settings_;
-    fs::path binPath_;
-};
 
 #ifdef _WIN32
 const wxString RUN_KEY = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";

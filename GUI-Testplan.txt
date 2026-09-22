@@ -187,15 +187,25 @@ autofilesync, der Instanzwaechter wuerde ihn nicht erkennen, und eine zweite
 Instanz zeigt ihre Absage in einem Meldungsfenster, das ein Kindprozess
 nicht schliessen kann. Braucht einen Aufruf ohne Oberflaeche.
 
-Stand: 89 GUI-Tests, jede Hilfeseite hat mindestens einen Test.
+Nachtrag - Meldungsfilter (settings)
+------------------------------------
+SyncMessagesTest   FehlerDesEinzelsyncsErscheintAlsMeldung
+                   MeldungsfilterAusUnterdruecktDieFehlerbox
+                   WarnungDesEinzelsyncsErscheintMitFilter
+                   InfoDesEinzelsyncsErscheintMitFilter
+                   FortlaufenderBetriebZeigtKeineMeldungsbox
+
+Die Haekchen Fehler/Warnung/Info zeigen nach "Einmal synchronisieren" die
+gesammelten Meldungen des Laufs in einer Box (Logging sammelt, SyncInterface
+zeigt). Gefunden und behoben dabei: MountedDrives meldete fuer jedes
+Laufwerk ohne Medium einen Fehler, der so in jeder Box gelandet waere.
+
+Stand: 94 GUI-Tests, jede Hilfeseite hat mindestens einen Test.
 
 Offene Punkte
 -------------
 - validateSshAccountName prueft den Doppelpunkt nach der Zeichenregel, die ihn
   schon abfaengt; der Benutzer sieht nie die Doppelpunkt-Meldung. Toter Zweig.
-- Die Meldungsfilter Fehler/Warnung/Info der globalen Einstellungen werden
-  nirgends ausgewertet (show_errors, show_warnings, show_infos landen nur in
-  der Konfiguration). Entweder anbinden oder aus dem Dialog nehmen.
 - "Einmal synchronisieren" innerhalb der Pause einer Synchronisation zeigt
   dieselbe Box wie bei fehlenden Dateien ("Es wurden keine zu
   synchronisierenden Dateien gefunden."). Der Benutzer erfaehrt nicht, dass

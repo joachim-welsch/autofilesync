@@ -92,16 +92,6 @@ void SyncControler::stop_sync()
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
-void SyncControler::display_errormessages(bool yes_no)
-{
-	display_errormessages_ = yes_no;
-}
-
-bool SyncControler::display_errormessages() const
-{
-	return display_errormessages_;
-}
-
 SyncMessage SyncControler::get_message() const
 {
 	if (synchronize_ == nullptr)
