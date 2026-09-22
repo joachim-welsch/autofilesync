@@ -135,7 +135,8 @@ CreateProcess fails in the caller. Found by GuiTest.LogDateiAnzeigenOhneEditorZe
 ## showLicense
 
 The first thing the status bar says after the start, for five seconds: whom the installation
-is licensed to, or "private Nutzung" without a licence file. The file is looked for in the
+is licensed to, or "private Nutzung" without a licence file or with one that names nobody
+(License.md#private-use). The file is looked for in the
 configuration directory first and next to the executable second (License.md#find), and
 checked against the product's public key. The welcome message it replaces said nothing the
 title bar does not.

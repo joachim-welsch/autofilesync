@@ -2,6 +2,7 @@
 # Makes a licence file for AutoFileSync: autofilesync.lic, signed with the product's
 # Ed25519 private key (kept outside the repository, see AFS_Core/src/License.md).
 #   tools/makeLicense.sh <private key .pem> "<licensee>" [output file]
+# An empty licensee ("") makes a licence for private use.
 set -e
 if [ $# -lt 2 ]; then
     echo "usage: $0 <private key .pem> \"<licensee>\" [output file]" >&2

@@ -113,7 +113,7 @@ std::optional<License> read(const std::filesystem::path& file, PublicKey public_
     if (!in)
         return std::nullopt;
     const std::optional<Parsed> parsed = parse(in);
-    const bool valid = parsed && !parsed->licensee.empty()
+    const bool valid = parsed  // [License.md#private-use]
         && verify(bytes_of(parsed->payload), from_hex(parsed->signature_hex), public_key);
     if (!valid) {
         log_warning(translation::translate("license_file_invalid"), file.wstring());  // [License.md#read]

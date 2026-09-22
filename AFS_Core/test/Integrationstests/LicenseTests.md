@@ -20,3 +20,8 @@ A licence made with tools/makeLicense.sh and the product's private key, pinned h
 signature: the one test that ties the embedded public key to the key the developer signs with.
 A new key pair has to update this signature, which is the intended reminder that every issued
 licence stops verifying then.
+
+## private-use
+
+The signature makes the file a licence, the licensee decides whom it is for; an empty one is
+the private-use case (License.md#private-use) and must not be mistaken for a broken file.

@@ -7,7 +7,8 @@ Module comment for License.h / License.cpp / LicensePublicKey.h.
 Reads and checks the licence file that names the licensee. The check is an Ed25519 signature
 over the text of the file, made with a private key that never leaves the developer; the program
 carries only the public key. Without a file the program runs as a private-use installation -
-the licence changes what the status bar says, nothing else.
+the licence changes what the status bar says, nothing else. A signed file without a licensee
+means the same (see private-use).
 
 ## format
 
@@ -17,6 +18,12 @@ line ending in the file was, so a file that went through a Windows editor still 
 Fields other than `Licensee` are carried along in the payload, so more of them can be added
 later without breaking the signature of older files. The signature is hex, not base64: it is
 64 bytes, and hex needs no decoder that can disagree about padding.
+
+## private-use
+
+A licence without a licensee - "Licensee:" left empty, still signed - is a valid licence for
+private use, and the program shows it as such, the same as no file at all. It lets a private
+user hold a signed file too, so the licence file's presence alone never decides anything.
 
 ## read
 

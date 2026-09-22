@@ -33,7 +33,8 @@ constexpr std::size_t SIGNATURE_SIZE = 64;
 using PublicKey = std::span<const unsigned char, PUBLIC_KEY_SIZE>;
 
 struct License {
-    std::wstring licensee;
+    std::wstring licensee;  // empty: a signed licence for private use [License.md#private-use]
+    bool private_use() const { return licensee.empty(); }
 };
 
 std::optional<License> read(const std::filesystem::path& file, PublicKey public_key);  // [License.md#read]
