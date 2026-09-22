@@ -144,3 +144,15 @@ TEST(LicenseTests, ProductKeyVerifiesAnIssuedLicense)  // [LicenseTests.md#issue
     ASSERT_TRUE(license.has_value()) << "Der eingebaute Schluessel passt nicht zu tools/makeLicense.sh.";
     EXPECT_EQ(license->licensee, L"Firma Beispiel GmbH");
 }
+
+TEST(LicenseTests, EmptyLicenseeIsAValidPrivateUseLicense)  // [LicenseTests.md#private-use]
+{
+    const tu::ScopedLog log(fs::temp_directory_path() / "afs_license_test.log");
+    const SignedLicenseFile file("Licensee: \n");
+
+    const std::optional<License> license = read(file.path(), file.public_key());
+
+    ASSERT_TRUE(license.has_value());
+    EXPECT_TRUE(license->private_use());
+    EXPECT_TRUE(license->licensee.empty());
+}

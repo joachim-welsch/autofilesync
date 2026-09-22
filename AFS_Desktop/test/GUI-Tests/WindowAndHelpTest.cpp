@@ -97,26 +97,54 @@ TEST_F(GuiTest, TaskbarDoppelklickZeigtFenster)
     EXPECT_TRUE(mainWindow().IsShown()) << "Der Doppelklick auf das Symbol im Infobereich zeigt das Fenster nicht.";
 }
 
+namespace {
+
+class LicenseFile {  // [WindowAndHelpTest.md#LicenseFile]
+public:
+    explicit LicenseFile(const std::string& content): path_(GuiTestSandbox::configFile().parent_path() / "autofilesync.lic")
+    {
+        std::ofstream(path_, std::ios::binary) << content;
+    }
+    ~LicenseFile() { std::filesystem::remove(path_); }
+private:
+    std::filesystem::path path_;
+};
+
+wxString licenseStatus(MainWindow& window)
+{
+    window.showLicense();
+    pump();
+    return window.GetStatusBar()->GetStatusText(0);
+}
+
+}
+
+TEST_F(GuiTest, StatuszeileZeigtLizenznehmerAusSignierterLizenzdatei)  // [WindowAndHelpTest.md#license]
+{
+    const LicenseFile file("Licensee: Firma Beispiel GmbH\nSignature: 75921b43c5513d14a8235f3189817bcea1b9608682df49e726e81b6d9a290d176f414fc7f4a97f038753ad05509214996907a15702ca8a69ec32becaf8133606\n");
+
+    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für Firma Beispiel GmbH"));
+}
+
+TEST_F(GuiTest, SignierteLizenzOhneLizenznehmerIstPrivateNutzung)  // [WindowAndHelpTest.md#license]
+{
+    const LicenseFile file("Licensee: \nSignature: bc21ba2be79430ba7311064686b0005fac7017121edf561bfa62025129b54d47cd1600887e5263fb2b9b133275c5d052eb8448649ba0e1d1ea99f3e5fd9c3b0f\n");
+
+    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für private Nutzung"));
+}
+
 TEST_F(GuiTest, StatuszeileZeigtLizenznehmerBeimStart)  // [WindowAndHelpTest.md#license]
 {
     ASSERT_FALSE(std::filesystem::exists(GuiTestSandbox::configFile().parent_path() / "autofilesync.lic"));
 
-    mainWindow().showLicense();
-    pump();
-
-    EXPECT_EQ(mainWindow().GetStatusBar()->GetStatusText(0), wxString(L"Lizenziert für private Nutzung"));
+    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für private Nutzung"));
 }
 
 TEST_F(GuiTest, StatuszeileZeigtLizenznehmerAusUngueltigerLizenzdateiNicht)  // [WindowAndHelpTest.md#license]
 {
-    const std::filesystem::path file = GuiTestSandbox::configFile().parent_path() / "autofilesync.lic";
-    std::ofstream(file) << "Licensee: Jemand\nSignature: 00\n";
+    const LicenseFile file("Licensee: Jemand\nSignature: 00\n");
 
-    mainWindow().showLicense();
-    pump();
-    std::filesystem::remove(file);
-
-    EXPECT_EQ(mainWindow().GetStatusBar()->GetStatusText(0), wxString(L"Lizenziert für private Nutzung"));
+    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für private Nutzung"));
 }
 
 TEST_F(GuiTest, InfoDialogZeigtVersion)

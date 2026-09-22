@@ -213,6 +213,8 @@ Offene Punkte
 Nachtrag - Lizenz
 -----------------
 WindowAndHelpTest  StatuszeileZeigtLizenznehmerBeimStart
+                   StatuszeileZeigtLizenznehmerAusSignierterLizenzdatei
+                   SignierteLizenzOhneLizenznehmerIstPrivateNutzung
                    StatuszeileZeigtLizenznehmerAusUngueltigerLizenzdateiNicht
-Der signierte Fall liegt in AFS_Core (LicenseTests), weil der private
-Schluessel des Produkts nicht im Repository liegt.
+Zwei mit dem Produktschluessel ausgestellte Lizenzen sind mit ihrer Signatur
+in den Tests hinterlegt; der private Schluessel bleibt ausserhalb des Repos.

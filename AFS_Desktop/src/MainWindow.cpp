@@ -792,7 +792,7 @@ std::vector<std::filesystem::path> licenseDirectories()  // [MainWindow.md#showL
 void MainWindow::showLicense()
 {
     const std::optional<license::License> found = license::find(licenseDirectories(), license::PRODUCT_PUBLIC_KEY);
-    const wxString licensee = found ? wxString(found->licensee) : _("private Nutzung");
+    const wxString licensee = found && !found->private_use() ? wxString(found->licensee) : _("private Nutzung");
     setStatusTextWithTimer(_(L"Lizenziert für ") + licensee, 5000);
 }
 
