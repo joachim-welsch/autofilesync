@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Lizenzdatei</title>
+</head>
+<body>
+<h1>Lizenzdatei</h1>
+
+<p>Beim Start zeigt die Statuszeile fünf Sekunden lang, für wen AutoFileSync
+lizenziert ist: <b>Lizenziert für</b> und den Namen des Lizenznehmers. Ohne
+Lizenzdatei steht dort <b>Lizenziert für private Nutzung</b>. Die Lizenz
+ändert nichts am Funktionsumfang – sie benennt nur den Lizenznehmer.</p>
+
+<h2>Wo sie liegt</h2>
+
+<p>Die Datei heißt <tt>autofilesync.lic</tt>. AutoFileSync sucht sie zuerst im
+Verzeichnis der <a href="config.html">Konfigurationsdatei</a>, dann im
+Verzeichnis des Programms:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="25%"><b>Windows</b></td>
+    <td><tt>%APPDATA%\autofilesync\autofilesync.lic</tt>, ersatzweise neben
+        <tt>autofilesync.exe</tt></td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td><tt>$XDG_CONFIG_HOME/autofilesync/autofilesync.lic</tt>, ersatzweise
+        <tt>~/.config/autofilesync/autofilesync.lic</tt> oder neben dem
+        Programm</td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>~/Library/Application Support/autofilesync/autofilesync.lic</tt>,
+        ersatzweise neben dem Programm</td></tr>
+</table>
+
+<p>Die erste gefundene Datei zählt. So lässt sich eine Installation auch dann
+lizenzieren, wenn das Programmverzeichnis nicht beschreibbar ist.</p>
+
+<h2>Wie sie aussieht</h2>
+
+<p>Eine Textdatei mit dem Namen des Lizenznehmers und einer Signatur:</p>
+
+<pre>Licensee: Firma Beispiel GmbH
+Signature: 75921b43c5513d14a8235f3189817bcea1b9608682df49e726e81b6d9a290d17…</pre>
+
+<p>Die Signatur (Ed25519) sichert den Text davor ab. Sie wird vom Hersteller
+mit einem geheimen Schlüssel erzeugt; das Programm prüft sie mit dem
+eingebauten öffentlichen Gegenstück. Eine Datei, deren Text verändert wurde
+oder deren Signatur nicht passt, wird nicht verwendet – AutoFileSync verhält
+sich dann wie ohne Lizenzdatei und schreibt eine Warnung mit dem Pfad ins
+<a href="logging.html">Protokoll</a>.</p>
+
+<p>Die Datei darf mit einem Editor angesehen werden; auch wenn der Editor die
+Zeilenenden ändert, bleibt die Signatur gültig. Nur der Text der Zeilen darf
+sich nicht ändern.</p>
+
+<h2>Private Nutzung</h2>
+
+<p>Eine Lizenz ohne Lizenznehmer – die Zeile <tt>Licensee:</tt> bleibt leer, die
+Signatur ist vorhanden – gilt als Lizenz für private Nutzung. Die Statuszeile
+zeigt dann dasselbe wie ohne Datei: <b>Lizenziert für private Nutzung</b>.</p>
+
+</body>
+</html>
