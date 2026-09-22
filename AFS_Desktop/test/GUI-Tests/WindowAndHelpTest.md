@@ -29,3 +29,11 @@ the About box (GUI-Testplan.txt, open points) although its icon and tooltip prom
 Start and Stopp go through the service manager, which needs elevation when the service is
 installed - a UAC prompt a test cannot answer - so only the "not installed" case, which ends in
 the "Hintergrunddienst" error box, runs; on a machine with the service the test skips itself.
+
+## license
+
+The status line at the start is gone by the time the first test runs, so showLicense() is
+called again. The sandbox has no licence file, and the product's private key is not available
+to the tests, so what can be shown here is the private-use text - with and without a file that
+does not verify; the signed case is covered in AFS_Core's LicenseTests with a key made for the
+test.

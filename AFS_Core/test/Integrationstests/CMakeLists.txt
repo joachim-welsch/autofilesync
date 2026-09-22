@@ -64,6 +64,7 @@ set(SOURCES
     CheckPathTests.cpp
     LogCutTests.cpp
     LoggingCollectTests.cpp
+    LicenseTests.cpp
     LogAnalysisTests.cpp
     ModelLocationTests.cpp
     SyncSshFileTests.cpp

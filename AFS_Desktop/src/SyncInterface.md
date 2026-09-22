@@ -42,7 +42,10 @@ end. Found by GuiTest.AbbrechenImFortschrittsdialogBeendetDenLauf.
 One line for the status bar saying what the synchronisation is doing right now, refreshed by
 the main window on every timer tick: stopped, counting, a single run, a running pass, or
 paused with the seconds until the next pass. The pause is the state a user wonders about
-most - nothing visibly happens - so it is spelled out instead of shown as "running".
+most - nothing visibly happens - so it is spelled out instead of shown as "running". The state
+starts as None: it used to start as Single, which nothing noticed while the status bar did not
+show it, and which made a freshly started program claim a single run was in progress until the
+first real one ended.
 
 ## remainingPause
 

@@ -22,7 +22,7 @@ class SyncInterface {
     SyncControler&  syncControler_;
     ProgressDialog* progressDialog_ = nullptr;
     bool            consoleMode_ = false;
-    SyncType        actSyncType_ = SyncType::Single;
+    SyncType        actSyncType_ = SyncType::None;  // [SyncInterface.md#stateText]
     std::size_t     countFiles_ = 0;
     std::chrono::high_resolution_clock::time_point startTime_;
     bool silentMode() const;
