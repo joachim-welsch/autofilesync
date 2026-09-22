@@ -73,6 +73,15 @@ if "%CLEAN%"=="1" (
     echo Build directory cleaned.
 )
 
+rem The post-build step of the project copies help\ next to the executable, so the
+rem book is packed first; the program loads only the book, not the pages.
+echo Packing the help book...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%tools\packHelp.ps1"
+if errorlevel 1 (
+    echo === Build failed: help book ===
+    exit /b 1
+)
+
 echo Building project...
 "%MSBUILD%" "%SOLUTION%" /nologo /m /v:minimal /p:Configuration=%BUILD_TYPE% /p:Platform=x64
 if errorlevel 1 (

@@ -193,7 +193,7 @@ autofilesync/
     ├── cmake/AfsDesktop.cmake  # Quellliste, afs_desktop_configure_target()
     ├── include/, src/          # Fenster, Dialoge, Hintergrunddienst
     ├── bitmaps/, icons/        # Bildressourcen
-    ├── help/                   # Hilfebuch (wird neben die Programmdatei kopiert)
+    ├── help/                   # Hilfeseiten und das daraus gepackte Buch help.htb (siehe tools/packHelp.*)
     ├── installer/              # Bausteine des macOS-Installationsprogramms
     ├── Info.plist, autofilesync.rc, *.vcxproj  # macOS-Bündel, Windows-Build
     └── test/GUI-Tests/         # GUI-Tests

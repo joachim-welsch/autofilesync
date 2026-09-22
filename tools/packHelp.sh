@@ -1,0 +1,31 @@
+#!/bin/bash
+# Packs the help book AFS_Desktop/help/help.htb from its pages: the pages listed in
+# the [FILES] section of help.hhp plus contents, index, project file and context
+# map. The program loads only the book, so a changed page shows up only after
+# packing. build.sh runs this before building; it can be run on its own.
+set -e
+help_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../AFS_Desktop/help" && pwd)"
+files="$(sed -n '/^\[FILES\]/,/^\[/{/^\[/d;/^[[:space:]]*$/d;p}' "$help_dir/help.hhp") contents.hhc index.hhk help.hhp wxhelp.map"
+for name in $files; do
+    [ -f "$help_dir/$name" ] || { echo "Hilfeseite fehlt: $help_dir/$name" >&2; exit 1; }
+done
+book="$help_dir/help.htb"
+rm -f "$book.tmp"
+if command -v zip >/dev/null 2>&1; then
+    (cd "$help_dir" && zip -q -j "$book.tmp" $files)
+else  # zip is not part of every base system; Python's zipfile is the fallback (python3 on Unix, python in Git Bash on Windows)
+    python=""
+    for candidate in python3 python; do  # tried, not just looked up: on Windows "python3" may be the Store's installer stub
+        if "$candidate" -c pass >/dev/null 2>&1; then python="$candidate"; break; fi
+    done
+    [ -n "$python" ] || { echo "Weder zip noch Python gefunden - das Hilfebuch kann nicht gepackt werden." >&2; exit 1; }
+    "$python" - "$help_dir" "$book.tmp" $files <<'EOF'
+import sys, zipfile, os
+help_dir, book, *names = sys.argv[1:]
+with zipfile.ZipFile(book, "w", zipfile.ZIP_DEFLATED) as z:
+    for name in names:
+        z.write(os.path.join(help_dir, name), name)
+EOF
+fi
+mv -f "$book.tmp" "$book"
+echo "Hilfebuch gepackt: $book ($(echo $files | wc -w) Dateien)"
