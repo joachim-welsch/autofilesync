@@ -22,8 +22,8 @@ otherwise have to fix by hand.
 
 ## rejected-input
 
-Validate() rejects a short name, a name with characters outside letters, digits, underscore
-and dash, and a duplicate, each with a "Validierungsfehler" box that leaves the dialog open;
-the driver cancels it (SshAccountDialogDriver.md#rejected-input-keeps-the-dialog-open). A
-colon is caught by the character rule before the dedicated colon rule, so that is the message
-the user sees.
+Validate() rejects a short name, a colon, a name with characters outside letters, digits,
+underscore and dash, and a duplicate, each with a "Validierungsfehler" box that leaves the
+dialog open; the driver cancels it (SshAccountDialogDriver.md#rejected-input-keeps-the-dialog-open).
+The colon gets its own message because it is the separator of "name:/path"
+(SshAccountDialog.md#colon-first); the space stands for every other rejected character.

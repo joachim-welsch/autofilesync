@@ -2,6 +2,12 @@
 
 Module comment for SshAccountDialog.h / SshAccountDialog.cpp.
 
+## colon-first
+
+The colon is checked before the character rule, which would reject it too: the colon is the
+separator between account name and path in "name:/path", and the message naming it tells the
+user why this one character matters more than any other rejected one.
+
 ## validateSshAccountName
 
 Shared with SshAccountsDialog's inline label edit, which otherwise bypasses this dialog's

@@ -134,6 +134,19 @@ TEST_F(GuiTest, SshNameMitDoppelpunktWirdAbgelehnt)  // [SshAccountsTest.md#reje
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Name mit Doppelpunkt wurde angenommen.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("Doppelpunkt")) << ModalDialogWatcher::instance().answeredMessages().front();
+    EXPECT_TRUE(Config::instance().ssh_accounts_snapshot().empty());
+}
+
+TEST_F(GuiTest, SshNameMitSonderzeichenWirdAbgelehnt)  // [SshAccountsTest.md#rejected-input]
+{
+    ModalDialogWatcher::instance().expect(txt::AddSshConnection, fillSshAccountDialog(account("konto eins")));
+    ModalDialogWatcher::instance().answer(VALIDATION_ERROR, wxID_OK);
+
+    activateMenuItem(mainWindow(), tul(id::File_new_SshConnection));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Name mit Leerzeichen wurde angenommen.";
     EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("Buchstaben")) << ModalDialogWatcher::instance().answeredMessages().front();
     EXPECT_TRUE(Config::instance().ssh_accounts_snapshot().empty());
 }

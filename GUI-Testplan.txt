@@ -150,6 +150,7 @@ SshAccountsTest   SshVerbindungBearbeitenAendertHost
                   SshVerbindungUmbenennenAktualisiertVerweise
                   SshNameZuKurzWirdAbgelehnt
                   SshNameMitDoppelpunktWirdAbgelehnt
+                  SshNameMitSonderzeichenWirdAbgelehnt
                   SshDoppelterNameWirdAbgelehnt
                   SshOkNurMitHostUndBenutzer
 SshSyncTest       SshVerzeichnisdialogDoppelklickSteigtAb
@@ -204,8 +205,6 @@ Stand: 94 GUI-Tests, jede Hilfeseite hat mindestens einen Test.
 
 Offene Punkte
 -------------
-- validateSshAccountName prueft den Doppelpunkt nach der Zeichenregel, die ihn
-  schon abfaengt; der Benutzer sieht nie die Doppelpunkt-Meldung. Toter Zweig.
 - "Einmal synchronisieren" innerhalb der Pause einer Synchronisation zeigt
   dieselbe Box wie bei fehlenden Dateien ("Es wurden keine zu
   synchronisierenden Dateien gefunden."). Der Benutzer erfaehrt nicht, dass
