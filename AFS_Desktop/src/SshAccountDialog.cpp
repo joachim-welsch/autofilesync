@@ -111,16 +111,12 @@ std::optional<wxString> validateSshAccountName(const wxString& name)
 {
     if (name.length() < 2)
         return _("Der Name muss mindestens 2 Zeichen lang sein.");
-
-    for (size_t i = 0; i < name.length(); ++i) {  // only letters, digits and the underscore are allowed
-        wxChar c = name[i];
+    if (name.Contains(":"))  // [SshAccountDialog.md#colon-first]
+        return _("Der Name darf keinen Doppelpunkt enthalten.");
+    for (const wxChar c : name) {
         if (!wxIsalnum(c) && c != '_' && c != '-')
             return _("Der Name darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthalten.");
     }
-
-    if (name.Contains(":"))  // ':' separates the account name from the path, so a name must not contain one
-        return _("Der Name darf keinen Doppelpunkt enthalten.");
-
     return std::nullopt;
 }
 
