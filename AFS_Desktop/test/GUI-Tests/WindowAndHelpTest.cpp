@@ -1,5 +1,6 @@
 #include "GuiTest.h"
 #include "EventPump.h"
+#include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
 #include "UserActions.h"
 #include "BackgroundService.h"
@@ -8,6 +9,8 @@
 #include "id.h"
 #include "utilwx.h"
 #include <wx/html/helpctrl.h>
+#include <filesystem>
+#include <fstream>
 #include <memory>
 
 using utilwx::tul;
@@ -92,6 +95,28 @@ TEST_F(GuiTest, TaskbarDoppelklickZeigtFenster)
     pump();
 
     EXPECT_TRUE(mainWindow().IsShown()) << "Der Doppelklick auf das Symbol im Infobereich zeigt das Fenster nicht.";
+}
+
+TEST_F(GuiTest, StatuszeileZeigtLizenznehmerBeimStart)  // [WindowAndHelpTest.md#license]
+{
+    ASSERT_FALSE(std::filesystem::exists(GuiTestSandbox::configFile().parent_path() / "autofilesync.lic"));
+
+    mainWindow().showLicense();
+    pump();
+
+    EXPECT_EQ(mainWindow().GetStatusBar()->GetStatusText(0), wxString(L"Lizenziert für private Nutzung"));
+}
+
+TEST_F(GuiTest, StatuszeileZeigtLizenznehmerAusUngueltigerLizenzdateiNicht)  // [WindowAndHelpTest.md#license]
+{
+    const std::filesystem::path file = GuiTestSandbox::configFile().parent_path() / "autofilesync.lic";
+    std::ofstream(file) << "Licensee: Jemand\nSignature: 00\n";
+
+    mainWindow().showLicense();
+    pump();
+    std::filesystem::remove(file);
+
+    EXPECT_EQ(mainWindow().GetStatusBar()->GetStatusText(0), wxString(L"Lizenziert für private Nutzung"));
 }
 
 TEST_F(GuiTest, InfoDialogZeigtVersion)

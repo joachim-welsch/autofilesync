@@ -78,6 +78,9 @@
     <ClCompile Include="LoggingCollectTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="LicenseTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
     <ClCompile Include="ModelLocationTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>

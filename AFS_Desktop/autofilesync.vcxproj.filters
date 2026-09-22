@@ -138,6 +138,7 @@
     <ClCompile Include="..\AFS_Core\src\SyncFileSsh.cpp" />
     <ClCompile Include="src\SyncInterface.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\AFS_Core\src\License.cpp" />
     <ClCompile Include="..\AFS_Core\src\SftpConnection.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshConnectTimeout.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />

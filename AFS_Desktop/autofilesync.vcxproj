@@ -135,6 +135,7 @@
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\Menu.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\AFS_Core\src\License.cpp" />
     <ClCompile Include="src\ProgressDialog.cpp" />
     <ClCompile Include="..\AFS_Core\src\Settings.cpp" />
     <ClCompile Include="src\SettingsDialog.cpp" />

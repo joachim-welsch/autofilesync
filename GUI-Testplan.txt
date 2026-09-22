@@ -209,3 +209,10 @@ Offene Punkte
   dieselbe Box wie bei fehlenden Dateien ("Es wurden keine zu
   synchronisierenden Dateien gefunden."). Der Benutzer erfaehrt nicht, dass
   nur die Pause noch laeuft. Text oder Verhalten klaeren.
+
+Nachtrag - Lizenz
+-----------------
+WindowAndHelpTest  StatuszeileZeigtLizenznehmerBeimStart
+                   StatuszeileZeigtLizenznehmerAusUngueltigerLizenzdateiNicht
+Der signierte Fall liegt in AFS_Core (LicenseTests), weil der private
+Schluessel des Produkts nicht im Repository liegt.

@@ -327,6 +327,9 @@ msgid "recycle_bin_absolute_path"
 msgstr "Recycle bin: an absolute path is not allowed"
 
 #: AFS_Core/src/RecycleBin.cpp:54
+msgid "license_file_invalid"
+msgstr "License file invalid, it is not used: "
+
 msgid "recycle_bin_path_escapes"
 msgstr "Recycle bin: the path leads out of the recycle bin"
 
