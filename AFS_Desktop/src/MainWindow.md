@@ -123,3 +123,11 @@ wxExecute reports a command it cannot start through wxLogError, which wxWidgets 
 dialog of its own; the user would then see two boxes for one missing editor. Only the
 application's box with the message the help describes is kept. Found by
 GuiTest.LogDateiAnzeigenOhneEditorZeigtFehler.
+
+## editorExists
+
+On Unix an asynchronous wxExecute forks first and only the child finds out that execvp
+fails; the parent gets a process id either way, so a missing editor would never reach the
+error box. The program is therefore checked before the start, the way execvp resolves it: a
+name with a slash as given, a bare name through PATH. Windows needs none of this - there
+CreateProcess fails in the caller. Found by GuiTest.LogDateiAnzeigenOhneEditorZeigtFehler on Linux.

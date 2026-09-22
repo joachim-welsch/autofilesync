@@ -127,13 +127,20 @@ LoggingTest      LogPfadUndLevelWerdenUebernommen
 Native Datei- und Verzeichnisdialoge: ihr ShowModal() laeuft auf allen
 Plattformen durch den Modal-Hook, deshalb beantwortet
 ModalDialogWatcher::choosePath() sie mit einem Pfad, ohne dass sie
-erscheinen - ohne Aenderung am Programm. SettingsDialogDriver fuellt jetzt
-alle Haekchen des Dialogs.
+erscheinen - ohne Aenderung am Programm. Unter GTK haelt das Dialogobjekt den
+Pfad nicht selbst: der Datei-Chooser liefert ihn erst nach einigen Runden der
+Ereignisschleife, der Verzeichnisdialog nur ueber die Basisklasse
+(ModalDialogWatcher.md, gtk-chooser-is-asynchronous). SettingsDialogDriver
+fuellt jetzt alle Haekchen des Dialogs.
 
 Gefunden und behoben: "Log-Datei anzeigen" ohne startbaren Editor zeigte
 zwei Boxen, die von wxWidgets ("Execution of command ... failed") und die
-eigene. Nicht getestet: Beenden mit Aenderungen (verlaesst die Hauptschleife
-des Testprozesses); die Rueckfrage "Speichern?" ist ueber Oeffnen abgedeckt.
+eigene. Unter Linux und macOS zeigte es gar keine: das asynchrone wxExecute
+liefert dort eine Prozess-ID, obwohl erst der Kindprozess am execvp
+scheitert; der Editor wird jetzt vor dem Start gesucht (MainWindow.md,
+editorExists). Nicht getestet: Beenden mit Aenderungen (verlaesst die
+Hauptschleife des Testprozesses); die Rueckfrage "Speichern?" ist ueber
+Oeffnen abgedeckt.
 
 Phase 4 - SSH (ssh) - fertig
 ----------------------------
