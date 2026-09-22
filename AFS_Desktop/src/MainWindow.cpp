@@ -32,6 +32,10 @@
 #include <wx/config.h>
 #include <wx/stdpaths.h>
 #include <wx/filedlg.h>
+#ifndef WIN32
+    #include <wx/cmdline.h>
+    #include <wx/filefn.h>
+#endif
 #include <filesystem>
 
 #ifdef _UNIX
@@ -595,14 +599,32 @@ void MainWindow::onViewGrid(wxCommandEvent&)
     createGridWindow();
 }
 
+#ifndef WIN32
+static bool editorExists(const wxString& commandLine)  // [MainWindow.md#editorExists]
+{
+    const wxArrayString args = wxCmdLineParser::ConvertStringToArgs(commandLine, wxCMD_LINE_SPLIT_UNIX);
+    if (args.empty())
+        return false;
+    wxString found;
+    return args[0].Contains('/') ? wxIsExecutable(args[0]) : wxFindFileInPath(&found, wxGetenv("PATH"), args[0]);
+}
+#endif
+
+static bool startEditor(const wxString& commandLine)
+{
+    const wxLogNull noWxErrorDialog;  // [MainWindow.md#onViewLog]
+#ifdef WIN32
+    return wxExecute(commandLine) != 0;
+#else
+    return editorExists(commandLine) && wxExecute(commandLine) != 0;
+#endif
+}
+
 void MainWindow::onViewLog(wxCommandEvent&)
 {
-    wxString commandLine = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
-    const wxLogNull noWxErrorDialog;  // [MainWindow.md#onViewLog]
-    const long pid = wxExecute(commandLine);
-    if (pid == 0) {
-		wxMessageBox("Der konfigurierte Editor konnte nicht gestartet werden.", "Fehler");
-	}
+    const wxString commandLine = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
+    if (!startEditor(commandLine))
+        wxMessageBox("Der konfigurierte Editor konnte nicht gestartet werden.", "Fehler");
 }
 
 void MainWindow::onViewBackground(wxCommandEvent&)

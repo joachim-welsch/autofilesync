@@ -36,3 +36,13 @@ what the caller reads through GetPath() afterwards - the same as a user choosing
 
 A native file or directory dialog carries no window title - the text the user sees as its
 caption is its "message" - so that is what an expectation for one is matched against.
+
+## gtk-chooser-is-asynchronous
+
+Under GTK the dialog object does not hold the path by itself. wxFileDialog::GetPath asks the
+GTK file chooser, which applies a folder set through SetPath only after loading it through
+GIO - a few event loop iterations later - and returns nothing until then; the hook therefore
+pumps until the chooser reports the path before it answers. wxDirDialog::GetPath reads the
+m_path of wxDirDialogBase, but wxGTK's SetPath override only tells the chooser and skips the
+base, so the base implementation is called explicitly. On Windows and macOS both dialogs
+store the path in the base class and return it right away.

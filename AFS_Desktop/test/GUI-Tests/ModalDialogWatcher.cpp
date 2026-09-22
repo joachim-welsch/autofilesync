@@ -1,4 +1,5 @@
 #include "ModalDialogWatcher.h"
+#include "EventPump.h"
 #include <wx/dirdlg.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
@@ -45,10 +46,17 @@ bool setChosenPath(wxDialog& dialog, const wxString& path)  // [ModalDialogWatch
 {
     if (auto* fileDialog = dynamic_cast<wxFileDialog*>(&dialog)) {
         fileDialog->SetPath(path);
+#ifdef __WXGTK__
+        waitUntil([fileDialog] { return !fileDialog->GetPath().empty(); });  // [ModalDialogWatcher.md#gtk-chooser-is-asynchronous]
+#endif
         return true;
     }
     if (auto* dirDialog = dynamic_cast<wxDirDialog*>(&dialog)) {
+#ifdef __WXGTK__
+        dirDialog->wxDirDialogBase::SetPath(path);  // [ModalDialogWatcher.md#gtk-chooser-is-asynchronous]
+#else
         dirDialog->SetPath(path);
+#endif
         return true;
     }
     return false;
