@@ -2,12 +2,6 @@
 
 Module comment for SettingsTest.cpp.
 
-## RestoredSettings
-
-Settings and the recycle bin path are process-wide state that GuiTest::TearDown does not
-put back (it re-reads the file, but RecycleBin keeps its own path), so they are saved and
-restored around each test.
-
 ## EinstellungenKommenInDieKonfiguration
 
 The four start options and the three message filters only reach the configuration; nothing

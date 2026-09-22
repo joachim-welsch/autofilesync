@@ -247,9 +247,9 @@ Settings get_settings(boost::property_tree::wptree& sf)
     retval.minimize_instead_of_close(sf.get<wstring>(L"MinimizeInsteadOfClose") == L"true");
     retval.auto_start(sf.get<wstring>(L"Autostart") == L"true");
     retval.start_sync_at_start(sf.get<wstring>(L"StartSyncAtStart") == L"true");
-    retval.show_errors(sf.get<wstring>(L"ShowErrors") == L"true");
-    retval.show_warnings(sf.get<wstring>(L"ShowWarnings") == L"true");
-    retval.show_infos(sf.get<wstring>(L"ShowInfos") == L"true");
+    retval.show_errors(sf.get<wstring>(L"ShowErrors", L"true") == L"true");  // [Config.md#delete-mode-default]
+    retval.show_warnings(sf.get<wstring>(L"ShowWarnings", L"false") == L"true");
+    retval.show_infos(sf.get<wstring>(L"ShowInfos", L"false") == L"true");
     retval.delete_mode(sf.get<wstring>(L"DeleteMode", L"") == L"Permanent" ? DeleteMode::Permanent : DeleteMode::RecycleBin);  // [Config.md#delete-mode-default]
     retval.backup_proof_path(sf.get<wstring>(L"BackupProofPath", L""));  // [Config.md#delete-mode-default]
     return retval;

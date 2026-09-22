@@ -109,6 +109,7 @@ static constexpr std::array<std::string_view, count_enum_elements()> LOG_LEVEL_N
 
 constexpr auto LOG_REPEAT_INTERVAL = std::chrono::minutes(30);  // [Logging.md#LOG_REPEAT_INTERVAL]
 constexpr size_t MAX_REPETITIONS = 256;  // [Logging.md#MAX_REPETITIONS]
+constexpr size_t MAX_COLLECTED = 200;  // [Logging.md#collected_]
 constexpr auto NOTIFY_REPEAT_INTERVAL = std::chrono::minutes(30);  // [Logging.md#NOTIFY_REPEAT_INTERVAL]
 
 Logging::~Logging()
@@ -230,10 +231,37 @@ std::string Logging::log_level_str(LogLevel l)
 	return LOG_LEVEL_NAMES[static_cast<int>(l)].data();
 }
 
+static string error_text(const string& log_line);
+
 bool Logging::should_log(LogLevel level)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	return static_cast<int>(level) >= static_cast<int>(Logging::level_);
+	return level >= level_ || (collecting_ && level >= LogLevel::Info);  // [Logging.md#collected_]
+}
+
+void Logging::collect_messages(bool on)
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	collecting_ = on;
+	if (on)
+		collected_.clear();
+}
+
+std::vector<LogMessage> Logging::take_collected_messages()
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	return std::exchange(collected_, {});
+}
+
+void Logging::collect(LogLevel level, const string& line)  // [Logging.md#collected_]
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	if (!collecting_ || level < LogLevel::Info || collected_.size() >= MAX_COLLECTED)
+		return;
+	string text = error_text(line);
+	if (!text.empty() && text.back() == '\n')
+		text.pop_back();
+	collected_.push_back({level, text});
 }
 
 LogLevel Logging::get_log_level()
@@ -315,6 +343,8 @@ bool Logging::report_again(string& line)  // [Logging.md#report_again]
 void Logging::write_to_file(LogLevel level, string line)
 {
 	std::lock_guard<std::mutex> lock(mutex_);  // [Logging.md#write_to_file-locking]
+	if (level < level_)  // [Logging.md#collected_]
+		return;
 	if (level >= LogLevel::Warning && !report_again(line))
 		return;
 	follow_replaced_file();
@@ -333,6 +363,7 @@ void Logging::write_to_file(LogLevel level, string line)
 
 void Logging::write(LogLevel level, const std::ostringstream& os)  // [Logging.md#write-notifies-outside-lock]
 {
+	collect(level, os.str());
 	write_to_file(level, os.str());
 	if (level == LogLevel::FatalError)
 		notify_fatal(os.str());

@@ -23,6 +23,7 @@
 #include <mutex>
 #include <string>
 #include <utility>
+#include <vector>
 #include <fstream>
 #include "SmtpMailer.h"
 
@@ -32,6 +33,11 @@ enum class LogLevel { Debug, Info, Warning, Error, FatalError, None };
 enum class LogOrigin : char { Gui = 'G', Daemon = 'D' };  // [Logging.md#LogOrigin]
 
 std::wstring get_default_log_file_path();
+
+struct LogMessage {  // [Logging.md#collected_]
+	LogLevel level;
+	std::string text;
+};
 
 class Logging {
 	using LoggingPtr = std::unique_ptr<Logging>;
@@ -56,6 +62,8 @@ class Logging {
 	struct Repetition { std::chrono::steady_clock::time_point written; unsigned suppressed = 0; };
 	std::map<std::string, Repetition> repetitions_;  // [Logging.md#repetitions_]
 	FILE*			fos_ = nullptr;
+	bool			collecting_ = false;  // [Logging.md#collected_]
+	std::vector<LogMessage> collected_;
 
 	static void init_singleton()
 	{
@@ -69,6 +77,7 @@ class Logging {
 	void write_head(std::ostream& os, LogLevel level);
 	void write(LogLevel level, const std::ostringstream& os);
 	void write_to_file(LogLevel level, std::string line);
+	void collect(LogLevel level, const std::string& line);
 	bool report_again(std::string& line);  // caller must already hold mutex_
 	void forget_expired_repetitions(std::chrono::steady_clock::time_point now);  // caller must already hold mutex_
 	void notify_fatal(const std::string& log_line);
@@ -102,6 +111,8 @@ public:
 	std::wstring notify_email() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_; }
 	void notify_email(const std::wstring& address) { std::lock_guard<std::mutex> lock(mutex_); notify_email_ = address; }
 	SmtpAccount smtp_account() const { std::lock_guard<std::mutex> lock(mutex_); return smtp_; }
+	void collect_messages(bool on);  // [Logging.md#collected_]
+	std::vector<LogMessage> take_collected_messages();
 	void smtp_account(const SmtpAccount& account) { std::lock_guard<std::mutex> lock(mutex_); smtp_ = account; }
 	void log(LogLevel level, const std::wstring& msg);
 	void log(LogLevel level, const std::string& msg);

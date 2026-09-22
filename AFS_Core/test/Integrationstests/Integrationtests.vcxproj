@@ -188,6 +188,7 @@
     <ClCompile Include="SyncArbiterTests.cpp" />
     <ClCompile Include="CheckPathTests.cpp" />
     <ClCompile Include="LogCutTests.cpp" />
+    <ClCompile Include="LoggingCollectTests.cpp" />
     <ClCompile Include="LogAnalysisTests.cpp" />
     <ClCompile Include="ModelLocationTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />

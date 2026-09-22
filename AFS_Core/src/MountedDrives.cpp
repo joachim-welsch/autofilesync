@@ -202,7 +202,7 @@ wstring volume_name_from_driveletter(const wstring& driveletter)
 	wstring volume_name(MAX_PATH, L'\0');
 	DWORD volume_name_size = static_cast<DWORD>(volume_name.size());
 	if (GetVolumeInformationW(driveletter.c_str(), &volume_name[0], volume_name_size, NULL, NULL, NULL, NULL, 0) == 0) {
-		log_error(L"Failed to get volume information");
+		log_debug(L"No volume information for " + driveletter);  // [MountedDrives.md#drive-without-medium]
 		return L"";
 	}
 	volume_name.resize(wcslen(volume_name.c_str()));
@@ -256,7 +256,8 @@ bool MountedDrives::refresh(const string& mount_point, const std::wstring& name)
                     mount_info.file_system_type = "Unknown";
                     break;
                 }
-                mount_info.name = volume_name_from_driveletter(drive);
+                if (mount_info.mount_point == mount_point)  // [MountedDrives.md#requested-drive-only]
+                    mount_info.name = volume_name_from_driveletter(drive);
                 mounted_drives_.push_back(mount_info);
                 if (mount_info.mount_point == mount_point && (name.empty() || mount_info.name == name)) {
                     if (!mount_info_exists(mount_info))

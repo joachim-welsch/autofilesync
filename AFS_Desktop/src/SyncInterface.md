@@ -50,3 +50,18 @@ The continuous run skips every item whose pause has not elapsed, so the run is p
 while all enabled items are; one due item means work is about to happen. The shortest
 remaining pause is what the user waits for. A fresh item's last_sync is TimePoint::min, which
 makes it due at once.
+
+## showRunMessages
+
+"Einmal synchronisieren" is the run a user watches, so its messages are collected
+(Logging.md#collected_) from the count pass to the end and shown once, in one box, filtered by
+the Fehler/Warnung/Info settings - one box per message would bury the user under the infos of
+a large run, and a box from the worker thread is not possible anyway. The continuous run and
+the silent modes (console, start minimised) show nothing; the log has it all. The box also
+follows the "nothing found" case, because an unreachable source ends there.
+
+## runMessagesText
+
+Each line carries its level, because the box mixes levels when several filters are on, and the
+box is capped at MAX_LINES_IN_BOX lines: a message box is not a log viewer, and the log has the
+rest.

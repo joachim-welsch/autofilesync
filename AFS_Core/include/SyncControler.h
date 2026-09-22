@@ -37,7 +37,6 @@ class SyncControler {
 	static SyncCtrlPtr  instance_;
 	std::atomic<ProgressDialog*> progress_dialog_ = nullptr;
 	Synchronize*		synchronize_ = nullptr;
-	bool				display_errormessages_ = false;
 	std::atomic<SyncCtrlState>	state_ = SyncCtrlState::Waiting;
 	std::size_t			count_files_ = 0;
 
@@ -55,8 +54,6 @@ public:
 	bool sync_finished() const;
 	void reset_state();
 	void destroy_synchronize();
-	void display_errormessages(bool);
-	bool display_errormessages() const;
 	SyncMessage get_message() const;
 	void count_files(std::size_t);
 	std::size_t count_files() const;

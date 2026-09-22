@@ -31,7 +31,7 @@ class Settings {
     bool minimize_instead_of_close_    = false;
     bool auto_start_                 = false;
     bool start_sync_at_start_          = false;
-    bool show_errors_                = false;
+    bool show_errors_                = true;  // [Settings.md#show_errors_]
     bool show_warnings_              = false;
     bool show_infos_                 = false;
     std::wstring backup_proof_path_;  // [Settings.md#backup_proof_path_]

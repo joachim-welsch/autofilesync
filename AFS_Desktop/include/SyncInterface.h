@@ -26,6 +26,7 @@ class SyncInterface {
     std::size_t     countFiles_ = 0;
     std::chrono::high_resolution_clock::time_point startTime_;
     bool silentMode() const;
+    void showRunMessages();  // [SyncInterface.md#showRunMessages]
     wxFrame* parentFrame() { return dynamic_cast<wxFrame*>(&parentWindow_); }
 public:
     explicit SyncInterface(wxWindow& parentWindow, Menu& menu);
