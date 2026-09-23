@@ -46,7 +46,7 @@ Umgebungsvariablen setzen, oder `msbuild /p:LibDir=D:\src\autofilesync\AFS_Core`
 
 ### Punkte, die beim ersten Build vermutlich anschlagen
 
-1. **`_UNIX`-Zweige im Code.** Die Quellen enthalten `winutil.cpp` und `MountedDrives.cpp`,
+1. **`_UNIX`-Zweige im Code.** Die Quellen enthalten `MountedDrives.cpp`,
    also existiert vermutlich schon ein Windows-Pfad. Falls der an einem anderen Makro hängt
    (`_WIN32`, `_MSC_VER`, `_WINDOWS`), das entsprechende Define in den `PreprocessorDefinitions`
    ergänzen.

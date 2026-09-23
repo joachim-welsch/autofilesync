@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
-#include "stdafx.h"
 #include "arguments.h"
 #include "Logging.h"
 #include "Translation.h"

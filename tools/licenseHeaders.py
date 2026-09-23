@@ -4,7 +4,7 @@
     python tools/licenseHeaders.py --apply   # add the header to files without one, replace an older one
 
 The header text is the one in HEADER below; the "part" line names the module the
-file belongs to. Files under backgroundsync/obsolete are not touched.
+file belongs to.
 """
 import pathlib, re, sys
 
@@ -33,7 +33,7 @@ PARTS = {
     "AFS_Desktop": "AFS_Desktop, the desktop program of AutoFileSync",
     "backgroundsync": "backgroundsync, the background service of AutoFileSync",
 }
-EXCLUDED = {"obsolete", "build", "vcpkg_installed", "packages", "x64", "Debug", "Release", "third-party"}
+EXCLUDED = {"build", "vcpkg_installed", "packages", "x64", "Debug", "Release", "third-party"}
 OLD_HEADER = re.compile(r"\A/\*\n \* Copyright \(C\) \d{4} Joachim Welsch.*?\*/\n", re.S)
 
 def sources():
