@@ -368,6 +368,23 @@ Log-Dateien werden standardmäßig gespeichert in:
 Log-Level kann in der GUI konfiguriert werden:
 **Einstellungen** → **Logging**
 
+## Signieren des Windows-Pakets
+
+`makeWindowsInstaller.ps1` signiert `autofilesync.exe` und das MSI mit `signtool`
+(Windows SDK) und Zeitstempel, wenn ein Zertifikat angegeben ist:
+
+    $env:AFS_SIGN_THUMBPRINT = '<SHA1-Fingerabdruck>'   # Zertifikat in CurrentUser\My
+    # oder
+    $env:AFS_SIGN_PFX = 'C:\pfad\zertifikat.pfx'; $env:AFS_SIGN_PFX_PASSWORD = '...'
+
+Ohne Zertifikat entsteht ein unsigniertes Paket mit Warnung; `-NoSigning` lässt
+die Signierung bewusst aus. Für eine Auslieferung braucht es ein Code-Signing-
+Zertifikat einer öffentlichen CA (OV oder EV); ein selbst ausgestelltes
+Zertifikat ergibt zwar eine gültige Signatur, aber keine Vertrauensstellung bei
+den Kunden. Die Versionsangaben der Programmdatei (Eigenschaften-Dialog,
+Signaturdialog) kommen aus dem VERSIONINFO-Block in `autofilesync.rc`, der
+`include/Version.h` liest.
+
 ## Lizenz
 
 AutoFileSync ist dual lizenziert: GNU GPL v3 oder neuer (`LICENSE`) oder die

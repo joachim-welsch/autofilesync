@@ -12,7 +12,7 @@ afs_info()  { echo -e "${AFS_GREEN}$*${AFS_NC}"; }
 afs_warn()  { echo -e "${AFS_YELLOW}$*${AFS_NC}"; }
 afs_fail()  { echo -e "${AFS_RED}$*${AFS_NC}" >&2; exit 1; }
 
-afs_version() { sed -n 's/.*afsVERSION_STRING\[\] = "\(.*\)".*/\1/p' "${AFS_DESKTOP_DIR}/include/Version.h"; }
+afs_version() { sed -n 's/^#define afsVERSION_TEXT "\(.*\)".*/\1/p' "${AFS_DESKTOP_DIR}/include/Version.h"; }
 
 # Version.h is the single source of truth; the checked-in Info.plist carries a
 # placeholder so the version never has to be maintained in two places.

@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-version() { sed -n 's/.*afsVERSION_STRING\[\] = "\(.*\)".*/\1/p' "${SOURCE_DIR}/AFS_Desktop/include/Version.h"; }
+version() { sed -n 's/^#define afsVERSION_TEXT "\(.*\)".*/\1/p' "${SOURCE_DIR}/AFS_Desktop/include/Version.h"; }
 
 maintainer()
 {

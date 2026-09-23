@@ -1,3 +1,42 @@
+#include <windows.h>
+#include "include/Version.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version: what Explorer's properties, the signature dialog and SmartScreen
+// show for the executable. Language block 0407 = German, code page 1200 =
+// Unicode.
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION afsVERSION_MAJOR,afsVERSION_MINOR,afsVERSION_BUILD,0
+ PRODUCTVERSION afsVERSION_MAJOR,afsVERSION_MINOR,afsVERSION_BUILD,0
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040704b0"
+        BEGIN
+            VALUE "CompanyName", "Joachim Welsch"
+            VALUE "FileDescription", "AutoFileSync - automatische Synchronisation von Dateien"
+            VALUE "FileVersion", afsVERSION_TEXT
+            VALUE "InternalName", "autofilesync"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Joachim Welsch"
+            VALUE "OriginalFilename", "autofilesync.exe"
+            VALUE "ProductName", "AutoFileSync"
+            VALUE "ProductVersion", afsVERSION_TEXT
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x407, 1200
+    END
+END
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap

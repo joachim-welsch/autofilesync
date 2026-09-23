@@ -10,10 +10,15 @@
     .\makeWindowsInstaller.ps1
 .EXAMPLE
     .\makeWindowsInstaller.ps1 -NoBuild -Output C:\Temp
+.NOTES
+    Signiert wird mit dem Zertifikat aus AFS_SIGN_THUMBPRINT (Speicher CurrentUser\My)
+    oder AFS_SIGN_PFX + AFS_SIGN_PFX_PASSWORD; ohne beides entsteht ein unsigniertes
+    Paket mit Warnung. -NoSigning laesst die Signierung bewusst aus.
 #>
 param(
     [ValidateSet('Release', 'Debug')][string]$Configuration = 'Release',
     [switch]$NoBuild,
+    [switch]$NoSigning,
     [string]$Output
 )
 
@@ -30,7 +35,7 @@ if (-not $Output) { $Output = Join-Path $root 'build' }
 # Version.h ist die einzige Quelle der Versionsnummer - wie afs_version() unter macOS.
 function Get-Version {
     $header = Join-Path $root 'AFS_Desktop\include\Version.h'
-    $match = Select-String -Path $header -Pattern 'afsVERSION_STRING\[\]\s*=\s*"([^"]+)"'
+    $match = Select-String -Path $header -Pattern 'afsVERSION_TEXT\s+"([^"]+)"'
     if (-not $match) { throw "Version nicht aus $header lesbar." }
     return $match.Matches[0].Groups[1].Value
 }
@@ -129,6 +134,45 @@ function Test-Payload {
     Write-Host "Nutzlast vollstaendig ($($required.Count) geforderte Eintraege)." -ForegroundColor Green
 }
 
+# Signiert werden die Programmdatei in der Nutzlast und das fertige MSI, mit
+# Zeitstempel, damit die Signatur das Zertifikat ueberlebt. Das Zertifikat kommt
+# aus dem Zertifikatspeicher (AFS_SIGN_THUMBPRINT) oder einer PFX-Datei
+# (AFS_SIGN_PFX, AFS_SIGN_PFX_PASSWORD). Ohne Zertifikat wird nicht abgebrochen:
+# ein Entwicklerbuild braucht keins, aber die Warnung steht im Protokoll, damit
+# kein unsigniertes Paket unbemerkt ausgeliefert wird.
+$timestampServer = 'http://timestamp.digicert.com'
+
+function Find-SignTool {
+    $candidates = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
+        Sort-Object FullName
+    if ($candidates) { return $candidates[-1].FullName }
+    $onPath = Get-Command signtool -ErrorAction SilentlyContinue
+    if ($onPath) { return $onPath.Source }
+    throw 'signtool.exe nicht gefunden - das Windows SDK wird gebraucht.'
+}
+
+function Get-SigningArguments {
+    if ($env:AFS_SIGN_THUMBPRINT) { return @('/sha1', $env:AFS_SIGN_THUMBPRINT) }
+    if ($env:AFS_SIGN_PFX) {
+        $arguments = @('/f', $env:AFS_SIGN_PFX)
+        if ($env:AFS_SIGN_PFX_PASSWORD) { $arguments += @('/p', $env:AFS_SIGN_PFX_PASSWORD) }
+        return $arguments
+    }
+    return $null
+}
+
+function Invoke-Sign([string]$file) {
+    $certificate = Get-SigningArguments
+    if ($NoSigning -or -not $certificate) {
+        Write-Warning "Nicht signiert: $(Split-Path -Leaf $file) - AFS_SIGN_THUMBPRINT oder AFS_SIGN_PFX setzen."
+        return
+    }
+    $signtool = Find-SignTool
+    & $signtool sign /fd sha256 /td sha256 /tr $timestampServer /d 'AutoFileSync' /du 'https://welsch-software.com' @certificate $file
+    if ($LASTEXITCODE -ne 0) { throw "Signieren fehlgeschlagen: $file" }
+    Write-Host "Signiert: $(Split-Path -Leaf $file)" -ForegroundColor Green
+}
+
 # Die UI-Erweiterung wird global abgelegt, nicht als .wix-Verzeichnis im Repo.
 # Ihre Version muss die von wix selbst sein: ohne Angabe laedt "extension add"
 # die neueste (derzeit 7.x), und wix 5 kann die nicht laden.
@@ -157,6 +201,7 @@ Write-Host '=== Nutzlast zusammenstellen ===' -ForegroundColor Green
 Copy-Payload
 Test-Payload
 $licenseRtf = Write-LicenseRtf
+Invoke-Sign (Join-Path $payloadDir 'autofilesync.exe')
 
 Write-Host '=== Paket erzeugen ===' -ForegroundColor Green
 Install-WixUiExtension
@@ -167,6 +212,7 @@ $msi = Join-Path $Output "AutoFileSync-$version.msi"
     -d "PayloadDir=$payloadDir" -d "Version=$(ConvertTo-MsiVersion $version)" -d "IconFile=$icon" -d "LicenseRtf=$licenseRtf" `
     -o $msi $wxs
 if ($LASTEXITCODE -ne 0) { throw "wix build fehlgeschlagen." }
+Invoke-Sign $msi
 Remove-Item -Recurse -Force $stagingDir
 
 Write-Host '=== Fertig ===' -ForegroundColor Green
