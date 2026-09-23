@@ -37,7 +37,6 @@ set(AFS_CORE_SOURCES
     LogAnalysis.cpp
     ModelLocation.cpp
     PasswordCrypto.cpp
-    License.cpp
     SshAccount.cpp
     SftpConnection.cpp
     SshConnectTimeout.cpp

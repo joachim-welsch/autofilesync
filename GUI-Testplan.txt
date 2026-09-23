@@ -209,12 +209,3 @@ Offene Punkte
   dieselbe Box wie bei fehlenden Dateien ("Es wurden keine zu
   synchronisierenden Dateien gefunden."). Der Benutzer erfaehrt nicht, dass
   nur die Pause noch laeuft. Text oder Verhalten klaeren.
-
-Nachtrag - Lizenz
------------------
-WindowAndHelpTest  StatuszeileZeigtLizenznehmerBeimStart
-                   StatuszeileZeigtLizenznehmerAusSignierterLizenzdatei
-                   SignierteLizenzOhneLizenznehmerIstPrivateNutzung
-                   StatuszeileZeigtLizenznehmerAusUngueltigerLizenzdateiNicht
-Zwei mit dem Produktschluessel ausgestellte Lizenzen sind mit ihrer Signatur
-in den Tests hinterlegt; der private Schluessel bleibt ausserhalb des Repos.

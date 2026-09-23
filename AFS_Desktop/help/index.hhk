@@ -55,24 +55,12 @@
       <PARAM name="Local" value="licensing.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Lizenzdatei">
-      <PARAM name="Local" value="license.html">
-    </OBJECT></LI>
-    <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Lizenznehmer">
-      <PARAM name="Local" value="license.html">
-    </OBJECT></LI>
-    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="L&ouml;schmodus und Papierkorb">
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Platzhalter">
       <PARAM name="Local" value="syncitems.html">
-    </OBJECT></LI>
-    <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Private Nutzung">
-      <PARAM name="Local" value="license.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Protokoll (Log-Datei)">
