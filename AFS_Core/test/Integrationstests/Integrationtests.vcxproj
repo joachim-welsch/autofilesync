@@ -245,8 +245,23 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
-  <!-- vcpkg legt seine DLLs nur im Linkschritt neben die Exe (AppLocalFromInstalled).
-       Fehlen sie bei aktueller Exe, wuerde jeder weitere Build sie sonst nie nachholen. -->
+  <!-- vcpkg legt seine DLLs nur im Linkschritt neben die Exe (AppLocalFromInstalled) und
+       traegt sie dabei in FileWrites ein. Ein Build ohne Linkschritt kennt sie nicht mehr,
+       und IncrementalClean loescht dann alles, was der vorige Build eingetragen hatte:
+       jeder zweite Build endete ohne DLLs (STATUS_DLL_NOT_FOUND, 0xC0000135). Deshalb
+       werden die im applocal-Log verzeichneten DLLs in jedem Build als FileWrites gemeldet. -->
+  <PropertyGroup>
+    <IncrementalCleanDependsOn>$(IncrementalCleanDependsOn);KeepVcpkgDlls</IncrementalCleanDependsOn>
+  </PropertyGroup>
+  <Target Name="KeepVcpkgDlls" Condition="Exists('$(IntDir)vcpkg.applocal.log')">
+    <ReadLinesFromFile File="$(IntDir)vcpkg.applocal.log">
+      <Output TaskParameter="Lines" ItemName="VcpkgAppLocalDllsKept" />
+    </ReadLinesFromFile>
+    <ItemGroup>
+      <FileWrites Include="@(VcpkgAppLocalDllsKept)" />
+    </ItemGroup>
+  </Target>
+  <!-- Wurden die DLLs von Hand entfernt, holt nur ein neuer Linkschritt sie zurueck. -->
   <Target Name="RelinkWhenVcpkgDllsMissing" BeforeTargets="Link" Condition="Exists('$(TargetPath)') and !Exists('$(OutDir)gtest.dll')">
     <Message Importance="high" Text="vcpkg-DLLs fehlen in $(OutDir): Exe wird neu gelinkt." />
     <Delete Files="$(TargetPath)" />
