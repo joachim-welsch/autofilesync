@@ -74,10 +74,22 @@ function Copy-Licenses {
 # erzeugt, damit der Text im Installationsprogramm derselbe ist wie im Repo;
 # Zeichen ausserhalb von ASCII gehen als \u-Escapes hinein, sonst zerlegt der
 # RTF-Leser die Umlaute.
+# LICENSING.md is Markdown; the dialog shows plain text, so the markers a reader
+# would stumble over go: heading marks, code ticks, emphasis stars and the angle
+# brackets around links.
+function ConvertFrom-MarkdownLine([string]$line) {
+    $line = $line -replace '^#+\s*', ''
+    $line = $line -replace '`', ''
+    $line = $line -replace '\*\*', ''
+    $line = $line -replace '^\*(.*)\*$', '$1'
+    return $line -replace '<(https?://[^>]+)>', '$1'
+}
+
 function ConvertTo-Rtf([string[]]$paragraphs) {
     $builder = New-Object System.Text.StringBuilder
     [void]$builder.Append('{\rtf1\ansi\deff0{\fonttbl{\f0\fnil Segoe UI;}}\f0\fs18 ')
-    foreach ($line in $paragraphs) {
+    foreach ($raw in $paragraphs) {
+        $line = ConvertFrom-MarkdownLine $raw
         foreach ($char in $line.ToCharArray()) {
             $code = [int]$char
             if ($char -eq '\' -or $char -eq '{' -or $char -eq '}') { [void]$builder.Append('\' + $char) }
