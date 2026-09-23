@@ -241,7 +241,7 @@ keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
   ```bash
   xgettext --keyword=translate --keyword=translate_utf8 --keyword=msgid \
            --from-code=UTF-8 --no-wrap -o po/autofilesync.pot \
-           AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp AFS_Desktop/include/TextResources.h
+           AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp AFS_Desktop/include/TextResources.h backgroundsync/*.cpp
   msgmerge --no-wrap --update po/de.po po/autofilesync.pot
   msgmerge --no-wrap --update po/en.po po/autofilesync.pot
   ```

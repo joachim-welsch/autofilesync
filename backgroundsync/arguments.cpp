@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "arguments.h"
 #include "Logging.h"
+#include "Translation.h"
 #include <iostream>
 
 using std::string;
@@ -56,6 +57,6 @@ void Arguments::init(int argc, char* argv[])
         else if (string(argv[i]) == "-singlesync")
             singleSync_ = true;
         else
-			std::cerr << "unknown command line option [" << i << "]: " << argv[i] << std::endl;
+			std::cerr << AFS_Core::translation::translate_utf8("unknown_option", {std::to_string(i), argv[i]}) << std::endl;
 	}
 }

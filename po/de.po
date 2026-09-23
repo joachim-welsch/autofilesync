@@ -213,7 +213,7 @@ msgstr "Fehler beim Lesen der Dateiinformationen"
 #: AFS_Core/src/FilesystemUtil.cpp:83 AFS_Core/src/SyncBase.cpp:88
 #: AFS_Core/src/SyncDir.cpp:85 AFS_Core/src/SyncFile.cpp:326
 #: AFS_Core/src/SyncFile.cpp:366 AFS_Core/src/SyncFile.cpp:393
-#: AFS_Core/src/Synchronize.cpp:298 AFS_Core/src/SyncTree.cpp:91
+#: AFS_Core/src/SyncTree.cpp:91 AFS_Core/src/Synchronize.cpp:298
 #: AFS_Core/src/Util.cpp:304 AFS_Core/src/Util.cpp:319
 #: AFS_Core/src/Util.cpp:335
 msgid "unknown_error"
@@ -806,22 +806,6 @@ msgstr "SSH Authentifizierungsfehler (Ziel)"
 msgid "target_sftp_session_create_error"
 msgstr "Fehler beim Erstellen der Ziel-SFTP Session"
 
-#: AFS_Core/src/Synchronize.cpp:73
-msgid "no_sync_active"
-msgstr "Keine Synchronisation aktiv."
-
-#: AFS_Core/src/Synchronize.cpp:244
-msgid "source_or_target_not_reachable"
-msgstr "Quelle oder Ziel nicht erreichbar: "
-
-#: AFS_Core/src/Synchronize.cpp:291
-msgid "sync_item_failed"
-msgstr "Synchronize::sync_item fehlgeschlagen fuer: "
-
-#: AFS_Core/src/Synchronize.cpp:297
-msgid "sync_item_unknown_error"
-msgstr "Unbekannter Fehler in Synchronize::sync_item fuer: "
-
 #: AFS_Core/src/SyncItem.cpp:123
 msgid "sync_item_type_file"
 msgstr "Datei"
@@ -837,6 +821,22 @@ msgstr "Verzeichnisbaum"
 #: AFS_Core/src/SyncTree.cpp:111
 msgid "symlink_not_followed"
 msgstr "Symlink wird nicht verfolgt: "
+
+#: AFS_Core/src/Synchronize.cpp:73
+msgid "no_sync_active"
+msgstr "Keine Synchronisation aktiv."
+
+#: AFS_Core/src/Synchronize.cpp:244
+msgid "source_or_target_not_reachable"
+msgstr "Quelle oder Ziel nicht erreichbar: "
+
+#: AFS_Core/src/Synchronize.cpp:291
+msgid "sync_item_failed"
+msgstr "Synchronize::sync_item fehlgeschlagen fuer: "
+
+#: AFS_Core/src/Synchronize.cpp:297
+msgid "sync_item_unknown_error"
+msgstr "Unbekannter Fehler in Synchronize::sync_item fuer: "
 
 #: AFS_Core/src/Util.cpp:70
 msgid "value_out_of_uint16_range"
@@ -878,7 +878,9 @@ msgstr "Der Hintergrunddienst ist nicht installiert. Bitte zuerst install.ps1 de
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223
 msgid "bs_action_failed"
-msgstr "Der Hintergrunddienst konnte nicht %1 werden:\n%2"
+msgstr ""
+"Der Hintergrunddienst konnte nicht %1 werden:\n"
+"%2"
 
 #: AFS_Desktop/src/BackgroundService.cpp:86
 msgid "bs_elevation_denied"
@@ -886,7 +888,9 @@ msgstr "Der Hintergrunddienst konnte nicht %1 werden: die Administratorrechte wu
 
 #: AFS_Desktop/src/BackgroundService.cpp:87
 msgid "bs_sc_start_failed"
-msgstr "Der Hintergrunddienst konnte nicht %1 werden: sc.exe ließ sich nicht starten:\n%2"
+msgstr ""
+"Der Hintergrunddienst konnte nicht %1 werden: sc.exe ließ sich nicht starten:\n"
+"%2"
 
 #: AFS_Desktop/src/BackgroundService.cpp:154
 msgid "bs_launchctl_exit"
@@ -969,9 +973,9 @@ msgid "error"
 msgstr "Fehler"
 
 #: AFS_Desktop/src/GridCtrl.cpp:117 AFS_Desktop/src/SshAccountDialog.cpp:42
-#: AFS_Desktop/src/SshAccountsDialog.cpp:50
 #: AFS_Desktop/src/SshAccountSelectDialog.cpp:45
-#: AFS_Desktop/src/SshDirDialog.cpp:71 AFS_Desktop/src/SyncItemDialog.cpp:62
+#: AFS_Desktop/src/SshAccountsDialog.cpp:50 AFS_Desktop/src/SshDirDialog.cpp:71
+#: AFS_Desktop/src/SyncItemDialog.cpp:62
 msgid "name"
 msgstr "Name"
 
@@ -1064,7 +1068,9 @@ msgstr "Bitte Postausgangsserver und Absender eintragen."
 
 #: AFS_Desktop/src/MainWindow.cpp:133
 msgid "started_minimized"
-msgstr "AutoFileSync wurde minimiert gestartet.\n Siehe Ausgeblendete Symbole."
+msgstr ""
+"AutoFileSync wurde minimiert gestartet.\n"
+" Siehe Ausgeblendete Symbole."
 
 #: AFS_Desktop/src/MainWindow.cpp:133 AFS_Desktop/src/SettingsDialog.cpp:70
 #: AFS_Desktop/src/SyncInterface.cpp:90 AFS_Desktop/src/SyncInterface.cpp:166
@@ -1098,7 +1104,18 @@ msgstr "Fehler beim Abrufen des Pfads: "
 
 #: AFS_Desktop/src/MainWindow.cpp:319
 msgid "about_text"
-msgstr "%1\nVersion %2\n\nAutomatische Synchronisation von Dateien und Verzeichnisbäumen\nunter %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nLizenz: GNU GPL v3 oder neuer,\nsiehe Hilfe → Lizenzbedingungen."
+msgstr ""
+"%1\n"
+"Version %2\n"
+"\n"
+"Automatische Synchronisation von Dateien und Verzeichnisbäumen\n"
+"unter %3.\n"
+"\n"
+"Copyright © 2026 Joachim Welsch\n"
+"https://welsch-software.com\n"
+"\n"
+"Lizenz: GNU GPL v3 oder neuer,\n"
+"siehe Hilfe → Lizenzbedingungen."
 
 #: AFS_Desktop/src/MainWindow.cpp:321
 msgid "about_title"
@@ -1186,7 +1203,9 @@ msgstr "Fehler beim Hinzufügen der Hilfedatei: "
 
 #: AFS_Desktop/src/MainWindow.cpp:792
 msgid "taskbar_tooltip"
-msgstr "AutoFileSync\nMinimiertes Synchronisationsprogramm."
+msgstr ""
+"AutoFileSync\n"
+"Minimiertes Synchronisationsprogramm."
 
 #: AFS_Desktop/src/MainWindow.cpp:793
 msgid "icon_set_failed"
@@ -1397,14 +1416,14 @@ msgid "source_panel"
 msgstr "Quell-Panel"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:50
-#: AFS_Desktop/src/SshAccountsDialog.cpp:51
 #: AFS_Desktop/src/SshAccountSelectDialog.cpp:46
+#: AFS_Desktop/src/SshAccountsDialog.cpp:51
 msgid "host"
 msgstr "Host"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:58
-#: AFS_Desktop/src/SshAccountsDialog.cpp:52
 #: AFS_Desktop/src/SshAccountSelectDialog.cpp:47
+#: AFS_Desktop/src/SshAccountsDialog.cpp:52
 msgid "user"
 msgstr "Benutzer"
 
@@ -1447,6 +1466,10 @@ msgstr "Bitte geben Sie einen Host an."
 msgid "user_required"
 msgstr "Bitte geben Sie einen Benutzer an."
 
+#: AFS_Desktop/src/SshAccountSelectDialog.cpp:39
+msgid "select_ssh_connection_hint"
+msgstr "Wählen Sie eine SSH-Verbindung aus:"
+
 #: AFS_Desktop/src/SshAccountsDialog.cpp:59
 msgid "button_add"
 msgstr "Hinzufügen"
@@ -1474,10 +1497,6 @@ msgstr "Soll der SSH-Account '%1' wirklich gelöscht werden?"
 #: AFS_Desktop/src/SshAccountsDialog.cpp:144
 msgid "ssh_account_in_use_warning"
 msgstr "Achtung: Es gibt Synchronisationen, die diesen Account verwenden. Diese werden danach fehlschlagen."
-
-#: AFS_Desktop/src/SshAccountSelectDialog.cpp:39
-msgid "select_ssh_connection_hint"
-msgstr "Wählen Sie eine SSH-Verbindung aus:"
 
 #: AFS_Desktop/src/SshDirDialog.cpp:49
 msgid "ssh_connection_info"
@@ -1634,7 +1653,9 @@ msgstr "Optionen"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:197
 msgid "exclusions_hint"
-msgstr "Namen oder Muster, die von der Synchronisation ausgeschlossen werden\n(ein Eintrag pro Zeile, z.B. *.tmp oder node_modules):"
+msgstr ""
+"Namen oder Muster, die von der Synchronisation ausgeschlossen werden\n"
+"(ein Eintrag pro Zeile, z.B. *.tmp oder node_modules):"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:202
 msgid "tab_exclusions"
@@ -1731,3 +1752,19 @@ msgstr "Logging-Einstellungen"
 #: AFS_Desktop/include/TextResources.h:33
 msgid "title_assistant"
 msgstr "Assistent"
+
+#: backgroundsync/MyDaemon.cpp:45 backgroundsync/backgroundsync.cpp:49
+msgid "daemon_running"
+msgstr "backgroundsync läuft..."
+
+#: backgroundsync/arguments.cpp:60
+msgid "unknown_option"
+msgstr "Unbekannte Kommandozeilenoption [%1]: %2"
+
+#: backgroundsync/backgroundsync.cpp:50
+msgid "daemon_started"
+msgstr "backgroundsync gestartet"
+
+#: backgroundsync/backgroundsync.cpp:55 backgroundsync/backgroundsync.cpp:56
+msgid "daemon_stopped"
+msgstr "backgroundsync beendet"
