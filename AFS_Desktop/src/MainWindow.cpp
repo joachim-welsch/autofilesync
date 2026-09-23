@@ -32,8 +32,6 @@
 #include "SshAccountsDialog.h"
 #include "ChatDialog.h"
 #include "Config.h"
-#include "License.h"
-#include "LicensePublicKey.h"
 #include "Synchronize.h"
 #include "SyncControler.h"
 #include "SyncInterface.h"
@@ -144,7 +142,6 @@ MainWindow::MainWindow(wxWindow *parent,
 		menu_.syncMenu()->Enable(tul(id::StopSync), false);
 	}
 	startSyncTimer();
-	showLicense();
 }
 
 MainWindow::~MainWindow()
@@ -801,23 +798,6 @@ void MainWindow::restoreSizeAndPosition() // Restore window size and position fr
         SetPosition(wxPoint(x, y));
     }
     SetSize(wxSize(w, h));
-}
-
-namespace {
-
-std::vector<std::filesystem::path> licenseDirectories()  // [MainWindow.md#showLicense]
-{
-    return {std::filesystem::path(Config::get_root_pathname()).parent_path(),
-            std::filesystem::path(wxStandardPaths::Get().GetExecutablePath().ToStdWstring()).parent_path()};
-}
-
-}
-
-void MainWindow::showLicense()
-{
-    const std::optional<license::License> found = license::find(licenseDirectories(), license::PRODUCT_PUBLIC_KEY);
-    const wxString licensee = found && !found->private_use() ? wxString(found->licensee) : _("private Nutzung");
-    setStatusTextWithTimer(_(L"Lizenziert für ") + licensee, 5000);
 }
 
 void MainWindow::createTaskBar()

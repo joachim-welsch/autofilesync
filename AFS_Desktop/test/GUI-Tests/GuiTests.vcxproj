@@ -141,7 +141,6 @@
     <ClCompile Include="..\..\..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CopyLog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\License.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\FileDifference.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Global.cpp" />
     <ClCompile Include="..\..\src\GridCtrl.cpp" />
