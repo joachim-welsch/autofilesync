@@ -62,12 +62,12 @@ afs_add_resources() {
     afs_add_licenses "${app}"
 }
 
-# The licence texts travel inside the bundle: the dual licensing, the GPL and the
+# The licence texts travel inside the bundle: the GPL, its explanation and the
 # notices of the third-party libraries embedded as frameworks.
 afs_add_licenses() {
     local app="$1" root="${AFS_DESKTOP_DIR}/.." licenses="${app}/Contents/Resources/licenses"
     rm -rf "${licenses}"; mkdir -p "${licenses}"
-    cp -f "${root}"/{LICENSE,LICENSING.md,LICENSE-COMMERCIAL.md,THIRD-PARTY-NOTICES.md,CHANGELOG.md} "${licenses}/"
+    cp -f "${root}"/{LICENSE,LICENSING.md,THIRD-PARTY-NOTICES.md,CHANGELOG.md} "${licenses}/"
     cp -R "${root}/third-party" "${licenses}/third-party"
 }
 

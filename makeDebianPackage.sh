@@ -119,14 +119,14 @@ stage_help()
 }
 
 # Debian policy asks for copyright and a compressed changelog under
-# /usr/share/doc; the licence texts of the dual licensing and of the
-# third-party components go there too.
+# /usr/share/doc; the licence text and the licences of the third-party
+# components go there too.
 stage_documentation()
 {
     local doc="${STAGING}/usr/share/doc/autofilesync"
     mkdir -p "${doc}/third-party"
     install -m 644 "${DEBIAN_DIR}/copyright" "${doc}/copyright"
-    install -m 644 "${SOURCE_DIR}"/{LICENSING.md,LICENSE-COMMERCIAL.md,THIRD-PARTY-NOTICES.md} "${doc}/"
+    install -m 644 "${SOURCE_DIR}"/{LICENSING.md,THIRD-PARTY-NOTICES.md} "${doc}/"
     install -m 644 "${SOURCE_DIR}"/third-party/* "${doc}/third-party/"
     {
         printf 'autofilesync (%s) unstable; urgency=medium\n\n  * Siehe CHANGELOG.md.\n\n -- %s  %s\n' \

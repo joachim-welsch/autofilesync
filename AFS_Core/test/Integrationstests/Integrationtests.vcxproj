@@ -189,7 +189,6 @@
     <ClCompile Include="CheckPathTests.cpp" />
     <ClCompile Include="LogCutTests.cpp" />
     <ClCompile Include="LoggingCollectTests.cpp" />
-    <ClCompile Include="LicenseTests.cpp" />
     <ClCompile Include="LogAnalysisTests.cpp" />
     <ClCompile Include="ModelLocationTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
@@ -219,7 +218,6 @@
     <ClCompile Include="$(LibDir)\src\Config.cpp" />
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
-    <ClCompile Include="$(LibDir)\src\License.cpp" />
     <ClCompile Include="$(LibDir)\src\SftpConnection.cpp" />
     <ClCompile Include="$(LibDir)\src\SshConnectTimeout.cpp" />
     <ClCompile Include="$(LibDir)\src\SshHostKeyVerification.cpp" />

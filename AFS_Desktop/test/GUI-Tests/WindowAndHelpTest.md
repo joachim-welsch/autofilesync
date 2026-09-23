@@ -30,15 +30,3 @@ Start and Stopp go through the service manager, which needs elevation when the s
 installed - a UAC prompt a test cannot answer - so only the "not installed" case, which ends in
 the "Hintergrunddienst" error box, runs; on a machine with the service the test skips itself.
 
-## LicenseFile
-
-A licence file in the sandbox's configuration directory, removed when the test leaves its
-scope: the directory is where showLicense() looks first.
-
-## license
-
-The status line at the start is gone by the time the first test runs, so showLicense() is
-called again. Two licences issued with the product's private key are pinned here with their
-signatures - one for a named licensee, one without a licensee for private use - so the whole
-way from the file on disk to the status bar runs with the embedded public key. The private key
-itself stays outside the repository; a new key pair has to re-issue both signatures.
