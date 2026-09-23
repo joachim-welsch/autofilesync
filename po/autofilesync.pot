@@ -1733,10 +1733,6 @@ msgstr ""
 msgid "daemon_running"
 msgstr ""
 
-#: backgroundsync/arguments.cpp:60
-msgid "unknown_option"
-msgstr ""
-
 #: backgroundsync/backgroundsync.cpp:50
 msgid "daemon_started"
 msgstr ""

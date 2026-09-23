@@ -13,7 +13,6 @@ endif()
 
 add_executable(${PROJECT_NAME}
     backgroundsync.cpp
-    arguments.cpp
     MyDaemon.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE afs_core_headless)
