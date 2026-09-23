@@ -370,7 +370,11 @@ Log-Level kann in der GUI konfiguriert werden:
 
 ## Lizenz
 
-[Lizenzinformationen einfügen]
+AutoFileSync ist dual lizenziert: GNU GPL v3 oder neuer (`LICENSE`) oder die
+kommerzielle Lizenz des Rechteinhabers (`LICENSE-COMMERCIAL.md`). Einzelheiten
+in `LICENSING.md`, Komponenten Dritter in `THIRD-PARTY-NOTICES.md`. Jede
+Quelldatei trägt den Lizenz-Header; `python tools/licenseHeaders.py --check`
+prüft das.
 
 ## Kontakt
 

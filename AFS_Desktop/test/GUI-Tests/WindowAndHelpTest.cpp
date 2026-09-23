@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2026 Joachim Welsch <https://welsch-software.com>
+ * SPDX-License-Identifier: GPL-3.0-or-later OR LicenseRef-AutoFileSync-Commercial
+ *
+ * This file is part of AFS_Desktop, the desktop program of AutoFileSync.
+ *
+ * AutoFileSync is dual-licensed: you may use, modify and redistribute it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License or (at your option) any later
+ * version, or under the AutoFileSync Commercial Licence obtained from the
+ * copyright holder. See LICENSING.md, LICENSE and LICENSE-COMMERCIAL.md in the
+ * root of the source tree.
+ *
+ * AutoFileSync is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the applicable licence for more details.
+ */
 #include "GuiTest.h"
 #include "EventPump.h"
 #include "GuiTestSandbox.h"
@@ -155,8 +172,11 @@ TEST_F(GuiTest, InfoDialogZeigtVersion)
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Info-Dialog erschien nicht.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains(afsVERSION_STRING))
-        << "Der Info-Dialog nennt die Version nicht: " << ModalDialogWatcher::instance().answeredMessages().front();
+    const wxString& about = ModalDialogWatcher::instance().answeredMessages().front();
+    EXPECT_TRUE(about.Contains(afsVERSION_STRING)) << "Der Info-Dialog nennt die Version nicht: " << about;
+    EXPECT_TRUE(about.Contains("Joachim Welsch")) << "Der Info-Dialog nennt den Rechteinhaber nicht: " << about;
+    EXPECT_TRUE(about.Contains("GPL")) << "Der Info-Dialog nennt die Lizenz nicht: " << about;
+    EXPECT_TRUE(about.Contains(L"Verzeichnisbäumen")) << "Umlaute im Info-Dialog sind beschädigt: " << about;
 }
 
 TEST_F(GuiTest, HilfeOeffnetHilfebuch)  // [WindowAndHelpTest.md#help]

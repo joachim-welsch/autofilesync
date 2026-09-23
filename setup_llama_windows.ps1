@@ -25,7 +25,7 @@ $ErrorActionPreference = 'Stop'
 $variable = 'AUTOFILESYNC_LLAMA_MODEL'
 $modelDir = Join-Path $env:LOCALAPPDATA 'autofilesync\models'
 $modelNames = @{
-    '3b'  = 'Qwen2.5-Coder-3B-Instruct'
+    '3b'  = 'Qwen2.5-Coder-3B-Instruct'  # Qwen Research License: not for commercial use, see THIRD-PARTY-NOTICES.md
     '7b'  = 'Qwen2.5-Coder-7B-Instruct'
     '14b' = 'Qwen2.5-Coder-14B-Instruct'
 }

@@ -118,6 +118,24 @@ stage_help()
     ln -s ../../share/autofilesync/help "${STAGING}/usr/lib/autofilesync/help"
 }
 
+# Debian policy asks for copyright and a compressed changelog under
+# /usr/share/doc; the licence texts of the dual licensing and of the
+# third-party components go there too.
+stage_documentation()
+{
+    local doc="${STAGING}/usr/share/doc/autofilesync"
+    mkdir -p "${doc}/third-party"
+    install -m 644 "${DEBIAN_DIR}/copyright" "${doc}/copyright"
+    install -m 644 "${SOURCE_DIR}"/{LICENSING.md,LICENSE-COMMERCIAL.md,THIRD-PARTY-NOTICES.md} "${doc}/"
+    install -m 644 "${SOURCE_DIR}"/third-party/* "${doc}/third-party/"
+    {
+        printf 'autofilesync (%s) unstable; urgency=medium\n\n  * Siehe CHANGELOG.md.\n\n -- %s  %s\n' \
+            "${VERSION}" "${MAINTAINER}" "$(date -R)"
+    } | gzip -9n > "${doc}/changelog.Debian.gz"
+    install -m 644 "${SOURCE_DIR}/CHANGELOG.md" "${doc}/changelog"
+    gzip -9n "${doc}/changelog"
+}
+
 largest_icon_frame()
 {
     identify -format '%w %p\n' "$1" | sort -n | tail -1 | cut -d' ' -f2
@@ -187,6 +205,7 @@ rm -rf "${STAGING}"
 stage_programs
 stage_translations
 stage_help
+stage_documentation
 stage_desktop_integration
 write_control
 

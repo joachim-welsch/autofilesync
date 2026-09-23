@@ -59,6 +59,16 @@ afs_add_resources() {
     cp -R "${AFS_DESKTOP_DIR}/help" "${app}/Contents/Resources/help"
     [ -f "${app}/Contents/Resources/help/help.htb" ] || afs_fail "help.htb fehlt in ${app}."
     cp -f "${AFS_DESKTOP_DIR}/icons/afs.icns" "${app}/Contents/Resources/afs.icns"
+    afs_add_licenses "${app}"
+}
+
+# The licence texts travel inside the bundle: the dual licensing, the GPL and the
+# notices of the third-party libraries embedded as frameworks.
+afs_add_licenses() {
+    local app="$1" root="${AFS_DESKTOP_DIR}/.." licenses="${app}/Contents/Resources/licenses"
+    rm -rf "${licenses}"; mkdir -p "${licenses}"
+    cp -f "${root}"/{LICENSE,LICENSING.md,LICENSE-COMMERCIAL.md,THIRD-PARTY-NOTICES.md,CHANGELOG.md} "${licenses}/"
+    cp -R "${root}/third-party" "${licenses}/third-party"
 }
 
 # Every non-system library a binary loads, its own install name excluded. The
@@ -143,6 +153,7 @@ afs_verify_bundle() {
     [ -z "$duplicates" ] || { afs_warn "  Bibliothek doppelt eingebettet"; failures=1; }
     [ -f "${app}/Contents/Resources/help/help.htb" ] || { afs_warn "  help.htb fehlt"; failures=1; }
     [ -f "${app}/Contents/Resources/afs.icns" ] || { afs_warn "  afs.icns fehlt"; failures=1; }
+    [ -f "${app}/Contents/Resources/licenses/LICENSE" ] || { afs_warn "  Lizenztexte fehlen"; failures=1; }
     codesign --verify --deep --strict "${app}" 2>/dev/null || { afs_warn "  Signatur ungültig"; failures=1; }
     [ $failures -eq 0 ] || afs_fail "Bündel unvollständig."
     afs_info "Bündel ist eigenständig (${#libraries[@]} Bibliotheken)."
