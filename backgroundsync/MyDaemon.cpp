@@ -21,6 +21,7 @@
 #include <Synchronize.h>
 #include <Config.h>
 #include "Logging.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -41,7 +42,7 @@ void MyDaemon::start() {
     Config::instance().pathname(path_name);
     Config::instance().read(path_name);
     Logging::instance().open_file();  // read() leaves the file closed when the configured name equals the default name
-    log_info(L"Daemon is running...");
+    log_info(translation::translate("daemon_running"));
     workerThread_ = std::thread(&MyDaemon::run, this);
 }
 
