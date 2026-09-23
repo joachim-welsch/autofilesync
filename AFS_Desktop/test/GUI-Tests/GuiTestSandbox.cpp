@@ -70,6 +70,13 @@ void redirectUserDirectories()
 #endif
 }
 
+void isolateInputMethod()  // [GuiTestSandbox.md#isolateInputMethod]
+{
+#ifdef __linux__
+    setenv("GTK_IM_MODULE", "gtk-im-context-simple", 1);
+#endif
+}
+
 void writeFile(const fs::path& pathname, const std::string& content)
 {
     fs::create_directories(pathname.parent_path());
@@ -95,6 +102,7 @@ void GuiTestSandbox::create()
     fs::remove_all(sandboxRoot);
     fs::create_directories(sandboxRoot);
     redirectUserDirectories();
+    isolateInputMethod();
     writeFile(configFile(), minimalConfig());
     writeFile(sourceDir() / "beispiel.txt", "Inhalt der Quelldatei\n");
     fs::create_directories(targetDir());

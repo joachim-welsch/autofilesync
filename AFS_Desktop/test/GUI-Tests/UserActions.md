@@ -27,22 +27,95 @@ arrived mangled ("autofilesync-guitest" as "autofilesznc guitest"). Posted to th
 instead of the HID tap: the keystrokes reach the application under test without it having to be
 the frontmost application, and cannot land in whatever else is open on the developer's desktop.
 
-## keyboardDisplay
+## x11-keymap-lookup
 
-Own connection to the same server the application uses: only the keyboard mapping is read, and
-asking X directly avoids pulling GTK's headers in.
+The character is typed through XTest with the key that carries its keysym in the server's
+current layout, together with the modifiers that reach that level of the key - Shift for '$'
+and each capital, AltGr for '@', '[' or '\' on a German layout, both for some. Char() of
+wxUIActionSimulator finds the key too but never presses a modifier by itself, so every
+character above the first level arrived as the one below it; Text() only accepts characters
+that need no modifier on a US layout. Which key, which level and which modifiers is what the
+layout decides, so all three are read from it: the keysym table of each key (XkbKeySymEntry),
+the key type's map from level to modifier mask, and the modifier map that names a key for each
+modifier bit. Own connection to the same server the application uses: only the keyboard is
+read and driven, and asking X directly avoids pulling GTK's headers in.
 
-## x11-needs-the-layout
+## keyboard-per-text
 
-Char() looks the keysym up in the layout but never presses a modifier by itself, so every
-character sitting on a shifted key - '$', '!', ':' and each capital - would arrive as the
-unshifted character of the same key. Which characters those are depends on the layout, so the
-layout decides here too.
+The layout is read afresh for every text, not once per process: Xlib refreshes its copy of the
+keymap only while a connection processes events, which this one never does, and the desktop
+can switch the layout at any time - one run started on the session's German layout and found
+it switched to US while it typed: the stale German copy asked for Shift on a key that no longer
+needed it, so every '/' arrived as '?'. A run that starts on one layout and ends on another
+types correctly on both.
 
-## ascii-equals-keysym
+## keysym-of-character
 
-ASCII code points and their X keysyms are identical, which is the same mapping Char() applies
-before it looks for the key.
+The keysyms of Latin-1 are its code points, everything above is the code point with the Unicode
+keysym bit set - the same mapping XKB uses for its own symbol tables.
+
+## x11-dead-keys
+
+A layout may carry a character only as a dead key: '^' and '`' on a German keyboard produce
+nothing until the following key decides what to combine into. Typed as the dead key followed by
+a space, which is how a user gets the plain character, and what GTK's own input context
+composes it to.
+
+## x11-level-modifiers
+
+The modifiers of a level come from the key's type, not from a fixed table: a two-level key
+reaches level 1 with Shift, a four-level key its level 2 with AltGr, and an alphabetic key lists
+Lock for level 1 as well - the entry found first is the Shift one, which is the one to press.
+A level without an entry cannot be reached by any modifier, so the search moves on to the next
+key that carries the keysym.
+
+## x11-event-spacing
+
+Fake events sent too fast get lost between XTest, the compositor and GTK; the pause is the
+one wxUIActionSimulator keeps between its own events for the same reason.
+
+## click-until-focused
+
+A text field is clicked again, at its current position, when the focus has not arrived: a
+window that moves between the reading of the position and the click - a dialog that GNOME
+re-centres on a parent the window manager has just resized - takes the click somewhere else,
+and the text would then go into whatever sits there. After the attempts the typing goes ahead
+anyway: on some platforms the focus is reported late although the click landed, and the value
+check afterwards tells.
+
+## raise-when-not-focused
+
+A click that leaves the field without focus is followed by a request to activate its window.
+GNOME withholds the focus from a window the application shows without an action of the user:
+the main window a test hid and showed again, and every dialog opened above it afterwards, are
+marked as demanding attention instead - no window of the application is active, and the fake
+click on the field does not change that. Raise() asks the window manager for the activation
+with the time of the input the window did receive, which is what a user's click provides.
+
+## retype-once
+
+A text is typed a second time when the field does not show it afterwards: a keystroke can get
+lost on the way, and a layout switch in the middle of the text produces a wrong character once
+- both are retried with a freshly read layout before the failure is reported. Selecting the old
+content first makes the second attempt replace the first.
+
+## wait-until-settled
+
+A window manager places a dialog after it has been mapped: GNOME pushes it down under its
+title bar about 20 ms after IsShownOnScreen() turns true. A point computed before that lands
+19 pixels too high - one row up in a list, on the label above a text field - and the click
+selects nothing or types into nothing. Every click therefore waits until two readings of the
+window's screen position agree. On Xvfb, without a window manager, the first pair agrees and
+the wait ends at once; the timeout only guards against a window that keeps moving.
+
+## pointer-arrives-before-click
+
+The click is sent only once the pointer is reported at the target. On a Wayland desktop the
+fake motion travels through the compositor before the server knows the new position, and a
+click sent a fixed 20 ms after it sometimes went to the previous position - into the field
+typed before, which then swallowed the next text. Xvfb moves the pointer at once. The timeout
+covers a screen where the reported and the requested position never agree (scaling); the click
+is then sent anyway, as it was before.
 
 ## pointer-move-settles-focus
 

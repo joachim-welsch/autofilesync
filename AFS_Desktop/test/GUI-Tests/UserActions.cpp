@@ -28,7 +28,10 @@
 #include <wx/toolbar.h>
 #include <wx/uiaction.h>
 #include <cctype>
+#include <functional>
+#include <optional>
 #include <string_view>
+#include <vector>
 #ifdef _WIN32
     #include <wx/msw/wrapwin.h>
 #elif defined(_MACOS)
@@ -36,75 +39,229 @@
     #include <unistd.h>
 #else
     #include <X11/XKBlib.h>
+    #include <X11/keysym.h>
+    #include <X11/extensions/XTest.h>
 #endif
 
 namespace guitest {
 namespace {
 
+constexpr int SETTLE_MILLISECONDS = 30;  // [UserActions.md#wait-until-settled]
+constexpr int SETTLE_TIMEOUT_MILLISECONDS = 1000;
+
+bool settled(wxWindow& window)
+{
+    const wxPoint before = window.GetScreenPosition();
+    pump(SETTLE_MILLISECONDS);
+    return window.GetScreenPosition() == before;
+}
+
+void waitUntilSettled(wxWindow& window)  // [UserActions.md#wait-until-settled]
+{
+    waitUntil([&window] { return settled(window); }, SETTLE_TIMEOUT_MILLISECONDS);
+}
+
+constexpr int POINTER_TIMEOUT_MILLISECONDS = 500;
+
+bool moveTo(wxUIActionSimulator& simulator, const wxPoint& screenPoint)  // [UserActions.md#pointer-arrives-before-click]
+{
+    if (!simulator.MouseMove(screenPoint))
+        return false;
+    waitUntil([screenPoint] { return wxGetMousePosition() == screenPoint; }, POINTER_TIMEOUT_MILLISECONDS);
+    pump(20);
+    return true;
+}
+
 wxPoint centerOnScreen(wxWindow& control)
 {
+    waitUntilSettled(control);
     const wxSize size = control.GetSize();
     return control.GetScreenPosition() + wxPoint(size.x / 2, size.y / 2);
 }
 
 #ifdef _WIN32  // [UserActions.md#why-not-simulator-text]
-bool typeCharacter(wxUIActionSimulator&, wxUniChar character)  // [UserActions.md#windows-injects-the-character]
-{
-    const wxUint32 value = character.GetValue();
-    if (value > 0xFFFF)
-        return false; // outside the BMP a single wScan cannot carry it
-    INPUT input[2] = {};
-    input[0].type = INPUT_KEYBOARD;
-    input[0].ki.wScan = static_cast<WORD>(value);
-    input[0].ki.dwFlags = KEYEVENTF_UNICODE;
-    input[1] = input[0];
-    input[1].ki.dwFlags |= KEYEVENTF_KEYUP;
-    return SendInput(2, input, sizeof(INPUT)) == 2;
-}
-#elif defined(_MACOS)
-bool typeCharacter(wxUIActionSimulator&, wxUniChar character)  // [UserActions.md#macos-injects-the-character]
-{
-    const wxUint32 value = character.GetValue();
-    if (value > 0xFFFF)
-        return false; // outside the BMP a single UniChar cannot carry it
-    UniChar unicode = static_cast<UniChar>(value);
-    CGEventRef down = CGEventCreateKeyboardEvent(nullptr, 0, true);
-    CGEventRef up = CGEventCreateKeyboardEvent(nullptr, 0, false);
-    if (down == nullptr || up == nullptr) {
-        if (down != nullptr)
-            CFRelease(down);
-        if (up != nullptr)
-            CFRelease(up);
-        return false;
+class Keyboard {  // [UserActions.md#windows-injects-the-character]
+public:
+    bool type(wxUniChar character) const
+    {
+        const wxUint32 value = character.GetValue();
+        if (value > 0xFFFF)
+            return false; // outside the BMP a single wScan cannot carry it
+        INPUT input[2] = {};
+        input[0].type = INPUT_KEYBOARD;
+        input[0].ki.wScan = static_cast<WORD>(value);
+        input[0].ki.dwFlags = KEYEVENTF_UNICODE;
+        input[1] = input[0];
+        input[1].ki.dwFlags |= KEYEVENTF_KEYUP;
+        return SendInput(2, input, sizeof(INPUT)) == 2;
     }
-    CGEventKeyboardSetUnicodeString(down, 1, &unicode);
-    CGEventKeyboardSetUnicodeString(up, 1, &unicode);
-    CGEventPostToPid(getpid(), down);
-    CGEventPostToPid(getpid(), up);
-    CFRelease(down);
-    CFRelease(up);
-    return true;
-}
+};
+#elif defined(_MACOS)
+class Keyboard {  // [UserActions.md#macos-injects-the-character]
+public:
+    bool type(wxUniChar character) const
+    {
+        const wxUint32 value = character.GetValue();
+        if (value > 0xFFFF)
+            return false; // outside the BMP a single UniChar cannot carry it
+        UniChar unicode = static_cast<UniChar>(value);
+        CGEventRef down = CGEventCreateKeyboardEvent(nullptr, 0, true);
+        CGEventRef up = CGEventCreateKeyboardEvent(nullptr, 0, false);
+        if (down == nullptr || up == nullptr) {
+            if (down != nullptr)
+                CFRelease(down);
+            if (up != nullptr)
+                CFRelease(up);
+            return false;
+        }
+        CGEventKeyboardSetUnicodeString(down, 1, &unicode);
+        CGEventKeyboardSetUnicodeString(up, 1, &unicode);
+        CGEventPostToPid(getpid(), down);
+        CGEventPostToPid(getpid(), up);
+        CFRelease(down);
+        CFRelease(up);
+        return true;
+    }
+};
 #else
-Display* keyboardDisplay()  // [UserActions.md#keyboardDisplay]
+constexpr int EVENT_GAP_MILLISECONDS = 20;  // [UserActions.md#x11-event-spacing]
+
+KeySym keysymOf(wxUniChar character)  // [UserActions.md#keysym-of-character]
 {
-    static Display* display = XOpenDisplay(nullptr);
-    return display;
+    const wxUint32 value = character.GetValue();
+    return value < 0x100 ? value : 0x01000000 | value;
 }
 
-bool typeCharacter(wxUIActionSimulator& simulator, wxUniChar character)  // [UserActions.md#x11-needs-the-layout]
+KeySym deadKeyOf(KeySym keysym)  // [UserActions.md#x11-dead-keys]
 {
-    if (!character.IsAscii())
+    switch (keysym) {
+    case XK_asciicircum: return XK_dead_circumflex;
+    case XK_grave: return XK_dead_grave;
+    case XK_asciitilde: return XK_dead_tilde;
+    case XK_apostrophe: return XK_dead_acute;
+    case XK_quotedbl: return XK_dead_diaeresis;
+    default: return NoSymbol;
+    }
+}
+
+class Keyboard {  // [UserActions.md#x11-keymap-lookup]
+public:
+    Keyboard();
+    ~Keyboard();
+    Keyboard(const Keyboard&) = delete;
+    Keyboard& operator=(const Keyboard&) = delete;
+    bool type(wxUniChar character) const;
+private:
+    struct Key { KeyCode code = 0; unsigned modifiers = 0; };
+    Key keyOf(KeySym keysym) const;
+    std::optional<unsigned> modifiersOf(int code, int group, int level) const;  // [UserActions.md#x11-level-modifiers]
+    std::optional<std::vector<KeyCode>> modifierKeysOf(unsigned modifiers) const;
+    KeyCode modifierKeyOf(unsigned bit) const;
+    bool press(Key key) const;
+    void fake(KeyCode code, bool down) const;
+    Display* display_;
+    XkbDescPtr keymap_ = nullptr;
+    int group_ = 0;
+};
+
+Keyboard::Keyboard(): display_(XOpenDisplay(nullptr))
+{
+    if (display_ == nullptr)
+        return;
+    keymap_ = XkbGetMap(display_, XkbAllClientInfoMask, XkbUseCoreKbd);
+    XkbStateRec state{};
+    if (XkbGetState(display_, XkbUseCoreKbd, &state) == Success)
+        group_ = state.group;
+}
+
+Keyboard::~Keyboard()
+{
+    if (keymap_ != nullptr)
+        XkbFreeKeyboard(keymap_, XkbAllComponentsMask, True);
+    if (display_ != nullptr)
+        XCloseDisplay(display_);
+}
+
+bool Keyboard::type(wxUniChar character) const
+{
+    if (keymap_ == nullptr)
         return false;
-    Display* display = keyboardDisplay();
-    if (display == nullptr)
+    const KeySym keysym = keysymOf(character);
+    if (const Key key = keyOf(keysym); key.code != 0)
+        return press(key);
+    const Key deadKey = keyOf(deadKeyOf(keysym));  // [UserActions.md#x11-dead-keys]
+    return deadKey.code != 0 && press(deadKey) && press(keyOf(XK_space));
+}
+
+Keyboard::Key Keyboard::keyOf(KeySym keysym) const
+{
+    if (keysym == NoSymbol)
+        return {};
+    for (int code = keymap_->min_key_code; code <= keymap_->max_key_code; ++code) {
+        const int groups = XkbKeyNumGroups(keymap_, code);
+        if (groups == 0)
+            continue;
+        const int group = group_ < groups ? group_ : 0;
+        for (int level = 0; level < XkbKeyGroupWidth(keymap_, code, group); ++level)
+            if (XkbKeySymEntry(keymap_, code, level, group) == keysym)
+                if (const std::optional<unsigned> modifiers = modifiersOf(code, group, level))
+                    return {static_cast<KeyCode>(code), *modifiers};
+    }
+    return {};
+}
+
+std::optional<unsigned> Keyboard::modifiersOf(int code, int group, int level) const  // [UserActions.md#x11-level-modifiers]
+{
+    if (level == 0)
+        return 0u;
+    const XkbKeyTypePtr type = XkbKeyKeyType(keymap_, code, group);
+    for (int entry = 0; entry < type->map_count; ++entry)
+        if (type->map[entry].active && type->map[entry].level == level)
+            return type->map[entry].mods.mask;
+    return std::nullopt;
+}
+
+std::optional<std::vector<KeyCode>> Keyboard::modifierKeysOf(unsigned modifiers) const
+{
+    std::vector<KeyCode> keys;
+    for (unsigned bit = 1; bit < 0x100; bit <<= 1) {
+        if (!(modifiers & bit))
+            continue;
+        const KeyCode key = modifierKeyOf(bit);
+        if (key == 0)
+            return std::nullopt;
+        keys.push_back(key);
+    }
+    return keys;
+}
+
+KeyCode Keyboard::modifierKeyOf(unsigned bit) const
+{
+    for (int code = keymap_->min_key_code; code <= keymap_->max_key_code; ++code)
+        if (keymap_->map->modmap[code] & bit)
+            return static_cast<KeyCode>(code);
+    return 0;
+}
+
+bool Keyboard::press(Key key) const
+{
+    const std::optional<std::vector<KeyCode>> modifierKeys = key.code != 0 ? modifierKeysOf(key.modifiers) : std::nullopt;
+    if (!modifierKeys)
         return false;
-    const KeySym keysym = character.GetValue();  // [UserActions.md#ascii-equals-keysym]
-    const KeyCode key = XKeysymToKeycode(display, keysym);
-    if (key == 0)
-        return false;
-    const bool needsShift = XkbKeycodeToKeysym(display, key, 0, 0) != keysym;
-    return simulator.Char(character.GetValue(), needsShift ? wxMOD_SHIFT : wxMOD_NONE);
+    for (KeyCode modifier : *modifierKeys)
+        fake(modifier, true);
+    fake(key.code, true);
+    fake(key.code, false);
+    for (auto modifier = modifierKeys->rbegin(); modifier != modifierKeys->rend(); ++modifier)
+        fake(*modifier, false);
+    return true;
+}
+
+void Keyboard::fake(KeyCode code, bool down) const
+{
+    XTestFakeKeyEvent(display_, code, down, CurrentTime);
+    XSync(display_, False);
+    wxMilliSleep(EVENT_GAP_MILLISECONDS);  // [UserActions.md#x11-event-spacing]
 }
 #endif
 
@@ -126,9 +283,8 @@ bool clickOn(wxWindow* control)
     if (control == nullptr || !control->IsShownOnScreen())
         return false;
     wxUIActionSimulator simulator;
-    if (!simulator.MouseMove(centerOnScreen(*control)))  // [UserActions.md#pointer-move-settles-focus]
+    if (!moveTo(simulator, centerOnScreen(*control)))  // [UserActions.md#pointer-move-settles-focus]
         return false;
-    pump(20);
     if (!simulator.MouseClick())
         return false;
     pump(20);
@@ -142,11 +298,11 @@ bool clickOn(wxTreeCtrl& tree, wxTreeItemId item)
     wxRect rect;
     if (!tree.GetBoundingRect(item, rect, true))  // [UserActions.md#caller-ensures-visibility]
         return false;
+    waitUntilSettled(tree);
     wxUIActionSimulator simulator;
     const wxPoint screenPoint = tree.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2));
-    if (!simulator.MouseMove(screenPoint))
+    if (!moveTo(simulator, screenPoint))
         return false;
-    pump(20);
     if (!simulator.MouseClick())
         return false;
     pump(20);
@@ -158,9 +314,8 @@ namespace {
 bool clickAt(const wxPoint& screenPoint, bool doubleClick)
 {
     wxUIActionSimulator simulator;
-    if (!simulator.MouseMove(screenPoint))
+    if (!moveTo(simulator, screenPoint))
         return false;
-    pump(20);
     if (!(doubleClick ? simulator.MouseDblClick() : simulator.MouseClick()))
         return false;
     pump(20);
@@ -174,6 +329,7 @@ bool clickOn(wxListCtrl& list, long item, bool doubleClick)  // [UserActions.md#
     wxRect rect;
     if (!list.IsShownOnScreen() || !list.GetItemRect(item, rect))
         return false;
+    waitUntilSettled(list);
     return clickAt(list.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2)), doubleClick);
 }
 
@@ -181,6 +337,7 @@ bool clickOnRowLabel(wxGrid& grid, int row)  // [UserActions.md#clickOnRowLabel]
 {
     if (!grid.IsShownOnScreen() || row < 0 || row >= grid.GetNumberRows())
         return false;
+    waitUntilSettled(grid);
     const wxRect cell = grid.CellToRect(row, 0);
     int x = 0, y = 0;
     grid.CalcScrolledPosition(0, cell.y, &x, &y);
@@ -203,41 +360,16 @@ namespace {
 
 bool typeText(const wxString& text)
 {
-    wxUIActionSimulator simulator;
-    for (const wxUniChar character : text) {
-        if (!typeCharacter(simulator, character))
+    Keyboard keyboard;  // [UserActions.md#keyboard-per-text]
+    for (const wxUniChar character : text)
+        if (!keyboard.type(character))
             return false;
-    }
     pump();
     return true;
 }
 
-}
-
-bool typeInto(wxWindow* field, const wxString& text)
+bool typeLines(const wxString& lines)  // [UserActions.md#replaceLines]
 {
-    if (!clickOn(field) || !typeText(text))
-        return false;
-    return valueOf(field) == text;
-}
-
-bool replaceText(wxWindow* field, const wxString& text)
-{
-    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
-    if (textCtrl == nullptr || !clickOn(field))
-        return false;
-    textCtrl->SelectAll();  // [UserActions.md#select-after-the-click]
-    if (!typeText(text))
-        return false;
-    return valueOf(field) == text;
-}
-
-bool replaceLines(wxWindow* field, const wxString& lines)  // [UserActions.md#replaceLines]
-{
-    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
-    if (textCtrl == nullptr || !textCtrl->IsMultiLine() || !clickOn(field))
-        return false;
-    textCtrl->SelectAll();
     wxUIActionSimulator simulator;
     bool first = true;
     for (const wxString& line : wxSplit(lines, '\n')) {
@@ -247,7 +379,61 @@ bool replaceLines(wxWindow* field, const wxString& lines)  // [UserActions.md#re
             return false;
         first = false;
     }
-    return valueOf(field) == lines;
+    return true;
+}
+
+constexpr int CLICK_ATTEMPTS = 3;
+constexpr int FOCUS_TIMEOUT_MILLISECONDS = 200;
+
+bool clickIntoField(wxTextCtrl& field)  // [UserActions.md#click-until-focused]
+{
+    for (int attempt = 0; attempt < CLICK_ATTEMPTS; ++attempt) {
+        if (!clickOn(&field))
+            return false;
+        if (waitUntil([&field] { return field.HasFocus(); }, FOCUS_TIMEOUT_MILLISECONDS))
+            return true;
+        wxGetTopLevelParent(&field)->Raise();  // [UserActions.md#raise-when-not-focused]
+        pump();
+    }
+    return true;
+}
+
+bool typedAndShown(wxTextCtrl& field, const wxString& wanted, const std::function<bool()>& type)  // [UserActions.md#retype-once]
+{
+    if (!type())
+        return false;
+    if (field.GetValue() == wanted)
+        return true;
+    field.SelectAll();
+    return type() && field.GetValue() == wanted;
+}
+
+}
+
+bool typeInto(wxWindow* field, const wxString& text)
+{
+    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
+    if (textCtrl == nullptr || !clickIntoField(*textCtrl))
+        return false;
+    return typedAndShown(*textCtrl, text, [&text] { return typeText(text); });
+}
+
+bool replaceText(wxWindow* field, const wxString& text)
+{
+    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
+    if (textCtrl == nullptr || !clickIntoField(*textCtrl))
+        return false;
+    textCtrl->SelectAll();  // [UserActions.md#select-after-the-click]
+    return typedAndShown(*textCtrl, text, [&text] { return typeText(text); });
+}
+
+bool replaceLines(wxWindow* field, const wxString& lines)  // [UserActions.md#replaceLines]
+{
+    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
+    if (textCtrl == nullptr || !textCtrl->IsMultiLine() || !clickIntoField(*textCtrl))
+        return false;
+    textCtrl->SelectAll();
+    return typedAndShown(*textCtrl, lines, [&lines] { return typeLines(lines); });
 }
 
 namespace {

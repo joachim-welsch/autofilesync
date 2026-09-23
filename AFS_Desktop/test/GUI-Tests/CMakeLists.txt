@@ -17,10 +17,14 @@ endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/AfsDesktop.cmake)
 
 find_package(GTest REQUIRED)
-# UserActions reads the active keyboard layout to type shifted characters -
-# through X on Linux; macOS uses its own branch there and has no X server.
+# UserActions types through XTest with the keys of the server's current
+# keyboard layout (XKB) on Linux; macOS uses its own branch there and has no
+# X server.
 if(NOT APPLE)
     find_package(X11 REQUIRED)
+    if(NOT X11_Xtst_FOUND)
+        message(FATAL_ERROR "libXtst (XTest extension) is required to type in the GUI tests")
+    endif()
 endif()
 
 enable_testing()
@@ -72,7 +76,7 @@ add_executable(GuiTests ${TEST_SOURCES} ${AFS_DESKTOP_SOURCES})
 afs_desktop_configure_target(GuiTests)
 target_compile_definitions(GuiTests PRIVATE _GUITEST)
 target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${X11_INCLUDE_DIR})
-target_link_libraries(GuiTests PRIVATE GTest::GTest ${X11_LIBRARIES})
+target_link_libraries(GuiTests PRIVATE GTest::GTest ${X11_LIBRARIES} ${X11_Xtst_LIB})
 if(APPLE)
     # UserActions injects keystrokes as CGEvents (layout independent).
     target_link_libraries(GuiTests PRIVATE "-framework ApplicationServices")
