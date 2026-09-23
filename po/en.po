@@ -1757,10 +1757,6 @@ msgstr "Assistant"
 msgid "daemon_running"
 msgstr "backgroundsync is running..."
 
-#: backgroundsync/arguments.cpp:60
-msgid "unknown_option"
-msgstr "Unknown command line option [%1]: %2"
-
 #: backgroundsync/backgroundsync.cpp:50
 msgid "daemon_started"
 msgstr "backgroundsync started"
