@@ -23,6 +23,7 @@
 #include "id.h"
 #include "utilwx.h"
 #include "Logging.h"
+#include "Translation.h"
 #include "Util.h"
 #include <fstream>
 #include <iomanip>
@@ -95,7 +96,7 @@ TEST_F(SlowGuiTest, LogFrageWirdImChatBeantwortet)  // [ChatLogQuestionTest.md#L
 
     const wxString transcriptText = valueOf(transcript);
     EXPECT_NE(transcriptText.Find(logQuestion), wxNOT_FOUND) << "Die Frage fehlt im Verlauf.";
-    EXPECT_TRUE(transcriptText.Contains("Assistent:") || transcriptText.Contains("Fehler:"))
+    EXPECT_TRUE(transcriptText.Contains(translation::translate("chat_assistant") + L":") || transcriptText.Contains(translation::translate("error") + L":"))
         << "Es kam keine Antwort im Verlauf an.";
 
     wxDialog* chatDialog = dynamic_cast<wxDialog*>(input->GetParent());  // [ChatLogQuestionTest.md#hidden-not-closed]

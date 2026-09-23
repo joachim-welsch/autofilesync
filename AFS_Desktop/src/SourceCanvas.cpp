@@ -19,16 +19,17 @@
 #include "SourceCanvas.h"
 #include "TreeCtrl.h"
 #include "Config.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
 using std::wstring;
 
 SourceCanvas::SourceCanvas(wxWindow* parent)
- : Canvas(parent, "Quelle")
+ : Canvas(parent, translation::translate("source"))
 {
     SetName("source");
-    SetToolTip("Quell-Panel");
+    SetToolTip(translation::translate("source_panel"));
 }
 
 void SourceCanvas::update()

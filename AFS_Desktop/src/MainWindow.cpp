@@ -42,6 +42,7 @@
 #include "LogCut.h"
 #include "App.h"
 #include "Util.h"
+#include "Translation.h"
 #ifdef WIN32
     #include <Windows.h> // registerAutomaticStart() writes the autostart registry key
 #endif
@@ -129,7 +130,7 @@ MainWindow::MainWindow(wxWindow *parent,
 	createTaskBar();
 	LogCut()();
 	if (Config::instance().settings().start_minimized()) {
-		TimedMessageBox dlg(this, "AutoFileSync wurde minimiert gestartet.\n Siehe Ausgeblendete Symbole.", "Info", 3000);
+		TimedMessageBox dlg(this, translation::translate("started_minimized"), translation::translate("info"), 3000);
 		dlg.ShowModal(); // dlg is stack-allocated: its own destructor cleans it up, Destroy() is only for `new`-allocated windows
 	}
 	if (Config::sync_possible() && Config::instance().settings().start_sync_at_start()) {
@@ -189,21 +190,21 @@ void enableAutostart(const std::string &execPath) {  // [MainWindow.md#enableAut
         desktopFile << "Name=My Program\n";
         desktopFile << "Comment=Start My Program automatically after login\n";
         desktopFile.close();
-        std::cout << "Autostart aktiviert.\n";
+        std::cout << translation::translate_utf8("autostart_enabled") << "\n";
     } else {
-        std::cerr << "Konnte die Datei nicht erstellen.\n";
+        std::cerr << translation::translate_utf8("autostart_file_not_created") << "\n";
     }
 }
 
 void disableAutostart() {  // [MainWindow.md#disableAutostart]
     if (access((autostartDir + desktopFileName).c_str(), F_OK) == 0) {
         if (remove((autostartDir + desktopFileName).c_str()) == 0) {
-            std::cout << "Autostart deaktiviert.\n";
+            std::cout << translation::translate_utf8("autostart_disabled") << "\n";
         } else {
-            std::cerr << "Fehler beim Löschen der Datei.\n";
+            std::cerr << translation::translate_utf8("autostart_file_delete_failed") << "\n";
         }
     } else {
-        std::cout << "Autostart war bereits deaktiviert.\n";
+        std::cout << translation::translate_utf8("autostart_already_disabled") << "\n";
     }
 }
 
@@ -214,7 +215,7 @@ std::string getExecutablePath() {
     if (count != -1) {
         return std::string(result, count);
     } else {
-        std::cerr << "Fehler beim Abrufen des Pfads: " << strerror(errno) << std::endl;
+        std::cerr << translation::translate_utf8("executable_path_error") << strerror(errno) << std::endl;
         return std::string();
     }
 }
@@ -315,31 +316,14 @@ void MainWindow::onSize(wxSizeEvent& event)
 
 void MainWindow::onAbout(wxCommandEvent& WXUNUSED(event))
 {
-    wxMessageBox(wxString::Format
-                 (
-                    L"%s\n"
-                    L"Version %s\n"
-                    L"\n"
-                    L"Automatische Synchronisation von Dateien und Verzeichnisbäumen\n"
-                    L"unter %s.\n"
-                    L"\n"
-                    L"Copyright © 2026 Joachim Welsch\n"
-                    L"https://welsch-software.com\n"
-                    L"\n"
-                    L"Lizenz: GNU GPL v3 oder neuer,\n"
-                    L"siehe Hilfe → Lizenzbedingungen.",  // [MainWindow.md#onAbout]
-                    wxString(afsNAME_STRING),
-                    wxString(afsVERSION_STRING),
-                    wxGetOsDescription()
-                 ),
-                 L"Über AutoFileSync",
-                 wxOK | wxICON_INFORMATION,
-                 this);
+    wxMessageBox(translation::translate("about_text",  // [MainWindow.md#onAbout]
+                     {wxString(afsNAME_STRING).ToStdWstring(), wxString(afsVERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}),
+                 translation::translate("about_title"), wxOK | wxICON_INFORMATION, this);
 }
 
 void MainWindow::onAddSyncItem(wxCommandEvent& WXUNUSED(event))
 {
-    SyncItemDialog dlg(nullptr, this, wxID_ANY, txt::AddSynchronisation);
+    SyncItemDialog dlg(nullptr, this, wxID_ANY, txt::add_synchronisation());
     if (dlg.ShowModal() == wxID_OK) {
         SyncItem syncItem;  // [MainWindow.md#saveData-single-source]
         dlg.saveData(syncItem);
@@ -352,7 +336,7 @@ void MainWindow::onAddSyncItem(wxCommandEvent& WXUNUSED(event))
 void MainWindow::onAddSshConnection(wxCommandEvent& WXUNUSED(event))
 {
     SshAccount sshAccount;
-    SshAccountDialog dlg(&sshAccount, this, wxID_ANY, txt::AddSshConnection);
+    SshAccountDialog dlg(&sshAccount, this, wxID_ANY, txt::add_ssh_connection());
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(sshAccount);
         Config& cfg(Config::instance());
@@ -374,7 +358,10 @@ void MainWindow::update()
     }
 }
 
-const char* const configWildcard = "Konfigurationsdateien (*.json)|*.json";
+static wxString configWildcard()
+{
+    return translation::translate("config_file_wildcard");
+}
 
 static wxString configDialogDir(const std::filesystem::path& pathname)  // [MainWindow.md#configDialogDir]
 {
@@ -386,8 +373,8 @@ void MainWindow::onFileOpen(wxCommandEvent&)
     askAndSave();
 	Config& cfg(Config::instance());
     const std::filesystem::path current(cfg.pathname());
-    wxFileDialog dialog(this, L"Konfigurationsdatei öffnen", configDialogDir(current), wxEmptyString,
-        configWildcard, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    wxFileDialog dialog(this, translation::translate("open_config_title"), configDialogDir(current), wxEmptyString,
+        configWildcard(), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (dialog.ShowModal() != wxID_OK)
         return;
     const wstring path = dialog.GetPath().ToStdWstring();
@@ -405,7 +392,7 @@ bool save()
     Config& cfg(Config::instance());
     if (cfg.write(cfg.pathname()))
         return true;
-    wxMessageBox(_("Konfiguration konnte nicht gespeichert werden."), _("Fehler"), wxOK | wxICON_ERROR);  // [MainWindow.md#write-result-checked]
+    wxMessageBox(translation::translate("config_save_failed"), translation::translate("error"), wxOK | wxICON_ERROR);  // [MainWindow.md#write-result-checked]
     return false;
 }
 
@@ -419,7 +406,7 @@ void MainWindow::setStatusTextWithTimer(const wxString& text, int milliseconds)
 void MainWindow::onFileSave(wxCommandEvent& WXUNUSED(event))
 {
     if (save())
-        setStatusTextWithTimer("Konfiguration gespeichert", 5000);
+        setStatusTextWithTimer(translation::translate("config_saved"), 5000);
 }
 
 static wstring withJsonExtension(const wstring& path)  // [MainWindow.md#withJsonExtension]
@@ -431,16 +418,16 @@ static bool confirmOverwrite(wxWindow* parent, const wstring& path)  // [MainWin
 {
     if (!std::filesystem::exists(path))
         return true;
-    return wxMessageBox(wxString::Format(L"'%s' existiert bereits. Überschreiben?", wxString(path)),
-        L"Datei überschreiben", wxYES_NO | wxICON_QUESTION, parent) == wxYES;
+    return wxMessageBox(translation::translate("overwrite_question", {path}),
+        translation::translate("overwrite_title"), wxYES_NO | wxICON_QUESTION, parent) == wxYES;
 }
 
 void MainWindow::onFileSaveAs(wxCommandEvent& WXUNUSED(event))
 {
 	Config& cfg(Config::instance());
     const std::filesystem::path current(cfg.pathname());
-    wxFileDialog dialog(this, L"Name für die Konfigurationsdatei wählen", configDialogDir(current),
-        current.filename().wstring(), configWildcard, wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    wxFileDialog dialog(this, translation::translate("save_as_title"), configDialogDir(current),
+        current.filename().wstring(), configWildcard(), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
     if (dialog.ShowModal() != wxID_OK)
         return;
     const wstring chosen = dialog.GetPath().ToStdWstring();
@@ -448,12 +435,12 @@ void MainWindow::onFileSaveAs(wxCommandEvent& WXUNUSED(event))
     if (path != chosen && !confirmOverwrite(this, path))
         return;
     if (!cfg.write(path)) {
-        wxMessageBox(_("Konfiguration konnte nicht gespeichert werden."), _("Fehler"), wxOK | wxICON_ERROR);
+        wxMessageBox(translation::translate("config_save_failed"), translation::translate("error"), wxOK | wxICON_ERROR);
         return;
     }
     cfg.pathname(path);
     setTitle();
-    setStatusTextWithTimer("Konfiguration gespeichert", 5000);
+    setStatusTextWithTimer(translation::translate("config_saved"), 5000);
 }
 
 void MainWindow::onStartSingleSync(wxCommandEvent& WXUNUSED(event))
@@ -535,11 +522,11 @@ void MainWindow::onEditSync(wxCommandEvent&)
 {
     auto found = findSyncItem();
     if (found == nullopt) {
-        wxMessageBox("Synchronisation konnte nicht gefunden werden.", "Fehler");
+        wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"));
         return;
     }
     const std::wstring originalName = found->name();  // [MainWindow.md#copy-written-back]
-    SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
+    SyncItemDialog dlg(&*found, this, wxID_ANY, txt::edit_synchronisation());
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(*found);
         Config::instance().update_by_name(originalName, *found);
@@ -555,14 +542,14 @@ void MainWindow::onUpdateSyncItemSelected(wxUpdateUIEvent& event)
 
 void MainWindow::onEditSshAccounts(wxCommandEvent&)
 {
-    SshAccountsDialog dlg(this, wxID_ANY, txt::SshAccounts);
+    SshAccountsDialog dlg(this, wxID_ANY, txt::ssh_connections());
     dlg.ShowModal();
 }
 
 void MainWindow::onEditSettings(wxCommandEvent&)
 {
     bool autoStartLast = Config::instance().settings().auto_start();
-    SettingsDialog dlg(this, wxID_ANY, txt::EditSettings);
+    SettingsDialog dlg(this, wxID_ANY, txt::settings());
     dlg.ShowModal();
     if (autoStartLast !=  Config::instance().settings().auto_start())
         registerAutomaticStart(Config::instance().settings().auto_start());
@@ -570,7 +557,7 @@ void MainWindow::onEditSettings(wxCommandEvent&)
 
 void MainWindow::onEditLogging(wxCommandEvent&)
 {
-    LoggingDialog dlg(this, wxID_ANY, txt::EditLogging);
+    LoggingDialog dlg(this, wxID_ANY, txt::logging_settings());
     if (dlg.ShowModal() == wxID_OK) {
     }
 }
@@ -578,7 +565,7 @@ void MainWindow::onEditLogging(wxCommandEvent&)
 void MainWindow::onChat(wxCommandEvent&)
 {
     if (chatDialog_ == nullptr)
-        chatDialog_ = new ChatDialog(this, wxID_ANY, txt::Chat);
+        chatDialog_ = new ChatDialog(this, wxID_ANY, txt::assistant());
     chatDialog_->Show();
     chatDialog_->Raise();
 }
@@ -587,13 +574,11 @@ void MainWindow::onDeleteSync(wxCommandEvent&)
 {
     auto found = findSyncItem();
     if (found == nullopt) {
-        wxMessageBox("Synchronisation konnte nicht gefunden werden.", "Fehler");
+        wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"));
         return;
     }
-    int answer = wxMessageBox(
-        wxString::Format(_(L"Soll die Synchronisation '%s' wirklich gelöscht werden?"), wxString(found->name())),
-        _(L"Löschen bestätigen"),
-        wxYES_NO | wxICON_QUESTION, this);
+    int answer = wxMessageBox(translation::translate("confirm_delete_sync", {found->name()}),
+        translation::translate("confirm_delete_title"), wxYES_NO | wxICON_QUESTION, this);
     if (answer != wxYES)
         return;
     Config& cfg(Config::instance());
@@ -647,7 +632,7 @@ void MainWindow::onViewLog(wxCommandEvent&)
 {
     const wxString commandLine = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
     if (!startEditor(commandLine))
-        wxMessageBox("Der konfigurierte Editor konnte nicht gestartet werden.", "Fehler");
+        wxMessageBox(translation::translate("editor_start_failed"), translation::translate("error"));
 }
 
 void MainWindow::onViewBackground(wxCommandEvent&)
@@ -666,12 +651,12 @@ namespace {
 wxString backgroundServiceStateText(BackgroundService::State state)
 {
     switch (state) {
-        case BackgroundService::State::Running: return L"Zustand: läuft";
-        case BackgroundService::State::Stopped: return L"Zustand: gestoppt";
-        case BackgroundService::State::NotInstalled: return L"Zustand: nicht installiert";
+        case BackgroundService::State::Running: return translation::translate("bs_state_running");
+        case BackgroundService::State::Stopped: return translation::translate("bs_state_stopped");
+        case BackgroundService::State::NotInstalled: return translation::translate("bs_state_not_installed");
         case BackgroundService::State::Unknown: break;
     }
-    return L"Zustand: unbekannt";
+    return translation::translate("bs_state_unknown");
 }
 }
 
@@ -689,16 +674,16 @@ void MainWindow::onStartBackgroundService(wxCommandEvent&)
 {
     const std::wstring error = BackgroundService::start();
     if (error.empty())
-        log_info(L"Hintergrunddienst gestartet.");
-    reportBackgroundService(error, "Hintergrunddienst gestartet.");
+        log_info(translation::translate("bs_started"));
+    reportBackgroundService(error, translation::translate("bs_started"));
 }
 
 void MainWindow::onStopBackgroundService(wxCommandEvent&)
 {
     const std::wstring error = BackgroundService::stop();
     if (error.empty())
-        log_info(L"Hintergrunddienst gestoppt.");
-    reportBackgroundService(error, "Hintergrunddienst gestoppt.");
+        log_info(translation::translate("bs_stopped"));
+    reportBackgroundService(error, translation::translate("bs_stopped"));
 }
 
 void MainWindow::reportBackgroundService(const std::wstring& error, const wxString& success)
@@ -706,7 +691,7 @@ void MainWindow::reportBackgroundService(const std::wstring& error, const wxStri
     if (error.empty())
         setStatusTextWithTimer(success, 10000);
     else
-        wxMessageBox(error, "Hintergrunddienst", wxOK | wxICON_ERROR, this);
+        wxMessageBox(error, translation::translate("bs_caption"), wxOK | wxICON_ERROR, this);
 }
 
 void MainWindow::onQuit(wxCommandEvent& event)
@@ -776,11 +761,11 @@ void MainWindow::createHelp()
     htmlHelpController_ = new wxHtmlHelpController;
     const wxString helpFilePath = locateHelpBook();
     if (helpFilePath.empty()) {
-        TimedMessageBox dlg(this, "Hilfedatei nicht gefunden: ", helpBookIn(executableDir()), 3000);  // [MainWindow.md#help-path-in-message]
+        TimedMessageBox dlg(this, translation::translate("help_file_not_found"), helpBookIn(executableDir()), 3000);  // [MainWindow.md#help-path-in-message]
         dlg.ShowModal(); // dlg is stack-allocated: its own destructor cleans it up, Destroy() is only for `new`-allocated windows
     }
     else if (!htmlHelpController_->AddBook(helpFilePath))
-        wxMessageBox(L"Fehler beim Hinzufügen der Hilfedatei: " + helpFilePath, "Fehler", wxOK | wxICON_ERROR);
+        wxMessageBox(translation::translate("help_file_add_failed") + helpFilePath, translation::translate("error"), wxOK | wxICON_ERROR);
     else
         log_debug("Hilfedatei erfolgreich hinzugefügt: ", std::string(helpFilePath.ToUTF8()));
     GetHelpController().SetViewer("internal");
@@ -804,12 +789,8 @@ void MainWindow::createTaskBar()
 {
     taskBarIcon_ = new TaskBarIcon(this);
 #ifndef __WXOSX__
-    if (!taskBarIcon_->SetIcon(wxICON(sample),  // [MainWindow.md#taskbar-icon-macos]
-        "AutoFileSync\n"
-        "Minimiertes Synchronisationsprogramm."))
-    {
-        wxLogError("Could not set icon.");
-    }
+    if (!taskBarIcon_->SetIcon(wxICON(sample), translation::translate("taskbar_tooltip")))  // [MainWindow.md#taskbar-icon-macos]
+        wxLogError("%s", translation::translate("icon_set_failed"));
 #endif
 }
 
@@ -817,7 +798,7 @@ void MainWindow::askAndSave()
 {
     if (Config::instance().changed()) {
         wxMessageDialog dlg = wxMessageDialog(this,
-            wxT("Speichern?"), wxT("Die Daten wurden nicht gespeichert."),
+            translation::translate("save_question"), translation::translate("not_saved_title"),
             wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
         if (dlg.ShowModal() == wxID_YES)
             save();

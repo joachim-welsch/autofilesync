@@ -28,6 +28,7 @@
 #include "SshAccountDialog.h"
 #include "id.h"
 #include "TextResources.h"
+#include "Translation.h"
 #include "utilwx.h"
 
 using namespace AFS_Core;
@@ -38,7 +39,10 @@ namespace guitest {
 namespace {
 
 const wxString ACCOUNT = "guitest-konto";
-const wxString VALIDATION_ERROR = _("Validierungsfehler");
+wxString validation_error()  // translated at the call, once the catalogue is bound
+{
+    return translation::translate("validation_error");
+}
 
 SshAccountInput account(const wxString& name = ACCOUNT)
 {
@@ -47,7 +51,7 @@ SshAccountInput account(const wxString& name = ACCOUNT)
 
 bool addAccount(MainWindow& window, const SshAccountInput& input)  // [SshAccountsTest.md#addAccount]
 {
-    ModalDialogWatcher::instance().expect(txt::AddSshConnection, fillSshAccountDialog(input));
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(input));
     activateMenuItem(window, tul(id::File_new_SshConnection));
     pump();
     return Config::instance().find_ssh_account_by_name(std::string(input.name.ToUTF8())).has_value();
@@ -71,8 +75,8 @@ TEST_F(GuiTest, SshVerbindungBearbeitenAendertHost)
     ASSERT_TRUE(addAccount(mainWindow(), account()));
     SshAccountInput edited = account();
     edited.host = "anderer.example.org";
-    ModalDialogWatcher::instance().expect(txt::SshAccounts, editSshAccountAndClose(ACCOUNT));
-    ModalDialogWatcher::instance().expect(txt::EditSshConnection, fillSshAccountDialog(edited));
+    ModalDialogWatcher::instance().expect(txt::ssh_connections(), editSshAccountAndClose(ACCOUNT));
+    ModalDialogWatcher::instance().expect(txt::edit_ssh_connection(), fillSshAccountDialog(edited));
 
     openAccountsDialog(mainWindow());
 
@@ -88,28 +92,28 @@ TEST_F(GuiTest, SshVerbindungLoeschenFragtNachUndWarntBeiVerwendung)  // [SshAcc
     SyncItemInput item{"guitest-nutzt-konto", GuiTestSandbox::sourceDir().string(), ACCOUNT + ":/daten"};
     item.type = SyncItemType::Dir;
     ASSERT_TRUE(addSyncItem(mainWindow(), item));
-    ModalDialogWatcher::instance().expect(txt::SshAccounts, deleteSshAccountAndClose(ACCOUNT));
-    ModalDialogWatcher::instance().answer(_(L"Löschen bestätigen"), wxID_YES);
+    ModalDialogWatcher::instance().expect(txt::ssh_connections(), deleteSshAccountAndClose(ACCOUNT));
+    ModalDialogWatcher::instance().answer(translation::translate("confirm_delete_title"), wxID_YES);
 
     openAccountsDialog(mainWindow());
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Es wurde ohne Rückfrage gelöscht.";
     const wxString& question = ModalDialogWatcher::instance().answeredMessages().front();
     EXPECT_TRUE(question.Contains(ACCOUNT)) << question;
-    EXPECT_TRUE(question.Contains("Synchronisationen")) << "Die Rückfrage warnt nicht vor der Verwendung: " << question;
+    EXPECT_TRUE(question.Contains(translation::translate("ssh_account_in_use_warning"))) << "Die Rückfrage warnt nicht vor der Verwendung: " << question;
     EXPECT_FALSE(accountNamed(ACCOUNT).has_value()) << "Die Verbindung steht noch in der Konfiguration.";
 }
 
 TEST_F(GuiTest, SshVerbindungLoeschenOhneVerwendungWarntNicht)  // [SshAccountsTest.md#delete-warning]
 {
     ASSERT_TRUE(addAccount(mainWindow(), account()));
-    ModalDialogWatcher::instance().expect(txt::SshAccounts, deleteSshAccountAndClose(ACCOUNT));
-    ModalDialogWatcher::instance().answer(_(L"Löschen bestätigen"), wxID_NO);
+    ModalDialogWatcher::instance().expect(txt::ssh_connections(), deleteSshAccountAndClose(ACCOUNT));
+    ModalDialogWatcher::instance().answer(translation::translate("confirm_delete_title"), wxID_NO);
 
     openAccountsDialog(mainWindow());
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u);
-    EXPECT_FALSE(ModalDialogWatcher::instance().answeredMessages().front().Contains("Synchronisationen"));
+    EXPECT_FALSE(ModalDialogWatcher::instance().answeredMessages().front().Contains(translation::translate("ssh_account_in_use_warning")));
     EXPECT_TRUE(accountNamed(ACCOUNT).has_value()) << "Trotz Nein wurde gelöscht.";
 }
 
@@ -119,7 +123,7 @@ TEST_F(GuiTest, SshVerbindungUmbenennenAktualisiertVerweise)  // [SshAccountsTes
     SyncItemInput item{"guitest-nutzt-konto", GuiTestSandbox::sourceDir().string(), ACCOUNT + ":/daten"};
     item.type = SyncItemType::Dir;
     ASSERT_TRUE(addSyncItem(mainWindow(), item));
-    ModalDialogWatcher::instance().expect(txt::SshAccounts, renameSshAccountAndClose(ACCOUNT, "guitest-neu"));
+    ModalDialogWatcher::instance().expect(txt::ssh_connections(), renameSshAccountAndClose(ACCOUNT, "guitest-neu"));
 
     openAccountsDialog(mainWindow());
 
@@ -132,60 +136,60 @@ TEST_F(GuiTest, SshVerbindungUmbenennenAktualisiertVerweise)  // [SshAccountsTes
 
 TEST_F(GuiTest, SshNameZuKurzWirdAbgelehnt)  // [SshAccountsTest.md#rejected-input]
 {
-    ModalDialogWatcher::instance().expect(txt::AddSshConnection, fillSshAccountDialog(account("x")));
-    ModalDialogWatcher::instance().answer(VALIDATION_ERROR, wxID_OK);
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(account("x")));
+    ModalDialogWatcher::instance().answer(validation_error(), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::File_new_SshConnection));
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der einbuchstabige Name wurde angenommen.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("2 Zeichen"));
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("ssh_name_too_short"));
     EXPECT_TRUE(Config::instance().ssh_accounts_snapshot().empty());
 }
 
 TEST_F(GuiTest, SshNameMitDoppelpunktWirdAbgelehnt)  // [SshAccountsTest.md#rejected-input]
 {
-    ModalDialogWatcher::instance().expect(txt::AddSshConnection, fillSshAccountDialog(account("konto:eins")));
-    ModalDialogWatcher::instance().answer(VALIDATION_ERROR, wxID_OK);
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(account("konto:eins")));
+    ModalDialogWatcher::instance().answer(validation_error(), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::File_new_SshConnection));
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Name mit Doppelpunkt wurde angenommen.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("Doppelpunkt")) << ModalDialogWatcher::instance().answeredMessages().front();
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("ssh_name_colon"));
     EXPECT_TRUE(Config::instance().ssh_accounts_snapshot().empty());
 }
 
 TEST_F(GuiTest, SshNameMitSonderzeichenWirdAbgelehnt)  // [SshAccountsTest.md#rejected-input]
 {
-    ModalDialogWatcher::instance().expect(txt::AddSshConnection, fillSshAccountDialog(account("konto eins")));
-    ModalDialogWatcher::instance().answer(VALIDATION_ERROR, wxID_OK);
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(account("konto eins")));
+    ModalDialogWatcher::instance().answer(validation_error(), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::File_new_SshConnection));
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Name mit Leerzeichen wurde angenommen.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("Buchstaben")) << ModalDialogWatcher::instance().answeredMessages().front();
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("ssh_name_characters"));
     EXPECT_TRUE(Config::instance().ssh_accounts_snapshot().empty());
 }
 
 TEST_F(GuiTest, SshDoppelterNameWirdAbgelehnt)  // [SshAccountsTest.md#rejected-input]
 {
     ASSERT_TRUE(addAccount(mainWindow(), account()));
-    ModalDialogWatcher::instance().expect(txt::AddSshConnection, fillSshAccountDialog(account()));
-    ModalDialogWatcher::instance().answer(VALIDATION_ERROR, wxID_OK);
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(account()));
+    ModalDialogWatcher::instance().answer(validation_error(), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::File_new_SshConnection));
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der doppelte Name wurde angenommen.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("existiert bereits"));
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("ssh_account_exists", {ACCOUNT.ToStdWstring()}));
     EXPECT_EQ(Config::instance().ssh_accounts_snapshot().size(), 1u);
 }
 
 TEST_F(GuiTest, SshOkNurMitHostUndBenutzer)
 {
-    ModalDialogWatcher::instance().expect(txt::AddSshConnection, [](wxDialog& dialog) {
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), [](wxDialog& dialog) {
         ASSERT_TRUE(waitUntil([&dialog] { return dialog.IsShownOnScreen(); }));
         wxWindow* ok = find(dialog, wxID_OK);
         ASSERT_TRUE(replaceText(find(dialog, ID_SSH_NAME_BOX), ACCOUNT));

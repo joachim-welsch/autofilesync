@@ -24,6 +24,7 @@
 #include "BackgroundService.h"
 #include "TaskBarIcon.h"
 #include "Version.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 #include <wx/html/helpctrl.h>
@@ -94,7 +95,7 @@ TEST_F(GuiTest, AnsichtHintergrundVerstecktFensterUndTaskleisteZeigtEsWieder)
     pump();
     EXPECT_FALSE(mainWindow().IsShown()) << "\"Ansicht → Hintergrund\" hat das Fenster nicht versteckt.";
 
-    ASSERT_TRUE(activateTaskBarMenuItem(*mainWindow().taskBarIcon(), "Hauptfenster wieder herstellen"))
+    ASSERT_TRUE(activateTaskBarMenuItem(*mainWindow().taskBarIcon(), wxMenuItem::GetLabelText(AFS_Core::translation::translate("taskbar_restore"))))
         << "Das Menü des Infobereichs hat keinen Eintrag zum Wiederherstellen.";
     EXPECT_TRUE(mainWindow().IsShown()) << "Das Fenster kam über das Menü des Infobereichs nicht zurück.";
 }
@@ -117,7 +118,7 @@ TEST_F(GuiTest, TaskbarDoppelklickZeigtFenster)
 
 TEST_F(GuiTest, InfoDialogZeigtVersion)
 {
-    ModalDialogWatcher::instance().answer(L"Über AutoFileSync", wxID_OK);
+    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("about_title"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::About));
     pump();
@@ -127,7 +128,9 @@ TEST_F(GuiTest, InfoDialogZeigtVersion)
     EXPECT_TRUE(about.Contains(afsVERSION_STRING)) << "Der Info-Dialog nennt die Version nicht: " << about;
     EXPECT_TRUE(about.Contains("Joachim Welsch")) << "Der Info-Dialog nennt den Rechteinhaber nicht: " << about;
     EXPECT_TRUE(about.Contains("GPL")) << "Der Info-Dialog nennt die Lizenz nicht: " << about;
-    EXPECT_TRUE(about.Contains(L"Verzeichnisbäumen")) << "Umlaute im Info-Dialog sind beschädigt: " << about;
+    EXPECT_EQ(about, AFS_Core::translation::translate("about_text",
+        {wxString(afsNAME_STRING).ToStdWstring(), wxString(afsVERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}))
+        << "Der Info-Dialog weicht vom Katalogtext ab (Umlaute?): " << about;
 }
 
 TEST_F(GuiTest, HilfeOeffnetHilfebuch)  // [WindowAndHelpTest.md#help]
@@ -156,7 +159,7 @@ TEST_F(GuiTest, HintergrunddienstStartOhneDienstZeigtFehlerbox)  // [WindowAndHe
 {
     if (BackgroundService::state() != BackgroundService::State::NotInstalled)
         GTEST_SKIP() << "Der Hintergrunddienst ist installiert; Start und Stopp brauchen Administratorrechte.";
-    ModalDialogWatcher::instance().answer("Hintergrunddienst", wxID_OK);
+    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("bs_caption"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));
     pump();

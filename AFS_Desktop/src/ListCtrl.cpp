@@ -77,7 +77,7 @@ void ListCtrl::OnDClick(wxMouseEvent&)
 	if (!found.has_value()) // double-click on empty list area, or item no longer exists
 		return;
 	const std::wstring originalName = found->name();  // [ListCtrl.md#copy-written-back]
-	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
+	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::edit_synchronisation());
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);
 		Config::instance().update_by_name(originalName, *found);

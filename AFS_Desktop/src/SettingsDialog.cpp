@@ -19,6 +19,7 @@
 #include "SettingsDialog.h"
 #include "Config.h"
 #include "RecycleBin.h"
+#include "Translation.h"
 #include <wx/dirdlg.h>
 
 using namespace AFS_Core;
@@ -38,46 +39,46 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     mainSizer->AddStretchSpacer()->SetMinSize(20, 10);
 
     wxBoxSizer* startAutostartSizer = new wxBoxSizer(wxHORIZONTAL);
-    autoStartCB_ = new wxCheckBox(this, wxID_ANY, "Anwendung automatisch starten");
+    autoStartCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_autostart"));
     startAutostartSizer->Add(autoStartCB_, 1);
     mainSizer->Add(startAutostartSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* startSyncAtStartSizer = new wxBoxSizer(wxHORIZONTAL);
-    startSyncAtStartCB_ = new wxCheckBox(this, wxID_ANY, "Synchronisation bei Programmstart starten");
+    startSyncAtStartCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_sync_at_start"));
     startSyncAtStartSizer->Add(startSyncAtStartCB_, 1);
     mainSizer->Add(startSyncAtStartSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* startMinimizedSizer = new wxBoxSizer(wxHORIZONTAL);
-    startMinimizedCB_ = new wxCheckBox(this, wxID_ANY, "Start minimiert");
+    startMinimizedCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_start_minimized"));
     startMinimizedSizer->Add(startMinimizedCB_, 1);
     mainSizer->Add(startMinimizedSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* minimizeInsteadOfCloseSizer = new wxBoxSizer(wxHORIZONTAL);
-    minimizeInsteadOfCloseCB_ = new wxCheckBox(this, wxID_ANY, L"Minimieren statt schließen?");
+    minimizeInsteadOfCloseCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_minimize_instead_of_close"));
     minimizeInsteadOfCloseSizer->Add(minimizeInsteadOfCloseCB_, 1);
     mainSizer->Add(minimizeInsteadOfCloseSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* showBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* showBoxLable = new wxStaticText(this, wxID_STATIC, _("Meldungen im Dialog anzeigen:"));
+    wxStaticText* showBoxLable = new wxStaticText(this, wxID_STATIC, translation::translate("settings_show_messages"));
     mainSizer->Add(showBoxSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM | wxTOP, 5);
     showBoxSizer->Add(showBoxLable, 1);
     wxBoxSizer* showMessageBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-    messageBoxErrorCB_ = new wxCheckBox(this, wxID_ANY, "Fehler");
+    messageBoxErrorCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("error"));
     showMessageBoxSizer->Add(messageBoxErrorCB_);
-    messageBoxWarningCB_ = new wxCheckBox(this, wxID_ANY, "Warnung");
+    messageBoxWarningCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("warning"));
     showMessageBoxSizer->Add(messageBoxWarningCB_);
-    messageBoxInfoCB_ = new wxCheckBox(this, wxID_ANY, "Info");
+    messageBoxInfoCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("info"));
     showMessageBoxSizer->Add(messageBoxInfoCB_);
     mainSizer->Add(showMessageBoxSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    const wxString deleteModes[] = { "In Papierkorb verschieben", L"Endgültig löschen" };
-    deleteModeRB_ = new wxRadioBox(this, ID_DELETE_MODE_RADIO, _(L"Löschmodus"), wxDefaultPosition, wxDefaultSize,
+    const wxString deleteModes[] = { translation::translate("delete_mode_recycle_bin"), translation::translate("delete_mode_permanent") };
+    deleteModeRB_ = new wxRadioBox(this, ID_DELETE_MODE_RADIO, translation::translate("delete_mode"), wxDefaultPosition, wxDefaultSize,
         WXSIZEOF(deleteModes), deleteModes, 1, wxRA_SPECIFY_COLS);
     deleteModeRB_->Bind(wxEVT_RADIOBOX, &SettingsDialog::onDeleteModeChanged, this);
     mainSizer->Add(deleteModeRB_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* recycleBinSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* recycleBinLable = new wxStaticText(this, wxID_STATIC, _("Papierkorb:"));
+    wxStaticText* recycleBinLable = new wxStaticText(this, wxID_STATIC, translation::translate("recycle_bin"));
     recycleBinSizer->Add(recycleBinLable, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
     recycleBinPathBox_ = new wxTextCtrl(this, ID_RECYCLEBIN_PATH_BOX);
     recycleBinPathBox_->SetMinSize(wxSize(250, recycleBinPathBox_->GetMinSize().y));
@@ -132,7 +133,7 @@ void SettingsDialog::onPickRecycleBinPath(wxCommandEvent&)  // [SettingsDialog.m
     wxString start = recycleBinPathBox_->GetValue();
     if (start.empty() || !wxDirExists(start))
         start = wxGetHomeDir();
-    wxDirDialog dialog(this, L"Papierkorb-Verzeichnis wählen", start, wxDD_DEFAULT_STYLE);
+    wxDirDialog dialog(this, translation::translate("choose_recycle_bin_dir"), start, wxDD_DEFAULT_STYLE);
     if (dialog.ShowModal() == wxID_OK)
         recycleBinPathBox_->SetValue(dialog.GetPath());
 }

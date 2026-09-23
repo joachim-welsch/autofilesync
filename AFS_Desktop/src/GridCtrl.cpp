@@ -21,6 +21,7 @@
 #include "Config.h"
 #include "SyncItemDialog.h"
 #include "TextResources.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -113,10 +114,10 @@ GridCtrl::GridCtrl(wxWindow* parent,
 	CreateGrid(0, 0);
 	GetTable()->SetAttrProvider(new CustomColumnHeadersProvider());
 	AppendCols(3);
-	SetCornerLabelValue("Name");
-	SetColLabelValue(0, "Aktiv");
-	SetColLabelValue(1, "Quelle");
-	SetColLabelValue(2, "Ziel");
+	SetCornerLabelValue(translation::translate("name"));
+	SetColLabelValue(0, translation::translate("active"));
+	SetColLabelValue(1, translation::translate("source"));
+	SetColLabelValue(2, translation::translate("target"));
 	SetColSize(0, 40);
 	SetColSize(1, 200);
 	SetColSize(2, 200);
@@ -184,7 +185,7 @@ void GridCtrl::OnModifyEntry(wxGridEvent& ev)
 	if (!found.has_value()) // click on a row label with no matching item
 		return;
 	const std::wstring originalName = found->name();  // [GridCtrl.md#copy-written-back]
-	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::EditSynchronisation);
+	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::edit_synchronisation());
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);
 		Config::instance().update_by_name(originalName, *found);
@@ -202,7 +203,7 @@ void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
 	auto found = Config::instance().find_by_name(name.ToStdWstring());
 	if (found != std::nullopt) {
 		if ((col == 1 || col == 2) && value.IsEmpty()) {  // [GridCtrl.md#empty-source-or-target-rejected]
-			wxMessageBox(_(L"Quelle und Ziel dürfen nicht leer sein."), _("Fehler"), wxOK | wxICON_WARNING, this);
+			wxMessageBox(translation::translate("source_target_required"), translation::translate("error"), wxOK | wxICON_WARNING, this);
 			SetCellValue(row, col, col == 1 ? found->source() : found->target());
 			ev.Skip();
 			return;

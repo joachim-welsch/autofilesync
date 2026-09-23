@@ -42,7 +42,7 @@ TEST_F(GuiTest, AngelegteSynchronisationIstInKonfigurationUndListeVorhanden)
 {
     const SyncItemInput input{syncItemName,
         GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
-    ModalDialogWatcher::instance().expect(txt::AddSynchronisation, fillSyncItemDialog(input));
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(input));
 
     activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
     pump();

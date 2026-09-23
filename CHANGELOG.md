@@ -2,6 +2,9 @@
 
 ## 0.01.0001 – in Arbeit
 
+- Alle Texte der Oberfläche und des Synchronisationskerns kommen aus
+  Sprachkatalogen (Deutsch, Englisch); die Sprache folgt der Umgebung, z.B.
+  `LANGUAGE=en`.
 - Lizenz: GNU GPL v3 oder neuer (`LICENSING.md`), Lizenz-Header in allen
   Quelldateien, Hinweise zu Komponenten Dritter, Lizenzseite im
   Windows-Installationsprogramm.

@@ -44,7 +44,7 @@ namespace {
 
 void applySettings(MainWindow& window, const SettingsInput& input)
 {
-    ModalDialogWatcher::instance().expect(txt::EditSettings, fillSettingsDialog(input));
+    ModalDialogWatcher::instance().expect(txt::settings(), fillSettingsDialog(input));
     activateMenuItem(window, tul(id::EditSettings));
     pump();
 }

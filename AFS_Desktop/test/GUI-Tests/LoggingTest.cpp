@@ -28,6 +28,8 @@
 #include "Config.h"
 #include "CopyLog.h"
 #include "Logging.h"
+#include "TextResources.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 #include <chrono>
@@ -43,11 +45,14 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString LOGGING_TITLE = "Logging-Einstellungen";
+wxString logging_title()  // translated at the call, once the catalogue is bound
+{
+    return txt::logging_settings();
+}
 
 void applyLogging(MainWindow& window, const LoggingInput& input, const wxString& expectedMessageBox = wxString())  // [LoggingTest.md#applyLogging]
 {
-    ModalDialogWatcher::instance().expect(LOGGING_TITLE, fillLoggingDialog(input));
+    ModalDialogWatcher::instance().expect(logging_title(), fillLoggingDialog(input));
     if (!expectedMessageBox.empty())
         ModalDialogWatcher::instance().answer(expectedMessageBox, wxID_OK);
     activateMenuItem(window, tul(id::EditLogging));
@@ -154,10 +159,10 @@ TEST_F(GuiTest, EmailAktivOhneAdresseWirdAbgelehnt)  // [LoggingTest.md#email-va
     input.email.server = "mail.example.org";
     input.email.sender = "afs@example.org";
 
-    applyLogging(mainWindow(), input, _("E-Mail"));
+    applyLogging(mainWindow(), input, translation::translate("tab_email"));
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die fehlende Adresse wurde ohne Meldung angenommen.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("E-Mail-Adresse"));
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("email_address_required"));
     EXPECT_FALSE(Logging::instance().notify_email_active()) << "Die Benachrichtigung wurde trotz Ablehnung aktiviert.";
 }
 
@@ -170,10 +175,10 @@ TEST_F(GuiTest, EmailAktivOhneServerOderAbsenderWirdAbgelehnt)  // [LoggingTest.
     input.email.server = "";
     input.email.sender = "afs@example.org";
 
-    applyLogging(mainWindow(), input, _("E-Mail"));
+    applyLogging(mainWindow(), input, translation::translate("tab_email"));
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der fehlende Server wurde ohne Meldung angenommen.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().front().Contains("Postausgangsserver"));
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("smtp_server_required"));
     EXPECT_FALSE(Logging::instance().notify_email_active());
 }
 
@@ -226,13 +231,13 @@ TEST_F(GuiTest, LogDateiAnzeigenOhneEditorZeigtFehler)
     LoggingInput input;
     input.editor = (GuiTestSandbox::root() / "gibt-es-nicht.exe").string();
     applyLogging(mainWindow(), input);
-    ModalDialogWatcher::instance().answer("Fehler", wxID_OK);
+    ModalDialogWatcher::instance().answer(translation::translate("error"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::View_Log));
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der fehlende Editor blieb ohne Meldung.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), "Der konfigurierte Editor konnte nicht gestartet werden.");
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("editor_start_failed"));
 }
 
 }

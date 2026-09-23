@@ -36,7 +36,7 @@ namespace guitest {
 
 bool addSyncItem(MainWindow& window, const SyncItemInput& input)
 {
-    ModalDialogWatcher::instance().expect(txt::AddSynchronisation, fillSyncItemDialog(input));
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(input));
     activateMenuItem(window, tul(id::File_new_Synchronization));
     pump();
     return Config::instance().find_by_name(input.name.ToStdWstring()).has_value();

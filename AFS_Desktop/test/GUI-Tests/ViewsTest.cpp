@@ -28,6 +28,7 @@
 #include "GridCtrl.h"
 #include "ListCtrl.h"
 #include "TreeCtrl.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 #include <wx/treectrl.h>
@@ -147,12 +148,12 @@ TEST_F(GuiTest, LeereQuelleInTabelleWirdAbgelehntUndZurueckgesetzt)  // [ViewsTe
     showView(mainWindow(), id::View_Grid);
     GridCtrl* grid = gridView(mainWindow());
     ASSERT_NE(grid, nullptr);
-    ModalDialogWatcher::instance().answer(_("Fehler"), wxID_OK);
+    ModalDialogWatcher::instance().answer(translation::translate("error"), wxID_OK);
 
     ASSERT_TRUE(changeGridCell(*grid, 0, 1, ""));
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die leere Quelle wurde ohne Meldung angenommen.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), _(L"Quelle und Ziel dürfen nicht leer sein."));
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("source_target_required"));
     EXPECT_EQ(grid->GetCellValue(0, 1), GuiTestSandbox::sourceDir().string()) << "Die Tabelle zeigt die leere Quelle weiter an.";
     const auto item = Config::instance().find_by_name(FIRST.ToStdWstring());
     ASSERT_TRUE(item.has_value());

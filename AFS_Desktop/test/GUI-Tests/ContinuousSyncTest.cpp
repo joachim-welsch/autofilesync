@@ -23,6 +23,7 @@
 #include "SyncActions.h"
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 
@@ -97,17 +98,17 @@ TEST_F(GuiTest, StatuszeileZeigtZustandDerSynchronisation)  // [ContinuousSyncTe
     input.options.syncCycleSeconds = 60;
     ASSERT_TRUE(addSyncItem(mainWindow(), input));
     const RunningSync running(mainWindow());
-    ASSERT_EQ(syncState(mainWindow()), "Synchronisation gestoppt");
+    ASSERT_EQ(syncState(mainWindow()), translation::translate("state_stopped"));
 
     activateMenuItem(mainWindow(), tul(id::StartSync));
     ASSERT_TRUE(copied(tree, "ziel/erste.txt"));
-    ASSERT_TRUE(waitUntil([this] { return syncState(mainWindow()).StartsWith("Pausiert"); }, PASS_TIMEOUT_MILLISECONDS))
+    const wxString paused = translation::translate("state_paused", {L"*"});  // the pause length is a wildcard
+    ASSERT_TRUE(waitUntil([this, &paused] { return syncState(mainWindow()).Matches(paused); }, PASS_TIMEOUT_MILLISECONDS))
         << "Nach dem Durchlauf zeigt die Statuszeile nicht die Pause, sondern: " << syncState(mainWindow());
-    EXPECT_TRUE(syncState(mainWindow()).Matches(L"Pausiert * in * s")) << syncState(mainWindow());
 
     activateMenuItem(mainWindow(), tul(id::StopSync));
     ASSERT_TRUE(waitUntilSyncFinished(mainWindow()));
-    EXPECT_EQ(syncState(mainWindow()), "Synchronisation gestoppt");
+    EXPECT_EQ(syncState(mainWindow()), translation::translate("state_stopped"));
 }
 
 TEST_F(GuiTest, StartMenueIstGesperrtWaehrendDesLaufs)

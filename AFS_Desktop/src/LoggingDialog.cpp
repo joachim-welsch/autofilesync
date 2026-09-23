@@ -22,6 +22,7 @@
 #include "Util.h"
 #include "Config.h"
 #include "LogCut.h"
+#include "Translation.h"
 #include <wx/dirdlg.h>
 
 using namespace AFS_Core;
@@ -46,8 +47,8 @@ LoggingDialog::LoggingDialog(wxWindow* parent, wxWindowID id,
 {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     wxNotebook* notebook = new wxNotebook(this, wxID_ANY);
-    notebook->AddPage(createLoggingPage(notebook), _("Logging"), true);
-    notebook->AddPage(createEmailPage(notebook), _("E-Mail"));
+    notebook->AddPage(createLoggingPage(notebook), translation::translate("tab_logging"), true);
+    notebook->AddPage(createEmailPage(notebook), translation::translate("tab_email"));
     mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
 
     wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
@@ -65,10 +66,10 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     wxBoxSizer* pageSizer = new wxBoxSizer(wxVERTICAL);
     pageSizer->AddStretchSpacer()->SetMinSize(300, 20);
 
-    const int labelWidth = page->GetTextExtent(_(L"Pfad für Sicherungsnachweise:")).x + 5;  // [LoggingDialog.md#labelWidth]
+    const int labelWidth = page->GetTextExtent(translation::translate("backup_proof_path")).x + 5;  // [LoggingDialog.md#labelWidth]
 
     wxBoxSizer* logPathSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* nameLable = new wxStaticText(page, wxID_STATIC, _("Protokolldatei-Pfad:"));
+    wxStaticText* nameLable = new wxStaticText(page, wxID_STATIC, translation::translate("log_file_path"));
     nameLable->SetMinSize(wxSize(labelWidth, nameLable->GetMinSize().y));
     logPathSizer->Add(nameLable, 0, wxTOP, 3);
     logPathBox_ = new wxTextCtrl(page, ID_LOG_PATH_BOX);
@@ -77,7 +78,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     pageSizer->Add(logPathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
     wxBoxSizer* doubleSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* levelLable = new wxStaticText(page, wxID_STATIC, _("Log Level:"));
+    wxStaticText* levelLable = new wxStaticText(page, wxID_STATIC, translation::translate("log_level"));
     levelLable->SetMinSize(wxSize(labelWidth, levelLable->GetMinSize().y));
     doubleSizer->Add(levelLable, 0, wxEXPAND | wxLEFT, 0);
     logLevelListbox_ =  new wxListBox(page, ID_LOG_LEVEL_LISTBOX, wxDefaultPosition, wxDefaultSize, WXSIZEOF(choices), choices,  styleLbox);
@@ -86,14 +87,14 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     retentionDaysCtrl_ = new wxSpinCtrl(page, ID_RETENTIONDAYS_SPIN, wxEmptyString,
         wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
     wxBoxSizer* retLableSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* retLableTextCtrl = new wxStaticText(page, wxID_STATIC, L"Historie [Tage]:");
+    wxStaticText* retLableTextCtrl = new wxStaticText(page, wxID_STATIC, translation::translate("retention_days"));
     retLableSizer->Add(retLableTextCtrl, 0, wxEXPAND | wxTOP, 3);
     doubleSizer->Add(retLableSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);;
     doubleSizer->Add(retentionDaysCtrl_);
     pageSizer->Add(doubleSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
     wxBoxSizer* editPathSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* editLable = new wxStaticText(page, wxID_STATIC, _("Editor:"));
+    wxStaticText* editLable = new wxStaticText(page, wxID_STATIC, translation::translate("editor"));
     editLable->SetMinSize(wxSize(labelWidth, editLable->GetMinSize().y));
     editPathSizer->Add(editLable, 0, wxTOP, 3);
     editPathBox_ = new wxTextCtrl(page, ID_EDIT_PATH_BOX);
@@ -102,7 +103,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     pageSizer->Add(editPathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
     wxBoxSizer* backupProofPathSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* backupProofLable = new wxStaticText(page, wxID_STATIC, _(L"Pfad für Sicherungsnachweise:"));
+    wxStaticText* backupProofLable = new wxStaticText(page, wxID_STATIC, translation::translate("backup_proof_path"));
     backupProofLable->SetMinSize(wxSize(labelWidth, backupProofLable->GetMinSize().y));
     backupProofPathSizer->Add(backupProofLable, 0, wxTOP, 3);
     backupProofPathBox_ = new wxTextCtrl(page, ID_BACKUP_PROOF_PATH_BOX);
@@ -134,16 +135,16 @@ wxPanel* LoggingDialog::createEmailPage(wxNotebook* notebook)
     wxPanel* page = new wxPanel(notebook);
     wxBoxSizer* pageSizer = new wxBoxSizer(wxVERTICAL);
     pageSizer->AddStretchSpacer()->SetMinSize(300, 20);
-    emailActiveCheck_ = new wxCheckBox(page, ID_EMAIL_ACTIVE_CHECK, _("Aktiv"));
+    emailActiveCheck_ = new wxCheckBox(page, ID_EMAIL_ACTIVE_CHECK, translation::translate("active"));
     pageSizer->Add(emailActiveCheck_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
-    addField(page, pageSizer, _("E-Mail-Adresse:"), ID_EMAIL_BOX, emailBox_);
+    addField(page, pageSizer, translation::translate("email_address"), ID_EMAIL_BOX, emailBox_);
 
-    pageSizer->Add(new wxStaticText(page, wxID_STATIC, _("Postausgangsserver:")),
+    pageSizer->Add(new wxStaticText(page, wxID_STATIC, translation::translate("smtp_server_group")),
         0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
-    addField(page, pageSizer, _("Server:"), ID_SMTP_SERVER_BOX, smtpServerBox_);
+    addField(page, pageSizer, translation::translate("server"), ID_SMTP_SERVER_BOX, smtpServerBox_);
 
     wxBoxSizer* portSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* portLabel = new wxStaticText(page, wxID_STATIC, _("Port:"));
+    wxStaticText* portLabel = new wxStaticText(page, wxID_STATIC, translation::translate("port"));
     portLabel->SetMinSize(wxSize(110, portLabel->GetMinSize().y));
     portSizer->Add(portLabel, 0, wxTOP, 3);
     smtpPortCtrl_ = new wxSpinCtrl(page, ID_SMTP_PORT_SPIN, wxEmptyString,
@@ -151,9 +152,9 @@ wxPanel* LoggingDialog::createEmailPage(wxNotebook* notebook)
     portSizer->Add(smtpPortCtrl_);
     pageSizer->Add(portSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
-    addField(page, pageSizer, _("Benutzer:"), ID_SMTP_USER_BOX, smtpUserBox_);
-    addField(page, pageSizer, _("Passwort:"), ID_SMTP_PASSWORD_BOX, smtpPasswordBox_, wxTE_PASSWORD);
-    addField(page, pageSizer, _("Absender:"), ID_SMTP_FROM_BOX, smtpFromBox_);
+    addField(page, pageSizer, translation::translate("user_field"), ID_SMTP_USER_BOX, smtpUserBox_);
+    addField(page, pageSizer, translation::translate("password_field"), ID_SMTP_PASSWORD_BOX, smtpPasswordBox_, wxTE_PASSWORD);
+    addField(page, pageSizer, translation::translate("sender"), ID_SMTP_FROM_BOX, smtpFromBox_);
 
     page->SetSizer(pageSizer);
     return page;
@@ -169,7 +170,7 @@ void LoggingDialog::onPickBackupProofPath(wxCommandEvent&)  // [LoggingDialog.md
     wxString startDir = backupProofPathBox_->GetValue();
     if (startDir.IsEmpty())
         startDir = wxGetHomeDir();
-    wxDirDialog dialog(this, _(L"Verzeichnis für Sicherungsnachweise wählen"), startDir);
+    wxDirDialog dialog(this, translation::translate("choose_backup_proof_dir"), startDir);
     dialog.CentreOnParent();
     if (dialog.ShowModal() == wxID_OK)
         backupProofPathBox_->SetValue(dialog.GetPath());
@@ -264,12 +265,12 @@ bool LoggingDialog::TransferDataFromWindow()
 bool LoggingDialog::Validate()  // [LoggingDialog.md#Validate]
 {
     if (emailActiveCheck_->IsChecked() && emailBox_->GetValue().Trim().IsEmpty()) {
-        wxMessageBox(_("Bitte eine E-Mail-Adresse eingeben oder die Benachrichtigung deaktivieren."), _("E-Mail"));
+        wxMessageBox(translation::translate("email_address_required"), translation::translate("tab_email"));
         return false;
     }
     if (emailActiveCheck_->IsChecked()  // [LoggingDialog.md#server-required]
         && (smtpServerBox_->GetValue().Trim().IsEmpty() || smtpFromBox_->GetValue().Trim().IsEmpty())) {
-        wxMessageBox(_("Bitte Postausgangsserver und Absender eintragen."), _("E-Mail"));
+        wxMessageBox(translation::translate("smtp_server_required"), translation::translate("tab_email"));
         return false;
     }
     return true;

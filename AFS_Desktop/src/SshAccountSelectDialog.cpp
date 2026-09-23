@@ -18,6 +18,7 @@
  */
 #include "SshAccountSelectDialog.h"
 #include "Config.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -35,15 +36,15 @@ SshAccountSelectDialog::SshAccountSelectDialog(wxWindow* parent,
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
     wxStaticText* infoText = new wxStaticText(this, wxID_STATIC,
-        _(L"Wählen Sie eine SSH-Verbindung aus:"));
+        translation::translate("select_ssh_connection_hint"));
     mainSizer->Add(infoText, 0, wxEXPAND | wxALL, 10);
 
     listCtrl_ = new wxListCtrl(this, ID_SSH_SELECT_LIST, wxDefaultPosition,
         wxSize(400, 200), wxLC_REPORT | wxLC_SINGLE_SEL);
     
-    listCtrl_->InsertColumn(0, _("Name"), wxLIST_FORMAT_LEFT, 150);
-    listCtrl_->InsertColumn(1, _("Host"), wxLIST_FORMAT_LEFT, 150);
-    listCtrl_->InsertColumn(2, _("Benutzer"), wxLIST_FORMAT_LEFT, 100);
+    listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 150);
+    listCtrl_->InsertColumn(1, translation::translate("host"), wxLIST_FORMAT_LEFT, 150);
+    listCtrl_->InsertColumn(2, translation::translate("user"), wxLIST_FORMAT_LEFT, 100);
     
     mainSizer->Add(listCtrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     

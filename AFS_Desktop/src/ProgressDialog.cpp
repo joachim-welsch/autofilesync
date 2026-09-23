@@ -92,8 +92,7 @@ void ProgressDialog::OnCancel(wxCommandEvent& event)
 
 void ProgressDialog::onTimerUpdate(wxTimerEvent&)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    wxYield();
+    std::lock_guard<std::mutex> lock(mutex_);  // [ProgressDialog.md#no-yield-under-lock]
     SyncMessage sm = syncControler_.get_message();
     if (!sm.msg().empty())
         gauge_->SetValue(sm.filenumber());

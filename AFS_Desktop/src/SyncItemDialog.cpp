@@ -28,6 +28,8 @@
 #include "Logging.h"
 #include "SshAccountSelectDialog.h"
 #include "SshDirDialog.h"
+#include "TextResources.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -57,7 +59,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->AddStretchSpacer()->SetMinSize(720, 10);
 
     wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* nameLable = new wxStaticText(tab1, wxID_STATIC, _("Name"));
+    wxStaticText* nameLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("name"));
     nameLable->SetMinSize(wxSize(60, nameLable->GetMinSize().y));
     nameSizer->Add(nameLable, 0, wxALIGN_CENTER_VERTICAL);
     nameBox_ = new wxTextCtrl(tab1, ID_NAME_BOX);
@@ -65,7 +67,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* typeSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* typeLable = new wxStaticText(tab1, wxID_STATIC, _("Typ"));
+    wxStaticText* typeLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("type"));
     typeLable->SetMinSize(wxSize(60, typeLable->GetMinSize().y));
     typeSizer->Add(typeLable, 0, wxALIGN_CENTER_VERTICAL);
     wxArrayString types;
@@ -76,7 +78,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     typeChoice_ = new wxChoice(tab1, ID_TYPE_CHOICE, wxDefaultPosition, wxDefaultSize, types);
     typeSizer->Add(typeChoice_, 1);
 
-    wxStaticText* wildcardLable = new wxStaticText(tab1, wxID_STATIC, _("Wildcard"));
+    wxStaticText* wildcardLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("wildcard"));
     wildcardLable->SetMinSize(wxSize(75, wildcardLable->GetMinSize().y));
     typeSizer->Add(wildcardLable, wxSizerFlags().Border(wxLEFT).CenterVertical());
 
@@ -86,7 +88,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->Add(typeSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* sourceDirSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* sourceDirLable = new wxStaticText(tab1, wxID_STATIC, _("Quelle"));
+    wxStaticText* sourceDirLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("source"));
     sourceDirLable->SetMinSize(wxSize(60, sourceDirLable->GetMinSize().y));
     sourceDirSizer->Add(sourceDirLable, 0, wxALIGN_CENTER_VERTICAL);
 
@@ -102,7 +104,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->Add(sourceDirSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* targetDirSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* targetDirLable = new wxStaticText(tab1, wxID_STATIC, _("Ziel"));
+    wxStaticText* targetDirLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("target"));
     targetDirLable->SetMinSize(wxSize(60, targetDirLable->GetMinSize().y));
     targetDirSizer->Add(targetDirLable, 0, wxALIGN_CENTER_VERTICAL);
 
@@ -119,63 +121,63 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->Add(targetDirSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     tab1->SetSizer(tab1Sizer);
-    notebook->AddPage(tab1, _("Allgemein"));
+    notebook->AddPage(tab1, translation::translate("tab_general"));
 
     wxPanel* tab2 = new wxPanel(notebook);
     wxBoxSizer* tab2Sizer = new wxBoxSizer(wxVERTICAL);
     tab2Sizer->AddStretchSpacer()->SetMinSize(720, 10);
 
     wxBoxSizer* enabledSizer = new wxBoxSizer(wxHORIZONTAL);
-    enabledCheck_ = new wxCheckBox(tab2, ID_ENABLED_CHECK, "Synchronisation aktiv");
+    enabledCheck_ = new wxCheckBox(tab2, ID_ENABLED_CHECK, translation::translate("option_enabled"));
     enabledSizer->Add(enabledCheck_, 1);
-    wxStaticText* compareLable = new wxStaticText(tab2, wxID_STATIC, _("Dateivergleich nach:"));
+    wxStaticText* compareLable = new wxStaticText(tab2, wxID_STATIC, translation::translate("compare_by"));
     enabledSizer->Add(compareLable, 1);
     tab2Sizer->Add(enabledSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* delSourceAfterSizer = new wxBoxSizer(wxHORIZONTAL);
-    delSourceAfterCheck_ = new wxCheckBox(tab2, ID_DEL_SOURCE_AFTER_CHECK, L"Quelle nach dem Kopieren löschen");
+    delSourceAfterCheck_ = new wxCheckBox(tab2, ID_DEL_SOURCE_AFTER_CHECK, translation::translate("option_delete_source_after_copy"));
     delSourceAfterSizer->Add(delSourceAfterCheck_, 1);
-    compareDateCheck_ = new wxCheckBox(tab2, ID_COMPARE_DATE_CHECK, "Zeit");
+    compareDateCheck_ = new wxCheckBox(tab2, ID_COMPARE_DATE_CHECK, translation::translate("compare_time"));
     delSourceAfterSizer->Add(compareDateCheck_, 1);
 
     tab2Sizer->Add(delSourceAfterSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* twoWaySyncSizer = new wxBoxSizer(wxHORIZONTAL);
-    twoWaySyncCheck_ = new wxCheckBox(tab2, ID_TWO_WAY_SYNC_CHECK, "Zwei-Wege-Synchronisation");
+    twoWaySyncCheck_ = new wxCheckBox(tab2, ID_TWO_WAY_SYNC_CHECK, translation::translate("option_two_way_sync"));
     twoWaySyncSizer->Add(twoWaySyncCheck_, 1);
-    compareSizeCheck_ = new wxCheckBox(tab2, ID_COMPARE_SIZE_CHECK, L"Größe");
+    compareSizeCheck_ = new wxCheckBox(tab2, ID_COMPARE_SIZE_CHECK, translation::translate("size"));
     twoWaySyncSizer->Add(compareSizeCheck_, 1);
 
     tab2Sizer->Add(twoWaySyncSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* copyWhenTargetNewerSizer = new wxBoxSizer(wxHORIZONTAL);
-    copyWhenTargetNewerCheck_ = new wxCheckBox(tab2, ID_CPY_WHEN_TARGET_NEWER_CHECK, "Kopieren, auch wenn Zieldatei neuer ist");
+    copyWhenTargetNewerCheck_ = new wxCheckBox(tab2, ID_CPY_WHEN_TARGET_NEWER_CHECK, translation::translate("option_copy_when_target_newer"));
     copyWhenTargetNewerSizer->Add(copyWhenTargetNewerCheck_, 1);
-    compareContentCheck_ = new wxCheckBox(tab2, ID_COMPARE_CONTENT_CHECK, "Inhalt");
+    compareContentCheck_ = new wxCheckBox(tab2, ID_COMPARE_CONTENT_CHECK, translation::translate("compare_content"));
     copyWhenTargetNewerSizer->Add(compareContentCheck_, 1);
 
     tab2Sizer->Add(copyWhenTargetNewerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* fatherSonPrincipleSizer = new wxBoxSizer(wxHORIZONTAL);
-    fatherSonPrincipleCheck_ = new wxCheckBox(tab2, ID_FATHER_SON_PRINCIPLE_CHECK, "Generationenprinzip");
+    fatherSonPrincipleCheck_ = new wxCheckBox(tab2, ID_FATHER_SON_PRINCIPLE_CHECK, translation::translate("option_father_son_principle"));
     fatherSonPrincipleSizer->Add(fatherSonPrincipleCheck_, 1);
 
     tab2Sizer->Add(fatherSonPrincipleSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* deleteInTargetSizer = new wxBoxSizer(wxHORIZONTAL);
-    deleteInTargetCheck_ = new wxCheckBox(tab2, ID_DELETE_IN_TARGET_CHECK, L"Gelöschte Dateien im Ziel ebenfalls löschen");
+    deleteInTargetCheck_ = new wxCheckBox(tab2, ID_DELETE_IN_TARGET_CHECK, translation::translate("option_delete_in_target"));
     deleteInTargetSizer->Add(deleteInTargetCheck_, 1);
 
     tab2Sizer->Add(deleteInTargetSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* backupProofSizer = new wxBoxSizer(wxHORIZONTAL);
-    backupProofCheck_ = new wxCheckBox(tab2, ID_BACKUP_PROOF_CHECK, "Sicherungsnachweis");
+    backupProofCheck_ = new wxCheckBox(tab2, ID_BACKUP_PROOF_CHECK, translation::translate("option_backup_proof"));
     backupProofSizer->Add(backupProofCheck_, 1);
 
     tab2Sizer->Add(backupProofSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* syncEmptyFilesSizer = new wxBoxSizer(wxHORIZONTAL);
-    syncEmptyFilesCheck_ = new wxCheckBox(tab2, ID_SYNC_EMPTY_FILES_CHECK, L"Leere Dateien synchronisieren");
+    syncEmptyFilesCheck_ = new wxCheckBox(tab2, ID_SYNC_EMPTY_FILES_CHECK, translation::translate("option_sync_empty_files"));
     syncEmptyFilesSizer->Add(syncEmptyFilesCheck_, 1);
 
     tab2Sizer->Add(syncEmptyFilesSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
@@ -183,24 +185,21 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     wxBoxSizer* syncCycleSizer = new wxBoxSizer(wxHORIZONTAL);
     syncCycleSpin_ = new wxSpinCtrl(tab2, ID_SYNC_CYCLE_SPIN, wxEmptyString,
         wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
-    syncCycleSizer->Add(new wxStaticText(tab2, wxID_STATIC, L"Sekunden Pause:"), 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    syncCycleSizer->Add(new wxStaticText(tab2, wxID_STATIC, translation::translate("pause_seconds")), 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
     syncCycleSizer->Add(syncCycleSpin_, wxSizerFlags().Border(wxRIGHT));
     tab2Sizer->Add(syncCycleSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     tab2->SetSizer(tab2Sizer);
-    notebook->AddPage(tab2, _("Optionen"));
+    notebook->AddPage(tab2, translation::translate("tab_options"));
 
     wxPanel* tab3 = new wxPanel(notebook);
     wxBoxSizer* tab3Sizer = new wxBoxSizer(wxVERTICAL);
-    tab3Sizer->Add(new wxStaticText(tab3, wxID_STATIC,
-        _("Namen oder Muster, die von der Synchronisation ausgeschlossen werden\n"
-          "(ein Eintrag pro Zeile, z.B. *.tmp oder node_modules):")),
-        0, wxALL, 5);
+    tab3Sizer->Add(new wxStaticText(tab3, wxID_STATIC, translation::translate("exclusions_hint")), 0, wxALL, 5);
     exclusionsBox_ = new wxTextCtrl(tab3, ID_EXCLUSIONS_BOX, wxEmptyString,
         wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     tab3Sizer->Add(exclusionsBox_, 1, wxEXPAND | wxALL, 5);
     tab3->SetSizer(tab3Sizer);
-    notebook->AddPage(tab3, _(L"Ausschlüsse"));
+    notebook->AddPage(tab3, translation::translate("tab_exclusions"));
 
     mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
 
@@ -392,7 +391,7 @@ wxString withVolumenName(const wxString& path)
         fs_path = fs::path(pathStr);
 	}
 	catch (std::exception& e) {
-		log_error(L"Fehler beim Ermitteln des Volumennamens: " + string_to_wstring(e.what()));
+		log_error(translation::translate("volume_name_error") + string_to_wstring(e.what()));
 		return path;
 	}
     if (fs_path.empty() || !fs_path.has_root_name())
@@ -429,15 +428,10 @@ wxString chooseFile(SyncItemDialog* syncItemDialog)
     wxFileDialog dialog
     (
         syncItemDialog,
-        L"Wähle Datei",
+        translation::translate("choose_file_title"),
         wxEmptyString,
         wxEmptyString,
-        wxString::Format
-        (
-            "Alle Dateien (%s)|%s",
-            wxFileSelectorDefaultWildcardStr,
-            wxFileSelectorDefaultWildcardStr
-        )
+        translation::translate("all_files_wildcard", {wxASCII_STR(wxFileSelectorDefaultWildcardStr).ToStdWstring(), wxASCII_STR(wxFileSelectorDefaultWildcardStr).ToStdWstring()})
     );
     dialog.CentreOnParent();
     dialog.SetDirectory(wxGetHomeDir());
@@ -452,7 +446,7 @@ wxString chooseDir(SyncItemDialog* syncItemDialog)
 {
     wxString dirHome;
     wxGetHomeDir(&dirHome);
-    wxDirDialog dialog(syncItemDialog, L"Wähle Verzeichnis", dirHome, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    wxDirDialog dialog(syncItemDialog, translation::translate("choose_dir_title"), dirHome, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
     if (dialog.ShowModal() == wxID_OK)
     {
         return withVolumenName(dialog.GetPath());
@@ -495,11 +489,11 @@ bool SyncItemDialog::Validate()
 {
     auto name = nameBox_->GetValue();
     if (name.IsEmpty()) {
-        wxMessageBox("Der Name darf nicht leer sein.", "Fehler");
+        wxMessageBox(translation::translate("name_empty"), translation::translate("error"));
         return false;
     }
     if (name != name_ && Config::instance().find_by_name(name.ToStdWstring()) != std::nullopt) {  // [SyncItemDialog.md#name-compared-against-original]
-        wxMessageBox("Synchronisation " + name + " existiert schon.", "Fehler");
+        wxMessageBox(translation::translate("sync_exists", {name.ToStdWstring()}), translation::translate("error"));
         return false;
     }
     return true;
@@ -535,10 +529,10 @@ void SyncItemDialog::handleSshButton(wxTextCtrl* targetBox)
             if (selectedAccount.has_value()) {
                 account = selectedAccount.value();
             } else {
-                return;  // Abgebrochen oder kein Account ausgewählt
+                return;
             }
         } else {
-            return;  // Abgebrochen
+            return;
         }
     }
     
@@ -550,7 +544,7 @@ void SyncItemDialog::handleSshButton(wxTextCtrl* targetBox)
         }
     }
     
-    SshDirDialog dirDlg(this, L"SSH-Verzeichnis wählen", account, std::string(initialPath.ToUTF8()));
+    SshDirDialog dirDlg(this, txt::select_ssh_dir(), account, std::string(initialPath.ToUTF8()));
     if (dirDlg.ShowModal() == wxID_OK) {
         wxString selectedPath = dirDlg.getPath();
         wxString fullPath = wxString::FromUTF8(account.name()) + ":" + selectedPath;

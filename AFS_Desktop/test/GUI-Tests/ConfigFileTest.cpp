@@ -25,6 +25,7 @@
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
 #include "Config.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 #include <fstream>
@@ -38,9 +39,18 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString OPEN_TITLE = L"Konfigurationsdatei öffnen";
-const wxString SAVE_AS_TITLE = L"Name für die Konfigurationsdatei wählen";
-const wxString NOT_SAVED_TITLE = "Die Daten wurden nicht gespeichert.";
+wxString open_title()  // translated at the call, once the catalogue is bound
+{
+    return translation::translate("open_config_title");
+}
+wxString save_as_title()
+{
+    return translation::translate("save_as_title");
+}
+wxString not_saved_title()
+{
+    return translation::translate("not_saved_title");
+}
 const wxString ITEM_NAME = "guitest-konfiguration";
 
 std::string readFile(const fs::path& pathname)
@@ -90,7 +100,7 @@ TEST_F(GuiTest, SpeichernSchreibtDateiUndMeldetInStatuszeile)
 
     EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Die Synchronisation steht nicht in der gespeicherten Datei.";
     EXPECT_FALSE(Config::instance().changed()) << "Nach dem Speichern gilt die Konfiguration noch als geändert.";
-    EXPECT_EQ(transientStatus(mainWindow()), "Konfiguration gespeichert");
+    EXPECT_EQ(transientStatus(mainWindow()), translation::translate("config_saved"));
 }
 
 TEST_F(GuiTest, SpeichernUeberWerkzeugleisteSchreibtDatei)
@@ -109,8 +119,8 @@ TEST_F(GuiTest, SpeichernAlsHaengtJsonAnUndFragtBeiUeberschreiben)  // [ConfigFi
     const SandboxTree tree(GuiTestSandbox::root() / "speichern-als", {{"kopie.json", "{}"}});
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
 
-    ModalDialogWatcher::instance().choosePath(SAVE_AS_TITLE, tree.path("kopie").string());
-    ModalDialogWatcher::instance().answer(L"Datei überschreiben", wxID_YES);
+    ModalDialogWatcher::instance().choosePath(save_as_title(), tree.path("kopie").string());
+    ModalDialogWatcher::instance().answer(translation::translate("overwrite_title"), wxID_YES);
     activateMenuItem(mainWindow(), tul(id::File_save_as));
     pump();
 
@@ -128,8 +138,8 @@ TEST_F(GuiTest, SpeichernAlsNeinBeiUeberschreibenLaesstDateiUnberuehrt)  // [Con
     const SandboxTree tree(GuiTestSandbox::root() / "nicht-ueberschreiben", {{"kopie.json", "{}"}});
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
 
-    ModalDialogWatcher::instance().choosePath(SAVE_AS_TITLE, tree.path("kopie").string());
-    ModalDialogWatcher::instance().answer(L"Datei überschreiben", wxID_NO);
+    ModalDialogWatcher::instance().choosePath(save_as_title(), tree.path("kopie").string());
+    ModalDialogWatcher::instance().answer(translation::translate("overwrite_title"), wxID_NO);
     activateMenuItem(mainWindow(), tul(id::File_save_as));
     pump();
 
@@ -147,13 +157,13 @@ TEST_F(GuiTest, OeffnenMitUngespeichertenAenderungenFragtNach)  // [ConfigFileTe
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync("guitest-ungespeichert")));
     ASSERT_TRUE(Config::instance().changed());
 
-    ModalDialogWatcher::instance().answer(NOT_SAVED_TITLE, wxID_NO);
-    ModalDialogWatcher::instance().choosePath(OPEN_TITLE, tree.path("andere.json").string());
+    ModalDialogWatcher::instance().answer(not_saved_title(), wxID_NO);
+    ModalDialogWatcher::instance().choosePath(open_title(), tree.path("andere.json").string());
     activateMenuItem(mainWindow(), tul(id::File_open));
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die ungespeicherte Änderung wurde nicht angesprochen.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), "Speichern?");
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("save_question"));
     EXPECT_TRUE(Config::instance().find_by_name(L"guitest-andere").has_value()) << "Die geöffnete Datei wurde nicht geladen.";
     EXPECT_FALSE(Config::instance().find_by_name(L"guitest-ungespeichert").has_value()) << "Die ungespeicherte Synchronisation überlebte das Öffnen.";
     EXPECT_EQ(readFile(GuiTestSandbox::configFile()).find("guitest-ungespeichert"), std::string::npos) << "Trotz Nein wurde gespeichert.";
@@ -169,7 +179,7 @@ TEST_F(GuiTest, OeffnenEinerDefektenDateiBehaeltAlteKonfiguration)  // [ConfigFi
     activateMenuItem(mainWindow(), tul(id::File_save));
     ASSERT_FALSE(Config::instance().changed());
 
-    ModalDialogWatcher::instance().choosePath(OPEN_TITLE, tree.path("kaputt.json").string());
+    ModalDialogWatcher::instance().choosePath(open_title(), tree.path("kaputt.json").string());
     ModalDialogWatcher::instance().answer("Message", wxID_OK);
     ModalDialogWatcher::instance().answer("Message", wxID_OK);
     activateMenuItem(mainWindow(), tul(id::File_open));

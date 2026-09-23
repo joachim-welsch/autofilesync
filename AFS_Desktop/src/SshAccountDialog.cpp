@@ -19,6 +19,7 @@
 #include "SshAccountDialog.h"
 #include "SshAccount.h"
 #include "Config.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -38,7 +39,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->AddStretchSpacer()->SetMinSize(400, 10);
 
     wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* nameLabel = new wxStaticText(this, wxID_STATIC, _("Name"));
+    wxStaticText* nameLabel = new wxStaticText(this, wxID_STATIC, translation::translate("name"));
     nameLabel->SetMinSize(wxSize(80, nameLabel->GetMinSize().y));
     nameSizer->Add(nameLabel, 0, wxALIGN_CENTER_VERTICAL);
     nameBox_ = new wxTextCtrl(this, ID_SSH_NAME_BOX);
@@ -46,7 +47,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP | wxBOTTOM, 5);
 
     wxBoxSizer* hostSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* hostLabel = new wxStaticText(this, wxID_STATIC, _("Host"));
+    wxStaticText* hostLabel = new wxStaticText(this, wxID_STATIC, translation::translate("host"));
     hostLabel->SetMinSize(wxSize(80, hostLabel->GetMinSize().y));
     hostSizer->Add(hostLabel, 0, wxALIGN_CENTER_VERTICAL);
     hostBox_ = new wxTextCtrl(this, ID_SSH_HOST_BOX);
@@ -54,7 +55,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->Add(hostSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* userSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* userLabel = new wxStaticText(this, wxID_STATIC, _("Benutzer"));
+    wxStaticText* userLabel = new wxStaticText(this, wxID_STATIC, translation::translate("user"));
     userLabel->SetMinSize(wxSize(80, userLabel->GetMinSize().y));
     userSizer->Add(userLabel, 0, wxALIGN_CENTER_VERTICAL);
     userBox_ = new wxTextCtrl(this, ID_SSH_USER_BOX);
@@ -62,7 +63,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->Add(userSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* passwordSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* passwordLabel = new wxStaticText(this, wxID_STATIC, _("Passwort"));
+    wxStaticText* passwordLabel = new wxStaticText(this, wxID_STATIC, translation::translate("password"));
     passwordLabel->SetMinSize(wxSize(80, passwordLabel->GetMinSize().y));
     passwordSizer->Add(passwordLabel, 0, wxALIGN_CENTER_VERTICAL);
     passwordBox_ = new wxTextCtrl(this, ID_SSH_PASSWORD_BOX, wxEmptyString, 
@@ -128,12 +129,12 @@ bool SshAccountDialog::TransferDataFromWindow()
 std::optional<wxString> validateSshAccountName(const wxString& name)
 {
     if (name.length() < 2)
-        return _("Der Name muss mindestens 2 Zeichen lang sein.");
+        return wxString(translation::translate("ssh_name_too_short"));
     if (name.Contains(":"))  // [SshAccountDialog.md#colon-first]
-        return _("Der Name darf keinen Doppelpunkt enthalten.");
+        return wxString(translation::translate("ssh_name_colon"));
     for (const wxChar c : name) {
         if (!wxIsalnum(c) && c != '_' && c != '-')
-            return _("Der Name darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthalten.");
+            return wxString(translation::translate("ssh_name_characters"));
     }
     return std::nullopt;
 }
@@ -143,26 +144,26 @@ bool SshAccountDialog::Validate()
     wxString name = nameBox_->GetValue();
 
     if (auto err = validateSshAccountName(name)) {
-        wxMessageBox(*err, _("Validierungsfehler"), wxOK | wxICON_WARNING, this);
+        wxMessageBox(*err, translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         nameBox_->SetFocus();
         return false;
     }
 
     if (name != name_ && Config::instance().find_ssh_account_by_name(std::string(name.ToUTF8())) != std::nullopt) {  // [SshAccountDialog.md#name-compared-against-original]
-        wxMessageBox(wxString::Format(_("SSH-Account '%s' existiert bereits."), name), _("Validierungsfehler"),
+        wxMessageBox(translation::translate("ssh_account_exists", {name.ToStdWstring()}), translation::translate("validation_error"),
             wxOK | wxICON_WARNING, this);
         nameBox_->SetFocus();
         return false;
     }
 
     if (hostBox_->GetValue().IsEmpty()) {
-        wxMessageBox(_("Bitte geben Sie einen Host an."), _("Validierungsfehler"), 
+        wxMessageBox(translation::translate("host_required"), translation::translate("validation_error"),
             wxOK | wxICON_WARNING, this);
         hostBox_->SetFocus();
         return false;
     }
     if (userBox_->GetValue().IsEmpty()) {
-        wxMessageBox(_("Bitte geben Sie einen Benutzer an."), _("Validierungsfehler"), 
+        wxMessageBox(translation::translate("user_required"), translation::translate("validation_error"),
             wxOK | wxICON_WARNING, this);
         userBox_->SetFocus();
         return false;

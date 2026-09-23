@@ -18,6 +18,7 @@
  */
 #include "TaskBarIcon.h"
 #include "MainWindow.h"
+#include "Translation.h"
 #include "../icons/smile.xpm"
 
 enum
@@ -76,13 +77,13 @@ void TaskBarIcon::OnMenuSub(wxCommandEvent&)
 wxMenu* TaskBarIcon::CreatePopupMenu()
 {
     wxMenu* menu = new wxMenu;
-    menu->Append(PU_RESTORE, "&Hauptfenster wieder herstellen");
+    menu->Append(PU_RESTORE, AFS_Core::translation::translate("taskbar_restore"));
 #ifdef __WXOSX__  // OSX has a built-in quit menu for the dock menu, but not for the status item
     if (OSXIsStatusItem())
 #endif
     {
         menu->AppendSeparator();
-        menu->Append(PU_EXIT, "Ver&lassen");
+        menu->Append(PU_EXIT, AFS_Core::translation::translate("taskbar_exit"));
     }
     return menu;
 }

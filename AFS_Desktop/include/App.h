@@ -29,6 +29,7 @@
     
 class App: public wxApp {
     bool consoleMode_ = false;
+    wxLocale locale_;  // [App.md#wx-locale]
     wxSingleInstanceChecker singleInstanceChecker_;
     wxHtmlHelpController    embeddedHtmlHelp_;
     wxHtmlHelpWindow*       embeddedHelpWindow_;
@@ -39,14 +40,5 @@ public:
     void OnInitCmdLine(wxCmdLineParser& parser) override;
     bool OnCmdLineParsed(wxCmdLineParser& parser) override;
 };
-
-static const wxCmdLineEntryDesc g_cmdLineDesc[] =
-{
-    { wxCMD_LINE_SWITCH, "h", "help", "show this help message", wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
-    { wxCMD_LINE_SWITCH, "c", "console", "start console version", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
-
-    { wxCMD_LINE_NONE }
-};
-
 
 DECLARE_APP(App);
