@@ -160,9 +160,18 @@ void use_private_home(const fs::path& home)  // [TestMain.md#private-home]
     unsetenv("XDG_CACHE_HOME");
 }
 
+fs::path dir_the_ssh_user_can_reach()  // [TestMain.md#dir-the-ssh-user-can-reach]
+{
+    const fs::path temp_dir = fs::temp_directory_path();
+    struct stat info{};
+    if (stat(temp_dir.c_str(), &info) == 0 && (info.st_mode & S_IXOTH) != 0)
+        return temp_dir;
+    return "/tmp";
+}
+
 int run_in_private_temp_dir(char* argv[])  // [TestMain.md#private-temp-dir]
 {
-    const fs::path temp_dir = fs::temp_directory_path() / ("autofilesync_integrationtests_" + std::to_string(getpid()));
+    const fs::path temp_dir = dir_the_ssh_user_can_reach() / ("autofilesync_integrationtests_" + std::to_string(getpid()));
     fs::create_directories(temp_dir);
     fs::permissions(temp_dir, fs::perms::all);  // [TestMain.md#ssh-user-writes-here]
     use_private_home(temp_dir / "home");

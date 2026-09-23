@@ -28,6 +28,14 @@ they take precedence over HOME.
 The SSH tests reach the temp directory through the local SSH server as the SSH
 test user, who has to create directories in it.
 
+## dir-the-ssh-user-can-reach
+
+The private temp directory is opened up for the SSH test user, but that only
+helps when the user can traverse the directory it lies in. macOS gives every
+user a temp directory of their own, readable by nobody else, so the private
+directory goes to /tmp there; on Linux the temp directory is the shared one
+already.
+
 ## LeftoverListener
 
 Compares the names in the private temp directory before and after each test.
