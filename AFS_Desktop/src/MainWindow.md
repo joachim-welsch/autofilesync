@@ -143,6 +143,6 @@ title bar does not.
 
 ## onAbout
 
-The About box names the copyright holder, the website and the two licences: it is the one
+The About box names the copyright holder, the website and the licence: it is the one
 place a user of the installed program can find out whom the software belongs to and under
 which terms they hold it. The details are on the help page "Lizenzbedingungen".

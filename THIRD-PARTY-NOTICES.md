@@ -2,8 +2,8 @@
 
 AutoFileSync verwendet die folgenden Bibliotheken und Werkzeuge. Ihre
 Lizenztexte liegen im Verzeichnis `third-party/` und werden mit jedem Paket
-ausgeliefert. Die Lizenzen erlauben die Verwendung sowohl unter der GPL als
-auch unter der kommerziellen Lizenz von AutoFileSync (siehe `LICENSING.md`).
+ausgeliefert. Die Lizenzen sind mit der GPL von AutoFileSync verträglich
+(siehe `LICENSING.md`).
 
 | Komponente | Verwendung | Lizenz | Text |
 |---|---|---|---|

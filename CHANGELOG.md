@@ -2,8 +2,8 @@
 
 ## 0.01.0001 – in Arbeit
 
-- Dual-Licensing: GNU GPL v3 oder kommerzielle Lizenz (`LICENSING.md`), Lizenz-
-  Header in allen Quelldateien, Hinweise zu Komponenten Dritter, Lizenzseite im
+- Lizenz: GNU GPL v3 oder neuer (`LICENSING.md`), Lizenz-Header in allen
+  Quelldateien, Hinweise zu Komponenten Dritter, Lizenzseite im
   Windows-Installationsprogramm.
 - Lizenzdatei `autofilesync.lic` mit Ed25519-Signatur; die Statuszeile nennt
   beim Start den Lizenznehmer.
