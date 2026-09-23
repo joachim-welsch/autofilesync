@@ -1,6 +1,6 @@
 Aktuell ist Version 0.01.0001
 
-wird eingetragen in: Version.h
+wird eingetragen in: AFS_Desktop/include/Version.h (afsVERSION_MAJOR/MINOR/BUILD und afsVERSION_TEXT)
 
 Ähnlich wie bei Microsoft:
 
