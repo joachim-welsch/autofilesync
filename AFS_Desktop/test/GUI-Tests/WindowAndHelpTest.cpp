@@ -1,19 +1,20 @@
 /*
  * Copyright (C) 2026 Joachim Welsch <https://welsch-software.com>
- * SPDX-License-Identifier: GPL-3.0-or-later OR LicenseRef-AutoFileSync-Commercial
+ * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * This file is part of AFS_Desktop, the desktop program of AutoFileSync.
  *
- * AutoFileSync is dual-licensed: you may use, modify and redistribute it under
+ * AutoFileSync is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License or (at your option) any later
- * version, or under the AutoFileSync Commercial Licence obtained from the
- * copyright holder. See LICENSING.md, LICENSE and LICENSE-COMMERCIAL.md in the
- * root of the source tree.
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
  * AutoFileSync is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the applicable licence for more details.
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "GuiTest.h"
 #include "EventPump.h"
@@ -112,56 +113,6 @@ TEST_F(GuiTest, TaskbarDoppelklickZeigtFenster)
     pump();
 
     EXPECT_TRUE(mainWindow().IsShown()) << "Der Doppelklick auf das Symbol im Infobereich zeigt das Fenster nicht.";
-}
-
-namespace {
-
-class LicenseFile {  // [WindowAndHelpTest.md#LicenseFile]
-public:
-    explicit LicenseFile(const std::string& content): path_(GuiTestSandbox::configFile().parent_path() / "autofilesync.lic")
-    {
-        std::ofstream(path_, std::ios::binary) << content;
-    }
-    ~LicenseFile() { std::filesystem::remove(path_); }
-private:
-    std::filesystem::path path_;
-};
-
-wxString licenseStatus(MainWindow& window)
-{
-    window.showLicense();
-    pump();
-    return window.GetStatusBar()->GetStatusText(0);
-}
-
-}
-
-TEST_F(GuiTest, StatuszeileZeigtLizenznehmerAusSignierterLizenzdatei)  // [WindowAndHelpTest.md#license]
-{
-    const LicenseFile file("Licensee: Firma Beispiel GmbH\nSignature: 75921b43c5513d14a8235f3189817bcea1b9608682df49e726e81b6d9a290d176f414fc7f4a97f038753ad05509214996907a15702ca8a69ec32becaf8133606\n");
-
-    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für Firma Beispiel GmbH"));
-}
-
-TEST_F(GuiTest, SignierteLizenzOhneLizenznehmerIstPrivateNutzung)  // [WindowAndHelpTest.md#license]
-{
-    const LicenseFile file("Licensee: \nSignature: bc21ba2be79430ba7311064686b0005fac7017121edf561bfa62025129b54d47cd1600887e5263fb2b9b133275c5d052eb8448649ba0e1d1ea99f3e5fd9c3b0f\n");
-
-    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für private Nutzung"));
-}
-
-TEST_F(GuiTest, StatuszeileZeigtLizenznehmerBeimStart)  // [WindowAndHelpTest.md#license]
-{
-    ASSERT_FALSE(std::filesystem::exists(GuiTestSandbox::configFile().parent_path() / "autofilesync.lic"));
-
-    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für private Nutzung"));
-}
-
-TEST_F(GuiTest, StatuszeileZeigtLizenznehmerAusUngueltigerLizenzdateiNicht)  // [WindowAndHelpTest.md#license]
-{
-    const LicenseFile file("Licensee: Jemand\nSignature: 00\n");
-
-    EXPECT_EQ(licenseStatus(mainWindow()), wxString(L"Lizenziert für private Nutzung"));
 }
 
 TEST_F(GuiTest, InfoDialogZeigtVersion)

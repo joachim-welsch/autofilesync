@@ -132,17 +132,8 @@ error box. The program is therefore checked before the start, the way execvp res
 name with a slash as given, a bare name through PATH. Windows needs none of this - there
 CreateProcess fails in the caller. Found by GuiTest.LogDateiAnzeigenOhneEditorZeigtFehler on Linux.
 
-## showLicense
-
-The first thing the status bar says after the start, for five seconds: whom the installation
-is licensed to, or "private Nutzung" without a licence file or with one that names nobody
-(License.md#private-use). The file is looked for in the
-configuration directory first and next to the executable second (License.md#find), and
-checked against the product's public key. The welcome message it replaces said nothing the
-title bar does not.
-
 ## onAbout
 
-The About box names the copyright holder, the website and the two licences: it is the one
+The About box names the copyright holder, the website and the licence: it is the one
 place a user of the installed program can find out whom the software belongs to and under
 which terms they hold it. The details are on the help page "Lizenzbedingungen".

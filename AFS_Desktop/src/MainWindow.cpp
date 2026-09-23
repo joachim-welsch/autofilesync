@@ -1,19 +1,20 @@
 /*
  * Copyright (C) 2026 Joachim Welsch <https://welsch-software.com>
- * SPDX-License-Identifier: GPL-3.0-or-later OR LicenseRef-AutoFileSync-Commercial
+ * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * This file is part of AFS_Desktop, the desktop program of AutoFileSync.
  *
- * AutoFileSync is dual-licensed: you may use, modify and redistribute it under
+ * AutoFileSync is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License or (at your option) any later
- * version, or under the AutoFileSync Commercial Licence obtained from the
- * copyright holder. See LICENSING.md, LICENSE and LICENSE-COMMERCIAL.md in the
- * root of the source tree.
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
  * AutoFileSync is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the applicable licence for more details.
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "MainWindow.h"
 #include "Version.h"
@@ -31,8 +32,6 @@
 #include "SshAccountsDialog.h"
 #include "ChatDialog.h"
 #include "Config.h"
-#include "License.h"
-#include "LicensePublicKey.h"
 #include "Synchronize.h"
 #include "SyncControler.h"
 #include "SyncInterface.h"
@@ -143,7 +142,6 @@ MainWindow::MainWindow(wxWindow *parent,
 		menu_.syncMenu()->Enable(tul(id::StopSync), false);
 	}
 	startSyncTimer();
-	showLicense();
 }
 
 MainWindow::~MainWindow()
@@ -328,7 +326,7 @@ void MainWindow::onAbout(wxCommandEvent& WXUNUSED(event))
                     L"Copyright © 2026 Joachim Welsch\n"
                     L"https://welsch-software.com\n"
                     L"\n"
-                    L"Lizenz: GNU GPL v3 oder kommerzielle Lizenz,\n"
+                    L"Lizenz: GNU GPL v3 oder neuer,\n"
                     L"siehe Hilfe → Lizenzbedingungen.",  // [MainWindow.md#onAbout]
                     wxString(afsNAME_STRING),
                     wxString(afsVERSION_STRING),
@@ -800,23 +798,6 @@ void MainWindow::restoreSizeAndPosition() // Restore window size and position fr
         SetPosition(wxPoint(x, y));
     }
     SetSize(wxSize(w, h));
-}
-
-namespace {
-
-std::vector<std::filesystem::path> licenseDirectories()  // [MainWindow.md#showLicense]
-{
-    return {std::filesystem::path(Config::get_root_pathname()).parent_path(),
-            std::filesystem::path(wxStandardPaths::Get().GetExecutablePath().ToStdWstring()).parent_path()};
-}
-
-}
-
-void MainWindow::showLicense()
-{
-    const std::optional<license::License> found = license::find(licenseDirectories(), license::PRODUCT_PUBLIC_KEY);
-    const wxString licensee = found && !found->private_use() ? wxString(found->licensee) : _("private Nutzung");
-    setStatusTextWithTimer(_(L"Lizenziert für ") + licensee, 5000);
 }
 
 void MainWindow::createTaskBar()

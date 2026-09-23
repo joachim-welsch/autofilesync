@@ -67,13 +67,6 @@
       <PARAM name="Name" value="Lizenzbedingungen">
       <PARAM name="Local" value="licensing.html">
     </OBJECT>
-    <UL>
-      <LI> <OBJECT type="text/sitemap">
-        <PARAM name="Name" value="Lizenzdatei">
-        <PARAM name="Local" value="license.html">
-      </OBJECT>
-      </LI>
-    </UL>
     </LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Wenn etwas nicht wie erwartet passiert">
