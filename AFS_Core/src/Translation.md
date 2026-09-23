@@ -14,8 +14,11 @@ without a catalogue has no text to fall back on and shows the key - see no-libin
 The language of the messages comes from the environment, which is what gettext reads - but only
 while the LC_MESSAGES locale is not "C": there it refuses to translate, and with technical
 message ids every message would come out as its key. A session that names no language at all
-therefore gets the caller's fallback. The fallback is the calling program's to choose, not the
-core's; both autofilesync and backgroundsync pass their own language, German.
+therefore gets the first of the caller's fallback locales that the system accepts: setlocale()
+returns NULL for a locale that was never generated, and a single "de_DE.UTF-8" then left the
+process in "C" after all. DEFAULT_LOCALES names German in decreasing strictness, from the
+UTF-8 locale over the plain one to the bare language; autofilesync and backgroundsync both pass
+it, so that the two programs of one installation cannot drift apart.
 
 Called before init(): binding the catalogue does not re-read the locale.
 

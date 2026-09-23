@@ -66,7 +66,7 @@ bool App::OnInit()
     macTransformToForegroundApp();
 #endif
     locale_.Init(wxLANGUAGE_DEFAULT);  // [App.md#wx-locale]
-    translation::init_locale("de_DE.UTF-8");  // [App.md#initLocale]
+    translation::init_locale(translation::DEFAULT_LOCALES);  // [App.md#initLocale]
     translation::init(messageCatalogueDir());  // [App.md#language-from-environment]
     if (singleInstanceChecker_.IsAnotherRunning()) {
         log_error(translation::translate("start_aborted_other_instance"));  // [App.md#log-single-instance]
