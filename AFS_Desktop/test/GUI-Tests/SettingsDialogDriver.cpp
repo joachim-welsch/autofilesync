@@ -21,6 +21,7 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "SettingsDialog.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -46,13 +47,13 @@ bool enterValues(wxDialog& dialog, const SettingsInput& input)  // [SettingsDial
                       << valueOf(find(dialog, ID_RECYCLEBIN_PATH_BOX));
         return false;
     }
-    return enterCheckBox(dialog, "Anwendung automatisch starten", input.autostart)
-        && enterCheckBox(dialog, "Synchronisation bei Programmstart starten", input.startSyncAtStart)
-        && enterCheckBox(dialog, "Start minimiert", input.startMinimized)
-        && enterCheckBox(dialog, L"Minimieren statt schließen?", input.minimizeInsteadOfClose)
-        && enterCheckBox(dialog, "Fehler", input.showErrors)
-        && enterCheckBox(dialog, "Warnung", input.showWarnings)
-        && enterCheckBox(dialog, "Info", input.showInfos);
+    return enterCheckBox(dialog, translation::translate("settings_autostart"), input.autostart)
+        && enterCheckBox(dialog, translation::translate("settings_sync_at_start"), input.startSyncAtStart)
+        && enterCheckBox(dialog, translation::translate("settings_start_minimized"), input.startMinimized)
+        && enterCheckBox(dialog, translation::translate("settings_minimize_instead_of_close"), input.minimizeInsteadOfClose)
+        && enterCheckBox(dialog, translation::translate("error"), input.showErrors)
+        && enterCheckBox(dialog, translation::translate("warning"), input.showWarnings)
+        && enterCheckBox(dialog, translation::translate("info"), input.showInfos);
 }
 
 }

@@ -20,6 +20,7 @@
 #include "utilwx.h"
 #include "id.h"
 #include "ListCtrl.h"
+#include "Translation.h"
 
 using utilwx::tul;
 using std::wstring;
@@ -57,8 +58,8 @@ void ListWindow::ShowContextMenu(const wxPoint& pos)
 	if (wxGetKeyState(WXK_SHIFT)) {
 	}
 	else {
-		menu.Append(tul(id::EditSync), "&Editiere");
-		menu.Append(tul(id::DeleteSync), L"&Lösche");
+		menu.Append(tul(id::EditSync), AFS_Core::translation::translate("context_edit"));
+		menu.Append(tul(id::DeleteSync), AFS_Core::translation::translate("context_delete"));
 		PopupMenu(&menu, pos);
 	}
 }

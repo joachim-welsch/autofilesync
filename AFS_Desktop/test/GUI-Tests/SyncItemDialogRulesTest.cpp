@@ -26,6 +26,7 @@
 #include "SyncItemDialog.h"
 #include "id.h"
 #include "TextResources.h"
+#include "Translation.h"
 #include "utilwx.h"
 #include <wx/spinctrl.h>
 
@@ -58,7 +59,7 @@ bool okEnabled(wxDialog& dialog)  // [SyncItemDialogRulesTest.md#okEnabled]
 
 void openNewSyncItemDialog(MainWindow& window, DialogCheck check)
 {
-    ModalDialogWatcher::instance().expect(txt::AddSynchronisation, inspectAndCancel(std::move(check)));
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), inspectAndCancel(std::move(check)));
     activateMenuItem(window, tul(id::File_new_Synchronization));
     pump();
 }
@@ -74,7 +75,7 @@ TEST_F(GuiTest, OkNurMitQuelleZielTypUndVergleichskriterium)
         ASSERT_TRUE(replaceText(find(dialog, ID_TARGET_DIR_BOX), GuiTestSandbox::targetDir().string()));
         EXPECT_TRUE(okEnabled(dialog)) << "OK bleibt trotz Quelle, Ziel, Typ und Datumsvergleich gesperrt.";
 
-        ASSERT_TRUE(showNotebookPage(dialog, _("Optionen")));
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_options")));
         ASSERT_TRUE(setCheckBox(find(dialog, ID_COMPARE_DATE_CHECK), false));
         EXPECT_FALSE(okEnabled(dialog)) << "OK ist ohne Vergleichskriterium aktiv.";
         ASSERT_TRUE(setCheckBox(find(dialog, ID_COMPARE_SIZE_CHECK), true));
@@ -86,7 +87,7 @@ TEST_F(GuiTest, OkNurMitQuelleZielTypUndVergleichskriterium)
 TEST_F(GuiTest, ZweiWegeSyncSperrtKopierenWennZielNeuer)  // [SyncItemDialogRulesTest.md#option-locks]
 {
     openNewSyncItemDialog(mainWindow(), [](wxDialog& dialog) {
-        ASSERT_TRUE(showNotebookPage(dialog, _("Optionen")));
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_options")));
         wxWindow* copyWhenNewer = find(dialog, ID_CPY_WHEN_TARGET_NEWER_CHECK);
         ASSERT_TRUE(setCheckBox(copyWhenNewer, true));
 
@@ -103,16 +104,16 @@ TEST_F(GuiTest, TypDateiSperrtLoeschenImZiel)  // [SyncItemDialogRulesTest.md#op
 {
     openNewSyncItemDialog(mainWindow(), [](wxDialog& dialog) {
         wxWindow* deleteInTarget = find(dialog, ID_DELETE_IN_TARGET_CHECK);
-        ASSERT_TRUE(showNotebookPage(dialog, _("Optionen")));
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_options")));
         EXPECT_FALSE(deleteInTarget->IsEnabled()) << "\"Gelöschte Dateien im Ziel löschen\" ist beim Typ Datei bedienbar.";
 
-        ASSERT_TRUE(showNotebookPage(dialog, _("Allgemein")));
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_general")));
         ASSERT_TRUE(selectEntry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::Dir)));
-        ASSERT_TRUE(showNotebookPage(dialog, _("Optionen")));
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_options")));
         EXPECT_TRUE(deleteInTarget->IsEnabled()) << "\"Gelöschte Dateien im Ziel löschen\" bleibt beim Typ Verzeichnis gesperrt.";
         ASSERT_TRUE(setCheckBox(deleteInTarget, true));
 
-        ASSERT_TRUE(showNotebookPage(dialog, _("Allgemein")));
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_general")));
         ASSERT_TRUE(selectEntry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::File)));
         EXPECT_FALSE(static_cast<wxCheckBox*>(deleteInTarget)->GetValue()) << "Der Wechsel zurück zu Datei nimmt die Option nicht zurück.";
     });
@@ -121,7 +122,7 @@ TEST_F(GuiTest, TypDateiSperrtLoeschenImZiel)  // [SyncItemDialogRulesTest.md#op
 TEST_F(GuiTest, ZyklusIstAuf1Bis60Begrenzt)
 {
     openNewSyncItemDialog(mainWindow(), [](wxDialog& dialog) {
-        ASSERT_TRUE(showNotebookPage(dialog, _("Optionen")));
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_options")));
         auto* spin = dynamic_cast<wxSpinCtrl*>(find(dialog, ID_SYNC_CYCLE_SPIN));
         ASSERT_NE(spin, nullptr);
         EXPECT_EQ(spin->GetMin(), 1);
@@ -143,8 +144,8 @@ TEST_F(GuiTest, BearbeitenZeigtDieGespeichertenAusschluesseZeilenweise)  // [Syn
     Config::instance().add(item);
     if (ListCtrl* list = syncItemList())
         list->update();
-    ModalDialogWatcher::instance().expect(txt::EditSynchronisation, inspectAndCancel([](wxDialog& dialog) {
-        ASSERT_TRUE(showNotebookPage(dialog, _(L"Ausschlüsse")));
+    ModalDialogWatcher::instance().expect(txt::edit_synchronisation(), inspectAndCancel([](wxDialog& dialog) {
+        ASSERT_TRUE(showNotebookPage(dialog, translation::translate("tab_exclusions")));
         EXPECT_EQ(valueOf(find(dialog, ID_EXCLUSIONS_BOX)), "*.log\ngeheim*");
     }));
     ASSERT_TRUE(syncItemList() != nullptr && clickOn(*syncItemList(), 0));

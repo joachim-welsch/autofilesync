@@ -19,6 +19,7 @@
 #include "ChatDialog.h"
 #include <thread>
 #include "LogAnalysis.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -49,7 +50,7 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title)
     wxBoxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
     status_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
     bottomSizer->Add(status_, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-    sendButton_ = new wxButton(this, ID_CHAT_SEND, _("Senden"));
+    sendButton_ = new wxButton(this, ID_CHAT_SEND, translation::translate("button_send"));
     bottomSizer->Add(sendButton_, 0, wxALL, 5);
     mainSizer->Add(bottomSizer, 0, wxEXPAND);
 
@@ -57,11 +58,11 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title)
     Centre();
     input_->Bind(wxEVT_KEY_DOWN, &ChatDialog::onInputKey, this);  // [ChatDialog.md#key-handler-on-control]
     if (!LlamaClient::available()) {
-        appendTurn(_("Hinweis"), LlamaClient::missing_model_hint());  // [ChatDialog.md#hint-in-transcript]
-        status_->SetLabel(_(L"Kein Modell gefunden."));
+        appendTurn(translation::translate("chat_hint"), LlamaClient::missing_model_hint());  // [ChatDialog.md#hint-in-transcript]
+        status_->SetLabel(translation::translate("chat_no_model"));
     }
     else
-        status_->SetLabel(_(L"Strg+Eingabe sendet."));
+        status_->SetLabel(translation::translate("chat_ctrl_enter"));
     input_->CallAfter(&wxTextCtrl::SetFocus);  // [ChatDialog.md#deferred-focus]
 }
 
@@ -83,7 +84,7 @@ void ChatDialog::setWaiting(bool waiting)
 {
     sendButton_->Enable(!waiting);
     input_->SetEditable(!waiting);
-    status_->SetLabel(waiting ? _(L"Der Assistent antwortet…") : _(L"Strg+Eingabe sendet."));
+    status_->SetLabel(waiting ? translation::translate("chat_answering") : translation::translate("chat_ctrl_enter"));
 }
 
 void ChatDialog::runAsync(std::function<ChatReply()> call)
@@ -107,7 +108,7 @@ void ChatDialog::onSend(wxCommandEvent&)
     if (question.IsEmpty())
         return;
     input_->Clear();
-    appendTurn(_("Du"), question);
+    appendTurn(translation::translate("chat_you"), question);
     history_.push_back({ true, question.ToStdWstring() });
     const ChatHistory snapshot = history_;  // [ChatDialog.md#history-snapshot]
     if (looks_like_log_question(question.ToStdWstring())) {  // [ChatDialog.md#log-excerpt-per-request]
@@ -123,11 +124,11 @@ void ChatDialog::onReply(wxThreadEvent& event)
     setWaiting(false);
     const wxString text = event.GetString();
     if (event.GetInt() == 1) {
-        appendTurn(_("Assistent"), text);
+        appendTurn(translation::translate("chat_assistant"), text);
         history_.push_back({ false, text.ToStdWstring() });  // [ChatDialog.md#only-answers-in-history]
     }
     else
-        appendTurn(_("Fehler"), text);
+        appendTurn(translation::translate("error"), text);
     input_->SetFocus();
 }
 

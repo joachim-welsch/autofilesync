@@ -24,6 +24,7 @@
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
 #include "ProgressDialog.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 #include <wx/stattext.h>
@@ -79,7 +80,7 @@ TEST_F(GuiTest, FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich)  // [Progr
     activateMenuItem(mainWindow(), tul(id::SyncOnce));
     ASSERT_TRUE(waitUntil([] { return progressDialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
     ProgressDialog& dialog = *progressDialog();
-    EXPECT_EQ(dialog.GetTitle(), "Fortschritt");
+    EXPECT_EQ(dialog.GetTitle(), translation::translate("progress_title"));
     EXPECT_TRUE(waitUntil([&dialog] { return currentFileShown(dialog).Contains("datei"); }))
         << "Der Dialog zeigt keine Datei an, zuletzt: " << currentFileShown(dialog);
     EXPECT_TRUE(find(dialog, wxID_CANCEL)->IsEnabled()) << "Abbrechen ist während des Laufs gesperrt.";

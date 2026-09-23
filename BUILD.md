@@ -223,7 +223,9 @@ der die Kataloge übersetzt.
 
 ## Mehrsprachigkeit (GNU gettext)
 
-Alle benutzersichtbaren Texte von `AFS_Core` laufen über das Modul `Translation`.
+Alle benutzersichtbaren Texte von `AFS_Core` und `AFS_Desktop` laufen über das Modul
+`Translation` von AFS_Core; die GUI-Tests holen die Texte, an denen sie einen Dialog
+erkennen, aus demselben Katalog und laufen so in jeder Sprache.
 Die msgids sind technische Schlüssel (`source_dir_not_reachable`), kein Anzeigetext:
 Deutsch und Englisch sind gleichberechtigte Kataloge, und ein Build ohne Katalog hat
 keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
@@ -239,7 +241,7 @@ keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
   ```bash
   xgettext --keyword=translate --keyword=translate_utf8 --keyword=msgid \
            --from-code=UTF-8 --no-wrap -o po/autofilesync.pot \
-           AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp
+           AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp AFS_Desktop/include/TextResources.h
   msgmerge --no-wrap --update po/de.po po/autofilesync.pot
   msgmerge --no-wrap --update po/en.po po/autofilesync.pot
   ```

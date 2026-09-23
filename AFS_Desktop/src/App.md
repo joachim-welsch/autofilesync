@@ -30,3 +30,13 @@ LANGUAGE=en autofilesync.
 wxLogError alone is easy to miss headlessly (a cron/systemd --console trigger with no display
 attached) - log it to the app's own log too, now that the log path actually resolves to
 somewhere real by default (see the Logging default-path fix).
+
+## wx-locale
+
+wxLocale gives wxWidgets' own texts - the stock buttons, the file dialogs, the command line
+parser - the language of the session, from the environment like the message catalogue below.
+It used to be pinned to German and to live only until the end of OnInit(), which had two effects:
+while it lived, its setlocale() overrode the session's language for everything MainWindow built
+in its constructor, and when it died, wxWidgets fell back to English. A member lives as long as
+the application. It runs before init_locale(), whose German fallback for a session without a
+language must be the last word on the C locale.

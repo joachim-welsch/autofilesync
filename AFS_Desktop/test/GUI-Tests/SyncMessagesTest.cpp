@@ -29,6 +29,7 @@
 #include "Config.h"
 #include "id.h"
 #include "TextResources.h"
+#include "Translation.h"
 #include "utilwx.h"
 
 using namespace AFS_Core;
@@ -38,10 +39,22 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString NO_FILES = "Info";
-const wxString ERRORS_BOX = "Synchronisation: Fehler";
-const wxString WARNINGS_BOX = "Synchronisation: Warnung";
-const wxString INFOS_BOX = "Synchronisation: Info";
+wxString no_files()  // translated at the call, once the catalogue is bound
+{
+    return translation::translate("info");
+}
+wxString errors_box()
+{
+    return translation::translate("synchronisation") + L": " + translation::translate("error");
+}
+wxString warnings_box()
+{
+    return translation::translate("synchronisation") + L": " + translation::translate("warning");
+}
+wxString infos_box()
+{
+    return translation::translate("synchronisation") + L": " + translation::translate("info");
+}
 
 void filterMessages(MainWindow& window, bool errors, bool warnings, bool infos)  // [SyncMessagesTest.md#filterMessages]
 {
@@ -49,7 +62,7 @@ void filterMessages(MainWindow& window, bool errors, bool warnings, bool infos) 
     input.showErrors = errors;
     input.showWarnings = warnings;
     input.showInfos = infos;
-    ModalDialogWatcher::instance().expect(txt::EditSettings, fillSettingsDialog(input));
+    ModalDialogWatcher::instance().expect(txt::settings(), fillSettingsDialog(input));
     activateMenuItem(window, tul(id::EditSettings));
     pump();
 }
@@ -74,13 +87,13 @@ TEST_F(GuiTest, FehlerDesEinzelsyncsErscheintAlsMeldung)  // [SyncMessagesTest.m
     filterMessages(mainWindow(), true, false, false);
     const std::filesystem::path missing = GuiTestSandbox::root() / "gibt-es-nicht";
     ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-fehler", missing, GuiTestSandbox::targetDir())));
-    ModalDialogWatcher::instance().answer(NO_FILES, wxID_OK);
-    ModalDialogWatcher::instance().answer(ERRORS_BOX, wxID_OK);
+    ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
+    ModalDialogWatcher::instance().answer(errors_box(), wxID_OK);
 
     ASSERT_TRUE(syncOnce(mainWindow()));
 
     ASSERT_EQ(answered().size(), 2u) << "Die Fehlerbox nach dem Lauf fehlt.";
-    EXPECT_TRUE(answered()[1].StartsWith("Fehler: ")) << answered()[1];
+    EXPECT_TRUE(answered()[1].StartsWith(translation::translate("error") + L": ")) << answered()[1];
     EXPECT_TRUE(answered()[1].Contains(missing.string())) << "Die Fehlerbox nennt die unerreichbare Quelle nicht: " << answered()[1];
 }
 
@@ -89,7 +102,7 @@ TEST_F(GuiTest, MeldungsfilterAusUnterdruecktDieFehlerbox)
     const RestoredSettings restored;
     filterMessages(mainWindow(), false, false, false);
     ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-still", GuiTestSandbox::root() / "gibt-es-nicht", GuiTestSandbox::targetDir())));
-    ModalDialogWatcher::instance().answer(NO_FILES, wxID_OK);
+    ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
 
     ASSERT_TRUE(syncOnce(mainWindow()));
 
@@ -102,12 +115,12 @@ TEST_F(GuiTest, WarnungDesEinzelsyncsErscheintMitFilter)  // [SyncMessagesTest.m
     filterMessages(mainWindow(), true, true, false);
     const SandboxTree tree(GuiTestSandbox::root() / "warnung", {{"quelle/leer.txt", ""}, {"ziel/", ""}});
     ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-warnung", tree.path("quelle"), tree.path("ziel"))));
-    ModalDialogWatcher::instance().answer(WARNINGS_BOX, wxID_OK);
+    ModalDialogWatcher::instance().answer(warnings_box(), wxID_OK);
 
     ASSERT_TRUE(syncOnce(mainWindow()));
 
     ASSERT_EQ(answered().size(), 1u) << "Die Warnung zur leeren Quelldatei erschien nicht.";
-    EXPECT_TRUE(answered().front().StartsWith("Warnung: ")) << answered().front();
+    EXPECT_TRUE(answered().front().StartsWith(translation::translate("warning") + L": ")) << answered().front();
     EXPECT_TRUE(answered().front().Contains("leer.txt")) << answered().front();
 }
 
@@ -117,12 +130,12 @@ TEST_F(GuiTest, InfoDesEinzelsyncsErscheintMitFilter)  // [SyncMessagesTest.md#l
     filterMessages(mainWindow(), true, true, true);
     const SandboxTree tree(GuiTestSandbox::root() / "info", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
     ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-info", tree.path("quelle"), tree.path("ziel"))));
-    ModalDialogWatcher::instance().answer(INFOS_BOX, wxID_OK);
+    ModalDialogWatcher::instance().answer(infos_box(), wxID_OK);
 
     ASSERT_TRUE(syncOnce(mainWindow()));
 
     ASSERT_EQ(answered().size(), 1u) << "Die Infos des Laufs erschienen nicht.";
-    EXPECT_TRUE(answered().front().Contains("Info: ")) << answered().front();
+    EXPECT_TRUE(answered().front().Contains(translation::translate("info") + L": ")) << answered().front();
     EXPECT_TRUE(answered().front().Contains("bericht.txt")) << "Die kopierte Datei fehlt in der Info-Box: " << answered().front();
     EXPECT_TRUE(tree.exists("ziel/bericht.txt"));
 }

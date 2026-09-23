@@ -19,16 +19,17 @@
 #include "TargetCanvas.h"
 #include "TreeCtrl.h"
 #include "Config.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
 using std::wstring;
 
 TargetCanvas::TargetCanvas(wxWindow* parent)
- : Canvas(parent, "Ziel")
+ : Canvas(parent, translation::translate("target"))
 {
 	SetName("target");
-	SetToolTip("Ziel-Panel");
+	SetToolTip(translation::translate("target_panel"));
 }
 
 void TargetCanvas::update()

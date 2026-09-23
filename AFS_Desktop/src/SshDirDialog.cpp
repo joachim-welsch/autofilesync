@@ -18,6 +18,7 @@
  */
 #include "SshDirDialog.h"
 #include "SshDirInspector.h"
+#include "Translation.h"
 #include <wx/busyinfo.h>
 #include <algorithm>
 
@@ -45,17 +46,16 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
     wxStaticText* connInfo = new wxStaticText(this, wxID_STATIC, 
-        wxString::Format(_("Verbindung: %s@%s"), wxString::FromUTF8(account_.user()),
-            wxString::FromUTF8(account_.host())));
+        translation::translate("ssh_connection_info", {wxString::FromUTF8(account_.user()).ToStdWstring(), wxString::FromUTF8(account_.host()).ToStdWstring()}));
     mainSizer->Add(connInfo, 0, wxEXPAND | wxALL, 5);
 
     wxBoxSizer* pathSizer = new wxBoxSizer(wxHORIZONTAL);
     
-    homeButton_ = new wxButton(this, ID_SSH_DIR_HOME_BUTTON, _("Home"),
+    homeButton_ = new wxButton(this, ID_SSH_DIR_HOME_BUTTON, translation::translate("home"),
         wxDefaultPosition, wxSize(50, -1));
     pathSizer->Add(homeButton_, 0, wxRIGHT, 2);
 
-    sortButton_ = new wxButton(this, ID_SSH_DIR_SORT_BUTTON, _("A-Z"),
+    sortButton_ = new wxButton(this, ID_SSH_DIR_SORT_BUTTON, "A-Z",
         wxDefaultPosition, wxSize(35, -1));
     pathSizer->Add(sortButton_, 0, wxRIGHT, 5);
 
@@ -68,15 +68,15 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     listCtrl_ = new wxListCtrl(this, ID_SSH_DIR_LIST, wxDefaultPosition,
         wxSize(500, 300), wxLC_REPORT | wxLC_SINGLE_SEL);
     
-    listCtrl_->InsertColumn(0, _("Name"), wxLIST_FORMAT_LEFT, 250);
-    listCtrl_->InsertColumn(1, _(L"Größe"), wxLIST_FORMAT_RIGHT, 80);
-    listCtrl_->InsertColumn(2, _(L"Geändert"), wxLIST_FORMAT_LEFT, 150);
+    listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 250);
+    listCtrl_->InsertColumn(1, translation::translate("size"), wxLIST_FORMAT_RIGHT, 80);
+    listCtrl_->InsertColumn(2, translation::translate("modified"), wxLIST_FORMAT_LEFT, 150);
     
     mainSizer->Add(listCtrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
     
     listCtrl_->Bind(wxEVT_LEFT_DCLICK, &SshDirDialog::onListDClick, this);
 
-    statusText_ = new wxStaticText(this, wxID_STATIC, _(""));
+    statusText_ = new wxStaticText(this, wxID_STATIC, wxEmptyString);
     mainSizer->Add(statusText_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
@@ -96,7 +96,7 @@ SshDirDialog::~SshDirDialog()
 void SshDirDialog::populateList(const wxString& path)
 {
     listCtrl_->DeleteAllItems();
-    statusText_->SetLabel(_("Lade Verzeichnis..."));
+    statusText_->SetLabel(translation::translate("loading_dir"));
     Update();
 
     try {
@@ -105,12 +105,12 @@ void SshDirDialog::populateList(const wxString& path)
         RemoteDirInfo info = inspector.inspect_dir(std::string(path.ToUTF8()));
 
         if (!info.exists) {
-            statusText_->SetLabel(wxString::Format(_("Fehler: %s"), info.error_message));
+            statusText_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(info.error_message).ToStdWstring()}));
             return;
         }
 
         if (!info.is_directory) {
-            statusText_->SetLabel(_("Pfad ist kein Verzeichnis"));
+            statusText_->SetLabel(translation::translate("not_a_directory"));
             return;
         }
 
@@ -120,10 +120,10 @@ void SshDirDialog::populateList(const wxString& path)
         entries_ = std::move(info.entries);
         renderList();
 
-        statusText_->SetLabel(wxString::Format(_(L"%zu Einträge"), entries_.size()));
+        statusText_->SetLabel(translation::translate("entries_count", {std::to_wstring(entries_.size())}));
 
     } catch (const std::exception& ex) {
-        statusText_->SetLabel(wxString::Format(_("Fehler: %s"), ex.what()));
+        statusText_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(ex.what()).ToStdWstring()}));
     }
 }
 
@@ -151,7 +151,7 @@ void SshDirDialog::renderList()
             }
             listCtrl_->SetItem(item, 1, sizeStr);
         } else if (entry.is_directory) {
-            listCtrl_->SetItem(item, 1, _("<DIR>"));
+            listCtrl_->SetItem(item, 1, "<DIR>");
         }
 
         listCtrl_->SetItem(item, 2, entry.last_modified_iso);
@@ -217,7 +217,7 @@ void SshDirDialog::onHomeButton(wxCommandEvent&)
         SshDirInspector inspector(account_);
         populateList(wxString::FromUTF8(inspector.get_home_dir()));
     } catch (const std::exception& ex) {
-        statusText_->SetLabel(wxString::Format(_("Fehler: %s"), ex.what()));
+        statusText_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(ex.what()).ToStdWstring()}));
     }
 }
 

@@ -20,6 +20,7 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "ChatDialog.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 #include <wx/uiaction.h>
@@ -122,10 +123,10 @@ TEST_F(SlowGuiTest, ChatStrgEingabeSendet)  // [ChatDialogTest.md#ChatStrgEingab
 
     EXPECT_NE(valueOf(chat.transcript).Find("Antworte nur mit dem Wort ja"), wxNOT_FOUND) << "Strg+Eingabe hat die Frage nicht in den Verlauf gestellt.";
     EXPECT_EQ(valueOf(chat.input), "") << "Das Eingabefeld wurde nach dem Senden nicht geleert.";
-    EXPECT_TRUE(!chat.send->IsEnabled() || valueOf(chat.transcript).Contains("Fehler:"))  // [ChatDialogTest.md#no-model]
+    EXPECT_TRUE(!chat.send->IsEnabled() || valueOf(chat.transcript).Contains(AFS_Core::translation::translate("error") + L":"))  // [ChatDialogTest.md#no-model]
         << "Der Dialog wartet nach dem Senden nicht auf die Antwort.";
     ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
-    EXPECT_TRUE(valueOf(chat.transcript).Contains("Assistent:") || valueOf(chat.transcript).Contains("Fehler:"));
+    EXPECT_TRUE(valueOf(chat.transcript).Contains(AFS_Core::translation::translate("chat_assistant") + L":") || valueOf(chat.transcript).Contains(AFS_Core::translation::translate("error") + L":"));
 }
 
 }

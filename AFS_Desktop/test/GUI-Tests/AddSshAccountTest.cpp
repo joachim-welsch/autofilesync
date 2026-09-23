@@ -41,8 +41,8 @@ const wxString accountName = "guitest-ssh";
 TEST_F(GuiTest, SshPasswortMitSonderzeichenWirdUebernommen)
 {
     const SshAccountInput input{accountName, "localhost", "pi", passwordWithSpecialCharacters};
-    ModalDialogWatcher::instance().expect(txt::SshAccounts, addSshAccountAndClose());
-    ModalDialogWatcher::instance().expect(txt::AddSshConnection, fillSshAccountDialog(input));
+    ModalDialogWatcher::instance().expect(txt::ssh_connections(), addSshAccountAndClose());
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(input));
 
     activateMenuItem(mainWindow(), tul(id::EditSshAccounts));
     pump();

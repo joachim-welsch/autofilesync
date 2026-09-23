@@ -27,13 +27,14 @@
 #include <wx/listctrl.h>
 #include <optional>
 #include "SshAccount.h"
+#include "TextResources.h"
 
 using namespace AFS_Core;
 
 class SshAccountSelectDialog : public wxDialog {  // [SshAccountSelectDialog.md#SshAccountSelectDialog]
 public:
     SshAccountSelectDialog(wxWindow* parent,
-        const wxString& title = _(L"SSH-Verbindung auswählen"),
+        const wxString& title = txt::select_ssh_connection(),
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);

@@ -19,7 +19,7 @@
 #include "Toolbar.h"
 #include "id.h"
 #include "utilwx.h"
-#include "TextResources.h"
+#include "Translation.h"
 #ifdef _UNIX
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -36,6 +36,7 @@
 #endif
 
 using utilwx::tul;
+using AFS_Core::translation::translate;
 
 enum
 {
@@ -73,13 +74,13 @@ void Toolbar::create(wxFrame* parent)
 	long style = 0;
 	style |= wxTB_TOP;
 	toolbar_->SetToolBitmapSize(wxSize(24, 24));
-	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), _(tbtxt::EditSynchronisation));
-	toolbar_->AddTool(tul(id::File_save), wxEmptyString, wxBITMAP(save), _(tbtxt::SaveFile));
-	toolbar_->AddTool(tul(id::DeleteSync), wxEmptyString, wxBITMAP(delete), _(tbtxt::DeleteSynchronisation));
-	toolbar_->AddTool(tul(id::StartSync), wxEmptyString, wxBITMAP(start), _(tbtxt::StartSync));
+	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), translate("edit_synchronisation"));
+	toolbar_->AddTool(tul(id::File_save), wxEmptyString, wxBITMAP(save), translate("toolbar_save"));
+	toolbar_->AddTool(tul(id::DeleteSync), wxEmptyString, wxBITMAP(delete), translate("delete_synchronisation"));
+	toolbar_->AddTool(tul(id::StartSync), wxEmptyString, wxBITMAP(start), translate("toolbar_start_sync"));
 
 	toolbar_->AddStretchableSpace();
-	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), _(tbtxt::Help));
+	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), translate("toolbar_help"));
 	toolbar_->Realize();
 }
 
@@ -97,9 +98,9 @@ void Toolbar::replaceTool(int oldToolId, int newToolId, const wxString& label, c
 void Toolbar::setStarted(bool started)
 {
     if (started) {
-        replaceTool(tul(id::StartSync), tul(id::StopSync), _(tbtxt::StopSync), wxBITMAP(stop), _(tbtxt::StopSync));
+        replaceTool(tul(id::StartSync), tul(id::StopSync), translate("toolbar_stop_sync"), wxBITMAP(stop), translate("toolbar_stop_sync"));
     }
     else {
-        replaceTool(tul(id::StopSync), tul(id::StartSync), _(tbtxt::StartSync), wxBITMAP(start), _(tbtxt::StartSync));
+        replaceTool(tul(id::StopSync), tul(id::StartSync), translate("toolbar_start_sync"), wxBITMAP(start), translate("toolbar_start_sync"));
     }
 }

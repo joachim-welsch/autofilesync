@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "BackgroundService.h"
+#include "Translation.h"
 #ifdef WIN32
     #include <Windows.h>
     #include <shellapi.h>
@@ -32,6 +33,7 @@
 #endif
 
 using std::wstring;
+using AFS_Core::translation::translate;
 
 namespace {
 #ifndef _MACOS
@@ -56,7 +58,7 @@ wstring systemMessage(DWORD error)
     wchar_t* buffer = nullptr;
     const DWORD length = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr, error, 0, reinterpret_cast<wchar_t*>(&buffer), 0, nullptr);
-    const wstring text = length > 0 ? wstring(buffer, length) : L"Fehler " + std::to_wstring(error);
+    const wstring text = length > 0 ? wstring(buffer, length) : translate("bs_system_error", {std::to_wstring(error)});
     LocalFree(buffer);
     return text;
 }
@@ -64,8 +66,8 @@ wstring systemMessage(DWORD error)
 wstring failure(const wstring& action, DWORD error)
 {
     if (error == ERROR_SERVICE_DOES_NOT_EXIST)
-        return L"Der Hintergrunddienst ist nicht installiert. Bitte zuerst install.ps1 des Projektes backgroundsync ausfuehren.";
-    return L"Der Hintergrunddienst konnte nicht " + action + L" werden:\n" + systemMessage(error);
+        return translate("bs_not_installed_windows");
+    return translate("bs_action_failed", {action, systemMessage(error)});
 }
 
 wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundService.md#elevate]
@@ -81,8 +83,8 @@ wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundServi
     if (!ShellExecuteExW(&info)) {
         const DWORD error = GetLastError();
         if (error == ERROR_CANCELLED)
-            return L"Der Hintergrunddienst konnte nicht " + action + L" werden: die Administratorrechte wurden abgelehnt.";
-        return L"Der Hintergrunddienst konnte nicht " + action + L" werden: sc.exe liess sich nicht starten:\n" + systemMessage(error);
+            return translate("bs_elevation_denied", {action});
+        return translate("bs_sc_start_failed", {action, systemMessage(error)});
     }
     if (info.hProcess == nullptr)
         return L"";
@@ -149,14 +151,13 @@ wstring launchctlFailure(const wstring& action, const LaunchctlResult& result)
     for (const wxString& line : result.errors)
         reason << line << "\n";
     if (reason.empty())
-        reason = wxString::Format("launchctl endete mit %ld.", result.status);
-    return L"Der Hintergrunddienst konnte nicht " + action + L" werden:\n" + reason.ToStdWstring();
+        reason = translate("bs_launchctl_exit", {std::to_wstring(result.status)});
+    return translate("bs_action_failed", {action, reason.ToStdWstring()});
 }
 
 wstring notInstalled()
 {
-    return L"Der Hintergrunddienst ist nicht installiert. Es fehlt der LaunchAgent "
-        + agentPlistPath().ToStdWstring() + L".";
+    return translate("bs_not_installed_macos", {agentPlistPath().ToStdWstring()});
 }
 
 BackgroundService::State queryState()  // [BackgroundService.md#launchctl-list-pid]
@@ -179,10 +180,10 @@ wstring startAgent()  // [BackgroundService.md#startAgent]
     if (listAgent().status != 0) {
         const LaunchctlResult bootstrapped = runLaunchctl("bootstrap " + domainTarget() + " \"" + agentPlistPath() + "\"");
         if (bootstrapped.status != 0)
-            return launchctlFailure(L"gestartet", bootstrapped);
+            return launchctlFailure(translate("bs_action_started"), bootstrapped);
     }
     const LaunchctlResult started = runLaunchctl("kickstart " + serviceTarget());
-    return started.status == 0 ? L"" : launchctlFailure(L"gestartet", started);
+    return started.status == 0 ? L"" : launchctlFailure(translate("bs_action_started"), started);
 }
 
 bool waitUntilUnregistered()  // [BackgroundService.md#waitUntilUnregistered]
@@ -202,9 +203,9 @@ wstring stopAgent()  // [BackgroundService.md#stopAgent]
         return L""; // an agent that is not registered is already stopped
     const LaunchctlResult stopped = runLaunchctl("bootout " + serviceTarget());
     if (stopped.status != 0)
-        return launchctlFailure(L"gestoppt", stopped);
+        return launchctlFailure(translate("bs_action_stopped"), stopped);
     if (!waitUntilUnregistered())
-        return L"Der Hintergrunddienst wurde zum Beenden aufgefordert, läuft aber noch.";
+        return translate("bs_still_running");
     return L"";
 }
 #elif _UNIX
@@ -219,7 +220,7 @@ wstring runSystemctl(const wstring& verb, const wstring& action)  // [Background
         reason << line << "\n";
     if (reason.empty())
         reason = command;
-    return L"Der Hintergrunddienst konnte nicht " + action + L" werden:\n" + reason.ToStdWstring();
+    return translate("bs_action_failed", {action, reason.ToStdWstring()});
 }
 
 BackgroundService::State queryState()  // [BackgroundService.md#queryState-systemctl]
@@ -254,21 +255,21 @@ State state()
 wstring start()
 {
 #ifdef WIN32
-    return withService(SERVICE_START, L"start", L"gestartet",  // an already running service is what the user asked for
+    return withService(SERVICE_START, L"start", translate("bs_action_started"),  // an already running service is what the user asked for
         [](SC_HANDLE service) { return StartServiceW(service, 0, nullptr) != FALSE || GetLastError() == ERROR_SERVICE_ALREADY_RUNNING; });
 #elif _MACOS
     return startAgent();
 #elif _UNIX
-    return runSystemctl(L"start", L"gestartet");
+    return runSystemctl(L"start", translate("bs_action_started"));
 #else
-    return L"Der Hintergrunddienst wird auf dieser Plattform nicht unterstuetzt.";
+    return translate("bs_unsupported");
 #endif
 }
 
 wstring stop()
 {
 #ifdef WIN32
-    return withService(SERVICE_STOP, L"stop", L"gestoppt",
+    return withService(SERVICE_STOP, L"stop", translate("bs_action_stopped"),
         [](SC_HANDLE service) {
             SERVICE_STATUS status{};
             return ControlService(service, SERVICE_CONTROL_STOP, &status) != FALSE || GetLastError() == ERROR_SERVICE_NOT_ACTIVE;
@@ -276,9 +277,9 @@ wstring stop()
 #elif _MACOS
     return stopAgent();
 #elif _UNIX
-    return runSystemctl(L"stop", L"gestoppt");
+    return runSystemctl(L"stop", translate("bs_action_stopped"));
 #else
-    return L"Der Hintergrunddienst wird auf dieser Plattform nicht unterstuetzt.";
+    return translate("bs_unsupported");
 #endif
 }
 

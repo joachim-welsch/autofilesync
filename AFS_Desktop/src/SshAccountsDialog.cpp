@@ -21,6 +21,7 @@
 #include "SshAccount.h"
 #include "Config.h"
 #include "TextResources.h"
+#include "Translation.h"
 
 using namespace AFS_Core;
 
@@ -46,26 +47,26 @@ SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
     listCtrl_ = new wxListCtrl(this, ID_SSHACCOUNTS_LIST, wxDefaultPosition, 
         wxSize(500, 200), wxLC_REPORT | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
     
-    listCtrl_->InsertColumn(0, _("Name"), wxLIST_FORMAT_LEFT, 120);
-    listCtrl_->InsertColumn(1, _("Host"), wxLIST_FORMAT_LEFT, 150);
-    listCtrl_->InsertColumn(2, _("Benutzer"), wxLIST_FORMAT_LEFT, 100);
-    listCtrl_->InsertColumn(3, _("Passwort"), wxLIST_FORMAT_LEFT, 100);
+    listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 120);
+    listCtrl_->InsertColumn(1, translation::translate("host"), wxLIST_FORMAT_LEFT, 150);
+    listCtrl_->InsertColumn(2, translation::translate("user"), wxLIST_FORMAT_LEFT, 100);
+    listCtrl_->InsertColumn(3, translation::translate("password"), wxLIST_FORMAT_LEFT, 100);
     
     mainSizer->Add(listCtrl_, 1, wxEXPAND | wxALL, 10);
 
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     
-    addButton_ = new wxButton(this, ID_SSHACCOUNTS_ADD, _(L"Hinzufügen"));
-    editButton_ = new wxButton(this, ID_SSHACCOUNTS_EDIT, _("Bearbeiten..."));
-    deleteButton_ = new wxButton(this, ID_SSHACCOUNTS_DELETE, _(L"Löschen"));
+    addButton_ = new wxButton(this, ID_SSHACCOUNTS_ADD, translation::translate("button_add"));
+    editButton_ = new wxButton(this, ID_SSHACCOUNTS_EDIT, translation::translate("button_edit"));
+    deleteButton_ = new wxButton(this, ID_SSHACCOUNTS_DELETE, translation::translate("button_delete"));
     
     buttonSizer->Add(addButton_, 0, wxRIGHT, 5);
     buttonSizer->Add(editButton_, 0, wxRIGHT, 5);
     buttonSizer->Add(deleteButton_, 0, wxRIGHT, 5);
     buttonSizer->AddStretchSpacer();
     
-    wxButton* okButton = new wxButton(this, wxID_OK, _("OK"));
-    wxButton* cancelButton = new wxButton(this, wxID_CANCEL, _("Abbrechen"));
+    wxButton* okButton = new wxButton(this, wxID_OK, translation::translate("button_ok"));
+    wxButton* cancelButton = new wxButton(this, wxID_CANCEL, translation::translate("button_cancel"));
     buttonSizer->Add(okButton, 0, wxRIGHT, 5);
     buttonSizer->Add(cancelButton, 0);
     
@@ -115,7 +116,7 @@ long SshAccountsDialog::getSelectedIndex() const
 void SshAccountsDialog::onAdd(wxCommandEvent&)
 {
     SshAccount newAccount;
-    SshAccountDialog dlg(&newAccount, this, wxID_ANY, txt::AddSshConnection);
+    SshAccountDialog dlg(&newAccount, this, wxID_ANY, txt::add_ssh_connection());
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(newAccount);
         Config::instance().add(newAccount);
@@ -138,12 +139,11 @@ void SshAccountsDialog::onDelete(wxCommandEvent&)
     if (!account.has_value())
         return;
 
-    wxString message = wxString::Format(_(L"Soll der SSH-Account '%s' wirklich gelöscht werden?"),
-        wxString::FromUTF8(account->name()));
+    wxString message = translation::translate("confirm_delete_ssh_account", {wxString::FromUTF8(account->name()).ToStdWstring()});
     if (Config::instance().ssh_account_referenced_by_any_item(account->name()))  // [SshAccountsDialog.md#deletion-warns]
-        message += _("\n\nAchtung: Es gibt Synchronisationen, die diesen Account verwenden. Diese werden danach fehlschlagen.");
+        message += L"\n\n" + translation::translate("ssh_account_in_use_warning");
 
-    int answer = wxMessageBox(message, _(L"Löschen bestätigen"), wxYES_NO | wxICON_QUESTION, this);
+    int answer = wxMessageBox(message, translation::translate("confirm_delete_title"), wxYES_NO | wxICON_QUESTION, this);
 
     if (answer == wxYES) {
         Config::instance().remove_ssh_account(static_cast<size_t>(sel));
@@ -178,7 +178,7 @@ void SshAccountsDialog::onEndLabelEdit(wxListEvent& event)
         return;
 
     if (auto err = validateSshAccountName(event.GetLabel())) {
-        wxMessageBox(*err, _("Validierungsfehler"), wxOK | wxICON_WARNING, this);
+        wxMessageBox(*err, translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         event.Veto();
         return;
     }
@@ -186,8 +186,8 @@ void SshAccountsDialog::onEndLabelEdit(wxListEvent& event)
     const std::string oldName = account->name();
     const std::string newName = std::string(event.GetLabel().ToUTF8());
     if (newName != oldName && Config::instance().find_ssh_account_by_name(newName) != std::nullopt) {
-        wxMessageBox(wxString::Format(_("SSH-Account '%s' existiert bereits."), event.GetLabel()),
-            _("Validierungsfehler"), wxOK | wxICON_WARNING, this);
+        wxMessageBox(translation::translate("ssh_account_exists", {event.GetLabel().ToStdWstring()}),
+            translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         event.Veto();
         return;
     }
@@ -207,7 +207,7 @@ void SshAccountsDialog::editSelectedItem()
         return;
 
     const std::string oldName = account->name();
-    SshAccountDialog dlg(&account.value(), this, wxID_ANY, txt::EditSshConnection);
+    SshAccountDialog dlg(&account.value(), this, wxID_ANY, txt::edit_ssh_connection());
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(account.value());
         Config::instance().update_ssh_account(static_cast<size_t>(sel), account.value());

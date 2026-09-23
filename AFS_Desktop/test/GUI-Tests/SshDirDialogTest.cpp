@@ -22,6 +22,7 @@
 #include "UserActions.h"
 #include "SshDirDialog.h"
 #include "SshDirInspector.h"
+#include "TextResources.h"
 #include <wx/listctrl.h>
 #include <array>
 #include <string>
@@ -61,7 +62,7 @@ TEST_F(SshDirDialogTest, HomeButtonNavigatesToLoginDirectory)
     const SshAccount account = sshTestAccount("guitest-sshdirdialog");
     const wxString expectedHome = wxString::FromUTF8(SshDirInspector(account).get_home_dir());
 
-    ModalDialogWatcher::instance().expect(L"SSH-Verzeichnis wählen", [&](wxDialog& dialog) {
+    ModalDialogWatcher::instance().expect(txt::select_ssh_dir(), [&](wxDialog& dialog) {
         wxWindow* homeButton = find(dialog, ID_SSH_DIR_HOME_BUTTON);
         wxWindow* pathBox = find(dialog, ID_SSH_DIR_PATH_BOX);
 
@@ -72,7 +73,7 @@ TEST_F(SshDirDialogTest, HomeButtonNavigatesToLoginDirectory)
         dialog.EndModal(wxID_CANCEL);
     });
 
-    SshDirDialog dlg(&mainWindow(), L"SSH-Verzeichnis wählen", account, wxString::FromUTF8(probeDir()));  // [SshDirDialogTest.md#home-start-dir]
+    SshDirDialog dlg(&mainWindow(), txt::select_ssh_dir(), account, wxString::FromUTF8(probeDir()));  // [SshDirDialogTest.md#home-start-dir]
     dlg.ShowModal();
 }
 
@@ -80,7 +81,7 @@ TEST_F(SshDirDialogTest, SortButtonTogglesAscendingAndDescending)
 {
     const SshAccount account = sshTestAccount("guitest-sshdirdialog");
 
-    ModalDialogWatcher::instance().expect(L"SSH-Verzeichnis wählen", [](wxDialog& dialog) {
+    ModalDialogWatcher::instance().expect(txt::select_ssh_dir(), [](wxDialog& dialog) {
         wxWindow* sortButton = find(dialog, ID_SSH_DIR_SORT_BUTTON);
         auto* list = dynamic_cast<wxListCtrl*>(find(dialog, ID_SSH_DIR_LIST));
         ASSERT_NE(list, nullptr);
@@ -104,7 +105,7 @@ TEST_F(SshDirDialogTest, SortButtonTogglesAscendingAndDescending)
         dialog.EndModal(wxID_CANCEL);
     });
 
-    SshDirDialog dlg(&mainWindow(), L"SSH-Verzeichnis wählen", account, wxString::FromUTF8(probeDir()));
+    SshDirDialog dlg(&mainWindow(), txt::select_ssh_dir(), account, wxString::FromUTF8(probeDir()));
     dlg.ShowModal();
 }
 

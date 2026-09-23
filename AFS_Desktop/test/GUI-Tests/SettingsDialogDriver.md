@@ -10,8 +10,9 @@ path field is enabled at all, and typing into a disabled field would silently do
 
 ## checkboxes-by-label
 
-The dialog gives its check boxes no ids, so they are found by the label the user reads. A
-renamed label fails the driver with that label in the message, not silently.
+The dialog gives its check boxes no ids, so they are found by the label the user reads, taken
+from the same catalogue as the dialog so the driver works in every language. A renamed label
+fails the driver with that label in the message, not silently.
 
 ## enterValues
 

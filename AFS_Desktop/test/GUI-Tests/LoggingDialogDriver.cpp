@@ -21,6 +21,7 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "LoggingDialog.h"
+#include "Translation.h"
 
 namespace guitest {
 namespace {
@@ -72,9 +73,9 @@ bool enterEmailPage(wxDialog& dialog, const EmailInput& email)  // [LoggingDialo
 
 bool enterValues(wxDialog& dialog, const LoggingInput& input)
 {
-    return showNotebookPage(dialog, _("Logging")) && enterLoggingPage(dialog, input)
-        && showNotebookPage(dialog, _("E-Mail")) && enterEmailPage(dialog, input.email)
-        && showNotebookPage(dialog, _("Logging"));
+    return showNotebookPage(dialog, AFS_Core::translation::translate("tab_logging")) && enterLoggingPage(dialog, input)
+        && showNotebookPage(dialog, AFS_Core::translation::translate("tab_email")) && enterEmailPage(dialog, input.email)
+        && showNotebookPage(dialog, AFS_Core::translation::translate("tab_logging"));
 }
 
 }

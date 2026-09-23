@@ -18,6 +18,7 @@
  */
 #include "GuiTest.h"
 #include "BackgroundService.h"
+#include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
 #include <wx/log.h>
@@ -65,17 +66,17 @@ TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)  // [BackgroundSer
     case State::Running:
         EXPECT_FALSE(startEnabled) << "Ein laufender Dienst darf nicht noch einmal startbar sein.";
         EXPECT_TRUE(stopEnabled) << "Ein laufender Dienst muss sich stoppen lassen.";
-        EXPECT_TRUE(stateLine.Contains(L"läuft")) << "Zustandszeile: " << stateLine;
+        EXPECT_EQ(stateLine, AFS_Core::translation::translate("bs_state_running"));
         break;
     case State::Stopped:
         EXPECT_TRUE(startEnabled) << "Ein gestoppter Dienst muss sich starten lassen.";
         EXPECT_FALSE(stopEnabled) << "Ein gestoppter Dienst kann nicht noch einmal gestoppt werden.";
-        EXPECT_TRUE(stateLine.Contains(L"gestoppt")) << "Zustandszeile: " << stateLine;
+        EXPECT_EQ(stateLine, AFS_Core::translation::translate("bs_state_stopped"));
         break;
     case State::NotInstalled:
         EXPECT_FALSE(startEnabled) << "Ein nicht installierter Dienst ist nicht startbar.";
         EXPECT_FALSE(stopEnabled) << "Ein nicht installierter Dienst ist nicht stoppbar.";
-        EXPECT_TRUE(stateLine.Contains(L"nicht installiert")) << "Zustandszeile: " << stateLine;
+        EXPECT_EQ(stateLine, AFS_Core::translation::translate("bs_state_not_installed"));
         break;
     case State::Unknown:
         break; // already reported above; both commands are offered on purpose

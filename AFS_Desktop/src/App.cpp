@@ -65,13 +65,12 @@ bool App::OnInit()
 #ifdef _MACOS
     macTransformToForegroundApp();
 #endif
+    locale_.Init(wxLANGUAGE_DEFAULT);  // [App.md#wx-locale]
     translation::init_locale("de_DE.UTF-8");  // [App.md#initLocale]
-    wxLocale locale;
-    locale.Init(wxLANGUAGE_GERMAN);
     translation::init(messageCatalogueDir());  // [App.md#language-from-environment]
     if (singleInstanceChecker_.IsAnotherRunning()) {
-        log_error(L"Start abgebrochen: eine andere Instanz von AutoFileSync läuft bereits.");  // [App.md#log-single-instance]
-        wxLogError(_(L"AutoFileSync läuft bereits."));
+        log_error(translation::translate("start_aborted_other_instance"));  // [App.md#log-single-instance]
+        wxLogError("%s", translation::translate("already_running"));
 		return false;
 	}
 	if (!wxApp::OnInit())
@@ -81,7 +80,7 @@ bool App::OnInit()
     wxFileSystem::AddHandler(new wxZipFSHandler);
 
 
-	MainWindow *main = new MainWindow(nullptr, tul(id::MAINWINDOW), _("Main Window"));
+	MainWindow *main = new MainWindow(nullptr, tul(id::MAINWINDOW), wxEmptyString);  // the title is set from the configuration path
 	if (consoleMode_) {
 		main->setConsoleMode();
 		main->syncInterface().runConsoleSync();
@@ -109,7 +108,14 @@ int App::OnExit()
 
 void App::OnInitCmdLine(wxCmdLineParser& parser)
 {
-    parser.SetDesc(g_cmdLineDesc);
+    const std::string help = translation::translate_utf8("cmdline_help");
+    const std::string console = translation::translate_utf8("cmdline_console");
+    const wxCmdLineEntryDesc descriptions[] = {
+        { wxCMD_LINE_SWITCH, "h", "help", help.c_str(), wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
+        { wxCMD_LINE_SWITCH, "c", "console", console.c_str(), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
+        { wxCMD_LINE_NONE }
+    };
+    parser.SetDesc(descriptions);  // copies the texts, so the locals may go
     parser.SetSwitchChars(wxT("-"));  // must refuse '/' as a switch starter, or "/path" style paths break
 }
 

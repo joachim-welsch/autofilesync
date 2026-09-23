@@ -68,7 +68,7 @@ TEST_F(GuiTest, NeuerPapierkorbPfadWirdUebernommenUndDateiDorthinVerschoben)
     const std::string contentBefore = readFile(deletedFile);
     ASSERT_FALSE(fs::exists(binPath)) << "Der Papierkorb existiert schon vor dem Test.";
 
-    ModalDialogWatcher::instance().expect(txt::EditSettings,
+    ModalDialogWatcher::instance().expect(txt::settings(),
         fillSettingsDialog(binPath.wstring(), DeleteMode::RecycleBin));
     activateMenuItem(mainWindow(), tul(id::EditSettings));
     pump();

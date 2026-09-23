@@ -21,6 +21,7 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "SyncItemDialog.h"
+#include "Translation.h"
 
 namespace guitest {
 namespace {
@@ -88,14 +89,14 @@ bool enterOptions(wxDialog& dialog, const SyncItemOptions& options)  // [SyncIte
 
 bool enterValues(wxDialog& dialog, const SyncItemInput& input)
 {
-    if (!showNotebookPage(dialog, _("Allgemein")) || !enterGeneral(dialog, input))
+    if (!showNotebookPage(dialog, AFS_Core::translation::translate("tab_general")) || !enterGeneral(dialog, input))
         return false;
-    if (!showNotebookPage(dialog, _("Optionen")) || !enterOptions(dialog, input.options))
+    if (!showNotebookPage(dialog, AFS_Core::translation::translate("tab_options")) || !enterOptions(dialog, input.options))
         return false;
-    if (input.exclusions && (!showNotebookPage(dialog, _(L"Ausschlüsse"))
+    if (input.exclusions && (!showNotebookPage(dialog, AFS_Core::translation::translate("tab_exclusions"))
             || !enterLines(dialog, ID_EXCLUSIONS_BOX, *input.exclusions, "Die Ausschlüsse")))
         return false;
-    return showNotebookPage(dialog, _("Allgemein"));
+    return showNotebookPage(dialog, AFS_Core::translation::translate("tab_general"));
 }
 
 }

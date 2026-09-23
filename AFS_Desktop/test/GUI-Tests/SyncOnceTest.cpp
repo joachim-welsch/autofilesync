@@ -25,6 +25,7 @@
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
 #include "Config.h"
+#include "Translation.h"
 #include <filesystem>
 #include "id.h"
 #include "utilwx.h"
@@ -36,7 +37,10 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString NO_FILES_FOUND = "Es wurden keine zu synchronisierenden Dateien gefunden.";
+wxString no_files_found()  // translated at the call, once the catalogue is bound
+{
+    return translation::translate("no_files_to_sync");
+}
 constexpr int PAUSE_MILLISECONDS = 1100;  // the item's sync cycle is 1 s, a run inside it is skipped
 
 SyncItemInput dirSync(const SandboxTree& tree, const wxString& name)
@@ -111,11 +115,11 @@ TEST_F(GuiTest, EinmalSynchronisierenInDerPauseMeldetNichtsZuTun)  // [SyncOnceT
     ASSERT_TRUE(addSyncItem(mainWindow(), input));
     ASSERT_TRUE(syncOnce(mainWindow()));
 
-    ModalDialogWatcher::instance().answer("Info", wxID_OK);
+    ModalDialogWatcher::instance().answer(translation::translate("info"), wxID_OK);
     ASSERT_TRUE(syncOnce(mainWindow()));
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Lauf in der Pause zeigte keinen Hinweis.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), NO_FILES_FOUND);
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), no_files_found());
     EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::SyncOnce))) << "\"Einmal synchronisieren\" bleibt nach dem Hinweis gesperrt.";
 }
 
@@ -126,18 +130,18 @@ TEST_F(GuiTest, InaktiveSynchronisationWirdUebersprungen)
     input.options.enabled = false;
     ASSERT_TRUE(addSyncItem(mainWindow(), input));
 
-    ModalDialogWatcher::instance().answer("Info", wxID_OK);
+    ModalDialogWatcher::instance().answer(translation::translate("info"), wxID_OK);
     ASSERT_TRUE(syncOnce(mainWindow()));
 
     EXPECT_FALSE(tree.exists("ziel/bericht.txt")) << "Eine inaktive Synchronisation hat kopiert.";
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u);
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), NO_FILES_FOUND);
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), no_files_found());
 }
 
 TEST_F(GuiTest, StartOhneSynchronisationZeigtHinweis)  // [SyncOnceTest.md#start-without-sync-item]
 {
     ASSERT_TRUE(Config::instance().syncitems().empty()) << "Die Sandbox enthält schon Synchronisationen.";
-    ModalDialogWatcher::instance().answer("Achtung", wxID_OK);
+    ModalDialogWatcher::instance().answer(translation::translate("attention"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::StartSync));
     ASSERT_TRUE(waitUntil([] { return !ModalDialogWatcher::instance().answeredMessages().empty(); }))
@@ -145,7 +149,7 @@ TEST_F(GuiTest, StartOhneSynchronisationZeigtHinweis)  // [SyncOnceTest.md#start
     activateMenuItem(mainWindow(), tul(id::StopSync));
     ASSERT_TRUE(waitUntilSyncFinished(mainWindow()));
 
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), "Keine Dateien zum Synchronisieren angegeben!");
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("no_sync_items"));
     EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::StartSync)));
     EXPECT_FALSE(syncMenuItemEnabled(mainWindow(), tul(id::StopSync)));
 }

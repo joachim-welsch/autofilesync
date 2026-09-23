@@ -26,6 +26,7 @@
 #include "Logging.h"
 #include "id.h"
 #include "utilwx.h"
+#include "Translation.h"
 #include <algorithm>
 #include <optional>
 #include <vector>
@@ -65,7 +66,7 @@ void SyncInterface::openProgressDialog(uint32_t nFiles)
 {
     if (progressDialog_ != nullptr || silentMode())
         return;
-    progressDialog_ = new ProgressDialog(&parentWindow_, wxID_ANY, _("Fortschritt"), syncControler_, nFiles);
+    progressDialog_ = new ProgressDialog(&parentWindow_, wxID_ANY, translation::translate("progress_title"), syncControler_, nFiles);
     progressDialog_->Show();
     syncControler_.register_progress_dialog(progressDialog_);
 }
@@ -86,9 +87,9 @@ bool wanted(const LogMessage& message, const Settings& settings)
 wxString levelLabel(LogLevel level)
 {
     switch (level) {
-    case LogLevel::Info: return _("Info");
-    case LogLevel::Warning: return _("Warnung");
-    default: return _("Fehler");
+    case LogLevel::Info: return translation::translate("info");
+    case LogLevel::Warning: return translation::translate("warning");
+    default: return translation::translate("error");
     }
 }
 
@@ -98,7 +99,7 @@ wxString runMessagesText(const std::vector<LogMessage>& messages)  // [SyncInter
     std::size_t shown = 0;
     for (const LogMessage& message : messages) {
         if (shown++ == MAX_LINES_IN_BOX) {
-            text += wxString::Format(_(L"… und %zu weitere Meldungen, siehe Protokoll."), messages.size() - MAX_LINES_IN_BOX);
+            text += translation::translate("more_messages", {std::to_wstring(messages.size() - MAX_LINES_IN_BOX)});
             break;
         }
         text += levelLabel(message.level) + ": " + wxString::FromUTF8(message.text) + "\n";
@@ -126,7 +127,7 @@ void SyncInterface::showRunMessages()
         return;
     const LogLevel highest = highestLevel(messages);
     const long icon = highest == LogLevel::Info ? wxICON_INFORMATION : highest == LogLevel::Warning ? wxICON_WARNING : wxICON_ERROR;
-    wxMessageBox(runMessagesText(messages), _("Synchronisation") + ": " + levelLabel(highest), wxOK | icon, &parentWindow_);
+    wxMessageBox(runMessagesText(messages), translation::translate("synchronisation") + L": " + levelLabel(highest).ToStdWstring(), wxOK | icon, &parentWindow_);
 }
 
 void SyncInterface::syncOnceFinished()
@@ -162,7 +163,7 @@ void SyncInterface::countFilesFinished()
         startSync();
     }
     else {
-        wxMessageBox("Es wurden keine zu synchronisierenden Dateien gefunden.", "Info");
+        wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"));
         actSyncType_ = SyncType::None;
         menu_.syncMenu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
         menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
@@ -216,13 +217,13 @@ bool SyncInterface::startSync()
     }
     else if (actSyncType_ == SyncType::Single) {
         if (countFiles_ == 0) {
-            wxMessageBox("Es wurden keine zu synchronisierenden Dateien gefunden.", "Info");
+            wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"));
             return false;
         }
         openProgressDialog(countFiles_);
     }
     if (!syncControler_.start_sync(actSyncType_)) {
-        wxMessageBox("Synchronisation kann nicht gestartet werden.", "Fehler");
+        wxMessageBox(translation::translate("sync_start_failed"), translation::translate("error"));
         return false;
     }
     return true;
@@ -246,25 +247,25 @@ void SyncInterface::onSync()
 {
     if (Config::instance().syncitems().empty()) {
         if (!silentMode())
-            wxMessageBox("Keine Dateien zum Synchronisieren angegeben!", "Achtung");
+            wxMessageBox(translation::translate("no_sync_items"), translation::translate("attention"));
         return;
     }
     try {
         if (Synchronize::has_instance()) {
-            wxMessageBox(L"Synchronisation läuft bereits.", "Fehler");
+            wxMessageBox(translation::translate("sync_already_running"), translation::translate("error"));
             return;
         }
         startSync();
     }
     catch (std::exception& ex) {
         if (!silentMode())
-            wxMessageBox(ex.what(), "Fehler");
+            wxMessageBox(wxString::FromUTF8(ex.what()), translation::translate("error"));
         log_error(ex.what());
     }
     catch (...) {
         if (!silentMode())
-            wxMessageBox("Synchronisation fehlgeschlagen.", "Fehler");
-        log_error("Synchronisation fehlgeschlagen.");
+            wxMessageBox(translation::translate("sync_failed"), translation::translate("error"));
+        log_error(translation::translate("sync_failed"));
     }
 }
 
@@ -312,14 +313,14 @@ std::optional<std::chrono::seconds> remainingPause()  // [SyncInterface.md#remai
 wxString SyncInterface::stateText() const
 {
     switch (actSyncType_) {
-    case SyncType::None: return _("Synchronisation gestoppt");
-    case SyncType::CountFiles: return _(L"Zähle Dateien …");
-    case SyncType::Single: return _(L"Einmalige Synchronisation läuft …");
+    case SyncType::None: return translation::translate("state_stopped");
+    case SyncType::CountFiles: return translation::translate("state_counting");
+    case SyncType::Single: return translation::translate("state_single_running");
     case SyncType::Continuous: break;
     }
     if (const auto pause = remainingPause())
-        return wxString::Format(_(L"Pausiert – nächster Durchlauf in %d s"), static_cast<int>(pause->count()));
-    return _(L"Synchronisation läuft …");
+        return translation::translate("state_paused", {std::to_wstring(pause->count())});
+    return translation::translate("state_running");
 }
 
 void SyncInterface::stopSync()
