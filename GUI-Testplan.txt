@@ -203,6 +203,25 @@ Laufwerk ohne Medium einen Fehler, der so in jeder Box gelandet waere.
 
 Stand: 94 GUI-Tests, jede Hilfeseite hat mindestens einen Test.
 
+Nachtrag - Tastaturlayout unter Linux
+-------------------------------------
+Auf dem echten Desktop mit deutscher Belegung (launch.json "real desktop")
+kam '/' als '?' an und das SSH-Passwort mit Sonderzeichen gar nicht: die
+X11-Tippfunktion kannte nur die Umschalttaste, nicht AltGr und Tottasten,
+und las die Belegung einmal je Prozess statt je Text - nach einem
+Layoutwechsel der Sitzung passte sie nicht mehr. Jetzt werden Taste, Ebene
+und Modifikatoren je Text in der aktuellen XKB-Belegung nachgeschlagen
+(UserActions.md), bei Abweichung wird einmal nachgetippt, und die Anwendung
+unter Test spricht nicht mit ibus (GuiTestSandbox.md). Dazu kam der
+Fenstermanager: GNOME schiebt einen Dialog 20 ms nach dem Erscheinen unter
+seine Titelleiste, passt das Hauptfenster eine Sekunde nach dem Start in den
+Arbeitsbereich ein und zentriert die angehefteten Dialoge mit - ein vorher
+berechneter Klick traf die falsche Zeile oder das falsche Feld. Klicks warten
+jetzt auf eine stabile Fensterposition und den angekommenen Zeiger, ein Klick
+in ein Textfeld wird ohne Fokus wiederholt, und die Tests beginnen erst, wenn
+das Hauptfenster ruht (UserActions.md, GuiTestMain.md). Unter xvfb-run mit
+seiner US-Belegung und ohne Fenstermanager fiel nichts davon auf.
+
 Offene Punkte
 -------------
 - "Einmal synchronisieren" innerhalb der Pause einer Synchronisation zeigt

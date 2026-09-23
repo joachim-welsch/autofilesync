@@ -16,12 +16,33 @@
  * You should have received a copy of the GNU General Public License along with
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
+#include "EventPump.h"
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
 #include <gtest/gtest.h>
 #include <wx/app.h>
 #include <wx/evtloop.h>
 #include <wx/init.h>
+#include <wx/stopwatch.h>
+
+namespace {
+
+constexpr int PLACEMENT_QUIET_MILLISECONDS = 500;
+constexpr int PLACEMENT_TIMEOUT_MILLISECONDS = 3000;
+
+void waitUntilPlaced(wxWindow& window)  // [GuiTestMain.md#waitUntilPlaced]
+{
+    wxStopWatch total;
+    wxRect placed;
+    for (wxStopWatch quiet; quiet.Time() < PLACEMENT_QUIET_MILLISECONDS && total.Time() < PLACEMENT_TIMEOUT_MILLISECONDS; guitest::pump(50)) {
+        const wxRect current(window.GetScreenPosition(), window.GetSize());
+        if (current != placed)
+            quiet.Start();
+        placed = current;
+    }
+}
+
+}
 
 int main(int argc, char** argv)
 {
@@ -34,6 +55,7 @@ int main(int argc, char** argv)
     if (wxTheApp->CallOnInit()) {
         wxEventLoop mainLoop;  // [GuiTestMain.md#active-event-loop-needed]
         wxEventLoopActivator activateMainLoop(&mainLoop);
+        waitUntilPlaced(*wxTheApp->GetTopWindow());
         result = RUN_ALL_TESTS();
         wxTheApp->OnExit();
     }

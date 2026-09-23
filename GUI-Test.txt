@@ -39,9 +39,16 @@ UserActions       Klicken und Tippen ueber wxUIActionSimulator. Getippt wird
                            verbinden. Ein Wert, der auf so einem Zeichen endet,
                            verliert es - und es taucht spaeter im naechsten Feld
                            wieder auf, auch im naechsten Test.
-                  X11      Char() mit der Keymap des Servers, die verraet,
-                           welche Zeichen auf einer Umschalttaste liegen. Ohne
-                           das kaeme '$' als '4' an.
+                  X11      XTest mit der aktuellen Belegung des Servers (XKB):
+                           Taste, Ebene und die Modifikatoren dieser Ebene
+                           (Umschalt, AltGr) werden je Text neu nachgeschlagen,
+                           Tottasten wie '^' auf der deutschen Belegung werden
+                           mit Leertaste abgeschlossen. Ohne das kaeme '$' als
+                           '4' an, '@' als 'Q' - und nach einem Layoutwechsel
+                           der Sitzung waehrend des Laufs '/' als '?'. Die
+                           Anwendung unter Test spricht nicht mit ibus
+                           (GTK_IM_MODULE), damit weder der Lauf das Layout des
+                           Entwicklers umschaltet noch umgekehrt.
                   macOS    Char() mit der Umschalt-Belegung des US-Standard-
                            layouts, fest hinterlegt: die Layout-Abfrage braeuchte
                            dort die Carbon-Text-Input-API.

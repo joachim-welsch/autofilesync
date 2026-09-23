@@ -21,3 +21,11 @@ wxEventLoop on every single call. That is enough to drain the queue for mouse ev
 synthetic keyboard input into a non-modal Show()'d window (e.g. ChatDialog) never turned into
 text - see GuiTest.LogFrageWirdImChatBeantwortet, which failed until a real, continuously active
 loop existed for the run.
+
+## waitUntilPlaced
+
+The window manager keeps adjusting the freshly shown main window for a moment: GNOME fits it
+into the work area about a second after it appears, and moves the modal dialogs attached to it
+along - under a click a test has just aimed. The tests start only once the main window's
+position and size have stayed the same for half a second. Without a window manager, on Xvfb,
+that is the first half second.
