@@ -36,6 +36,11 @@ namespace AFS_Core {
 namespace {
 constexpr const char* TEXT_DOMAIN = "autofilesync";
 
+bool names_no_language(const char* locale)
+{
+    return locale == nullptr || std::strcmp(locale, "C") == 0 || std::strcmp(locale, "POSIX") == 0;
+}
+
 std::filesystem::path executable_path()  // [Translation.md#executable_path]
 {
 #ifdef WIN32
@@ -84,13 +89,15 @@ Str with_values(const Str& text, const std::initializer_list<Str>& values)  // [
 }
 
 namespace translation {
-void init_locale(const char* fallback)
+void init_locale([[maybe_unused]] std::span<const char* const> fallbacks)
 {
     std::setlocale(LC_ALL, "");
 #ifdef LC_MESSAGES  // POSIX only; MSVC keeps whatever the environment gave
-    const char* language = std::setlocale(LC_MESSAGES, nullptr);
-    if (language == nullptr || std::strcmp(language, "C") == 0 || std::strcmp(language, "POSIX") == 0)
-        std::setlocale(LC_ALL, fallback);  // [Translation.md#init_locale]
+    if (!names_no_language(std::setlocale(LC_MESSAGES, nullptr)))
+        return;
+    for (const char* candidate : fallbacks)
+        if (std::setlocale(LC_ALL, candidate) != nullptr)  // [Translation.md#init_locale]
+            return;
 #endif
 }
 

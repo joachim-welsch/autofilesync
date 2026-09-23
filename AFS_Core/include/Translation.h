@@ -17,14 +17,17 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <array>
 #include <filesystem>
 #include <initializer_list>
+#include <span>
 #include <string>
 
 namespace AFS_Core {
 
 namespace translation {  // [Translation.md#translation]
-void init_locale(const char* fallback);  // [Translation.md#init_locale]
+inline constexpr std::array DEFAULT_LOCALES{"de_DE.UTF-8", "de_DE", "de"};  // [Translation.md#init_locale]
+void init_locale(std::span<const char* const> fallbacks);  // [Translation.md#init_locale]
 std::filesystem::path locale_dir();  // [Translation.md#locale_dir]
 void init(const std::filesystem::path& locale_dir);  // [Translation.md#init]
 constexpr const char* msgid(const char* id) { return id; }  // [Translation.md#msgid]

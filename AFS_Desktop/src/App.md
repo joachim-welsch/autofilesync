@@ -18,7 +18,8 @@ The language comes from the environment, not from a hardcoded one: setlocale(LC_
 "de_DE.UTF-8") used to pin German here, which silently did nothing on a system where that locale
 was never generated - setlocale then returns NULL, the locale stays "C", and gettext skips
 translation entirely. German is only the fallback for a session that names no language at all;
-see Translation.md#init_locale for why that fallback has to exist.
+see Translation.md#init_locale for why that fallback has to exist and how it survives a missing
+locale.
 
 ## language-from-environment
 

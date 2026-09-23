@@ -236,7 +236,7 @@ keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
   Beide Programme suchen dieses Verzeichnis neben der eigenen Binary.
 - Sprache zur Laufzeit wählen: `LANGUAGE=en ./autofilesync` (gettext wertet
   `LANGUAGE` vor der Locale aus). Eine Sitzung, die gar keine Sprache nennt, bekommt
-  Deutsch - siehe `translation::init_locale()`.
+  Deutsch - siehe `translation::init_locale()` und `translation::DEFAULT_LOCALES`.
 - Neue übersetzbare Texte einsammeln:
   ```bash
   xgettext --keyword=translate --keyword=translate_utf8 --keyword=msgid \
