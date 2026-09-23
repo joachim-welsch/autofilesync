@@ -63,13 +63,13 @@ function Copy-Payload {
     Copy-Licenses
 }
 
-# Die Lizenztexte gehoeren zu jedem Paket: LICENSING.md erklaert das
-# Dual-Licensing, LICENSE ist die GPL, dazu die Hinweise zu Komponenten Dritter
-# samt ihrer Texte aus third-party\.
+# Die Lizenztexte gehoeren zu jedem Paket: LICENSE ist die GPL, LICENSING.md
+# erklaert sie, dazu die Hinweise zu Komponenten Dritter samt ihrer Texte aus
+# third-party\.
 function Copy-Licenses {
     $target = Join-Path $payloadDir 'licenses'
     New-Item -ItemType Directory -Force $target | Out-Null
-    foreach ($file in 'LICENSE', 'LICENSING.md', 'LICENSE-COMMERCIAL.md', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md') {
+    foreach ($file in 'LICENSE', 'LICENSING.md', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md') {
         Copy-Item (Join-Path $root $file) $target
     }
     Copy-Item -Recurse (Join-Path $root 'third-party') (Join-Path $target 'third-party')

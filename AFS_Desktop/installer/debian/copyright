@@ -5,11 +5,11 @@ Source: https://welsch-software.com
 
 Files: *
 Copyright: 2026 Joachim Welsch
-License: GPL-3+ or AutoFileSync-Commercial
- AutoFileSync is dual-licensed: under the GNU General Public License version 3
- or (at your option) any later version, or under the AutoFileSync Commercial
- Licence obtained from the copyright holder. See LICENSING.md and
- LICENSE-COMMERCIAL.md in /usr/share/doc/autofilesync.
+License: GPL-3+
+ AutoFileSync is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version. See LICENSING.md in /usr/share/doc/autofilesync.
  .
  On Debian systems, the complete text of the GNU General Public License
  version 3 can be found in /usr/share/common-licenses/GPL-3.
