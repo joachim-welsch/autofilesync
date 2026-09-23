@@ -46,14 +46,12 @@
     </Feature>
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
-    <!-- Straight from the welcome page to the directory page: the licence
-         dialog would need a licence text, and the project has not settled one
-         (BUILD.md still carries the placeholder). Behind the directory page
-         follows ShortcutDlg; its NewDialog needs a higher Order than the one
-         the dialog set publishes, so it replaces the jump to VerifyReadyDlg. -->
+    <!-- The licence page shows LICENSING.md and the GPL, rendered to RTF by
+         makeWindowsInstaller.ps1. Behind the directory page follows ShortcutDlg;
+         its NewDialog needs a higher Order than the one the dialog set
+         publishes, so it replaces the jump to VerifyReadyDlg. -->
+    <WixVariable Id="WixUILicenseRtf" Value="$(LicenseRtf)" />
     <UI>
-      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" />
-      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" />
       <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="ShortcutDlg"
                Order="10" Condition="WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID=&quot;1&quot;" />
       <Publish Dialog="ShortcutDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg" />

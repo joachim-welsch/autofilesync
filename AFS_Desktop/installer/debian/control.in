@@ -5,6 +5,7 @@ Maintainer: @MAINTAINER@
 Installed-Size: @INSTALLED_SIZE@
 Depends: @DEPENDS@
 Recommends: wx3.2-i18n
+Homepage: https://welsch-software.com
 Section: utils
 Priority: optional
 Description: automatic synchronisation of files and directory trees

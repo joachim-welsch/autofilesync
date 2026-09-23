@@ -55,6 +55,46 @@ function Copy-Payload {
         Copy-Item -Recurse $source (Join-Path $payloadDir $directory)
     }
     foreach ($script in $modelSetup) { Copy-Item (Join-Path $root $script) $payloadDir }
+    Copy-Licenses
+}
+
+# Die Lizenztexte gehoeren zu jedem Paket: LICENSING.md erklaert das
+# Dual-Licensing, LICENSE ist die GPL, dazu die Hinweise zu Komponenten Dritter
+# samt ihrer Texte aus third-party\.
+function Copy-Licenses {
+    $target = Join-Path $payloadDir 'licenses'
+    New-Item -ItemType Directory -Force $target | Out-Null
+    foreach ($file in 'LICENSE', 'LICENSING.md', 'LICENSE-COMMERCIAL.md', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md') {
+        Copy-Item (Join-Path $root $file) $target
+    }
+    Copy-Item -Recurse (Join-Path $root 'third-party') (Join-Path $target 'third-party')
+}
+
+# Der Lizenzdialog von WiX zeigt RTF. Aus LICENSING.md und der GPL wird es hier
+# erzeugt, damit der Text im Installationsprogramm derselbe ist wie im Repo;
+# Zeichen ausserhalb von ASCII gehen als \u-Escapes hinein, sonst zerlegt der
+# RTF-Leser die Umlaute.
+function ConvertTo-Rtf([string[]]$paragraphs) {
+    $builder = New-Object System.Text.StringBuilder
+    [void]$builder.Append('{\rtf1\ansi\deff0{\fonttbl{\f0\fnil Segoe UI;}}\f0\fs18 ')
+    foreach ($line in $paragraphs) {
+        foreach ($char in $line.ToCharArray()) {
+            $code = [int]$char
+            if ($char -eq '\' -or $char -eq '{' -or $char -eq '}') { [void]$builder.Append('\' + $char) }
+            elseif ($code -gt 127) { [void]$builder.Append('\u' + $code + '?') }
+            else { [void]$builder.Append($char) }
+        }
+        [void]$builder.Append('\par ')
+    }
+    [void]$builder.Append('}')
+    return $builder.ToString()
+}
+
+function Write-LicenseRtf {
+    $text = @(Get-Content (Join-Path $root 'LICENSING.md') -Encoding UTF8) + @('', '') + @(Get-Content (Join-Path $root 'LICENSE') -Encoding UTF8)
+    $rtf = Join-Path $payloadDir 'license.rtf'
+    [System.IO.File]::WriteAllText($rtf, (ConvertTo-Rtf $text), [System.Text.Encoding]::ASCII)
+    return $rtf
 }
 
 # Die Laufzeit-DLLs stehen hier namentlich, damit eine fehlende auffaellt statt
@@ -67,7 +107,7 @@ function Test-Payload {
         'intl-8.dll', 'iconv-2.dll', 'libssh2.dll', 'zlib1.dll',
         'libssl-3-x64.dll', 'libcrypto-3-x64.dll',
         'llama.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu.dll',
-        'help\help.htb'
+        'help\help.htb', 'licenses\LICENSE', 'licenses\LICENSING.md', 'licenses\THIRD-PARTY-NOTICES.md'
     ) + $modelSetup
     foreach ($language in (Get-ChildItem (Join-Path $root 'po') -Filter '*.po')) {
         $required += "locale\$($language.BaseName)\LC_MESSAGES\autofilesync.mo"
@@ -104,6 +144,7 @@ if (-not (Test-Path (Join-Path $buildDir 'autofilesync.exe'))) {
 Write-Host '=== Nutzlast zusammenstellen ===' -ForegroundColor Green
 Copy-Payload
 Test-Payload
+$licenseRtf = Write-LicenseRtf
 
 Write-Host '=== Paket erzeugen ===' -ForegroundColor Green
 Install-WixUiExtension
@@ -111,7 +152,7 @@ $version = Get-Version
 New-Item -ItemType Directory -Force $Output | Out-Null
 $msi = Join-Path $Output "AutoFileSync-$version.msi"
 & wix build -arch x64 -culture de-DE -ext WixToolset.UI.wixext `
-    -d "PayloadDir=$payloadDir" -d "Version=$(ConvertTo-MsiVersion $version)" -d "IconFile=$icon" `
+    -d "PayloadDir=$payloadDir" -d "Version=$(ConvertTo-MsiVersion $version)" -d "IconFile=$icon" -d "LicenseRtf=$licenseRtf" `
     -o $msi $wxs
 if ($LASTEXITCODE -ne 0) { throw "wix build fehlgeschlagen." }
 Remove-Item -Recurse -Force $stagingDir

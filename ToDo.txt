@@ -9,7 +9,6 @@ Aktuell
 
 Für Version 0.1:
 ****************
-- Lizenzvereinbarung
 - Test
   + GUI-Tests erweitern
   + Integrationstests erweitern

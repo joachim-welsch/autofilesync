@@ -51,6 +51,10 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Lizenzbedingungen (GPL, kommerziell)">
+      <PARAM name="Local" value="licensing.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Lizenzdatei">
       <PARAM name="Local" value="license.html">
     </OBJECT></LI>
