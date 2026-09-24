@@ -120,28 +120,19 @@ Synchronize::~Synchronize()
 }
 
 #ifdef _TEST
-std::once_flag remove_test_flag;
-void remove_test_file()
-{
-    std::filesystem::remove(L"/home/welschj/temp/testafx.txt");
+namespace {
+    const std::wstring TEST_LOG_FILE = (std::filesystem::temp_directory_path() / "autofilesync_test.log").wstring();
+    std::once_flag remove_test_flag;
+    void remove_test_file()
+    {
+        std::filesystem::remove(TEST_LOG_FILE);
+    }
 }
-#endif
 
-#ifdef _TEST
 void Synchronize::start_logging(LogLevel llevel, const wstring& lfname)
 {
-    #ifdef _UNIX
-        std::call_once(remove_test_flag, remove_test_file);
-        if (lfname.empty())
-            Logging::instance().set_log_file_path_name(L"/home/welschj/temp/testafx.txt");
-        else
-            Logging::instance().set_log_file_path_name(lfname);
-    #else
-        if (lfname.empty())
-            Logging::instance().set_log_file_path_name(L"C:\\temp\\testafx.txt");
-        else
-            Logging::instance().set_log_file_path_name(lfname);
-    #endif
+    std::call_once(remove_test_flag, remove_test_file);
+    Logging::instance().set_log_file_path_name(lfname.empty() ? TEST_LOG_FILE : lfname);
     Logging::instance().set_log_level(llevel);
 }
 #endif

@@ -20,8 +20,8 @@ Logging::create_dir() creates it on demand.
 
 ## get_default_log_file_path
 
-Logging.h's non-WIN32 default used to be a hardcoded developer path
-(/home/welschj/temp/autofilesync.log) - the equivalent of this function simply was never written
+Logging.h's non-WIN32 default used to be a hardcoded path in one developer's home
+directory - the equivalent of this function simply was never written
 for Linux/macOS, so it fell back to a literal path that exists on exactly one machine. On any
 other install, logging silently produced nothing (open_file() failing is now tolerated, not
 fixed) unless a config file already existed and happened to override it.

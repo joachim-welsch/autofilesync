@@ -1,19 +1,21 @@
 [Unit]
-Description=Mein benutzerdefinierter Daemon
-# Die Sync-Ziele liegen auf CIFS-Mounts aus der fstab. network.target allein
-# reicht nicht: der Mount ist dann noch nicht da, der Daemon meldet beim Start
-# "Zielverzeichnis nicht erreichbar" und probiert es wegen des Backoff in
-# CheckPath erst bis zu eine Stunde spaeter wieder.
-# Wants statt Requires, damit der Daemon auch laeuft (und die uebrigen Items
-# synchronisiert), wenn der Server gerade nicht erreichbar ist.
-Wants=network-online.target media-mmuser.mount
-After=network-online.target remote-fs.target media-mmuser.mount
+Description=AutoFileSync background service
+# Sync targets often live on network mounts from fstab. network.target alone
+# is not enough: the mount is not there yet, the daemon reports the target as
+# unreachable and, because of the backoff in CheckPath, retries up to an hour
+# later. Add "Wants=" and "After=" entries for those mounts here (for example
+# media-backup.mount); Wants instead of Requires keeps the daemon running for
+# the remaining items when the server is down.
+Wants=network-online.target
+After=network-online.target remote-fs.target
 
 [Service]
 ExecStart=/usr/sbin/backgroundsync
 Restart=on-failure
-User=welschj
-Group=welschj
+# The daemon reads the configuration of this user
+# (~/.config/autofilesync/autofilesync.json) and logs to that user's log file.
+User=CHANGEME
+Group=CHANGEME
 WorkingDirectory=~
 StandardOutput=journal
 StandardError=journal

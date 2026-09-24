@@ -33,8 +33,8 @@ succeed for it.
 
 ## DefaultLogFilePathHonorsHomeEnvVar
 
-Fehler 6 (round 6): the non-WIN32 default log path was a hardcoded developer path
-(/home/welschj/temp/autofilesync.log) - the Linux/macOS equivalent of
+Fehler 6 (round 6): the non-WIN32 default log path was a hardcoded path in one developer's
+home directory - the Linux/macOS equivalent of
 get_default_log_file_path() (already implemented for Windows via GetTempPathW) simply didn't
 exist, so every install other than that one machine got a default log location nobody else could
 write to. Verified by pointing HOME/XDG_CACHE_HOME at a fake location and checking the computed

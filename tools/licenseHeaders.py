@@ -1,4 +1,4 @@
-"""Applies or checks the licence header of every C++ source file of AutoFileSync.
+"""Applies or checks the licence header of every C++ and Objective-C++ source file of AutoFileSync.
 
     python tools/licenseHeaders.py --check   # exit 1 and list files without the current header
     python tools/licenseHeaders.py --apply   # add the header to files without one, replace an older one
@@ -39,7 +39,7 @@ OLD_HEADER = re.compile(r"\A/\*\n \* Copyright \(C\) \d{4} Joachim Welsch.*?\*/\
 def sources():
     for part in PARTS:
         for path in sorted((ROOT / part).rglob("*")):
-            if path.suffix in (".cpp", ".h") and not EXCLUDED.intersection(path.parts):  # third-party trees and build output are not ours
+            if path.suffix in (".cpp", ".h", ".mm") and not EXCLUDED.intersection(path.parts):  # third-party trees and build output are not ours
                 yield part, path
 
 def wanted(part):

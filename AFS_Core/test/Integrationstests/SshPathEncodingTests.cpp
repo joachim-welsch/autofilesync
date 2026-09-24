@@ -35,9 +35,9 @@ using util::wstring_to_string;
 namespace fs = std::filesystem;
 
 namespace {  // [SshPathEncodingTests.md#overview]
-    constexpr char ACCOUNT_NAME[] = "mmserver";
+    constexpr char ACCOUNT_NAME[] = "testhost";
     constexpr char UNREACHABLE_HOST[] = "autofilesync.invalid";  // [SshPathEncodingTests.md#UNREACHABLE_HOST]
-    const std::wstring REMOTE_DIR = L"mmserver:/tmp/autofilesync_test/ssh_target";
+    const std::wstring REMOTE_DIR = L"testhost:/tmp/autofilesync_test/ssh_target";
     const std::wstring LOCAL_SOURCE_DIR = TestPaths::scratch_dir() + L"/ssh_path_encoding_src";
 }
 

@@ -4,7 +4,7 @@ Module comment for SshPathEncodingTests.cpp.
 
 ## overview
 
-Reproduces the sync abort logged as Error  /home/welschj/Schreibtisch  mmserver:/home/welschj/
+Reproduces the sync abort logged as Error <local dir> <account>:<remote dir> once a path contains a non-ASCII character:
 wstring_convert::to_bytes SyncItem::source()/target() and SshPath::path() rebuild an SSH path
 with std::wstring(bytes.begin(), bytes.end()). char is signed, so every byte of a non-ASCII
 UTF-8 sequence widens to a negative wchar_t (0xc3 -> 0xffffffc3), a value codecvt_utf8 cannot

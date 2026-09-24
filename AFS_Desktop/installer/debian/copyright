@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: autofilesync
 Upstream-Contact: Joachim Welsch <https://welsch-software.com>
-Source: https://welsch-software.com
+Source: https://codeberg.org/welschj/autofilesync
 
 Files: *
 Copyright: 2026 Joachim Welsch

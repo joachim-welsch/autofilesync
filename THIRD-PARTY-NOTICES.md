@@ -9,7 +9,7 @@ ausgeliefert. Die Lizenzen sind mit der GPL von AutoFileSync verträglich
 |---|---|---|---|
 | wxWidgets 3.3 | Oberfläche (statisch unter Windows, Systembibliothek unter Linux, im Bündel unter macOS) | wxWindows Library Licence 3.1 (LGPL 2 mit Ausnahme) | `wxWidgets-LICENSE.txt`, `wxWidgets-LGPL-2.txt` |
 | Boost (property_tree, algorithm) | Konfiguration, Zeichenketten | Boost Software License 1.0 | `Boost-LICENSE_1_0.txt` |
-| OpenSSL 3 | Verschlüsselung der Passwörter, Prüfung der Lizenzdatei, TLS für E-Mail | Apache License 2.0 | `OpenSSL-LICENSE.txt` |
+| OpenSSL 3 | Verschlüsselung der Passwörter, TLS für E-Mail | Apache License 2.0 | `OpenSSL-LICENSE.txt` |
 | libssh2 (Windows) | SSH/SFTP | BSD-3-Clause | `libssh2-LICENSE.txt` |
 | libssh (Linux, macOS) | SSH/SFTP, als Systembibliothek bzw. im Bündel | LGPL 2.1 | Text der LGPL 2.1 in `gettext-libintl-LGPL-2.1.txt`, Quelle: <https://www.libssh.org> |
 | zlib | Kompression in libssh2 | zlib License | `zlib-LICENSE.txt` |
@@ -17,6 +17,21 @@ ausgeliefert. Die Lizenzen sind mit der GPL von AutoFileSync verträglich
 | GNU libiconv | Zeichensatzumwandlung für gettext | LGPL 2.1 | `libiconv-LICENSE.txt` |
 | llama.cpp / ggml | Chat-Assistent (lokales Sprachmodell) | MIT | `llama.cpp-LICENSE.txt`, `ggml-LICENSE.txt` |
 | Google Test | nur Tests, nicht ausgeliefert | BSD-3-Clause | – |
+
+## Grafiken
+
+Das Programmsymbol (`icons/afs.ico`, `icons/afs.icns`, `icons/sample_xpm.xpm`)
+und die Werkzeugleisten-Symbole in `AFS_Desktop/bitmaps` (`new`, `edit`,
+`save`, `delete`, `start`, `stop`, `help`) sind eigene Arbeiten von Joachim
+Welsch und stehen wie das Programm unter der GPL. `icons/cancel.xpm` ist aus
+einem mit Leonardo.Ai (Modell Lucid Origin) erzeugten Bild abgeleitet und wird
+derzeit nicht verwendet.
+
+Die Symbole der Baumansicht und des Infobereichs stammen aus den Beispielen von
+wxWidgets und stehen unter der wxWindows Library Licence
+(`wxWidgets-LICENSE.txt`): `icons/icon1` bis `icon5`, `state1` bis `state5`,
+`checked`, `unchecked` (`samples/treectrl`), `smile` (`samples/taskbar`) sowie
+die nicht verwendeten `bitmaps/copy`, `cut`, `open`, `print` und `icons/help`.
 
 ## LGPL-Bibliotheken
 

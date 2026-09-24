@@ -396,4 +396,5 @@ prüft das.
 
 ## Kontakt
 
-[Kontaktinformationen einfügen]
+Fehler und Wünsche: <https://codeberg.org/welschj/autofilesync/issues>.
+Rechteinhaber: Joachim Welsch, <https://welsch-software.com>.
