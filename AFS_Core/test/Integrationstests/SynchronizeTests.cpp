@@ -22,6 +22,7 @@
 #include "SshTest.h"
 #include "FileUtil.h"
 #include "DirUtil.h"
+#include "TestPaths.h"
 #include <Util.h>
 #include <Logging.h>
 #include <Translation.h>
@@ -82,11 +83,7 @@ TEST(SynchronizeTests, CheckDestruction)
 
 TEST(SynchronizeTests, CheckPathExists)
 {
-#ifdef _UNIX
-    EXPECT_FALSE(Synchronize::create(SyncType::Single)->path_exists(L"/home/welschj/temp/notexisting"));
-#else
-    EXPECT_FALSE(Synchronize::create(SyncType::Single)->path_exists(L"C:\\temp\\notexisting"));
-#endif
+    EXPECT_FALSE(Synchronize::create(SyncType::Single)->path_exists(TestPaths::scratch_dir() + L"/notexisting"));
     Synchronize::destroy();
 }
 
