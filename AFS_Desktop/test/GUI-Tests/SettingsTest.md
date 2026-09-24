@@ -5,8 +5,7 @@ Module comment for SettingsTest.cpp.
 ## EinstellungenKommenInDieKonfiguration
 
 The four start options and the three message filters only reach the configuration; nothing
-in the application reads show_errors/show_warnings/show_infos yet (see GUI-Testplan.txt,
-open points), so the round trip into Settings is all that can be tested for them.
+in the application reads show_errors/show_warnings/show_infos yet, so the round trip into Settings is all that can be tested for them.
 
 ## MinimierenStattSchliessenVerstecktAnstattZuBeenden
 

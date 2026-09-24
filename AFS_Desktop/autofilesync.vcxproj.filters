@@ -7,9 +7,6 @@
     <Filter Include="Resource Fiiles">
       <UniqueIdentifier>{17a3bc00-bc5c-40db-9d88-44690e7cbffb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Documentation">
-      <UniqueIdentifier>{5d44a3ab-5e34-4f14-a845-bfaf9a9d51f2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Dialogs">
       <UniqueIdentifier>{b8f94ff8-bf4a-431c-96f2-c52a254a0293}</UniqueIdentifier>
     </Filter>
@@ -33,17 +30,6 @@
     <ResourceCompile Include="autofilesync.rc">
       <Filter>Resource Fiiles</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\GUI-Test.txt">
-      <Filter>Documentation</Filter>
-    </Text>
-    <Text Include="..\HowTo.txt">
-      <Filter>Documentation</Filter>
-    </Text>
-    <Text Include="..\ToDo.txt">
-      <Filter>Documentation</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\LoggingDialog.cpp">

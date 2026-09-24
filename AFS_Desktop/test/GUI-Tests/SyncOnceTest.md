@@ -4,7 +4,7 @@ Module comment for SyncOnceTest.cpp.
 
 ## EinmalSynchronisierenKopiertDateiInsZiel
 
-The first test of the plan's phase 1 (GUI-Testplan.txt) and the proof of phase 0: it creates
+The first end-to-end test and the proof that the sandbox works: it creates
 the synchronisation through the dialog with a type other than the default, runs it through
 the menu and reads the result from a SandboxTree that removes itself. The type is
 "Verzeichnis": the sandbox's own source directory is left alone, so GuiTest::TearDown still

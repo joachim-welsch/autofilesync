@@ -22,7 +22,7 @@ second DisplayContents() would only raise it; it is closed when the test leaves 
 ## help
 
 Both routes to the help are tested, the menu and the toolbar button: the button used to open
-the About box (GUI-Testplan.txt, open points) although its icon and tooltip promised the help.
+the About box although its icon and tooltip promised the help.
 
 ## background-service
 

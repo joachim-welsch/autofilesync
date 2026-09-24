@@ -101,11 +101,6 @@
     <ResourceCompile Include="autofilesync.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\GUI-Test.txt" />
-    <Text Include="..\HowTo.txt" />
-    <Text Include="..\ToDo.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp" />
     <ClCompile Include="..\AFS_Core\src\LogCut.cpp" />
     <ClCompile Include="..\AFS_Core\src\Logging.cpp" />
