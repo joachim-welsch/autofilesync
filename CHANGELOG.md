@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.01.0001 – in Arbeit
+## 0.1.0 – in Arbeit
 
 - Alle Texte der Oberfläche und des Synchronisationskerns kommen aus
   Sprachkatalogen (Deutsch, Englisch); die Sprache folgt der Umgebung, z.B.

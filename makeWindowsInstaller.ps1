@@ -40,9 +40,9 @@ function Get-Version {
     return $match.Matches[0].Groups[1].Value
 }
 
-# Windows Installer vergleicht Versionsfelder als Zahlen; "0.01.0001" waere als
-# Zeichenkette gueltig, aber fuehrende Nullen lehnt WiX ab. Das vierte Feld
-# wertet der Installer beim Upgrade-Vergleich ohnehin nicht aus.
+# Windows Installer vergleicht Versionsfelder als Zahlen und lehnt fuehrende
+# Nullen ab; ein viertes Feld wertet er beim Upgrade-Vergleich ohnehin nicht
+# aus. Fuer "major.minor.patch" ist das ein Durchreichen.
 function ConvertTo-MsiVersion([string]$version) {
     $fields = $version.Split('.') | Select-Object -First 3 | ForEach-Object { [int]$_ }
     while ($fields.Count -lt 3) { $fields += 0 }

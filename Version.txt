@@ -1,15 +1,12 @@
-Aktuell ist Version 0.01.0001
+Aktuell ist Version 0.1.0
 
-wird eingetragen in: AFS_Desktop/include/Version.h (afsVERSION_MAJOR/MINOR/BUILD und afsVERSION_TEXT)
+wird eingetragen in: AFS_Desktop/include/Version.h (afsVERSION_MAJOR/MINOR/PATCH und afsVERSION_TEXT)
 
-�hnlich wie bei Microsoft:
+Schema: Semantic Versioning, major.minor.patch
 
-x.xx.xxxx
+    major: inkompatible Änderungen an Konfiguration oder Bedienung
+    minor: neue Funktionen
+    patch: Fehlerbehebungen
 
-wobei:
-
-    Die erste Zahl die Hauptversion angibt
-
-    Die zweite Zahl die Nebenversion darstellt
-
-    Die letzten vier Ziffern die Build-Nummer angeben
+Vor 1.0.0 können sich Konfigurationsformat und Bedienung noch ändern.
+Das Release-Tag heißt v<Version>, z.B. v0.1.0.
