@@ -25,6 +25,7 @@ namespace guitest {
 class GuiTestSandbox {  // [GuiTestSandbox.md#GuiTestSandbox]
 public:
     static void create();
+    static void isolatePreferences();  // [GuiTestSandbox.md#isolatePreferences]
     static void remove();
     static const std::filesystem::path& root();
     static std::filesystem::path configFile();

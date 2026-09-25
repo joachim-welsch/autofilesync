@@ -36,6 +36,16 @@ the developer's keyboard layout through it. GTK's built-in context translates th
 itself, synchronously, with the layout the keys were looked up in (see UserActions.md). Set
 before wxWidgets starts, because GTK reads the variable while it initialises.
 
+## isolatePreferences
+
+The window geometry and the help window's settings go through wxConfig, which does not follow
+the redirected environment everywhere: on macOS wxStandardPaths asks the system for the
+Preferences folder of the real home, on Windows wxConfig is the registry. A width saved by
+an earlier run on a wider screen then put the main window partly beyond the screen edge, and
+every click on the synchronisation list landed outside the display. A file in the sandbox
+replaces the default before the application initialises, and wxWidgets deletes it with the
+other modules at wxEntryCleanup(), before the sandbox is removed.
+
 ## configFile
 
 The same place Config::get_root_pathname() derives from the redirected environment, per

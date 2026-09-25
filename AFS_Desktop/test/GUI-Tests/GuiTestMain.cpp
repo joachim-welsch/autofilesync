@@ -51,6 +51,7 @@ int main(int argc, char** argv)
     guitest::GuiTestSandbox::create();
     if (!wxEntryStart(argc, argv))
         return EXIT_FAILURE;
+    guitest::GuiTestSandbox::isolatePreferences();  // [GuiTestSandbox.md#isolatePreferences]
     guitest::ModalDialogWatcher::instance();  // [GuiTestMain.md#watcher-before-start]
     int result = EXIT_FAILURE;
     if (wxTheApp->CallOnInit()) {

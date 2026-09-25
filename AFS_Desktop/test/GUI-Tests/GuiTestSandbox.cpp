@@ -17,6 +17,8 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "GuiTestSandbox.h"
+#include <wx/config.h>
+#include <wx/fileconf.h>
 #include <cstdlib>
 #include <fstream>
 #include <string>
@@ -106,6 +108,11 @@ void GuiTestSandbox::create()
     writeFile(configFile(), minimalConfig());
     writeFile(sourceDir() / "beispiel.txt", "Inhalt der Quelldatei\n");
     fs::create_directories(targetDir());
+}
+
+void GuiTestSandbox::isolatePreferences()  // [GuiTestSandbox.md#isolatePreferences]
+{
+    wxConfigBase::Set(new wxFileConfig(wxEmptyString, wxEmptyString, (sandboxRoot / "GuiTests.ini").string(), wxEmptyString, wxCONFIG_USE_LOCAL_FILE));
 }
 
 void GuiTestSandbox::remove()
