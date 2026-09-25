@@ -70,7 +70,6 @@ public:
 	TaskBarIcon* taskBarIcon() { return taskBarIcon_; }
 	wxHelpControllerBase& GetHelpController() { return *htmlHelpController_; }
 private:
-	void init();
 	void resize();
 	void update();
 	void createToolBar();
@@ -132,7 +131,7 @@ private:
 	Toolbar         toolbar_;
 	TaskBarIcon*    taskBarIcon_ = nullptr;
 	ChatDialog*     chatDialog_ = nullptr;  // [MainWindow.md#chatDialog_]
-	bool            init_ = true;
+	bool            firstTick_ = true;
 	wxHtmlHelpController*   htmlHelpController_ = nullptr;
 
 private:

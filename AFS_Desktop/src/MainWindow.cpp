@@ -273,14 +273,6 @@ void MainWindow::createGridWindow()
     }
 }
 
-void MainWindow::init()
-{
-    auto s = GetClientSize();
-    s.IncBy(wxPoint(100, 10));
-    SetSize(s);
-    resize();
-}
-
 void MainWindow::createToolBar()
 {
 	toolbar_.create(this);
@@ -490,9 +482,9 @@ void MainWindow::onTimer(wxTimerEvent&)
 	updateMenu();
 	syncInterface_.onTimer();
 	updateSyncState();
-	if (init_) {
-		init_ = false;
-		init();
+	if (firstTick_) {
+		firstTick_ = false;
+		resize();  // the toolbar and status bar have their final height only once the window is shown
 	}
 }
 
