@@ -27,6 +27,20 @@ arrived mangled ("autofilesync-guitest" as "autofilesznc guitest"). Posted to th
 instead of the HID tap: the keystrokes reach the application under test without it having to be
 the frontmost application, and cannot land in whatever else is open on the developer's desktop.
 
+## macos-modifier-flags
+
+wxMOD_CONTROL is the Command key on macOS, as it is for wxKeyEvent::ControlDown() there, and
+wxMOD_RAW_CONTROL the Control key - the same mapping the application's key handlers see.
+
+## pressReturn
+
+The Return key goes the same way as the characters on macOS: wxUIActionSimulator::Char() posts
+it to the HID tap, where it goes to whatever application is frontmost, and the queued
+characters posted to this process overtook it - a two-line entry arrived as one line, and
+Cmd+Return in the chat as a plain line break. Posted to the process with its modifier flags
+set on the event itself, the key lands in the same field as the text before it, in order.
+The other platforms keep the simulator, whose Char() presses the modifier keys for them.
+
 ## x11-keymap-lookup
 
 The character is typed through XTest with the key that carries its keysym in the server's
@@ -182,6 +196,36 @@ selection would produce is sent - the same handler as for a real pick, see selec
 A real click, because the dialog's rules (two-way sync locking "copy when target newer") hang
 on the click's command event. Only the difference to the wanted state is clicked, so the
 helper is idempotent. A disabled box reports failure: clicking it would silently do nothing.
+
+## click-the-box
+
+Clicked on the box itself, not on the centre of the control: the sizers stretch a check box
+over the whole dialog width, and macOS reacts only to clicks on the box and its label - a
+click in the empty space right of a short label ("Aktiv", "Start minimiert") changes nothing.
+The box sits at the left edge and is as wide as the control is high.
+
+## click-arrives-later
+
+On macOS the simulator hands the click to the window server, which delivers it to the
+application a moment later; the value read right after the pump was still the old one for
+every second box in a row. The value is waited for instead, up to the click timeout - a click
+that has already arrived costs no time.
+
+## settle-after-dialog
+
+A click whose handler ran a modal dialog - the ssh button of the synchronisation dialog opens
+the account selection and the remote directory - returns to its caller only when those dialogs
+have closed, and AppKit re-orders the windows of the application a moment after that: the main
+window comes to the front over the dialog the button belongs to. A dialog that is ended before
+that has happened leaves the re-ordering pending, and it then lands on the next dialog the test
+run opens, which sits behind the main window from then on - every click aimed at it hits the
+main window instead. The idle time after such a click lets the re-ordering happen while the
+dialog it concerns is still there.
+
+## clickOn-point
+
+The variant with a client point is for controls whose centre is the wrong spot; the pointer
+version keeps clicking the centre.
 
 ## setSpinValue
 

@@ -34,7 +34,6 @@
 #include "Translation.h"
 #include "utilwx.h"
 #include <wx/listctrl.h>
-#include <wx/uiaction.h>
 
 using namespace AFS_Core;
 
@@ -117,8 +116,7 @@ TEST_F(SshGuiTest, SshVerzeichnisdialogPfadfeldMitEnterNavigiert)
     ModalDialogWatcher::instance().expect(dir_dialog_title(), [this](wxDialog& dialog) {
         ASSERT_TRUE(listShowsFile(dialog, "[unter]"));
         ASSERT_TRUE(replaceText(find(dialog, ID_SSH_DIR_PATH_BOX), wxString::FromUTF8(probeDir() + "/unter")));
-        wxUIActionSimulator simulator;
-        ASSERT_TRUE(simulator.Char(WXK_RETURN));
+        ASSERT_TRUE(pressReturn());
         EXPECT_TRUE(listShowsFile(dialog, "drin.txt")) << "Enter im Pfadfeld wechselte nicht ins Verzeichnis.";
         EXPECT_TRUE(statusOf(dialog).Matches(translation::translate("entries_count", {L"*"}))) << statusOf(dialog);
         dialog.EndModal(wxID_CANCEL);
@@ -136,8 +134,7 @@ TEST_F(SshGuiTest, SshVerzeichnisdialogZeigtFehlerBeiUnbekanntemPfad)
     ModalDialogWatcher::instance().expect(dir_dialog_title(), [this](wxDialog& dialog) {
         ASSERT_TRUE(waitUntil([&dialog] { return dialog.IsShownOnScreen(); }));
         ASSERT_TRUE(replaceText(find(dialog, ID_SSH_DIR_PATH_BOX), wxString::FromUTF8(probeDir() + "/gibt-es-nicht")));
-        wxUIActionSimulator simulator;
-        ASSERT_TRUE(simulator.Char(WXK_RETURN));
+        ASSERT_TRUE(pressReturn());
         EXPECT_TRUE(waitUntil([&dialog] { return statusOf(dialog).Matches(translation::translate("error_with_reason", {L"*"})) || statusOf(dialog) == translation::translate("not_a_directory"); }))
             << "Der unbekannte Pfad blieb ohne Fehlermeldung, Status: " << statusOf(dialog);
         dialog.EndModal(wxID_CANCEL);

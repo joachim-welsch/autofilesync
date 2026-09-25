@@ -72,6 +72,12 @@ transcript wraps it and lets the user copy the path.
 
 Plain Enter inserts a line break in the multi-line field, so sending needs a modifier.
 
+## focus-only-when-shown
+
+The answer can arrive after the user closed the chat, which hides the dialog: moving the
+keyboard focus into a hidden window would take it away from whatever the user is typing in
+by then - a modal dialog included.
+
 ## hidden-not-destroyed
 
 Hidden rather than destroyed: the conversation stays available when the user opens the chat

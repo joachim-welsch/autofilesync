@@ -37,12 +37,16 @@ screen position lands on the right spot.
 ## wait-for-the-answer
 
 The assistant answers on a worker thread; waiting for the button to re-enable avoids guessing
-how long a real model needs to reply. Capped at 4 minutes: a real model on real hardware is well
-past done by then, so a wait this long only ever fires on a genuine hang (regression test for
-exactly that - see LlamaClient::ensureLoaded()/send() for the two bugs this covered: the
-batch-size crash, then the batch-size hang).
+how long a real model needs to reply. Capped at 10 minutes: the 7B model runs on the CPU only
+(see LlamaClient::ensure_loaded()) and needs about four minutes for the log question on an
+Apple M4 - the previous cap of four minutes failed right at that edge - so the cap fires only
+on a genuine hang (regression test for exactly that - see LlamaClient::ensure_loaded()/send()
+for the two bugs this covered: the batch-size crash, then the batch-size hang).
 
 ## hidden-not-closed
 
 Hidden, not closed, mirroring how the dialog's own close handler leaves it - the conversation
-stays alive for a later test that opens the chat.
+stays alive for a later test that opens the chat. Hidden from a destructor, so a test that
+gives up on the answer leaves no chat window on screen for the tests after it: an answer that
+arrives late would otherwise land in a visible dialog and pull the keyboard focus out of
+whatever dialog the next test is typing into.

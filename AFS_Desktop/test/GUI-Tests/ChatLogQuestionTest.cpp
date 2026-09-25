@@ -36,6 +36,7 @@ using util::wstring_to_string;
 
 namespace guitest {
 namespace {
+constexpr int REPLY_TIMEOUT_MILLISECONDS = 600000;  // [ChatLogQuestionTest.md#wait-for-the-answer]
 const wxString logQuestion = "Gibt es Warnings im Log?";
 
 void writeSampleLogEntries(const std::string& path)  // [ChatLogQuestionTest.md#writeSampleLogEntries]
@@ -70,6 +71,18 @@ public:
         std::ofstream(path_, std::ios::trunc) << originalContent_;
     }
 };
+
+class HiddenChatDialog {  // [ChatLogQuestionTest.md#hidden-not-closed]
+public:
+    explicit HiddenChatDialog(wxWindow* input): dialog_(input != nullptr ? wxGetTopLevelParent(input) : nullptr) {}
+    ~HiddenChatDialog()
+    {
+        if (dialog_ != nullptr)
+            dialog_->Hide();
+    }
+private:
+    wxWindow* dialog_;
+};
 }
 
 TEST_F(SlowGuiTest, LogFrageWirdImChatBeantwortet)  // [ChatLogQuestionTest.md#LogFrageWirdImChatBeantwortet]
@@ -83,6 +96,7 @@ TEST_F(SlowGuiTest, LogFrageWirdImChatBeantwortet)  // [ChatLogQuestionTest.md#L
         input = wxWindow::FindWindowById(ID_CHAT_INPUT);
         return input != nullptr && input->IsShownOnScreen();
     })) << "Der Chat-Dialog wurde nicht geöffnet.";
+    const HiddenChatDialog hidden(input);
     wxWindow* sendButton = wxWindow::FindWindowById(ID_CHAT_SEND);
     wxWindow* transcript = wxWindow::FindWindowById(ID_CHAT_TRANSCRIPT);
     ASSERT_NE(sendButton, nullptr);
@@ -91,17 +105,13 @@ TEST_F(SlowGuiTest, LogFrageWirdImChatBeantwortet)  // [ChatLogQuestionTest.md#L
     ASSERT_TRUE(typeInto(input, logQuestion));
     ASSERT_TRUE(clickWhenEnabled(sendButton));
 
-    ASSERT_TRUE(waitUntil([sendButton] { return sendButton->IsEnabled(); }, 240000))  // [ChatLogQuestionTest.md#wait-for-the-answer]
+    ASSERT_TRUE(waitUntil([sendButton] { return sendButton->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS))  // [ChatLogQuestionTest.md#wait-for-the-answer]
         << "Der Assistent hat nicht geantwortet.";
 
     const wxString transcriptText = valueOf(transcript);
     EXPECT_NE(transcriptText.Find(logQuestion), wxNOT_FOUND) << "Die Frage fehlt im Verlauf.";
     EXPECT_TRUE(transcriptText.Contains(translation::translate("chat_assistant") + L":") || transcriptText.Contains(translation::translate("error") + L":"))
         << "Es kam keine Antwort im Verlauf an.";
-
-    wxDialog* chatDialog = dynamic_cast<wxDialog*>(input->GetParent());  // [ChatLogQuestionTest.md#hidden-not-closed]
-    if (chatDialog != nullptr)
-        chatDialog->Hide();
 }
 
 }

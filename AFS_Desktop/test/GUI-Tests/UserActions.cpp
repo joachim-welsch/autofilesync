@@ -18,6 +18,8 @@
  */
 #include "UserActions.h"
 #include "EventPump.h"
+#include "ForegroundApp.h"
+#include "ModalDialogWatcher.h"
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/listbox.h>
@@ -62,6 +64,8 @@ void waitUntilSettled(wxWindow& window)  // [UserActions.md#wait-until-settled]
 }
 
 constexpr int POINTER_TIMEOUT_MILLISECONDS = 500;
+constexpr int CLICK_TIMEOUT_MILLISECONDS = 1000;  // [UserActions.md#click-arrives-later]
+constexpr int SETTLE_AFTER_DIALOG_MILLISECONDS = 100;  // [UserActions.md#settle-after-dialog]
 
 bool moveTo(wxUIActionSimulator& simulator, const wxPoint& screenPoint)  // [UserActions.md#pointer-arrives-before-click]
 {
@@ -70,13 +74,6 @@ bool moveTo(wxUIActionSimulator& simulator, const wxPoint& screenPoint)  // [Use
     waitUntil([screenPoint] { return wxGetMousePosition() == screenPoint; }, POINTER_TIMEOUT_MILLISECONDS);
     pump(20);
     return true;
-}
-
-wxPoint centerOnScreen(wxWindow& control)
-{
-    waitUntilSettled(control);
-    const wxSize size = control.GetSize();
-    return control.GetScreenPosition() + wxPoint(size.x / 2, size.y / 2);
 }
 
 #ifdef _WIN32  // [UserActions.md#why-not-simulator-text]
@@ -97,6 +94,41 @@ public:
     }
 };
 #elif defined(_MACOS)
+constexpr CGKeyCode RETURN_KEY = 36;  // kVK_Return
+
+CGEventFlags flagsOf(int modifiers)  // [UserActions.md#macos-modifier-flags]
+{
+    CGEventFlags flags = 0;
+    if (modifiers & wxMOD_SHIFT)
+        flags |= kCGEventFlagMaskShift;
+    if (modifiers & wxMOD_ALT)
+        flags |= kCGEventFlagMaskAlternate;
+    if (modifiers & wxMOD_CONTROL)
+        flags |= kCGEventFlagMaskCommand;
+    if (modifiers & wxMOD_RAW_CONTROL)
+        flags |= kCGEventFlagMaskControl;
+    return flags;
+}
+
+bool postKeyToProcess(CGKeyCode key, CGEventFlags flags, const UniChar* unicode)  // [UserActions.md#macos-injects-the-character]
+{
+    CGEventRef down = CGEventCreateKeyboardEvent(nullptr, key, true);
+    CGEventRef up = CGEventCreateKeyboardEvent(nullptr, key, false);
+    const bool created = down != nullptr && up != nullptr;
+    for (CGEventRef event : {down, up}) {
+        if (event == nullptr)
+            continue;
+        if (created) {
+            CGEventSetFlags(event, flags);
+            if (unicode != nullptr)
+                CGEventKeyboardSetUnicodeString(event, 1, unicode);
+            CGEventPostToPid(getpid(), event);
+        }
+        CFRelease(event);
+    }
+    return created;
+}
+
 class Keyboard {  // [UserActions.md#macos-injects-the-character]
 public:
     bool type(wxUniChar character) const
@@ -104,23 +136,8 @@ public:
         const wxUint32 value = character.GetValue();
         if (value > 0xFFFF)
             return false; // outside the BMP a single UniChar cannot carry it
-        UniChar unicode = static_cast<UniChar>(value);
-        CGEventRef down = CGEventCreateKeyboardEvent(nullptr, 0, true);
-        CGEventRef up = CGEventCreateKeyboardEvent(nullptr, 0, false);
-        if (down == nullptr || up == nullptr) {
-            if (down != nullptr)
-                CFRelease(down);
-            if (up != nullptr)
-                CFRelease(up);
-            return false;
-        }
-        CGEventKeyboardSetUnicodeString(down, 1, &unicode);
-        CGEventKeyboardSetUnicodeString(up, 1, &unicode);
-        CGEventPostToPid(getpid(), down);
-        CGEventPostToPid(getpid(), up);
-        CFRelease(down);
-        CFRelease(up);
-        return true;
+        const UniChar unicode = static_cast<UniChar>(value);
+        return postKeyToProcess(0, 0, &unicode);
     }
 };
 #else
@@ -278,17 +295,29 @@ wxString valueOf(wxWindow* control)
     return textCtrl != nullptr ? textCtrl->GetValue() : wxString();
 }
 
-bool clickOn(wxWindow* control)
+bool clickOn(wxWindow& control, const wxPoint& clientPoint)
 {
-    if (control == nullptr || !control->IsShownOnScreen())
+    if (!control.IsShownOnScreen())
         return false;
+    waitUntilSettled(control);
     wxUIActionSimulator simulator;
-    if (!moveTo(simulator, centerOnScreen(*control)))  // [UserActions.md#pointer-move-settles-focus]
+    if (!moveTo(simulator, control.ClientToScreen(clientPoint)))  // [UserActions.md#pointer-move-settles-focus]
         return false;
+    const int dialogsBefore = ModalDialogWatcher::instance().dialogsEntered();
     if (!simulator.MouseClick())
         return false;
     pump(20);
+    if (ModalDialogWatcher::instance().dialogsEntered() != dialogsBefore)
+        pump(SETTLE_AFTER_DIALOG_MILLISECONDS);  // [UserActions.md#settle-after-dialog]
     return true;
+}
+
+bool clickOn(wxWindow* control)
+{
+    if (control == nullptr)
+        return false;
+    const wxSize size = control->GetSize();
+    return clickOn(*control, wxPoint(size.x / 2, size.y / 2));
 }
 
 bool clickOn(wxTreeCtrl& tree, wxTreeItemId item)
@@ -370,10 +399,9 @@ bool typeText(const wxString& text)
 
 bool typeLines(const wxString& lines)  // [UserActions.md#replaceLines]
 {
-    wxUIActionSimulator simulator;
     bool first = true;
     for (const wxString& line : wxSplit(lines, '\n')) {
-        if (!first && !simulator.Char(WXK_RETURN))
+        if (!first && !pressReturn())
             return false;
         if (!typeText(line))
             return false;
@@ -392,6 +420,9 @@ bool clickIntoField(wxTextCtrl& field)  // [UserActions.md#click-until-focused]
             return false;
         if (waitUntil([&field] { return field.HasFocus(); }, FOCUS_TIMEOUT_MILLISECONDS))
             return true;
+#ifdef _MACOS
+        bringToForeground();  // [ForegroundApp.md#bringToForeground]
+#endif
         wxGetTopLevelParent(&field)->Raise();  // [UserActions.md#raise-when-not-focused]
         pump();
     }
@@ -408,6 +439,15 @@ bool typedAndShown(wxTextCtrl& field, const wxString& wanted, const std::functio
     return type() && field.GetValue() == wanted;
 }
 
+}
+
+bool pressReturn(int modifiers)  // [UserActions.md#pressReturn]
+{
+#ifdef _MACOS
+    return postKeyToProcess(RETURN_KEY, flagsOf(modifiers), nullptr);
+#else
+    return wxUIActionSimulator().Char(WXK_RETURN, modifiers);
+#endif
 }
 
 bool typeInto(wxWindow* field, const wxString& text)
@@ -475,9 +515,10 @@ bool setCheckBox(wxWindow* checkBox, bool checked)  // [UserActions.md#setCheckB
     wxCheckBox* box = dynamic_cast<wxCheckBox*>(checkBox);
     if (box == nullptr || !box->IsEnabled())
         return false;
-    if (box->GetValue() != checked && !clickOn(box))
+    const int boxSide = box->GetSize().y;
+    if (box->GetValue() != checked && !clickOn(*box, wxPoint(boxSide / 2, boxSide / 2)))  // [UserActions.md#click-the-box]
         return false;
-    return box->GetValue() == checked;
+    return waitUntil([box, checked] { return box->GetValue() == checked; }, CLICK_TIMEOUT_MILLISECONDS);  // [UserActions.md#click-arrives-later]
 }
 
 bool setSpinValue(wxWindow* spin, int value)  // [UserActions.md#setSpinValue]

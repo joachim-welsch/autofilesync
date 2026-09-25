@@ -129,7 +129,8 @@ void ChatDialog::onReply(wxThreadEvent& event)
     }
     else
         appendTurn(translation::translate("error"), text);
-    input_->SetFocus();
+    if (IsShown())  // [ChatDialog.md#focus-only-when-shown]
+        input_->SetFocus();
 }
 
 void ChatDialog::onInputKey(wxKeyEvent& event)

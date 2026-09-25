@@ -38,9 +38,11 @@ public:
     const std::vector<wxString>& unexpectedDialogs() const { return unexpected_; }
     const std::vector<wxString>& answeredMessages() const { return answered_; }
     void reset();
+    int dialogsEntered() const { return entered_; }  // [ModalDialogWatcher.md#dialogsEntered]
 protected:
     int Enter(wxDialog* dialog) override;
 private:
+    int entered_ = 0;
     struct Expectation { wxString title; DialogAction action; int answer = wxID_NONE; wxString path; };
     std::deque<Expectation> expected_;
     std::vector<wxString> unexpected_;

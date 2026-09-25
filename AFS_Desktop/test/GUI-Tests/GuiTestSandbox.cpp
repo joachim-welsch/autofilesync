@@ -122,6 +122,8 @@ fs::path GuiTestSandbox::configFile()
 {
 #ifdef _WIN32
     return sandboxRoot / "AppData" / "autofilesync" / "autofilesync.json";
+#elif defined(_MACOS)
+    return sandboxRoot / "Library" / "Application Support" / "autofilesync" / "autofilesync.json";  // [GuiTestSandbox.md#configFile]
 #else
     return sandboxRoot / ".config" / "autofilesync" / "autofilesync.json";
 #endif

@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "EventPump.h"
+#include "ForegroundApp.h"
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
 #include <gtest/gtest.h>
@@ -55,6 +56,9 @@ int main(int argc, char** argv)
     if (wxTheApp->CallOnInit()) {
         wxEventLoop mainLoop;  // [GuiTestMain.md#active-event-loop-needed]
         wxEventLoopActivator activateMainLoop(&mainLoop);
+#ifdef _MACOS
+        guitest::bringToForeground();  // [ForegroundApp.md#bringToForeground]
+#endif
         waitUntilPlaced(*wxTheApp->GetTopWindow());
         result = RUN_ALL_TESTS();
         wxTheApp->OnExit();

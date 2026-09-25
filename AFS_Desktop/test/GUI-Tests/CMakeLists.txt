@@ -78,8 +78,15 @@ target_compile_definitions(GuiTests PRIVATE _GUITEST)
 target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${X11_INCLUDE_DIR})
 target_link_libraries(GuiTests PRIVATE GTest::GTest ${X11_LIBRARIES} ${X11_Xtst_LIB})
 if(APPLE)
-    # UserActions injects keystrokes as CGEvents (layout independent).
-    target_link_libraries(GuiTests PRIVATE "-framework ApplicationServices")
+    # UserActions injects keystrokes as CGEvents (layout independent);
+    # ForegroundApp activates the process through AppKit.
+    target_sources(GuiTests PRIVATE ForegroundApp.mm)
+    target_link_libraries(GuiTests PRIVATE "-framework ApplicationServices" "-framework AppKit")
+endif()
+# The tests compare dialog texts with the same catalogue the application reads,
+# so a build of the test binary alone must not leave a stale catalogue behind.
+if(TARGET translations)
+    add_dependencies(GuiTests translations)
 endif()
 
 # Always through the wrapper: it provides the virtual X display the tests need

@@ -23,7 +23,6 @@
 #include "SshAccountDialog.h"
 #include "SshAccountsDialog.h"
 #include <wx/listctrl.h>
-#include <wx/uiaction.h>
 
 namespace guitest {
 namespace {
@@ -113,8 +112,7 @@ DialogAction renameSshAccountAndClose(const wxString& accountName, const wxStrin
         if (waitUntil([&dialog] { return dialog.IsShownOnScreen(); }) && selectRow(dialog, accountName)) {
             wxTextCtrl* editor = list->EditLabel(rowOf(dialog, accountName));
             pump();
-            wxUIActionSimulator simulator;
-            if (editor == nullptr || !replaceText(editor, newName) || !simulator.Char(WXK_RETURN))
+            if (editor == nullptr || !replaceText(editor, newName) || !pressReturn())
                 ADD_FAILURE() << "Der Name ließ sich nicht in der Liste bearbeiten.";
             pump();
         }

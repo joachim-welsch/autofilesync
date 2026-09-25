@@ -12,6 +12,11 @@ static hook list, whose lifetime relative to a static in this translation unit i
 Queued instead of called here: the modal event loop is not running yet and the dialog is not on
 screen, but wxUIActionSimulator needs a mapped window to send its events to.
 
+## dialogsEntered
+
+Counts every modal dialog the hook saw, expected or not, so a caller can tell whether the
+action it just performed opened one - see UserActions.md#settle-after-dialog.
+
 ## ModalDialogWatcher
 
 The single modal hook of the test run. A dialog a test announced through expect() is driven from

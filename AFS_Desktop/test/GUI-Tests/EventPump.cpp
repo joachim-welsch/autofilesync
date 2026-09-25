@@ -23,13 +23,14 @@
 
 namespace guitest {
 
-void pump(int milliseconds)
+constexpr int IDLE_STEP_MILLISECONDS = 5;
+
+void pump(int milliseconds)  // [EventPump.md#idle-time-not-wall-time]
 {
-    wxStopWatch watch;
-    do {
+    for (int idle = 0; idle < milliseconds; idle += IDLE_STEP_MILLISECONDS) {
         wxYield();
-        wxMilliSleep(5);
-    } while (watch.Time() < milliseconds);
+        wxMilliSleep(IDLE_STEP_MILLISECONDS);
+    }
     wxYield();
 }
 

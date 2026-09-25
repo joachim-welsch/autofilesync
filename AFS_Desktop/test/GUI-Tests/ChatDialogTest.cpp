@@ -23,7 +23,6 @@
 #include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
-#include <wx/uiaction.h>
 
 using utilwx::tul;
 
@@ -73,8 +72,7 @@ bool pressControlEnter(wxWindow* input)
 {
     if (!clickOn(input))
         return false;
-    wxUIActionSimulator simulator;
-    const bool sent = simulator.Char(WXK_RETURN, wxMOD_CONTROL);
+    const bool sent = pressReturn(wxMOD_CONTROL);
     pump();
     return sent;
 }

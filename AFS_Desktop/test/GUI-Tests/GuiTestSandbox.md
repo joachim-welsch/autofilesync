@@ -36,6 +36,13 @@ the developer's keyboard layout through it. GTK's built-in context translates th
 itself, synchronously, with the layout the keys were looked up in (see UserActions.md). Set
 before wxWidgets starts, because GTK reads the variable while it initialises.
 
+## configFile
+
+The same place Config::get_root_pathname() derives from the redirected environment, per
+platform: APPDATA on Windows, Library/Application Support under HOME on macOS,
+XDG_CONFIG_HOME on Linux. A different path here makes every test that reads the saved file
+look at a file the application never writes.
+
 ## GuiTestSandbox
 
 Throw-away HOME/XDG_CONFIG_HOME for the whole test run, so a GUI test can never read or damage

@@ -91,6 +91,7 @@ void ModalDialogWatcher::reset()
 
 int ModalDialogWatcher::Enter(wxDialog* dialog)
 {
+    ++entered_;
     const wxString name = nameOf(*dialog);
     if (expected_.empty() || expected_.front().title != name) {
         unexpected_.push_back(name);

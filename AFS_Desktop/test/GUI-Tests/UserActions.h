@@ -31,10 +31,12 @@ namespace guitest {  // [UserActions.md#UserActions]
 wxWindow* find(wxWindow& parent, wxWindowID id);
 wxString valueOf(wxWindow* control);
 bool clickOn(wxWindow* control);
+bool clickOn(wxWindow& control, const wxPoint& clientPoint);  // [UserActions.md#clickOn-point]
 bool clickOn(wxTreeCtrl& tree, wxTreeItemId item);  // [UserActions.md#clickOn-tree-item]
 bool clickOn(wxListCtrl& list, long item, bool doubleClick = false);  // [UserActions.md#clickOn-list-item]
 bool clickOnRowLabel(wxGrid& grid, int row);  // [UserActions.md#clickOnRowLabel]
 bool changeGridCell(wxGrid& grid, int row, int col, const wxString& value);  // [UserActions.md#changeGridCell]
+bool pressReturn(int modifiers = wxMOD_NONE);  // [UserActions.md#pressReturn]
 bool typeInto(wxWindow* field, const wxString& text);
 bool replaceText(wxWindow* field, const wxString& text);  // [UserActions.md#replaceText]
 bool replaceLines(wxWindow* field, const wxString& lines);  // [UserActions.md#replaceLines]

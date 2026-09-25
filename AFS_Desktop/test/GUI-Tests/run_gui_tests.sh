@@ -11,9 +11,11 @@ if [ ! -x "$BINARY" ]; then
     echo "Testprogramm nicht gefunden: $BINARY" >&2
     exit 1
 fi
+# caffeinate keeps the display awake: the synthetic input does not count as user
+# activity, and a display that sleeps mid-run swallows every click and keystroke.
 if [ "$(uname)" = "Darwin" ]; then
     echo "GUI-Tests laufen auf dem aktiven Desktop - bitte Maus und Tastatur nicht benutzen."
-    exec "$BINARY" "$@"
+    exec caffeinate -dimsu "$BINARY" "$@"
 fi
 # On a Wayland desktop, GTK prefers the real Wayland session over $DISPLAY
 # whenever WAYLAND_DISPLAY is still set - the app would then render on the
