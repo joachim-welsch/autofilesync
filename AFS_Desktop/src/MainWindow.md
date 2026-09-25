@@ -78,6 +78,15 @@ whenever the menu opens rather than being tracked here. A state that cannot be d
 both commands available: refusing them would lock the user out of a service that may well be
 controllable.
 
+## restore-fits-the-screen
+
+The saved geometry may come from a larger screen or from a monitor that is no longer attached;
+restored as it was, the window would hang beyond the screen edge or lie on a display that does
+not exist. The display is the one holding the saved top-left corner, the primary one when no
+display holds it, and the size and position are cut to that display's work area. A saved
+position that no display holds is dropped, and the system places the window as on a first
+start.
+
 ## minimize-instead-of-close
 
 Keep the app (and any running background sync) alive in the tray instead of closing - same as

@@ -49,12 +49,14 @@
 #include "wx/filesys.h"
 #include "wx/fs_zip.h"
 #include <wx/config.h>
+#include <wx/display.h>
 #include <wx/stdpaths.h>
 #include <wx/filedlg.h>
 #ifndef WIN32
     #include <wx/cmdline.h>
     #include <wx/filefn.h>
 #endif
+#include <algorithm>
 #include <filesystem>
 
 #ifdef _UNIX
@@ -763,18 +765,18 @@ void MainWindow::createHelp()
     GetHelpController().SetViewer("internal");
 }
 
-void MainWindow::restoreSizeAndPosition() // Restore window size and position from wxConfig
+void MainWindow::restoreSizeAndPosition()  // [MainWindow.md#restore-fits-the-screen]
 {
     SetMinSize(wxSize(500, 400));
     wxConfigBase* config = wxConfig::Get();
-    int x = config->ReadLong("/MainWindow/x", -1);
-    int y = config->ReadLong("/MainWindow/y", -1);
-    int w = config->ReadLong("/MainWindow/width", 800);
-    int h = config->ReadLong("/MainWindow/height", 600);
-    if (x >= 0 && y >= 0) {
-        SetPosition(wxPoint(x, y));
-    }
-    SetSize(wxSize(w, h));
+    const wxPoint saved(config->ReadLong("/MainWindow/x", -1), config->ReadLong("/MainWindow/y", -1));
+    const int display = config->HasEntry("/MainWindow/x") ? wxDisplay::GetFromPoint(saved) : wxNOT_FOUND;
+    const wxRect area = wxDisplay(display == wxNOT_FOUND ? 0u : static_cast<unsigned>(display)).GetClientArea();
+    const wxSize size(std::min<int>(config->ReadLong("/MainWindow/width", 800), area.width),
+                      std::min<int>(config->ReadLong("/MainWindow/height", 600), area.height));
+    if (display != wxNOT_FOUND)
+        SetPosition(wxPoint(std::min(saved.x, area.GetRight() - size.x + 1), std::min(saved.y, area.GetBottom() - size.y + 1)));
+    SetSize(size);
 }
 
 void MainWindow::createTaskBar()
