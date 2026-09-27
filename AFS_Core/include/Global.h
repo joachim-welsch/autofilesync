@@ -46,8 +46,8 @@ using StrVect = std::vector<std::wstring>;
 
 #ifdef _WXWIDGETS
     class Global {
-        wxApp* app_;
-        StrVect args_;
+        wxApp*       app_;
+        StringVector args_;
         Global() = default;
         Global(const Global&) = delete;
         Global& operator=(const Global&) = delete;

@@ -34,14 +34,14 @@ namespace AFS_Core {
 using SshAccounts = std::vector<SshAccount>;
 
 class Config {
-    Settings    settings_;
-    SyncItems   syncitems_;
-    mutable std::mutex syncitems_mutex_;    // [Config.md#syncitems_mutex_]
-    SshAccounts ssh_accounts_;
-    mutable std::mutex ssh_accounts_mutex_;  // [Config.md#ssh_accounts_mutex_]
-    std::wstring pathname_;
-    bool changed_ = false;
-    bool ready_ = false;
+    Settings            settings_;
+    SyncItems           syncitems_;
+    mutable std::mutex  syncitems_mutex_;    // [Config.md#syncitems_mutex_]
+    SshAccounts         ssh_accounts_;
+    mutable std::mutex  ssh_accounts_mutex_;  // [Config.md#ssh_accounts_mutex_]
+    std::wstring        pathname_;
+    bool                changed_ = false;
+    bool                ready_ = false;
     static std::unique_ptr<Config> instance_;
     static std::once_flag init_instance_flag_;
 

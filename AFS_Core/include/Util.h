@@ -32,23 +32,7 @@ namespace util {
 
     uint16_t to_uint16_t(const std::wstring& s);  // [Util.md#to_uint16_t]
 
-    inline
-    std::wstring to_string(bool b)
-    {
-        return b ? L"true" : L"false";
-    }
-    inline
-    std::wstring to_string(uint16_t i)
-    {
-        return std::to_wstring(i);
-    }
-
-    inline
-    std::wstring to_string(int i)
-    {
-        return std::to_wstring(i);
-    }
-
+    std::wstring to_string(bool b);
     std::string to_string(const std::filesystem::file_time_type& ft);
 
     std::time_t to_time_t(const std::filesystem::file_time_type& ft);  // [Util.md#file-time-conversions]

@@ -63,6 +63,11 @@ unsigned long current_pid()
 #endif
 }
 
+std::wstring to_string(bool b)
+{
+    return b ? L"true" : L"false";
+}
+
 uint16_t to_uint16_t(const std::wstring& s)
 {
     const int value = std::stoi(s);
