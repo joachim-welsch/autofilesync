@@ -112,6 +112,11 @@ constexpr size_t MAX_REPETITIONS = 256;  // [Logging.md#MAX_REPETITIONS]
 constexpr size_t MAX_COLLECTED = 200;  // [Logging.md#collected_]
 constexpr auto NOTIFY_REPEAT_INTERVAL = std::chrono::minutes(30);  // [Logging.md#NOTIFY_REPEAT_INTERVAL]
 
+void Logging::init_singleton()
+{
+	instance_.reset(new Logging);
+}
+
 Logging::~Logging()
 {
 	close_file();
@@ -303,7 +308,7 @@ void Logging::set_editor_path_name(const std::wstring& new_editor_pathname)
 }
 
 void Logging::log(LogLevel level, const std::wstring& msg)
-{	
+{
 	log(level, wstring_to_string(msg));
 }
 
@@ -339,6 +344,21 @@ bool Logging::report_again(string& line)  // [Logging.md#report_again]
 	repetition = Repetition{now};
 	return true;
 }
+
+bool Logging::notify_email_active() const
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	return notify_email_active_;
+}
+
+void Logging::notify_email_active(bool active)
+{
+	std::lock_guard<std::mutex> lock(mutex_); notify_email_active_ = active;
+}
+
+std::wstring Logging::notify_email() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_; }
+void Logging::notify_email(const std::wstring& address) { std::lock_guard<std::mutex> lock(mutex_); notify_email_ = address; }
+SmtpAccount Logging::smtp_account() const { std::lock_guard<std::mutex> lock(mutex_); return smtp_; }
 
 void Logging::write_to_file(LogLevel level, string line)
 {

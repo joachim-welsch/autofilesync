@@ -35,6 +35,7 @@ set(AFS_CORE_SOURCES
     Libssh2Init.cpp
     LlamaClient.cpp
     LogAnalysis.cpp
+    LogEmail.cpp
     ModelLocation.cpp
     PasswordCrypto.cpp
     SshAccount.cpp

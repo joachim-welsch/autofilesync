@@ -26,6 +26,7 @@
 #include <vector>
 #include <fstream>
 #include "SmtpMailer.h"
+#include "LogEmail.h"
 
 namespace AFS_Core {
 
@@ -41,39 +42,35 @@ struct LogMessage {  // [Logging.md#collected_]
 
 class Logging {
 	using LoggingPtr = std::unique_ptr<Logging>;
+	struct Repetition { std::chrono::steady_clock::time_point written; unsigned suppressed = 0; };
+
 	static  LoggingPtr 		instance_;
 	static std::once_flag 	init_instance_flag_;
 	mutable std::mutex 		mutex_;
 	LogLevel				level_ = LogLevel::Info;
 	LogOrigin				origin_ = LogOrigin::Gui;
+	std::wstring			file_path_name_ = get_default_log_file_path();
 #ifdef WIN32
-	std::wstring	file_path_name_ = get_default_log_file_path();
-	std::wstring	editor_path_name_ = L"C:\\windows\\notepad";
+	std::wstring			editor_path_name_ = L"C:\\windows\\notepad";
+#elif defined(_MACOS)
+	std::wstring			editor_path_name_ = L"/System/Applications/TextEdit.app";
 #else
-	std::wstring	file_path_name_ = get_default_log_file_path();
-    std::wstring	editor_path_name_ = L"/usr/bin/nautilus";
+    std::wstring			editor_path_name_ = L"/usr/bin/nautilus";
 #endif
-	uint16_t		retention_days_ = 7;
-	bool			notify_email_active_ = false;  // [Logging.md#notify_email_active_]
-	std::wstring	notify_email_;
-	SmtpAccount		smtp_;  // the account the notification is sent through
-	std::string		last_notified_;
+	uint16_t				retention_days_ = 7;
+	std::string				last_notified_;
 	std::chrono::steady_clock::time_point last_notify_time_{};
-	struct Repetition { std::chrono::steady_clock::time_point written; unsigned suppressed = 0; };
+	FILE*					fos_ = nullptr;
+
 	std::map<std::string, Repetition> repetitions_;  // [Logging.md#repetitions_]
-	FILE*			fos_ = nullptr;
-	bool			collecting_ = false;  // [Logging.md#collected_]
+	bool					collecting_ = false;  // [Logging.md#collected_]
 	std::vector<LogMessage> collected_;
+	LogEmail				email_;
 
-	static void init_singleton()
-	{
-		instance_.reset(new Logging);
-	}
-
-    Logging() = default;
+	static void init_singleton();
+	Logging() = default;
 	Logging(const Logging&) = delete;
 	Logging& operator=(const Logging&) = delete;
-
 	void write_head(std::ostream& os, LogLevel level);
 	void write(LogLevel level, const std::ostringstream& os);
 	void write_to_file(LogLevel level, std::string line);

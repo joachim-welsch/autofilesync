@@ -30,11 +30,11 @@ public:
 private:
     const std::wstring  source_;
     const std::wstring  dest_;
-    uint64_t sourcesize_=0, destsize_=0;
-    CompareItems    ci_;
-    SSHPATH         ssh_ {SSHPATH::none};
-    bool            two_way_sync_ = false;
-    Result result_ = Result::Equal;
+    uint64_t            sourcesize_=0, destsize_=0;
+    CompareItems        ci_;
+    SSHPATH             ssh_ {SSHPATH::none};
+    bool                two_way_sync_ = false;
+    Result              result_ = Result::Equal;
     Result compare_metadata(std::filesystem::file_time_type sourcetime, std::filesystem::file_time_type desttime) const;
     void compare_content(std::filesystem::file_time_type sourcetime, std::filesystem::file_time_type desttime);
 public:
