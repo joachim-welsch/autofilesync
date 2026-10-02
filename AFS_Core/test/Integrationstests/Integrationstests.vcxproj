@@ -32,6 +32,9 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -53,7 +56,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_TEST;WIN32;X64;_DEBUG;_CONSOLE;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_TEST;NOMINMAX;WIN32;X64;_DEBUG;_CONSOLE;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
@@ -64,7 +67,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gtestd.lib;gtest_maind.lib;$(CoreLibraryDependencies);intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtestd.lib;gtest_maind.lib;crypt32.lib;$(CoreLibraryDependencies);intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -111,12 +114,20 @@
     <ClInclude Include="SyncFileTests.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\CopyLog.cpp" />
     <ClCompile Include="..\..\src\FilesystemUtil.cpp" />
+    <ClCompile Include="..\..\src\Libssh2Init.cpp" />
     <ClCompile Include="..\..\src\LogCut.cpp" />
+    <ClCompile Include="..\..\src\LogEmail.cpp" />
     <ClCompile Include="..\..\src\Logging.cpp" />
     <ClCompile Include="..\..\src\MountedDrives.cpp" />
+    <ClCompile Include="..\..\src\PasswordCrypto.cpp" />
     <ClCompile Include="..\..\src\RecycleBin.cpp" />
+    <ClCompile Include="..\..\src\SmtpMailer.cpp" />
+    <ClCompile Include="..\..\src\SshConnectTimeout.cpp" />
+    <ClCompile Include="..\..\src\SshHostKeyVerification.cpp" />
     <ClCompile Include="..\..\src\StrUtil.cpp" />
+    <ClCompile Include="..\..\src\SyncArbiter.cpp" />
     <ClCompile Include="..\..\src\Util.cpp" />
     <ClCompile Include="..\..\src\CheckPath.cpp" />
     <ClCompile Include="..\..\src\Config.cpp" />

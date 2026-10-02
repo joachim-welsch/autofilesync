@@ -29,7 +29,7 @@ namespace tu {
 
 class ScopedRecycleBin {  // [ScopedRecycleBin.md#ScopedRecycleBin]
     std::filesystem::path previous_ = AFS_Core::RecycleBin::instance().bin_path();
-    std::filesystem::path path_ = std::filesystem::temp_directory_path() / ("autofilesync_recyclebin_" + std::to_string(getpid()));
+    std::filesystem::path path_ = std::filesystem::temp_directory_path() / ("autofilesync_recyclebin_" + std::to_string(_getpid()));
 public:
     ScopedRecycleBin()
     {

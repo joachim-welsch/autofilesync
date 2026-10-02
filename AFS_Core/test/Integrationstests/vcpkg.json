@@ -1,9 +1,13 @@
 {
   "name": "integrationtests",
   "version-string": "1.0.0",
+  "builtin-baseline": "25b458671af03578e6a34edd8f0d1ac85e084df4",
   "description": "Integrationstests fuer autofilesync (Windows/VS2022-Portierung)",
   "dependencies": [
-    "gtest",
+    {
+      "name": "gtest",
+      "version>=": "1.17.0#2"
+    },
     "libssh2",
     "openssl",
     "boost-property-tree",

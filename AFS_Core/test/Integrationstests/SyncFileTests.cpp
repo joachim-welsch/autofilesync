@@ -207,7 +207,7 @@ TEST(SyncFileTests, SetLastWriteTimeGivesUpOnPersistentError)  // [SyncFileTests
 TEST(SyncFileTests, CopyDestToSourceDoesNotDoubleWaitForFiletime)  // [SyncFileTests.md#CopyDestToSourceDoesNotDoubleWaitForFiletime]
 {
     Synchronize::start();
-    const fs::path base = fs::temp_directory_path() / ("autofilesync_synctest_" + std::to_string(getpid()));
+    const fs::path base = fs::temp_directory_path() / ("autofilesync_synctest_" + std::to_string(_getpid()));
     fs::remove_all(base);
     fs::create_directories(base);
     const std::wstring src_path = (base / "src.txt").wstring();

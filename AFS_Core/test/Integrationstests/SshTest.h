@@ -45,9 +45,20 @@ namespace SSHTest {
 
 } // namespace SSHTest
 
+#if defined(GTEST_SKIP)
 #define SKIP_WITHOUT_SSH_SERVER()                                              \
 	do {                                                                       \
 		if (!SSHTest::ssh_available())                                          \
 			GTEST_SKIP() << "Kein SSH-Testserver auf " << SSHTest::SSH_HOST    \
-			             << " erreichbar - siehe SSH_TESTS_README.md";         \
+						 << " erreichbar - siehe SSH_TESTS_README.md";         \
 	} while (0)  // [SshTest.md#SKIP_WITHOUT_SSH_SERVER]
+#else
+/* Fallback when the installed GoogleTest does not provide GTEST_SKIP().
+   In that case just return from the test function to avoid a compile error.
+   Note: this does not mark the test as skipped in the test runner. */       \
+#define SKIP_WITHOUT_SSH_SERVER()                                              \
+	do {                                                                       \
+		if (!SSHTest::ssh_available())                                          \
+			return;                                                            \
+	} while (0)
+#endif

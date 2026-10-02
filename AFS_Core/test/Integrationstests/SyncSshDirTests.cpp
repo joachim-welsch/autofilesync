@@ -29,6 +29,7 @@
 #include <fstream>
 #include "SshTest.h"
 #include "FileUtil.h"
+#include "gtest/gtest.h"
 
 using namespace AFS_Core;
 

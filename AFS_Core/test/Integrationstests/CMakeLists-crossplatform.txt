@@ -104,6 +104,7 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/ModelLocation.cpp
     ${LIB_DIR}/src/LogCut.cpp
     ${LIB_DIR}/src/Logging.cpp
+    ${LIB_DIR}/src/LogEmail.cpp
     ${LIB_DIR}/src/StrUtil.cpp
     ${LIB_DIR}/src/Util.cpp
     ${LIB_DIR}/src/MountedDrives.cpp

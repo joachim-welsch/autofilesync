@@ -3,39 +3,6 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="SyncFileTests.cpp" />
-    <ClCompile Include="..\..\Config.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\FileDifference.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Global.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncBase.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncDir.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncFile.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncItem.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncTree.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncControler.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Settings.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncMessage.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="FileUtil.cpp">
       <Filter>util</Filter>
     </ClCompile>
@@ -45,9 +12,6 @@
     </ClCompile>
     <ClCompile Include="MountedDrivesTests.cpp" />
     <ClCompile Include="..\..\src\Util.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Synchronize.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\MountedDrives.cpp">
@@ -62,18 +26,6 @@
     <ClCompile Include="..\..\src\FilesystemUtil.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\CheckPath.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshAccount.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshFileInspector.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncFileSsh.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="SyncTreeTests.cpp" />
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
@@ -84,6 +36,37 @@
     <ClCompile Include="SshTest.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\RecycleBin.cpp" />
+    <ClCompile Include="..\..\src\CheckPath.cpp" />
+    <ClCompile Include="..\..\src\Config.cpp" />
+    <ClCompile Include="..\..\src\FileDifference.cpp" />
+    <ClCompile Include="..\..\src\Global.cpp" />
+    <ClCompile Include="..\..\src\Settings.cpp" />
+    <ClCompile Include="..\..\src\SshAccount.cpp" />
+    <ClCompile Include="..\..\src\SshFileInspector.cpp" />
+    <ClCompile Include="..\..\src\SyncBase.cpp" />
+    <ClCompile Include="..\..\src\SyncControler.cpp" />
+    <ClCompile Include="..\..\src\SyncDir.cpp" />
+    <ClCompile Include="..\..\src\FileDelete.cpp" />
+    <ClCompile Include="..\..\src\SyncFile.cpp" />
+    <ClCompile Include="..\..\src\SyncFileSsh.cpp" />
+    <ClCompile Include="..\..\src\Synchronize.cpp" />
+    <ClCompile Include="..\..\src\Translation.cpp" />
+    <ClCompile Include="..\..\src\SyncItem.cpp" />
+    <ClCompile Include="..\..\src\SyncMessage.cpp" />
+    <ClCompile Include="..\..\src\SyncTree.cpp" />
+    <ClCompile Include="FileDeleteTests.cpp" />
+    <ClCompile Include="TestMain.cpp" />
+    <ClCompile Include="..\..\src\LogEmail.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SmtpMailer.cpp" />
+    <ClCompile Include="..\..\src\SshHostKeyVerification.cpp" />
+    <ClCompile Include="..\..\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\..\src\CopyLog.cpp" />
+    <ClCompile Include="..\..\src\SshConnectTimeout.cpp" />
+    <ClCompile Include="..\..\src\Libssh2Init.cpp" />
+    <ClCompile Include="..\..\src\SyncArbiter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
