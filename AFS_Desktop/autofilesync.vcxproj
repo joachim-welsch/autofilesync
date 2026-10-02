@@ -48,6 +48,9 @@
        in String-Literalen wurden dadurch doppelt kodiert und landeten als
        Buchstabensalat in Log und Oberflaeche. gcc/clang verhalten sich ohnehin
        so, wie /utf-8 es hier herstellt. -->
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -103,6 +106,7 @@
   <ItemGroup>
     <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp" />
     <ClCompile Include="..\AFS_Core\src\LogCut.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LogEmail.cpp" />
     <ClCompile Include="..\AFS_Core\src\Logging.cpp" />
     <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp" />
     <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp" />

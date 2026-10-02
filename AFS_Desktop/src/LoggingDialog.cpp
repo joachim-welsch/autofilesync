@@ -197,9 +197,9 @@ bool LoggingDialog::TransferDataToWindow()
     retentionDaysCtrl_->SetValue(Logging::instance().retention_days());
     editPathBox_->SetValue(Logging::instance().get_editor_path_name());
     backupProofPathBox_->SetValue(Config::instance().settings().backup_proof_path());
-    emailActiveCheck_->SetValue(Logging::instance().notify_email_active());
-    emailBox_->SetValue(Logging::instance().notify_email());
-    const SmtpAccount smtp = Logging::instance().smtp_account();
+    emailActiveCheck_->SetValue(Logging::instance().email().notify_active());
+    emailBox_->SetValue(Logging::instance().email().notify_adress());
+    const SmtpAccount smtp = Logging::instance().email().smtp_account();
     smtpServerBox_->SetValue(smtp.server);
     smtpPortCtrl_->SetValue(smtp.port);
     smtpUserBox_->SetValue(smtp.user);
@@ -239,12 +239,12 @@ bool LoggingDialog::TransferDataFromWindow()
         settings.backup_proof_path(backupProofPathBox_->GetValue().ToStdWstring());
         changed = true;
     }
-    if (li.notify_email_active() != emailActiveCheck_->IsChecked()) {
-        li.notify_email_active(emailActiveCheck_->IsChecked());
+    if (li.email().notify_active() != emailActiveCheck_->IsChecked()) {
+        li.email().notify_active(emailActiveCheck_->IsChecked());
         changed = true;
     }
-    if (li.notify_email() != emailBox_->GetValue().ToStdWstring()) {
-        li.notify_email(emailBox_->GetValue().ToStdWstring());
+    if (li.email().notify_adress() != emailBox_->GetValue().ToStdWstring()) {
+        li.email().notify_adress(emailBox_->GetValue().ToStdWstring());
         changed = true;
     }
     SmtpAccount smtp;  // [LoggingDialog.md#smtp-compared-as-whole]
@@ -253,8 +253,8 @@ bool LoggingDialog::TransferDataFromWindow()
     smtp.user = smtpUserBox_->GetValue().ToStdWstring();
     smtp.password = smtpPasswordBox_->GetValue().ToStdWstring();
     smtp.from = smtpFromBox_->GetValue().Trim().Trim(false).ToStdWstring();
-    if (li.smtp_account() != smtp) {
-        li.smtp_account(smtp);
+    if (li.email().smtp_account() != smtp) {
+        li.email().smtp_account(smtp);
         changed = true;
     }
     if (changed)

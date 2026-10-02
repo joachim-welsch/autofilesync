@@ -10,11 +10,11 @@
     <Filter Include="Dialogs">
       <UniqueIdentifier>{b8f94ff8-bf4a-431c-96f2-c52a254a0293}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib">
-      <UniqueIdentifier>{c79809d4-f935-48d0-b92a-609da03c21e5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Fiiles\bmp">
       <UniqueIdentifier>{9e17ade7-0f05-40e3-bf01-43f8d5b60f76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AFS_Core">
+      <UniqueIdentifier>{c79809d4-f935-48d0-b92a-609da03c21e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +25,9 @@
     <ClInclude Include="..\AFS_Core\include\RecycleBin.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\AFS_Core\include\ChatTypes.h" />
+    <ClInclude Include="..\AFS_Core\include\LlamaClient.h" />
+    <ClInclude Include="..\AFS_Core\include\ModelLocation.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="autofilesync.rc">
@@ -42,40 +45,40 @@
       <Filter>Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\LogCut.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Logging.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\StrUtil.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Config.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Global.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncArbiter.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncBase.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncDir.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncFile.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Synchronize.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncItem.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\BackgroundService.cpp" />
@@ -101,17 +104,17 @@
       <Filter>Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncControler.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
     <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Util.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshAccount.cpp" />
@@ -128,7 +131,19 @@
     <ClCompile Include="..\AFS_Core\src\SshConnectTimeout.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />
     <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp">
-      <Filter>lib</Filter>
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\SmtpMailer.cpp" />
+    <ClCompile Include="src\ChatDialog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Libssh2Init.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LlamaClient.cpp" />
+    <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
+    <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\FileDelete.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Translation.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LogEmail.cpp">
+      <Filter>AFS_Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -25,7 +25,6 @@
 #include <utility>
 #include <vector>
 #include <fstream>
-#include "SmtpMailer.h"
 #include "LogEmail.h"
 
 namespace AFS_Core {
@@ -103,14 +102,15 @@ public:
 	void origin(LogOrigin origin) { std::lock_guard<std::mutex> lock(mutex_); origin_ = origin; }
 	uint16_t retention_days() const { std::lock_guard<std::mutex> lock(mutex_); return retention_days_; }
 	void retention_days(uint16_t days) { std::lock_guard<std::mutex> lock(mutex_); retention_days_ = days; }
-	bool notify_email_active() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_active_; }
-	void notify_email_active(bool active) { std::lock_guard<std::mutex> lock(mutex_); notify_email_active_ = active; }
-	std::wstring notify_email() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_; }
-	void notify_email(const std::wstring& address) { std::lock_guard<std::mutex> lock(mutex_); notify_email_ = address; }
-	SmtpAccount smtp_account() const { std::lock_guard<std::mutex> lock(mutex_); return smtp_; }
+	const LogEmail& email() const;
+	LogEmail& email();
+	// WORK bool notify_email_active() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_active_; }
+	// WORK void notify_email_active(bool active) { std::lock_guard<std::mutex> lock(mutex_); notify_email_active_ = active; }
+	// WORK std::wstring notify_email() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_; }
+	// WORK void notify_email(const std::wstring& address) { std::lock_guard<std::mutex> lock(mutex_); notify_email_ = address; }
+	// WORK SmtpAccount smtp_account() const { std::lock_guard<std::mutex> lock(mutex_); return smtp_; }
 	void collect_messages(bool on);  // [Logging.md#collected_]
 	std::vector<LogMessage> take_collected_messages();
-	void smtp_account(const SmtpAccount& account) { std::lock_guard<std::mutex> lock(mutex_); smtp_ = account; }
 	void log(LogLevel level, const std::wstring& msg);
 	void log(LogLevel level, const std::string& msg);
     void log(LogLevel level, const std::string& msg, bool flag);
@@ -138,5 +138,17 @@ inline
 std::unique_ptr<Logging> Logging::instance_;
 inline
 std::once_flag Logging::init_instance_flag_;
+
+inline
+const LogEmail& Logging::email() const
+{ 
+	return email_;
+}
+
+inline
+LogEmail& Logging::email()
+{
+	return email_;
+}
 
 } // namespace AFS_Core

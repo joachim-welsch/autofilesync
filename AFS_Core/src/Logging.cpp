@@ -345,21 +345,6 @@ bool Logging::report_again(string& line)  // [Logging.md#report_again]
 	return true;
 }
 
-bool Logging::notify_email_active() const
-{
-	std::lock_guard<std::mutex> lock(mutex_);
-	return notify_email_active_;
-}
-
-void Logging::notify_email_active(bool active)
-{
-	std::lock_guard<std::mutex> lock(mutex_); notify_email_active_ = active;
-}
-
-std::wstring Logging::notify_email() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_; }
-void Logging::notify_email(const std::wstring& address) { std::lock_guard<std::mutex> lock(mutex_); notify_email_ = address; }
-SmtpAccount Logging::smtp_account() const { std::lock_guard<std::mutex> lock(mutex_); return smtp_; }
-
 void Logging::write_to_file(LogLevel level, string line)
 {
 	std::lock_guard<std::mutex> lock(mutex_);  // [Logging.md#write_to_file-locking]
@@ -391,11 +376,11 @@ void Logging::write(LogLevel level, const std::ostringstream& os)  // [Logging.m
 
 void Logging::notify_fatal(const string& log_line)
 {
-	SmtpAccount account = smtp_account();
+	SmtpAccount account = email().smtp_account();
 	if (!account.complete())
 		return;
-	const wstring recipient = notify_email();
-	if (!notify_email_active() || recipient.empty())
+	const wstring recipient = email().notify_adress();
+	if (!email().notify_active() || recipient.empty())
 		return;
 	if (!notify_again(error_text(log_line)))
 		return;
