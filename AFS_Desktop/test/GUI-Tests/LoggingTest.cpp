@@ -64,8 +64,8 @@ public:
     RestoredLogging()
         : path_(Logging::instance().get_log_file_path_name()), level_(Logging::instance().get_log_level())
         , retentionDays_(Logging::instance().retention_days()), editor_(Logging::instance().get_editor_path_name())
-        , emailActive_(Logging::instance().notify_email_active()), email_(Logging::instance().notify_email())
-        , smtp_(Logging::instance().smtp_account()), backupProofPath_(Config::instance().settings().backup_proof_path()) {}
+        , emailActive_(Logging::instance().email().notify_active()), email_(Logging::instance().email().notify_address())
+        , smtp_(Logging::instance().email().smtp_account()), backupProofPath_(Config::instance().settings().backup_proof_path()) {}
     ~RestoredLogging()
     {
         Logging& logging = Logging::instance();
@@ -73,9 +73,9 @@ public:
         logging.set_log_level(level_);
         logging.retention_days(retentionDays_);
         logging.set_editor_path_name(editor_);
-        logging.notify_email_active(emailActive_);
-        logging.notify_email(email_);
-        logging.smtp_account(smtp_);
+        logging.email().notify_active(emailActive_);
+        logging.email().notify_address(email_);
+        logging.email().smtp_account(smtp_);
         Config::instance().settings().backup_proof_path(backupProofPath_);
     }
 private:
@@ -163,7 +163,7 @@ TEST_F(GuiTest, EmailAktivOhneAdresseWirdAbgelehnt)  // [LoggingTest.md#email-va
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die fehlende Adresse wurde ohne Meldung angenommen.";
     EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("email_address_required"));
-    EXPECT_FALSE(Logging::instance().notify_email_active()) << "Die Benachrichtigung wurde trotz Ablehnung aktiviert.";
+    EXPECT_FALSE(Logging::instance().email().notify_active()) << "Die Benachrichtigung wurde trotz Ablehnung aktiviert.";
 }
 
 TEST_F(GuiTest, EmailAktivOhneServerOderAbsenderWirdAbgelehnt)  // [LoggingTest.md#email-validation]
@@ -179,7 +179,7 @@ TEST_F(GuiTest, EmailAktivOhneServerOderAbsenderWirdAbgelehnt)  // [LoggingTest.
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der fehlende Server wurde ohne Meldung angenommen.";
     EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("smtp_server_required"));
-    EXPECT_FALSE(Logging::instance().notify_email_active());
+    EXPECT_FALSE(Logging::instance().email().notify_active());
 }
 
 TEST_F(GuiTest, EmailMitAllenAngabenWirdUebernommen)
@@ -196,11 +196,11 @@ TEST_F(GuiTest, EmailMitAllenAngabenWirdUebernommen)
 
     applyLogging(mainWindow(), input);
 
-    EXPECT_TRUE(Logging::instance().notify_email_active());
-    EXPECT_EQ(Logging::instance().notify_email(), L"wer@example.org");
-    EXPECT_EQ(Logging::instance().smtp_account().server, L"mail.example.org");
-    EXPECT_EQ(Logging::instance().smtp_account().port, 465);
-    EXPECT_EQ(Logging::instance().smtp_account().from, L"afs@example.org");
+    EXPECT_TRUE(Logging::instance().email().notify_active());
+    EXPECT_EQ(Logging::instance().email().notify_address(), L"wer@example.org");
+    EXPECT_EQ(Logging::instance().email().smtp_account().server, L"mail.example.org");
+    EXPECT_EQ(Logging::instance().email().smtp_account().port, 465);
+    EXPECT_EQ(Logging::instance().email().smtp_account().from, L"afs@example.org");
 }
 
 TEST_F(GuiTest, BackupNachweisWirdNachLaufGeschrieben)  // [LoggingTest.md#BackupNachweisWirdNachLaufGeschrieben]

@@ -104,11 +104,6 @@ public:
 	void retention_days(uint16_t days) { std::lock_guard<std::mutex> lock(mutex_); retention_days_ = days; }
 	const LogEmail& email() const;
 	LogEmail& email();
-	// WORK bool notify_email_active() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_active_; }
-	// WORK void notify_email_active(bool active) { std::lock_guard<std::mutex> lock(mutex_); notify_email_active_ = active; }
-	// WORK std::wstring notify_email() const { std::lock_guard<std::mutex> lock(mutex_); return notify_email_; }
-	// WORK void notify_email(const std::wstring& address) { std::lock_guard<std::mutex> lock(mutex_); notify_email_ = address; }
-	// WORK SmtpAccount smtp_account() const { std::lock_guard<std::mutex> lock(mutex_); return smtp_; }
 	void collect_messages(bool on);  // [Logging.md#collected_]
 	std::vector<LogMessage> take_collected_messages();
 	void log(LogLevel level, const std::wstring& msg);

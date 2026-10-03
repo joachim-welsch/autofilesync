@@ -198,7 +198,7 @@ bool LoggingDialog::TransferDataToWindow()
     editPathBox_->SetValue(Logging::instance().get_editor_path_name());
     backupProofPathBox_->SetValue(Config::instance().settings().backup_proof_path());
     emailActiveCheck_->SetValue(Logging::instance().email().notify_active());
-    emailBox_->SetValue(Logging::instance().email().notify_adress());
+    emailBox_->SetValue(Logging::instance().email().notify_address());
     const SmtpAccount smtp = Logging::instance().email().smtp_account();
     smtpServerBox_->SetValue(smtp.server);
     smtpPortCtrl_->SetValue(smtp.port);
@@ -243,8 +243,8 @@ bool LoggingDialog::TransferDataFromWindow()
         li.email().notify_active(emailActiveCheck_->IsChecked());
         changed = true;
     }
-    if (li.email().notify_adress() != emailBox_->GetValue().ToStdWstring()) {
-        li.email().notify_adress(emailBox_->GetValue().ToStdWstring());
+    if (li.email().notify_address() != emailBox_->GetValue().ToStdWstring()) {
+        li.email().notify_address(emailBox_->GetValue().ToStdWstring());
         changed = true;
     }
     SmtpAccount smtp;  // [LoggingDialog.md#smtp-compared-as-whole]

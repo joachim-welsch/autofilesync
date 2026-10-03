@@ -34,15 +34,15 @@ bool LogEmail::notify_active() const
 	return notify_active_;
 }
 
-std::wstring LogEmail::notify_adress() const 
+std::wstring LogEmail::notify_address() const 
 { 
-	std::lock_guard<std::mutex> lock(mutex_); return notify_adress_; 
+	std::lock_guard<std::mutex> lock(mutex_); return notify_address_; 
 }
 
-void  LogEmail::notify_adress(const std::wstring& address) 
+void  LogEmail::notify_address(const std::wstring& address) 
 { 
 	std::lock_guard<std::mutex> lock(mutex_); 
-	notify_adress_ = address; 
+	notify_address_ = address; 
 }
 
 SmtpAccount LogEmail::smtp_account() const 

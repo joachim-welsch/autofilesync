@@ -379,7 +379,7 @@ void Logging::notify_fatal(const string& log_line)
 	SmtpAccount account = email().smtp_account();
 	if (!account.complete())
 		return;
-	const wstring recipient = email().notify_adress();
+	const wstring recipient = email().notify_address();
 	if (!email().notify_active() || recipient.empty())
 		return;
 	if (!notify_again(error_text(log_line)))

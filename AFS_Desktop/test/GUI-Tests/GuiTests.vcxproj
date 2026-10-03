@@ -192,6 +192,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\RecycleBin.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LogCut.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\LogEmail.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Logging.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\StrUtil.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\FilesystemUtil.cpp" />

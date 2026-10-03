@@ -210,6 +210,9 @@
     <ClCompile Include="..\..\..\AFS_Core\src\LogCut.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\LogEmail.cpp">
+      <Filter>Anwendung</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\Logging.cpp">
       <Filter>Anwendung</Filter>
     </ClCompile>

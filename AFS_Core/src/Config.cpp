@@ -361,7 +361,7 @@ bool Config::read_logging_setup(boost::property_tree::wptree& root)
             log.retention_days(to_uint16_t(logging->get<wstring>(L"RetentionDays")));
             log.set_editor_path_name(logging->get<wstring>(L"EditorPathName"));
             log.email().notify_active(logging->get<wstring>(L"NotifyEmailActive", L"false") == L"true");  // [Config.md#logging-notification-defaults]
-            log.email().notify_adress(logging->get<wstring>(L"NotifyEmail", L""));
+            log.email().notify_address(logging->get<wstring>(L"NotifyEmail", L""));
             log.email().smtp_account(read_smtp_account(*logging));
         }
     }
@@ -456,7 +456,7 @@ void Config::write_logging_setup(boost::property_tree::wptree& root)
     logging.put(wstring(L"RetentionDays"), to_string(log.retention_days()));
     logging.put(wstring(L"EditorPathName"), log.get_editor_path_name());
     logging.put(wstring(L"NotifyEmailActive"), to_string(log.email().notify_active()));
-    logging.put(wstring(L"NotifyEmail"), log.email().notify_adress());
+    logging.put(wstring(L"NotifyEmail"), log.email().notify_address());
     const SmtpAccount smtp = log.email().smtp_account();
     logging.put(wstring(L"SmtpServer"), smtp.server);
     logging.put(wstring(L"SmtpPort"), to_string(smtp.port));
