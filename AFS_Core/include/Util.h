@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <concepts>
 #include <string>
 #include <sstream>
 #include <chrono>
@@ -33,6 +34,9 @@ namespace util {
     uint16_t to_uint16_t(const std::wstring& s);  // [Util.md#to_uint16_t]
 
     std::wstring to_string(bool b);
+    std::wstring to_string(uint16_t i);
+    std::wstring to_string(int i);
+    template<std::integral T> std::wstring to_string(T) = delete;  // otherwise other integers convert silently to bool
     std::string to_string(const std::filesystem::file_time_type& ft);
 
     std::time_t to_time_t(const std::filesystem::file_time_type& ft);  // [Util.md#file-time-conversions]

@@ -203,6 +203,7 @@
     <ClCompile Include="$(LibDir)\src\LlamaClient.cpp" />
     <ClCompile Include="$(LibDir)\src\LogAnalysis.cpp" />
     <ClCompile Include="$(LibDir)\src\LogCut.cpp" />
+    <ClCompile Include="$(LibDir)\src\LogEmail.cpp" />
     <ClCompile Include="$(LibDir)\src\Logging.cpp" />
     <ClCompile Include="$(LibDir)\src\SmtpMailer.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncArbiter.cpp" />

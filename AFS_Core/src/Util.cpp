@@ -68,6 +68,16 @@ std::wstring to_string(bool b)
     return b ? L"true" : L"false";
 }
 
+std::wstring to_string(uint16_t i)
+{
+    return std::to_wstring(i);
+}
+
+std::wstring to_string(int i)
+{
+    return std::to_wstring(i);
+}
+
 uint16_t to_uint16_t(const std::wstring& s)
 {
     const int value = std::stoi(s);
