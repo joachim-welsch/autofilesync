@@ -1,249 +1,613 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Testrahmen">
-      <UniqueIdentifier>{1B4E2A70-3C5D-4A81-9E60-7F2D8C1A5B03}</UniqueIdentifier>
+    <Filter Include="GuiTests">
+      <UniqueIdentifier>{287ece2a-dc48-4624-875d-61b8399d1c56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Anwendung">
-      <UniqueIdentifier>{2C5F3B81-4D6E-4B92-8F71-1A3E9D2B6C14}</UniqueIdentifier>
+    <Filter Include="GuiTests\include">
+      <UniqueIdentifier>{a35cb430-7539-48db-a203-2efaaf2cfb34}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="GuiTestMain.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="GuiTest.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="GuiTestSandbox.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="EventPump.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="UserActions.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="ModalDialogWatcher.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="SyncItemDialogDriver.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="SshAccountDialogDriver.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="SettingsDialogDriver.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggingDialogDriver.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="SandboxTree.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="SyncActions.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="ViewActions.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="SshTestServer.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="AddSyncItemTest.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="AddSshAccountTest.cpp">
-      <Filter>Testrahmen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\App.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\BackgroundService.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Canvas.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\CheckPath.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Config.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\PasswordCrypto.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\FileDifference.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Global.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\GridCtrl.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\GridWindow.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ListCtrl.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ListWindow.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\LoggingDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\MainWindow.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Menu.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ProgressDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Settings.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SettingsDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SourceCanvas.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SplitterWindow.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshAccount.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshAccountDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshAccountSelectDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshAccountsDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshDirDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshDirInspector.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshFileInspector.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SshHostKeyVerification.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Libssh2Init.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\SyncArbiter.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncBase.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncControler.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncDir.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncFile.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncFileSsh.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Synchronize.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncInterface.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncItem.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncItemDialog.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncMessage.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\SyncTree.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\TargetCanvas.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\TaskBarIcon.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\TimedMessageBox.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Tree.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Toolbar.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\TreeCtrl.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\TreeItemData.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\Util.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\LogCut.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\LogEmail.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\Logging.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\StrUtil.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\AFS_Core\src\FilesystemUtil.cpp">
-      <Filter>Anwendung</Filter>
-    </ClCompile>
+    <Filter Include="AFS_Core">
+      <UniqueIdentifier>{f864f0cf-00b1-498a-83f9-65d351070f72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AFS_Core\include">
+      <UniqueIdentifier>{985f6fcb-237f-4575-b549-4f0b4956dd20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AFS_Desktop">
+      <UniqueIdentifier>{cc41eb08-2fdb-4b04-be7d-c9597f1050e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AFS_Desktop\include">
+      <UniqueIdentifier>{47c1d191-72a3-4ec0-80b6-d49588d7ba80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventPump.h">
-      <Filter>Testrahmen</Filter>
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ForegroundApp.h">
+      <Filter>GuiTests\include</Filter>
     </ClInclude>
     <ClInclude Include="GuiTest.h">
-      <Filter>Testrahmen</Filter>
+      <Filter>GuiTests\include</Filter>
     </ClInclude>
     <ClInclude Include="GuiTestSandbox.h">
-      <Filter>Testrahmen</Filter>
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggingDialogDriver.h">
+      <Filter>GuiTests\include</Filter>
     </ClInclude>
     <ClInclude Include="ModalDialogWatcher.h">
-      <Filter>Testrahmen</Filter>
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RestoredSettings.h">
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="SandboxTree.h">
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsDialogDriver.h">
+      <Filter>GuiTests\include</Filter>
     </ClInclude>
     <ClInclude Include="SshAccountDialogDriver.h">
-      <Filter>Testrahmen</Filter>
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="SshTestServer.h">
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncActions.h">
+      <Filter>GuiTests\include</Filter>
     </ClInclude>
     <ClInclude Include="SyncItemDialogDriver.h">
-      <Filter>Testrahmen</Filter>
+      <Filter>GuiTests\include</Filter>
     </ClInclude>
     <ClInclude Include="UserActions.h">
-      <Filter>Testrahmen</Filter>
+      <Filter>GuiTests\include</Filter>
     </ClInclude>
+    <ClInclude Include="ViewActions.h">
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\ChatTypes.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\CheckPath.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Config.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\CopyLog.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\FileDelete.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\FileDifference.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\FilesystemUtil.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Global.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Libssh2Init.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\LlamaClient.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\LogAnalysis.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\LogCut.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\LogEmail.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Logging.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\ModelLocation.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\MountedDrives.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\PasswordCrypto.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\pch.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\RecycleBin.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Settings.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SftpConnection.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SmtpMailer.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SshAccount.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SshConnectTimeout.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SshDirInspector.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SshFileInspector.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SshHostKeyVerification.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SshUnreachable.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\StrUtil.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncArbiter.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncBase.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncControler.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncDir.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncFile.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncFileSsh.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Synchronize.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncItem.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncMessage.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncTree.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\ThreadSaveStack.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Translation.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Util.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\App.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\BackgroundService.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Canvas.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ChatDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GridCtrl.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GridWindow.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\id.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ListCtrl.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ListWindow.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\LoggingDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\macutil.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\MainWindow.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Menu.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ProgressDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\resource.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SettingsDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SourceCanvas.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SplitterWindow.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SshAccountDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SshAccountsDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SshAccountSelectDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SshDirDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SyncInterface.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SyncItemDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TargetCanvas.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TaskBarIcon.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TextResources.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TimedMessageBox.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Toolbar.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Tree.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TreeCtrl.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TreeItemData.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\utilwx.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Version.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AddSshAccountTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="AddSyncItemTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="BackgroundServiceMenuTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatDialogTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatLogQuestionTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigFileTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ContinuousSyncTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="EventPump.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiTestMain.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiTestSandbox.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggingDialogDriver.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggingTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ModalDialogWatcher.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgressDialogTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SandboxTree.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsDialogDriver.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsRecycleBinTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshAccountDialogDriver.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshAccountsTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshDirDialogTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshSyncTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshTestServer.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncActions.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncItemDialogDriver.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncItemDialogRulesTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncItemManagementTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncMessagesTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncOnceTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncOptionsTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeViewContextMenuTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeViewCrossSelectionTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="UserActions.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewActions.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewsTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowAndHelpTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\CheckPath.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Config.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\CopyLog.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\FileDelete.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\FileDifference.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\FilesystemUtil.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Global.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Libssh2Init.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\LogAnalysis.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\LogCut.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\LogEmail.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Logging.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\ModelLocation.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\RecycleBin.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Settings.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SftpConnection.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SmtpMailer.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SshAccount.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SshConnectTimeout.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SshDirInspector.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SshFileInspector.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SshHostKeyVerification.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\StrUtil.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncArbiter.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncBase.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncControler.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncDir.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncFile.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncFileSsh.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Synchronize.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncItem.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncMessage.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncTree.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Translation.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Util.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\App.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\BackgroundService.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Canvas.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ChatDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GridCtrl.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\GridWindow.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ListCtrl.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ListWindow.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\LoggingDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\MainWindow.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Menu.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ProgressDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SettingsDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SourceCanvas.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SplitterWindow.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SshAccountDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SshAccountsDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SshAccountSelectDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SshDirDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SyncInterface.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SyncItemDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TargetCanvas.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TaskBarIcon.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TimedMessageBox.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Toolbar.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Tree.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TreeCtrl.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TreeItemData.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="run_gui_tests.bat" />
   </ItemGroup>
 </Project>
