@@ -29,11 +29,7 @@
 #include <atomic>
 #include <vector>
 #include <Util.h>
-#ifdef _WIN32
-    #include <process.h>   // _getpid
-#else
-    #include <unistd.h>    // getpid
-#endif
+#include "TestPaths.h"
 
 using namespace AFS_Core;
 
@@ -74,15 +70,6 @@ void unset_env_var(const char* name)  // an empty value is how the CRT deletes a
 #endif
 }
 
-int process_id()
-{
-#ifdef _WIN32
-    return _getpid();
-#else
-    return getpid();
-#endif
-}
-
 class ConfigPathTest : public ::testing::Test {  // [ConfigTests.md#ConfigPathTest]
 protected:
     fs::path test_home_;
@@ -104,7 +91,7 @@ protected:
         for (const char* name : REDIRECTED_VARIABLES)
             saved_variables_.push_back({name, get_env_var(name)});
         const std::string test_name = testing::UnitTest::GetInstance()->current_test_info()->name();
-        test_home_ = fs::temp_directory_path() / ("autofilesync_configtest_" + test_name + "_" + std::to_string(process_id()));
+        test_home_ = fs::temp_directory_path() / ("autofilesync_configtest_" + test_name + "_" + std::to_string(TestPaths::process_id()));
         fs::remove_all(test_home_);
         fs::create_directories(test_home_);
 #ifdef _WIN32

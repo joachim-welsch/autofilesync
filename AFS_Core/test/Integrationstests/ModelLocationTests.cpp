@@ -24,11 +24,7 @@
 #include <optional>
 #include <utility>
 #include <vector>
-#ifdef _WIN32
-    #include <process.h>   // _getpid
-#else
-    #include <unistd.h>    // getpid
-#endif
+#include "TestPaths.h"
 
 using namespace AFS_Core;
 namespace fs = std::filesystem;
@@ -68,15 +64,6 @@ void unset_env_var(const char* name)  // an empty value is how the CRT deletes a
 #endif
 }
 
-int process_id()
-{
-#ifdef _WIN32
-    return _getpid();
-#else
-    return getpid();
-#endif
-}
-
 class ModelLocationTest : public ::testing::Test {  // [ModelLocationTests.md#ModelLocationTest]
 protected:
     fs::path test_home_;
@@ -111,7 +98,7 @@ protected:
         for (const char* name : REDIRECTED_VARIABLES)
             saved_variables_.push_back({name, get_env_var(name)});
         const std::string test_name = testing::UnitTest::GetInstance()->current_test_info()->name();
-        test_home_ = fs::temp_directory_path() / ("autofilesync_modeltest_" + test_name + "_" + std::to_string(process_id()));
+        test_home_ = fs::temp_directory_path() / ("autofilesync_modeltest_" + test_name + "_" + std::to_string(TestPaths::process_id()));
         fs::remove_all(test_home_);
         fs::create_directories(test_home_);
         unset_env_var(model_location::PATH_VARIABLE);
