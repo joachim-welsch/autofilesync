@@ -21,3 +21,9 @@ mounted right now.
 
 An fstab mountpoint that /proc/mounts does not list is not mounted; one that really is mounted
 counts as mounted; a path under no fstab mountpoint keeps the previous behaviour.
+
+## root-mount-point
+
+The expected mount point must not depend on the machine's layout: since Ubuntu 25.10 /tmp
+(and thus the scratch dir) is its own tmpfs. A missing directory directly under / makes
+get_mount_root() walk up to /, which is a mount point on every Unix system.

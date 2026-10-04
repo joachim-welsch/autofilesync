@@ -18,12 +18,11 @@
  */
 #pragma once
 #include <string>
-#include "TestPaths.h"
 
 namespace MountedDrivesTests {
 #ifdef _UNIX
     const std::wstring TESTMOUNT = L"/media/winuser/test";
-    const std::wstring TESTMOUNTFN = TestPaths::scratch_dir() + L"/test1.txt";
+    const std::wstring TESTMOUNTFN = L"/afs_missing_dir/test1.txt"; // [MountedDrivesTests.md#root-mount-point]
     const std::wstring TESTMOUNT2 = L"/";
 #else
 	const std::wstring TESTMOUNT = L"Z:\\";
