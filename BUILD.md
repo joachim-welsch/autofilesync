@@ -314,6 +314,13 @@ cmake --build build --target Integrationtests
 ```
 
 ### GUI-Tests (AFS_Desktop)
+Unter Linux brauchen die GUI-Tests zusätzlich Google Test, Xvfb und die
+XTest-Erweiterung; ohne den lokalen SSH-Testserver aus
+`AFS_Core/test/Integrationstests/SSH_TESTS_README.md` werden die SSH-Tests
+übersprungen:
+```bash
+sudo apt install libgtest-dev xvfb libxtst-dev
+```
 ```bash
 ./run_GUI_Tests.sh
 # oder von Hand:
