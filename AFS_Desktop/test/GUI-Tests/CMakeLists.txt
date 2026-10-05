@@ -19,11 +19,13 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/AfsDesktop.cmake)
 find_package(GTest REQUIRED)
 # UserActions types through XTest with the keys of the server's current
 # keyboard layout (XKB) on Linux; macOS uses its own branch there and has no
-# X server.
+# X server. The header is checked directly because find_package keeps the
+# cached path even after the package has been uninstalled (e.g. by autoremove).
 if(NOT APPLE)
     find_package(X11 REQUIRED)
-    if(NOT X11_Xtst_FOUND)
-        message(FATAL_ERROR "libXtst (XTest extension) is required to type in the GUI tests")
+    if(NOT X11_Xtst_FOUND OR NOT EXISTS "${X11_Xtst_INCLUDE_PATH}/X11/extensions/XTest.h")
+        message(FATAL_ERROR "libXtst (XTest extension) is required to type in the GUI tests - "
+                            "Debian/Ubuntu: sudo apt install libxtst-dev")
     endif()
 endif()
 
@@ -75,8 +77,13 @@ set(TEST_SOURCES
 add_executable(GuiTests ${TEST_SOURCES} ${AFS_DESKTOP_SOURCES})
 afs_desktop_configure_target(GuiTests)
 target_compile_definitions(GuiTests PRIVATE _GUITEST)
-target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${X11_INCLUDE_DIR})
-target_link_libraries(GuiTests PRIVATE GTest::GTest ${X11_LIBRARIES} ${X11_Xtst_LIB})
+target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(GuiTests PRIVATE GTest::GTest)
+# Only libX11 and libXtst - ${X11_LIBRARIES} would also pull in libSM/libICE,
+# whose cached paths survive the removal of their -dev packages.
+if(NOT APPLE)
+    target_link_libraries(GuiTests PRIVATE X11::X11 X11::Xtst)
+endif()
 if(APPLE)
     # UserActions injects keystrokes as CGEvents (layout independent);
     # ForegroundApp activates the process through AppKit.
