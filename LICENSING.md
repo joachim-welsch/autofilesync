@@ -11,7 +11,7 @@ unter anderem, dass wer AutoFileSync oder darauf aufbauende Programme
 weitergibt, den Quelltext unter derselben Lizenz mitgibt.
 
 Der vollständige Quelltext jeder ausgelieferten Fassung steht unter
-<https://codeberg.org/welschj/autofilesync> zum Herunterladen bereit (GPL, Abschnitt 6d).
+<https://welsch-software.com> zum Herunterladen bereit (GPL, Abschnitt 6d).
 Dort werden auch Fehler gemeldet und Beiträge eingereicht.
 
 ## Beiträge
@@ -35,6 +35,6 @@ Jede Quelldatei trägt den Hinweis
 
 *English summary: AutoFileSync is free software under the GNU General Public
 License v3 or later (see `LICENSE`). The copyright holder is Joachim Welsch,
-<https://welsch-software.com>. The source code lives at <https://codeberg.org/welschj/autofilesync>.
+<https://welsch-software.com>, where the source code is published as well.
 Third-party components and their licences are listed in
 `THIRD-PARTY-NOTICES.md`.*

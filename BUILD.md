@@ -403,5 +403,5 @@ prüft das.
 
 ## Kontakt
 
-Fehler und Wünsche: <https://codeberg.org/welschj/autofilesync/issues>.
+Fehler und Wünsche: <https://welsch-software.com>.
 Rechteinhaber: Joachim Welsch, <https://welsch-software.com>.

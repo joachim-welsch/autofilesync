@@ -8,8 +8,7 @@ oder ein Rechner, der über SSH erreichbar ist. Einrichten, starten, vergessen.
 AutoFileSync ist freie Software unter der GNU General Public License,
 Version 3 oder neuer, und läuft unter Windows, macOS und Linux.
 
-Website: <https://welsch-software.com> · Quelltext und Fehlermeldungen:
-<https://codeberg.org/welschj/autofilesync>
+Website, Quelltext und Fehlermeldungen: <https://welsch-software.com>
 
 ## Funktionen
 
@@ -31,8 +30,8 @@ Website: <https://welsch-software.com> · Quelltext und Fehlermeldungen:
 
 ## Installation
 
-Fertige Pakete für Windows, macOS und Linux erscheinen als Releases auf
-Codeberg. Wer selbst baut, findet den Weg in `BUILD.md`, die vollständige
+Fertige Pakete für Windows, macOS und Linux stehen auf
+<https://welsch-software.com> bereit. Wer selbst baut, findet den Weg in `BUILD.md`, die vollständige
 Einrichtung samt Hintergrunddienst in `INSTALL-Linux.md` und
 `INSTALL-macOS.md`.
 
@@ -60,8 +59,8 @@ Oberfläche; Einzelheiten in `BUILD.md`.
 
 ## Mitmachen
 
-Fehlerberichte und Wünsche gehören in den Issue-Tracker auf Codeberg,
-Änderungen kommen als Pull Request. Beiträge stehen unter derselben Lizenz wie
+Fehlerberichte und Wünsche gehen über <https://welsch-software.com>,
+Änderungen kommen als Patch. Beiträge stehen unter derselben Lizenz wie
 das Projekt (`LICENSING.md`). Code-Stil und Ablauf stehen in `CONTRIBUTING.md`.
 
 ## Unterstützung
