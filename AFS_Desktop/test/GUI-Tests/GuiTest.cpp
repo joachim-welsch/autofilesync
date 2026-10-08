@@ -20,6 +20,7 @@
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
 #include "UserActions.h"
+#include "ViewActions.h"
 #include "Config.h"
 #include "id.h"
 #include "ListCtrl.h"
@@ -81,6 +82,7 @@ void GuiTest::TearDown()
     if (readFile(GuiTestSandbox::configFile()) != before_.configFile)  // [GuiTest.md#autosave-undone]
         std::ofstream(GuiTestSandbox::configFile()) << before_.configFile;
     Config::instance().read(GuiTestSandbox::configFile().wstring());
+    showView(mainWindow(), id::View_List);  // [GuiTest.md#list-view-restored]
     if (ListCtrl* list = syncItemList())
         list->update();
     const ApplicationState after = captureState();

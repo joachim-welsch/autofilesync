@@ -15,6 +15,13 @@ the content captured in SetUp back and re-reads it: that undoes the changes in t
 memory alike and clears the "unsaved changes" flag that a failed write would leave behind, which
 would otherwise make the application ask for saving while it shuts down.
 
+## list-view-restored
+
+TearDown switches back to the list view: a grid or tree test that fails in the middle, or
+that just does not switch back, would otherwise leave every later test without the list
+they read, and the fixture is the one place that reaches each test whether it passed or
+not.
+
 ## both-branches-wxstring
 
 Both branches have to be a wxString: mixing it with a string literal makes the conditional

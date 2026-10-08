@@ -32,12 +32,4 @@ GridCtrl* gridView(MainWindow& window);
 wxTreeCtrl* sourceTree(MainWindow& window);
 wxTreeCtrl* targetTree(MainWindow& window);
 
-class ListViewRestored {  // [ViewActions.md#ListViewRestored]
-public:
-    explicit ListViewRestored(MainWindow& window): window_(window) {}
-    ~ListViewRestored();
-private:
-    MainWindow& window_;
-};
-
 }
