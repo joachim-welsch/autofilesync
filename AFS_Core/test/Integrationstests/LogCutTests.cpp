@@ -19,6 +19,7 @@
 #include "pch.h"
 #include <Logging.h>
 #include <LogCut.h>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -76,6 +77,44 @@ TEST(LogCutTests, KeepsRecentLinesAfterExpiredOnes)  // [LogCutTests.md#KeepsRec
         Logging::instance().set_log_file_path_name(previous_log_path);
     fs::remove(log_path);
 }
+
+#ifdef _WIN32
+TEST(LogCutTests, CutsWhileAnotherProcessHoldsTheFileOpen)  // [LogCutTests.md#CutsWhileAnotherProcessHoldsTheFileOpen]
+{
+    const fs::path log_path = fs::temp_directory_path() / ("autofilesync_logcut_open_" + std::to_string(getpid()) + ".log");
+    fs::remove(log_path);
+    const std::string recent = local_timestamp(std::chrono::system_clock::now() - std::chrono::hours(1));
+    {
+        std::ofstream out(log_path);
+        out << "2020-01-01 10:00:00.000 D Error\tancient entry\n";
+        out << recent << ".000 D Info\trecent entry\n";
+    }
+    FILE* other_process = std::fopen(log_path.string().c_str(), "a");
+    ASSERT_NE(other_process, nullptr);
+    const std::wstring previous_log_path = Logging::instance().get_log_file_path_name();
+    Logging::instance().set_log_file_path_name(log_path.wstring());
+    Logging::instance().retention_days(7);
+    LogCut()();
+    std::fputs("line written by the other process\n", other_process);
+    std::fclose(other_process);
+
+    std::string result;
+    {
+        std::stringstream content;
+        content << std::ifstream(log_path).rdbuf();
+        result = content.str();
+    }
+    EXPECT_EQ(result.find("ancient"), std::string::npos);
+    EXPECT_NE(result.find("recent entry"), std::string::npos);
+    EXPECT_NE(result.find("line written by the other process"), std::string::npos);
+    EXPECT_EQ(std::count(result.begin(), result.end(), '\n'), 2) << result;  // no error line about the cut
+    EXPECT_FALSE(fs::exists(log_path.wstring() + L".tmp"));
+
+    if (!previous_log_path.empty())
+        Logging::instance().set_log_file_path_name(previous_log_path);
+    fs::remove(log_path);
+}
+#endif
 
 namespace {
 

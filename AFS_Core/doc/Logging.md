@@ -136,7 +136,8 @@ or the path is gone, the file is opened anew. A handle that is closed on purpose
 - LogCut of the own process is at work - stays closed. The check costs one
 fstat() and one stat() per message, little next to the fsync() that follows.
 Windows needs none of this: there a file that another process holds open cannot
-be replaced.
+be replaced, so LogCut writes the shortened log back into the existing file
+(LogCut.md#replace_log_file) and the handle stays valid.
 
 ## collected_
 

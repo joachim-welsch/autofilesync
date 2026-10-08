@@ -56,12 +56,30 @@ bool LogCut::open_files()
 	return os_.is_open();
 }
 
+static void replace_log_file(const std::wstring& shortened, const std::wstring& log, std::error_code& ec)  // [LogCut.md#replace_log_file]
+{
+#ifdef _UNIX
+	fs::rename(shortened, log, ec);
+#else
+	{
+		std::ifstream in(shortened, std::ios::binary);
+		std::ofstream out(log, std::ios::binary | std::ios::trunc);
+		if (!in.is_open() || !out.is_open()) {
+			ec = std::error_code(errno, std::generic_category());
+			return;
+		}
+		out << in.rdbuf();
+	}
+	fs::remove(shortened, ec);
+#endif
+}
+
 void LogCut::close_files()
 {
 	is_.close();
 	os_.close();
 	std::error_code ec;  // [LogCut.md#error-code-overload]
-	fs::rename(log_.get_log_file_path_name() + L".tmp", log_.get_log_file_path_name(), ec);
+	replace_log_file(log_.get_log_file_path_name() + L".tmp", log_.get_log_file_path_name(), ec);
 	log_.open_file();
 	if (ec)
 		log_error(translation::translate("log_file_not_shortenable"), log_.get_log_file_path_name(), util::string_to_wstring(ec.message()));

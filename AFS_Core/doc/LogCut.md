@@ -13,6 +13,17 @@ eagerly left an orphaned ".tmp" behind on every start without an existing log fi
 The error_code overload: this runs at every start, and a log directory that became read-only
 meanwhile must not take the application down.
 
+## replace_log_file
+
+The GUI program and the daemon write to the same file, and either of them may be cutting it
+while the other holds it open. On POSIX the shortened copy is renamed over the log - atomic, and
+Logging's follow_replaced_file() lets the other process pick up the new file. Windows refuses to
+rename over a file another process holds open ("access denied"), so there the shortened copy is
+written back into the existing file: truncating it is allowed, because fopen shares the file for
+writing, and the other process appends behind the new end from then on, as its handle is in
+append mode and the file keeps its identity. A line the other process writes while the copy is
+in progress lands between the old lines - rare, once a day, and harmless.
+
 ## reopen-log-handle
 
 open_files() closed the log handle and only close_files() reopens it: without this, a first
