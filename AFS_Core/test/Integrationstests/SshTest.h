@@ -50,7 +50,7 @@ namespace SSHTest {
 	do {                                                                       \
 		if (!SSHTest::ssh_available())                                          \
 			GTEST_SKIP() << "Kein SSH-Testserver auf " << SSHTest::SSH_HOST    \
-						 << " erreichbar - siehe SSH_TESTS_README.md";         \
+						 << " erreichbar - siehe doc/SSH_TESTS_README.md";         \
 	} while (0)  // [SshTest.md#SKIP_WITHOUT_SSH_SERVER]
 #else
 /* Fallback when the installed GoogleTest does not provide GTEST_SKIP().

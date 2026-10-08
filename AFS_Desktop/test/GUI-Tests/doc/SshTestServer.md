@@ -5,7 +5,7 @@ Module comment for SshTestServer.h / SshTestServer.cpp.
 ## SshTestServer
 
 Everything the SSH GUI tests share: the account of the local test server from
-test/Integrationstests/SSH_TESTS_README.md, a bare SFTP session to build and inspect remote
+test/Integrationstests/doc/SSH_TESTS_README.md, a bare SFTP session to build and inspect remote
 fixtures, and the fixture that skips a test when the server is not there.
 
 ## RemoteSftp

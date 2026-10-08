@@ -71,7 +71,7 @@ Konstanten werden Makros wenn immer möglich bevorzugt.
 - Kommentare beschreiben keine offensichtlichen Sprachkonstrukte oder Standardbibliotheksfunktionen.
 - Der Kommentar soll nicht den kompakten Code stören (z.B. unnötige Zeilen)
   Kommentare sollen den Lesefluss des Codes nicht stören. Unnötige Leerzeilen oder großflächige Kommentarblöcke sind verboten.
-- Zu jedem Modul wird eine Kommentardatei gepflegt und zwar im src-Verzeichnis. Hier wird der mehrzeilige Kommentar abgelegt.
+- Zu jedem Modul wird eine Kommentardatei gepflegt und zwar im doc-Verzeichnis (neben include und src). Hier wird der mehrzeilige Kommentar abgelegt.
 - Inline-Kommentar ist im Quelltext nur hinter dem Code erlaubt. Inline-Kommentare stehen auf derselben Zeile wie der Code. Zeilen, die nur Kommentar enthalten sind strikt verboten.
 - Im Inline-Kommentar sollten Sprungmarken zum Modulkommentar stehen, wenn es um die Erklärung eines Abschnitts des Codes geht.
 - Ausnahme: Der Lizenz-Header am Dateianfang (GPLv3-Hinweis) ist als Kommentarblock erlaubt und in allen Quelldateien von AFS_Core, AFS_Desktop und backgroundsync Pflicht. `python tools/licenseHeaders.py --apply` setzt ihn, `--check` prüft ihn.
