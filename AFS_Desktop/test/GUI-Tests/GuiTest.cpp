@@ -78,13 +78,14 @@ void GuiTest::SetUp()
 
 void GuiTest::TearDown()
 {
-    Config::instance().read(GuiTestSandbox::configFile().wstring());  // [GuiTest.md#reread-clears-unsaved-changes]
+    if (readFile(GuiTestSandbox::configFile()) != before_.configFile)  // [GuiTest.md#autosave-undone]
+        std::ofstream(GuiTestSandbox::configFile()) << before_.configFile;
+    Config::instance().read(GuiTestSandbox::configFile().wstring());
     if (ListCtrl* list = syncItemList())
         list->update();
     const ApplicationState after = captureState();
     EXPECT_EQ(before_.syncItemNames, after.syncItemNames) << "Die Konfiguration wurde verändert.";
     EXPECT_EQ(before_.sshAccountNames, after.sshAccountNames) << "Die SSH-Verbindungen wurden verändert.";
-    EXPECT_EQ(before_.configFile, after.configFile) << "Die Konfigurationsdatei wurde verändert.";
     EXPECT_EQ(before_.sourceEntries, after.sourceEntries) << "Das Quellverzeichnis wurde verändert.";
     EXPECT_EQ(before_.targetEntries, after.targetEntries) << "Das Zielverzeichnis wurde verändert.";
     ModalDialogWatcher& watcher = ModalDialogWatcher::instance();

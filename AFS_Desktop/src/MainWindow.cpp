@@ -35,6 +35,7 @@
 #include "Synchronize.h"
 #include "SyncControler.h"
 #include "SyncInterface.h"
+#include "AutoSave.h"
 #include "BackgroundService.h"
 #include "TaskBarIcon.h"
 #include "TimedMessageBox.h"
@@ -93,6 +94,7 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
     EVT_MENU(tul(id::File_new_SshConnection), MainWindow::onAddSshConnection)
     EVT_MENU(tul(id::File_open), MainWindow::onFileOpen)
     EVT_MENU(tul(id::File_save), MainWindow::onFileSave)
+    EVT_UPDATE_UI(tul(id::File_save), MainWindow::onUpdateFileSave)
     EVT_MENU(tul(id::File_save_as), MainWindow::onFileSaveAs)
     EVT_MENU(tul(id::View_Tree), MainWindow::onViewTree)
     EVT_MENU(tul(id::View_List), MainWindow::onViewList)
@@ -327,6 +329,7 @@ void MainWindow::onAddSyncItem(wxCommandEvent& WXUNUSED(event))
         dlg.saveData(syncItem);
         Config& cfg(Config::instance());
         cfg.add(syncItem);
+        autosave::after_change(this);  // [MainWindow.md#autosave]
         update();
     }
 }
@@ -339,6 +342,7 @@ void MainWindow::onAddSshConnection(wxCommandEvent& WXUNUSED(event))
         dlg.saveData(sshAccount);
         Config& cfg(Config::instance());
         cfg.add(sshAccount);
+        autosave::after_change(this);
     }
 }
 
@@ -386,15 +390,6 @@ void MainWindow::onFileOpen(wxCommandEvent&)
     update();
 }
 
-bool save()
-{
-    Config& cfg(Config::instance());
-    if (cfg.write(cfg.pathname()))
-        return true;
-    wxMessageBox(translation::translate("config_save_failed"), translation::translate("error"), wxOK | wxICON_ERROR);  // [MainWindow.md#write-result-checked]
-    return false;
-}
-
 void MainWindow::setStatusTextWithTimer(const wxString& text, int milliseconds)
 {
     SetStatusText(text);
@@ -404,7 +399,7 @@ void MainWindow::setStatusTextWithTimer(const wxString& text, int milliseconds)
 
 void MainWindow::onFileSave(wxCommandEvent& WXUNUSED(event))
 {
-    if (save())
+    if (autosave::save(this))
         setStatusTextWithTimer(translation::translate("config_saved"), 5000);
     setTitle();
 }
@@ -531,6 +526,7 @@ void MainWindow::onEditSync(wxCommandEvent&)
     if (dlg.ShowModal() == wxID_OK) {
         dlg.saveData(*found);
         Config::instance().update_by_name(originalName, *found);
+        autosave::after_change(this);
         update();
     }
 }
@@ -541,10 +537,16 @@ void MainWindow::onUpdateSyncItemSelected(wxUpdateUIEvent& event)
     event.Enable(found.has_value());
 }
 
+void MainWindow::onUpdateFileSave(wxUpdateUIEvent& event)
+{
+    event.Enable(Config::instance().changed());
+}
+
 void MainWindow::onEditSshAccounts(wxCommandEvent&)
 {
     SshAccountsDialog dlg(this, wxID_ANY, txt::ssh_connections());
     dlg.ShowModal();
+    autosave::after_change(this);
 }
 
 void MainWindow::onEditSettings(wxCommandEvent&)
@@ -552,6 +554,7 @@ void MainWindow::onEditSettings(wxCommandEvent&)
     bool autoStartLast = Config::instance().settings().auto_start();
     SettingsDialog dlg(this, wxID_ANY, txt::settings());
     dlg.ShowModal();
+    autosave::after_change(this);
     if (autoStartLast !=  Config::instance().settings().auto_start())
         registerAutomaticStart(Config::instance().settings().auto_start());
 }
@@ -559,8 +562,8 @@ void MainWindow::onEditSettings(wxCommandEvent&)
 void MainWindow::onEditLogging(wxCommandEvent&)
 {
     LoggingDialog dlg(this, wxID_ANY, txt::logging_settings());
-    if (dlg.ShowModal() == wxID_OK) {
-    }
+    dlg.ShowModal();
+    autosave::after_change(this);
 }
 
 void MainWindow::onChat(wxCommandEvent&)
@@ -584,6 +587,7 @@ void MainWindow::onDeleteSync(wxCommandEvent&)
         return;
     Config& cfg(Config::instance());
     cfg.erase_by_name(found->name());
+    autosave::after_change(this);
     update();
 }
 
@@ -806,7 +810,7 @@ bool MainWindow::askAndSave(const char* question, long extra_style)
     const int answer = dlg.ShowModal();
     if (answer == wxID_CANCEL)
         return false;
-    const bool saved = answer == wxID_NO || save();
+    const bool saved = answer == wxID_NO || autosave::save(this);
     setTitle();
     return saved;
 }

@@ -102,6 +102,7 @@ private:
     void onFileSaveAs(wxCommandEvent&);
     void onEditSync(wxCommandEvent& event);
     void onUpdateSyncItemSelected(wxUpdateUIEvent& event);  // [MainWindow.md#onUpdateSyncItemSelected]
+    void onUpdateFileSave(wxUpdateUIEvent& event);  // [MainWindow.md#autosave]
     void onEditSshAccounts(wxCommandEvent& event);
     void onEditSettings(wxCommandEvent& event);
     void onEditLogging(wxCommandEvent& event);

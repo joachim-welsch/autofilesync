@@ -8,6 +8,7 @@ get_filename_component(AFS_DESKTOP_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
 
 set(AFS_DESKTOP_SOURCES
     App.cpp
+    AutoSave.cpp
     BackgroundService.cpp
     Canvas.cpp
     ChatDialog.cpp

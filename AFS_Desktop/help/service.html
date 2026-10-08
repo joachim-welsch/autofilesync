@@ -36,13 +36,12 @@ tritt der Dienst zurück.</p>
 </ul>
 
 <h2>Änderungen an der Konfiguration</h2>
-<p>Der Dienst liest die gespeicherte Konfigurationsdatei, nicht das, was im
-Programmfenster gerade bearbeitet wird. Solange Änderungen nicht gespeichert
-sind, zeigt der Fenstertitel <b>(nicht gespeichert)</b>, und der Dienst arbeitet
-weiter mit dem alten Stand. Nach <b>Datei &rarr; Speichern</b> übernimmt ein
-laufender Dienst die Datei von selbst: Er bricht den laufenden Durchlauf ab und
-beginnt mit der neuen Konfiguration von vorn. Wird der Dienst bei ungespeicherten
-Änderungen gestartet, fragt das Programm vorher, ob gespeichert werden soll;
+<p>Der Dienst liest die Konfigurationsdatei. Da das Programm jede Änderung
+sofort speichert, übernimmt ein laufender Dienst sie von selbst: Er bricht den
+laufenden Durchlauf ab und beginnt mit der neuen Konfiguration von vorn. Nur wenn
+das Speichern fehlgeschlagen ist, zeigt der Fenstertitel
+<b>(nicht gespeichert)</b>, und der Dienst arbeitet weiter mit dem alten Stand;
+beim Start des Dienstes fragt das Programm dann, ob gespeichert werden soll –
 <b>Abbrechen</b> startet den Dienst nicht.</p>
 
 </body>

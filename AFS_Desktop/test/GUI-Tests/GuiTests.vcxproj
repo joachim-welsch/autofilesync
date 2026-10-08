@@ -135,6 +135,7 @@
     <ClInclude Include="..\..\..\AFS_Core\include\Translation.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Util.h" />
     <ClInclude Include="..\..\include\App.h" />
+    <ClInclude Include="..\..\include\AutoSave.h" />
     <ClInclude Include="..\..\include\BackgroundService.h" />
     <ClInclude Include="..\..\include\Canvas.h" />
     <ClInclude Include="..\..\include\ChatDialog.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LogAnalysis.cpp" />
+    <ClCompile Include="..\..\src\AutoSave.cpp" />
     <ClCompile Include="..\..\src\BackgroundService.cpp" />
     <ClCompile Include="..\..\src\Canvas.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CheckPath.cpp" />

@@ -18,6 +18,7 @@
  */
 #include "GridCtrl.h"
 
+#include "AutoSave.h"
 #include "Config.h"
 #include "SyncItemDialog.h"
 #include "TextResources.h"
@@ -189,6 +190,7 @@ void GridCtrl::OnModifyEntry(wxGridEvent& ev)
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);
 		Config::instance().update_by_name(originalName, *found);
+		autosave::after_change(this);  // [AutoSave.md#after_change]
 		update();
 	}
 }
@@ -214,6 +216,7 @@ void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
 		case 2:	found->target(value.ToStdWstring()); break;
 		}
 		cfg.update_by_name(name.ToStdWstring(), *found);  // [GridCtrl.md#copy-written-back]
+		autosave::after_change(this);
 	}
 	ev.Skip();
 }

@@ -147,6 +147,9 @@
     <ClInclude Include="include\App.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\AutoSave.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
     <ClInclude Include="include\BackgroundService.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
@@ -363,6 +366,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="src\App.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AutoSave.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\BackgroundService.cpp">

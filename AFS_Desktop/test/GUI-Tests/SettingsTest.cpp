@@ -30,6 +30,8 @@
 #include "id.h"
 #include "TextResources.h"
 #include "utilwx.h"
+#include <fstream>
+#include <sstream>
 #ifdef _WIN32
     #include <wx/msw/registry.h>
 #endif
@@ -102,7 +104,10 @@ TEST_F(GuiTest, EinstellungenKommenInDieKonfiguration)  // [SettingsTest.md#Eins
     EXPECT_TRUE(settings.show_errors());
     EXPECT_TRUE(settings.show_warnings());
     EXPECT_TRUE(settings.show_infos());
-    EXPECT_TRUE(Config::instance().changed()) << "Die geänderten Einstellungen gelten nicht als zu speichern.";
+    EXPECT_FALSE(Config::instance().changed()) << "Die geänderten Einstellungen wurden nicht sofort gespeichert.";
+    std::ostringstream savedFile;
+    savedFile << std::ifstream(GuiTestSandbox::configFile()).rdbuf();
+    EXPECT_NE(savedFile.str().find("\"ShowInfos\": \"true\""), std::string::npos) << "Die Einstellung steht nicht in der Datei.";
 }
 
 TEST_F(GuiTest, MinimierenStattSchliessenVerstecktAnstattZuBeenden)  // [SettingsTest.md#MinimierenStattSchliessenVerstecktAnstattZuBeenden]

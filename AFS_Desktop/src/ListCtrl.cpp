@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "ListCtrl.h"
+#include "AutoSave.h"
 #include "Config.h"
 #include "SyncItemDialog.h"
 #include "TextResources.h"
@@ -81,6 +82,7 @@ void ListCtrl::OnDClick(wxMouseEvent&)
 	if (dlg.ShowModal() == wxID_OK) {
 		dlg.saveData(*found);
 		Config::instance().update_by_name(originalName, *found);
+		autosave::after_change(this);  // [AutoSave.md#after_change]
 		update();
 	}
 }

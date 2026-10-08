@@ -23,6 +23,7 @@
 #include "SandboxTree.h"
 #include "SyncActions.h"
 #include "SyncItemDialogDriver.h"
+#include "TextResources.h"
 #include "UserActions.h"
 #include "BackgroundService.h"
 #include "Config.h"
@@ -86,6 +87,41 @@ SyncItemInput sandboxSync(const wxString& name = ITEM_NAME)
     return SyncItemInput{name, GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
 }
 
+class BlockedConfigFile {  // [ConfigFileTest.md#BlockedConfigFile]
+public:
+    BlockedConfigFile()
+        : pathname_(Config::instance().pathname()), blocked_(GuiTestSandbox::root() / "gesperrt")
+    {
+        fs::create_directories(blocked_);
+        Config::instance().pathname(blocked_.wstring());
+    }
+    ~BlockedConfigFile()
+    {
+        Config::instance().pathname(pathname_);
+        fs::remove_all(blocked_);
+        fs::remove(blocked_.string() + ".tmp");
+    }
+private:
+    std::wstring pathname_;
+    fs::path blocked_;
+};
+
+bool addUnsavedSyncItem(MainWindow& window, const SyncItemInput& input)  // [ConfigFileTest.md#addUnsavedSyncItem]
+{
+    const BlockedConfigFile blocked;
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(input));
+    ModalDialogWatcher::instance().answer(translation::translate("error"), wxID_OK);
+    activateMenuItem(window, tul(id::File_new_Synchronization));
+    pump();
+    return Config::instance().find_by_name(input.name.ToStdWstring()).has_value() && Config::instance().changed();
+}
+
+bool saveEnabled(MainWindow& window)
+{
+    window.UpdateWindowUI();  // the menu bar refreshes its items through update-UI events only when needed
+    return window.GetMenuBar()->IsEnabled(tul(id::File_save));
+}
+
 wxString transientStatus(MainWindow& window)
 {
     return window.GetStatusBar()->GetStatusText(0);
@@ -93,44 +129,47 @@ wxString transientStatus(MainWindow& window)
 
 }
 
-TEST_F(GuiTest, SpeichernSchreibtDateiUndMeldetInStatuszeile)
+TEST_F(GuiTest, AenderungWirdSofortGespeichert)  // [ConfigFileTest.md#autosave]
 {
     const RestoredConfigFile restored(mainWindow());
+    ASSERT_FALSE(saveEnabled(mainWindow())) << "Speichern ist anwählbar, obwohl nichts aussteht.";
+
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
-    ASSERT_TRUE(Config::instance().changed());
-    ASSERT_EQ(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Die Datei kennt die Synchronisation schon vor dem Speichern.";
 
-    activateMenuItem(mainWindow(), tul(id::File_save));
-    pump();
-
-    EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Die Synchronisation steht nicht in der gespeicherten Datei.";
-    EXPECT_FALSE(Config::instance().changed()) << "Nach dem Speichern gilt die Konfiguration noch als geändert.";
-    EXPECT_EQ(transientStatus(mainWindow()), translation::translate("config_saved"));
+    EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Die neue Synchronisation steht nicht sofort in der Datei.";
+    EXPECT_FALSE(Config::instance().changed()) << "Nach dem automatischen Speichern gilt die Konfiguration noch als geändert.";
+    EXPECT_FALSE(mainWindow().GetTitle().Contains(unsaved_marker())) << "Der Titel meldet Ungespeichertes, obwohl gespeichert wurde.";
+    EXPECT_FALSE(saveEnabled(mainWindow())) << "Speichern bleibt anwählbar, obwohl gespeichert wurde.";
 }
 
-TEST_F(GuiTest, TitelZeigtUngespeicherteAenderungBisZumSpeichern)  // [ConfigFileTest.md#title]
+TEST_F(GuiTest, FehlgeschlagenesSchreibenZeigtSichImTitelUndSpeichernHoltNach)  // [ConfigFileTest.md#title]
 {
     const RestoredConfigFile restored(mainWindow());
-    ASSERT_FALSE(mainWindow().GetTitle().Contains(unsaved_marker())) << "Der Titel meldet schon vor der Änderung Ungespeichertes.";
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
-
+    ASSERT_TRUE(addUnsavedSyncItem(mainWindow(), sandboxSync())) << "Das gesperrte Schreiben ließ die Änderung nicht als ungespeichert zurück.";
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Das fehlgeschlagene Schreiben blieb ohne Meldung.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("config_save_failed"));
     EXPECT_TRUE(mainWindow().GetTitle().Contains(unsaved_marker())) << "Der Titel verschweigt die ungespeicherte Änderung.";
+    EXPECT_TRUE(saveEnabled(mainWindow())) << "Speichern ist nach dem Fehlschlag nicht anwählbar.";
+
     activateMenuItem(mainWindow(), tul(id::File_save));
     pump();
 
+    EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Die Synchronisation steht nicht in der nachgespeicherten Datei.";
+    EXPECT_FALSE(Config::instance().changed()) << "Nach dem Speichern gilt die Konfiguration noch als geändert.";
     EXPECT_FALSE(mainWindow().GetTitle().Contains(unsaved_marker())) << "Der Titel meldet nach dem Speichern noch Ungespeichertes.";
+    EXPECT_EQ(transientStatus(mainWindow()), translation::translate("config_saved"));
 }
 
 TEST_F(GuiTest, DienststartAbbrechenBeiUngespeicherterKonfigurationStartetNicht)  // [ConfigFileTest.md#background-service]
 {
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+    ASSERT_TRUE(addUnsavedSyncItem(mainWindow(), sandboxSync()));
     ModalDialogWatcher::instance().answer(not_saved_title(), wxID_CANCEL);
 
     activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Dienststart fragte nicht nach der ungespeicherten Konfiguration.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("bs_save_question"));
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 2u) << "Der Dienststart fragte nicht nach der ungespeicherten Konfiguration.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().back(), translation::translate("bs_save_question"));
     EXPECT_TRUE(Config::instance().changed()) << "Abbrechen hat gespeichert.";
     EXPECT_EQ(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Abbrechen hat die Datei geschrieben.";
     EXPECT_TRUE(ModalDialogWatcher::instance().unexpectedDialogs().empty()) << "Trotz Abbrechen ging der Dienststart weiter.";
@@ -141,26 +180,28 @@ TEST_F(GuiTest, DienststartSpeichertAufWunschVorDemStart)  // [ConfigFileTest.md
     if (BackgroundService::state() != BackgroundService::State::NotInstalled)
         GTEST_SKIP() << "Der Hintergrunddienst ist installiert; sein Start braucht Administratorrechte.";
     const RestoredConfigFile restored(mainWindow());
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+    ASSERT_TRUE(addUnsavedSyncItem(mainWindow(), sandboxSync()));
     ModalDialogWatcher::instance().answer(not_saved_title(), wxID_YES);
     ModalDialogWatcher::instance().answer(translation::translate("bs_caption"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 2u) << "Rückfrage oder Fehlerbox des fehlenden Dienstes blieben aus.";
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 3u) << "Rückfrage oder Fehlerbox des fehlenden Dienstes blieben aus.";
     EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Ja hat die Datei nicht vor dem Start geschrieben.";
     EXPECT_FALSE(Config::instance().changed());
 }
 
-TEST_F(GuiTest, SpeichernUeberWerkzeugleisteSchreibtDatei)
+TEST_F(GuiTest, SpeichernUeberWerkzeugleisteHoltFehlgeschlagenesSchreibenNach)
 {
     const RestoredConfigFile restored(mainWindow());
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+    ASSERT_TRUE(addUnsavedSyncItem(mainWindow(), sandboxSync()));
+    ASSERT_TRUE(saveEnabled(mainWindow())) << "Speichern ist nach dem Fehlschlag nicht anwählbar.";  // refreshes the toolbar as well
 
     ASSERT_TRUE(activateToolbarTool(mainWindow(), tul(id::File_save)));
 
     EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Der Speichern-Knopf hat nicht gespeichert.";
+    EXPECT_FALSE(Config::instance().changed());
 }
 
 TEST_F(GuiTest, SpeichernAlsHaengtJsonAnUndFragtBeiUeberschreiben)  // [ConfigFileTest.md#save-as]
@@ -204,16 +245,15 @@ TEST_F(GuiTest, OeffnenMitUngespeichertenAenderungenFragtNach)  // [ConfigFileTe
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync("guitest-andere")));
     ASSERT_TRUE(Config::instance().write(tree.path("andere.json").wstring()));  // [ConfigFileTest.md#second-file]
     Config::instance().read(GuiTestSandbox::configFile().wstring());
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync("guitest-ungespeichert")));
-    ASSERT_TRUE(Config::instance().changed());
+    ASSERT_TRUE(addUnsavedSyncItem(mainWindow(), sandboxSync("guitest-ungespeichert")));
 
     ModalDialogWatcher::instance().answer(not_saved_title(), wxID_NO);
     ModalDialogWatcher::instance().choosePath(open_title(), tree.path("andere.json").string());
     activateMenuItem(mainWindow(), tul(id::File_open));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die ungespeicherte Änderung wurde nicht angesprochen.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("save_question"));
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 2u) << "Die ungespeicherte Änderung wurde nicht angesprochen.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().back(), translation::translate("save_question"));
     EXPECT_TRUE(Config::instance().find_by_name(L"guitest-andere").has_value()) << "Die geöffnete Datei wurde nicht geladen.";
     EXPECT_FALSE(Config::instance().find_by_name(L"guitest-ungespeichert").has_value()) << "Die ungespeicherte Synchronisation überlebte das Öffnen.";
     EXPECT_EQ(readFile(GuiTestSandbox::configFile()).find("guitest-ungespeichert"), std::string::npos) << "Trotz Nein wurde gespeichert.";
@@ -226,7 +266,6 @@ TEST_F(GuiTest, OeffnenEinerDefektenDateiBehaeltAlteKonfiguration)  // [ConfigFi
     const RestoredConfigFile restored(mainWindow());
     const SandboxTree tree(GuiTestSandbox::root() / "defekt", {{"kaputt.json", "{ \"SyncItems\": [ oops"}});
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
-    activateMenuItem(mainWindow(), tul(id::File_save));
     ASSERT_FALSE(Config::instance().changed());
 
     ModalDialogWatcher::instance().choosePath(open_title(), tree.path("kaputt.json").string());

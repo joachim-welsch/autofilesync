@@ -51,10 +51,19 @@ pointless read error.
 
 ## write-result-checked
 
-write()'s return value used to be discarded here (and at its other two call sites): a failed
-save - disk full, permissions - left the user believing "Konfiguration gespeichert" while the
-on-disk file was untouched (round 4's atomic write correctly refuses to overwrite it on
-failure), and askAndSave() would then let the app close right over the lost changes.
+write()'s return value used to be discarded here (and at its other call sites): a failed save -
+disk full, permissions - left the user believing "Konfiguration gespeichert" while the on-disk
+file was untouched (the atomic write correctly refuses to overwrite it on failure), and
+askAndSave() would then let the app close right over the lost changes. The checked write now
+lives in autosave::save().
+
+## autosave
+
+Every command that changes the configuration ends with autosave::after_change(), so the file is
+current the moment the window is - see AutoSave.md. "Datei > Speichern" (menu and toolbar) is
+only enabled while Config::changed() is set, which after a change can only mean that the
+automatic write failed: the greyed command tells the user that nothing is pending, the enabled
+one that a retry is due.
 
 ## withJsonExtension
 
@@ -150,16 +159,17 @@ which terms they hold it. The details are on the help page "Lizenzbedingungen".
 ## setTitle
 
 The title carries the configuration's path and, while Config::changed() is set, the
-"(nicht gespeichert)" marker: the configuration lives in memory until the user saves, and
-without the marker nothing told them that the file - the one the background service reads -
-still holds the old state. The timer tick refreshes it, so changes made in the grid or in the
+"(nicht gespeichert)" marker. With the automatic save that state only remains after a failed
+write, and without the marker nothing told the user that the file - the one the background
+service reads - still holds the old state. The timer tick refreshes it, so changes made in the grid or in the
 dialogs show up without each of them having to call here; SetTitle is skipped while the text is
 unchanged so the tick does not repaint the title bar every second.
 
 ## askAndSave
 
 Shared by every command that leaves the in-memory configuration behind - opening another file,
-closing, starting the background service - with the question as its argument. Returns false
+closing, starting the background service - with the question as its argument. Since changes are
+saved as they happen, the question only comes up after a failed write. Returns false
 only when the user cancelled (extra_style wxCANCEL) or the save failed; "Nein" is a decision,
 not a failure.
 

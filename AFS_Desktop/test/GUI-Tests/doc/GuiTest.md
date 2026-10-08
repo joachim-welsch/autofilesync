@@ -7,10 +7,13 @@ Module comment for GuiTest.h / GuiTest.cpp.
 Names and sizes are enough to spot every change a synchronisation could cause: a copied, deleted
 or overwritten file changes one of them.
 
-## reread-clears-unsaved-changes
+## autosave-undone
 
-Re-reading the untouched file undoes every in-memory change and clears the "unsaved changes"
-flag, which would otherwise make the application ask for saving while it shuts down.
+The application writes every change to the sandbox's configuration file at once, so a test
+that adds an item or changes a setting has changed the file by the time it ends. TearDown puts
+the content captured in SetUp back and re-reads it: that undoes the changes in the file and in
+memory alike and clears the "unsaved changes" flag that a failed write would leave behind, which
+would otherwise make the application ask for saving while it shuts down.
 
 ## both-branches-wxstring
 

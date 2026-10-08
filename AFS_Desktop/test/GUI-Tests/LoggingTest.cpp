@@ -126,7 +126,8 @@ TEST_F(GuiTest, LogPfadUndLevelWerdenUebernommen)
     EXPECT_EQ(Logging::instance().get_log_file_path_name(), tree.path("neu.log").wstring());
     EXPECT_EQ(Logging::instance().get_log_level(), LogLevel::Debug);
     EXPECT_EQ(Logging::instance().get_editor_path_name(), L"notepad");
-    EXPECT_TRUE(Config::instance().changed()) << "Die geänderten Logging-Einstellungen gelten nicht als zu speichern.";
+    EXPECT_FALSE(Config::instance().changed()) << "Die geänderten Logging-Einstellungen wurden nicht sofort gespeichert.";
+    EXPECT_NE(readFile(GuiTestSandbox::configFile()).find("neu.log"), std::string::npos) << "Der neue Logpfad steht nicht in der Datei.";
 }
 
 TEST_F(GuiTest, KuerzereHistorieKuerztLogSofort)  // [LoggingTest.md#KuerzereHistorieKuerztLogSofort]
