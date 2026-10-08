@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Windows installation package. Built by makeWindowsInstaller.ps1, which stages
-  the payload and passes PayloadDir and Version in; nothing here reaches into
-  the build tree, so the package always describes exactly what was staged.
+  the payload and passes PayloadDir, ServiceDir and Version in; nothing here
+  reaches into the build tree, so the package always describes exactly what was
+  staged.
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
   <Package Name="AutoFileSync"
            Manufacturer="Joachim Welsch"
@@ -40,10 +42,36 @@
          und die Verknuepfung trotz Haken ausbliebe. -->
     <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" Secure="yes" />
 
+    <!-- Der Hintergrunddienst laeuft unter dem Konto der Person, die installiert:
+         er liest deren Konfiguration (%APPDATA%) und braucht deren Netzlaufwerke
+         und Zugangsdaten. Windows verlangt dafuer das Passwort des Kontos; es
+         ist Hidden, damit es nicht im Installationsprotokoll steht. Benutzername
+         und Domaene sind mit dem anmeldenden Konto vorbelegt (SetProperty, weil
+         ein Property-Vorgabewert nicht formatiert wird). -->
+    <Property Id="INSTALLSERVICE" Value="1" Secure="yes" />
+    <Property Id="SERVICEUSER" Secure="yes" />
+    <Property Id="SERVICEDOMAIN" Secure="yes" />
+    <Property Id="SERVICEPASSWORD" Secure="yes" Hidden="yes" />
+    <SetProperty Id="SERVICEUSER" Value="[LogonUser]" After="AppSearch" Sequence="first" Condition="NOT SERVICEUSER" />
+    <SetProperty Id="SERVICEDOMAIN" Value="[%USERDOMAIN]" After="AppSearch" Sequence="first" Condition="NOT SERVICEDOMAIN" />
+
     <Feature Id="Main" Title="AutoFileSync" Level="1">
       <ComponentGroupRef Id="Payload" />
       <ComponentGroupRef Id="Shortcuts" />
+      <ComponentGroupRef Id="Service" />
     </Feature>
+
+    <!-- Gestartet wird ueber sc.exe statt ueber ServiceControl Start="install":
+         ein falsches Passwort liesse den Start scheitern, und Windows Installer
+         braeche dann die ganze Installation ab. So bleibt das Programm installiert,
+         der Dienst steht auf "gestoppt", und das Menue Hintergrunddienst nennt
+         beim Start den Grund (Anmeldung fehlgeschlagen). -->
+    <CustomAction Id="StartBackgroundService" Directory="INSTALLFOLDER"
+                  ExeCommand="&quot;[System64Folder]sc.exe&quot; start backgroundsync"
+                  Execute="deferred" Impersonate="no" Return="ignore" />
+    <InstallExecuteSequence>
+      <Custom Action="StartBackgroundService" After="StartServices" Condition="INSTALLSERVICE AND SERVICEPASSWORD AND NOT REMOVE" />
+    </InstallExecuteSequence>
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
     <!-- The licence page shows LICENSING.md and the GPL, rendered to RTF by
@@ -55,10 +83,17 @@
       <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="ShortcutDlg"
                Order="10" Condition="WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID=&quot;1&quot;" />
       <Publish Dialog="ShortcutDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg" />
-      <Publish Dialog="ShortcutDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" />
+      <Publish Dialog="ShortcutDlg" Control="Next" Event="NewDialog" Value="ServiceDlg" />
+      <Publish Dialog="ServiceDlg" Control="Back" Event="NewDialog" Value="ShortcutDlg" />
+      <!-- Ohne Passwort kann Windows den Dienst nicht anmelden; der Hinweis
+           haelt die Seite offen, bis eines eingegeben oder der Haken entfernt ist. -->
+      <Publish Dialog="ServiceDlg" Control="Next" Event="SpawnDialog" Value="ServicePasswordDlg"
+               Order="1" Condition="INSTALLSERVICE AND NOT SERVICEPASSWORD" />
+      <Publish Dialog="ServiceDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg"
+               Order="2" Condition="NOT INSTALLSERVICE OR SERVICEPASSWORD" />
       <!-- Nur im Erstinstallationszweig: im Wartungsmodus fuehrt "Zurueck" zur
-           Auswahl Aendern/Reparieren, und dort kommt ShortcutDlg nicht vor. -->
-      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="ShortcutDlg"
+           Auswahl Aendern/Reparieren, und dort kommen die eigenen Seiten nicht vor. -->
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="ServiceDlg"
                Order="10" Condition="NOT Installed" />
     </UI>
   </Package>
@@ -114,9 +149,39 @@
     </ComponentGroup>
   </Fragment>
 
-  <!-- Eigener Dialog, weil sich die Dialoge der UI-Erweiterung nicht
+  <!-- Der Hintergrunddienst: dieselbe Programmdatei wie unter Linux und macOS,
+       hier als Windows-Dienst "backgroundsync" registriert - der Name, unter dem
+       das Menue Hintergrunddienst ihn anspricht. Ohne Haken oder ohne Passwort
+       (stille Installation) bleibt die Komponente weg. Stop/Remove auf beiden
+       Wegen: beim Entfernen geht der Dienst mit, und bei der Installation weicht
+       ein von Hand registrierter Dienst gleichen Namens, der CreateService sonst
+       scheitern liesse. util:User verleiht dem Konto das Recht "Als Dienst
+       anmelden", das sc.exe und Windows Installer nicht von selbst vergeben.
+       Abhaengig von Tcpip und LanmanWorkstation wie "After=network-online" der
+       systemd-Unit: die Ziele liegen meist auf Netzlaufwerken. -->
+  <Fragment>
+    <ComponentGroup Id="Service" Directory="INSTALLFOLDER">
+      <Component Id="BackgroundService" Guid="{AB4D50C5-6F81-483C-B7C1-D8D6626E270E}"
+                 Condition="INSTALLSERVICE AND SERVICEPASSWORD">
+        <File Id="backgroundsync.exe" Source="$(ServiceDir)\backgroundsync.exe" KeyPath="yes" />
+        <ServiceInstall Id="BackgroundServiceInstall" Name="backgroundsync"
+                        DisplayName="AutoFileSync Hintergrunddienst"
+                        Description="Synchronisiert die in AutoFileSync eingerichteten Verzeichnisse, auch wenn das Programm nicht geöffnet ist."
+                        Type="ownProcess" Start="auto" ErrorControl="normal" Vital="yes"
+                        Account="[SERVICEDOMAIN]\[SERVICEUSER]" Password="[SERVICEPASSWORD]">
+          <ServiceDependency Id="Tcpip" />
+          <ServiceDependency Id="LanmanWorkstation" />
+        </ServiceInstall>
+        <ServiceControl Id="BackgroundServiceControl" Name="backgroundsync" Stop="both" Remove="both" Wait="yes" />
+        <util:User Id="ServiceAccount" Name="[SERVICEUSER]" Domain="[SERVICEDOMAIN]"
+                   CreateUser="no" LogonAsService="yes" RemoveOnUninstall="no" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Eigene Dialoge, weil sich die Dialoge der UI-Erweiterung nicht
        nachtraeglich um ein Bedienelement erweitern lassen. Masse und
-       Schriften sind die der Erweiterung, damit er sich einreiht. -->
+       Schriften sind die der Erweiterung, damit sie sich einreihen. -->
   <Fragment>
     <UI>
       <Dialog Id="ShortcutDlg" Width="370" Height="270" Title="[ProductName] Setup">
@@ -140,6 +205,48 @@
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes"
                  Text="!(loc.WixUICancel)">
           <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <!-- Die Eingabefelder folgen dem Haken: ohne Dienst braucht es kein Konto. -->
+      <Dialog Id="ServiceDlg" Width="370" Height="270" Title="[ProductName] Setup">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44"
+                 TabSkip="no" Text="WixUI_Bmp_Banner" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes"
+                 NoPrefix="yes" Text="{\WixUI_Font_Title}Hintergrunddienst" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes"
+                 NoPrefix="yes" Text="Synchronisiert auch, wenn AutoFileSync nicht geöffnet ist." />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="InstallServiceCheckBox" Type="CheckBox" X="20" Y="58" Width="330" Height="17"
+                 Property="INSTALLSERVICE" CheckBoxValue="1"
+                 Text="Hintergrunddienst einrichten" />
+        <Control Id="AccountText" Type="Text" X="20" Y="80" Width="330" Height="36" NoPrefix="yes"
+                 Text="Der Dienst läuft unter Ihrem Benutzerkonto, weil er Ihre Einstellungen, Zugangsdaten und Netzlaufwerke braucht. Windows verlangt dafür Ihr Anmeldepasswort und bewahrt es wie bei jedem Dienst geschützt auf." />
+        <Control Id="UserLabel" Type="Text" X="20" Y="122" Width="110" Height="12" NoPrefix="yes" Text="Benutzername:" EnableCondition="INSTALLSERVICE" DisableCondition="NOT INSTALLSERVICE" />
+        <Control Id="UserEdit" Type="Edit" X="135" Y="120" Width="215" Height="16" Property="SERVICEUSER" EnableCondition="INSTALLSERVICE" DisableCondition="NOT INSTALLSERVICE" />
+        <Control Id="DomainLabel" Type="Text" X="20" Y="144" Width="110" Height="12" NoPrefix="yes" Text="Domäne oder Computer:" EnableCondition="INSTALLSERVICE" DisableCondition="NOT INSTALLSERVICE" />
+        <Control Id="DomainEdit" Type="Edit" X="135" Y="142" Width="215" Height="16" Property="SERVICEDOMAIN" EnableCondition="INSTALLSERVICE" DisableCondition="NOT INSTALLSERVICE" />
+        <Control Id="PasswordLabel" Type="Text" X="20" Y="166" Width="110" Height="12" NoPrefix="yes" Text="Passwort:" EnableCondition="INSTALLSERVICE" DisableCondition="NOT INSTALLSERVICE" />
+        <Control Id="PasswordEdit" Type="Edit" X="135" Y="164" Width="215" Height="16" Property="SERVICEPASSWORD" Password="yes" EnableCondition="INSTALLSERVICE" DisableCondition="NOT INSTALLSERVICE" />
+        <Control Id="StartText" Type="Text" X="20" Y="192" Width="330" Height="24" NoPrefix="yes"
+                 Text="Der Dienst startet nach der Installation und bei jedem Systemstart. Starten und Stoppen geht jederzeit im Menü Hintergrunddienst von AutoFileSync." />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17"
+                 Text="!(loc.WixUIBack)" />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes"
+                 Text="!(loc.WixUINext)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes"
+                 Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <Dialog Id="ServicePasswordDlg" Width="260" Height="85" Title="[ProductName] Setup" NoMinimize="yes">
+        <Control Id="Text" Type="Text" X="48" Y="15" Width="194" Height="30" NoPrefix="yes"
+                 Text="Für den Hintergrunddienst fehlt das Passwort. Bitte eingeben oder den Haken bei „Hintergrunddienst einrichten“ entfernen." />
+        <Control Id="Icon" Type="Icon" X="15" Y="15" Width="24" Height="24" ToolTip="Hinweis" FixedSize="yes" IconSize="32" Text="WixUI_Ico_Info" />
+        <Control Id="OK" Type="PushButton" X="100" Y="57" Width="56" Height="17" Default="yes" Cancel="yes" Text="!(loc.WixUIOK)">
+          <Publish Event="EndDialog" Value="Return" />
         </Control>
       </Dialog>
     </UI>

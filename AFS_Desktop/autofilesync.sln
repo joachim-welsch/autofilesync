@@ -5,6 +5,8 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "autofilesync", "autofilesync.vcxproj", "{CFF39967-8AD0-47AD-A714-FB7B75258B23}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "backgroundsync", "..\backgroundsync\backgroundsync.vcxproj", "{F833EC70-5923-41F8-89B5-300C8627E872}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +17,10 @@ Global
 		{CFF39967-8AD0-47AD-A714-FB7B75258B23}.Debug|x64.Build.0 = Debug|x64
 		{CFF39967-8AD0-47AD-A714-FB7B75258B23}.Release|x64.ActiveCfg = Release|x64
 		{CFF39967-8AD0-47AD-A714-FB7B75258B23}.Release|x64.Build.0 = Release|x64
+		{F833EC70-5923-41F8-89B5-300C8627E872}.Debug|x64.ActiveCfg = Debug|x64
+		{F833EC70-5923-41F8-89B5-300C8627E872}.Debug|x64.Build.0 = Debug|x64
+		{F833EC70-5923-41F8-89B5-300C8627E872}.Release|x64.ActiveCfg = Release|x64
+		{F833EC70-5923-41F8-89B5-300C8627E872}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

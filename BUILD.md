@@ -115,15 +115,21 @@ vcpkg-Verzeichnis kommt aus `%VCPKG_ROOT%` oder aus der von
 `vcpkg integrate install` hinterlegten `vcpkg.path.txt`. Findet es keines von
 beidem, warnt das Skript und baut weiter.
 
-**Ausgabe:** `AFS_Desktop\x64\<Typ>\autofilesync.exe`
+**Ausgabe:** `AFS_Desktop\x64\<Typ>\autofilesync.exe` und der Hintergrunddienst
+`backgroundsync\x64\<Typ>\backgroundsync.exe`. Die Solution enthält dafür
+`backgroundsync\backgroundsync.vcxproj`, das die Kernquellen ohne wxWidgets
+übersetzt – wie `afs_core_headless` in `backgroundsync/CMakeLists.txt`. Der
+Einstiegspunkt ist `WindowsService.cpp`: vom Dienstmanager gestartet läuft das
+Programm als Windows-Dienst, aus einer Konsole gestartet im Vordergrund bis
+Strg+C. Neue Kernquellen gehören in beide `.vcxproj`-Dateien.
 
 ### Installationspaket (MSI)
 
 `makeWindowsInstaller.cmd` erzeugt `build\AutoFileSync-<Version>.msi` – das
 Gegenstück zu `makeMacOSInstaller.sh`. Voraussetzung ist das WiX-Werkzeug
-(`dotnet tool install --global wix`); die UI-Erweiterung lädt das Skript selbst
-nach, und zwar in der Version von `wix` selbst, weil eine neuere sich nicht
-laden lässt.
+(`dotnet tool install --global wix`); die Erweiterungen UI und Util lädt das
+Skript selbst nach, und zwar in der Version von `wix` selbst, weil eine neuere
+sich nicht laden lässt.
 
 ```cmd
 makeWindowsInstaller.cmd              :: Release bauen und paketieren
@@ -147,6 +153,24 @@ einem Starticon auf dem Desktop; der Haken ist vorbelegt, still steuert ihn
 ```cmd
 msiexec /i build\AutoFileSync-<Version>.msi INSTALLDESKTOPSHORTCUT="" /qn
 ```
+
+Eine weitere Seite richtet den Hintergrunddienst ein: `backgroundsync.exe` wird
+als Windows-Dienst `backgroundsync` registriert, startet automatisch und wird
+beim Entfernen des Pakets gestoppt und mit entfernt. Der Dienst läuft unter dem
+Konto der installierenden Person, weil er deren Konfiguration, Zugangsdaten und
+Netzlaufwerke braucht; die Seite fragt deshalb nach dem Anmeldepasswort und
+verleiht dem Konto das Recht „Als Dienst anmelden“. Ein zuvor von Hand mit
+`sc create` registrierter Dienst gleichen Namens wird dabei ersetzt. Der Haken
+ist vorbelegt; still steuern ihn `INSTALLSERVICE` sowie `SERVICEUSER`,
+`SERVICEDOMAIN` und `SERVICEPASSWORD` – ohne Passwort bleibt der Dienst weg:
+
+```cmd
+msiexec /i build\AutoFileSync-<Version>.msi SERVICEPASSWORD=geheim /qn
+msiexec /i build\AutoFileSync-<Version>.msi INSTALLSERVICE="" /qn
+```
+
+Ein falsches Passwort lässt die Installation nicht scheitern: der Dienst bleibt
+dann gestoppt, und das Menü **Hintergrunddienst** nennt beim Start den Grund.
 
 Die Produktdefinition steht in `AFS_Desktop/installer/autofilesync.wxs`, die
 Versionsnummer kommt wie beim macOS-Bündel aus `AFS_Desktop/include/Version.h`.

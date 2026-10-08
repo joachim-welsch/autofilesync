@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{f833ec70-5923-41f8-89b5-300c8627e872}</ProjectGuid>
+    <RootNamespace>backgroundsync</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <!-- Headless twin of AFS_Desktop\autofilesync.vcxproj: the same core sources with
+       the same vcpkg and Boost paths, compiled without the wxWidgets hooks
+       (no _WXWIDGETS), as backgroundsync\CMakeLists.txt does with afs_core_headless.
+       Its own output directory keeps the two projects' IncrementalClean steps apart;
+       the runtime DLLs are copied in afterwards like the desktop program does. -->
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;_UNICODE;_WINDOWS;NOMINMAX;WIN32_LEAN_AND_MEAN;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\$(VcpkgTriplet)\include;..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;bcrypt.lib;ws2_32.lib;kernel32.lib;user32.lib;shell32.lib;shlwapi.lib;ole32.lib;advapi32.lib;version.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Entwicklung\extlib\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="MyDaemon.cpp" />
+    <ClCompile Include="WindowsService.cpp" />
+    <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Config.cpp" />
+    <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\FileDelete.cpp" />
+    <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />
+    <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Global.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Libssh2Init.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LlamaClient.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LogCut.cpp" />
+    <ClCompile Include="..\AFS_Core\src\LogEmail.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Logging.cpp" />
+    <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
+    <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp" />
+    <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Settings.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SftpConnection.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SmtpMailer.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshAccount.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshConnectTimeout.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshDirInspector.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshFileInspector.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />
+    <ClCompile Include="..\AFS_Core\src\StrUtil.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncArbiter.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncBase.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncControler.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncDir.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncFile.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncFileSsh.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Synchronize.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncItem.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Translation.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MyDaemon.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+    <None Include="backgroundsync.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <!-- AfterTargets="Build" for the same reason as in autofilesync.vcxproj: IncrementalClean
+       runs right after PostBuildEvent and would delete the copied DLLs again. -->
+  <Target Name="CopyRuntimeDependencies" AfterTargets="Build">
+    <Exec Command="call &quot;$(SolutionDir)copy_libssh2.bat&quot; $(ConfigurationName) &quot;$(OutDir)&quot;" />
+  </Target>
+</Project>

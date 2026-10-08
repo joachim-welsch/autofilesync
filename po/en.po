@@ -1776,3 +1776,11 @@ msgstr "backgroundsync started"
 #: backgroundsync/backgroundsync.cpp:55 backgroundsync/backgroundsync.cpp:56
 msgid "daemon_stopped"
 msgstr "backgroundsync stopped"
+
+#: backgroundsync/WindowsService.cpp:90
+msgid "daemon_console_mode"
+msgstr "backgroundsync is running in this console window, Ctrl+C stops it."
+
+#: backgroundsync/WindowsService.cpp:113
+msgid "daemon_dispatcher_failed"
+msgstr "Connecting to the Windows service control manager failed, error %1"

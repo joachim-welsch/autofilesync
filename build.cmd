@@ -42,6 +42,8 @@ exit /b 0
 :args_done
 set "BUILD_DIR=%ROOT%AFS_Desktop\x64\%BUILD_TYPE%"
 set "EXECUTABLE=%BUILD_DIR%\autofilesync.exe"
+set "SERVICE_DIR=%ROOT%backgroundsync\x64\%BUILD_TYPE%"
+set "SERVICE=%SERVICE_DIR%\backgroundsync.exe"
 echo === AutoFileSync %BUILD_TYPE% Build ===
 
 if not exist "%SOLUTION%" (
@@ -70,6 +72,7 @@ if not defined MSBUILD (
 if "%CLEAN%"=="1" (
     echo Cleaning build directory...
     if exist "%BUILD_DIR%" rd /s /q "%BUILD_DIR%"
+    if exist "%SERVICE_DIR%" rd /s /q "%SERVICE_DIR%"
     echo Build directory cleaned.
 )
 
@@ -89,14 +92,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
-if not exist "%EXECUTABLE%" (
+for %%f in ("%EXECUTABLE%" "%SERVICE%") do if not exist "%%~f" (
     echo === Build failed ===
-    echo Executable not found: %EXECUTABLE%
+    echo Executable not found: %%~f
     exit /b 1
 )
 
-rem The project file has no msgfmt step, so the catalogues are compiled here:
-rem without them both programs show the bare message ids (see BUILD.md).
+rem The project files have no msgfmt step, so the catalogues are compiled here:
+rem without them both programs show the bare message ids (see BUILD.md). The
+rem service looks for locale\ beside its own binary, so it gets a copy.
 call :locate_msgfmt
 if not defined MSGFMT (
     echo Warning: msgfmt not found - the program will show message ids instead of text.
@@ -107,11 +111,13 @@ if not defined MSGFMT (
         if not exist "!MO_DIR!" md "!MO_DIR!"
         "!MSGFMT!" -o "!MO_DIR!\autofilesync.mo" "%%~fp"
     )
+    xcopy /Y /I /E /Q "%BUILD_DIR%\locale" "%SERVICE_DIR%\locale" >nul
 )
 
 for %%f in ("%EXECUTABLE%") do set "SIZE=%%~zf"
 echo === Build successful ===
 echo Executable: %EXECUTABLE%
+echo Service:    %SERVICE%
 echo Size: %SIZE% bytes
 echo Build type: %BUILD_TYPE%
 echo.

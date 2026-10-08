@@ -2,10 +2,11 @@
 .SYNOPSIS
     Baut das Windows-Installationspaket AutoFileSync-<Version>.msi.
 .DESCRIPTION
-    Gegenstueck zu makeMacOSInstaller.sh: baut die Release-Version, stellt die
-    Nutzlast in einem eigenen Verzeichnis zusammen, prueft sie und laesst WiX
-    daraus ein MSI erzeugen. Geprueft wird vor dem Paketieren, weil ein MSI ohne
-    Katalog oder ohne eine der Laufzeit-DLLs erst beim Anwender auffaellt.
+    Gegenstueck zu makeMacOSInstaller.sh: baut die Release-Version von Programm
+    und Hintergrunddienst, stellt die Nutzlast in einem eigenen Verzeichnis
+    zusammen, prueft sie und laesst WiX daraus ein MSI erzeugen. Geprueft wird
+    vor dem Paketieren, weil ein MSI ohne Katalog oder ohne eine der
+    Laufzeit-DLLs erst beim Anwender auffaellt.
 .EXAMPLE
     .\makeWindowsInstaller.ps1
 .EXAMPLE
@@ -25,8 +26,10 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $buildDir = Join-Path $root "AFS_Desktop\x64\$Configuration"
+$serviceBuildDir = Join-Path $root "backgroundsync\x64\$Configuration"
 $stagingDir = Join-Path $root 'build\windows_installer'
 $payloadDir = Join-Path $stagingDir 'payload'
+$serviceDir = Join-Path $stagingDir 'service'
 $wxs = Join-Path $root 'AFS_Desktop\installer\autofilesync.wxs'
 $icon = Join-Path $root 'AFS_Desktop\icons\afs.ico'
 $modelSetup = 'setup_llama_windows.ps1', 'setup_llama_windows.cmd'
@@ -61,6 +64,16 @@ function Copy-Payload {
     }
     foreach ($script in $modelSetup) { Copy-Item (Join-Path $root $script) $payloadDir }
     Copy-Licenses
+}
+
+# Der Hintergrunddienst liegt neben der Nutzlast, nicht darin: die Nutzlast wird
+# als Ganzes eingesammelt, die Dienstdatei aber braucht in der Produktdefinition
+# ihre eigene Komponente mit der Dienstregistrierung. Er teilt sich die DLLs mit
+# dem Programm, weil beide in dasselbe Verzeichnis installiert werden.
+function Copy-Service {
+    if (Test-Path $serviceDir) { Remove-Item -Recurse -Force $serviceDir }
+    New-Item -ItemType Directory -Force $serviceDir | Out-Null
+    Copy-Item (Join-Path $serviceBuildDir 'backgroundsync.exe') $serviceDir
 }
 
 # Die Lizenztexte gehoeren zu jedem Paket: LICENSE ist die GPL, LICENSING.md
@@ -130,8 +143,9 @@ function Test-Payload {
         $required += "locale\$($language.BaseName)\LC_MESSAGES\autofilesync.mo"
     }
     $missing = $required | Where-Object { -not (Test-Path (Join-Path $payloadDir $_)) }
+    if (-not (Test-Path (Join-Path $serviceDir 'backgroundsync.exe'))) { $missing += 'backgroundsync.exe' }
     if ($missing) { throw "Nutzlast unvollstaendig: $($missing -join ', ')" }
-    Write-Host "Nutzlast vollstaendig ($($required.Count) geforderte Eintraege)." -ForegroundColor Green
+    Write-Host "Nutzlast vollstaendig ($($required.Count + 1) geforderte Eintraege)." -ForegroundColor Green
 }
 
 # Signiert werden die Programmdatei in der Nutzlast und das fertige MSI, mit
@@ -173,19 +187,24 @@ function Invoke-Sign([string]$file) {
     Write-Host "Signiert: $(Split-Path -Leaf $file)" -ForegroundColor Green
 }
 
-# Die UI-Erweiterung wird global abgelegt, nicht als .wix-Verzeichnis im Repo.
-# Ihre Version muss die von wix selbst sein: ohne Angabe laedt "extension add"
-# die neueste (derzeit 7.x), und wix 5 kann die nicht laden.
-function Install-WixUiExtension {
+# Die Erweiterungen werden global abgelegt, nicht als .wix-Verzeichnis im Repo:
+# UI fuer die Dialoge, Util fuer das Anmelderecht des Dienstkontos. Ihre Version
+# muss die von wix selbst sein: ohne Angabe laedt "extension add" die neueste
+# (derzeit 7.x), und wix 5 kann die nicht laden.
+$wixExtensions = 'WixToolset.UI.wixext', 'WixToolset.Util.wixext'
+
+function Install-WixExtensions {
     if (-not (Get-Command wix -ErrorAction SilentlyContinue)) {
         throw "wix nicht gefunden - installieren mit: dotnet tool install --global wix"
     }
     $wixVersion = (& wix --version).Split('+')[0]
     $installed = (& wix extension list -g) -join "`n"
-    if ($installed -match "WixToolset\.UI\.wixext\s+$([regex]::Escape($wixVersion))") { return }
-    Write-Host "WiX-UI-Erweiterung $wixVersion wird nachgeladen..."
-    & wix extension add -g "WixToolset.UI.wixext/$wixVersion"
-    if ($LASTEXITCODE -ne 0) { throw "WiX-UI-Erweiterung $wixVersion konnte nicht geladen werden." }
+    foreach ($extension in $wixExtensions) {
+        if ($installed -match "$([regex]::Escape($extension))\s+$([regex]::Escape($wixVersion))") { continue }
+        Write-Host "WiX-Erweiterung $extension $wixVersion wird nachgeladen..."
+        & wix extension add -g "$extension/$wixVersion"
+        if ($LASTEXITCODE -ne 0) { throw "WiX-Erweiterung $extension $wixVersion konnte nicht geladen werden." }
+    }
 }
 
 if (-not $NoBuild) {
@@ -193,23 +212,26 @@ if (-not $NoBuild) {
     & cmd /c "`"$(Join-Path $root 'build.cmd')`" -$(if ($Configuration -eq 'Debug') {'d'} else {'r'})"
     if ($LASTEXITCODE -ne 0) { throw "Build fehlgeschlagen." }
 }
-if (-not (Test-Path (Join-Path $buildDir 'autofilesync.exe'))) {
-    throw "Kein Build in $buildDir - zuerst .\build.cmd ausfuehren oder -NoBuild weglassen."
+foreach ($built in (Join-Path $buildDir 'autofilesync.exe'), (Join-Path $serviceBuildDir 'backgroundsync.exe')) {
+    if (-not (Test-Path $built)) { throw "Kein Build: $built fehlt - zuerst .\build.cmd ausfuehren oder -NoBuild weglassen." }
 }
 
 Write-Host '=== Nutzlast zusammenstellen ===' -ForegroundColor Green
 Copy-Payload
+Copy-Service
 Test-Payload
 $licenseRtf = Write-LicenseRtf
 Invoke-Sign (Join-Path $payloadDir 'autofilesync.exe')
+Invoke-Sign (Join-Path $serviceDir 'backgroundsync.exe')
 
 Write-Host '=== Paket erzeugen ===' -ForegroundColor Green
-Install-WixUiExtension
+Install-WixExtensions
 $version = Get-Version
 New-Item -ItemType Directory -Force $Output | Out-Null
 $msi = Join-Path $Output "AutoFileSync-$version.msi"
-& wix build -arch x64 -culture de-DE -ext WixToolset.UI.wixext `
-    -d "PayloadDir=$payloadDir" -d "Version=$(ConvertTo-MsiVersion $version)" -d "IconFile=$icon" -d "LicenseRtf=$licenseRtf" `
+$extensionArguments = $wixExtensions | ForEach-Object { '-ext', $_ }
+& wix build -arch x64 -culture de-DE @extensionArguments `
+    -d "PayloadDir=$payloadDir" -d "ServiceDir=$serviceDir" -d "Version=$(ConvertTo-MsiVersion $version)" -d "IconFile=$icon" -d "LicenseRtf=$licenseRtf" `
     -o $msi $wxs
 if ($LASTEXITCODE -ne 0) { throw "wix build fehlgeschlagen." }
 Invoke-Sign $msi
