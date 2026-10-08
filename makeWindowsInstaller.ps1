@@ -168,7 +168,7 @@ function Invoke-Sign([string]$file) {
         return
     }
     $signtool = Find-SignTool
-    & $signtool sign /fd sha256 /td sha256 /tr $timestampServer /d 'AutoFileSync' /du 'https://codeberg.org/welschj/autofilesync' @certificate $file
+    & $signtool sign /fd sha256 /td sha256 /tr $timestampServer /d 'AutoFileSync' /du 'https://welsch-software.com' @certificate $file
     if ($LASTEXITCODE -ne 0) { throw "Signieren fehlgeschlagen: $file" }
     Write-Host "Signiert: $(Split-Path -Leaf $file)" -ForegroundColor Green
 }
