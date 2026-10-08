@@ -92,8 +92,11 @@ expect_equal "Programmdatei ist ausführbar" "yes" \
     "$([ -x "${MOUNTED_APP}/Contents/MacOS/autofilesync" ] && echo yes || echo no)"
 expect_equal "Passend zur Architektur dieses Rechners" "yes" \
     "$(lipo -archs "${MOUNTED_APP}/Contents/MacOS/autofilesync" 2>/dev/null | grep -q "$(uname -m)" && echo yes || echo no)"
+expect_equal "Hintergrunddienst liegt neben dem Programm" "yes" \
+    "$([ -x "${MOUNTED_APP}/Contents/MacOS/backgroundsync" ] && echo yes || echo no)"
+expect "Hintergrunddienst ist signiert" codesign --verify --strict "${MOUNTED_APP}/Contents/MacOS/backgroundsync"
 LEAKED=""
-for binary in "${MOUNTED_APP}/Contents/MacOS/autofilesync" "${MOUNTED_APP}"/Contents/Frameworks/*.dylib; do
+for binary in $(afs_executables "${MOUNTED_APP}") "${MOUNTED_APP}"/Contents/Frameworks/*.dylib; do
     external="$(afs_external_deps "$binary")"
     [ -z "$external" ] || LEAKED="${LEAKED} $(basename "$binary"):$(echo "$external" | tr '\n' ',')"
 done
@@ -113,9 +116,11 @@ MOUNTPOINT=""
 ok "Image ausgeworfen - die Installation muss jetzt allein bestehen"
 expect "Signatur überlebt das Kopieren" codesign --verify --deep --strict "${INSTALLED_APP}"
 MISSING=""
-for dependency in $(otool -L "${INSTALLED_APP}/Contents/MacOS/autofilesync" | awk 'NR>1 {print $1}' | grep '^@executable_path'); do
-    resolved="${INSTALLED_APP}/Contents/MacOS/${dependency#@executable_path/}"
-    [ -f "${resolved}" ] || MISSING="${MISSING} ${dependency}"
+for binary in $(afs_executables "${INSTALLED_APP}"); do
+    for dependency in $(otool -L "${binary}" | awk 'NR>1 {print $1}' | grep '^@executable_path'); do
+        resolved="${INSTALLED_APP}/Contents/MacOS/${dependency#@executable_path/}"
+        [ -f "${resolved}" ] || MISSING="${MISSING} $(basename "${binary}"):${dependency}"
+    done
 done
 [ -z "${MISSING}" ] && ok "Alle eingebetteten Bibliotheken sind auflösbar" || bad "Fehlende Bibliotheken" "${MISSING}"
 
@@ -170,6 +175,23 @@ else
     [ -n "$(find "${SANDBOX_HOME}" -type f 2>/dev/null)" ] && ok "Programm legt seine Dateien unter \$HOME an" \
         || hint "Keine Dateien im Testverzeichnis" "das Programm kam womöglich nicht bis zum Speichern"
     expect_equal "Konfiguration des Benutzers unverändert" "${BEFORE}" "$(fingerprint)"
+
+    section "Hintergrunddienst aus der Installation"
+    # The daemon runs with the same private HOME: it reads no configuration
+    # there, logs that, and must stay alive - that is what launchd expects of it.
+    HOME="${SANDBOX_HOME}" "${INSTALLED_APP}/Contents/MacOS/backgroundsync" >"${WORK_DIR}/daemon.log" 2>&1 &
+    DAEMON_PID=$!
+    sleep 3
+    if kill -0 "${DAEMON_PID}" 2>/dev/null; then
+        ok "Hintergrunddienst läuft nach 3 Sekunden noch"
+        kill "${DAEMON_PID}" 2>/dev/null; wait "${DAEMON_PID}" 2>/dev/null
+    else
+        wait "${DAEMON_PID}" 2>/dev/null
+        bad "Hintergrunddienst startet nicht" "$(tail -3 "${WORK_DIR}/daemon.log" | tr '\n' ' ')"
+    fi
+    grep -q " D " "${SANDBOX_HOME}/.cache/autofilesync/autofilesync.log" 2>/dev/null \
+        && ok "Hintergrunddienst kennzeichnet seine Logzeilen mit D" \
+        || hint "Keine Logzeile des Hintergrunddienstes gefunden"
 fi
 
 section "Ergebnis"

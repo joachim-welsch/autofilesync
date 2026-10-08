@@ -107,7 +107,7 @@ if [ "$(uname)" == "Darwin" ]; then
     EXECUTABLE="${APP}/Contents/MacOS/autofilesync"
     INSTALL_HINT="cp -R ${APP} /Applications/"
     RUN_HINT="open ${APP}"
-    DAEMON_INSTALL_HINT="see INSTALL-macOS.md (LaunchAgent)"
+    DAEMON_INSTALL_HINT="part of the bundle - start it from the menu Hintergrunddienst"
 else
     EXECUTABLE="${BUILD_DIR}/autofilesync"
     INSTALL_HINT="sudo cp ${EXECUTABLE} /usr/local/bin/"

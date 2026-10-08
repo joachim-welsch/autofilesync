@@ -2,6 +2,10 @@
 
 ## Unveröffentlicht
 
+- macOS: Der Hintergrunddienst steckt im Programmbündel und damit im
+  Disk-Image; Start im Menü Hintergrunddienst schreibt den LaunchAgent selbst,
+  Stop entfernt ihn wieder. Bisher musste er aus den Quellen gebaut und von
+  Hand eingerichtet werden und blieb bei Updates auf dem alten Stand.
 - Windows: Der Hintergrunddienst wird mit dem Programm gebaut und vom
   Installationspaket als Dienst eingerichtet, beim Entfernen gestoppt und mit
   entfernt; eine Seite des Installationsprogramms fragt nach dem Konto, unter

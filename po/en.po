@@ -896,9 +896,13 @@ msgstr ""
 msgid "bs_launchctl_exit"
 msgstr "launchctl exited with %1."
 
-#: AFS_Desktop/src/BackgroundService.cpp:160
+#: AFS_Desktop/src/BackgroundService.cpp:170
 msgid "bs_not_installed_macos"
-msgstr "The background service is not installed. The LaunchAgent %1 is missing."
+msgstr "The background service is missing from the application bundle: %1"
+
+#: AFS_Desktop/src/BackgroundService.cpp:208
+msgid "bs_agent_not_writable"
+msgstr "The LaunchAgent %1 could not be written."
 
 #: AFS_Desktop/src/BackgroundService.cpp:183
 #: AFS_Desktop/src/BackgroundService.cpp:186

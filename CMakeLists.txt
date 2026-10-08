@@ -51,6 +51,14 @@ add_subdirectory(AFS_Desktop)
 # Binary dir renamed: the target is also called "backgroundsync", which would
 # otherwise collide with this directory under CMAKE_RUNTIME_OUTPUT_DIRECTORY.
 add_subdirectory(backgroundsync backgroundsync_build)
+# The macOS GUI looks for the daemon beside its own executable (BackgroundService),
+# so the bundle carries it; macos_bundle.sh then embeds its libraries as well.
+if(APPLE)
+    add_custom_command(TARGET backgroundsync POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_BUNDLE_CONTENT_DIR:autofilesync>/MacOS
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:backgroundsync> $<TARGET_BUNDLE_CONTENT_DIR:autofilesync>/MacOS/backgroundsync
+        COMMENT "Copying backgroundsync into the bundle")
+endif()
 
 # Xcode offers only targets that have a scheme, and stops autocreating schemes
 # as soon as the project carries one - AFS_Desktop's scheme for the model path

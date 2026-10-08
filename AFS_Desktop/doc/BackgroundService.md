@@ -64,6 +64,25 @@ launchd is the counterpart of the systemd unit. The daemon runs as a LaunchAgent
 in user because it synchronises that user's directories with their credentials, so every call
 addresses the gui domain of the current session rather than the system one.
 
+## daemonPath
+
+The daemon ships inside the application bundle, next to the GUI executable, so an update of the
+bundle updates the daemon with it. "Not installed" therefore means a bundle without the daemon
+(a build tree that only built the GUI), not a missing LaunchAgent: the agent is written by Start.
+
+## agentPlist
+
+The LaunchAgent is generated, not shipped: it names the daemon by its absolute path, which is only
+known once the bundle sits wherever the user dropped it. RunAtLoad starts the daemon at login,
+KeepAlive restarts it when it ends on its own - the counterpart of the unit's Restart=on-failure.
+
+## agent-follows-the-bundle
+
+Compared by content on every Start: a plist written for an earlier location (a manually installed
+daemon under Application Support, a bundle moved since) would start the wrong, possibly outdated
+binary. launchd keeps the definition it was bootstrapped with, so a changed plist takes effect only
+after the agent was booted out and bootstrapped again.
+
 ## runLaunchctl
 
 wxEXEC_NOEVENTS keeps this out of a nested event loop: the query runs while the menu is opening,
@@ -77,9 +96,9 @@ user's point of view.
 
 ## startAgent
 
-Two steps because a stop unregisters the agent while a daemon that exited on its own stays
-registered: bootstrap covers the first case, kickstart the second, and kickstart on an already
-running agent is a no-op.
+Three steps: the plist is brought up to date first, then bootstrap registers an agent that a stop
+has unregistered, and kickstart starts a daemon that exited on its own while staying registered.
+kickstart on an already running agent is a no-op.
 
 ## waitUntilUnregistered
 
@@ -91,7 +110,9 @@ state it promises.
 ## stopAgent
 
 bootout unregisters the agent. Merely killing the process would not do: launchd restarts a
-KeepAlive agent immediately afterwards.
+KeepAlive agent immediately afterwards. The plist goes as well: launchd loads every file in
+LaunchAgents at the next login, so a stop that left it behind would hold only until then - and a
+stopped service plus the bundle in the bin leaves nothing of AutoFileSync on the machine.
 
 ## runSystemctl
 

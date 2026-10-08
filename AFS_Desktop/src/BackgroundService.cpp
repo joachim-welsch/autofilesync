@@ -28,6 +28,9 @@
     #endif
     #include <wx/utils.h>
     #ifdef _MACOS
+        #include <wx/ffile.h>
+        #include <wx/filename.h>
+        #include <wx/stdpaths.h>
         #include <unistd.h>
     #endif
 #endif
@@ -155,35 +158,55 @@ wstring launchctlFailure(const wstring& action, const LaunchctlResult& result)
     return translate("bs_action_failed", {action, reason.ToStdWstring()});
 }
 
+wxString daemonPath()  // [BackgroundService.md#daemonPath]
+{
+    wxFileName daemon(wxStandardPaths::Get().GetExecutablePath());
+    daemon.SetFullName("backgroundsync");
+    return daemon.GetFullPath();
+}
+
 wstring notInstalled()
 {
-    return translate("bs_not_installed_macos", {agentPlistPath().ToStdWstring()});
+    return translate("bs_not_installed_macos", {daemonPath().ToStdWstring()});
 }
 
-BackgroundService::State queryState()  // [BackgroundService.md#launchctl-list-pid]
+wxString xmlEscaped(wxString text)
 {
-    if (!wxFileExists(agentPlistPath()))
-        return BackgroundService::State::NotInstalled;
-    const LaunchctlResult listed = listAgent();
-    if (listed.status != 0)
-        return BackgroundService::State::Stopped;
-    for (const wxString& line : listed.output)
-        if (line.Contains("\"PID\""))
-            return BackgroundService::State::Running;
-    return BackgroundService::State::Stopped;
+    text.Replace("&", "&amp;");
+    text.Replace("<", "&lt;");
+    text.Replace(">", "&gt;");
+    return text;
 }
 
-wstring startAgent()  // [BackgroundService.md#startAgent]
+wxString agentPlist()  // [BackgroundService.md#agentPlist]
 {
-    if (!wxFileExists(agentPlistPath()))
-        return notInstalled();
-    if (listAgent().status != 0) {
-        const LaunchctlResult bootstrapped = runLaunchctl("bootstrap " + domainTarget() + " \"" + agentPlistPath() + "\"");
-        if (bootstrapped.status != 0)
-            return launchctlFailure(translate("bs_action_started"), bootstrapped);
-    }
-    const LaunchctlResult started = runLaunchctl("kickstart " + serviceTarget());
-    return started.status == 0 ? L"" : launchctlFailure(translate("bs_action_started"), started);
+    return wxString::Format(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
+        "<plist version=\"1.0\">\n"
+        "<dict>\n"
+        "    <key>Label</key><string>%s</string>\n"
+        "    <key>ProgramArguments</key><array><string>%s</string></array>\n"
+        "    <key>RunAtLoad</key><true/>\n"
+        "    <key>KeepAlive</key><true/>\n"
+        "</dict>\n"
+        "</plist>\n", wxString(launchAgentLabel), xmlEscaped(daemonPath()));
+}
+
+bool agentPlistCurrent()
+{
+    wxFFile file(agentPlistPath(), "r");
+    wxString content;
+    return file.IsOpened() && file.ReadAll(&content) && content == agentPlist();
+}
+
+wstring writeAgentPlist()
+{
+    wxFileName::Mkdir(wxFileName(agentPlistPath()).GetPath(), wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+    wxFFile file(agentPlistPath(), "w");
+    if (!file.IsOpened() || !file.Write(agentPlist()))
+        return translate("bs_agent_not_writable", {agentPlistPath().ToStdWstring()});
+    return L"";
 }
 
 bool waitUntilUnregistered()  // [BackgroundService.md#waitUntilUnregistered]
@@ -197,7 +220,7 @@ bool waitUntilUnregistered()  // [BackgroundService.md#waitUntilUnregistered]
     return false;
 }
 
-wstring stopAgent()  // [BackgroundService.md#stopAgent]
+wstring unregisterAgent()
 {
     if (listAgent().status != 0)
         return L""; // an agent that is not registered is already stopped
@@ -206,6 +229,58 @@ wstring stopAgent()  // [BackgroundService.md#stopAgent]
         return launchctlFailure(translate("bs_action_stopped"), stopped);
     if (!waitUntilUnregistered())
         return translate("bs_still_running");
+    return L"";
+}
+
+BackgroundService::State queryState()  // [BackgroundService.md#launchctl-list-pid]
+{
+    if (!wxFileExists(daemonPath()))
+        return BackgroundService::State::NotInstalled;
+    const LaunchctlResult listed = listAgent();
+    if (listed.status != 0)
+        return BackgroundService::State::Stopped;
+    for (const wxString& line : listed.output)
+        if (line.Contains("\"PID\""))
+            return BackgroundService::State::Running;
+    return BackgroundService::State::Stopped;
+}
+
+wstring refreshAgentPlist()  // [BackgroundService.md#agent-follows-the-bundle]
+{
+    if (agentPlistCurrent())
+        return L"";
+    const wstring error = unregisterAgent();
+    return error.empty() ? writeAgentPlist() : error;
+}
+
+wstring registerAgent()
+{
+    if (listAgent().status == 0)
+        return L"";
+    const LaunchctlResult bootstrapped = runLaunchctl("bootstrap " + domainTarget() + " \"" + agentPlistPath() + "\"");
+    return bootstrapped.status == 0 ? L"" : launchctlFailure(translate("bs_action_started"), bootstrapped);
+}
+
+wstring startAgent()  // [BackgroundService.md#startAgent]
+{
+    if (!wxFileExists(daemonPath()))
+        return notInstalled();
+    for (wstring (*step)() : {refreshAgentPlist, registerAgent}) {
+        const wstring error = step();
+        if (!error.empty())
+            return error;
+    }
+    const LaunchctlResult started = runLaunchctl("kickstart " + serviceTarget());
+    return started.status == 0 ? L"" : launchctlFailure(translate("bs_action_started"), started);
+}
+
+wstring stopAgent()  // [BackgroundService.md#stopAgent]
+{
+    const wstring error = unregisterAgent();
+    if (!error.empty())
+        return error;
+    if (wxFileExists(agentPlistPath()))
+        wxRemoveFile(agentPlistPath());
     return L"";
 }
 #elif _UNIX

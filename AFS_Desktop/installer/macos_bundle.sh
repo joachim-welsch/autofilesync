@@ -45,10 +45,17 @@ afs_build_release() {
     local build_dir="$1"
     afs_info "=== Release bauen ==="
     cmake -S "${AFS_SOURCE_DIR}" -B "${build_dir}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    cmake --build "${build_dir}" --config Release --target autofilesync -j "$(sysctl -n hw.ncpu)"
+    cmake --build "${build_dir}" --config Release --target autofilesync backgroundsync -j "$(sysctl -n hw.ncpu)"
     [ -x "${build_dir}/autofilesync.app/Contents/MacOS/autofilesync" ] \
         || afs_fail "Build hat kein Programmbündel erzeugt."
+    [ -x "${build_dir}/autofilesync.app/Contents/MacOS/backgroundsync" ] \
+        || afs_fail "Der Hintergrunddienst fehlt im Programmbündel."
 }
+
+# Both executables of the bundle: the GUI and the daemon beside it, which
+# BackgroundService starts through a LaunchAgent and which shares the
+# embedded libraries, as both reference them relative to Contents/MacOS.
+afs_executables() { echo "$1/Contents/MacOS/autofilesync" "$1/Contents/MacOS/backgroundsync"; }
 
 # The help book is looked up next to the executable and in the bundle's
 # resources; only the second works for an app installed under /Applications.
@@ -98,10 +105,10 @@ afs_resolve_dep() {
 }
 
 afs_bundle_dylibs() {
-    local app="$1" frameworks="$1/Contents/Frameworks" executable="$1/Contents/MacOS/autofilesync"
+    local app="$1" frameworks="$1/Contents/Frameworks"
     afs_info "=== Bibliotheken einbetten ==="
     rm -rf "${frameworks}"; mkdir -p "${frameworks}"
-    local -a queue=("${executable}")
+    local -a queue=($(afs_executables "${app}"))
     while [ ${#queue[@]} -gt 0 ]; do
         local current="${queue[0]}"; queue=("${queue[@]:1}")
         local dep
@@ -126,21 +133,25 @@ afs_bundle_dylibs() {
 }
 
 # Signatures cover the whole bundle, so nothing may be added to it afterwards.
+# The daemon is nested code of its own: the bundle signature seals it but does
+# not sign it, and an unsigned executable fails the strict verification.
 afs_codesign_app() {
     local app="$1" identity="${AFS_CODESIGN_IDENTITY:--}"
     afs_info "=== Signieren (${identity}) ==="
     find "${app}/Contents/Frameworks" -name '*.dylib' -exec codesign --force --timestamp=none --sign "$identity" {} \;
+    codesign --force --timestamp=none --sign "$identity" "${app}/Contents/MacOS/backgroundsync"
     codesign --force --timestamp=none --sign "$identity" "${app}"
 }
 
 afs_verify_bundle() {
-    local app="$1" executable="$1/Contents/MacOS/autofilesync" failures=0
+    local app="$1" failures=0
     afs_info "=== Bündel prüfen ==="
     local -a libraries
     shopt -s nullglob; libraries=("${app}"/Contents/Frameworks/*.dylib); shopt -u nullglob
     [ ${#libraries[@]} -gt 0 ] || { afs_warn "  Keine Bibliothek eingebettet"; failures=1; }
+    [ -x "${app}/Contents/MacOS/backgroundsync" ] || { afs_warn "  Hintergrunddienst backgroundsync fehlt"; failures=1; }
     local binary
-    for binary in "$executable" "${libraries[@]}"; do
+    for binary in $(afs_executables "${app}") "${libraries[@]}"; do
         local leaked; leaked="$(afs_external_deps "$binary")"
         [ -z "$leaked" ] || { afs_warn "  $(basename "$binary") verweist nach außen: ${leaked//$'\n'/ }"; failures=1; }
         local dep

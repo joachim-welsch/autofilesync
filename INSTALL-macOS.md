@@ -112,61 +112,41 @@ eigenen `HOME`; `--no-launch` überspringt ihn.
 ## 4. Hintergrunddienst
 
 Der Daemon `backgroundsync` synchronisiert mit derselben Konfiguration weiter,
-während das GUI-Programm nicht läuft. Unter macOS steuert AutoFileSync ihn über
-launchd – das Gegenstück zur systemd-Unit unter Linux – als LaunchAgent der
-angemeldeten Person, weil er deren Verzeichnisse mit deren Zugangsdaten
-abgleicht.
+während das GUI-Programm nicht läuft. Er steckt im Programmbündel neben dem
+GUI-Programm und wird mit jedem Update des Bündels mit aktualisiert. Unter macOS
+steuert AutoFileSync ihn über launchd – das Gegenstück zur systemd-Unit unter
+Linux – als LaunchAgent der angemeldeten Person, weil er deren Verzeichnisse mit
+deren Zugangsdaten abgleicht.
 
 | | |
 | --- | --- |
+| Daemon | `/Applications/AutoFileSync.app/Contents/MacOS/backgroundsync` |
 | Label | `com.autofilesync.backgroundsync` |
 | LaunchAgent | `~/Library/LaunchAgents/com.autofilesync.backgroundsync.plist` |
 
-Das Menü **Hintergrunddienst** nennt den Zustand in seiner ersten Zeile und gibt
-jeweils nur den Befehl frei, der dazu passt:
+Einzurichten ist nichts: Das Menü **Hintergrunddienst** nennt den Zustand in
+seiner ersten Zeile und gibt jeweils nur den Befehl frei, der dazu passt:
 
 | Erste Zeile | Bedeutung | Freigegeben |
 | --- | --- | --- |
 | Zustand: läuft | Der Agent ist registriert und sein Prozess lebt | Stop |
-| Zustand: gestoppt | Der LaunchAgent liegt vor, läuft aber nicht | Start |
-| Zustand: nicht installiert | Unter dem obigen Pfad liegt keine Datei | keiner |
+| Zustand: gestoppt | Der Daemon liegt im Bündel, läuft aber nicht | Start |
+| Zustand: nicht installiert | Das Bündel enthält keinen Daemon (Entwicklungsstand, der nur das GUI gebaut hat) | keiner |
 
-*Start* registriert den Agenten (`launchctl bootstrap`) und startet ihn
-(`launchctl kickstart`) – der zweite Schritt ist nötig, weil ein Daemon, der
-sich selbst beendet hat, registriert bleibt. *Stop* hebt die Registrierung auf
-(`launchctl bootout`); den Prozess nur abzuschießen genügt nicht, weil launchd
-einen Agenten mit `KeepAlive` sofort neu startet.
+*Start* schreibt den LaunchAgent mit dem Pfad des Daemons im Bündel, registriert
+ihn (`launchctl bootstrap`) und startet ihn (`launchctl kickstart`) – der zweite
+Schritt ist nötig, weil ein Daemon, der sich selbst beendet hat, registriert
+bleibt. Ab dann startet der Daemon bei jeder Anmeldung von selbst. Ein
+LaunchAgent, der noch auf einen anderen Pfad zeigt, etwa auf eine früher von
+Hand installierte Kopie, wird dabei ersetzt. *Stop* hebt die Registrierung auf
+(`launchctl bootout`) und entfernt den LaunchAgent; den Prozess nur abzuschießen
+genügt nicht, weil launchd einen Agenten mit `KeepAlive` sofort neu startet.
 
-### Einrichten
+### Entfernen
 
-`./build.sh -r` baut den Daemon zusammen mit dem GUI-Programm nach
-`build/Release/backgroundsync`. Eingerichtet wird er als LaunchAgent – ohne
-`sudo`:
-
-```bash
-cd ~/Entwicklung/autofilesync
-./build.sh -r
-DIR="$HOME/Library/Application Support/autofilesync"
-mkdir -p "$DIR" ~/Library/LaunchAgents
-install -m 755 build/Release/backgroundsync "$DIR/backgroundsync"
-cat > ~/Library/LaunchAgents/com.autofilesync.backgroundsync.plist <<PLIST
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key><string>com.autofilesync.backgroundsync</string>
-    <key>ProgramArguments</key><array><string>$DIR/backgroundsync</string></array>
-    <key>RunAtLoad</key><true/>
-    <key>KeepAlive</key><true/>
-</dict>
-</plist>
-PLIST
-```
-
-Gestartet wird der Dienst anschließend über das Menü **Hintergrunddienst**.
-
-Ohne eingerichteten LaunchAgent bleibt das Menü bei „nicht installiert", und
-beide Befehle sind ausgegraut.
+*Stop* im Menü, dann das Programmbündel in den Papierkorb. Mehr hinterlässt der
+Dienst nicht. Eine früher von Hand installierte Kopie unter
+`~/Library/Application Support/autofilesync/backgroundsync` kann gelöscht werden.
 
 ### Festplattenvollzugriff nicht vergessen
 
@@ -176,9 +156,10 @@ Zustimmungsdialog nicht beantworten – **genau diese Synchronisationen schlagen
 sonst still fehl**, während das Menü einen laufenden Dienst zeigt.
 
 Systemeinstellungen → Datenschutz & Sicherheit → Festplattenvollzugriff →
-`~/Library/Application Support/autofilesync/backgroundsync` hinzufügen.
+`/Applications/AutoFileSync.app/Contents/MacOS/backgroundsync` hinzufügen (im
+Dateidialog mit Befehl+Umschalt+G den Pfad eingeben).
 
-Den Zugriff am besten nach dem Einrichten und vor dem ersten Start erteilen.
+Den Zugriff am besten vor dem ersten Start erteilen.
 
 ## 5. Chat-Assistent (optional)
 
