@@ -59,9 +59,4 @@ wxTreeCtrl* targetTree(MainWindow& window)
     return treeOf(window, "target");
 }
 
-ListViewRestored::~ListViewRestored()
-{
-    showView(window_, id::View_List);
-}
-
 }

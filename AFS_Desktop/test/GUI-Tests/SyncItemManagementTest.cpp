@@ -109,7 +109,6 @@ TEST_F(GuiTest, SynchronisationBearbeitenUeberZeilenkopfInTabelle)  // [SyncItem
 {
     const SyncItemInput input = sandboxSync();
     ASSERT_TRUE(addSyncItem(mainWindow(), input));
-    const ListViewRestored restored(mainWindow());
     showView(mainWindow(), id::View_Grid);
     GridCtrl* grid = gridView(mainWindow());
     ASSERT_NE(grid, nullptr) << "Die Tabellenansicht wurde nicht angezeigt.";

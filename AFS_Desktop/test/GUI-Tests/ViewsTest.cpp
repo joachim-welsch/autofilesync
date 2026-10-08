@@ -75,7 +75,6 @@ TEST_F(GuiTest, AnsichtWechselZeigtGleicheSynchronisationen)  // [ViewsTest.md#A
 {
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(SECOND, SyncItemType::Dir)));
-    const ListViewRestored restored(mainWindow());
 
     showView(mainWindow(), id::View_Tree);
     ASSERT_NE(sourceTree(mainWindow()), nullptr) << "Die Baumansicht erschien nicht.";
@@ -114,7 +113,6 @@ TEST_F(GuiTest, KontextmenueInListeAktivWennZeileAusgewaehlt)  // [ViewsTest.md#
 TEST_F(GuiTest, KontextmenueInTabelleAktivWennZeileAusgewaehlt)  // [ViewsTest.md#context-menus]
 {
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    const ListViewRestored restored(mainWindow());
     showView(mainWindow(), id::View_Grid);
     GridCtrl* grid = gridView(mainWindow());
     ASSERT_NE(grid, nullptr);
@@ -128,7 +126,6 @@ TEST_F(GuiTest, KontextmenueInTabelleAktivWennZeileAusgewaehlt)  // [ViewsTest.m
 TEST_F(GuiTest, AktivPerKlickInTabelleAendertKonfiguration)  // [ViewsTest.md#grid-editing]
 {
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    const ListViewRestored restored(mainWindow());
     showView(mainWindow(), id::View_Grid);
     GridCtrl* grid = gridView(mainWindow());
     ASSERT_NE(grid, nullptr);
@@ -144,7 +141,6 @@ TEST_F(GuiTest, AktivPerKlickInTabelleAendertKonfiguration)  // [ViewsTest.md#gr
 TEST_F(GuiTest, LeereQuelleInTabelleWirdAbgelehntUndZurueckgesetzt)  // [ViewsTest.md#grid-editing]
 {
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    const ListViewRestored restored(mainWindow());
     showView(mainWindow(), id::View_Grid);
     GridCtrl* grid = gridView(mainWindow());
     ASSERT_NE(grid, nullptr);
@@ -166,7 +162,6 @@ TEST_F(GuiTest, BaumZeigtDateiUndOrdnerSymbole)  // [ViewsTest.md#BaumZeigtDatei
     fileSync.source = (GuiTestSandbox::sourceDir() / "beispiel.txt").string();
     ASSERT_TRUE(addSyncItem(mainWindow(), fileSync));
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(SECOND, SyncItemType::Dir)));
-    const ListViewRestored restored(mainWindow());
     showView(mainWindow(), id::View_Tree);
     wxTreeCtrl* tree = sourceTree(mainWindow());
     ASSERT_NE(tree, nullptr);
