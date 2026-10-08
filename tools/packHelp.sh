@@ -2,7 +2,8 @@
 # Packs the help book AFS_Desktop/help/help.htb from its pages: the pages listed in
 # the [FILES] section of help.hhp plus contents, index, project file and context
 # map. The program loads only the book, so a changed page shows up only after
-# packing. build.sh runs this before building; it can be run on its own.
+# packing. The CMake build packs the book itself (AFS_Desktop/CMakeLists.txt);
+# this script serves the MSBuild build (build.cmd) and can be run on its own.
 set -e
 help_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../AFS_Desktop/help" && pwd)"
 files="$(sed -n '/^\[FILES\]/,/^\[/{/^\[/d;/^[[:space:]]*$/d;p}' "$help_dir/help.hhp") contents.hhc index.hhk help.hhp wxhelp.map"

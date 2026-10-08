@@ -217,7 +217,7 @@ autofilesync/
     ├── cmake/AfsDesktop.cmake  # Quellliste, afs_desktop_configure_target()
     ├── include/, src/          # Fenster, Dialoge, Hintergrunddienst
     ├── bitmaps/, icons/        # Bildressourcen
-    ├── help/                   # Hilfeseiten und das daraus gepackte Buch help.htb (siehe tools/packHelp.*)
+    ├── help/                   # Hilfeseiten; das Buch help.htb packt der Build daraus (CMake bzw. tools/packHelp.*)
     ├── installer/              # Bausteine des macOS-Installationsprogramms
     ├── Info.plist, autofilesync.rc, *.vcxproj  # macOS-Bündel, Windows-Build
     └── test/GUI-Tests/         # GUI-Tests
@@ -379,9 +379,11 @@ Unter macOS erzeugt `./makeMacOSInstaller.sh` ein verteilbares Disk-Image,
 liegen in `AFS_Desktop/installer/macos_bundle.sh`.
 
 Das Verzeichnis `AFS_Desktop/help/` gehört neben die installierte
-Programmdatei – dort sucht das Programm sein Hilfebuch. Der Build kopiert es
-nach jedem Linken neben die Programmdatei (`build/help/`), ein Build braucht
-also keine Installation, um die Hilfe anzeigen zu können. In das macOS-Bündel
+Programmdatei – dort sucht das Programm sein Hilfebuch `help.htb`. Das Buch ist
+nicht versioniert: der CMake-Build packt es aus den Seiten (Ziel `help_book`),
+der MSBuild-Build über `build.cmd` mit `tools/packHelp.ps1`. Der Build kopiert
+das Verzeichnis nach jedem Linken neben die Programmdatei (`build/help/`), ein
+Build braucht also keine Installation, um die Hilfe anzeigen zu können. In das macOS-Bündel
 legen Build und Installationsskripte es unter `Contents/Resources/help`, weil
 dort neben der Programmdatei kein Platz dafür ist.
 

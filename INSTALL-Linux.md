@@ -154,13 +154,12 @@ ls -l /opt/autofilesync/help/help.htb
 ### Hilfeseiten nach Änderungen neu erzeugen
 
 Werden die HTML-Seiten unter `AFS_Desktop/help/` geändert, muss `help.htb` neu gepackt
-werden – das Programm liest nur das Archiv:
+werden – das Programm liest nur das Archiv. Der Build erledigt das selbst;
+ohne Build genügt:
 
 ```bash
-sudo apt install zip                     # falls noch nicht vorhanden
-cd ~/Entwicklung/autofilesync/AFS_Desktop/help
-rm -f help.htb
-zip -r help.htb *.html *.hhc *.hhk *.hhp wxhelp.map
+cd ~/Entwicklung/autofilesync
+tools/packHelp.sh
 ```
 
 Anschließend Schritt 4 wiederholen.
