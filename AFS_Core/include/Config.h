@@ -24,6 +24,7 @@
 #include <fstream>
 #include <optional>
 #include <mutex>
+#include <filesystem>
 #include "SyncItem.h"
 #include "Settings.h"
 #include "SshAccount.h"
@@ -40,6 +41,7 @@ class Config {
     SshAccounts         ssh_accounts_;
     mutable std::mutex  ssh_accounts_mutex_;  // [Config.md#ssh_accounts_mutex_]
     std::wstring        pathname_;
+    std::filesystem::file_time_type disk_time_{};  // [Config.md#disk_time_]
     bool                changed_ = false;
     bool                ready_ = false;
     static std::unique_ptr<Config> instance_;
@@ -93,6 +95,7 @@ public:
     void set_console_mode() { settings_.set_console_mode(); }
     bool console_mode() const { return settings_.console_mode(); }
     bool changed() const { return changed_; }
+    bool file_changed_on_disk() const;  // [Config.md#file_changed_on_disk]
     void set_changed() { changed_ = true; }
     void unload();
 };

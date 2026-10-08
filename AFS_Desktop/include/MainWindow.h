@@ -59,8 +59,8 @@ public:
 	~MainWindow();
 
 	void startSyncTimer();
-	void setTitle();
-	void askAndSave();
+	void setTitle();  // [MainWindow.md#setTitle]
+	bool askAndSave(const char* question, long extra_style = 0);  // [MainWindow.md#askAndSave]
 	void setConsoleMode();
 	void registerAutomaticStart(bool);
 	void close();

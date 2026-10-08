@@ -1,5 +1,13 @@
 # Änderungen
 
+## Unveröffentlicht
+
+- Der Hintergrunddienst übernimmt eine gespeicherte Konfiguration von selbst,
+  statt bis zum nächsten Neustart mit dem alten Stand zu arbeiten.
+- Der Fenstertitel zeigt "(nicht gespeichert)", solange Änderungen nur im
+  Programm vorliegen; der Start des Hintergrunddienstes fragt vorher, ob
+  gespeichert werden soll (Ja/Nein/Abbrechen).
+
 ## 0.1.0 – 2026-09-24
 
 - Alle Texte der Oberfläche und des Synchronisationskerns kommen aus

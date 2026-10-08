@@ -174,3 +174,12 @@ the recoverable mode rather than fail the Settings node.
 A config file written before the recycle bin existed has no RecycleBinPath key: it must keep the
 configured path instead of blanking it, and must not take the rest of the Settings node down
 with it.
+
+## FileChangedOnDiskFollowsReadAndWrite
+
+The daemon relies on file_changed_on_disk() to notice a save by the GUI, so the three
+transitions are pinned: the own write() is not a change, a file with a newer modification time
+is one (set two seconds ahead rather than rewritten, so the test does not depend on the file
+system's time stamp resolution), and read() takes the new time over. The second test covers the
+file that does not exist yet: read() of a missing file records the "no file" time, so the file
+being created afterwards is a change too.

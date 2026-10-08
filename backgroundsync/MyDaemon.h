@@ -34,8 +34,10 @@ public:
 
 private:
     void run();
+    void load_config();
+    void reload_config();  // [MyDaemon.md#reload_config]
 
     std::atomic<bool> running_;
-    std::thread workerThread_;
+    std::thread worker_thread_;
     AFS_Core::DailyLogCut cut_log_daily_;
 };

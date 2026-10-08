@@ -26,39 +26,56 @@
 using namespace AFS_Core;
 
 MyDaemon::MyDaemon()
-    : running_(false) {
+    : running_(false)
+{
 }
 
-MyDaemon::~MyDaemon() {
+MyDaemon::~MyDaemon()
+{
     stop();
 }
 
-void MyDaemon::start() {
-    if (running_.load()) {
+void MyDaemon::start()
+{
+    if (running_.load())
         return;
-    }
     running_.store(true);
-    const std::wstring path_name = Config::get_root_pathname();  // the GUI's file, so both sync the same items
-    Config::instance().pathname(path_name);
-    Config::instance().read(path_name);
-    Logging::instance().open_file();  // read() leaves the file closed when the configured name equals the default name
+    Config::instance().pathname(Config::get_root_pathname());  // the GUI's file, so both sync the same items
+    load_config();
     log_info(translation::translate("daemon_running"));
-    workerThread_ = std::thread(&MyDaemon::run, this);
+    worker_thread_ = std::thread(&MyDaemon::run, this);
 }
 
-void MyDaemon::stop() {
-    if (!running_.load()) {
+void MyDaemon::stop()
+{
+    if (!running_.load())
         return;
-    }
     running_.store(false);
-    if (workerThread_.joinable())
-        workerThread_.join();
+    if (worker_thread_.joinable())
+        worker_thread_.join();
 }
 
-void MyDaemon::run() {
+void MyDaemon::load_config()
+{
+    Config::instance().read(Config::instance().pathname());
+    Logging::instance().open_file();  // read() leaves the file closed when the configured name equals the default name
+}
+
+void MyDaemon::reload_config()
+{
+    Synchronize::destroy();  // joins the running pass, so no item of the old configuration outlives the reload
+    load_config();
+    log_info(translation::translate("config_reloaded"), Config::instance().pathname());
+    Synchronize::create(SyncType::Continuous, nullptr, SyncRole::Background);
+}
+
+void MyDaemon::run()
+{
     Synchronize::create(SyncType::Continuous, nullptr, SyncRole::Background);
     while (running_.load()) {
         cut_log_daily_();
+        if (Config::instance().file_changed_on_disk())
+            reload_config();
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     Synchronize::destroy();

@@ -165,7 +165,11 @@ void MainWindow::updateSyncState()
 
 void MainWindow::setTitle()
 {
-	SetTitle(util::wstring_to_string(L"AutoFileSync - " + Config::instance().pathname()));
+    wstring title = L"AutoFileSync - " + Config::instance().pathname();
+    if (Config::instance().changed())
+        title += L" " + translation::translate("title_unsaved");
+    if (GetTitle() != wxString(title))
+        SetTitle(title);
 }
 
 void MainWindow::startSyncTimer()
@@ -350,6 +354,7 @@ void MainWindow::update()
         gridWindow_->update();
         resize();
     }
+    setTitle();
 }
 
 static wxString configWildcard()
@@ -364,7 +369,7 @@ static wxString configDialogDir(const std::filesystem::path& pathname)  // [Main
 
 void MainWindow::onFileOpen(wxCommandEvent&)
 {
-    askAndSave();
+    askAndSave("save_question");
 	Config& cfg(Config::instance());
     const std::filesystem::path current(cfg.pathname());
     wxFileDialog dialog(this, translation::translate("open_config_title"), configDialogDir(current), wxEmptyString,
@@ -401,6 +406,7 @@ void MainWindow::onFileSave(wxCommandEvent& WXUNUSED(event))
 {
     if (save())
         setStatusTextWithTimer(translation::translate("config_saved"), 5000);
+    setTitle();
 }
 
 static wstring withJsonExtension(const wstring& path)  // [MainWindow.md#withJsonExtension]
@@ -482,6 +488,7 @@ void MainWindow::onTimer(wxTimerEvent&)
 	if (!Config::exists() || !Config::instance().ready())
 		return;
 	updateMenu();
+	setTitle();
 	syncInterface_.onTimer();
 	updateSyncState();
 	if (firstTick_) {
@@ -666,6 +673,8 @@ void MainWindow::updateBackgroundServiceMenu()  // [MainWindow.md#updateBackgrou
 
 void MainWindow::onStartBackgroundService(wxCommandEvent&)
 {
+    if (!askAndSave("bs_save_question", wxCANCEL))  // [MainWindow.md#service-reads-the-saved-file]
+        return;
     const std::wstring error = BackgroundService::start();
     if (error.empty())
         log_info(translation::translate("bs_started"));
@@ -788,20 +797,23 @@ void MainWindow::createTaskBar()
 #endif
 }
 
-void MainWindow::askAndSave()
+bool MainWindow::askAndSave(const char* question, long extra_style)
 {
-    if (Config::instance().changed()) {
-        wxMessageDialog dlg = wxMessageDialog(this,
-            translation::translate("save_question"), translation::translate("not_saved_title"),
-            wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION);
-        if (dlg.ShowModal() == wxID_YES)
-            save();
-    }
+    if (!Config::instance().changed())
+        return true;
+    wxMessageDialog dlg(this, translation::translate(question), translation::translate("not_saved_title"),
+        wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION | extra_style);
+    const int answer = dlg.ShowModal();
+    if (answer == wxID_CANCEL)
+        return false;
+    const bool saved = answer == wxID_NO || save();
+    setTitle();
+    return saved;
 }
 
 void MainWindow::close()
 {
     syncInterface_.stopSync();  // [MainWindow.md#real-shutdown]
-    askAndSave();
+    askAndSave("save_question");
     wxGetApp().ExitMainLoop();
 }

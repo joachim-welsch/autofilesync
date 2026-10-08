@@ -548,6 +548,16 @@ void Config::write_sync_items(boost::property_tree::wptree& root)
     root.push_back(make_pair(wstring(L"Syncitems"), syncitems_node));
 }
 
+namespace {
+
+std::filesystem::file_time_type disk_time(const std::wstring& pathname)
+{
+    std::error_code ec;
+    return std::filesystem::last_write_time(pathname, ec);  // a missing file yields the default time, so its later appearance counts as a change
+}
+
+}
+
 bool Config::write(const std::wstring& pathname)
 {
     pt::wptree root;
@@ -575,14 +585,21 @@ bool Config::write(const std::wstring& pathname)
     }
     if (!util::rename_file(tmp_pathname, pathname))
         return false;
+    disk_time_ = disk_time(pathname);
     changed_ = false;
     return true;
+}
+
+bool Config::file_changed_on_disk() const
+{
+    return disk_time(pathname_) != disk_time_;
 }
 
 bool Config::read(std::wstring_view pathname)
 {
     reset();
     ready_ = false;
+    disk_time_ = disk_time(wstring(pathname));  // [Config.md#disk_time_]
     if (!interpret_json(parse_json_file(pathname.data()))) {
         reset();
 #ifdef _WXWIDGETS

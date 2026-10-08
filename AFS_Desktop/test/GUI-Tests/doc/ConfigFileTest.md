@@ -27,3 +27,17 @@ file ends in the message boxes of Config::read - shown with wxMessageBox's defau
 
 The second configuration file is written through Config::write instead of "Speichern als":
 that route has its own test, and writing directly keeps this test about opening.
+
+## title
+
+The marker is the translated "title_unsaved" text, looked up at the call like the dialog
+captions above; the test only needs it to appear with the change and to vanish with the save.
+
+## background-service
+
+The service reads the file, so a start over unsaved changes first asks "Jetzt speichern?"
+with Ja/Nein/Abbrechen. Abbrechen must stop the start before the service manager is touched -
+on a machine with the service installed that would be a UAC prompt no test can answer, which
+is also why that case needs no RestoredConfigFile: nothing is written. Ja is only tested where
+the service is not installed; there the start ends in the "Hintergrunddienst" error box, and
+the file content proves that the save came first.

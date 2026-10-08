@@ -26,6 +26,7 @@
 #include <RecycleBin.h>
 #include <boost/property_tree/json_parser.hpp>
 #include <thread>
+#include <chrono>
 #include <atomic>
 #include <vector>
 #include <Util.h>
@@ -186,6 +187,32 @@ TEST_F(ConfigPathTest, DoesNotOverwriteExistingConfigDuringMigration)
 
     EXPECT_EQ(read_file(new_path), "current content");
     EXPECT_TRUE(fs::exists(legacy_path));
+}
+
+TEST_F(ConfigPathTest, FileChangedOnDiskFollowsReadAndWrite)  // [ConfigTests.md#FileChangedOnDiskFollowsReadAndWrite]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().pathname(target_path.wstring());
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    EXPECT_FALSE(Config::instance().file_changed_on_disk()) << "The own write counts as a foreign change.";
+
+    fs::last_write_time(target_path, fs::last_write_time(target_path) + std::chrono::seconds(2));
+    EXPECT_TRUE(Config::instance().file_changed_on_disk()) << "A newer file was not noticed.";
+
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+    EXPECT_FALSE(Config::instance().file_changed_on_disk()) << "The file still counts as changed after re-reading it.";
+}
+
+TEST_F(ConfigPathTest, FileChangedOnDiskSeesAFileThatAppears)  // [ConfigTests.md#FileChangedOnDiskFollowsReadAndWrite]
+{
+    const fs::path target_path = test_home_ / "appears.json";
+    Config::instance().pathname(target_path.wstring());
+    EXPECT_FALSE(Config::instance().read(target_path.wstring()));
+    EXPECT_FALSE(Config::instance().file_changed_on_disk()) << "A file that is still missing counts as changed.";
+
+    write_file(target_path, "{}");
+
+    EXPECT_TRUE(Config::instance().file_changed_on_disk()) << "The file's appearance was not noticed.";
 }
 
 TEST_F(ConfigPathTest, WriteCreatesMissingDirectories)

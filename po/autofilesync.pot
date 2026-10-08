@@ -1173,6 +1173,10 @@ msgstr ""
 msgid "bs_caption"
 msgstr ""
 
+#: AFS_Desktop/src/MainWindow.cpp:676
+msgid "bs_save_question"
+msgstr ""
+
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
 msgstr ""
@@ -1195,6 +1199,10 @@ msgstr ""
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp:170
+msgid "title_unsaved"
 msgstr ""
 
 #: AFS_Desktop/src/Menu.cpp:57
@@ -1731,6 +1739,10 @@ msgstr ""
 
 #: backgroundsync/MyDaemon.cpp:45 backgroundsync/backgroundsync.cpp:49
 msgid "daemon_running"
+msgstr ""
+
+#: backgroundsync/MyDaemon.cpp:66
+msgid "config_reloaded"
 msgstr ""
 
 #: backgroundsync/backgroundsync.cpp:50

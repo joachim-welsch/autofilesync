@@ -146,3 +146,26 @@ CreateProcess fails in the caller. Found by GuiTest.LogDateiAnzeigenOhneEditorZe
 The About box names the copyright holder, the website and the licence: it is the one
 place a user of the installed program can find out whom the software belongs to and under
 which terms they hold it. The details are on the help page "Lizenzbedingungen".
+
+## setTitle
+
+The title carries the configuration's path and, while Config::changed() is set, the
+"(nicht gespeichert)" marker: the configuration lives in memory until the user saves, and
+without the marker nothing told them that the file - the one the background service reads -
+still holds the old state. The timer tick refreshes it, so changes made in the grid or in the
+dialogs show up without each of them having to call here; SetTitle is skipped while the text is
+unchanged so the tick does not repaint the title bar every second.
+
+## askAndSave
+
+Shared by every command that leaves the in-memory configuration behind - opening another file,
+closing, starting the background service - with the question as its argument. Returns false
+only when the user cancelled (extra_style wxCANCEL) or the save failed; "Nein" is a decision,
+not a failure.
+
+## service-reads-the-saved-file
+
+The service reads the configuration file, not the GUI's memory. A sync disabled in the dialog
+but not saved was synchronised by a service started right afterwards. So the start first offers
+to save, with Abbrechen to not start at all, and a failed save does not start the service over
+the stale file either.

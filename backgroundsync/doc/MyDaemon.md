@@ -1,0 +1,25 @@
+# MyDaemon
+
+Module comment for MyDaemon.h / MyDaemon.cpp.
+
+## MyDaemon
+
+Runs the Synchronize engine in continuous mode over the configuration file of the user the
+daemon runs as - the same file the GUI edits, so both synchronise the same items.
+
+## reload_config
+
+The daemon only ever sees the configuration through its file: the GUI holds its edits in memory
+until the user saves, and a daemon that read the file once at start would keep synchronising
+the old items for as long as it runs - a disabled item stayed active until the next restart.
+The worker polls the file's modification time once a second (Config::file_changed_on_disk) and
+reloads when it changed.
+
+The engine is destroyed before the read and created afterwards: destroy() joins the worker
+thread, which stops the running pass at the next item, so the new items are never mixed into a
+pass that started with the old ones, and the fresh items start a full pass at once. Logging is
+reopened as at start, because the logging setup is part of the file.
+
+A file that fails to read leaves the configuration empty until it is saved again; Config::read
+records the modification time before parsing, so the defective file is not re-read once a
+second.

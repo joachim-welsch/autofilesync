@@ -35,9 +35,15 @@ tritt der Dienst zurück.</p>
     niemand die Meldungen am Bildschirm sieht.</li>
 </ul>
 
-<p>Änderungen an der Konfiguration wirken erst, wenn der Dienst sie liest. Nach
-größeren Umbauten empfiehlt es sich, ihn einmal zu stoppen und wieder zu
-starten.</p>
+<h2>Änderungen an der Konfiguration</h2>
+<p>Der Dienst liest die gespeicherte Konfigurationsdatei, nicht das, was im
+Programmfenster gerade bearbeitet wird. Solange Änderungen nicht gespeichert
+sind, zeigt der Fenstertitel <b>(nicht gespeichert)</b>, und der Dienst arbeitet
+weiter mit dem alten Stand. Nach <b>Datei &rarr; Speichern</b> übernimmt ein
+laufender Dienst die Datei von selbst: Er bricht den laufenden Durchlauf ab und
+beginnt mit der neuen Konfiguration von vorn. Wird der Dienst bei ungespeicherten
+Änderungen gestartet, fragt das Programm vorher, ob gespeichert werden soll;
+<b>Abbrechen</b> startet den Dienst nicht.</p>
 
 </body>
 </html>

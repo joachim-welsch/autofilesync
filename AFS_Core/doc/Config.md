@@ -84,3 +84,17 @@ does not have to tell "unset" from "undecryptable".
 
 The untranslated key, not the displayed text: a configuration written with one language must
 stay readable with any other.
+
+## disk_time_
+
+The modification time of the configuration file as read() found it or write() left it. The
+daemon has no other channel to the GUI than this file, so file_changed_on_disk() comparing the
+current time against it is how it learns that the user saved. read() records the time before
+parsing, and whether or not parsing succeeds: a save that lands between the two is reported as a
+change on the next poll, and a defective file is not re-read once a second.
+
+## file_changed_on_disk
+
+True once the file at pathname() carries another modification time than the last read() or
+write() recorded. A GUI save goes through a temporary file and a rename, so a poll never sees a
+half-written file.

@@ -1193,6 +1193,10 @@ msgstr "Hintergrunddienst gestoppt."
 msgid "bs_caption"
 msgstr "Hintergrunddienst"
 
+#: AFS_Desktop/src/MainWindow.cpp:676
+msgid "bs_save_question"
+msgstr "Der Hintergrunddienst arbeitet mit der gespeicherten Konfiguration. Jetzt speichern?"
+
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
 msgstr "Hilfedatei nicht gefunden: "
@@ -1218,6 +1222,10 @@ msgstr "Speichern?"
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
 msgstr "Die Daten wurden nicht gespeichert."
+
+#: AFS_Desktop/src/MainWindow.cpp:170
+msgid "title_unsaved"
+msgstr "(nicht gespeichert)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
@@ -1756,6 +1764,10 @@ msgstr "Assistent"
 #: backgroundsync/MyDaemon.cpp:45 backgroundsync/backgroundsync.cpp:49
 msgid "daemon_running"
 msgstr "backgroundsync läuft..."
+
+#: backgroundsync/MyDaemon.cpp:66
+msgid "config_reloaded"
+msgstr "Konfiguration neu geladen: "
 
 #: backgroundsync/backgroundsync.cpp:50
 msgid "daemon_started"

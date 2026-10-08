@@ -24,6 +24,7 @@
 #include "SyncActions.h"
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
+#include "BackgroundService.h"
 #include "Config.h"
 #include "Translation.h"
 #include "id.h"
@@ -50,6 +51,10 @@ wxString save_as_title()
 wxString not_saved_title()
 {
     return translation::translate("not_saved_title");
+}
+wxString unsaved_marker()
+{
+    return translation::translate("title_unsaved");
 }
 const wxString ITEM_NAME = "guitest-konfiguration";
 
@@ -101,6 +106,51 @@ TEST_F(GuiTest, SpeichernSchreibtDateiUndMeldetInStatuszeile)
     EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Die Synchronisation steht nicht in der gespeicherten Datei.";
     EXPECT_FALSE(Config::instance().changed()) << "Nach dem Speichern gilt die Konfiguration noch als geändert.";
     EXPECT_EQ(transientStatus(mainWindow()), translation::translate("config_saved"));
+}
+
+TEST_F(GuiTest, TitelZeigtUngespeicherteAenderungBisZumSpeichern)  // [ConfigFileTest.md#title]
+{
+    const RestoredConfigFile restored(mainWindow());
+    ASSERT_FALSE(mainWindow().GetTitle().Contains(unsaved_marker())) << "Der Titel meldet schon vor der Änderung Ungespeichertes.";
+    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+
+    EXPECT_TRUE(mainWindow().GetTitle().Contains(unsaved_marker())) << "Der Titel verschweigt die ungespeicherte Änderung.";
+    activateMenuItem(mainWindow(), tul(id::File_save));
+    pump();
+
+    EXPECT_FALSE(mainWindow().GetTitle().Contains(unsaved_marker())) << "Der Titel meldet nach dem Speichern noch Ungespeichertes.";
+}
+
+TEST_F(GuiTest, DienststartAbbrechenBeiUngespeicherterKonfigurationStartetNicht)  // [ConfigFileTest.md#background-service]
+{
+    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+    ModalDialogWatcher::instance().answer(not_saved_title(), wxID_CANCEL);
+
+    activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Dienststart fragte nicht nach der ungespeicherten Konfiguration.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("bs_save_question"));
+    EXPECT_TRUE(Config::instance().changed()) << "Abbrechen hat gespeichert.";
+    EXPECT_EQ(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Abbrechen hat die Datei geschrieben.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpectedDialogs().empty()) << "Trotz Abbrechen ging der Dienststart weiter.";
+}
+
+TEST_F(GuiTest, DienststartSpeichertAufWunschVorDemStart)  // [ConfigFileTest.md#background-service]
+{
+    if (BackgroundService::state() != BackgroundService::State::NotInstalled)
+        GTEST_SKIP() << "Der Hintergrunddienst ist installiert; sein Start braucht Administratorrechte.";
+    const RestoredConfigFile restored(mainWindow());
+    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
+    ModalDialogWatcher::instance().answer(not_saved_title(), wxID_YES);
+    ModalDialogWatcher::instance().answer(translation::translate("bs_caption"), wxID_OK);
+
+    activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 2u) << "Rückfrage oder Fehlerbox des fehlenden Dienstes blieben aus.";
+    EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Ja hat die Datei nicht vor dem Start geschrieben.";
+    EXPECT_FALSE(Config::instance().changed());
 }
 
 TEST_F(GuiTest, SpeichernUeberWerkzeugleisteSchreibtDatei)

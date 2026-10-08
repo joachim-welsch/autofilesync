@@ -1193,6 +1193,10 @@ msgstr "Background service stopped."
 msgid "bs_caption"
 msgstr "Background service"
 
+#: AFS_Desktop/src/MainWindow.cpp:676
+msgid "bs_save_question"
+msgstr "The background service works with the saved configuration. Save now?"
+
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
 msgstr "Help file not found: "
@@ -1218,6 +1222,10 @@ msgstr "Save?"
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
 msgstr "The data has not been saved."
+
+#: AFS_Desktop/src/MainWindow.cpp:170
+msgid "title_unsaved"
+msgstr "(unsaved)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
@@ -1756,6 +1764,10 @@ msgstr "Assistant"
 #: backgroundsync/MyDaemon.cpp:45 backgroundsync/backgroundsync.cpp:49
 msgid "daemon_running"
 msgstr "backgroundsync is running..."
+
+#: backgroundsync/MyDaemon.cpp:66
+msgid "config_reloaded"
+msgstr "Configuration reloaded: "
 
 #: backgroundsync/backgroundsync.cpp:50
 msgid "daemon_started"
