@@ -43,6 +43,36 @@ if(APPLE)
     endif()
 endif()
 
+# The program loads only the packed book help.htb, not the pages, so the build
+# packs it from the pages listed in help.hhp (plus contents, index, project file
+# and context map) - the same thing tools/packHelp.* does for the MSBuild build.
+# The book lands next to the pages, where every packaging script expects it.
+set(HELP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/help)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${HELP_SOURCE_DIR}/help.hhp)
+file(STRINGS ${HELP_SOURCE_DIR}/help.hhp HELP_PROJECT_LINES)
+set(HELP_BOOK_FILES "")
+set(in_files_section FALSE)
+foreach(line IN LISTS HELP_PROJECT_LINES)
+    if(line MATCHES "^\\[FILES\\]")
+        set(in_files_section TRUE)
+    elseif(line MATCHES "^\\[")
+        set(in_files_section FALSE)
+    elseif(in_files_section AND NOT line MATCHES "^[ \t]*$")
+        string(STRIP "${line}" page)
+        list(APPEND HELP_BOOK_FILES ${page})
+    endif()
+endforeach()
+list(APPEND HELP_BOOK_FILES contents.hhc index.hhk help.hhp wxhelp.map)
+list(TRANSFORM HELP_BOOK_FILES PREPEND ${HELP_SOURCE_DIR}/ OUTPUT_VARIABLE HELP_BOOK_DEPENDS)
+set(HELP_BOOK ${HELP_SOURCE_DIR}/help.htb)
+add_custom_command(OUTPUT ${HELP_BOOK}
+    COMMAND ${CMAKE_COMMAND} -E tar cf ${HELP_BOOK} --format=zip -- ${HELP_BOOK_FILES}
+    WORKING_DIRECTORY ${HELP_SOURCE_DIR}
+    DEPENDS ${HELP_BOOK_DEPENDS}
+    COMMENT "Packing the help book")
+add_custom_target(help_book DEPENDS ${HELP_BOOK})
+add_dependencies(autofilesync help_book)
+
 # The program looks for its help book next to the executable (or among the
 # bundle's resources on macOS); copying it there makes a build tree usable
 # without an installation - the same thing the Windows post-build step does.

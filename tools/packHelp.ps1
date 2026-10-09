@@ -5,8 +5,9 @@
     help.htb ist ein ZIP mit den Seiten aus dem [FILES]-Abschnitt von help.hhp
     sowie Inhaltsverzeichnis, Index, Projektdatei und Kontext-Zuordnung. Das
     Programm laedt nur das Buch, nicht die einzelnen Seiten - eine geaenderte
-    Seite ist also erst nach dem Packen sichtbar. build.cmd ruft das Skript vor
-    dem Bauen auf; es laesst sich auch einzeln starten.
+    Seite ist also erst nach dem Packen sichtbar. Der CMake-Build packt das
+    Buch selbst (AFS_Desktop/CMakeLists.txt); build.cmd ruft dieses Skript vor
+    dem MSBuild-Bau auf, es laesst sich auch einzeln starten.
 #>
 $ErrorActionPreference = 'Stop'
 $helpDir = Join-Path (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)) 'AFS_Desktop\help'
