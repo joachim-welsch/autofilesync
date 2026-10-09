@@ -1,6 +1,6 @@
 # Änderungen
 
-## Unveröffentlicht
+## 0.2.0 – 2026-10-09
 
 - macOS: Der Hintergrunddienst steckt im Programmbündel und damit im
   Disk-Image; Start im Menü Hintergrunddienst schreibt den LaunchAgent selbst,
@@ -19,6 +19,13 @@
 - Der Fenstertitel zeigt "(nicht gespeichert)", solange eine Änderung nicht in
   der Datei steht; der Start des Hintergrunddienstes fragt dann vorher, ob
   gespeichert werden soll (Ja/Nein/Abbrechen).
+- Das Hauptfenster wird nicht mehr bei jedem Start breiter; Größe und Position
+  werden auf den Bildschirm beschnitten, auch wenn der zuletzt benutzte
+  Monitor fehlt.
+- Windows: Das Kürzen der gemeinsamen Logdatei beim Start scheitert nicht mehr
+  mit "Zugriff verweigert", während der Hintergrunddienst sie offen hält.
+- Bauen: Die Skripte liegen in `scripts/`, die Dokumente in `doc/`; der
+  CMake-Build packt das Hilfebuch `help.htb` selbst.
 
 ## 0.1.0 – 2026-09-24
 

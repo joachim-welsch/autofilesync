@@ -19,9 +19,9 @@
 #pragma once
 
 #define afsVERSION_MAJOR 0  // [Version.md#macros]
-#define afsVERSION_MINOR 1
+#define afsVERSION_MINOR 2
 #define afsVERSION_PATCH 0
-#define afsVERSION_TEXT "0.1.0"
+#define afsVERSION_TEXT "0.2.0"
 
 #ifndef RC_INVOKED
 constexpr char afsNAME_STRING[] = "AutoFileSync";
