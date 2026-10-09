@@ -2,7 +2,7 @@
 # Packs all sources under version control into autofilesync-<version>-src.zip and
 # autofilesync-<version>-src.tar.gz. Uncommitted changes to tracked files are
 # included, untracked files are not (they are listed as a warning).
-# Usage: tools/packSources.sh [output directory]   (default: build/)
+# Usage: scripts/packSources.sh [output directory]   (default: build/)
 set -e
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo"
