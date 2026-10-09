@@ -14,7 +14,7 @@ Hintergrunddienst, Übersetzungen, Hilfe, Menüeintrag und Symbole enthält:
 
 ```bash
 sudo apt install libwxgtk3.2-dev dpkg-dev imagemagick   # zusätzlich zu Schritt 1
-./makeDebianPackage.sh
+scripts/makeDebianPackage.sh
 sudo apt install ./build/autofilesync_<version>_<arch>.deb
 ```
 
@@ -105,7 +105,7 @@ git clone <url-des-repositories> ~/Entwicklung/autofilesync
 
 ```bash
 cd ~/Entwicklung/autofilesync
-./build.sh -r
+scripts/build.sh -r
 ```
 
 Das Ergebnis sind `build/Release/autofilesync` und der Hintergrunddienst
@@ -239,13 +239,13 @@ wird auch beim automatischen Start gefunden.
 ## 9. Hintergrunddienst (optional)
 
 Der Dienst `backgroundsync` synchronisiert mit derselben Konfiguration weiter,
-während die GUI nicht läuft. `./build.sh` baut ihn zusammen mit der GUI nach
+während die GUI nicht läuft. `scripts/build.sh` baut ihn zusammen mit der GUI nach
 `build/Release/backgroundsync` (Abschnitt 3); die GUI steuert ihn nur über
 `systemctl` (Menü **Dienst**).
 
 ```bash
 cd ~/Entwicklung/autofilesync
-./build.sh -r
+scripts/build.sh -r
 backgroundsync/install.sh
 ```
 
@@ -331,7 +331,7 @@ und Protokoll im Benutzerverzeichnis bleiben unberührt:
 ```bash
 cd ~/Entwicklung/autofilesync
 git pull
-./build.sh -r
+scripts/build.sh -r
 sudo install -m 755 build/Release/autofilesync /opt/autofilesync/autofilesync
 sudo install -m 644 help/* /opt/autofilesync/help/
 ```

@@ -4,7 +4,7 @@ rem Windows builds from AFS_Desktop\autofilesync.sln, not from CMake: the projec
 rem file carries the wxWidgets, Boost and vcpkg paths this platform needs.
 setlocal EnableDelayedExpansion
 
-set "ROOT=%~dp0"
+set "ROOT=%~dp0..\"
 set "SOLUTION=%ROOT%AFS_Desktop\autofilesync.sln"
 set "BUILD_TYPE=Release"
 set "CLEAN=0"

@@ -2,7 +2,7 @@
 # Builds the AutoFileSync disk image that end users install from: a signed,
 # self-contained AutoFileSync.app next to a link to the Programs folder.
 set -e
-source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/AFS_Desktop/installer/macos_bundle.sh"
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/AFS_Desktop/installer/macos_bundle.sh"
 
 BUILD_DIR="${AFS_SOURCE_DIR}/build/Release"
 OUTPUT_DIR="${AFS_SOURCE_DIR}/build"

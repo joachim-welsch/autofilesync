@@ -66,16 +66,16 @@
         },
         {
             "label": "Test: Integrationtests",
-            "detail": "Builds and runs the AFS_Core integration tests (run_Integrationtests.sh)",
+            "detail": "Builds and runs the AFS_Core integration tests (scripts/run_Integrationtests.sh)",
             "type": "shell",
-            "command": "./run_Integrationtests.sh --gtest_filter='${input:gtestFilter}'",
+            "command": "./scripts/run_Integrationtests.sh --gtest_filter='${input:gtestFilter}'",
             "group": { "kind": "test", "isDefault": true }
         },
         {
             "label": "Test: GUI-Tests",
-            "detail": "Builds and runs the GUI tests on a private X display (run_GUI_Tests.sh)",
+            "detail": "Builds and runs the GUI tests on a private X display (scripts/run_GUI_Tests.sh)",
             "type": "shell",
-            "command": "./run_GUI_Tests.sh --gtest_filter='${input:gtestFilter}'",
+            "command": "./scripts/run_GUI_Tests.sh --gtest_filter='${input:gtestFilter}'",
             "group": "test"
         },
         {

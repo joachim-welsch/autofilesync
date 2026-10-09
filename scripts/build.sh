@@ -60,14 +60,14 @@ done
 
 echo -e "${GREEN}=== AutoFileSync ${BUILD_TYPE} Build ===${NC}"
 
-# Get script directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# The project root is the parent of scripts/
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # Set build directory based on build type
 if [ "$BUILD_TYPE" == "Debug" ]; then
-    BUILD_DIR="${SCRIPT_DIR}/build/Debug"
+    BUILD_DIR="${SOURCE_DIR}/build/Debug"
 else
-    BUILD_DIR="${SCRIPT_DIR}/build/Release"
+    BUILD_DIR="${SOURCE_DIR}/build/Release"
 fi
 
 # Clean build directory if requested
@@ -83,7 +83,7 @@ mkdir -p "${BUILD_DIR}"
 
 # Configure CMake
 echo -e "${YELLOW}Configuring CMake...${NC}"
-cmake -S "${SCRIPT_DIR}" \
+cmake -S "${SOURCE_DIR}" \
       -B "${BUILD_DIR}" \
       -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
       -DCMAKE_CXX_STANDARD=20
@@ -91,7 +91,7 @@ cmake -S "${SCRIPT_DIR}" \
 # The build copies help/ next to the executable, so the book is packed first;
 # the program loads only the book, not the pages.
 echo -e "${YELLOW}Packing the help book...${NC}"
-"${SCRIPT_DIR}/tools/packHelp.sh"
+"${SOURCE_DIR}/tools/packHelp.sh"
 
 # Build
 echo -e "${YELLOW}Building project...${NC}"

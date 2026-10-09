@@ -22,7 +22,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$root = Split-Path -Parent $PSScriptRoot
 $guiDir = Join-Path $root 'AFS_Desktop\test\GUI-Tests'
 $buildDir = Join-Path $guiDir "build\windows\$Configuration"
 $exe = Join-Path $buildDir 'GuiTests.exe'

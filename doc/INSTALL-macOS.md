@@ -56,7 +56,7 @@ außerhalb seiner selbst lädt.
 ### Auf dem eigenen Rechner installieren
 
 ```bash
-./installMacOS.sh
+scripts/installMacOS.sh
 ```
 
 Legt das fertige Bündel nach `/Applications/AutoFileSync.app`. Mit
@@ -65,7 +65,7 @@ Legt das fertige Bündel nach `/Applications/AutoFileSync.app`. Mit
 ### Ein Disk-Image zum Weitergeben erzeugen
 
 ```bash
-./makeMacOSInstaller.sh
+scripts/makeMacOSInstaller.sh
 ```
 
 Erzeugt `build/AutoFileSync-<Version>.dmg` mit dem Programmbündel, einer
@@ -89,7 +89,7 @@ Erlaubnis unbemerkt ein unformatiertes Image erzeugt.
 ### Ohne Gatekeeper-Rückfrage weitergeben
 
 ```bash
-AFS_CODESIGN_IDENTITY="Developer ID Application: <Name> (<TeamID>)" ./makeMacOSInstaller.sh
+AFS_CODESIGN_IDENTITY="Developer ID Application: <Name> (<TeamID>)" scripts/makeMacOSInstaller.sh
 ```
 
 Signiert Bündel und Image mit der angegebenen Identität. Für einen Start ohne
@@ -99,7 +99,7 @@ jede Rückfrage muss das Image anschließend noch von Apple notarisiert werden
 ### Das Installationsprogramm prüfen
 
 ```bash
-./test_macOS_installer.sh
+scripts/test_macOS_installer.sh
 ```
 
 Hängt das neueste Image aus `build/` ein und prüft es vollständig: Aufbau und
@@ -170,7 +170,7 @@ Namen nach erste `*.gguf` in
 `~/Library/Application Support/autofilesync/models/` – dort auch ohne Neustart.
 
 ```bash
-./setup_llama_macos.sh
+scripts/setup_llama_macos.sh
 ```
 
 Das Skript lädt ein zur installierten Arbeitsspeichergröße passendes Modell
@@ -252,7 +252,7 @@ Weder ist `AUTOFILESYNC_LLAMA_MODEL` im Prozess gesetzt, noch liegt eine
 ls ~/Library/Application\ Support/autofilesync/models/
 ```
 
-Ist das Verzeichnis leer, richtet `./setup_llama_macos.sh` das Modell ein.
+Ist das Verzeichnis leer, richtet `scripts/setup_llama_macos.sh` das Modell ein.
 
 ### „Modell konnte nicht geladen werden"
 
@@ -264,7 +264,7 @@ head -c 4 "$(launchctl getenv AUTOFILESYNC_LLAMA_MODEL)"
 ```
 
 Eine gültige GGUF-Datei beginnt mit `GGUF`. Andernfalls die Datei löschen und
-`./setup_llama_macos.sh` erneut ausführen.
+`scripts/setup_llama_macos.sh` erneut ausführen.
 
 ### Antworten des Assistenten kommen sehr langsam
 
@@ -272,7 +272,7 @@ Der Assistent rechnet auf der CPU (siehe Abschnitt 3). Ein kleineres Modell
 schafft Abhilfe:
 
 ```bash
-./setup_llama_macos.sh --size 3b
+scripts/setup_llama_macos.sh --size 3b
 ```
 
 ### Die GUI-Tests bewegen Maus und Tastatur

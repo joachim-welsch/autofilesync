@@ -4,7 +4,7 @@
 set -e
 umask 022  # the package must not inherit group-writable files from a developer umask
 
-SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 DEBIAN_DIR="${SOURCE_DIR}/AFS_Desktop/installer/debian"
 BUILD_DIR="${SOURCE_DIR}/build/Debian"
 STAGING="${BUILD_DIR}/debian/autofilesync"  # the layout dpkg-shlibdeps expects
@@ -126,13 +126,13 @@ stage_documentation()
     local doc="${STAGING}/usr/share/doc/autofilesync"
     mkdir -p "${doc}/third-party"
     install -m 644 "${DEBIAN_DIR}/copyright" "${doc}/copyright"
-    install -m 644 "${SOURCE_DIR}"/{LICENSING.md,THIRD-PARTY-NOTICES.md} "${doc}/"
+    install -m 644 "${SOURCE_DIR}"/doc/{LICENSING.md,THIRD-PARTY-NOTICES.md} "${doc}/"
     install -m 644 "${SOURCE_DIR}"/third-party/* "${doc}/third-party/"
     {
         printf 'autofilesync (%s) unstable; urgency=medium\n\n  * Siehe CHANGELOG.md.\n\n -- %s  %s\n' \
             "${VERSION}" "${MAINTAINER}" "$(date -R)"
     } | gzip -9n > "${doc}/changelog.Debian.gz"
-    install -m 644 "${SOURCE_DIR}/CHANGELOG.md" "${doc}/changelog"
+    install -m 644 "${SOURCE_DIR}/doc/CHANGELOG.md" "${doc}/changelog"
     gzip -9n "${doc}/changelog"
 }
 

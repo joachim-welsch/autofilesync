@@ -74,7 +74,7 @@ afs_add_resources() {
 afs_add_licenses() {
     local app="$1" root="${AFS_DESKTOP_DIR}/.." licenses="${app}/Contents/Resources/licenses"
     rm -rf "${licenses}"; mkdir -p "${licenses}"
-    cp -f "${root}"/{LICENSE,LICENSING.md,THIRD-PARTY-NOTICES.md,CHANGELOG.md} "${licenses}/"
+    cp -f "${root}/LICENSE" "${root}"/doc/{LICENSING.md,THIRD-PARTY-NOTICES.md,CHANGELOG.md} "${licenses}/"
     cp -R "${root}/third-party" "${licenses}/third-party"
 }
 

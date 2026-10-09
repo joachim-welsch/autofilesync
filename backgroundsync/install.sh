@@ -3,8 +3,8 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DAEMON="${SCRIPT_DIR}/../build/Release/backgroundsync"
 LOCALE_DIR="${SCRIPT_DIR}/../build/Release/locale"
-[ -f "${DAEMON}" ] || { echo "${DAEMON} fehlt - zuerst ./build.sh -r im Projektverzeichnis aufrufen."; exit 1; }
-[ -d "${LOCALE_DIR}" ] || { echo "${LOCALE_DIR} fehlt - gettext (msgfmt) installieren und ./build.sh -r erneut aufrufen."; exit 1; }
+[ -f "${DAEMON}" ] || { echo "${DAEMON} fehlt - zuerst scripts/build.sh -r im Projektverzeichnis aufrufen."; exit 1; }
+[ -d "${LOCALE_DIR}" ] || { echo "${LOCALE_DIR} fehlt - gettext (msgfmt) installieren und scripts/build.sh -r erneut aufrufen."; exit 1; }
 sudo systemctl stop backgroundsync.service 2>/dev/null || true
 sudo install -m 755 "${DAEMON}" /usr/sbin/backgroundsync
 for MO in "${LOCALE_DIR}"/*/LC_MESSAGES/autofilesync.mo; do

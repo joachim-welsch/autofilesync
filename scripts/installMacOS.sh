@@ -1,8 +1,8 @@
 #!/bin/bash
 # Builds AutoFileSync and installs the finished bundle into /Applications.
-# For a disk image to hand to other people use ./makeMacOSInstaller.sh.
+# For a disk image to hand to other people use scripts/makeMacOSInstaller.sh.
 set -e
-source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/AFS_Desktop/installer/macos_bundle.sh"
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/AFS_Desktop/installer/macos_bundle.sh"
 
 BUILD_DIR="${AFS_SOURCE_DIR}/build/Release"
 INSTALL_DIR="/Applications"
@@ -16,7 +16,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --no-install   Nur bauen, nicht nach /Applications kopieren"
             echo "  -h, --help     Diese Hilfe"
             echo ""
-            echo "Ein verteilbares Disk-Image erzeugt ./makeMacOSInstaller.sh."
+            echo "Ein verteilbares Disk-Image erzeugt scripts/makeMacOSInstaller.sh."
             exit 0 ;;
         *) afs_fail "Unbekannte Option: $1" ;;
     esac

@@ -61,8 +61,8 @@ if(APPLE)
     set(LICENSE_DESTINATION $<TARGET_BUNDLE_CONTENT_DIR:autofilesync>/Resources/licenses)
     add_custom_command(TARGET autofilesync POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${LICENSE_DESTINATION}
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/LICENSE ${CMAKE_SOURCE_DIR}/LICENSING.md
-            ${CMAKE_SOURCE_DIR}/THIRD-PARTY-NOTICES.md ${CMAKE_SOURCE_DIR}/CHANGELOG.md ${LICENSE_DESTINATION}
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/LICENSE ${CMAKE_SOURCE_DIR}/doc/LICENSING.md
+            ${CMAKE_SOURCE_DIR}/doc/THIRD-PARTY-NOTICES.md ${CMAKE_SOURCE_DIR}/doc/CHANGELOG.md ${LICENSE_DESTINATION}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/third-party ${LICENSE_DESTINATION}/third-party
         COMMENT "Copying the licence texts into the bundle")
 endif()

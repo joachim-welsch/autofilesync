@@ -4,7 +4,7 @@ rem the GUI tests of AFS_Desktop, counterpart to run_Integrationtests.sh and run
 rem Both suites run even if the first one fails, so one call reports the state of both.
 setlocal
 
-set "ROOT=%~dp0"
+set "ROOT=%~dp0..\"
 set "IT_DIR=%ROOT%AFS_Core\test\Integrationstests"
 set "IT_SOLUTION=%IT_DIR%\Integrationtests.sln"
 set "BUILD_TYPE=Debug"
@@ -99,7 +99,7 @@ echo === GUI tests, %BUILD_TYPE% ===
 set "GUI_ARGS=-Configuration %BUILD_TYPE%"
 if "%BUILD%"=="0" set "GUI_ARGS=%GUI_ARGS% -NoBuild"
 if defined FILTER set "GUI_ARGS=%GUI_ARGS% -Filter "%FILTER%""
-call "%ROOT%run_GUI_Tests.bat" %GUI_ARGS%
+call "%~dp0run_GUI_Tests.bat" %GUI_ARGS%
 exit /b %ERRORLEVEL%
 
 rem Same lookup as build.cmd: -prerelease finds Insiders/Preview installations, and the

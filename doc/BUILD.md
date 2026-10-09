@@ -48,8 +48,8 @@ Test-Explorer (CTest) erscheinen.
 - "CMake: clean"
 
 ### Testen (Tasks, Ctrl+Shift+P → "Tasks: Run Test Task")
-- "Test: Integrationtests" - `run_Integrationtests.sh`, fragt nach einem gtest-Filter
-- "Test: GUI-Tests" - `run_GUI_Tests.sh` auf einem privaten X-Display
+- "Test: Integrationtests" - `scripts/run_Integrationtests.sh`, fragt nach einem gtest-Filter
+- "Test: GUI-Tests" - `scripts/run_GUI_Tests.sh` auf einem privaten X-Display
 - "Test: ctest" - alle bei CTest registrierten Tests
 
 ### Starten/Debuggen (F5, Auswahl in der Debug-Ansicht)
@@ -84,12 +84,12 @@ weiterverwenden.
 
 Windows baut nicht über CMake, sondern über `AFS_Desktop\autofilesync.sln`: dort
 stehen die Pfade zu wxWidgets, Boost und vcpkg, die diese Plattform braucht.
-`build.cmd` im Wurzelverzeichnis erledigt das Gegenstück zu `build.sh`:
+`scripts\build.cmd` erledigt das Gegenstück zu `build.sh`:
 
 ```cmd
-build.cmd              :: Release
-build.cmd -d           :: Debug
-build.cmd clean -d     :: Build-Verzeichnis löschen und Debug bauen
+scripts\build.cmd              :: Release
+scripts\build.cmd -d           :: Debug
+scripts\build.cmd clean -d     :: Build-Verzeichnis löschen und Debug bauen
 ```
 
 Voraussetzung ist ein vcpkg mit `vcpkg integrate install` und den Paketen aus
@@ -132,9 +132,9 @@ Skript selbst nach, und zwar in der Version von `wix` selbst, weil eine neuere
 sich nicht laden lässt.
 
 ```cmd
-makeWindowsInstaller.cmd              :: Release bauen und paketieren
-makeWindowsInstaller.cmd -NoBuild     :: vorhandenen Build verwenden
-makeWindowsInstaller.cmd -Output C:\Temp
+scripts\makeWindowsInstaller.cmd              :: Release bauen und paketieren
+scripts\makeWindowsInstaller.cmd -NoBuild     :: vorhandenen Build verwenden
+scripts\makeWindowsInstaller.cmd -Output C:\Temp
 ```
 
 Das Skript stellt die Nutzlast in `build\windows_installer\payload` zusammen –
@@ -183,9 +183,9 @@ und hängt vom Arbeitsspeicher ab. Das Paket legt dafür im Startmenü
 Umgebungsvariable und ohne Neustart. Aus dem Repository heraus:
 
 ```cmd
-setup_llama_windows.cmd                      :: Größe nach Arbeitsspeicher
-setup_llama_windows.cmd -Size 3b             :: Größe erzwingen
-setup_llama_windows.cmd -Model D:\m.gguf     :: vorhandene Datei, setzt AUTOFILESYNC_LLAMA_MODEL
+scripts\setup_llama_windows.cmd                      :: Größe nach Arbeitsspeicher
+scripts\setup_llama_windows.cmd -Size 3b             :: Größe erzwingen
+scripts\setup_llama_windows.cmd -Model D:\m.gguf     :: vorhandene Datei, setzt AUTOFILESYNC_LLAMA_MODEL
 ```
 
 Gesucht wird in dieser Reihenfolge: `AUTOFILESYNC_LLAMA_MODEL`, falls gesetzt,
@@ -330,7 +330,7 @@ Programm gebaut; die Skripte im Wurzelverzeichnis erledigen das:
 
 ### Integrations-Tests (AFS_Core)
 ```bash
-./run_Integrationtests.sh                 # Argumente gehen an gtest durch
+scripts/run_Integrationtests.sh                 # Argumente gehen an gtest durch
 # oder von Hand:
 cmake -S . -B build -DAFS_BUILD_TESTS=ON
 cmake --build build --target Integrationtests
@@ -346,7 +346,7 @@ XTest-Erweiterung; ohne den lokalen SSH-Testserver aus
 sudo apt install libgtest-dev xvfb libxtst-dev
 ```
 ```bash
-./run_GUI_Tests.sh
+scripts/run_GUI_Tests.sh
 # oder von Hand:
 cmake --build build --target GuiTests
 ./AFS_Desktop/test/GUI-Tests/run_gui_tests.sh build/GuiTests
@@ -362,9 +362,9 @@ die GUI-Tests über `run_GUI_Tests.bat`. Beide laufen auch dann, wenn die erste
 fehlschlägt; am Ende steht eine Zusammenfassung, der Exit-Code ist 1, sobald eine
 fehlschlägt.
 ```cmd
-run_Tests.cmd                              :: beide, Debug
-run_Tests.cmd integration --filter *Ssh*   :: nur Integrationstests, gtest-Filter
-run_Tests.cmd gui --no-build -r            :: nur GUI-Tests, vorhandener Release-Build
+scripts\run_Tests.cmd                              :: beide, Debug
+scripts\run_Tests.cmd integration --filter *Ssh*   :: nur Integrationstests, gtest-Filter
+scripts\run_Tests.cmd gui --no-build -r            :: nur GUI-Tests, vorhandener Release-Build
 ```
 Die GUI-Tests übernehmen auch hier Maus und Tastatur des aktiven Desktops.
 
@@ -373,9 +373,9 @@ Die GUI-Tests übernehmen auch hier Maus und Tastatur des aktiven Desktops.
 Siehe [INSTALL-Linux.md](INSTALL-Linux.md) (Linux) bzw.
 [INSTALL-macOS.md](INSTALL-macOS.md) (macOS).
 
-Unter macOS erzeugt `./makeMacOSInstaller.sh` ein verteilbares Disk-Image,
-`./installMacOS.sh` installiert direkt nach `/Applications` und
-`./test_macOS_installer.sh` prüft das erzeugte Image. Die gemeinsamen Schritte
+Unter macOS erzeugt `scripts/makeMacOSInstaller.sh` ein verteilbares Disk-Image,
+`scripts/installMacOS.sh` installiert direkt nach `/Applications` und
+`scripts/test_macOS_installer.sh` prüft das erzeugte Image. Die gemeinsamen Schritte
 liegen in `AFS_Desktop/installer/macos_bundle.sh`.
 
 Das Verzeichnis `AFS_Desktop/help/` gehört neben die installierte

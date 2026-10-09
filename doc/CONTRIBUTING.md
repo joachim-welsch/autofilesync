@@ -17,7 +17,7 @@ setzt ihn, `--check` prüft ihn.
 - Der Kern (`AFS_Core`) bindet nichts aus `AFS_Desktop` ein.
 - Neue Dateien stehen in `AFS_Core/cmake/AfsCore.cmake` bzw.
   `AFS_Desktop/cmake/AfsDesktop.cmake` und in den `.vcxproj`-Dateien.
-- `./run_Integrationtests.sh` und `./run_GUI_Tests.sh` laufen durch. Jeder
+- `scripts/run_Integrationtests.sh` und `scripts/run_GUI_Tests.sh` laufen durch. Jeder
   Test räumt hinter sich auf; Dateisystem und Konfiguration sehen danach aus
   wie davor.
 - Texte der Oberfläche kommen aus den Sprachkatalogen in `po/`, Deutsch und
@@ -72,5 +72,5 @@ modern C++20 following the C++ Core Guidelines: `PascalCase` types,
 `snake_case` members and functions with a trailing underscore for member
 variables, compact code, small single-purpose functions, English comments
 only where they explain why, placed behind the code or in the module's `.md`
-file. Run `./run_Integrationtests.sh` and `./run_GUI_Tests.sh` before
+file. Run `scripts/run_Integrationtests.sh` and `scripts/run_GUI_Tests.sh` before
 submitting.*

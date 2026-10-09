@@ -24,7 +24,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$root = Split-Path -Parent $PSScriptRoot
+$docDir = Join-Path $root 'doc'
 $buildDir = Join-Path $root "AFS_Desktop\x64\$Configuration"
 $serviceBuildDir = Join-Path $root "backgroundsync\x64\$Configuration"
 $stagingDir = Join-Path $root 'build\windows_installer'
@@ -62,7 +63,7 @@ function Copy-Payload {
         if (-not (Test-Path $source)) { throw "Im Build fehlt $directory - erwartet in $buildDir." }
         Copy-Item -Recurse $source (Join-Path $payloadDir $directory)
     }
-    foreach ($script in $modelSetup) { Copy-Item (Join-Path $root $script) $payloadDir }
+    foreach ($script in $modelSetup) { Copy-Item (Join-Path $PSScriptRoot $script) $payloadDir }
     Copy-Licenses
 }
 
@@ -82,8 +83,9 @@ function Copy-Service {
 function Copy-Licenses {
     $target = Join-Path $payloadDir 'licenses'
     New-Item -ItemType Directory -Force $target | Out-Null
-    foreach ($file in 'LICENSE', 'LICENSING.md', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md') {
-        Copy-Item (Join-Path $root $file) $target
+    Copy-Item (Join-Path $root 'LICENSE') $target
+    foreach ($file in 'LICENSING.md', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md') {
+        Copy-Item (Join-Path $docDir $file) $target
     }
     Copy-Item -Recurse (Join-Path $root 'third-party') (Join-Path $target 'third-party')
 }
@@ -121,7 +123,7 @@ function ConvertTo-Rtf([string[]]$paragraphs) {
 }
 
 function Write-LicenseRtf {
-    $text = @(Get-Content (Join-Path $root 'LICENSING.md') -Encoding UTF8) + @('', '') + @(Get-Content (Join-Path $root 'LICENSE') -Encoding UTF8)
+    $text = @(Get-Content (Join-Path $docDir 'LICENSING.md') -Encoding UTF8) + @('', '') + @(Get-Content (Join-Path $root 'LICENSE') -Encoding UTF8)
     $rtf = Join-Path $payloadDir 'license.rtf'
     [System.IO.File]::WriteAllText($rtf, (ConvertTo-Rtf $text), [System.Text.Encoding]::ASCII)
     return $rtf
@@ -209,11 +211,11 @@ function Install-WixExtensions {
 
 if (-not $NoBuild) {
     Write-Host "=== $Configuration bauen ===" -ForegroundColor Green
-    & cmd /c "`"$(Join-Path $root 'build.cmd')`" -$(if ($Configuration -eq 'Debug') {'d'} else {'r'})"
+    & cmd /c "`"$(Join-Path $PSScriptRoot 'build.cmd')`" -$(if ($Configuration -eq 'Debug') {'d'} else {'r'})"
     if ($LASTEXITCODE -ne 0) { throw "Build fehlgeschlagen." }
 }
 foreach ($built in (Join-Path $buildDir 'autofilesync.exe'), (Join-Path $serviceBuildDir 'backgroundsync.exe')) {
-    if (-not (Test-Path $built)) { throw "Kein Build: $built fehlt - zuerst .\build.cmd ausfuehren oder -NoBuild weglassen." }
+    if (-not (Test-Path $built)) { throw "Kein Build: $built fehlt - zuerst scripts\build.cmd ausfuehren oder -NoBuild weglassen." }
 }
 
 Write-Host '=== Nutzlast zusammenstellen ===' -ForegroundColor Green

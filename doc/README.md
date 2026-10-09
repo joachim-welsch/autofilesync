@@ -40,8 +40,8 @@ Kurzfassung für Linux:
 ```bash
 sudo apt install build-essential cmake git pkg-config libwxgtk3.2-dev \
                  libboost-filesystem-dev libssh-dev libssl-dev imagemagick gettext
-./build.sh
-./run_autofilesync.sh
+scripts/build.sh
+scripts/run_autofilesync.sh
 ```
 
 ## Aufbau
@@ -54,7 +54,7 @@ sudo apt install build-essential cmake git pkg-config libwxgtk3.2-dev \
 | `po/` | Sprachkataloge |
 | `third-party/` | Lizenztexte der verwendeten Bibliotheken |
 
-Tests: `./run_Integrationtests.sh` für den Kern, `./run_GUI_Tests.sh` für die
+Tests: `scripts/run_Integrationtests.sh` für den Kern, `scripts/run_GUI_Tests.sh` für die
 Oberfläche; Einzelheiten in `BUILD.md`.
 
 ## Mitmachen

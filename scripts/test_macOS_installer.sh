@@ -4,7 +4,7 @@
 # self-contained, that a drag to the programs folder yields an installation
 # that keeps working once the image is ejected, and that starting it leaves the
 # user's configuration untouched.
-source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/AFS_Desktop/installer/macos_bundle.sh"
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/AFS_Desktop/installer/macos_bundle.sh"
 
 DMG=""
 RUN_LAUNCH_TEST=true
@@ -22,7 +22,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 [ -n "${DMG}" ] || DMG="$(ls -t "${AFS_SOURCE_DIR}"/build/AutoFileSync-*.dmg 2>/dev/null | head -1)"
-[ -f "${DMG}" ] || afs_fail "Kein Disk-Image gefunden - zuerst ./makeMacOSInstaller.sh ausführen."
+[ -f "${DMG}" ] || afs_fail "Kein Disk-Image gefunden - zuerst scripts/makeMacOSInstaller.sh ausführen."
 
 PASSED=0; FAILED=0
 ok()   { echo -e "  ${AFS_GREEN}BESTANDEN${AFS_NC}  $1"; PASSED=$((PASSED+1)); }

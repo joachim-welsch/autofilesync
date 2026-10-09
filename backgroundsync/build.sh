@@ -1,5 +1,5 @@
 #!/bin/bash
-# The daemon is built together with the GUI by the build script in the project root.
+# The daemon is built together with the GUI by scripts/build.sh.
 set -euo pipefail
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 BUILD_RELEASE=false
@@ -21,6 +21,6 @@ if [ "$BUILD_RELEASE" = false ] && [ "$BUILD_DEBUG" = false ]; then
   BUILD_RELEASE=true
   BUILD_DEBUG=true
 fi
-[ "$BUILD_RELEASE" = true ] && "${SOURCE_DIR}/build.sh" -r
-[ "$BUILD_DEBUG" = true ] && "${SOURCE_DIR}/build.sh" -d
+[ "$BUILD_RELEASE" = true ] && "${SOURCE_DIR}/scripts/build.sh" -r
+[ "$BUILD_DEBUG" = true ] && "${SOURCE_DIR}/scripts/build.sh" -d
 exit 0
