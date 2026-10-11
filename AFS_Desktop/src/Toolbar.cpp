@@ -31,6 +31,7 @@
     #include "../bitmaps/start.xpm"
     #include "../bitmaps/stop.xpm"
     #include "../bitmaps/help.xpm"
+    #include "../bitmaps/settings.xpm"
 
     #pragma GCC diagnostic pop
 #endif
@@ -47,6 +48,7 @@ enum
     Tool_start,
 	Tool_stop,
     Tool_help,
+    Tool_settings,
     Tool_Max
 };
 wxBitmap toolBarBitmaps[Tool_Max];
@@ -70,6 +72,7 @@ void Toolbar::create(wxFrame* parent)
 	INIT_TOOL_BMP(start);
 	INIT_TOOL_BMP(stop);
 	INIT_TOOL_BMP(help);
+	INIT_TOOL_BMP(settings);
 
 	long style = 0;
 	style |= wxTB_TOP;
@@ -81,6 +84,7 @@ void Toolbar::create(wxFrame* parent)
 
 	toolbar_->AddStretchableSpace();
 	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), translate("toolbar_help"));
+	toolbar_->AddTool(tul(id::EditSettings), wxEmptyString, wxBITMAP(settings), translate("menu_settings"));
 	toolbar_->Realize();
 }
 

@@ -7,6 +7,11 @@ Module comment for SettingsTest.cpp.
 The four start options and the three message filters only reach the configuration; nothing
 in the application reads show_errors/show_warnings/show_infos yet, so the round trip into Settings is all that can be tested for them.
 
+## WerkzeugleisteZahnradOeffnetEinstellungen
+
+The gear at the right end of the toolbar shares id::EditSettings with the menu item, so it
+must open the very same dialog. Cancelled, so the configuration stays as it was.
+
 ## MinimierenStattSchliessenVerstecktAnstattZuBeenden
 
 Close() runs MainWindow::onClose with a vetoable event, exactly like the window's close

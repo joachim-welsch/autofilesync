@@ -2,6 +2,7 @@
 
 ## Unveröffentlicht
 
+- Ein Zahnrad rechts in der Werkzeugleiste öffnet die globalen Einstellungen.
 - Übersetzungen ins Spanische, Französische, Italienische, Polnische und
   Ukrainische (`po/es.po`, `po/fr.po`, `po/it.po`, `po/pl.po`, `po/uk.po`);
   sie gelten, wenn die Umgebung die Sprache einstellt, z.B. `LANGUAGE=pl`.

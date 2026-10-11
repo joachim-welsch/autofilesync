@@ -110,6 +110,17 @@ TEST_F(GuiTest, EinstellungenKommenInDieKonfiguration)  // [SettingsTest.md#Eins
     EXPECT_NE(savedFile.str().find("\"ShowInfos\": \"true\""), std::string::npos) << "Die Einstellung steht nicht in der Datei.";
 }
 
+TEST_F(GuiTest, WerkzeugleisteZahnradOeffnetEinstellungen)  // [SettingsTest.md#WerkzeugleisteZahnradOeffnetEinstellungen]
+{
+    ModalDialogWatcher::instance().answer(txt::settings(), wxID_CANCEL);
+
+    ASSERT_TRUE(activateToolbarTool(mainWindow(), tul(id::EditSettings))) << "Die Werkzeugleiste hat kein Zahnrad.";
+    pump();
+
+    EXPECT_FALSE(ModalDialogWatcher::instance().hasPendingExpectations()) << "Das Zahnrad öffnete die globalen Einstellungen nicht.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpectedDialogs().empty());
+}
+
 TEST_F(GuiTest, MinimierenStattSchliessenVerstecktAnstattZuBeenden)  // [SettingsTest.md#MinimierenStattSchliessenVerstecktAnstattZuBeenden]
 {
     const RestoredSettings restored;
