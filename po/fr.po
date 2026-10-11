@@ -1365,6 +1365,14 @@ msgstr "Démarrer réduit"
 msgid "settings_minimize_instead_of_close"
 msgstr "Réduire au lieu de fermer ?"
 
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Langue :"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Langue du système d'exploitation"
+
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
 msgstr "Afficher les messages dans une boîte de dialogue :"

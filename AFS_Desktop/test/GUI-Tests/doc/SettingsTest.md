@@ -7,6 +7,13 @@ Module comment for SettingsTest.cpp.
 The four start options and the three message filters only reach the configuration; nothing
 in the application reads show_errors/show_warnings/show_infos yet, so the round trip into Settings is all that can be tested for them.
 
+## SpracheSchaltetSofortUmUndKommtInDieKonfiguration
+
+English is chosen because its texts are fixed here whatever language the test session runs in;
+"File" and "Global settings" prove that the labels were rebuilt, not just the catalogue switched.
+Choosing the operating system's language again through the same dialog restores the language
+the other tests expect, and checks the way back at the same time.
+
 ## WerkzeugleisteZahnradOeffnetEinstellungen
 
 The gear at the right end of the toolbar shares id::EditSettings with the menu item, so it

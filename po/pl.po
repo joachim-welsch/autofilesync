@@ -1365,6 +1365,14 @@ msgstr "Uruchamiaj zminimalizowany"
 msgid "settings_minimize_instead_of_close"
 msgstr "Minimalizować zamiast zamykać?"
 
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Język:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Język systemu operacyjnego"
+
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
 msgstr "Pokazuj komunikaty w oknie dialogowym:"

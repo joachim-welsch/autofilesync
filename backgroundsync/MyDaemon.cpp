@@ -58,6 +58,7 @@ void MyDaemon::stop()
 void MyDaemon::load_config()
 {
     Config::instance().read(Config::instance().pathname());
+    translation::set_language(Config::instance().settings().language());  // the language chosen in the GUI, also after a reload
     Logging::instance().open_file();  // read() leaves the file closed when the configured name equals the default name
 }
 

@@ -42,6 +42,10 @@ bool enterValues(wxDialog& dialog, const SettingsInput& input)  // [SettingsDial
         ADD_FAILURE() << "Der Löschmodus konnte im Dialog nicht ausgewählt werden.";
         return false;
     }
+    if (input.language && !selectEntry(find(dialog, ID_LANGUAGE_CHOICE), *input.language)) {
+        ADD_FAILURE() << "Die Sprache \"" << *input.language << "\" steht nicht in der Auswahl.";
+        return false;
+    }
     if (input.recycleBinPath && !replaceText(find(dialog, ID_RECYCLEBIN_PATH_BOX), *input.recycleBinPath)) {
         ADD_FAILURE() << "Der Papierkorb-Pfad konnte nicht eingegeben werden; im Feld steht: "
                       << valueOf(find(dialog, ID_RECYCLEBIN_PATH_BOX));

@@ -1376,6 +1376,14 @@ msgstr ""
 msgid "settings_minimize_instead_of_close"
 msgstr ""
 
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr ""
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr ""
+
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
 msgstr ""

@@ -1365,6 +1365,14 @@ msgstr "Запускати згорнутим"
 msgid "settings_minimize_instead_of_close"
 msgstr "Згортати замість закриття?"
 
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Мова:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Мова операційної системи"
+
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
 msgstr "Показувати повідомлення у вікні:"

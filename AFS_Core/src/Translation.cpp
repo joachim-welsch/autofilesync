@@ -23,7 +23,9 @@
     #include <libintl.h>
 #endif
 #include <clocale>
+#include <cstdlib>
 #include <cstring>
+#include <optional>
 #ifdef WIN32
     #include <Windows.h>
 #elif defined(_MACOS)
@@ -113,24 +115,42 @@ std::filesystem::path locale_dir()
 
 #ifdef AFS_WITH_GETTEXT
 namespace {
+std::optional<std::string> environment_language;  // [Translation.md#environment_language]
+
+void put_language(const std::optional<std::string>& language)
+{
+#ifdef WIN32
+    _putenv_s("LANGUAGE", language.value_or("").c_str());  // an empty value removes the variable
+#else
+    if (language)
+        setenv("LANGUAGE", language->c_str(), 1);
+    else
+        unsetenv("LANGUAGE");
+#endif
+}
+
 void fall_back_to_english()  // [Translation.md#fall_back_to_english]
 {
-    if (*dgettext(TEXT_DOMAIN, "") != '\0')  // the empty msgid yields the catalogue header
-        return;
-#ifdef WIN32
-    _putenv_s("LANGUAGE", "en");
-#else
-    setenv("LANGUAGE", "en", 1);
-#endif
+    if (*dgettext(TEXT_DOMAIN, "") == '\0')  // the empty msgid yields the catalogue header
+        put_language("en");
 }
 }
 
 void init(const std::filesystem::path& locale_dir)
 {
+    const char* language = std::getenv("LANGUAGE");
+    environment_language = language != nullptr ? std::optional<std::string>(language) : std::nullopt;
     if (!locale_dir.empty())
         bindtextdomain(TEXT_DOMAIN, locale_dir.string().c_str());
     bind_textdomain_codeset(TEXT_DOMAIN, "UTF-8");  // [Translation.md#catalogue-codeset]
     textdomain(TEXT_DOMAIN);
+    fall_back_to_english();
+}
+
+void set_language(const std::string& code)
+{
+    put_language(code.empty() ? environment_language : std::optional<std::string>(code));
+    textdomain(TEXT_DOMAIN);  // [Translation.md#set_language]
     fall_back_to_english();
 }
 
@@ -140,6 +160,7 @@ std::string translate_utf8(const char* msgid)
 }
 #else
 void init(const std::filesystem::path&) {}  // [Translation.md#no-libintl-fallback]
+void set_language(const std::string&) {}
 
 std::string translate_utf8(const char* msgid)
 {

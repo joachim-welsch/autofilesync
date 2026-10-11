@@ -40,7 +40,9 @@ private:
     void onPickRecycleBinPath(wxCommandEvent&);
     void onDeleteModeChanged(wxCommandEvent&);
     void enableRecycleBinPath();
+    void addLanguageChoice(wxSizer* sizer);
 
+    wxChoice*   languageChoice_ = nullptr;
     wxRadioBox* deleteModeRB_ = nullptr;
     wxTextCtrl* recycleBinPathBox_ = nullptr;
     wxButton*   recycleBinPathBtn_ = nullptr;
@@ -57,6 +59,7 @@ private:
 enum {
     ID_DELETE_MODE_RADIO = wxID_HIGHEST + 1,
     ID_RECYCLEBIN_PATH_BOX,
-    ID_RECYCLEBIN_PATH_BUTTON
+    ID_RECYCLEBIN_PATH_BUTTON,
+    ID_LANGUAGE_CHOICE
 };
 

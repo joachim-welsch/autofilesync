@@ -120,10 +120,11 @@ MainWindow::MainWindow(wxWindow *parent,
 {
 
 	SetIcon(wxICON(sample));
-	createMenu();
 	const std::wstring pathName = Config::get_root_pathname();
 	Config::instance().pathname(pathName);
 	Config::instance().read(pathName);
+	translation::set_language(Config::instance().settings().language());  // before the first label is built
+	createMenu();
 	setTitle();
 	restoreSizeAndPosition();
 	CreateStatusBar(2);
@@ -552,11 +553,65 @@ void MainWindow::onEditSshAccounts(wxCommandEvent&)
 void MainWindow::onEditSettings(wxCommandEvent&)
 {
     bool autoStartLast = Config::instance().settings().auto_start();
+    const std::string languageLast = Config::instance().settings().language();
     SettingsDialog dlg(this, wxID_ANY, txt::settings());
     dlg.ShowModal();
     autosave::after_change(this);
     if (autoStartLast !=  Config::instance().settings().auto_start())
         registerAutomaticStart(Config::instance().settings().auto_start());
+    if (languageLast != Config::instance().settings().language())
+        switchLanguage();
+}
+
+void MainWindow::switchLanguage()
+{
+    translation::set_language(Config::instance().settings().language());
+    rebuildMenu();
+    rebuildToolBar();
+    rebuildView();
+    updateSyncState();
+    setTitle();
+    setTaskBarIcon();
+}
+
+void MainWindow::rebuildMenu()  // [MainWindow.md#switchLanguage]
+{
+    wxMenu* sync = menu_.syncMenu();
+    const bool startEnabled = sync->IsEnabled(tul(id::StartSync));
+    const bool onceEnabled = sync->IsEnabled(tul(id::SyncOnce));
+    const bool stopEnabled = sync->IsEnabled(tul(id::StopSync));
+    wxMenuBar* old = GetMenuBar();
+    createMenu();
+    delete old;
+    menu_.syncMenu()->Enable(tul(id::StartSync), startEnabled);
+    menu_.syncMenu()->Enable(tul(id::SyncOnce), onceEnabled);
+    menu_.syncMenu()->Enable(tul(id::StopSync), stopEnabled);
+}
+
+void MainWindow::rebuildToolBar()
+{
+    wxToolBar* old = GetToolBar();
+    const bool started = old->FindById(tul(id::StopSync)) != nullptr;
+    SetToolBar(nullptr);
+    old->Destroy();
+    createToolBar();
+    toolbar_.setStarted(started);
+}
+
+void MainWindow::rebuildView()  // [MainWindow.md#switchLanguage]
+{
+    if (listWindow_ != nullptr) {
+        deleteWindow(listWindow_);
+        createListWindow();
+    }
+    else if (gridWindow_ != nullptr) {
+        deleteWindow(gridWindow_);
+        createGridWindow();
+    }
+    else if (splitterWindow_ != nullptr) {
+        deleteWindow(splitterWindow_);
+        createSplitterWindow();
+    }
 }
 
 void MainWindow::onEditLogging(wxCommandEvent&)
@@ -795,6 +850,11 @@ void MainWindow::restoreSizeAndPosition()  // [MainWindow.md#restore-fits-the-sc
 void MainWindow::createTaskBar()
 {
     taskBarIcon_ = new TaskBarIcon(this);
+    setTaskBarIcon();
+}
+
+void MainWindow::setTaskBarIcon()
+{
 #ifndef __WXOSX__
     if (!taskBarIcon_->SetIcon(wxICON(sample), translation::translate("taskbar_tooltip")))  // [MainWindow.md#taskbar-icon-macos]
         wxLogError("%s", translation::translate("icon_set_failed"));

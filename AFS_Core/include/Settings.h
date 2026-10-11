@@ -35,6 +35,7 @@ class Settings {
     bool show_warnings_              = false;
     bool show_infos_                 = false;
     std::wstring backup_proof_path_;  // [Settings.md#backup_proof_path_]
+    std::string language_;  // [Settings.md#language_]
 public:
     void set_console_mode() { console_mode_=true; }
     bool console_mode() const { return console_mode_; }
@@ -56,6 +57,8 @@ public:
     void delete_mode(DeleteMode dm) { delete_mode_ = dm; }
     std::wstring backup_proof_path() const { return backup_proof_path_; }
     void backup_proof_path(const std::wstring& path) { backup_proof_path_ = path; }
+    const std::string& language() const { return language_; }
+    void language(const std::string& code) { language_ = code; }
     void reset();
 };
 

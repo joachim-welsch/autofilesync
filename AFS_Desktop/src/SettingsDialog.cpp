@@ -21,8 +21,23 @@
 #include "RecycleBin.h"
 #include "Translation.h"
 #include <wx/dirdlg.h>
+#include <algorithm>
 
 using namespace AFS_Core;
+
+namespace {
+int languageIndex(const std::string& code)  // [SettingsDialog.md#languageIndex]
+{
+    const auto& languages = translation::LANGUAGES;
+    const auto found = std::ranges::find(languages, code, &translation::Language::code);
+    return found == languages.end() ? 0 : static_cast<int>(found - languages.begin()) + 1;
+}
+
+std::string languageCode(int index)
+{
+    return index <= 0 ? std::string() : translation::LANGUAGES[static_cast<std::size_t>(index - 1)].code;
+}
+}
 
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 END_EVENT_TABLE()
@@ -37,6 +52,7 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
 {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     mainSizer->AddStretchSpacer()->SetMinSize(20, 10);
+    addLanguageChoice(mainSizer);
 
     wxBoxSizer* startAutostartSizer = new wxBoxSizer(wxHORIZONTAL);
     autoStartCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_autostart"));
@@ -100,6 +116,18 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
 SettingsDialog::~SettingsDialog()
 {}
 
+void SettingsDialog::addLanguageChoice(wxSizer* sizer)
+{
+    wxBoxSizer* languageSizer = new wxBoxSizer(wxHORIZONTAL);
+    languageSizer->Add(new wxStaticText(this, wxID_STATIC, translation::translate("settings_language")), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    languageChoice_ = new wxChoice(this, ID_LANGUAGE_CHOICE);
+    languageChoice_->Append(translation::translate("language_system"));
+    for (const translation::Language& language : translation::LANGUAGES)
+        languageChoice_->Append(wxString::FromUTF8(language.name));
+    languageSizer->Add(languageChoice_, 1);
+    sizer->Add(languageSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+}
+
 bool SettingsDialog::TransferDataToWindow()
 {
     const Settings& s = Config::instance().settings();
@@ -112,6 +140,7 @@ bool SettingsDialog::TransferDataToWindow()
     messageBoxInfoCB_->SetValue(s.show_infos());
     recycleBinPathBox_->SetValue(RecycleBin::instance().bin_path().wstring());
     deleteModeRB_->SetSelection(s.delete_mode() == DeleteMode::Permanent ? 1 : 0);
+    languageChoice_->SetSelection(languageIndex(s.language()));
     enableRecycleBinPath();
     return true;
 }
@@ -178,6 +207,10 @@ bool SettingsDialog::TransferDataFromWindow()
     const std::wstring recycleBinPath = recycleBinPathBox_->GetValue().ToStdWstring();
     if (!recycleBinPath.empty() && RecycleBin::instance().bin_path() != std::filesystem::path(recycleBinPath)) {
         RecycleBin::instance().bin_path(recycleBinPath);
+        changed = true;
+    }
+    if (languageChoice_->GetSelection() != languageIndex(s.language())) {  // [SettingsDialog.md#languageIndex]
+        s.language(languageCode(languageChoice_->GetSelection()));
         changed = true;
     }
     if (changed)

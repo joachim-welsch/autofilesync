@@ -110,6 +110,30 @@ TEST_F(GuiTest, EinstellungenKommenInDieKonfiguration)  // [SettingsTest.md#Eins
     EXPECT_NE(savedFile.str().find("\"ShowInfos\": \"true\""), std::string::npos) << "Die Einstellung steht nicht in der Datei.";
 }
 
+TEST_F(GuiTest, SpracheSchaltetSofortUmUndKommtInDieKonfiguration)  // [SettingsTest.md#SpracheSchaltetSofortUmUndKommtInDieKonfiguration]
+{
+    const RestoredSettings restored;
+    ASSERT_TRUE(Config::instance().settings().language().empty());
+    SettingsInput english;
+    english.language = "English";
+
+    applySettings(mainWindow(), english);
+
+    EXPECT_EQ(Config::instance().settings().language(), "en");
+    EXPECT_EQ(mainWindow().GetMenuBar()->GetMenuLabelText(0), "File") << "Das Menü wurde nicht sofort umgestellt.";
+    EXPECT_EQ(mainWindow().GetToolBar()->GetToolShortHelp(tul(id::EditSettings)), "Global settings") << "Die Werkzeugleiste wurde nicht umgestellt.";
+    std::ostringstream savedFile;
+    savedFile << std::ifstream(GuiTestSandbox::configFile()).rdbuf();
+    EXPECT_NE(savedFile.str().find("\"Language\": \"en\""), std::string::npos) << "Die Sprache steht nicht in der Datei.";
+
+    SettingsInput system;
+    system.language = translation::translate("language_system");
+    applySettings(mainWindow(), system);
+
+    EXPECT_TRUE(Config::instance().settings().language().empty());
+    EXPECT_EQ(mainWindow().GetMenuBar()->GetMenuLabel(0), translation::translate("menu_file")) << "Die Sprache des Betriebssystems kam nicht zurück.";
+}
+
 TEST_F(GuiTest, WerkzeugleisteZahnradOeffnetEinstellungen)  // [SettingsTest.md#WerkzeugleisteZahnradOeffnetEinstellungen]
 {
     ModalDialogWatcher::instance().answer(txt::settings(), wxID_CANCEL);

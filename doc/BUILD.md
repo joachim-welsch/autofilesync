@@ -256,12 +256,15 @@ keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
 
 - Kataloge: `po/de.po`, `po/en.po`, `po/es.po`, `po/fr.po`, `po/it.po`, `po/pl.po`
   und `po/uk.po`, Vorlage `po/autofilesync.pot`.
-  Eine Sprache ohne Katalog fällt auf Englisch zurück. Eine neue Sprache braucht nur
-  `po/<sprache>.po`: Build und Installationspakete sammeln alle `po/*.po` ein.
+  Eine Sprache ohne Katalog fällt auf Englisch zurück. Eine neue Sprache braucht
+  `po/<sprache>.po` - Build und Installationspakete sammeln alle `po/*.po` ein - und
+  einen Eintrag in `translation::LANGUAGES`, damit sie in den Einstellungen wählbar ist.
 - `msgfmt` übersetzt sie beim Build nach `build/locale/<sprache>/LC_MESSAGES/autofilesync.mo`
   (auf macOS zusätzlich in `autofilesync.app/Contents/Resources/locale`).
   Beide Programme suchen dieses Verzeichnis neben der eigenen Binary.
-- Sprache zur Laufzeit wählen: `LANGUAGE=en ./autofilesync` (gettext wertet
+- Sprache zur Laufzeit wählen: in den globalen Einstellungen (Schlüssel `Language`
+  der Konfiguration), oder ohne gewählte Sprache über die Umgebung:
+  `LANGUAGE=en ./autofilesync` (gettext wertet
   `LANGUAGE` vor der Locale aus). Eine Sitzung, die gar keine Sprache nennt, bekommt
   Deutsch - siehe `translation::init_locale()` und `translation::DEFAULT_LOCALES`.
 - Neue übersetzbare Texte einsammeln:

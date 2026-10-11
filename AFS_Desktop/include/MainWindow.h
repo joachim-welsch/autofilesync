@@ -82,6 +82,11 @@ private:
 	void setStatusTextWithTimer(const wxString& text, int milliseconds);
 	void restoreSizeAndPosition();
 	void createTaskBar();
+	void setTaskBarIcon();
+	void switchLanguage();  // [MainWindow.md#switchLanguage]
+	void rebuildMenu();
+	void rebuildToolBar();
+	void rebuildView();
 
 	void onQuit(wxCommandEvent& event);
 	void onAbout(wxCommandEvent& event);

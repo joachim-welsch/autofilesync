@@ -179,3 +179,15 @@ The service reads the configuration file, not the GUI's memory. A sync disabled 
 but not saved was synchronised by a service started right afterwards. So the start first offers
 to save, with Abbrechen to not start at all, and a failed save does not start the service over
 the stale file either.
+
+## switchLanguage
+
+wxWidgets keeps no message ids, only the texts it was given, so a new language means building
+every labelled part again: the menu bar, the toolbar and the view, whose column headers are
+texts too. Dialogs are built when they open and need nothing. The enabled state of the
+synchronisation menu and the start/stop tool reflect a running sync, not the language, and are
+carried over. The view is created anew, which drops its selection.
+
+The chat window is created once and kept, with its conversation, so it stays in the old language
+until the next start; recreating it would throw the conversation away. The help book exists only
+in German.

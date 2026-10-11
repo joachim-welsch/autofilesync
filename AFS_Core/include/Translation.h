@@ -27,9 +27,14 @@ namespace AFS_Core {
 
 namespace translation {  // [Translation.md#translation]
 inline constexpr std::array DEFAULT_LOCALES{"de_DE.UTF-8", "de_DE", "de"};  // [Translation.md#init_locale]
+struct Language { const char* code; const char* name; };
+inline constexpr std::array<Language, 7> LANGUAGES{{  // [Translation.md#LANGUAGES]
+    {"de", "Deutsch"}, {"en", "English"}, {"es", "Español"}, {"fr", "Français"},
+    {"it", "Italiano"}, {"pl", "Polski"}, {"uk", "Українська"}}};
 void init_locale(std::span<const char* const> fallbacks);  // [Translation.md#init_locale]
 std::filesystem::path locale_dir();  // [Translation.md#locale_dir]
 void init(const std::filesystem::path& locale_dir);  // [Translation.md#init]
+void set_language(const std::string& code);  // [Translation.md#set_language]
 constexpr const char* msgid(const char* id) { return id; }  // [Translation.md#msgid]
 std::wstring translate(const char* msgid);  // translation of msgid for the language taken from LANGUAGE/LC_MESSAGES
 std::string translate_utf8(const char* msgid);  // [Translation.md#translate_utf8]

@@ -1365,6 +1365,14 @@ msgstr "Avvia ridotto a icona"
 msgid "settings_minimize_instead_of_close"
 msgstr "Ridurre a icona invece di chiudere?"
 
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Lingua:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Lingua del sistema operativo"
+
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
 msgstr "Mostra i messaggi in una finestra:"

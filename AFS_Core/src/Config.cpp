@@ -252,6 +252,7 @@ Settings get_settings(boost::property_tree::wptree& sf)
     retval.show_infos(sf.get<wstring>(L"ShowInfos", L"false") == L"true");
     retval.delete_mode(sf.get<wstring>(L"DeleteMode", L"") == L"Permanent" ? DeleteMode::Permanent : DeleteMode::RecycleBin);  // [Config.md#delete-mode-default]
     retval.backup_proof_path(sf.get<wstring>(L"BackupProofPath", L""));  // [Config.md#delete-mode-default]
+    retval.language(util::wstring_to_string(sf.get<wstring>(L"Language", L"")));
     return retval;
 }
 
@@ -268,6 +269,7 @@ void Config::write_settings(boost::property_tree::wptree& root)
     settings.put(wstring(L"DeleteMode"), wstring(settings_.delete_mode() == DeleteMode::Permanent ? L"Permanent" : L"RecycleBin"));
     settings.put(wstring(L"RecycleBinPath"), RecycleBin::instance().bin_path().wstring());
     settings.put(wstring(L"BackupProofPath"), settings_.backup_proof_path());
+    settings.put(wstring(L"Language"), util::string_to_wstring(settings_.language()));
     root.push_back(make_pair(wstring(L"Settings"), settings));
 }
 

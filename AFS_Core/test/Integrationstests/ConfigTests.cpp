@@ -881,6 +881,21 @@ TEST_F(ConfigPathTest, BackupProofPathRoundTripsThroughSaveAndLoad)
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, LanguageRoundTripsThroughSaveAndLoad)
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    Config::instance().settings().language("uk");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().settings().language().empty());
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    EXPECT_EQ(Config::instance().settings().language(), "uk");
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, RecycleBinPathRoundTripsThroughSaveAndLoad)
 {
     const fs::path target_path = test_home_ / "autofilesync.json";

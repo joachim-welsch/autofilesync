@@ -37,6 +37,7 @@ struct SettingsInput {  // [SettingsDialogDriver.md#SettingsInput]
     std::optional<bool> showErrors;
     std::optional<bool> showWarnings;
     std::optional<bool> showInfos;
+    std::optional<wxString> language;  // the entry as the choice shows it, e.g. "English"
 };
 
 DialogAction fillSettingsDialog(const SettingsInput& input);  // [SettingsDialogDriver.md#fillSettingsDialog]

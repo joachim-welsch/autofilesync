@@ -1395,6 +1395,14 @@ msgstr "Start minimiert"
 msgid "settings_minimize_instead_of_close"
 msgstr "Minimieren statt schließen?"
 
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Sprache:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Sprache des Betriebssystems"
+
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
 msgstr "Meldungen im Dialog anzeigen:"

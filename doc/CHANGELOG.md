@@ -2,6 +2,9 @@
 
 ## Unveröffentlicht
 
+- Die globalen Einstellungen haben eine Sprachauswahl. Die gewählte Sprache
+  gilt sofort, steht in der Konfiguration und gilt bei jedem Start, auch für
+  den Hintergrunddienst; ohne Auswahl gilt die Sprache des Betriebssystems.
 - Ein Zahnrad rechts in der Werkzeugleiste öffnet die globalen Einstellungen.
 - Übersetzungen ins Spanische, Französische, Italienische, Polnische und
   Ukrainische (`po/es.po`, `po/fr.po`, `po/it.po`, `po/pl.po`, `po/uk.po`);

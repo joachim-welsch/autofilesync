@@ -48,10 +48,31 @@ in place - callers cannot always locate the directory.
 A session in a language without a catalogue (sv_SE, say) would see every message as its key,
 because the ids are technical. gettext has no fallback language of its own, but it honours a
 list in LANGUAGE; when no catalogue answers the empty msgid - which every catalogue maps to its
-header - the language list is replaced by "en". Checked once at start, before the first
-message, so no lookup was cached under the old language. Does not help a process stuck in the
-"C" locale, where gettext ignores LANGUAGE; init_locale() avoids that wherever the system has a
-German locale.
+header - the language list is replaced by "en". Checked by init() and by every set_language().
+Does not help a process stuck in the "C" locale, where gettext ignores LANGUAGE; init_locale()
+avoids that wherever the system has a German locale.
+
+## LANGUAGES
+
+The catalogues shipped in po/, each with the name its own speakers use, so that a user who
+cannot read the current language still finds theirs. A new po/<language>.po needs an entry here
+to become selectable in the settings.
+
+## environment_language
+
+LANGUAGE as init() found it, before the English fallback or a chosen language overwrote it:
+what "the operating system's language" means when the user withdraws a choice. nullopt when
+the environment had no LANGUAGE, which then must be removed again, not set empty.
+
+## set_language
+
+Switches the language of every later translate() call, by the same LANGUAGE variable gettext
+reads; an empty code returns to environment_language. textdomain() is called again because
+it bumps gettext's catalogue counter, which drops translations cached for the old language.
+
+LANGUAGE is process-wide and setenv() is not thread-safe against a concurrent getenv(): a
+sync thread translating a message while the user switches the language could race. The window
+is a single user action, and the old string the variable pointed to stays valid on glibc.
 
 ## msgid
 

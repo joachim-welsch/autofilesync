@@ -58,6 +58,31 @@ TEST_F(TranslationTest, LanguageWithCatalogueKeepsIt)
     EXPECT_EQ(translated_in("de", "already_running"), "AutoFileSync läuft bereits.");
 }
 
+TEST_F(TranslationTest, ChosenLanguageAppliesAtOnce)
+{
+    ScopedEnv env("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    translation::set_language("en");
+    EXPECT_EQ(translation::translate_utf8("already_running"), "AutoFileSync is already running.");
+}
+
+TEST_F(TranslationTest, NoChosenLanguageReturnsToEnvironment)  // [TranslationTests.md#NoChosenLanguageReturnsToEnvironment]
+{
+    ScopedEnv env("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    translation::set_language("fr");
+    translation::set_language("");
+    EXPECT_EQ(translation::translate_utf8("already_running"), "AutoFileSync läuft bereits.");
+}
+
+TEST_F(TranslationTest, ChosenLanguageWithoutCatalogueFallsBackToEnglish)
+{
+    ScopedEnv env("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    translation::set_language("sv");
+    EXPECT_EQ(translation::translate_utf8("already_running"), "AutoFileSync is already running.");
+}
+
 TEST_F(TranslationTest, LanguageWithoutCatalogueFallsBackToEnglish)  // [TranslationTests.md#LanguageWithoutCatalogueFallsBackToEnglish]
 {
     EXPECT_EQ(translated_in("sv", "already_running"), "AutoFileSync is already running.");
