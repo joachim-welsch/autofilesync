@@ -900,6 +900,10 @@ msgstr ""
 msgid "bs_not_installed_macos"
 msgstr ""
 
+#: AFS_Desktop/src/BackgroundService.cpp:208
+msgid "bs_agent_not_writable"
+msgstr ""
+
 #: AFS_Desktop/src/BackgroundService.cpp:183
 #: AFS_Desktop/src/BackgroundService.cpp:186
 #: AFS_Desktop/src/BackgroundService.cpp:258
@@ -1766,4 +1770,12 @@ msgstr ""
 
 #: backgroundsync/backgroundsync.cpp:55 backgroundsync/backgroundsync.cpp:56
 msgid "daemon_stopped"
+msgstr ""
+
+#: backgroundsync/WindowsService.cpp:90
+msgid "daemon_console_mode"
+msgstr ""
+
+#: backgroundsync/WindowsService.cpp:113
+msgid "daemon_dispatcher_failed"
 msgstr ""
