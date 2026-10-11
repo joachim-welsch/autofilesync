@@ -254,7 +254,10 @@ Die msgids sind technische Schlüssel (`source_dir_not_reachable`), kein Anzeige
 Deutsch und Englisch sind gleichberechtigte Kataloge, und ein Build ohne Katalog hat
 keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
 
-- Kataloge: `po/de.po` und `po/en.po`, Vorlage `po/autofilesync.pot`.
+- Kataloge: `po/de.po`, `po/en.po`, `po/es.po`, `po/fr.po`, `po/it.po`, `po/pl.po`
+  und `po/uk.po`, Vorlage `po/autofilesync.pot`.
+  Eine Sprache ohne Katalog fällt auf Englisch zurück. Eine neue Sprache braucht nur
+  `po/<sprache>.po`: Build und Installationspakete sammeln alle `po/*.po` ein.
 - `msgfmt` übersetzt sie beim Build nach `build/locale/<sprache>/LC_MESSAGES/autofilesync.mo`
   (auf macOS zusätzlich in `autofilesync.app/Contents/Resources/locale`).
   Beide Programme suchen dieses Verzeichnis neben der eigenen Binary.
@@ -268,6 +271,11 @@ keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
            AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp AFS_Desktop/include/TextResources.h backgroundsync/*.cpp
   msgmerge --no-wrap --update po/de.po po/autofilesync.pot
   msgmerge --no-wrap --update po/en.po po/autofilesync.pot
+  msgmerge --no-wrap --update po/es.po po/autofilesync.pot
+  msgmerge --no-wrap --update po/fr.po po/autofilesync.pot
+  msgmerge --no-wrap --update po/it.po po/autofilesync.pot
+  msgmerge --no-wrap --update po/pl.po po/autofilesync.pot
+  msgmerge --no-wrap --update po/uk.po po/autofilesync.pot
   ```
   `--keyword=msgid` ist nötig für die Schlüssel, die erst gespeichert und später
   übersetzt werden (`translation::msgid(...)` in Tabellen und Prompts).
@@ -290,9 +298,14 @@ das nach dem Linken; wer aus Visual Studio heraus baut, kopiert das `locale`-Ver
 aus einem CMake-Build daneben oder erzeugt es von Hand:
 
 ```cmd
-md locale\de\LC_MESSAGES locale\en\LC_MESSAGES
+md locale\de\LC_MESSAGES locale\en\LC_MESSAGES locale\es\LC_MESSAGES locale\fr\LC_MESSAGES locale\it\LC_MESSAGES locale\pl\LC_MESSAGES locale\uk\LC_MESSAGES
 msgfmt -o locale\de\LC_MESSAGES\autofilesync.mo po\de.po
 msgfmt -o locale\en\LC_MESSAGES\autofilesync.mo po\en.po
+msgfmt -o locale\es\LC_MESSAGES\autofilesync.mo po\es.po
+msgfmt -o locale\fr\LC_MESSAGES\autofilesync.mo po\fr.po
+msgfmt -o locale\it\LC_MESSAGES\autofilesync.mo po\it.po
+msgfmt -o locale\pl\LC_MESSAGES\autofilesync.mo po\pl.po
+msgfmt -o locale\uk\LC_MESSAGES\autofilesync.mo po\uk.po
 ```
 
 ## Häufige Probleme

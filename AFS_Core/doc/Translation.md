@@ -45,7 +45,7 @@ in place - callers cannot always locate the directory.
 
 ## fall_back_to_english
 
-A session in a language without a catalogue (fr_FR, say) would see every message as its key,
+A session in a language without a catalogue (sv_SE, say) would see every message as its key,
 because the ids are technical. gettext has no fallback language of its own, but it honours a
 list in LANGUAGE; when no catalogue answers the empty msgid - which every catalogue maps to its
 header - the language list is replaced by "en". Checked once at start, before the first

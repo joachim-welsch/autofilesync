@@ -60,7 +60,7 @@ TEST_F(TranslationTest, LanguageWithCatalogueKeepsIt)
 
 TEST_F(TranslationTest, LanguageWithoutCatalogueFallsBackToEnglish)  // [TranslationTests.md#LanguageWithoutCatalogueFallsBackToEnglish]
 {
-    EXPECT_EQ(translated_in("fr", "already_running"), "AutoFileSync is already running.");
+    EXPECT_EQ(translated_in("sv", "already_running"), "AutoFileSync is already running.");
 }
 
 }

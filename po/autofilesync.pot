@@ -1,7 +1,9 @@
 # Translation template for autofilesync.
 # The message ids are technical keys, not display text: every language needs a
-# catalogue, English (po/en.po) as much as German (po/de.po). A missing or
-# unreadable catalogue shows the key itself.
+# catalogue, English (po/en.po) as much as German (po/de.po), Spanish
+# (po/es.po), French (po/fr.po), Italian (po/it.po), Polish (po/pl.po) or
+# Ukrainian (po/uk.po). A language without a catalogue falls back to English; without the
+# English one as well, the key itself is shown.
 #
 # Refresh after adding or changing a translated string:
 #   xgettext --keyword=translate --keyword=translate_utf8 --keyword=msgid \
@@ -9,6 +11,11 @@
 #            AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp AFS_Desktop/include/TextResources.h backgroundsync/*.cpp
 #   msgmerge --no-wrap --update po/de.po po/autofilesync.pot
 #   msgmerge --no-wrap --update po/en.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/es.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/fr.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/it.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/pl.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/uk.po po/autofilesync.pot
 #
 msgid ""
 msgstr ""

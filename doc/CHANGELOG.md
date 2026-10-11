@@ -2,7 +2,10 @@
 
 ## Unveröffentlicht
 
-- In einer Sprache ohne eigene Übersetzung (z.B. Französisch) erscheinen die
+- Übersetzungen ins Spanische, Französische, Italienische, Polnische und
+  Ukrainische (`po/es.po`, `po/fr.po`, `po/it.po`, `po/pl.po`, `po/uk.po`);
+  sie gelten, wenn die Umgebung die Sprache einstellt, z.B. `LANGUAGE=pl`.
+- In einer Sprache ohne eigene Übersetzung (z.B. Schwedisch) erscheinen die
   Meldungen auf Englisch statt als technische Schlüssel wie
   `source_dir_not_reachable`.
 
