@@ -21,6 +21,7 @@
 #include "Util.h"
 #include "PasswordCrypto.h"
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <mutex>
@@ -57,7 +58,7 @@ boost::property_tree::wptree parse_json_file(wchar_t const* filename)
             return pt;
     }
     try {
-        auto in = std::wifstream(util::wstring_to_string(filename));
+        std::wistringstream in(util::read_utf8_file(filename));  // [Config.md#utf8-file]
         boost::property_tree::read_json(in, pt);
     }
     catch (std::exception& ex) {
@@ -570,20 +571,18 @@ bool Config::write(const std::wstring& pathname)
     std::error_code ec;
     std::filesystem::create_directories(std::filesystem::path(pathname).parent_path(), ec);
     const wstring tmp_pathname = pathname + L".tmp";
-    {
-        std::wfstream os(util::wstring_to_string(tmp_pathname), std::ios_base::out);
-        try {
-            os.exceptions(std::ios::failbit | std::ios::badbit);
-            pt::write_json(os, root);
-        }
-        catch (std::exception& ex) {
+    try {
+        std::wostringstream text;
+        pt::write_json(text, root);
+        util::write_utf8_file(tmp_pathname, text.str());  // [Config.md#utf8-file]
+    }
+    catch (std::exception& ex) {
 #ifdef _WXWIDGETS
-            wxMessageBox(wxString(translation::translate("config_write_error")) + ex.what());
+        wxMessageBox(wxString(translation::translate("config_write_error")) + ex.what());
 #endif
-            log_fatal(translation::translate_utf8("config_write_error"), ex.what());
-            util::remove_file(tmp_pathname);
-            return false;
-        }
+        log_fatal(translation::translate_utf8("config_write_error"), ex.what());
+        util::remove_file(tmp_pathname);
+        return false;
     }
     if (!util::rename_file(tmp_pathname, pathname))
         return false;

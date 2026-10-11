@@ -651,6 +651,54 @@ TEST_F(ConfigPathTest, FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, UmlautsRoundTripThroughSaveAndLoad)  // [ConfigTests.md#UmlautsRoundTripThroughSaveAndLoad]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    Exclusions exclusions;
+    exclusions.push_back(L"Ärger*.tmp");
+    Config::instance().add(SyncItem(L"Übersicht", SyncItemType::Tree, L"/home/jürgen/Größe", L"/mnt/Sicherung/Straße", L"",
+        exclusions, SyncFlags(false, false, false, false, true), CompareItems()));
+    Config::instance().settings().backup_proof_path(L"/home/jürgen/Nachweise");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring())) << "Eine Konfiguration mit Umlauten ließ sich nicht speichern.";
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].name(), L"Übersicht");
+    EXPECT_EQ(items[0].source(), L"/home/jürgen/Größe");
+    EXPECT_EQ(items[0].target(), L"/mnt/Sicherung/Straße");
+    EXPECT_EQ(items[0].exclusions().at(0), L"Ärger*.tmp");
+    EXPECT_EQ(Config::instance().settings().backup_proof_path(), L"/home/jürgen/Nachweise");
+    std::ifstream in(target_path);
+    const std::string bytes((std::istreambuf_iterator<char>(in)), {});
+    EXPECT_NE(bytes.find("\xC3\x9C" "bersicht"), std::string::npos) << "Der Name steht nicht als UTF-8 in der Datei.";
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, HandWrittenUtf8ConfigIsRead)
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    Config::instance().settings().backup_proof_path(L"/home/PLATZHALTER");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    std::string bytes;
+    {
+        std::ifstream in(target_path);
+        bytes.assign(std::istreambuf_iterator<char>(in), {});
+    }
+    bytes.replace(bytes.find("PLATZHALTER"), 11, "j\xC3\xBCrgen");  // as an editor saving UTF-8 leaves it
+    std::ofstream(target_path) << bytes;
+    Config::instance().reset();
+
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    EXPECT_EQ(Config::instance().settings().backup_proof_path(), L"/home/jürgen");
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, ExclusionsRoundTripThroughSaveAndLoad)  // [ConfigTests.md#ExclusionsRoundTripThroughSaveAndLoad]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";

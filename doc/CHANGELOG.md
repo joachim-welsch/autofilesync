@@ -2,6 +2,9 @@
 
 ## Unveröffentlicht
 
+- Die Konfiguration wird als UTF-8 geschrieben. Unter Linux und macOS ließ sie
+  sich bisher nicht speichern, sobald Name oder Pfad einer Synchronisation
+  einen Umlaut enthielt.
 - Sicherungsnachweise werden als UTF-8 geschrieben. Bisher entstand kein
   Nachweis, wenn Name oder Pfad einer Synchronisation einen Umlaut enthielt,
   und in Französisch und Polnisch gar keiner.

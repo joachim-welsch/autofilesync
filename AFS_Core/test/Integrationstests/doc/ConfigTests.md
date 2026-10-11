@@ -183,3 +183,10 @@ is one (set two seconds ahead rather than rewritten, so the test does not depend
 system's time stamp resolution), and read() takes the new time over. The second test covers the
 file that does not exist yet: read() of a missing file records the "no file" time, so the file
 being created afterwards is a change too.
+
+## UmlautsRoundTripThroughSaveAndLoad
+
+Regression test: the configuration was written through a std::wfstream in the "C" locale, which
+failed on the first umlaut on Linux and macOS - write() returned false, and every change of a
+user whose paths contain one was lost at the next start. Name, paths, an exclusion and a setting
+cover each kind of text the file holds.

@@ -29,15 +29,9 @@ separator, and the name comes out of a catalogue.
 
 ## utf8-file
 
-The file is UTF-8, converted here rather than by the stream. A std::wofstream converts through
-the C++ global locale, which is "C" whatever setlocale() chose: write_json() passes characters
-up to U+00FF through unescaped, so a German umlaut in a name or path, or the field names of
-French and Polish, made the stream fail and no proof was written at all. Characters above U+00FF
-come out as \uXXXX escapes and always went through.
-
-Reading takes the same way back. On Windows util::string_to_wstring() reads invalid UTF-8 in the
-ANSI code page, which is how the old wofstream wrote Latin-1 characters there, so such files stay
-readable; elsewhere the old stream could only ever write ASCII.
+The file is UTF-8, written and read through util::write_utf8_file() and util::read_utf8_file() -
+see Util.md#utf8-files for why not through a wide stream. Before, a German umlaut in a name or
+path, or the field names of French and Polish, meant that no proof was written at all.
 
 ## add_field
 

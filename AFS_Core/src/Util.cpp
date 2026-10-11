@@ -352,6 +352,26 @@ bool set_last_write_time(const std::wstring& fn, const fs::file_time_type& modif
     return false;
 }
 
+std::wstring read_utf8_file(const fs::path& file)
+{
+    std::ifstream in(file);
+    if (!in)
+        throw std::ios_base::failure("cannot open " + file.string());
+    std::ostringstream bytes;
+    bytes << in.rdbuf();
+    return string_to_wstring(bytes.str());
+}
+
+void write_utf8_file(const fs::path& file, const std::wstring& text)
+{
+    const std::string bytes = wstring_to_string(text);
+    if (bytes.empty() && !text.empty())
+        throw std::runtime_error("text not convertible to UTF-8: " + file.string());  // [Util.md#utf8-files]
+    std::ofstream os(file, std::ios_base::out | std::ios_base::trunc);
+    os.exceptions(std::ios::failbit | std::ios::badbit);
+    os.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+}
+
 } // namespace util
 
 } // namespace AFS_Core

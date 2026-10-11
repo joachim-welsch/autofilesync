@@ -98,3 +98,9 @@ change on the next poll, and a defective file is not re-read once a second.
 True once the file at pathname() carries another modification time than the last read() or
 write() recorded. A GUI save goes through a temporary file and a rename, so a poll never sees a
 half-written file.
+
+## utf8-file
+
+The configuration file is UTF-8, written and read through util::write_utf8_file() and
+util::read_utf8_file(); a wide file stream could not save a name or path with an umlaut on Linux
+and macOS - see Util.md#utf8-files.
