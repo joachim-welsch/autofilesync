@@ -222,7 +222,7 @@ TEST_F(GuiTest, BackupNachweisWirdNachLaufGeschrieben)  // [LoggingTest.md#Backu
     const fs::path proof = copy_log_file_path(tree.path("nachweise"), L"guitest-nachweis");
     ASSERT_TRUE(fs::exists(proof)) << "Die Nachweisdatei " << proof << " wurde nicht geschrieben.";
     const std::string content = readFile(proof);
-    EXPECT_NE(content.find("Erfolgreich"), std::string::npos) << "Der Nachweis meldet keinen Erfolg:\n" << content;
+    EXPECT_NE(content.find(translation::translate_utf8("backup_proof_status_successful")), std::string::npos) << "Der Nachweis meldet keinen Erfolg:\n" << content;
     EXPECT_NE(content.find("guitest-nachweis"), std::string::npos) << "Der Nachweis nennt die Synchronisation nicht:" << std::endl << content;
 }
 
