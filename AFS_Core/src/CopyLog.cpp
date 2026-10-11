@@ -103,8 +103,11 @@ namespace {
         if (!fs::exists(file, ec))
             return root;
         try {
-            std::wifstream in(file);
-            pt::read_json(in, root);
+            std::ifstream in(file);  // [CopyLog.md#utf8-file]
+            std::ostringstream bytes;
+            bytes << in.rdbuf();
+            std::wistringstream text(util::string_to_wstring(bytes.str()));
+            pt::read_json(text, root);
         }
         catch (const std::exception& ex) {
             log_error(translation::translate("backup_proof_not_readable"), file.wstring(),
@@ -125,9 +128,12 @@ namespace {
     {
         const fs::path tmp_file = file.wstring() + L".tmp";
         try {
-            std::wofstream os(tmp_file, std::ios_base::out | std::ios_base::trunc);
+            std::wostringstream text;
+            pt::write_json(text, root);
+            const std::string bytes = util::wstring_to_string(text.str());  // [CopyLog.md#utf8-file]
+            std::ofstream os(tmp_file, std::ios_base::out | std::ios_base::trunc);
             os.exceptions(std::ios::failbit | std::ios::badbit);
-            pt::write_json(os, root);
+            os.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
         }
         catch (const std::exception& ex) {
             log_error(translation::translate("backup_proof_not_writable"), file.wstring(),

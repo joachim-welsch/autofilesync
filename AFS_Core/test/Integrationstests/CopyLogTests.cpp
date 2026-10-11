@@ -21,6 +21,10 @@
 #include "Synchronize.h"
 #include "Config.h"
 #include "Translation.h"
+#include "Util.h"
+#include <ScopedEnv.h>
+#include <clocale>
+#include <sstream>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <chrono>
@@ -37,11 +41,17 @@ namespace pt = boost::property_tree;
 using std::wstring;
 
 namespace {
+    std::string file_bytes(const fs::path& file)
+    {
+        std::ifstream in(file);
+        return std::string(std::istreambuf_iterator<char>(in), {});
+    }
+
     pt::wptree read_proof(const fs::path& file)  // [CopyLogTests.md#read_proof]
     {
         pt::wptree root;
-        std::wifstream in(file);
-        pt::read_json(in, root);
+        std::wistringstream text(util::string_to_wstring(file_bytes(file)));  // the file is UTF-8, see CopyLog.md#utf8-file
+        pt::read_json(text, root);
         return root;
     }
 
@@ -305,6 +315,45 @@ TEST_F(CopyLogTest, ProofFileBegunInAnotherLanguageIsContinuedNotSplit)  // [Cop
     ASSERT_EQ(root.size(), 1u);
     EXPECT_EQ(root.front().first, L"Preuves.de.sauvegarde");
     EXPECT_EQ(root.front().second.size(), 2u);
+}
+
+TEST_F(CopyLogTest, UmlautsInNameAndPathsReachTheProofAsUtf8)  // [CopyLogTests.md#UmlautsInNameAndPathsReachTheProofAsUtf8]
+{
+    SyncItem item(L"Größe", SyncItemType::Dir, (test_dir_ / L"Quellänge").wstring(), (test_dir_ / L"Zielöffnung").wstring(), L"");
+    item.backup_proof(true);
+    SyncReport report;
+
+    ASSERT_TRUE(write_copy_log(proof_dir_, item, 1, report));
+    ASSERT_TRUE(write_copy_log(proof_dir_, item, 1, report)) << "Ein Nachweis mit Umlauten ließ sich nicht fortschreiben.";
+
+    const fs::path file = copy_log_file_path(proof_dir_, L"Größe");
+    const auto entries = entries_of(file);
+    ASSERT_EQ(entries.size(), 2u);
+    EXPECT_EQ(field(entries[1], "backup_proof_field_name"), L"Größe");
+    EXPECT_EQ(field(entries[1], "backup_proof_field_source"), item.source());
+    EXPECT_EQ(field(entries[1], "backup_proof_field_target"), item.target());
+    EXPECT_NE(file_bytes(file).find("Gr\xC3\xB6\xC3\x9F" "e"), std::string::npos) << "Der Name steht nicht als UTF-8 in der Datei.";
+}
+
+TEST_F(CopyLogTest, ProofIsWrittenWhenFieldNamesAreNotAscii)  // [CopyLogTests.md#ProofIsWrittenWhenFieldNamesAreNotAscii]
+{
+    if (translation::locale_dir().empty())
+        GTEST_SKIP() << "no compiled catalogues beside the test binary";
+    const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
+    {
+        const ScopedEnv language("LANGUAGE", nullptr);
+        translation::init_locale(translation::DEFAULT_LOCALES);
+        translation::init(translation::locale_dir());
+        for (const char* code : {"fr", "pl", "uk"}) {
+            translation::set_language(code);
+            const wstring name = L"sicherung-" + util::string_to_wstring(code);
+            SyncReport report;
+            ASSERT_TRUE(write_copy_log(proof_dir_, proven_item(name), 1, report)) << "Kein Nachweis in " << code;
+            const auto entries = entries_of(copy_log_file_path(proof_dir_, name));
+            EXPECT_EQ(field(entries.at(0), "backup_proof_field_status"), translation::translate("backup_proof_status_successful")) << code;
+        }
+    }
+    std::setlocale(LC_ALL, saved_locale.c_str());  // with C restored, later tests see the bare keys as before
 }
 
 TEST_F(CopyLogTest, ErrorListIsCappedInsteadOfGrowingWithoutLimit)

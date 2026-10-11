@@ -27,6 +27,18 @@ name it has, because a second list under the name of the current language would 
 in two. push_back() instead of put_child(): the latter reads a '.' in the name as a path
 separator, and the name comes out of a catalogue.
 
+## utf8-file
+
+The file is UTF-8, converted here rather than by the stream. A std::wofstream converts through
+the C++ global locale, which is "C" whatever setlocale() chose: write_json() passes characters
+up to U+00FF through unescaped, so a German umlaut in a name or path, or the field names of
+French and Polish, made the stream fail and no proof was written at all. Characters above U+00FF
+come out as \uXXXX escapes and always went through.
+
+Reading takes the same way back. On Windows util::string_to_wstring() reads invalid UTF-8 in the
+ANSI code page, which is how the old wofstream wrote Latin-1 characters there, so such files stay
+readable; elsewhere the old stream could only ever write ASCII.
+
 ## add_field
 
 push_back() instead of put() for the same reason as in entries_of: a translated field name may

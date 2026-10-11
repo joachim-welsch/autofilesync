@@ -65,3 +65,15 @@ The last entry says the list is incomplete, so a capped list is never mistaken f
 account of what went wrong. Compared through translation::translate(), not against a literal:
 the marker is a translated message, and pinning the test to one language would make it fail in
 every other one.
+
+## UmlautsInNameAndPathsReachTheProofAsUtf8
+
+Regression test: the proof was written through a std::wofstream in the "C" locale, which failed
+on any character up to U+00FF - an umlaut in the item name or a path meant no proof at all. The
+second write checks the way back: an existing file with umlauts must be read to be continued.
+
+## ProofIsWrittenWhenFieldNamesAreNotAscii
+
+The same fault hit every proof in French and Polish, whose field names carry such characters,
+while Ukrainian only ever went through because write_json() escapes everything above U+00FF.
+The catalogues are switched with set_language(), as the settings do.

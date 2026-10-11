@@ -2,6 +2,9 @@
 
 ## Unveröffentlicht
 
+- Sicherungsnachweise werden als UTF-8 geschrieben. Bisher entstand kein
+  Nachweis, wenn Name oder Pfad einer Synchronisation einen Umlaut enthielt,
+  und in Französisch und Polnisch gar keiner.
 - Die globalen Einstellungen haben eine Sprachauswahl. Die gewählte Sprache
   gilt sofort, steht in der Konfiguration und gilt bei jedem Start, auch für
   den Hintergrunddienst; ohne Auswahl gilt die Sprache des Betriebssystems.
