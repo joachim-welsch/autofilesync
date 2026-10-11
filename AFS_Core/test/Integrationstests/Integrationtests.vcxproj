@@ -171,6 +171,7 @@
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="PasswordCryptoTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
+    <ClCompile Include="TranslationTests.cpp" />
     <ClCompile Include="UtilTests.cpp" />
     <ClCompile Include="FilesystemUtilTests.cpp" />
     <ClCompile Include="RecycleBinTests.cpp" />

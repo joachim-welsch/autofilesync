@@ -49,6 +49,7 @@ set(SOURCES
     FileDeleteTests.cpp
     PasswordCryptoTests.cpp
     StrUtilTests.cpp
+    TranslationTests.cpp
     ScopedEnv.cpp
     UtilTests.cpp
     FilesystemUtilTests.cpp

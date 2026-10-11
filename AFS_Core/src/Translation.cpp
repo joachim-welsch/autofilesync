@@ -112,13 +112,26 @@ std::filesystem::path locale_dir()
 }
 
 #ifdef AFS_WITH_GETTEXT
+namespace {
+void fall_back_to_english()  // [Translation.md#fall_back_to_english]
+{
+    if (*dgettext(TEXT_DOMAIN, "") != '\0')  // the empty msgid yields the catalogue header
+        return;
+#ifdef WIN32
+    _putenv_s("LANGUAGE", "en");
+#else
+    setenv("LANGUAGE", "en", 1);
+#endif
+}
+}
+
 void init(const std::filesystem::path& locale_dir)
 {
-    if (locale_dir.empty())
-        return;
-    bindtextdomain(TEXT_DOMAIN, locale_dir.string().c_str());
+    if (!locale_dir.empty())
+        bindtextdomain(TEXT_DOMAIN, locale_dir.string().c_str());
     bind_textdomain_codeset(TEXT_DOMAIN, "UTF-8");  // [Translation.md#catalogue-codeset]
     textdomain(TEXT_DOMAIN);
+    fall_back_to_english();
 }
 
 std::string translate_utf8(const char* msgid)

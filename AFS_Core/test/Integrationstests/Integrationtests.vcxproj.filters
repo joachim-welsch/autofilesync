@@ -314,6 +314,9 @@
     <ClCompile Include="ThStrUtil.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="TranslationTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="TwoWaySyncTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

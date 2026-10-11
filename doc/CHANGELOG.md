@@ -1,5 +1,11 @@
 # Änderungen
 
+## Unveröffentlicht
+
+- In einer Sprache ohne eigene Übersetzung (z.B. Französisch) erscheinen die
+  Meldungen auf Englisch statt als technische Schlüssel wie
+  `source_dir_not_reachable`.
+
 ## 0.2.0 – 2026-10-09
 
 - macOS: Der Hintergrunddienst steckt im Programmbündel und damit im

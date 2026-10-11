@@ -43,6 +43,16 @@ Binds the catalogue "autofilesync" below localeDir, where gettext expects
 <localeDir>/<language>/LC_MESSAGES/autofilesync.mo. An empty path leaves the system search path
 in place - callers cannot always locate the directory.
 
+## fall_back_to_english
+
+A session in a language without a catalogue (fr_FR, say) would see every message as its key,
+because the ids are technical. gettext has no fallback language of its own, but it honours a
+list in LANGUAGE; when no catalogue answers the empty msgid - which every catalogue maps to its
+header - the language list is replaced by "en". Checked once at start, before the first
+message, so no lookup was cached under the old language. Does not help a process stuck in the
+"C" locale, where gettext ignores LANGUAGE; init_locale() avoids that wherever the system has a
+German locale.
+
 ## msgid
 
 Returns its argument unchanged; it only marks a message id that is stored now and translated
