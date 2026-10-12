@@ -678,6 +678,26 @@ TEST_F(ConfigPathTest, UmlautsRoundTripThroughSaveAndLoad)  // [ConfigTests.md#U
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, NonLatinNamesStayReadableInTheFile)  // [ConfigTests.md#NonLatinNamesStayReadableInTheFile]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    const std::wstring name = L"Звіт \U0001F600";
+    Config::instance().reset();
+    Config::instance().add(SyncItem(name, SyncItemType::Dir, L"/home/олена/Документи", L"/mnt/Резерв", L""));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    std::ifstream in(target_path);
+    const std::string bytes((std::istreambuf_iterator<char>(in)), {});
+    EXPECT_NE(bytes.find(util::wstring_to_string(name)), std::string::npos) << "Der Name steht nicht lesbar in der Datei:\n" << bytes;
+    EXPECT_EQ(bytes.find("\\u"), std::string::npos) << "Die Datei enthält maskierte Zeichen:\n" << bytes;
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+    ASSERT_EQ(Config::instance().syncitems().size(), 1u);
+    EXPECT_EQ(Config::instance().syncitems()[0].name(), name);
+    EXPECT_EQ(Config::instance().syncitems()[0].source(), L"/home/олена/Документи");
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, HandWrittenUtf8ConfigIsRead)
 {
     const fs::path target_path = test_home_ / "autofilesync.json";

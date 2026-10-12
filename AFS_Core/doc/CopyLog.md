@@ -32,6 +32,7 @@ separator, and the name comes out of a catalogue.
 The file is UTF-8, written and read through util::write_utf8_file() and util::read_utf8_file() -
 see Util.md#utf8-files for why not through a wide stream. Before, a German umlaut in a name or
 path, or the field names of French and Polish, meant that no proof was written at all.
+json::to_text() writes every character as itself, so a Ukrainian proof reads as Ukrainian.
 
 ## add_field
 

@@ -50,6 +50,7 @@ set(SOURCES
     PasswordCryptoTests.cpp
     StrUtilTests.cpp
     TranslationTests.cpp
+    JsonTextTests.cpp
     ScopedEnv.cpp
     UtilTests.cpp
     FilesystemUtilTests.cpp

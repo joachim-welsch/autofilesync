@@ -2,6 +2,9 @@
 
 ## Unveröffentlicht
 
+- Konfiguration und Sicherungsnachweise stehen lesbar in der Datei: Zeichen wie
+  kyrillische Buchstaben erscheinen als sie selbst statt als `\u0423…`, und
+  Emoji in Namen gehen nicht mehr verloren.
 - Der Benutzer, unter dem der Hintergrunddienst läuft, darf ihn ohne
   Administratorpasswort starten und stoppen: Das Debian-Paket legt dafür eine
   polkit-Regel an, der Windows-Installer gibt dem Dienstkonto die Rechte am

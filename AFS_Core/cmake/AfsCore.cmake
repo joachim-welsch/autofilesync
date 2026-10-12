@@ -28,6 +28,7 @@ get_filename_component(AFS_CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
 
 set(AFS_CORE_SOURCES
     CopyLog.cpp
+    JsonText.cpp
     CheckPath.cpp
     FileDelete.cpp
     FileDifference.cpp

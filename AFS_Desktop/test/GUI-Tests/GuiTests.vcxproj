@@ -97,6 +97,7 @@
     <ClInclude Include="..\..\..\AFS_Core\include\CheckPath.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Config.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CopyLog.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\JsonText.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\FileDelete.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\FileDifference.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\FilesystemUtil.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CopyLog.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\JsonText.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\FileDifference.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Global.cpp" />

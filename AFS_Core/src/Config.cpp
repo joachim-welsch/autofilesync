@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include "JsonText.h"
 #include "Util.h"
 #include "PasswordCrypto.h"
 #include <fstream>
@@ -572,9 +573,7 @@ bool Config::write(const std::wstring& pathname)
     std::filesystem::create_directories(std::filesystem::path(pathname).parent_path(), ec);
     const wstring tmp_pathname = pathname + L".tmp";
     try {
-        std::wostringstream text;
-        pt::write_json(text, root);
-        util::write_utf8_file(tmp_pathname, text.str());  // [Config.md#utf8-file]
+        util::write_utf8_file(tmp_pathname, json::to_text(root));  // [Config.md#utf8-file]
     }
     catch (std::exception& ex) {
 #ifdef _WXWIDGETS

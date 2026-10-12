@@ -87,6 +87,9 @@
     <ClInclude Include="$(LibDir)\include\CopyLog.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\JsonText.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\FileDelete.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -317,6 +320,9 @@
     <ClCompile Include="TranslationTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="JsonTextTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="TwoWaySyncTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -330,6 +336,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\JsonText.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\FileDelete.cpp">

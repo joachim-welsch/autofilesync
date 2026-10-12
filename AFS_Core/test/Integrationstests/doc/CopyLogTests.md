@@ -77,3 +77,5 @@ second write checks the way back: an existing file with umlauts must be read to 
 The same fault hit every proof in French and Polish, whose field names carry such characters,
 while Ukrainian only ever went through because write_json() escapes everything above U+00FF.
 The catalogues are switched with set_language(), as the settings do.
+The status must also stand in the file as plain UTF-8, readable in a text editor, not as \uXXXX
+escapes.

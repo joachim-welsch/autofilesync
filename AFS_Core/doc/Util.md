@@ -48,8 +48,8 @@ epoch, and that is also what is sent back to a server.
 
 ## utf8-files
 
-The configuration and the backup proofs are JSON written by boost's write_json() into a wide
-stream. A std::wofstream converts through the C++ global locale, which stays "C" whatever
+The configuration and the backup proofs are JSON, once written by boost's write_json() into a
+wide stream. A std::wofstream converts through the C++ global locale, which stays "C" whatever
 setlocale() chose, and write_json() leaves characters up to U+00FF unescaped: on Linux and macOS
 the first umlaut made the stream fail, so a configuration with an umlaut in a name or path could
 not be saved. These two functions convert explicitly instead, so the file is UTF-8 everywhere.

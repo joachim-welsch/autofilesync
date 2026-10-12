@@ -39,6 +39,6 @@ from copy_log_file_path so a renaming of the file stays a single change.
 
 ## provenStatus
 
-Reads the status the way any JSON reader does instead of searching the text: write_json() puts
-every character above U+00FF as a \uXXXX escape, so the Ukrainian "Успішно" is in the file but
-not as these bytes.
+Reads the status the way any JSON reader does instead of searching the text, so the test holds
+whether a character stands in the file as itself or as a \uXXXX escape - proofs written before
+json::to_text() escaped everything above U+00FF.

@@ -172,6 +172,7 @@
     <ClCompile Include="PasswordCryptoTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
     <ClCompile Include="TranslationTests.cpp" />
+    <ClCompile Include="JsonTextTests.cpp" />
     <ClCompile Include="UtilTests.cpp" />
     <ClCompile Include="FilesystemUtilTests.cpp" />
     <ClCompile Include="RecycleBinTests.cpp" />
@@ -219,6 +220,7 @@
     <ClCompile Include="$(LibDir)\src\CheckPath.cpp" />
     <ClCompile Include="$(LibDir)\src\Config.cpp" />
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp" />
+    <ClCompile Include="$(LibDir)\src\JsonText.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
     <ClCompile Include="$(LibDir)\src\SftpConnection.cpp" />
     <ClCompile Include="$(LibDir)\src\SshConnectTimeout.cpp" />
@@ -263,6 +265,7 @@
     <ClInclude Include="$(LibDir)\include\CheckPath.h" />
     <ClInclude Include="$(LibDir)\include\Config.h" />
     <ClInclude Include="$(LibDir)\include\CopyLog.h" />
+    <ClInclude Include="$(LibDir)\include\JsonText.h" />
     <ClInclude Include="$(LibDir)\include\FileDelete.h" />
     <ClInclude Include="$(LibDir)\include\FileDifference.h" />
     <ClInclude Include="$(LibDir)\include\FilesystemUtil.h" />

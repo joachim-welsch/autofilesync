@@ -190,3 +190,10 @@ Regression test: the configuration was written through a std::wfstream in the "C
 failed on the first umlaut on Linux and macOS - write() returned false, and every change of a
 user whose paths contain one was lost at the next start. Name, paths, an exclusion and a setting
 cover each kind of text the file holds.
+
+## NonLatinNamesStayReadableInTheFile
+
+The configuration is meant to be readable and editable by hand. write_json() escaped every
+character above U+00FF and clamped those above U+FFFF, so a Ukrainian path read as \u041E... and
+an emoji in a name came back as U+FFFF. The name must stand in the file as UTF-8 and survive the
+round trip unchanged.

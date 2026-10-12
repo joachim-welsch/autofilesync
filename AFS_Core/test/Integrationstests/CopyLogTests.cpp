@@ -351,6 +351,8 @@ TEST_F(CopyLogTest, ProofIsWrittenWhenFieldNamesAreNotAscii)  // [CopyLogTests.m
             ASSERT_TRUE(write_copy_log(proof_dir_, proven_item(name), 1, report)) << "Kein Nachweis in " << code;
             const auto entries = entries_of(copy_log_file_path(proof_dir_, name));
             EXPECT_EQ(field(entries.at(0), "backup_proof_field_status"), translation::translate("backup_proof_status_successful")) << code;
+            EXPECT_NE(file_bytes(copy_log_file_path(proof_dir_, name)).find(translation::translate_utf8("backup_proof_status_successful")), std::string::npos)
+                << "Der Status steht nicht lesbar in der Datei: " << code;  // [CopyLogTests.md#ProofIsWrittenWhenFieldNamesAreNotAscii]
         }
     }
     std::setlocale(LC_ALL, saved_locale.c_str());  // with C restored, later tests see the bare keys as before
