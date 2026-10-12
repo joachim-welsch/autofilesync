@@ -36,3 +36,9 @@ address and server are examples.
 The proof path is set through the logging dialog, the option through the synchronisation's
 dialog, and the run through the menu - the full path a user takes. The file name is asked
 from copy_log_file_path so a renaming of the file stays a single change.
+
+## provenStatus
+
+Reads the status the way any JSON reader does instead of searching the text: write_json() puts
+every character above U+00FF as a \uXXXX escape, so the Ukrainian "Успішно" is in the file but
+not as these bytes.

@@ -30,8 +30,11 @@
 #include "Logging.h"
 #include "TextResources.h"
 #include "Translation.h"
+#include "Util.h"
 #include "id.h"
 #include "utilwx.h"
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -44,6 +47,16 @@ using utilwx::tul;
 
 namespace guitest {
 namespace {
+
+std::wstring provenStatus(const fs::path& proof)  // [LoggingTest.md#provenStatus]
+{
+    boost::property_tree::wptree root;
+    std::wistringstream text(util::read_utf8_file(proof));
+    boost::property_tree::read_json(text, root);
+    const auto& entry = root.front().second.back().second;
+    const auto found = entry.find(translation::translate("backup_proof_field_status"));
+    return found == entry.not_found() ? std::wstring() : found->second.data();
+}
 
 wxString logging_title()  // translated at the call, once the catalogue is bound
 {
@@ -222,7 +235,7 @@ TEST_F(GuiTest, BackupNachweisWirdNachLaufGeschrieben)  // [LoggingTest.md#Backu
     const fs::path proof = copy_log_file_path(tree.path("nachweise"), L"guitest-nachweis");
     ASSERT_TRUE(fs::exists(proof)) << "Die Nachweisdatei " << proof << " wurde nicht geschrieben.";
     const std::string content = readFile(proof);
-    EXPECT_NE(content.find(translation::translate_utf8("backup_proof_status_successful")), std::string::npos) << "Der Nachweis meldet keinen Erfolg:\n" << content;
+    EXPECT_EQ(provenStatus(proof), translation::translate("backup_proof_status_successful")) << "Der Nachweis meldet keinen Erfolg:\n" << content;
     EXPECT_NE(content.find("guitest-nachweis"), std::string::npos) << "Der Nachweis nennt die Synchronisation nicht:" << std::endl << content;
 }
 
