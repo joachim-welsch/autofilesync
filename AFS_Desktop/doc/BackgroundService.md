@@ -51,7 +51,8 @@ SCM's "logon failed" for the service account.
 ## withService
 
 Opened with the least access that still allows the requested control, so that a member of the
-Administrators group succeeds without the UAC detour.
+Administrators group, and the service account - the installer grants it start and stop on the
+service - succeed without the UAC detour.
 
 ## queryState-access
 
@@ -116,7 +117,9 @@ stopped service plus the bundle in the bin leaves nothing of AutoFileSync on the
 
 ## runSystemctl
 
-systemctl asks polkit for the missing rights itself, so no elevation detour is needed here.
+systemctl asks polkit for the missing rights itself, so no elevation detour is needed here. The
+package's polkit rule grants the service user start and stop without asking; anyone else gets
+polkit's password prompt.
 
 ## queryState-systemctl
 

@@ -84,6 +84,7 @@
     <ClInclude Include="LoggingDialogDriver.h" />
     <ClInclude Include="ModalDialogWatcher.h" />
     <ClInclude Include="RestoredSettings.h" />
+    <ClInclude Include="RestoredBackgroundService.h" />
     <ClInclude Include="SandboxTree.h" />
     <ClInclude Include="SettingsDialogDriver.h" />
     <ClInclude Include="SshAccountDialogDriver.h" />

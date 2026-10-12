@@ -18,6 +18,10 @@
  */
 #include "GuiTest.h"
 #include "BackgroundService.h"
+#include "EventPump.h"
+#include "ModalDialogWatcher.h"
+#include "RestoredBackgroundService.h"
+#include "UserActions.h"
 #include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
@@ -81,6 +85,24 @@ TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)  // [BackgroundSer
     case State::Unknown:
         break; // already reported above; both commands are offered on purpose
     }
+}
+
+TEST_F(GuiTest, HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten)  // [BackgroundServiceMenuTest.md#HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten]
+{
+    using State = BackgroundService::State;
+    if (!serviceControllable())
+        GTEST_SKIP() << "Kein installierter Hintergrunddienst, den dieser Benutzer ohne Administratorrechte steuern darf.";
+    const RestoredBackgroundService restored;
+    const bool wasRunning = BackgroundService::state() == State::Running;
+
+    activateMenuItem(mainWindow(), tul(wasRunning ? id::BackgroundServiceStop : id::BackgroundServiceStart));
+    pump();
+    EXPECT_EQ(BackgroundService::state(), wasRunning ? State::Stopped : State::Running) << "Der erste Befehl hat den Dienst nicht umgeschaltet.";
+
+    activateMenuItem(mainWindow(), tul(wasRunning ? id::BackgroundServiceStart : id::BackgroundServiceStop));
+    pump();
+    EXPECT_EQ(BackgroundService::state(), wasRunning ? State::Running : State::Stopped) << "Der zweite Befehl hat den Dienst nicht zurückgeschaltet.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().empty()) << "Start oder Stopp zeigten eine Meldung.";
 }
 
 }

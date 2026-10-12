@@ -59,6 +59,7 @@ enabled "Speichern" - and vanishes once the command has written the file.
 The service reads the file, so a start over a pending change first asks "Jetzt speichern?"
 with Ja/Nein/Abbrechen. Abbrechen must stop the start before the service manager is touched -
 on a machine with the service installed that would be a UAC prompt no test can answer. The
-answered messages count the "Fehler" box of addUnsavedSyncItem as well. Ja is only tested where
-the service is not installed; there the start ends in the "Hintergrunddienst" error box, and
-the file content proves that the save came first.
+answered messages count the "Fehler" box of addUnsavedSyncItem as well. Ja is tested where the
+service is not installed - the start ends in the "Hintergrunddienst" error box - and where this
+user may control the installed service without a password prompt, where the service runs
+afterwards. Either way the file content proves that the save came first.

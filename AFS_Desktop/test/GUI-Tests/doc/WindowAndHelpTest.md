@@ -26,7 +26,7 @@ the About box although its icon and tooltip promised the help.
 
 ## background-service
 
-Start and Stopp go through the service manager, which needs elevation when the service is
-installed - a UAC prompt a test cannot answer - so only the "not installed" case, which ends in
-the "Hintergrunddienst" error box, runs; on a machine with the service the test skips itself.
+Only the "not installed" case, which ends in the "Hintergrunddienst" error box; on a machine with
+the service the test skips itself. Start and stop of an installed service are tested in
+BackgroundServiceMenuTest.
 

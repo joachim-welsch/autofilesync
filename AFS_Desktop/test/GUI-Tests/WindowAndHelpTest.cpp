@@ -158,7 +158,7 @@ TEST_F(GuiTest, WerkzeugleisteHilfeOeffnetHilfebuch)  // [WindowAndHelpTest.md#h
 TEST_F(GuiTest, HintergrunddienstStartOhneDienstZeigtFehlerbox)  // [WindowAndHelpTest.md#background-service]
 {
     if (BackgroundService::state() != BackgroundService::State::NotInstalled)
-        GTEST_SKIP() << "Der Hintergrunddienst ist installiert; Start und Stopp brauchen Administratorrechte.";
+        GTEST_SKIP() << "Der Hintergrunddienst ist installiert; Start und Stopp ohne ihn lassen sich hier nicht prüfen.";
     ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("bs_caption"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));

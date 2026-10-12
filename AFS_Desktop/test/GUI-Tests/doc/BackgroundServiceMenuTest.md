@@ -35,3 +35,10 @@ the undeterminable state that leads to it.
 
 The state line carries the answer where neither command does: a service that is not installed
 offers neither of them.
+
+## HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten
+
+The installer lets the service user start and stop the service without a password: polkit rule
+on Linux, service permissions on Windows. Both commands run in the order that ends where the
+service began, and RestoredBackgroundService puts it back should a step fail. A missing right
+shows as the "Hintergrunddienst" error box, which the fixture reports as an unexpected dialog.

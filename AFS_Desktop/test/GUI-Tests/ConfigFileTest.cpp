@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "GuiTest.h"
+#include "RestoredBackgroundService.h"
 #include "EventPump.h"
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
@@ -177,19 +178,24 @@ TEST_F(GuiTest, DienststartAbbrechenBeiUngespeicherterKonfigurationStartetNicht)
 
 TEST_F(GuiTest, DienststartSpeichertAufWunschVorDemStart)  // [ConfigFileTest.md#background-service]
 {
-    if (BackgroundService::state() != BackgroundService::State::NotInstalled)
-        GTEST_SKIP() << "Der Hintergrunddienst ist installiert; sein Start braucht Administratorrechte.";
+    const bool installed = BackgroundService::state() != BackgroundService::State::NotInstalled;
+    if (installed && !serviceControllable())
+        GTEST_SKIP() << "Der Hintergrunddienst ist installiert, und dieser Benutzer darf ihn nicht ohne Administratorrechte starten.";
     const RestoredConfigFile restored(mainWindow());
+    const RestoredBackgroundService service;
     ASSERT_TRUE(addUnsavedSyncItem(mainWindow(), sandboxSync()));
     ModalDialogWatcher::instance().answer(not_saved_title(), wxID_YES);
-    ModalDialogWatcher::instance().answer(translation::translate("bs_caption"), wxID_OK);
+    if (!installed)
+        ModalDialogWatcher::instance().answer(translation::translate("bs_caption"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 3u) << "Rückfrage oder Fehlerbox des fehlenden Dienstes blieben aus.";
+    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), installed ? 2u : 3u) << "Die Rückfrage oder die Fehlerbox des fehlenden Dienstes blieb aus.";
     EXPECT_NE(readFile(GuiTestSandbox::configFile()).find(ITEM_NAME.ToStdString()), std::string::npos) << "Ja hat die Datei nicht vor dem Start geschrieben.";
     EXPECT_FALSE(Config::instance().changed());
+    if (installed)
+        EXPECT_EQ(BackgroundService::state(), BackgroundService::State::Running) << "Der installierte Dienst lief nach dem Start nicht.";
 }
 
 TEST_F(GuiTest, SpeichernUeberWerkzeugleisteHoltFehlgeschlagenesSchreibenNach)

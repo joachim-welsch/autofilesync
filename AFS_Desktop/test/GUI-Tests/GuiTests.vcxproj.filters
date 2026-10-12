@@ -42,6 +42,9 @@
     <ClInclude Include="RestoredSettings.h">
       <Filter>GuiTests\include</Filter>
     </ClInclude>
+    <ClInclude Include="RestoredBackgroundService.h">
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
     <ClInclude Include="SandboxTree.h">
       <Filter>GuiTests\include</Filter>
     </ClInclude>

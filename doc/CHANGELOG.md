@@ -2,6 +2,10 @@
 
 ## Unveröffentlicht
 
+- Der Benutzer, unter dem der Hintergrunddienst läuft, darf ihn ohne
+  Administratorpasswort starten und stoppen: Das Debian-Paket legt dafür eine
+  polkit-Regel an, der Windows-Installer gibt dem Dienstkonto die Rechte am
+  Dienst.
 - Die Konfiguration wird als UTF-8 geschrieben. Unter Linux und macOS ließ sie
   sich bisher nicht speichern, sobald Name oder Pfad einer Synchronisation
   einen Umlaut enthielt.
