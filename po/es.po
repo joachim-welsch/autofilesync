@@ -267,6 +267,30 @@ msgstr "El archivo de registro está vacío o no se pudo leer."
 msgid "assistant_question_label"
 msgstr "Pregunta: "
 
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Configuración actual del usuario:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Sincronizaciones configuradas: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "cada %1 segundos"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... y %1 más"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "Cuentas SSH: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Inactiva"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "No se pudo acortar el archivo de registro: "

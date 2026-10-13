@@ -24,6 +24,7 @@
 #include <vector>
 #include <llama.h>
 #include <Logging.h>
+#include "ConfigSummary.h"
 #include "CpuTopology.h"
 #include "ModelLocation.h"
 #include "Translation.h"
@@ -116,7 +117,7 @@ wstring LlamaClient::build_prompt(const ChatHistory& history) const
 {
     std::vector<string> contents;  // [LlamaClient.md#contents-lifetime]
     contents.reserve(history.size() + 1);
-    contents.push_back(translation::translate_utf8(SYSTEM_PROMPT));
+    contents.push_back(translation::translate_utf8(SYSTEM_PROMPT) + "\n\n" + wstring_to_string(config_summary::current()));  // [LlamaClient.md#config-in-system-prompt]
     for (const ChatTurn& turn : history)
         contents.push_back(wstring_to_string(turn.text));
     std::vector<llama_chat_message> messages;

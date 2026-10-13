@@ -39,6 +39,7 @@ set(AFS_CORE_SOURCES
     LogEmail.cpp
     ModelLocation.cpp
     CpuTopology.cpp
+    ConfigSummary.cpp
     PasswordCrypto.cpp
     SshAccount.cpp
     SftpConnection.cpp

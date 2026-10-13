@@ -267,6 +267,30 @@ msgstr "Файл журналу порожній або його не вдало
 msgid "assistant_question_label"
 msgstr "Запитання: "
 
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Поточна конфігурація користувача:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Налаштовані синхронізації: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "кожні %1 секунд"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... і ще %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "Облікові записи SSH: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Неактивна"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Не вдалося скоротити файл журналу: "

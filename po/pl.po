@@ -267,6 +267,30 @@ msgstr "Plik dziennika jest pusty lub nie można go odczytać."
 msgid "assistant_question_label"
 msgstr "Pytanie: "
 
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Aktualna konfiguracja użytkownika:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Skonfigurowane synchronizacje: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "co %1 sekund"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... i %1 więcej"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "Konta SSH: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Nieaktywna"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Nie udało się skrócić pliku dziennika: "

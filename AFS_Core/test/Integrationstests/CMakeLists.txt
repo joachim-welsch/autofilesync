@@ -69,6 +69,7 @@ set(SOURCES
     LogAnalysisTests.cpp
     ModelLocationTests.cpp
     CpuTopologyTests.cpp
+    ConfigSummaryTests.cpp
     SyncSshFileTests.cpp
     SyncSshDirTests.cpp
     SyncSshTreeTests.cpp

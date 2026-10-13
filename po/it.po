@@ -267,6 +267,30 @@ msgstr "Il file di log è vuoto o non può essere letto."
 msgid "assistant_question_label"
 msgstr "Domanda: "
 
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Configurazione attuale dell'utente:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Sincronizzazioni configurate: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "ogni %1 secondi"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... e altre %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "Account SSH: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Inattiva"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Impossibile accorciare il file di log: "

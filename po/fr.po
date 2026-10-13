@@ -267,6 +267,30 @@ msgstr "Le fichier journal est vide ou n'a pas pu être lu."
 msgid "assistant_question_label"
 msgstr "Question : "
 
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Configuration actuelle de l'utilisateur :"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Synchronisations configurées : %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "toutes les %1 secondes"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... et %1 autres"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "Comptes SSH : "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Inactive"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Le fichier journal n'a pas pu être raccourci : "

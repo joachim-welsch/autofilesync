@@ -274,6 +274,30 @@ msgstr "Die Logdatei ist leer oder konnte nicht gelesen werden."
 msgid "assistant_question_label"
 msgstr "Frage: "
 
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Aktuelle Konfiguration des Nutzers:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Konfigurierte Synchronisationen: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "alle %1 Sekunden"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... und %1 weitere"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "SSH-Konten: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Inaktiv"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Logdatei konnte nicht gekuerzt werden: "

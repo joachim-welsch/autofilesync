@@ -32,6 +32,19 @@ counting answer is long enough that its first piece arrives well before the last
 line is counted because onReply() must close the streamed turn, not append the answer again.
 Skipped without a model: the sandbox moves HOME, so only AUTOFILESYNC_LLAMA_MODEL can name one.
 
+## ChatKenntDieAnzahlDerSynchronisationen
+
+Three synchronisations are added through the GUI, then the assistant is asked how many there
+are: the only way it can know is the configuration in its prompt (ConfigSummary.md). A number
+is the one thing a small model answers reliably when told to answer with the number alone;
+the names of the items would be a gamble. GuiTest::TearDown restores the configuration.
+
+## last-answer-only
+
+The dialog is hidden, not destroyed, between tests, so its transcript still holds the earlier
+tests' answers - the counting answer of ChatAntwortErscheintWaehrendSieEntsteht contains every
+digit. Only the text after the last speaker line is this test's answer.
+
 ## no-model
 
 Without a model the reply is an immediate "Fehler:" turn and the controls are enabled again

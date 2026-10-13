@@ -20,6 +20,8 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "ChatDialog.h"
+#include "GuiTestSandbox.h"
+#include "SyncActions.h"
 #include "ModelLocation.h"
 #include "Translation.h"
 #include "id.h"
@@ -157,6 +159,29 @@ TEST_F(SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest
     ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
     EXPECT_GT(valueOf(chat.transcript).length(), early.length()) << "Die Antwort wuchs nach dem ersten Stück nicht weiter.";
     EXPECT_EQ(countOf(valueOf(chat.transcript), speaker), answersBefore + 1) << "Die fertige Antwort wurde ein zweites Mal angehängt.";
+}
+
+TEST_F(SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDialogTest.md#ChatKenntDieAnzahlDerSynchronisationen]
+{
+    if (!LlamaClient::available())
+        GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
+    const wxString source = GuiTestSandbox::sourceDir().string(), target = GuiTestSandbox::targetDir().string();
+    ASSERT_TRUE(addSyncItem(mainWindow(), SyncItemInput{"Chat-Eins", source, target}));
+    ASSERT_TRUE(addSyncItem(mainWindow(), SyncItemInput{"Chat-Zwei", source, target}));
+    ASSERT_TRUE(addSyncItem(mainWindow(), SyncItemInput{"Chat-Drei", source, target}));
+    ChatControls chat = openChat(mainWindow());
+    ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
+    const HiddenChat hidden(chat);
+    ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
+    ASSERT_TRUE(replaceText(chat.input, "Wie viele Synchronisationen sind konfiguriert? Antworte nur mit der Zahl."));
+    const wxString speaker = AFS_Core::translation::translate("chat_assistant") + L":";
+
+    ASSERT_TRUE(pressControlEnter(chat.input));
+
+    ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
+    const wxString transcript = valueOf(chat.transcript);
+    const wxString answer = transcript.Mid(transcript.rfind(speaker));  // [ChatDialogTest.md#last-answer-only]
+    EXPECT_NE(answer.Find("3"), wxNOT_FOUND) << "Der Assistent kennt die Anzahl nicht: " << answer;
 }
 
 }

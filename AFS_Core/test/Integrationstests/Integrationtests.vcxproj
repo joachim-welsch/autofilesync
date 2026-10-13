@@ -194,6 +194,7 @@
     <ClCompile Include="LogAnalysisTests.cpp" />
     <ClCompile Include="ModelLocationTests.cpp" />
     <ClCompile Include="CpuTopologyTests.cpp" />
+    <ClCompile Include="ConfigSummaryTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshTreeTests.cpp" />
@@ -204,6 +205,7 @@
     <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp" />
     <ClCompile Include="$(LibDir)\src\ModelLocation.cpp" />
     <ClCompile Include="$(LibDir)\src\CpuTopology.cpp" />
+    <ClCompile Include="$(LibDir)\src\ConfigSummary.cpp" />
     <ClCompile Include="$(LibDir)\src\LlamaClient.cpp" />
     <ClCompile Include="$(LibDir)\src\LogAnalysis.cpp" />
     <ClCompile Include="$(LibDir)\src\LogCut.cpp" />
@@ -280,6 +282,7 @@
     <ClInclude Include="$(LibDir)\include\Logging.h" />
     <ClInclude Include="$(LibDir)\include\ModelLocation.h" />
     <ClInclude Include="$(LibDir)\include\CpuTopology.h" />
+    <ClInclude Include="$(LibDir)\include\ConfigSummary.h" />
     <ClInclude Include="$(LibDir)\include\MountedDrives.h" />
     <ClInclude Include="$(LibDir)\include\PasswordCrypto.h" />
     <ClInclude Include="$(LibDir)\include\pch.h" />
