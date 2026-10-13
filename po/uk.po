@@ -291,6 +291,14 @@ msgstr "Облікові записи SSH: "
 msgid "inactive"
 msgstr "Неактивна"
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "Якщо користувач хоче створити нову синхронізацію і назвав джерело та ціль, додай до відповіді рівно один блок такої форми:\n```sync\n{\"name\": \"Коротка назва\", \"source\": \"/шлях/до/джерела\", \"target\": \"/шлях/до/цілі\", \"type\": \"%2\"}\n```\nДозволені типи: %1. Не додавай блок, поки бракує джерела або цілі; запитай про них. Потім користувач перевіряє і підтверджує пропозицію в діалоговому вікні."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Створити синхронізацію…"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Не вдалося скоротити файл журналу: "

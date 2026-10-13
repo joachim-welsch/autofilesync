@@ -291,6 +291,14 @@ msgstr "Comptes SSH : "
 msgid "inactive"
 msgstr "Inactive"
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "Si l'utilisateur veut créer une nouvelle synchronisation et a indiqué la source et la cible, ajoute à ta réponse exactement un bloc de cette forme :\n```sync\n{\"name\": \"Nom court\", \"source\": \"/chemin/vers/la/source\", \"target\": \"/chemin/vers/la/cible\", \"type\": \"%2\"}\n```\nTypes autorisés : %1. N'ajoute aucun bloc tant que la source ou la cible manque ; demande-les. L'utilisateur vérifie et confirme ensuite la proposition dans une boîte de dialogue."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Créer la synchronisation…"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Le fichier journal n'a pas pu être raccourci : "

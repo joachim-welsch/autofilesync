@@ -110,6 +110,7 @@
     <ClInclude Include="..\..\..\AFS_Core\include\Logging.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\ModelLocation.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CpuTopology.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncProposal.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\ConfigSummary.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\MountedDrives.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\PasswordCrypto.h" />
@@ -217,6 +218,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CpuTopology.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ConfigSummary.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LogAnalysis.cpp" />
     <ClCompile Include="..\..\src\AutoSave.cpp" />

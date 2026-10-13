@@ -298,6 +298,14 @@ msgstr "SSH-Konten: "
 msgid "inactive"
 msgstr "Inaktiv"
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "Wenn der Nutzer eine neue Synchronisation anlegen möchte und Quelle und Ziel genannt hat, hänge an deine Antwort genau einen Block in dieser Form an:\n```sync\n{\"name\": \"Kurzer Name\", \"source\": \"/pfad/zur/quelle\", \"target\": \"/pfad/zum/ziel\", \"type\": \"%2\"}\n```\nErlaubte Typen: %1. Füge keinen Block an, solange Quelle oder Ziel fehlen; frage stattdessen danach. Der Nutzer prüft und bestätigt den Vorschlag anschließend in einem Dialog."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Synchronisation anlegen…"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Logdatei konnte nicht gekuerzt werden: "

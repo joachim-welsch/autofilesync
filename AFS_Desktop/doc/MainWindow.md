@@ -30,6 +30,12 @@ Writes the .desktop file that starts the program at login.
 
 Removes the .desktop file again.
 
+## addSyncItemFrom
+
+The assistant's proposal (see SyncProposal.md) enters the configuration through the same dialog
+and the same saveData()/add()/autosave path as a hand-made item, prefilled instead of empty:
+nothing the chat suggests is written before the user has seen it in the dialog and pressed OK.
+
 ## saveData-single-source
 
 saveData() is the single source of truth for reading the dialog's state (same path onEditSync()

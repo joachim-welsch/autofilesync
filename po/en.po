@@ -298,6 +298,14 @@ msgstr "SSH accounts: "
 msgid "inactive"
 msgstr "Inactive"
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "If the user wants to set up a new synchronisation and has named source and target, append exactly one block of this form to your answer:\n```sync\n{\"name\": \"Short name\", \"source\": \"/path/to/source\", \"target\": \"/path/to/target\", \"type\": \"%2\"}\n```\nAllowed types: %1. Do not add a block while source or target is missing; ask for them instead. The user then checks and confirms the proposal in a dialog."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Create synchronisation…"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "The log file could not be shortened: "

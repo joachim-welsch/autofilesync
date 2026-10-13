@@ -291,6 +291,14 @@ msgstr "Account SSH: "
 msgid "inactive"
 msgstr "Inattiva"
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "Se l'utente vuole creare una nuova sincronizzazione e ha indicato origine e destinazione, aggiungi alla tua risposta esattamente un blocco in questa forma:\n```sync\n{\"name\": \"Nome breve\", \"source\": \"/percorso/origine\", \"target\": \"/percorso/destinazione\", \"type\": \"%2\"}\n```\nTipi ammessi: %1. Non aggiungere alcun blocco finché mancano origine o destinazione; chiedili. L'utente poi controlla e conferma la proposta in una finestra di dialogo."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Crea sincronizzazione…"
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Impossibile accorciare il file di log: "

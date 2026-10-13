@@ -69,7 +69,8 @@ bound yet while the constants are initialised.
 
 ## config-in-system-prompt
 
-The configuration (see ConfigSummary.md) follows the system prompt rather than being folded
+The configuration (see ConfigSummary.md) and the proposal instruction (see SyncProposal.md)
+follow the system prompt rather than being folded
 into the question like a log excerpt: the model then knows it for every question, not just
 those a keyword test recognises, and as part of the prompt prefix it is decoded once and then
 reused from the KV cache (see kv-cache-reuse) until the configuration changes.

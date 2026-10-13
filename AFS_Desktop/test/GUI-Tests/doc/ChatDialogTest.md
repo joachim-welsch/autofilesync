@@ -2,6 +2,14 @@
 
 Module comment for ChatDialogTest.cpp.
 
+## REPLY_TIMEOUT_MILLISECONDS
+
+Ten minutes, like ChatLogQuestionTest: the chat dialog is hidden between tests, not destroyed,
+so every later test's question carries the whole history of the earlier ones, and a changed
+configuration makes the model decode that prefix again. On a laptop CPU that throttles under
+sustained load (measured 96 °C after an hour of tests) one answer took over three minutes; a
+tighter limit fails the test for the hardware, not for the code.
+
 ## openChat
 
 The chat is a modeless dialog owned by the main window, created on the first "Assistent → Chat"
@@ -38,6 +46,19 @@ Three synchronisations are added through the GUI, then the assistant is asked ho
 are: the only way it can know is the configuration in its prompt (ConfigSummary.md). A number
 is the one thing a small model answers reliably when told to answer with the number alone;
 the names of the items would be a gamble. GuiTest::TearDown restores the configuration.
+
+## ChatVorschlagLegtSynchronisationUeberDenDialogAn
+
+The whole path of a proposal: the question names source, target and type, the answer must
+carry a block (the button appears), and the button opens the ordinary "add synchronisation"
+dialog prefilled - the source field is read there as proof - which is confirmed with OK like a
+hand-made item. The paths are the sandbox's, so the dialog's validation accepts them and
+GuiTest::TearDown restores the configuration.
+
+## block-not-shown
+
+The JSON block is for the parser, not the user: the transcript must not contain a code fence,
+neither from the streamed pieces nor from the final answer.
 
 ## last-answer-only
 

@@ -1,0 +1,107 @@
+/*
+ * Copyright (C) 2026 Joachim Welsch <https://welsch-software.com>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * This file is part of AFS_Core, the synchronisation engine of AutoFileSync.
+ *
+ * AutoFileSync is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * AutoFileSync is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
+ */
+#include "pch.h"
+#include "SyncProposal.h"
+#include <clocale>
+#include <string>
+#include "ScopedEnv.h"
+#include "Translation.h"
+
+using namespace AFS_Core;
+using std::wstring;
+
+namespace {
+const wstring BLOCK = L"```sync\n{\"name\": \"Fotos\", \"source\": \"/home/jw/Fotos\", \"target\": \"/media/nas/Fotos\", \"type\": \"Verzeichnisbaum\"}\n```";
+const wstring PROSE = L"Gern, hier ist mein Vorschlag:";
+}
+
+TEST(SyncProposalTests, ParsesFencedBlockAndStripsIt)
+{
+    const wstring answer = PROSE + L"\n\n" + BLOCK + L"\nPrüfe bitte die Pfade.";
+    const auto item = sync_proposal::parse(answer);
+    ASSERT_TRUE(item.has_value());
+    EXPECT_EQ(item->name(), L"Fotos");
+    EXPECT_EQ(item->source(), L"/home/jw/Fotos");
+    EXPECT_EQ(item->target(), L"/media/nas/Fotos");
+    EXPECT_EQ(item->sync_item_type(), SyncItemType::Tree);
+    EXPECT_FALSE(item->two_way_sync());
+    EXPECT_EQ(sync_proposal::without_block(answer), PROSE + L"\n\n\nPrüfe bitte die Pfade.");
+}
+
+TEST(SyncProposalTests, AnswerWithoutBlockIsNoProposal)
+{
+    const wstring answer = L"Es sind 3 Synchronisationen konfiguriert.";
+    EXPECT_FALSE(sync_proposal::parse(answer).has_value());
+    EXPECT_EQ(sync_proposal::without_block(answer), answer);
+}
+
+TEST(SyncProposalTests, MissingPathIsNoProposal)  // [SyncProposalTests.md#MissingPathIsNoProposal]
+{
+    EXPECT_FALSE(sync_proposal::parse(L"```sync\n{\"name\": \"Fotos\", \"source\": \"/home/jw/Fotos\", \"target\": \"\"}\n```").has_value());
+    EXPECT_FALSE(sync_proposal::parse(L"```sync\n{\"name\": \"Fotos\", \"source\": \"/home/jw/Fotos\"}\n```").has_value());
+}
+
+TEST(SyncProposalTests, BrokenJsonIsNoProposal)
+{
+    const wstring answer = L"```sync\n{\"name\": \"Fotos\", \"source\": \"/a\", \"target\": \"/b\"\n```";
+    EXPECT_FALSE(sync_proposal::parse(answer).has_value());
+    EXPECT_EQ(sync_proposal::without_block(answer), answer);
+}
+
+TEST(SyncProposalTests, BareJsonWithoutFenceIsAccepted)  // [SyncProposalTests.md#BareJsonWithoutFenceIsAccepted]
+{
+    const wstring answer = L"Vorschlag: {\"name\": \"Doku\", \"source\": \"/a\", \"target\": \"/b\", \"type\": \"Verzeichnis\", \"two_way\": true}";
+    const auto item = sync_proposal::parse(answer);
+    ASSERT_TRUE(item.has_value());
+    EXPECT_EQ(item->sync_item_type(), SyncItemType::Dir);
+    EXPECT_TRUE(item->two_way_sync());
+    EXPECT_EQ(sync_proposal::without_block(answer), L"Vorschlag:");
+}
+
+TEST(SyncProposalTests, UnknownTypeBecomesTree)
+{
+    const auto item = sync_proposal::parse(L"```json\n{\"name\": \"x\", \"source\": \"/a\", \"target\": \"/b\", \"type\": \"Ordner\"}\n```");
+    ASSERT_TRUE(item.has_value());
+    EXPECT_EQ(item->sync_item_type(), SyncItemType::Tree);
+}
+
+TEST(SyncProposalTests, FirstBlockWithoutProposalIsSkipped)
+{
+    const wstring answer = L"```\nls -l\n```\n" + BLOCK;
+    const auto item = sync_proposal::parse(answer);
+    ASSERT_TRUE(item.has_value());
+    EXPECT_EQ(item->name(), L"Fotos");
+    EXPECT_EQ(sync_proposal::without_block(answer), L"```\nls -l\n```");
+}
+
+TEST(SyncProposalTests, InstructionNamesTypesAndFields)  // [SyncProposalTests.md#InstructionNamesTypesAndFields]
+{
+    if (translation::locale_dir().empty())
+        GTEST_SKIP() << "no compiled catalogues beside the test binary";
+    const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
+    translation::init_locale(translation::DEFAULT_LOCALES);
+    const ScopedEnv language("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    const wstring instruction = sync_proposal::instruction();
+    const wstring tree = sync_item_type_to_str(SyncItemType::Tree);  // read while the catalogue is still bound
+    std::setlocale(LC_ALL, saved_locale.c_str());
+    EXPECT_NE(instruction.find(tree), wstring::npos) << instruction;
+    EXPECT_NE(instruction.find(L"\"source\""), wstring::npos) << instruction;
+    EXPECT_NE(instruction.find(L"\"target\""), wstring::npos) << instruction;
+}

@@ -24,13 +24,16 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include "LlamaClient.h"
+#include "SyncItem.h"
 
 using namespace AFS_Core;  // [ChatDialog.md#ChatDialog]
 
 class ChatDialog: public wxDialog {
 public:
-    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title);
+    using CreateSync = std::function<void(const SyncItem& preset)>;  // [ChatDialog.md#CreateSync]
+    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, CreateSync createSync);
     ~ChatDialog() override;
 private:
     struct Pending {  // [ChatDialog.md#Pending]
@@ -39,22 +42,31 @@ private:
     };
 
     void onSend(wxCommandEvent&);
+    void onCreateSync(wxCommandEvent&);
     void onPiece(wxThreadEvent&);
     void onReply(wxThreadEvent&);
     void onClose(wxCloseEvent&);
     void onInputKey(wxKeyEvent&);
     void appendSpeaker(const wxString& speaker);
     void appendTurn(const wxString& speaker, const wxString& text);
-    bool endStreamedTurn();
+    void showStreamed(const wxString& piece);
+    void replaceStreamedTurn(const wxString& text);
+    void showProposal(const std::optional<SyncItem>& proposal);
     void setWaiting(bool waiting);
     void runAsync(std::function<ChatReply(const ChatPieceSink&)> call);  // [ChatDialog.md#runAsync]
 
     wxTextCtrl*   transcript_ = nullptr;
     wxTextCtrl*   input_ = nullptr;
     wxButton*     sendButton_ = nullptr;
+    wxButton*     createButton_ = nullptr;
     wxStaticText* status_ = nullptr;
     ChatHistory   history_;
     bool          answerStreaming_ = false;  // [ChatDialog.md#answerStreaming_]
+    long          turnStart_ = 0;
+    wxString      streamed_;
+    std::size_t   shown_ = 0;  // [ChatDialog.md#block-held-back]
+    std::optional<SyncItem> proposal_;
+    CreateSync    createSync_;
     std::shared_ptr<LlamaClient> client_ = std::make_shared<LlamaClient>();  // [ChatDialog.md#client_]
     std::shared_ptr<Pending> pending_ = std::make_shared<Pending>();
 
@@ -66,5 +78,6 @@ enum {
     ID_CHAT_SEND,
     ID_CHAT_REPLY,
     ID_CHAT_PIECE,
+    ID_CHAT_CREATE_SYNC,
     ID_CHAT_TRANSCRIPT  // [ChatDialog.md#ID_CHAT_TRANSCRIPT]
 };

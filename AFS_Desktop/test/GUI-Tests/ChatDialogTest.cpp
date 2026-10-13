@@ -20,8 +20,11 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "ChatDialog.h"
+#include "Config.h"
 #include "GuiTestSandbox.h"
 #include "SyncActions.h"
+#include "SyncItemDialog.h"
+#include "TextResources.h"
 #include "ModelLocation.h"
 #include "Translation.h"
 #include "id.h"
@@ -32,7 +35,7 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-constexpr int REPLY_TIMEOUT_MILLISECONDS = 240000;  // the local language model answers in one to two minutes on a CPU
+constexpr int REPLY_TIMEOUT_MILLISECONDS = 600000;  // [ChatDialogTest.md#REPLY_TIMEOUT_MILLISECONDS]
 
 struct ChatControls {
     wxDialog* dialog = nullptr;
@@ -182,6 +185,47 @@ TEST_F(SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDialogTest.
     const wxString transcript = valueOf(chat.transcript);
     const wxString answer = transcript.Mid(transcript.rfind(speaker));  // [ChatDialogTest.md#last-answer-only]
     EXPECT_NE(answer.Find("3"), wxNOT_FOUND) << "Der Assistent kennt die Anzahl nicht: " << answer;
+}
+
+TEST_F(SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  // [ChatDialogTest.md#ChatVorschlagLegtSynchronisationUeberDenDialogAn]
+{
+    if (!LlamaClient::available())
+        GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
+    const wxString source = GuiTestSandbox::sourceDir().string(), target = GuiTestSandbox::targetDir().string();
+    ChatControls chat = openChat(mainWindow());
+    ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
+    const HiddenChat hidden(chat);
+    ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
+    ASSERT_TRUE(replaceText(chat.input, "Lege eine neue Synchronisation mit dem Namen Chat-Vorschlag an. Quelle: "
+        + source + " Ziel: " + target + " Typ: Verzeichnisbaum."));
+    wxWindow* create = wxWindow::FindWindowById(ID_CHAT_CREATE_SYNC);
+    ASSERT_NE(create, nullptr);
+    EXPECT_FALSE(create->IsShown()) << "Der Anlegen-Knopf war schon vor dem Vorschlag sichtbar.";
+
+    ASSERT_TRUE(pressControlEnter(chat.input));
+    ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
+    const wxString transcript = valueOf(chat.transcript);
+    ASSERT_TRUE(create->IsShown()) << "Die Antwort enthielt keinen Vorschlag: " << transcript;
+    EXPECT_EQ(transcript.Find("```"), wxNOT_FOUND) << "Der Vorschlagsblock steht im Verlauf.";  // [ChatDialogTest.md#block-not-shown]
+
+    wxString prefilledSource;
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), [&prefilledSource](wxDialog& dialog) {
+        const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
+            && (prefilledSource = valueOf(find(dialog, ID_SOURCE_DIR_BOX)), true)
+            && clickWhenEnabled(find(dialog, wxID_OK))
+            && waitUntil([&dialog] { return !dialog.IsShown(); });
+        if (!confirmed)
+            dialog.EndModal(wxID_CANCEL);
+    });
+    ASSERT_TRUE(clickOn(create));
+    pump();
+
+    EXPECT_EQ(prefilledSource, source) << "Der Dialog war nicht mit der vorgeschlagenen Quelle vorbelegt.";
+    const auto item = Config::instance().find_by_name(L"Chat-Vorschlag");
+    ASSERT_TRUE(item.has_value()) << "Die Synchronisation kam nicht in die Konfiguration: " << transcript;
+    EXPECT_EQ(item->source(), source.ToStdWstring());
+    EXPECT_EQ(item->target(), target.ToStdWstring());
+    EXPECT_FALSE(create->IsShown()) << "Der Anlegen-Knopf blieb nach dem Anlegen sichtbar.";
 }
 
 }

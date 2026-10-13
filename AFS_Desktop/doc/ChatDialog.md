@@ -21,7 +21,30 @@ answer that call() passes to its ChatPieceSink go to onPiece() while it runs.
 ## answerStreaming_
 
 Set once the first piece of an answer is in the transcript: the speaker line is written then,
-and onReply() only closes the turn instead of writing the whole answer a second time.
+and onReply() replaces the streamed text with the final answer instead of appending it again.
+
+## CreateSync
+
+How a proposal of the assistant becomes a synchronisation: MainWindow passes its prefilled
+"add synchronisation" dialog (MainWindow.md#addSyncItemFrom). A callback rather than a pointer
+to MainWindow keeps the dialog free of the main window's interface.
+
+## proposal-button
+
+The button is the proposal: hidden until an answer carries a block parse() accepts, hidden
+again when the next question is sent or the button was used. A visible but disabled button
+would raise the question what it is for.
+
+## block-held-back
+
+While the answer streams, nothing from the first code fence on is shown: the block is JSON
+meant for parse(), and watching it appear character by character would only puzzle the user.
+Text before the fence still appears as it is generated.
+
+## replaceStreamedTurn
+
+The final answer replaces the streamed text from the start of the turn: with the block removed
+(see SyncProposal.md#without_block), and with any character the stream held back completed.
 
 ## pieces-before-reply
 
@@ -71,7 +94,8 @@ turn would resend the whole excerpt.
 ## only-answers-in-history
 
 Only a real answer belongs in the history; an error message would be sent back as if the
-assistant had said it.
+assistant had said it. The answer goes in complete with its proposal block, so the model sees
+in the next turn what it proposed.
 
 ## hint-in-transcript
 

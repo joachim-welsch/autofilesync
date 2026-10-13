@@ -126,6 +126,9 @@
     <ClInclude Include="$(LibDir)\include\CpuTopology.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\SyncProposal.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\ConfigSummary.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -263,6 +266,9 @@
     <ClCompile Include="CpuTopologyTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="SyncProposalTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="ConfigSummaryTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -387,6 +393,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CpuTopology.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\SyncProposal.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\ConfigSummary.cpp">

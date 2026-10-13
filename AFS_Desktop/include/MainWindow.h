@@ -69,9 +69,11 @@ public:
 	SyncInterface& syncInterface() { return syncInterface_; }
 	TaskBarIcon* taskBarIcon() { return taskBarIcon_; }
 	wxHelpControllerBase& GetHelpController() { return *htmlHelpController_; }
+	void addSyncItemFrom(SyncItem preset);  // [MainWindow.md#addSyncItemFrom]
 private:
 	void resize();
 	void update();
+	void runAddSyncItemDialog(SyncItem* preset);
 	void createToolBar();
 	void createHelp();
     void updateMenu();

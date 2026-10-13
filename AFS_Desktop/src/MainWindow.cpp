@@ -324,7 +324,17 @@ void MainWindow::onAbout(wxCommandEvent& WXUNUSED(event))
 
 void MainWindow::onAddSyncItem(wxCommandEvent& WXUNUSED(event))
 {
-    SyncItemDialog dlg(nullptr, this, wxID_ANY, txt::add_synchronisation());
+    runAddSyncItemDialog(nullptr);
+}
+
+void MainWindow::addSyncItemFrom(SyncItem preset)
+{
+    runAddSyncItemDialog(&preset);
+}
+
+void MainWindow::runAddSyncItemDialog(SyncItem* preset)
+{
+    SyncItemDialog dlg(preset, this, wxID_ANY, txt::add_synchronisation());
     if (dlg.ShowModal() == wxID_OK) {
         SyncItem syncItem;  // [MainWindow.md#saveData-single-source]
         dlg.saveData(syncItem);
@@ -624,7 +634,7 @@ void MainWindow::onEditLogging(wxCommandEvent&)
 void MainWindow::onChat(wxCommandEvent&)
 {
     if (chatDialog_ == nullptr)
-        chatDialog_ = new ChatDialog(this, wxID_ANY, txt::assistant());
+        chatDialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const SyncItem& preset) { addSyncItemFrom(preset); });
     chatDialog_->Show();
     chatDialog_->Raise();
 }
