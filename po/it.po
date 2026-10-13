@@ -295,6 +295,10 @@ msgstr "Inattiva"
 msgid "assistant_sync_proposal_instruction"
 msgstr "Se l'utente vuole creare una nuova sincronizzazione e ha indicato origine e destinazione, aggiungi alla tua risposta esattamente un blocco in questa forma:\n```sync\n{\"name\": \"Nome breve\", \"source\": \"/percorso/origine\", \"target\": \"/percorso/destinazione\", \"type\": \"%2\"}\n```\nTipi ammessi: %1. Non aggiungere alcun blocco finché mancano origine o destinazione; chiedili. L'utente poi controlla e conferma la proposta in una finestra di dialogo."
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_summary"
+msgstr "Proposta: sincronizzazione \"%1\" (%2) da %3 a %4. Verificala e creala con \"%5\"."
+
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr "Crea sincronizzazione…"

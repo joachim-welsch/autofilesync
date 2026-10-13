@@ -27,6 +27,7 @@ namespace sync_proposal {  // [SyncProposal.md#sync_proposal]
 std::wstring instruction();  // [SyncProposal.md#instruction]
 std::optional<SyncItem> parse(const std::wstring& answer);  // [SyncProposal.md#parse]
 std::wstring without_block(const std::wstring& answer);  // [SyncProposal.md#without_block]
+std::wstring describe(const SyncItem& proposal);  // [SyncProposal.md#describe]
 }
 
 } // namespace AFS_Core

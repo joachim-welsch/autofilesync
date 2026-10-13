@@ -207,6 +207,8 @@ TEST_F(SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  // [ChatD
     const wxString transcript = valueOf(chat.transcript);
     ASSERT_TRUE(create->IsShown()) << "Die Antwort enthielt keinen Vorschlag: " << transcript;
     EXPECT_EQ(transcript.Find("```"), wxNOT_FOUND) << "Der Vorschlagsblock steht im Verlauf.";  // [ChatDialogTest.md#block-not-shown]
+    const wxString answer = transcript.Mid(transcript.rfind(AFS_Core::translation::translate("chat_assistant") + L":"));
+    EXPECT_TRUE(answer.Contains("Chat-Vorschlag") && answer.Contains(target)) << "Die Antwort beschreibt den Vorschlag nicht: " << answer;  // [ChatDialogTest.md#proposal-described]
 
     wxString prefilledSource;
     ModalDialogWatcher::instance().expect(txt::add_synchronisation(), [&prefilledSource](wxDialog& dialog) {

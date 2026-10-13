@@ -13,6 +13,12 @@ the type list was substituted. That needs a real catalogue, so it binds the Germ
 TranslationTests do and skips where none is built; the locale is restored so later tests see
 the bare keys as before.
 
+## DescriptionNamesItemAndButton
+
+The description is what the user reads when the model answers with the block alone, so it
+must carry the name, both paths, the type as the dialog shows it, and the button label, with
+every placeholder substituted. Binds the German catalogue like InstructionNamesTypesAndFields.
+
 ## MissingPathIsNoProposal
 
 An empty target and a missing target are the two ways a model leaves a path out; both must be

@@ -302,6 +302,10 @@ msgstr "Inaktiv"
 msgid "assistant_sync_proposal_instruction"
 msgstr "Wenn der Nutzer eine neue Synchronisation anlegen möchte und Quelle und Ziel genannt hat, hänge an deine Antwort genau einen Block in dieser Form an:\n```sync\n{\"name\": \"Kurzer Name\", \"source\": \"/pfad/zur/quelle\", \"target\": \"/pfad/zum/ziel\", \"type\": \"%2\"}\n```\nErlaubte Typen: %1. Füge keinen Block an, solange Quelle oder Ziel fehlen; frage stattdessen danach. Der Nutzer prüft und bestätigt den Vorschlag anschließend in einem Dialog."
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_summary"
+msgstr "Vorschlag: Synchronisation \"%1\" (%2) von %3 nach %4. Mit \"%5\" prüfen und anlegen."
+
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr "Synchronisation anlegen…"

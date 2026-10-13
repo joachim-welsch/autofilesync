@@ -105,3 +105,21 @@ TEST(SyncProposalTests, InstructionNamesTypesAndFields)  // [SyncProposalTests.m
     EXPECT_NE(instruction.find(L"\"source\""), wstring::npos) << instruction;
     EXPECT_NE(instruction.find(L"\"target\""), wstring::npos) << instruction;
 }
+
+TEST(SyncProposalTests, DescriptionNamesItemAndButton)  // [SyncProposalTests.md#DescriptionNamesItemAndButton]
+{
+    if (translation::locale_dir().empty())
+        GTEST_SKIP() << "no compiled catalogues beside the test binary";
+    const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
+    translation::init_locale(translation::DEFAULT_LOCALES);
+    const ScopedEnv language("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    const auto item = sync_proposal::parse(BLOCK);
+    ASSERT_TRUE(item.has_value());
+    const wstring description = sync_proposal::describe(*item);
+    const wstring tree = sync_item_type_to_str(SyncItemType::Tree), button = translation::translate("chat_create_sync");
+    std::setlocale(LC_ALL, saved_locale.c_str());
+    for (const wstring& part : {wstring(L"Fotos"), wstring(L"/home/jw/Fotos"), wstring(L"/media/nas/Fotos"), tree, button})
+        EXPECT_NE(description.find(part), wstring::npos) << description;
+    EXPECT_EQ(description.find(L'%'), wstring::npos) << description;
+}

@@ -34,6 +34,12 @@ wxEND_EVENT_TABLE()
 
 namespace {
 constexpr std::size_t maxLogExcerptChars = 500;  // [ChatDialog.md#maxLogExcerptChars]
+
+wxString answerWithProposal(const std::wstring& answer, const SyncItem& proposal)  // [ChatDialog.md#proposal-described]
+{
+    const std::wstring prose = sync_proposal::without_block(answer);
+    return prose.empty() ? sync_proposal::describe(proposal) : prose + L"\n" + sync_proposal::describe(proposal);
+}
 }
 
 ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, CreateSync createSync)
@@ -187,7 +193,7 @@ void ChatDialog::onReply(wxThreadEvent& event)
     const wxString text = event.GetString();
     const bool ok = event.GetInt() == 1;
     const std::optional<SyncItem> proposal = ok ? sync_proposal::parse(text.ToStdWstring()) : std::nullopt;
-    const wxString shown = proposal ? wxString(sync_proposal::without_block(text.ToStdWstring())) : text;
+    const wxString shown = proposal ? answerWithProposal(text.ToStdWstring(), *proposal) : text;
     if (answerStreaming_)
         replaceStreamedTurn(shown);
     else

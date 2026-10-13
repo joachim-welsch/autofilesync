@@ -121,6 +121,12 @@ wstring without_block(const wstring& answer)
     return trimmed(answer.substr(0, block.begin) + answer.substr(block.end));
 }
 
+wstring describe(const SyncItem& proposal)
+{
+    return translation::translate("assistant_sync_proposal_summary", {proposal.name(), sync_item_type_to_str(proposal.sync_item_type()),
+        proposal.source(), proposal.target(), translation::translate("chat_create_sync")});
+}
+
 }
 
 } // namespace AFS_Core

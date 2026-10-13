@@ -60,6 +60,12 @@ GuiTest::TearDown restores the configuration.
 The JSON block is for the parser, not the user: the transcript must not contain a code fence,
 neither from the streamed pieces nor from the final answer.
 
+## proposal-described
+
+The answer part of the transcript (from the last assistant label on) must name the proposed
+item and its target even when the model wrote nothing but the block: that is the sentence from
+SyncProposal.md#describe, and without it the user sees an empty answer.
+
 ## last-answer-only
 
 The dialog is hidden, not destroyed, between tests, so its transcript still holds the earlier

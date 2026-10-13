@@ -38,3 +38,11 @@ directory tree, the most common choice; the user sees and can change it in the d
 
 The answer as shown to the user: the block is replaced by the button, so the JSON would only
 confuse. The full answer still goes into the history so the model sees what it proposed.
+
+## describe
+
+One sentence naming the proposed item and the button that opens it. Small models often answer
+with the block alone; with the block removed the user would see an empty answer and could
+easily miss the button, which happened in practice. The sentence is shown with every proposal,
+so the user also sees at a glance what the dialog will contain. The type is named the way the
+dialog shows it, so it reads the same in both places.

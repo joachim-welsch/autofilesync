@@ -35,6 +35,13 @@ The button is the proposal: hidden until an answer carries a block parse() accep
 again when the next question is sent or the button was used. A visible but disabled button
 would raise the question what it is for.
 
+## proposal-described
+
+An answer with a proposal always ends with the sentence from SyncProposal.md#describe. The
+3B model regularly answers with the block alone; without the sentence the turn would be empty
+and the button the only hint that something happened - a user who expects an answer in the
+transcript reads that as "the assistant does not answer".
+
 ## block-held-back
 
 While the answer streams, nothing from the first code fence on is shown: the block is JSON
