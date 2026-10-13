@@ -25,7 +25,10 @@
 #include <clocale>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include <optional>
+#include <set>
+#include "Logging.h"
 #ifdef WIN32
     #include <Windows.h>
 #elif defined(_MACOS)
@@ -117,6 +120,28 @@ std::filesystem::path locale_dir()
 namespace {
 std::optional<std::string> environment_language;  // [Translation.md#environment_language]
 
+bool catalogue_bound()
+{
+    return *dgettext(TEXT_DOMAIN, "") != '\0';  // the empty msgid yields the catalogue header
+}
+
+void report_missing(const char* msgid)  // [Translation.md#missing-translation]
+{
+    static std::mutex mutex;
+    static std::set<std::string> reported;
+    thread_local bool reporting = false;
+    if (reporting || !catalogue_bound())
+        return;
+    {
+        const std::lock_guard<std::mutex> lock(mutex);
+        if (!reported.insert(msgid).second)
+            return;
+    }
+    reporting = true;
+    log_warning(L"Übersetzung fehlt: " + util::string_to_wstring(msgid));
+    reporting = false;
+}
+
 void put_language(const std::optional<std::string>& language)
 {
 #ifdef WIN32
@@ -131,7 +156,7 @@ void put_language(const std::optional<std::string>& language)
 
 void fall_back_to_english()  // [Translation.md#fall_back_to_english]
 {
-    if (*dgettext(TEXT_DOMAIN, "") == '\0')  // the empty msgid yields the catalogue header
+    if (!catalogue_bound())
         put_language("en");
 }
 }
@@ -156,9 +181,29 @@ void set_language(const std::string& code)
 
 std::string translate_utf8(const char* msgid)
 {
-    return dgettext(TEXT_DOMAIN, msgid);  // [Translation.md#dgettext-instead-of-gettext]
+    const char* text = dgettext(TEXT_DOMAIN, msgid);  // [Translation.md#dgettext-instead-of-gettext]
+    if (text == msgid)  // gettext hands the msgid itself back when the catalogue has no entry
+        report_missing(msgid);
+    return text;
+}
+
+std::optional<std::wstring> catalogue_mismatch()
+{
+#ifdef AFS_CATALOGUE_STAMP
+    if (!catalogue_bound() || translate_utf8("catalogue_stamp") == AFS_CATALOGUE_STAMP)  // [Translation.md#catalogue_mismatch]
+        return std::nullopt;
+    const char* directory = bindtextdomain(TEXT_DOMAIN, nullptr);
+    const std::wstring where = util::string_to_wstring(directory != nullptr ? directory : "");
+    const std::wstring message = translate("catalogue_outdated", {where});
+    if (message != L"catalogue_outdated")
+        return message;
+    return L"The message catalogue in " + where + L" does not belong to this version of Autofilesync; install the locale files of this build.";  // [Translation.md#english-safety-net]
+#else
+    return std::nullopt;
+#endif
 }
 #else
+std::optional<std::wstring> catalogue_mismatch() { return std::nullopt; }
 void init(const std::filesystem::path&) {}  // [Translation.md#no-libintl-fallback]
 void set_language(const std::string&) {}
 

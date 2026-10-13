@@ -18,6 +18,9 @@
  */
 #include "pch.h"
 #include <ScopedEnv.h>
+#include "ScopedLog.h"
+#include <chrono>
+#include <filesystem>
 #include <Translation.h>
 #include <clocale>
 
@@ -88,4 +91,27 @@ TEST_F(TranslationTest, LanguageWithoutCatalogueFallsBackToEnglish)  // [Transla
     EXPECT_EQ(translated_in("sv", "already_running"), "AutoFileSync is already running.");
 }
 
+}
+
+TEST_F(TranslationTest, CatalogueOfThisBuildMatches)  // [TranslationTests.md#CatalogueOfThisBuildMatches]
+{
+    ScopedEnv env("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    const auto mismatch = translation::catalogue_mismatch();
+    EXPECT_FALSE(mismatch.has_value()) << (mismatch ? *mismatch : L"");
+}
+
+TEST_F(TranslationTest, MissingTranslationIsLoggedOnce)  // [TranslationTests.md#MissingTranslationIsLoggedOnce]
+{
+    ScopedEnv env("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    const tu::ScopedLog log(std::filesystem::temp_directory_path() / "afs_translation_test.log", LogLevel::Info);
+    const std::string msgid = "no_such_message_id_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+    Logging::instance().collect_messages(true);
+    EXPECT_EQ(translation::translate_utf8(msgid.c_str()), msgid);
+    EXPECT_EQ(translation::translate_utf8(msgid.c_str()), msgid);
+    Logging::instance().collect_messages(false);
+    const std::vector<LogMessage> messages = Logging::instance().take_collected_messages();
+    ASSERT_EQ(messages.size(), 1u);
+    EXPECT_NE(messages[0].text.find(msgid), std::string::npos) << messages[0].text;
 }

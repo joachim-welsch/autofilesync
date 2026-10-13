@@ -20,6 +20,7 @@
 #include <array>
 #include <filesystem>
 #include <initializer_list>
+#include <optional>
 #include <span>
 #include <string>
 
@@ -35,6 +36,7 @@ void init_locale(std::span<const char* const> fallbacks);  // [Translation.md#in
 std::filesystem::path locale_dir();  // [Translation.md#locale_dir]
 void init(const std::filesystem::path& locale_dir);  // [Translation.md#init]
 void set_language(const std::string& code);  // [Translation.md#set_language]
+std::optional<std::wstring> catalogue_mismatch();  // [Translation.md#catalogue_mismatch]
 constexpr const char* msgid(const char* id) { return id; }  // [Translation.md#msgid]
 std::wstring translate(const char* msgid);  // translation of msgid for the language taken from LANGUAGE/LC_MESSAGES
 std::string translate_utf8(const char* msgid);  // [Translation.md#translate_utf8]

@@ -299,6 +299,10 @@ msgstr "Якщо користувач хоче створити нову син�
 msgid "chat_create_sync"
 msgstr "Створити синхронізацію…"
 
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr "Каталог повідомлень у %1 не відповідає цій версії Autofilesync; встановіть файли locale з цієї збірки. Доти бракуватиме текстів, зокрема в помічнику."
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Не вдалося скоротити файл журналу: "

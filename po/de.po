@@ -306,6 +306,10 @@ msgstr "Wenn der Nutzer eine neue Synchronisation anlegen möchte und Quelle und
 msgid "chat_create_sync"
 msgstr "Synchronisation anlegen…"
 
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr "Die Übersetzungen in %1 passen nicht zu dieser Programmversion; bitte die locale-Dateien dieses Builds installieren. Bis dahin fehlen Texte, auch im Assistenten."
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Logdatei konnte nicht gekuerzt werden: "

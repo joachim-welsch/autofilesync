@@ -314,6 +314,10 @@ msgstr ""
 msgid "chat_create_sync"
 msgstr ""
 
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr ""
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr ""

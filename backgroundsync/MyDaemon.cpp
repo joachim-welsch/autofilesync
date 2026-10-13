@@ -60,6 +60,8 @@ void MyDaemon::load_config()
     Config::instance().read(Config::instance().pathname());
     translation::set_language(Config::instance().settings().language());  // the language chosen in the GUI, also after a reload
     Logging::instance().open_file();  // read() leaves the file closed when the configured name equals the default name
+    if (const auto mismatch = translation::catalogue_mismatch())  // [MyDaemon.md#catalogue-check]
+        log_warning(*mismatch);
 }
 
 void MyDaemon::reload_config()

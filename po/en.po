@@ -306,6 +306,10 @@ msgstr "If the user wants to set up a new synchronisation and has named source a
 msgid "chat_create_sync"
 msgstr "Create synchronisation…"
 
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr "The message catalogue in %1 does not belong to this version of Autofilesync; install the locale files of this build. Until then texts are missing, in the assistant too."
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "The log file could not be shortened: "

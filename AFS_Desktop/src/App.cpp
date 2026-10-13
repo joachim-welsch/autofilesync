@@ -81,6 +81,10 @@ bool App::OnInit()
 
 
 	MainWindow *main = new MainWindow(nullptr, tul(id::MAINWINDOW), wxEmptyString);  // the title is set from the configuration path
+    if (const auto mismatch = translation::catalogue_mismatch()) {  // [App.md#catalogue-check]
+        log_warning(*mismatch);
+        wxLogWarning("%s", *mismatch);
+    }
 	if (consoleMode_) {
 		main->setConsoleMode();
 		main->syncInterface().runConsoleSync();

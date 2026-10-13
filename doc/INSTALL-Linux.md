@@ -336,7 +336,12 @@ git pull
 scripts/build.sh -r
 sudo install -m 755 build/Release/autofilesync /opt/autofilesync/autofilesync
 sudo install -m 644 help/* /opt/autofilesync/help/
+for l in build/Release/locale/*/; do l=$(basename "$l"); sudo install -m 644 build/Release/locale/$l/LC_MESSAGES/autofilesync.mo /usr/share/locale/$l/LC_MESSAGES/; done
 ```
+
+Die Übersetzungen gehören zu jeder Aktualisierung dazu: Ein neues Programm mit
+den alten Katalogen zeigt für neue Texte nur Schlüssel wie
+`assistant_sync_proposal_instruction` und meldet das beim Start als Warnung.
 
 Ist der Hintergrunddienst installiert, aktualisiert ihn `install.sh`; es stoppt
 ihn vorher und startet ihn danach wieder:

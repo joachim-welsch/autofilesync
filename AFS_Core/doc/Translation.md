@@ -106,6 +106,33 @@ recode to the charset of the current locale.
 dgettext() instead of gettext(): the core must not depend on whichever domain the hosting
 program set last.
 
+## missing-translation
+
+A translation that is missing is logged once per message id, as a warning with the id: the
+bare key is what the user sees, and until now nothing said why - a program copied over an
+installation whose catalogues stayed behind looked like a model that ignores its prompt. Only
+while a catalogue is bound (its header translates), checked at that moment and not cached: a
+test binary without catalogues, or one that just restored the C locale, would otherwise warn
+about every message.
+Logging translates its own messages ("log_message_repeated"), so the report guards against
+re-entering itself on the same thread.
+
+## catalogue_mismatch
+
+The message, if the catalogues gettext found were not built with this program: every catalogue
+carries the stamp of the message ids it was compiled from (see cmake/CatalogueStamp.cmake), the
+program the stamp of the ids it was compiled with. The directory named is the one gettext
+searches, asked back from bindtextdomain(): with the GUI installed to /opt and the catalogues
+in /usr/share/locale, the user would not guess which of the two is meant. Empty when the
+program was built without a stamp (the Visual Studio projects) or no catalogue is bound at all
+- then there is nothing to compare, and the bare ids are the known no-catalogue case.
+
+## english-safety-net
+
+The one message with a built-in English fallback: it reports that the catalogue is outdated,
+and an outdated catalogue is exactly one that may lack this message. Everywhere else the ids
+are keys without a fallback language (see no-libintl-fallback).
+
 ## no-libintl-fallback
 
 The branch for builds that define no AFS_WITH_GETTEXT hands the message id straight back, so the

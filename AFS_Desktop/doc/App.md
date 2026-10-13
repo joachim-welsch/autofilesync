@@ -26,6 +26,14 @@ locale.
 gettext takes the language from LANGUAGE/LC_MESSAGES, so a translated run needs no rebuild:
 LANGUAGE=en autofilesync.
 
+## catalogue-check
+
+Catalogues of another version (Translation.md#catalogue_mismatch) show bare ids in the GUI and
+hand them to the assistant as its instructions, which then looks like a bad model. Checked
+once the main window has read the configuration: the log file is opened by the configured
+path, and a line logged before that is dropped. wxLogWarning queues the message until the
+event loop runs, so startup goes on; the log line is for a headless (console mode) start.
+
 ## log-single-instance
 
 wxLogError alone is easy to miss headlessly (a cron/systemd --console trigger with no display

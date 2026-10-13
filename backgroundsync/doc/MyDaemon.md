@@ -23,3 +23,10 @@ reopened as at start, because the logging setup is part of the file.
 A file that fails to read leaves the configuration empty until it is saved again; Config::read
 records the modification time before parsing, so the defective file is not re-read once a
 second.
+
+## catalogue-check
+
+Catalogues of another version (Translation.md#catalogue_mismatch) are reported after the
+configuration is read, in its language and into the log file it names - earlier the file is
+not open yet and the line would be dropped. Repeated on every reload, which is when an
+updated installation's catalogues would start to match again.

@@ -299,6 +299,10 @@ msgstr "Si l'utilisateur veut créer une nouvelle synchronisation et a indiqué 
 msgid "chat_create_sync"
 msgstr "Créer la synchronisation…"
 
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr "Le catalogue de messages dans %1 ne correspond pas à cette version d'Autofilesync ; installez les fichiers locale de cette compilation. D'ici là, des textes manquent, y compris dans l'assistant."
+
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
 msgstr "Le fichier journal n'a pas pu être raccourci : "
