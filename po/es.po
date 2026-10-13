@@ -299,6 +299,10 @@ msgstr "Si el usuario quiere crear una nueva sincronización y ha indicado orige
 msgid "assistant_sync_proposal_summary"
 msgstr "Propuesta: sincronización \"%1\" (%2) de %3 a %4. Revísala y créala con \"%5\"."
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_extraction"
+msgstr "¿Quería el usuario crear una nueva sincronización con su última pregunta y nombró origen y destino? Entonces responde solo con el objeto JSON {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} con las rutas de la pregunta; si no, solo con null."
+
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr "Crear sincronización…"

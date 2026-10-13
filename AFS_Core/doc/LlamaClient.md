@@ -125,10 +125,43 @@ range; then the cache is cleared and the whole prompt decoded, as without reuse.
 At least the last prompt token is always decoded again: sampling needs its logits, and those
 are not kept in the cache.
 
+## complete
+
+One prompt, one answer: templating, the size check, decoding and generation, shared by the
+free answer and the extraction pass. The caller holds mutex_ and has loaded the model.
+
+## with_proposal
+
+The safety net for the proposal block (SyncProposal.md#instruction). When the user named two
+paths and the free answer carries no block, the client asks the model once more, as a further
+turn after its own answer, for the object alone and under the grammar that only allows the
+object or null. The result is appended to the answer in the fenced form, so the dialog, the
+history and parse() see what a model that followed the instruction would have written. The
+extra turn costs a few seconds, only in that case; without it the user saw an answer that
+explained how to do it by hand and no button, and read that as the assistant not working.
+
+## no-proposal-from-log
+
+analyze_log answers without the extraction pass: a log excerpt is full of paths, so the
+trigger would fire on every log question and the model could read a proposal into paths that
+only appear in log lines.
+
+## sample-accepts
+
+llama_sampler_sample() already feeds the chosen token back into the sampler chain; a second
+llama_sampler_accept() goes unnoticed by top-k and temperature but makes the grammar sampler
+consume the token twice, and it then aborts with an empty grammar stack on the first token.
+
+## grammar-first
+
+The grammar sampler comes first in the chain so that top-k, top-p and temperature choose among
+the tokens the grammar still allows, as llama.cpp's own examples order them.
+
 ## generate
 
 Samples until an end-of-generation token or the token budget; every token but the final
-end-of-generation one is decoded, so it ends up in the cache for the next turn.
+end-of-generation one is decoded, so it ends up in the cache for the next turn. With a grammar
+the sampling is constrained to it (see grammar-first).
 
 ## prompt-size-check
 

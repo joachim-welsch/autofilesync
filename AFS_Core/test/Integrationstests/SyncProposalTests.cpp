@@ -21,6 +21,7 @@
 #include <clocale>
 #include <string>
 #include "ScopedEnv.h"
+#include "StrUtil.h"
 #include "Translation.h"
 
 using namespace AFS_Core;
@@ -104,6 +105,33 @@ TEST(SyncProposalTests, InstructionNamesTypesAndFields)  // [SyncProposalTests.m
     EXPECT_NE(instruction.find(tree), wstring::npos) << instruction;
     EXPECT_NE(instruction.find(L"\"source\""), wstring::npos) << instruction;
     EXPECT_NE(instruction.find(L"\"target\""), wstring::npos) << instruction;
+}
+
+TEST(SyncProposalTests, TwoPathsInAQuestionTriggerTheExtraction)  // [SyncProposalTests.md#TwoPathsInAQuestionTriggerTheExtraction]
+{
+    EXPECT_TRUE(sync_proposal::names_two_paths(L"Erstelle eine Synchronisation names Test1, Quelle /home/jw/a.txt Ziel: /tmp"));
+    EXPECT_TRUE(sync_proposal::names_two_paths(L"Sichere C:\\Daten nach PiSpoccia:/home/pi/mirror"));
+    EXPECT_FALSE(sync_proposal::names_two_paths(L"Lege eine Synchronisation von Fotos auf das NAS an."));
+    EXPECT_FALSE(sync_proposal::names_two_paths(L"Was liegt in /tmp?"));
+}
+
+TEST(SyncProposalTests, GrammarAllowsOnlyObjectOrNull)
+{
+    const std::string grammar = sync_proposal::grammar();
+    EXPECT_NE(grammar.find("root ::= object | \"null\""), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find("\\\"source\\\""), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find("\\\"target\\\""), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find(util::wstring_to_string(sync_item_type_to_str(SyncItemType::Tree))), std::string::npos) << grammar;
+}
+
+TEST(SyncProposalTests, ExtractedObjectBecomesAParsableBlock)
+{
+    const wstring block = sync_proposal::as_block(L"{\"name\": \"Test1\", \"source\": \"/a\", \"target\": \"/b\", \"type\": \"Datei\"}");
+    const auto item = sync_proposal::parse(L"Das geht so:\n" + block);
+    ASSERT_TRUE(item.has_value());
+    EXPECT_EQ(item->name(), L"Test1");
+    EXPECT_EQ(item->sync_item_type(), SyncItemType::File);
+    EXPECT_EQ(sync_proposal::without_block(L"Das geht so:\n" + block), L"Das geht so:");
 }
 
 TEST(SyncProposalTests, DescriptionNamesItemAndButton)  // [SyncProposalTests.md#DescriptionNamesItemAndButton]

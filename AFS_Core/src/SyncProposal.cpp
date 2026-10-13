@@ -20,6 +20,7 @@
 #include "SyncProposal.h"
 #include <sstream>
 #include <boost/property_tree/json_parser.hpp>
+#include "StrUtil.h"
 #include "Translation.h"
 
 namespace AFS_Core {
@@ -125,6 +126,40 @@ wstring describe(const SyncItem& proposal)
 {
     return translation::translate("assistant_sync_proposal_summary", {proposal.name(), sync_item_type_to_str(proposal.sync_item_type()),
         proposal.source(), proposal.target(), translation::translate("chat_create_sync")});
+}
+
+bool names_two_paths(const wstring& question)
+{
+    std::wistringstream words(question);
+    int paths = 0;
+    for (wstring word; words >> word;)
+        if (word.find_first_of(L"/\\") != wstring::npos && ++paths == 2)  // [SyncProposal.md#names_two_paths]
+            return true;
+    return false;
+}
+
+wstring extraction_question()
+{
+    return translation::translate("assistant_sync_proposal_extraction");
+}
+
+std::string grammar()
+{
+    std::string types;
+    for (const SyncItemType type : {SyncItemType::File, SyncItemType::Dir, SyncItemType::Tree})
+        types += (types.empty() ? "\"\\\"" : " | \"\\\"") + util::wstring_to_string(sync_item_type_to_str(type)) + "\\\"\"";
+    return "root ::= object | \"null\"\n"
+        "object ::= \"{\" ws \"\\\"name\\\"\" ws \":\" ws string \",\" ws \"\\\"source\\\"\" ws \":\" ws string \",\" ws"
+        " \"\\\"target\\\"\" ws \":\" ws string \",\" ws \"\\\"type\\\"\" ws \":\" ws type ws \"}\"\n"
+        "type ::= " + types + "\n"
+        "string ::= \"\\\"\" char* \"\\\"\"\n"
+        "char ::= [^\"\\\\\\x00-\\x1F] | \"\\\\\" [\"\\\\/bfnrt]\n"
+        "ws ::= [ \\t\\n]*\n";
+}
+
+wstring as_block(const wstring& json)
+{
+    return wstring(FENCE) + L"sync\n" + json + L"\n" + FENCE;
 }
 
 }

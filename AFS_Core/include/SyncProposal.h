@@ -28,6 +28,10 @@ std::wstring instruction();  // [SyncProposal.md#instruction]
 std::optional<SyncItem> parse(const std::wstring& answer);  // [SyncProposal.md#parse]
 std::wstring without_block(const std::wstring& answer);  // [SyncProposal.md#without_block]
 std::wstring describe(const SyncItem& proposal);  // [SyncProposal.md#describe]
+bool names_two_paths(const std::wstring& question);  // [SyncProposal.md#names_two_paths]
+std::wstring extraction_question();  // [SyncProposal.md#extraction]
+std::string grammar();  // [SyncProposal.md#grammar]
+std::wstring as_block(const std::wstring& json);  // [SyncProposal.md#as_block]
 }
 
 } // namespace AFS_Core

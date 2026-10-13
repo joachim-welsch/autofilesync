@@ -306,6 +306,10 @@ msgstr "Wenn der Nutzer eine neue Synchronisation anlegen möchte und Quelle und
 msgid "assistant_sync_proposal_summary"
 msgstr "Vorschlag: Synchronisation \"%1\" (%2) von %3 nach %4. Mit \"%5\" prüfen und anlegen."
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_extraction"
+msgstr "Wollte der Nutzer mit seiner letzten Frage eine neue Synchronisation anlegen und hat dabei Quelle und Ziel genannt? Dann antworte nur mit dem JSON-Objekt {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} mit den Pfaden aus der Frage, sonst nur mit null."
+
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr "Synchronisation anlegen…"

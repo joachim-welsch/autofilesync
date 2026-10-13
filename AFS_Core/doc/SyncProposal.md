@@ -39,6 +39,34 @@ directory tree, the most common choice; the user sees and can change it in the d
 The answer as shown to the user: the block is replaced by the button, so the JSON would only
 confuse. The full answer still goes into the history so the model sees what it proposed.
 
+## names_two_paths
+
+Whether a question can carry a complete proposal at all: a new synchronisation needs a source
+and a target, and the user names them as paths. A word containing a slash or backslash counts
+as a path, on Linux, on Windows and in the SSH form "account:/path". Two such words are the
+trigger for the extraction pass (see LlamaClient.md#with_proposal); questions without paths
+never pay for it.
+
+## extraction
+
+The question the client appends after a free answer that carried no block although the user
+named two paths. A 3B model does not always follow the instruction to append a block when it
+also writes an explanation; asked only for the object, with the grammar enforcing the form, it
+is far more reliable. "null" is the way out when the user did not want a new synchronisation,
+so the model is not pushed into inventing one.
+
+## grammar
+
+GBNF for the extraction pass: either the object with exactly the four fields or the word null.
+The type is restricted to the three names the dialog shows, so the model cannot produce a type
+parse() would have to guess at. Strings exclude unescaped quotes, backslashes and line breaks,
+which keeps a model that starts rambling from producing an unterminated string.
+
+## as_block
+
+Wraps the extracted object the way the instruction asks for it in a free answer, so that the
+answer in the history, parse() and without_block() see one and the same form.
+
 ## describe
 
 One sentence naming the proposed item and the button that opens it. Small models often answer

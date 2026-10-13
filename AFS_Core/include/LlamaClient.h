@@ -48,8 +48,11 @@ class LlamaClient {  // [LlamaClient.md#LlamaClient]
     std::wstring build_prompt(const ChatHistory& history) const;  // [LlamaClient.md#build_prompt]
     std::vector<std::int32_t> tokenize(const std::wstring& prompt) const;
     bool decode_prompt(std::vector<std::int32_t>& tokens);  // [LlamaClient.md#decode_prompt]
-    std::string generate(const ChatPieceSink& on_piece);  // [LlamaClient.md#generate]
+    std::string generate(const ChatPieceSink& on_piece, const std::string& grammar = {});  // [LlamaClient.md#generate]
     void forget_cache();
+    ChatReply complete(const ChatHistory& history, const ChatPieceSink& on_piece, const std::string& grammar);  // [LlamaClient.md#complete]
+    ChatReply reply_to(const ChatHistory& history, const ChatPieceSink& on_piece);
+    ChatReply with_proposal(const ChatHistory& history, ChatReply reply);  // [LlamaClient.md#with_proposal]
 public:
     static bool available();  // [LlamaClient.md#available]
     static std::wstring missing_model_hint();  // [LlamaClient.md#missing_model_hint]

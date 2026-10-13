@@ -184,10 +184,12 @@ bool LlamaClient::decode_prompt(std::vector<llama_token>& tokens)
     return true;
 }
 
-string LlamaClient::generate(const ChatPieceSink& on_piece)
+string LlamaClient::generate(const ChatPieceSink& on_piece, const string& grammar)
 {
     std::unique_ptr<llama_sampler, void(*)(llama_sampler*)> sampler(
         llama_sampler_chain_init(llama_sampler_chain_default_params()), llama_sampler_free);
+    if (!grammar.empty())
+        llama_sampler_chain_add(sampler.get(), llama_sampler_init_grammar(vocab_, grammar.c_str(), "root"));  // [LlamaClient.md#grammar-first]
     llama_sampler_chain_add(sampler.get(), llama_sampler_init_top_k(40));
     llama_sampler_chain_add(sampler.get(), llama_sampler_init_top_p(0.9f, 1));
     llama_sampler_chain_add(sampler.get(), llama_sampler_init_temp(0.7f));
@@ -197,8 +199,7 @@ string LlamaClient::generate(const ChatPieceSink& on_piece)
     std::size_t passed_on = 0;
     constexpr int MAX_NEW_TOKENS = 2048;  // [LlamaClient.md#token-budget]
     for (int i = 0; i < MAX_NEW_TOKENS; ++i) {
-        llama_token token = llama_sampler_sample(sampler.get(), context_.get(), -1);
-        llama_sampler_accept(sampler.get(), token);
+        llama_token token = llama_sampler_sample(sampler.get(), context_.get(), -1);  // [LlamaClient.md#sample-accepts]
         if (llama_vocab_is_eog(vocab_, token))
             break;
         char piece[256];
@@ -218,14 +219,8 @@ string LlamaClient::generate(const ChatPieceSink& on_piece)
     return answer;
 }
 
-ChatReply LlamaClient::send(const ChatHistory& history, const ChatPieceSink& on_piece)
+ChatReply LlamaClient::complete(const ChatHistory& history, const ChatPieceSink& on_piece, const string& grammar)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    wstring error;
-    if (!ensure_loaded(error))
-        return { false, error };
-    if (history.empty())
-        return { false, translation::translate("assistant_nothing_to_send") };
     const wstring prompt = build_prompt(history);
     if (prompt.empty())
         return { false, translation::translate("assistant_unknown_chat_format") };
@@ -236,10 +231,39 @@ ChatReply LlamaClient::send(const ChatHistory& history, const ChatPieceSink& on_
     }
     if (!decode_prompt(tokens))
         return { false, translation::translate("assistant_prompt_failed") };
-    const string answer = generate(on_piece);
+    const string answer = generate(on_piece, grammar);
     if (answer.empty())
         return { false, translation::translate("assistant_empty_answer") };
     return { true, string_to_wstring(answer) };
+}
+
+ChatReply LlamaClient::with_proposal(const ChatHistory& history, ChatReply reply)
+{
+    if (!reply.ok || sync_proposal::parse(reply.text) || !sync_proposal::names_two_paths(history.back().text))  // [SyncProposal.md#names_two_paths]
+        return reply;
+    ChatHistory extraction = history;
+    extraction.push_back({ false, reply.text });
+    extraction.push_back({ true, sync_proposal::extraction_question() });  // [SyncProposal.md#extraction]
+    const ChatReply json = complete(extraction, {}, sync_proposal::grammar());
+    if (json.ok && sync_proposal::parse(json.text))
+        reply.text += L"\n" + sync_proposal::as_block(json.text);
+    return reply;
+}
+
+ChatReply LlamaClient::reply_to(const ChatHistory& history, const ChatPieceSink& on_piece)
+{
+    wstring error;
+    if (!ensure_loaded(error))
+        return { false, error };
+    if (history.empty())
+        return { false, translation::translate("assistant_nothing_to_send") };
+    return complete(history, on_piece, {});
+}
+
+ChatReply LlamaClient::send(const ChatHistory& history, const ChatPieceSink& on_piece)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return with_proposal(history, reply_to(history, on_piece));
 }
 
 ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& log_excerpt, const ChatPieceSink& on_piece)
@@ -251,7 +275,8 @@ ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& lo
     ChatHistory with_excerpt = history;
     with_excerpt.back().text = translation::translate(LOG_ANALYSIS_INSTRUCTION) + L"\n\n" + log_excerpt +
         L"\n\n" + translation::translate("assistant_question_label") + with_excerpt.back().text;
-    return send(with_excerpt, on_piece);
+    std::lock_guard<std::mutex> lock(mutex_);
+    return reply_to(with_excerpt, on_piece);  // [LlamaClient.md#no-proposal-from-log]
 }
 
 } // namespace AFS_Core

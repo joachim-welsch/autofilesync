@@ -314,6 +314,10 @@ msgstr ""
 msgid "assistant_sync_proposal_summary"
 msgstr ""
 
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_extraction"
+msgstr ""
+
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr ""
