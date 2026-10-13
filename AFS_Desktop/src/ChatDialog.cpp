@@ -25,6 +25,7 @@ using namespace AFS_Core;
 
 wxBEGIN_EVENT_TABLE(ChatDialog, wxDialog)
     EVT_BUTTON(ID_CHAT_SEND, ChatDialog::onSend)
+    EVT_THREAD(ID_CHAT_PIECE, ChatDialog::onPiece)
     EVT_THREAD(ID_CHAT_REPLY, ChatDialog::onReply)
     EVT_CLOSE(ChatDialog::onClose)
 wxEND_EVENT_TABLE()
@@ -72,12 +73,27 @@ ChatDialog::~ChatDialog()
     pending_->dialog = nullptr;
 }
 
-void ChatDialog::appendTurn(const wxString& speaker, const wxString& text)
+void ChatDialog::appendSpeaker(const wxString& speaker)
 {
     if (!transcript_->IsEmpty())
         transcript_->AppendText("\n");
-    transcript_->AppendText(speaker + ":\n" + text + "\n");
+    transcript_->AppendText(speaker + ":\n");
+}
+
+void ChatDialog::appendTurn(const wxString& speaker, const wxString& text)
+{
+    appendSpeaker(speaker);
+    transcript_->AppendText(text + "\n");
     transcript_->ShowPosition(transcript_->GetLastPosition());
+}
+
+bool ChatDialog::endStreamedTurn()
+{
+    if (!answerStreaming_)
+        return false;
+    transcript_->AppendText("\n");
+    answerStreaming_ = false;
+    return true;
 }
 
 void ChatDialog::setWaiting(bool waiting)
@@ -87,11 +103,18 @@ void ChatDialog::setWaiting(bool waiting)
     status_->SetLabel(waiting ? translation::translate("chat_answering") : translation::translate("chat_ctrl_enter"));
 }
 
-void ChatDialog::runAsync(std::function<ChatReply()> call)
+void ChatDialog::runAsync(std::function<ChatReply(const ChatPieceSink&)> call)
 {
     setWaiting(true);
     std::thread([call = std::move(call), pending = pending_]() {
-        const ChatReply reply = call();
+        const ChatReply reply = call([&pending](const std::wstring& piece) {
+            std::lock_guard<std::mutex> lock(pending->mutex);
+            if (pending->dialog == nullptr)
+                return;
+            wxThreadEvent* event = new wxThreadEvent(wxEVT_THREAD, ID_CHAT_PIECE);
+            event->SetString(piece);
+            wxQueueEvent(pending->dialog, event);  // [ChatDialog.md#pieces-before-reply]
+        });
         std::lock_guard<std::mutex> lock(pending->mutex);
         if (pending->dialog == nullptr)
             return;
@@ -113,18 +136,32 @@ void ChatDialog::onSend(wxCommandEvent&)
     const ChatHistory snapshot = history_;  // [ChatDialog.md#history-snapshot]
     if (looks_like_log_question(question.ToStdWstring())) {  // [ChatDialog.md#log-excerpt-per-request]
         const std::wstring excerpt = read_recent_log_entries(maxLogExcerptChars);
-        runAsync([client = client_, snapshot, excerpt]() { return client->analyze_log(snapshot, excerpt); });
+        runAsync([client = client_, snapshot, excerpt](const ChatPieceSink& on_piece) {
+            return client->analyze_log(snapshot, excerpt, on_piece);
+        });
     }
     else
-        runAsync([client = client_, snapshot]() { return client->send(snapshot); });
+        runAsync([client = client_, snapshot](const ChatPieceSink& on_piece) { return client->send(snapshot, on_piece); });
+}
+
+void ChatDialog::onPiece(wxThreadEvent& event)
+{
+    if (!answerStreaming_) {
+        appendSpeaker(translation::translate("chat_assistant"));
+        answerStreaming_ = true;
+    }
+    transcript_->AppendText(event.GetString());
+    transcript_->ShowPosition(transcript_->GetLastPosition());
 }
 
 void ChatDialog::onReply(wxThreadEvent& event)
 {
     setWaiting(false);
+    const bool streamed = endStreamedTurn();
     const wxString text = event.GetString();
     if (event.GetInt() == 1) {
-        appendTurn(translation::translate("chat_assistant"), text);
+        if (!streamed)
+            appendTurn(translation::translate("chat_assistant"), text);
         history_.push_back({ false, text.ToStdWstring() });  // [ChatDialog.md#only-answers-in-history]
     }
     else

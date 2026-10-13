@@ -7,7 +7,7 @@ Module comment for ChatLogQuestionTest.cpp.
 Writes realistic entries into the sandbox's own log file, repeated until the file is at least as
 large as ChatDialog's excerpt cap (maxLogExcerptChars in ChatDialog.cpp). Two bugs only showed
 up right at that boundary, not with a handful of lines: an empty log short-circuits
-LlamaClient::analyzeLog() before it ever builds a prompt, and a short excerpt tokenizes to well
+LlamaClient::analyze_log() before it ever builds a prompt, and a short excerpt tokenizes to well
 under LlamaClient's n_batch limit either way - only a real, near-the-cap excerpt exercises the
 path that used to crash the whole process (GGML_ASSERT(n_tokens_all <= n_batch)) and then, once
 that was guarded against by raising n_batch instead of capping the prompt, hung for over an hour

@@ -117,6 +117,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\ModelLocation.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\CpuTopology.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\MountedDrives.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -459,6 +462,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\ModelLocation.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\CpuTopology.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp">

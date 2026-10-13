@@ -25,6 +25,13 @@ Ctrl+Enter is the keyboard way to send; the question in the transcript and the e
 are what the user sees at once, the answer follows in a minute or two, which is why this is a
 SlowGuiTest.
 
+## ChatAntwortErscheintWaehrendSieEntsteht
+
+The answer shows up in the transcript while the dialog still waits, and grows afterwards; a
+counting answer is long enough that its first piece arrives well before the last. The speaker
+line is counted because onReply() must close the streamed turn, not append the answer again.
+Skipped without a model: the sandbox moves HOME, so only AUTOFILESYNC_LLAMA_MODEL can name one.
+
 ## no-model
 
 Without a model the reply is an immediate "Fehler:" turn and the controls are enabled again

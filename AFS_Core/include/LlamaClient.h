@@ -18,8 +18,12 @@
  */
 #pragma once
 
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <vector>
 #include "ChatTypes.h"
 
 struct llama_model;
@@ -27,6 +31,8 @@ struct llama_context;
 struct llama_vocab;
 
 namespace AFS_Core {
+
+using ChatPieceSink = std::function<void(const std::wstring& piece)>;  // [LlamaClient.md#ChatPieceSink]
 
 class LlamaClient {  // [LlamaClient.md#LlamaClient]
     struct ModelDeleter { void operator()(llama_model*) const; };
@@ -36,9 +42,14 @@ class LlamaClient {  // [LlamaClient.md#LlamaClient]
     std::unique_ptr<llama_model, ModelDeleter>      model_;
     std::unique_ptr<llama_context, ContextDeleter>  context_;
     const llama_vocab*                              vocab_ = nullptr;
+    std::vector<std::int32_t>                       cached_tokens_;  // [LlamaClient.md#cached_tokens_]
 
     bool ensure_loaded(std::wstring& error);
     std::wstring build_prompt(const ChatHistory& history) const;  // [LlamaClient.md#build_prompt]
+    std::vector<std::int32_t> tokenize(const std::wstring& prompt) const;
+    bool decode_prompt(std::vector<std::int32_t>& tokens);  // [LlamaClient.md#decode_prompt]
+    std::string generate(const ChatPieceSink& on_piece);  // [LlamaClient.md#generate]
+    void forget_cache();
 public:
     static bool available();  // [LlamaClient.md#available]
     static std::wstring missing_model_hint();  // [LlamaClient.md#missing_model_hint]
@@ -46,8 +57,9 @@ public:
     ~LlamaClient();
     LlamaClient(const LlamaClient&) = delete;
     LlamaClient& operator=(const LlamaClient&) = delete;
-    ChatReply send(const ChatHistory& history);  // [LlamaClient.md#send]
-    ChatReply analyze_log(const ChatHistory& history, const std::wstring& log_excerpt);  // [LlamaClient.md#analyze_log]
+    ChatReply send(const ChatHistory& history, const ChatPieceSink& on_piece = {});  // [LlamaClient.md#send]
+    ChatReply analyze_log(const ChatHistory& history, const std::wstring& log_excerpt,
+        const ChatPieceSink& on_piece = {});  // [LlamaClient.md#analyze_log]
 };
 
 } // namespace AFS_Core

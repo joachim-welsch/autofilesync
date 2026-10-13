@@ -15,7 +15,17 @@ the dialog is gone is dropped instead of being posted to a destroyed window.
 
 ## runAsync
 
-Runs call() on a worker thread and posts its ChatReply back to onReply().
+Runs call() on a worker thread and posts its ChatReply back to onReply(); the pieces of the
+answer that call() passes to its ChatPieceSink go to onPiece() while it runs.
+
+## answerStreaming_
+
+Set once the first piece of an answer is in the transcript: the speaker line is written then,
+and onReply() only closes the turn instead of writing the whole answer a second time.
+
+## pieces-before-reply
+
+Queued from the same thread as the final reply, so wx delivers every piece before onReply().
 
 ## client_
 
@@ -30,7 +40,7 @@ conversation back via FindWindowById().
 ## maxLogExcerptChars
 
 Bounded by response time, not by n_batch/n_ctx: fitting inside the token budget (see
-LlamaClient::ensureLoaded()) isn't enough on its own - CPU prompt processing of a
+LlamaClient::ensure_loaded()) isn't enough on its own - CPU prompt processing of a
 several-thousand-token excerpt measured minutes, not seconds, on ordinary hardware (see the
 LogFrageWirdImChatBeantwortet GUI test, which used to time out at 3000 chars). 500 chars
 measured well under a minute for a real answer; kept small deliberately since larger values were
@@ -55,7 +65,7 @@ runs, so the member must not be read from there on.
 ## log-excerpt-per-request
 
 A question about the log gets the current excerpt folded into just this request (see
-LlamaClient::analyzeLog); history_ itself only ever keeps the plain question, or every later
+LlamaClient::analyze_log); history_ itself only ever keeps the plain question, or every later
 turn would resend the whole excerpt.
 
 ## only-answers-in-history

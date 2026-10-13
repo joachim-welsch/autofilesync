@@ -39,18 +39,22 @@ private:
     };
 
     void onSend(wxCommandEvent&);
+    void onPiece(wxThreadEvent&);
     void onReply(wxThreadEvent&);
     void onClose(wxCloseEvent&);
     void onInputKey(wxKeyEvent&);
+    void appendSpeaker(const wxString& speaker);
     void appendTurn(const wxString& speaker, const wxString& text);
+    bool endStreamedTurn();
     void setWaiting(bool waiting);
-    void runAsync(std::function<ChatReply()> call);  // [ChatDialog.md#runAsync]
+    void runAsync(std::function<ChatReply(const ChatPieceSink&)> call);  // [ChatDialog.md#runAsync]
 
     wxTextCtrl*   transcript_ = nullptr;
     wxTextCtrl*   input_ = nullptr;
     wxButton*     sendButton_ = nullptr;
     wxStaticText* status_ = nullptr;
     ChatHistory   history_;
+    bool          answerStreaming_ = false;  // [ChatDialog.md#answerStreaming_]
     std::shared_ptr<LlamaClient> client_ = std::make_shared<LlamaClient>();  // [ChatDialog.md#client_]
     std::shared_ptr<Pending> pending_ = std::make_shared<Pending>();
 
@@ -61,5 +65,6 @@ enum {
     ID_CHAT_INPUT = wxID_HIGHEST + 200,
     ID_CHAT_SEND,
     ID_CHAT_REPLY,
+    ID_CHAT_PIECE,
     ID_CHAT_TRANSCRIPT  // [ChatDialog.md#ID_CHAT_TRANSCRIPT]
 };

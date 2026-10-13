@@ -93,6 +93,7 @@ set(TEST_SOURCES
     CheckPathTests.cpp
     LogCutTests.cpp
     ModelLocationTests.cpp
+    CpuTopologyTests.cpp
     SyncSshFileTests.cpp
     SyncSshDirTests.cpp
     SyncSshTreeTests.cpp
@@ -102,6 +103,7 @@ set(TEST_SOURCES
 set(LIB_SOURCES
     ${LIB_DIR}/src/FilesystemUtil.cpp
     ${LIB_DIR}/src/ModelLocation.cpp
+    ${LIB_DIR}/src/CpuTopology.cpp
     ${LIB_DIR}/src/LogCut.cpp
     ${LIB_DIR}/src/Logging.cpp
     ${LIB_DIR}/src/LogEmail.cpp

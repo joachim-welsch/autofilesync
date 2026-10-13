@@ -18,12 +18,13 @@
  */
 #include "pch.h"
 #include "LlamaClient.h"
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
-#include <thread>
 #include <vector>
 #include <llama.h>
 #include <Logging.h>
+#include "CpuTopology.h"
 #include "ModelLocation.h"
 #include "Translation.h"
 #include "Util.h"
@@ -38,6 +39,24 @@ using util::wstring_to_string;
 namespace {
 constexpr const char* SYSTEM_PROMPT = translation::msgid("assistant_system_prompt");  // [LlamaClient.md#SYSTEM_PROMPT]
 constexpr const char* LOG_ANALYSIS_INSTRUCTION = translation::msgid("assistant_log_analysis_instruction");  // [LlamaClient.md#LOG_ANALYSIS_INSTRUCTION]
+
+std::size_t complete_utf8_length(const string& text)  // [LlamaClient.md#complete_utf8_length]
+{
+    const std::size_t size = text.size();
+    for (std::size_t back = 1; back <= std::min<std::size_t>(size, 4); ++back) {
+        const auto byte = static_cast<unsigned char>(text[size - back]);
+        if ((byte & 0xC0) == 0x80)
+            continue;
+        const std::size_t length = byte >= 0xF0 ? 4 : byte >= 0xE0 ? 3 : byte >= 0xC0 ? 2 : 1;
+        return length > back ? size - back : size;
+    }
+    return size;
+}
+
+std::size_t common_prefix(const std::vector<llama_token>& a, const std::vector<llama_token>& b)
+{
+    return static_cast<std::size_t>(std::mismatch(a.begin(), a.end(), b.begin(), b.end()).first - a.begin());
+}
 }
 
 void LlamaClient::ModelDeleter::operator()(llama_model* model) const { llama_model_free(model); }
@@ -76,9 +95,9 @@ bool LlamaClient::ensure_loaded(wstring& error)
         error = translation::translate("assistant_model_not_loadable") + path.wstring();
         return false;
     }
-    llama_context_params ctx_params = llama_context_default_params();
+    llama_context_params ctx_params = llama_context_default_params();  // [LlamaClient.md#batch-size]
     ctx_params.n_ctx = 8192;
-    const auto threads = static_cast<int32_t>(std::max(1u, std::thread::hardware_concurrency()));  // [LlamaClient.md#batch-size]
+    const auto threads = static_cast<int32_t>(cpu_topology::physical_cores());  // [CpuTopology.md#physical_cores]
     ctx_params.n_threads = threads;
     ctx_params.n_threads_batch = threads;
     llama_context* ctx = llama_init_from_model(model, ctx_params);
@@ -119,7 +138,84 @@ wstring LlamaClient::build_prompt(const ChatHistory& history) const
     }
 }
 
-ChatReply LlamaClient::send(const ChatHistory& history)
+std::vector<llama_token> LlamaClient::tokenize(const wstring& prompt) const
+{
+    const string utf8_prompt = wstring_to_string(prompt);
+    std::vector<llama_token> tokens(utf8_prompt.size() + 32);
+    int32_t n_tokens = llama_tokenize(vocab_, utf8_prompt.data(), static_cast<int32_t>(utf8_prompt.size()),
+        tokens.data(), static_cast<int32_t>(tokens.size()), true, true);
+    if (n_tokens < 0) {
+        tokens.resize(-n_tokens);
+        n_tokens = llama_tokenize(vocab_, utf8_prompt.data(), static_cast<int32_t>(utf8_prompt.size()),
+            tokens.data(), static_cast<int32_t>(tokens.size()), true, true);
+    }
+    tokens.resize(std::max(n_tokens, 0));
+    return tokens;
+}
+
+void LlamaClient::forget_cache()
+{
+    llama_memory_clear(llama_get_memory(context_.get()), true);
+    cached_tokens_.clear();
+}
+
+bool LlamaClient::decode_prompt(std::vector<llama_token>& tokens)
+{
+    llama_context* ctx = context_.get();
+    std::size_t reused = std::min(common_prefix(cached_tokens_, tokens), tokens.size() - 1);  // [LlamaClient.md#last-token-decoded]
+    if (llama_memory_seq_rm(llama_get_memory(ctx), 0, static_cast<llama_pos>(reused), -1))  // [LlamaClient.md#kv-cache-reuse]
+        cached_tokens_.resize(reused);
+    else {
+        forget_cache();
+        reused = 0;
+    }
+    const std::size_t batch = llama_n_batch(ctx);
+    for (std::size_t pos = reused; pos < tokens.size(); pos += batch) {  // [LlamaClient.md#batch-size]
+        const auto count = static_cast<int32_t>(std::min(batch, tokens.size() - pos));
+        if (llama_decode(ctx, llama_batch_get_one(tokens.data() + pos, count)) != 0) {
+            forget_cache();
+            return false;
+        }
+    }
+    cached_tokens_ = tokens;
+    return true;
+}
+
+string LlamaClient::generate(const ChatPieceSink& on_piece)
+{
+    std::unique_ptr<llama_sampler, void(*)(llama_sampler*)> sampler(
+        llama_sampler_chain_init(llama_sampler_chain_default_params()), llama_sampler_free);
+    llama_sampler_chain_add(sampler.get(), llama_sampler_init_top_k(40));
+    llama_sampler_chain_add(sampler.get(), llama_sampler_init_top_p(0.9f, 1));
+    llama_sampler_chain_add(sampler.get(), llama_sampler_init_temp(0.7f));
+    llama_sampler_chain_add(sampler.get(), llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
+
+    string answer;
+    std::size_t passed_on = 0;
+    constexpr int MAX_NEW_TOKENS = 2048;  // [LlamaClient.md#token-budget]
+    for (int i = 0; i < MAX_NEW_TOKENS; ++i) {
+        llama_token token = llama_sampler_sample(sampler.get(), context_.get(), -1);
+        llama_sampler_accept(sampler.get(), token);
+        if (llama_vocab_is_eog(vocab_, token))
+            break;
+        char piece[256];
+        const int32_t len = llama_token_to_piece(vocab_, token, piece, sizeof piece, 0, true);
+        if (len > 0)
+            answer.append(piece, len);
+        if (const std::size_t complete = complete_utf8_length(answer); on_piece && complete > passed_on) {
+            on_piece(string_to_wstring(answer.substr(passed_on, complete - passed_on)));
+            passed_on = complete;
+        }
+        if (llama_decode(context_.get(), llama_batch_get_one(&token, 1)) != 0) {
+            forget_cache();
+            break;
+        }
+        cached_tokens_.push_back(token);
+    }
+    return answer;
+}
+
+ChatReply LlamaClient::send(const ChatHistory& history, const ChatPieceSink& on_piece)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     wstring error;
@@ -130,55 +226,20 @@ ChatReply LlamaClient::send(const ChatHistory& history)
     const wstring prompt = build_prompt(history);
     if (prompt.empty())
         return { false, translation::translate("assistant_unknown_chat_format") };
-
-    llama_context* ctx = context_.get();
-    llama_memory_clear(llama_get_memory(ctx), true);  // [LlamaClient.md#kv-cache-cleared]
-
-    const string utf8_prompt = wstring_to_string(prompt);
-    std::vector<llama_token> tokens(utf8_prompt.size() + 32);
-    int32_t n_tokens = llama_tokenize(vocab_, utf8_prompt.data(), static_cast<int32_t>(utf8_prompt.size()),
-        tokens.data(), static_cast<int32_t>(tokens.size()), true, true);
-    if (n_tokens < 0) {
-        tokens.resize(-n_tokens);
-        n_tokens = llama_tokenize(vocab_, utf8_prompt.data(), static_cast<int32_t>(utf8_prompt.size()),
-            tokens.data(), static_cast<int32_t>(tokens.size()), true, true);
-    }
-    tokens.resize(n_tokens);
-    if (tokens.empty() || static_cast<uint32_t>(tokens.size()) >= llama_n_ctx(ctx)  // [LlamaClient.md#prompt-size-check]
-        || static_cast<uint32_t>(tokens.size()) >= llama_n_batch(ctx)) {
+    std::vector<llama_token> tokens = tokenize(prompt);
+    if (tokens.empty() || static_cast<uint32_t>(tokens.size()) >= llama_n_ctx(context_.get())) {  // [LlamaClient.md#prompt-size-check]
         log_error(L"LlamaClient: Prompt zu lang, Tokens: ", std::to_wstring(tokens.size()));
         return { false, translation::translate("assistant_conversation_too_long") };
     }
-    if (llama_decode(ctx, llama_batch_get_one(tokens.data(), static_cast<int32_t>(tokens.size()))) != 0)
+    if (!decode_prompt(tokens))
         return { false, translation::translate("assistant_prompt_failed") };
-
-    std::unique_ptr<llama_sampler, void(*)(llama_sampler*)> sampler(
-        llama_sampler_chain_init(llama_sampler_chain_default_params()), llama_sampler_free);
-    llama_sampler_chain_add(sampler.get(), llama_sampler_init_top_k(40));
-    llama_sampler_chain_add(sampler.get(), llama_sampler_init_top_p(0.9f, 1));
-    llama_sampler_chain_add(sampler.get(), llama_sampler_init_temp(0.7f));
-    llama_sampler_chain_add(sampler.get(), llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
-
-    string answer;
-    constexpr int MAX_NEW_TOKENS = 2048;  // [LlamaClient.md#token-budget]
-    for (int i = 0; i < MAX_NEW_TOKENS; ++i) {
-        llama_token token = llama_sampler_sample(sampler.get(), ctx, -1);
-        llama_sampler_accept(sampler.get(), token);
-        if (llama_vocab_is_eog(vocab_, token))
-            break;
-        char piece[256];
-        const int32_t len = llama_token_to_piece(vocab_, token, piece, sizeof piece, 0, true);
-        if (len > 0)
-            answer.append(piece, len);
-        if (llama_decode(ctx, llama_batch_get_one(&token, 1)) != 0)
-            break;
-    }
+    const string answer = generate(on_piece);
     if (answer.empty())
         return { false, translation::translate("assistant_empty_answer") };
     return { true, string_to_wstring(answer) };
 }
 
-ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& log_excerpt)
+ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& log_excerpt, const ChatPieceSink& on_piece)
 {
     if (history.empty())
         return { false, translation::translate("assistant_nothing_to_send") };
@@ -187,7 +248,7 @@ ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& lo
     ChatHistory with_excerpt = history;
     with_excerpt.back().text = translation::translate(LOG_ANALYSIS_INSTRUCTION) + L"\n\n" + log_excerpt +
         L"\n\n" + translation::translate("assistant_question_label") + with_excerpt.back().text;
-    return send(with_excerpt);
+    return send(with_excerpt, on_piece);
 }
 
 } // namespace AFS_Core

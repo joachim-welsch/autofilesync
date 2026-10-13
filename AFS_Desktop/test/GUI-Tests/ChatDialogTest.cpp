@@ -20,6 +20,7 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "ChatDialog.h"
+#include "ModelLocation.h"
 #include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
@@ -67,6 +68,14 @@ public:
 private:
     ChatControls& chat_;
 };
+
+std::size_t countOf(const wxString& text, const wxString& part)
+{
+    std::size_t count = 0;
+    for (std::size_t pos = text.find(part); pos != wxString::npos; pos = text.find(part, pos + part.length()))
+        ++count;
+    return count;
+}
 
 bool pressControlEnter(wxWindow* input)
 {
@@ -125,6 +134,29 @@ TEST_F(SlowGuiTest, ChatStrgEingabeSendet)  // [ChatDialogTest.md#ChatStrgEingab
         << "Der Dialog wartet nach dem Senden nicht auf die Antwort.";
     ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
     EXPECT_TRUE(valueOf(chat.transcript).Contains(AFS_Core::translation::translate("chat_assistant") + L":") || valueOf(chat.transcript).Contains(AFS_Core::translation::translate("error") + L":"));
+}
+
+TEST_F(SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest.md#ChatAntwortErscheintWaehrendSieEntsteht]
+{
+    if (!LlamaClient::available())
+        GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
+    ChatControls chat = openChat(mainWindow());
+    ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
+    const HiddenChat hidden(chat);
+    ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
+    ASSERT_TRUE(replaceText(chat.input, "Zaehle von 1 bis 40, jede Zahl in einer eigenen Zeile"));
+    const wxString speaker = AFS_Core::translation::translate("chat_assistant") + L":";
+    const std::size_t answersBefore = countOf(valueOf(chat.transcript), speaker);
+
+    ASSERT_TRUE(pressControlEnter(chat.input));
+
+    ASSERT_TRUE(waitUntil([&] { return countOf(valueOf(chat.transcript), speaker) > answersBefore || chat.send->IsEnabled(); },
+        REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
+    EXPECT_FALSE(chat.send->IsEnabled()) << "Die Antwort erschien erst, als sie fertig war.";
+    const wxString early = valueOf(chat.transcript);
+    ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
+    EXPECT_GT(valueOf(chat.transcript).length(), early.length()) << "Die Antwort wuchs nach dem ersten Stück nicht weiter.";
+    EXPECT_EQ(countOf(valueOf(chat.transcript), speaker), answersBefore + 1) << "Die fertige Antwort wurde ein zweites Mal angehängt.";
 }
 
 }

@@ -123,6 +123,9 @@
     <ClInclude Include="$(LibDir)\include\ModelLocation.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\CpuTopology.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\MountedDrives.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -254,6 +257,9 @@
     <ClCompile Include="ModelLocationTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="CpuTopologyTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="MountedDrivesTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -372,6 +378,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\ModelLocation.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\CpuTopology.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\MountedDrives.cpp">
