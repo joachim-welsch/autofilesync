@@ -35,13 +35,14 @@ const wstring PROSE = L"Gern, hier ist mein Vorschlag:";
 TEST(SyncProposalTests, ParsesFencedBlockAndStripsIt)
 {
     const wstring answer = PROSE + L"\n\n" + BLOCK + L"\nPrüfe bitte die Pfade.";
-    const auto item = sync_proposal::parse(answer);
-    ASSERT_TRUE(item.has_value());
-    EXPECT_EQ(item->name(), L"Fotos");
-    EXPECT_EQ(item->source(), L"/home/jw/Fotos");
-    EXPECT_EQ(item->target(), L"/media/nas/Fotos");
-    EXPECT_EQ(item->sync_item_type(), SyncItemType::Tree);
-    EXPECT_FALSE(item->two_way_sync());
+    const auto proposal = sync_proposal::parse(answer);
+    ASSERT_TRUE(proposal.has_value());
+    const SyncItem& item = std::get<SyncItem>(*proposal);
+    EXPECT_EQ(item.name(), L"Fotos");
+    EXPECT_EQ(item.source(), L"/home/jw/Fotos");
+    EXPECT_EQ(item.target(), L"/media/nas/Fotos");
+    EXPECT_EQ(item.sync_item_type(), SyncItemType::Tree);
+    EXPECT_FALSE(item.two_way_sync());
     EXPECT_EQ(sync_proposal::without_block(answer), PROSE + L"\n\n\nPrüfe bitte die Pfade.");
 }
 
@@ -68,26 +69,26 @@ TEST(SyncProposalTests, BrokenJsonIsNoProposal)
 TEST(SyncProposalTests, BareJsonWithoutFenceIsAccepted)  // [SyncProposalTests.md#BareJsonWithoutFenceIsAccepted]
 {
     const wstring answer = L"Vorschlag: {\"name\": \"Doku\", \"source\": \"/a\", \"target\": \"/b\", \"type\": \"Verzeichnis\", \"two_way\": true}";
-    const auto item = sync_proposal::parse(answer);
-    ASSERT_TRUE(item.has_value());
-    EXPECT_EQ(item->sync_item_type(), SyncItemType::Dir);
-    EXPECT_TRUE(item->two_way_sync());
+    const auto proposal = sync_proposal::parse(answer);
+    ASSERT_TRUE(proposal.has_value());
+    EXPECT_EQ(std::get<SyncItem>(*proposal).sync_item_type(), SyncItemType::Dir);
+    EXPECT_TRUE(std::get<SyncItem>(*proposal).two_way_sync());
     EXPECT_EQ(sync_proposal::without_block(answer), L"Vorschlag:");
 }
 
 TEST(SyncProposalTests, UnknownTypeBecomesTree)
 {
-    const auto item = sync_proposal::parse(L"```json\n{\"name\": \"x\", \"source\": \"/a\", \"target\": \"/b\", \"type\": \"Ordner\"}\n```");
-    ASSERT_TRUE(item.has_value());
-    EXPECT_EQ(item->sync_item_type(), SyncItemType::Tree);
+    const auto proposal = sync_proposal::parse(L"```json\n{\"name\": \"x\", \"source\": \"/a\", \"target\": \"/b\", \"type\": \"Ordner\"}\n```");
+    ASSERT_TRUE(proposal.has_value());
+    EXPECT_EQ(std::get<SyncItem>(*proposal).sync_item_type(), SyncItemType::Tree);
 }
 
 TEST(SyncProposalTests, FirstBlockWithoutProposalIsSkipped)
 {
     const wstring answer = L"```\nls -l\n```\n" + BLOCK;
-    const auto item = sync_proposal::parse(answer);
-    ASSERT_TRUE(item.has_value());
-    EXPECT_EQ(item->name(), L"Fotos");
+    const auto proposal = sync_proposal::parse(answer);
+    ASSERT_TRUE(proposal.has_value());
+    EXPECT_EQ(std::get<SyncItem>(*proposal).name(), L"Fotos");
     EXPECT_EQ(sync_proposal::without_block(answer), L"```\nls -l\n```");
 }
 
@@ -117,7 +118,8 @@ TEST(SyncProposalTests, TwoPathsInAQuestionTriggerTheExtraction)  // [SyncPropos
 
 TEST(SyncProposalTests, GrammarAllowsOnlyObjectOrNull)
 {
-    const std::string grammar = sync_proposal::grammar();
+    const std::string grammar = sync_proposal::grammar({});
+    EXPECT_EQ(grammar.find("deletion"), std::string::npos) << grammar;
     EXPECT_NE(grammar.find("root ::= object | \"null\""), std::string::npos) << grammar;
     EXPECT_NE(grammar.find("\\\"source\\\""), std::string::npos) << grammar;
     EXPECT_NE(grammar.find("\\\"target\\\""), std::string::npos) << grammar;
@@ -127,11 +129,56 @@ TEST(SyncProposalTests, GrammarAllowsOnlyObjectOrNull)
 TEST(SyncProposalTests, ExtractedObjectBecomesAParsableBlock)
 {
     const wstring block = sync_proposal::as_block(L"{\"name\": \"Test1\", \"source\": \"/a\", \"target\": \"/b\", \"type\": \"Datei\"}");
-    const auto item = sync_proposal::parse(L"Das geht so:\n" + block);
-    ASSERT_TRUE(item.has_value());
-    EXPECT_EQ(item->name(), L"Test1");
-    EXPECT_EQ(item->sync_item_type(), SyncItemType::File);
+    const auto proposal = sync_proposal::parse(L"Das geht so:\n" + block);
+    ASSERT_TRUE(proposal.has_value());
+    EXPECT_EQ(std::get<SyncItem>(*proposal).name(), L"Test1");
+    EXPECT_EQ(std::get<SyncItem>(*proposal).sync_item_type(), SyncItemType::File);
     EXPECT_EQ(sync_proposal::without_block(L"Das geht so:\n" + block), L"Das geht so:");
+}
+
+TEST(SyncProposalTests, DeleteBlockIsADeletion)  // [SyncProposalTests.md#DeleteBlockIsADeletion]
+{
+    const wstring answer = L"Gern.\n```sync\n{\"delete\": \"Fotos\"}\n```";
+    const auto proposal = sync_proposal::parse(answer);
+    ASSERT_TRUE(proposal.has_value());
+    ASSERT_TRUE(std::holds_alternative<sync_proposal::Deletion>(*proposal));
+    EXPECT_EQ(std::get<sync_proposal::Deletion>(*proposal).name, L"Fotos");
+    EXPECT_EQ(sync_proposal::without_block(answer), L"Gern.");
+    EXPECT_FALSE(sync_proposal::parse(L"```sync\n{\"delete\": \"\"}\n```").has_value());
+    EXPECT_FALSE(sync_proposal::parse(L"```sync\n{\"name\": \"Fotos\"}\n```").has_value());
+}
+
+TEST(SyncProposalTests, ConfiguredNameInAQuestionTriggersTheExtraction)
+{
+    const SyncItems items = {SyncItem(L"Fotos", SyncItemType::Tree, L"/a", L"/b", L"*"), SyncItem(L"Mein Backup", SyncItemType::Dir, L"/c", L"/d", L"*")};
+    EXPECT_TRUE(sync_proposal::names_configured_item(L"Lösche die Synchronisation fotos", items));
+    EXPECT_TRUE(sync_proposal::names_configured_item(L"Entferne mein backup bitte", items));
+    EXPECT_FALSE(sync_proposal::names_configured_item(L"Lösche die Synchronisation Videos", items));
+    EXPECT_FALSE(sync_proposal::names_configured_item(L"Lösche Fotos", {}));
+}
+
+TEST(SyncProposalTests, GrammarRestrictsDeletionToConfiguredNames)  // [SyncProposalTests.md#GrammarRestrictsDeletionToConfiguredNames]
+{
+    const SyncItems items = {SyncItem(L"Fotos", SyncItemType::Tree, L"/a", L"/b", L"*"), SyncItem(L"Say \"hi\"", SyncItemType::Dir, L"/c", L"/d", L"*")};
+    const std::string grammar = sync_proposal::grammar(items);
+    EXPECT_NE(grammar.find("root ::= object | deletion | \"null\""), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find("configured ::= \"\\\"Fotos\\\"\" | \"\\\"Say \\\\\\\"hi\\\\\\\"\\\"\""), std::string::npos) << grammar;
+}
+
+TEST(SyncProposalTests, DeletionDescriptionNamesItemAndButton)
+{
+    if (translation::locale_dir().empty())
+        GTEST_SKIP() << "no compiled catalogues beside the test binary";
+    const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
+    translation::init_locale(translation::DEFAULT_LOCALES);
+    const ScopedEnv language("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    const wstring description = sync_proposal::describe(sync_proposal::Deletion{L"Fotos"});
+    const wstring button = translation::translate("chat_delete_sync");
+    std::setlocale(LC_ALL, saved_locale.c_str());
+    EXPECT_NE(description.find(L"Fotos"), wstring::npos) << description;
+    EXPECT_NE(description.find(button), wstring::npos) << description;
+    EXPECT_EQ(description.find(L'%'), wstring::npos) << description;
 }
 
 TEST(SyncProposalTests, DescriptionNamesItemAndButton)  // [SyncProposalTests.md#DescriptionNamesItemAndButton]
@@ -142,9 +189,9 @@ TEST(SyncProposalTests, DescriptionNamesItemAndButton)  // [SyncProposalTests.md
     translation::init_locale(translation::DEFAULT_LOCALES);
     const ScopedEnv language("LANGUAGE", "de");
     translation::init(translation::locale_dir());
-    const auto item = sync_proposal::parse(BLOCK);
-    ASSERT_TRUE(item.has_value());
-    const wstring description = sync_proposal::describe(*item);
+    const auto proposal = sync_proposal::parse(BLOCK);
+    ASSERT_TRUE(proposal.has_value());
+    const wstring description = sync_proposal::describe(*proposal);
     const wstring tree = sync_item_type_to_str(SyncItemType::Tree), button = translation::translate("chat_create_sync");
     std::setlocale(LC_ALL, saved_locale.c_str());
     for (const wstring& part : {wstring(L"Fotos"), wstring(L"/home/jw/Fotos"), wstring(L"/media/nas/Fotos"), tree, button})

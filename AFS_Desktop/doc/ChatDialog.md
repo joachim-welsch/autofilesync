@@ -23,17 +23,19 @@ answer that call() passes to its ChatPieceSink go to onPiece() while it runs.
 Set once the first piece of an answer is in the transcript: the speaker line is written then,
 and onReply() replaces the streamed text with the final answer instead of appending it again.
 
-## CreateSync
+## ApplyProposal
 
-How a proposal of the assistant becomes a synchronisation: MainWindow passes its prefilled
-"add synchronisation" dialog (MainWindow.md#addSyncItemFrom). A callback rather than a pointer
-to MainWindow keeps the dialog free of the main window's interface.
+How a proposal of the assistant takes effect: MainWindow passes its prefilled "add
+synchronisation" dialog for a new item and its delete confirmation for a deletion
+(MainWindow.md#applyProposal). A callback rather than a pointer to MainWindow keeps the dialog
+free of the main window's interface.
 
 ## proposal-button
 
 The button is the proposal: hidden until an answer carries a block parse() accepts, hidden
 again when the next question is sent or the button was used. A visible but disabled button
-would raise the question what it is for.
+would raise the question what it is for. Its label says what it will do, create or delete, so
+the user never confirms the wrong thing from habit.
 
 ## proposal-described
 

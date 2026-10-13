@@ -26,14 +26,14 @@
 #include <mutex>
 #include <optional>
 #include "LlamaClient.h"
-#include "SyncItem.h"
+#include "SyncProposal.h"
 
 using namespace AFS_Core;  // [ChatDialog.md#ChatDialog]
 
 class ChatDialog: public wxDialog {
 public:
-    using CreateSync = std::function<void(const SyncItem& preset)>;  // [ChatDialog.md#CreateSync]
-    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, CreateSync createSync);
+    using ApplyProposal = std::function<void(const sync_proposal::Proposal& proposal)>;  // [ChatDialog.md#ApplyProposal]
+    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal applyProposal);
     ~ChatDialog() override;
 private:
     struct Pending {  // [ChatDialog.md#Pending]
@@ -42,7 +42,7 @@ private:
     };
 
     void onSend(wxCommandEvent&);
-    void onCreateSync(wxCommandEvent&);
+    void onProposal(wxCommandEvent&);
     void onPiece(wxThreadEvent&);
     void onReply(wxThreadEvent&);
     void onClose(wxCloseEvent&);
@@ -51,22 +51,22 @@ private:
     void appendTurn(const wxString& speaker, const wxString& text);
     void showStreamed(const wxString& piece);
     void replaceStreamedTurn(const wxString& text);
-    void showProposal(const std::optional<SyncItem>& proposal);
+    void showProposal(const std::optional<sync_proposal::Proposal>& proposal);
     void setWaiting(bool waiting);
     void runAsync(std::function<ChatReply(const ChatPieceSink&)> call);  // [ChatDialog.md#runAsync]
 
     wxTextCtrl*   transcript_ = nullptr;
     wxTextCtrl*   input_ = nullptr;
     wxButton*     sendButton_ = nullptr;
-    wxButton*     createButton_ = nullptr;
+    wxButton*     proposalButton_ = nullptr;  // [ChatDialog.md#proposal-button]
     wxStaticText* status_ = nullptr;
     ChatHistory   history_;
     bool          answerStreaming_ = false;  // [ChatDialog.md#answerStreaming_]
     long          turnStart_ = 0;
     wxString      streamed_;
     std::size_t   shown_ = 0;  // [ChatDialog.md#block-held-back]
-    std::optional<SyncItem> proposal_;
-    CreateSync    createSync_;
+    std::optional<sync_proposal::Proposal> proposal_;
+    ApplyProposal applyProposal_;
     std::shared_ptr<LlamaClient> client_ = std::make_shared<LlamaClient>();  // [ChatDialog.md#client_]
     std::shared_ptr<Pending> pending_ = std::make_shared<Pending>();
 
@@ -78,6 +78,6 @@ enum {
     ID_CHAT_SEND,
     ID_CHAT_REPLY,
     ID_CHAT_PIECE,
-    ID_CHAT_CREATE_SYNC,
+    ID_CHAT_PROPOSAL,
     ID_CHAT_TRANSCRIPT  // [ChatDialog.md#ID_CHAT_TRANSCRIPT]
 };

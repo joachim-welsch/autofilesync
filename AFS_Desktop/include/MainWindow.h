@@ -32,6 +32,7 @@
 #include "Toolbar.h"
 #include "Global.h"
 #include "SyncInterface.h"
+#include "SyncProposal.h"
 
 class SplitterWindow;
 class ListWindow;
@@ -70,10 +71,12 @@ public:
 	TaskBarIcon* taskBarIcon() { return taskBarIcon_; }
 	wxHelpControllerBase& GetHelpController() { return *htmlHelpController_; }
 	void addSyncItemFrom(SyncItem preset);  // [MainWindow.md#addSyncItemFrom]
+	void applyProposal(const AFS_Core::sync_proposal::Proposal& proposal);  // [MainWindow.md#applyProposal]
 private:
 	void resize();
 	void update();
 	void runAddSyncItemDialog(SyncItem* preset);
+	void deleteSyncItem(const std::optional<SyncItem>& found);  // [MainWindow.md#deleteSyncItem]
 	void createToolBar();
 	void createHelp();
     void updateMenu();

@@ -66,6 +66,13 @@ The answer part of the transcript (from the last assistant label on) must name t
 item and its target even when the model wrote nothing but the block: that is the sentence from
 SyncProposal.md#describe, and without it the user sees an empty answer.
 
+## deletion-proposal
+
+The same test deletes the item it created through the chat: the button must now carry the
+delete label, pressing it asks the usual confirmation question (answered yes by the watcher),
+and afterwards the item is gone. Deleting the item the test created keeps the configuration as
+it was even if the teardown's restore were to fail.
+
 ## last-answer-only
 
 The dialog is hidden, not destroyed, between tests, so its transcript still holds the earlier

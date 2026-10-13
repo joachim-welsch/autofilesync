@@ -332,6 +332,14 @@ void MainWindow::addSyncItemFrom(SyncItem preset)
     runAddSyncItemDialog(&preset);
 }
 
+void MainWindow::applyProposal(const sync_proposal::Proposal& proposal)
+{
+    if (const auto* item = std::get_if<SyncItem>(&proposal))
+        addSyncItemFrom(*item);
+    else
+        deleteSyncItem(Config::instance().find_by_name(std::get<sync_proposal::Deletion>(proposal).name));
+}
+
 void MainWindow::runAddSyncItemDialog(SyncItem* preset)
 {
     SyncItemDialog dlg(preset, this, wxID_ANY, txt::add_synchronisation());
@@ -634,14 +642,18 @@ void MainWindow::onEditLogging(wxCommandEvent&)
 void MainWindow::onChat(wxCommandEvent&)
 {
     if (chatDialog_ == nullptr)
-        chatDialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const SyncItem& preset) { addSyncItemFrom(preset); });
+        chatDialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const sync_proposal::Proposal& proposal) { applyProposal(proposal); });
     chatDialog_->Show();
     chatDialog_->Raise();
 }
 
 void MainWindow::onDeleteSync(wxCommandEvent&)
 {
-    auto found = findSyncItem();
+    deleteSyncItem(findSyncItem());
+}
+
+void MainWindow::deleteSyncItem(const std::optional<SyncItem>& found)
+{
     if (found == nullopt) {
         wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"));
         return;

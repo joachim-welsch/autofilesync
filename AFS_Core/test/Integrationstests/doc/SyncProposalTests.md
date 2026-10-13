@@ -19,6 +19,17 @@ The trigger must fire for the ways users write paths (Linux, Windows drive, SSH 
 and must stay quiet for a question with one path or none, since every false trigger costs a
 second model pass on an ordinary question.
 
+## DeleteBlockIsADeletion
+
+A "delete" block is the second kind of proposal; an empty name is none, and a block with only
+a name and no paths is none either, so a model that drops the "delete" key cannot turn a
+deletion into a half-filled creation.
+
+## GrammarRestrictsDeletionToConfiguredNames
+
+The deletion alternative lists exactly the configured names as GBNF literals, with quotes and
+backslashes in a name escaped; the expected text is the GBNF source, hence the doubled escapes.
+
 ## DescriptionNamesItemAndButton
 
 The description is what the user reads when the model answers with the block alone, so it

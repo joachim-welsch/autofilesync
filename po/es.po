@@ -293,19 +293,27 @@ msgstr "Inactiva"
 
 #: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_instruction"
-msgstr "Si el usuario quiere crear una nueva sincronización y ha indicado origen y destino, añade a tu respuesta exactamente un bloque con esta forma:\n```sync\n{\"name\": \"Nombre corto\", \"source\": \"/ruta/al/origen\", \"target\": \"/ruta/al/destino\", \"type\": \"%2\"}\n```\nTipos permitidos: %1. No añadas ningún bloque mientras falte el origen o el destino; pregunta por ellos. Después el usuario revisa y confirma la propuesta en un diálogo."
+msgstr "Si el usuario quiere crear una nueva sincronización y ha indicado origen y destino, añade a tu respuesta exactamente un bloque de esta forma:\n```sync\n{\"name\": \"Nombre corto\", \"source\": \"/ruta/al/origen\", \"target\": \"/ruta/al/destino\", \"type\": \"%2\"}\n```\nTipos permitidos: %1. No añadas ningún bloque mientras falte el origen o el destino; pregúntalos en su lugar. Si el usuario quiere eliminar una sincronización existente, añade en su lugar exactamente un bloque de esta forma:\n```sync\n{\"delete\": \"nombre de la sincronización\"}\n```\nUsa el nombre exactamente como aparece en la configuración. El usuario revisa y confirma la propuesta después."
 
 #: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_summary"
 msgstr "Propuesta: sincronización \"%1\" (%2) de %3 a %4. Revísala y créala con \"%5\"."
 
 #: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_deletion_summary"
+msgstr "Propuesta: eliminar la sincronización \"%1\". Confírmalo con \"%2\"."
+
+#: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_extraction"
-msgstr "¿Quería el usuario crear una nueva sincronización con su última pregunta y nombró origen y destino? Entonces responde solo con el objeto JSON {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} con las rutas de la pregunta; si no, solo con null."
+msgstr "¿Quería el usuario crear una nueva sincronización con su última pregunta y nombró origen y destino? Entonces responde solo con el objeto JSON {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} con las rutas de la pregunta. ¿Quería eliminar una sincronización existente? Entonces responde solo con {\"delete\": \"nombre\"}. Si no, responde solo con null."
 
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr "Crear sincronización…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_delete_sync"
+msgstr "Eliminar sincronización…"
 
 #: AFS_Core/src/Translation.cpp
 msgid "catalogue_outdated"

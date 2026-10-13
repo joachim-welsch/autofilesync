@@ -300,19 +300,27 @@ msgstr "Inactive"
 
 #: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_instruction"
-msgstr "If the user wants to set up a new synchronisation and has named source and target, append exactly one block of this form to your answer:\n```sync\n{\"name\": \"Short name\", \"source\": \"/path/to/source\", \"target\": \"/path/to/target\", \"type\": \"%2\"}\n```\nAllowed types: %1. Do not add a block while source or target is missing; ask for them instead. The user then checks and confirms the proposal in a dialog."
+msgstr "If the user wants to set up a new synchronisation and has named source and target, append exactly one block of this form to your answer:\n```sync\n{\"name\": \"Short name\", \"source\": \"/path/to/source\", \"target\": \"/path/to/target\", \"type\": \"%2\"}\n```\nAllowed types: %1. Do not add a block while source or target is missing; ask for them instead. If the user wants to delete an existing synchronisation, append exactly one block of this form instead:\n```sync\n{\"delete\": \"name of the synchronisation\"}\n```\nUse the name exactly as it appears in the configuration. The user then checks and confirms the proposal."
 
 #: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_summary"
 msgstr "Proposal: synchronisation \"%1\" (%2) from %3 to %4. Check and create it with \"%5\"."
 
 #: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_deletion_summary"
+msgstr "Proposal: delete synchronisation \"%1\". Confirm it with \"%2\"."
+
+#: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_extraction"
-msgstr "Did the user want to create a new synchronisation with the last question and name source and target? Then answer only with the JSON object {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} using the paths from the question, otherwise only with null."
+msgstr "Did the user want to create a new synchronisation with the last question and name source and target? Then answer only with the JSON object {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} using the paths from the question. Did the user want to delete an existing synchronisation? Then answer only with {\"delete\": \"name\"}. Otherwise answer only with null."
 
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr "Create synchronisation…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_delete_sync"
+msgstr "Delete synchronisation…"
 
 #: AFS_Core/src/Translation.cpp
 msgid "catalogue_outdated"

@@ -19,18 +19,22 @@
 #pragma once
 #include <optional>
 #include <string>
+#include <variant>
 #include "SyncItem.h"
 
 namespace AFS_Core {
 
 namespace sync_proposal {  // [SyncProposal.md#sync_proposal]
+struct Deletion { std::wstring name; };  // [SyncProposal.md#Deletion]
+using Proposal = std::variant<SyncItem, Deletion>;
 std::wstring instruction();  // [SyncProposal.md#instruction]
-std::optional<SyncItem> parse(const std::wstring& answer);  // [SyncProposal.md#parse]
+std::optional<Proposal> parse(const std::wstring& answer);  // [SyncProposal.md#parse]
 std::wstring without_block(const std::wstring& answer);  // [SyncProposal.md#without_block]
-std::wstring describe(const SyncItem& proposal);  // [SyncProposal.md#describe]
+std::wstring describe(const Proposal& proposal);  // [SyncProposal.md#describe]
 bool names_two_paths(const std::wstring& question);  // [SyncProposal.md#names_two_paths]
+bool names_configured_item(const std::wstring& question, const SyncItems& items);  // [SyncProposal.md#names_configured_item]
 std::wstring extraction_question();  // [SyncProposal.md#extraction]
-std::string grammar();  // [SyncProposal.md#grammar]
+std::string grammar(const SyncItems& items);  // [SyncProposal.md#grammar]
 std::wstring as_block(const std::wstring& json);  // [SyncProposal.md#as_block]
 }
 

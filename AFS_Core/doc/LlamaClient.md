@@ -133,7 +133,7 @@ free answer and the extraction pass. The caller holds mutex_ and has loaded the 
 ## with_proposal
 
 The safety net for the proposal block (SyncProposal.md#instruction). When the user named two
-paths and the free answer carries no block, the client asks the model once more, as a further
+paths or a configured synchronisation and the free answer carries no block, the client asks the model once more, as a further
 turn after its own answer, for the object alone and under the grammar that only allows the
 object or null. The result is appended to the answer in the fenced form, so the dialog, the
 history and parse() see what a model that followed the instruction would have written. The

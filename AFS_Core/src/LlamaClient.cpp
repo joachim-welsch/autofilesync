@@ -24,6 +24,7 @@
 #include <vector>
 #include <llama.h>
 #include <Logging.h>
+#include "Config.h"
 #include "ConfigSummary.h"
 #include "CpuTopology.h"
 #include "ModelLocation.h"
@@ -239,12 +240,15 @@ ChatReply LlamaClient::complete(const ChatHistory& history, const ChatPieceSink&
 
 ChatReply LlamaClient::with_proposal(const ChatHistory& history, ChatReply reply)
 {
-    if (!reply.ok || sync_proposal::parse(reply.text) || !sync_proposal::names_two_paths(history.back().text))  // [SyncProposal.md#names_two_paths]
+    const SyncItems items = Config::instance().syncitems();
+    const wstring& question = history.back().text;
+    if (!reply.ok || sync_proposal::parse(reply.text)
+        || !(sync_proposal::names_two_paths(question) || sync_proposal::names_configured_item(question, items)))  // [SyncProposal.md#names_two_paths]
         return reply;
     ChatHistory extraction = history;
     extraction.push_back({ false, reply.text });
     extraction.push_back({ true, sync_proposal::extraction_question() });  // [SyncProposal.md#extraction]
-    const ChatReply json = complete(extraction, {}, sync_proposal::grammar());
+    const ChatReply json = complete(extraction, {}, sync_proposal::grammar(items));
     if (json.ok && sync_proposal::parse(json.text))
         reply.text += L"\n" + sync_proposal::as_block(json.text);
     return reply;

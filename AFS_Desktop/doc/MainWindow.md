@@ -30,6 +30,17 @@ Writes the .desktop file that starts the program at login.
 
 Removes the .desktop file again.
 
+## applyProposal
+
+Dispatches the assistant's proposal (SyncProposal.md#Proposal): a new item goes through
+addSyncItemFrom, a deletion through deleteSyncItem with the item looked up by name, so a name
+the model got wrong ends in the same "not found" message as a delete without a selection.
+
+## deleteSyncItem
+
+The delete command's confirmation and removal, shared by the toolbar/menu (the selected item)
+and the assistant (an item by name): one question, one autosave path, whichever way it starts.
+
 ## addSyncItemFrom
 
 The assistant's proposal (see SyncProposal.md) enters the configuration through the same dialog

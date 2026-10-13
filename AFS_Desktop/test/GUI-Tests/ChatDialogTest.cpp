@@ -198,7 +198,7 @@ TEST_F(SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  // [ChatD
     ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
     ASSERT_TRUE(replaceText(chat.input, "Lege eine neue Synchronisation mit dem Namen Chat-Vorschlag an. Quelle: "
         + source + " Ziel: " + target + " Typ: Verzeichnisbaum."));
-    wxWindow* create = wxWindow::FindWindowById(ID_CHAT_CREATE_SYNC);
+    wxWindow* create = wxWindow::FindWindowById(ID_CHAT_PROPOSAL);
     ASSERT_NE(create, nullptr);
     EXPECT_FALSE(create->IsShown()) << "Der Anlegen-Knopf war schon vor dem Vorschlag sichtbar.";
 
@@ -228,6 +228,17 @@ TEST_F(SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  // [ChatD
     EXPECT_EQ(item->source(), source.ToStdWstring());
     EXPECT_EQ(item->target(), target.ToStdWstring());
     EXPECT_FALSE(create->IsShown()) << "Der Anlegen-Knopf blieb nach dem Anlegen sichtbar.";
+
+    ASSERT_TRUE(replaceText(chat.input, "Loesche die Synchronisation Chat-Vorschlag."));  // [ChatDialogTest.md#deletion-proposal]
+    ASSERT_TRUE(pressControlEnter(chat.input));
+    ASSERT_TRUE(waitUntil([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
+    ASSERT_TRUE(create->IsShown()) << "Die Antwort enthielt keinen Loeschvorschlag: " << valueOf(chat.transcript);
+    EXPECT_EQ(create->GetLabel(), wxString(AFS_Core::translation::translate("chat_delete_sync")));
+    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("confirm_delete_title"), wxID_YES);
+    ASSERT_TRUE(clickOn(create));
+    pump();
+    EXPECT_FALSE(Config::instance().find_by_name(L"Chat-Vorschlag").has_value()) << "Die Synchronisation wurde nicht geloescht.";
+    EXPECT_FALSE(create->IsShown());
 }
 
 }

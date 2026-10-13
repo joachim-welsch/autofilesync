@@ -293,19 +293,27 @@ msgstr "Inactive"
 
 #: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_instruction"
-msgstr "Si l'utilisateur veut créer une nouvelle synchronisation et a indiqué la source et la cible, ajoute à ta réponse exactement un bloc de cette forme :\n```sync\n{\"name\": \"Nom court\", \"source\": \"/chemin/vers/la/source\", \"target\": \"/chemin/vers/la/cible\", \"type\": \"%2\"}\n```\nTypes autorisés : %1. N'ajoute aucun bloc tant que la source ou la cible manque ; demande-les. L'utilisateur vérifie et confirme ensuite la proposition dans une boîte de dialogue."
+msgstr "Si l'utilisateur veut créer une nouvelle synchronisation et a nommé la source et la cible, ajoute à ta réponse exactement un bloc de cette forme :\n```sync\n{\"name\": \"Nom court\", \"source\": \"/chemin/vers/source\", \"target\": \"/chemin/vers/cible\", \"type\": \"%2\"}\n```\nTypes autorisés : %1. N'ajoute aucun bloc tant que la source ou la cible manque ; demande-les plutôt. Si l'utilisateur veut supprimer une synchronisation existante, ajoute à la place exactement un bloc de cette forme :\n```sync\n{\"delete\": \"nom de la synchronisation\"}\n```\nUtilise le nom exactement tel qu'il figure dans la configuration. L'utilisateur vérifie et confirme ensuite la proposition."
 
 #: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_summary"
 msgstr "Proposition : synchronisation \"%1\" (%2) de %3 vers %4. Vérifiez-la et créez-la avec \"%5\"."
 
 #: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_deletion_summary"
+msgstr "Proposition : supprimer la synchronisation \"%1\". Confirmez avec \"%2\"."
+
+#: AFS_Core/src/SyncProposal.cpp
 msgid "assistant_sync_proposal_extraction"
-msgstr "L'utilisateur voulait-il créer une nouvelle synchronisation avec sa dernière question en nommant la source et la cible ? Alors réponds uniquement avec l'objet JSON {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} avec les chemins de la question, sinon uniquement avec null."
+msgstr "L'utilisateur voulait-il créer une nouvelle synchronisation avec sa dernière question en nommant la source et la cible ? Alors réponds uniquement avec l'objet JSON {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} avec les chemins de la question. Voulait-il supprimer une synchronisation existante ? Alors réponds uniquement avec {\"delete\": \"nom\"}. Sinon réponds uniquement avec null."
 
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_create_sync"
 msgstr "Créer la synchronisation…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_delete_sync"
+msgstr "Supprimer la synchronisation…"
 
 #: AFS_Core/src/Translation.cpp
 msgid "catalogue_outdated"

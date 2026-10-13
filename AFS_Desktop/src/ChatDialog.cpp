@@ -26,7 +26,7 @@ using namespace AFS_Core;
 
 wxBEGIN_EVENT_TABLE(ChatDialog, wxDialog)
     EVT_BUTTON(ID_CHAT_SEND, ChatDialog::onSend)
-    EVT_BUTTON(ID_CHAT_CREATE_SYNC, ChatDialog::onCreateSync)
+    EVT_BUTTON(ID_CHAT_PROPOSAL, ChatDialog::onProposal)
     EVT_THREAD(ID_CHAT_PIECE, ChatDialog::onPiece)
     EVT_THREAD(ID_CHAT_REPLY, ChatDialog::onReply)
     EVT_CLOSE(ChatDialog::onClose)
@@ -35,17 +35,17 @@ wxEND_EVENT_TABLE()
 namespace {
 constexpr std::size_t maxLogExcerptChars = 500;  // [ChatDialog.md#maxLogExcerptChars]
 
-wxString answerWithProposal(const std::wstring& answer, const SyncItem& proposal)  // [ChatDialog.md#proposal-described]
+wxString answerWithProposal(const std::wstring& answer, const sync_proposal::Proposal& proposal)  // [ChatDialog.md#proposal-described]
 {
     const std::wstring prose = sync_proposal::without_block(answer);
     return prose.empty() ? sync_proposal::describe(proposal) : prose + L"\n" + sync_proposal::describe(proposal);
 }
 }
 
-ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, CreateSync createSync)
+ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal applyProposal)
     : wxDialog(parent, id, title, wxDefaultPosition, wxSize(600, 500),
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
-    , createSync_(std::move(createSync))
+    , applyProposal_(std::move(applyProposal))
 {
     pending_->dialog = this;
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
@@ -60,9 +60,9 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, C
     wxBoxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
     status_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
     bottomSizer->Add(status_, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-    createButton_ = new wxButton(this, ID_CHAT_CREATE_SYNC, translation::translate("chat_create_sync"));
-    createButton_->Hide();  // [ChatDialog.md#proposal-button]
-    bottomSizer->Add(createButton_, 0, wxALL, 5);
+    proposalButton_ = new wxButton(this, ID_CHAT_PROPOSAL, translation::translate("chat_create_sync"));
+    proposalButton_->Hide();  // [ChatDialog.md#proposal-button]
+    bottomSizer->Add(proposalButton_, 0, wxALL, 5);
     sendButton_ = new wxButton(this, ID_CHAT_SEND, translation::translate("button_send"));
     bottomSizer->Add(sendButton_, 0, wxALL, 5);
     mainSizer->Add(bottomSizer, 0, wxEXPAND);
@@ -119,10 +119,12 @@ void ChatDialog::replaceStreamedTurn(const wxString& text)  // [ChatDialog.md#re
     answerStreaming_ = false;
 }
 
-void ChatDialog::showProposal(const std::optional<SyncItem>& proposal)
+void ChatDialog::showProposal(const std::optional<sync_proposal::Proposal>& proposal)
 {
     proposal_ = proposal;
-    createButton_->Show(proposal_.has_value());
+    const bool deletion = proposal_ && std::holds_alternative<sync_proposal::Deletion>(*proposal_);
+    proposalButton_->SetLabel(translation::translate(deletion ? "chat_delete_sync" : "chat_create_sync"));
+    proposalButton_->Show(proposal_.has_value());
     Layout();
 }
 
@@ -192,7 +194,7 @@ void ChatDialog::onReply(wxThreadEvent& event)
     setWaiting(false);
     const wxString text = event.GetString();
     const bool ok = event.GetInt() == 1;
-    const std::optional<SyncItem> proposal = ok ? sync_proposal::parse(text.ToStdWstring()) : std::nullopt;
+    const std::optional<sync_proposal::Proposal> proposal = ok ? sync_proposal::parse(text.ToStdWstring()) : std::nullopt;
     const wxString shown = proposal ? answerWithProposal(text.ToStdWstring(), *proposal) : text;
     if (answerStreaming_)
         replaceStreamedTurn(shown);
@@ -205,13 +207,13 @@ void ChatDialog::onReply(wxThreadEvent& event)
         input_->SetFocus();
 }
 
-void ChatDialog::onCreateSync(wxCommandEvent&)
+void ChatDialog::onProposal(wxCommandEvent&)
 {
     if (!proposal_)
         return;
-    const SyncItem preset = *proposal_;
+    const sync_proposal::Proposal proposal = *proposal_;
     showProposal(std::nullopt);
-    createSync_(preset);
+    applyProposal_(proposal);
 }
 
 void ChatDialog::onInputKey(wxKeyEvent& event)
