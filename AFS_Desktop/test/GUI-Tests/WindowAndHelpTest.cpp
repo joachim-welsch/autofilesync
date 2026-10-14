@@ -49,7 +49,7 @@ private:
     MainWindow& window_;
 };
 
-bool activateTaskBarMenuItem(TaskBarIcon& icon, const wxString& label)  // [WindowAndHelpTest.md#activateTaskBarMenuItem]
+bool activate_task_bar_menu_item(TaskBarIcon& icon, const wxString& label)  // [WindowAndHelpTest.md#activate_task_bar_menu_item]
 {
     const std::unique_ptr<wxMenu> menu(icon.CreatePopupMenu());
     if (menu == nullptr)
@@ -65,9 +65,9 @@ bool activateTaskBarMenuItem(TaskBarIcon& icon, const wxString& label)  // [Wind
     return false;
 }
 
-wxHtmlHelpFrame* helpFrame(MainWindow& window)
+wxHtmlHelpFrame* help_frame(MainWindow& window)
 {
-    return dynamic_cast<wxHtmlHelpController&>(window.GetHelpController()).GetFrame();
+    return dynamic_cast<wxHtmlHelpController&>(window.get_help_controller()).GetFrame();
 }
 
 class ClosedHelp {  // [WindowAndHelpTest.md#ClosedHelp]
@@ -75,7 +75,7 @@ public:
     explicit ClosedHelp(MainWindow& window): window_(window) {}
     ~ClosedHelp()
     {
-        if (wxHtmlHelpFrame* frame = helpFrame(window_))
+        if (wxHtmlHelpFrame* frame = help_frame(window_))
             frame->Close(true);
         pump();
     }
@@ -87,39 +87,39 @@ private:
 
 TEST_F(GuiTest, AnsichtHintergrundVerstecktFensterUndTaskleisteZeigtEsWieder)
 {
-    const ShownAgain shownAgain(mainWindow());
-    ASSERT_TRUE(mainWindow().IsShown());
-    ASSERT_NE(mainWindow().taskBarIcon(), nullptr) << "Es gibt kein Symbol im Infobereich.";
+    const ShownAgain shown_again(main_window());
+    ASSERT_TRUE(main_window().IsShown());
+    ASSERT_NE(main_window().task_bar_icon(), nullptr) << "Es gibt kein Symbol im Infobereich.";
 
-    activateMenuItem(mainWindow(), tul(id::View_Background));
+    activate_menu_item(main_window(), tul(id::View_Background));
     pump();
-    EXPECT_FALSE(mainWindow().IsShown()) << "\"Ansicht → Hintergrund\" hat das Fenster nicht versteckt.";
+    EXPECT_FALSE(main_window().IsShown()) << "\"Ansicht → Hintergrund\" hat das Fenster nicht versteckt.";
 
-    ASSERT_TRUE(activateTaskBarMenuItem(*mainWindow().taskBarIcon(), wxMenuItem::GetLabelText(AFS_Core::translation::translate("taskbar_restore"))))
+    ASSERT_TRUE(activate_task_bar_menu_item(*main_window().task_bar_icon(), wxMenuItem::GetLabelText(AFS_Core::translation::translate("taskbar_restore"))))
         << "Das Menü des Infobereichs hat keinen Eintrag zum Wiederherstellen.";
-    EXPECT_TRUE(mainWindow().IsShown()) << "Das Fenster kam über das Menü des Infobereichs nicht zurück.";
+    EXPECT_TRUE(main_window().IsShown()) << "Das Fenster kam über das Menü des Infobereichs nicht zurück.";
 }
 
 TEST_F(GuiTest, TaskbarDoppelklickZeigtFenster)
 {
-    const ShownAgain shownAgain(mainWindow());
-    TaskBarIcon* icon = mainWindow().taskBarIcon();
+    const ShownAgain shown_again(main_window());
+    TaskBarIcon* icon = main_window().task_bar_icon();
     ASSERT_NE(icon, nullptr);
-    mainWindow().Show(false);
+    main_window().Show(false);
     pump();
-    ASSERT_FALSE(mainWindow().IsShown());
+    ASSERT_FALSE(main_window().IsShown());
 
-    wxTaskBarIconEvent doubleClick(wxEVT_TASKBAR_LEFT_DCLICK, icon);
-    icon->ProcessEvent(doubleClick);
+    wxTaskBarIconEvent double_click(wxEVT_TASKBAR_LEFT_DCLICK, icon);
+    icon->ProcessEvent(double_click);
     pump();
 
-    EXPECT_TRUE(mainWindow().IsShown()) << "Der Doppelklick auf das Symbol im Infobereich zeigt das Fenster nicht.";
+    EXPECT_TRUE(main_window().IsShown()) << "Der Doppelklick auf das Symbol im Infobereich zeigt das Fenster nicht.";
 }
 
 TEST_F(GuiTest, InfoDatenNennenVersionUndLizenz)  // [WindowAndHelpTest.md#about]
 {
-    const wxAboutDialogInfo info = MainWindow::aboutInfo();
-    EXPECT_EQ(info.GetVersion(), afsVERSION_STRING) << "Die Info-Daten nennen die Version nicht.";
+    const wxAboutDialogInfo info = MainWindow::about_info();
+    EXPECT_EQ(info.GetVersion(), AFS_VERSION_STRING) << "Die Info-Daten nennen die Version nicht.";
     EXPECT_TRUE(info.GetCopyright().Contains("Joachim Welsch")) << "Die Info-Daten nennen den Rechteinhaber nicht: " << info.GetCopyright();
     EXPECT_TRUE(info.GetDescription().Contains("GPL")) << "Die Info-Daten nennen die Lizenz nicht: " << info.GetDescription();
     EXPECT_TRUE(info.GetDescription().Contains("welsch-software.com")) << "Die Info-Daten nennen die Website nicht: " << info.GetDescription();
@@ -132,39 +132,39 @@ TEST_F(GuiTest, InfoDialogZeigtVersion)  // [WindowAndHelpTest.md#about]
 #endif
     ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("about_title"), wxID_OK);
 
-    activateMenuItem(mainWindow(), tul(id::About));
+    activate_menu_item(main_window(), tul(id::About));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Info-Dialog erschien nicht.";
-    const wxString& about = ModalDialogWatcher::instance().answeredMessages().front();
-    EXPECT_TRUE(about.Contains(afsVERSION_STRING)) << "Der Info-Dialog nennt die Version nicht: " << about;
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der Info-Dialog erschien nicht.";
+    const wxString& about = ModalDialogWatcher::instance().answered_messages().front();
+    EXPECT_TRUE(about.Contains(AFS_VERSION_STRING)) << "Der Info-Dialog nennt die Version nicht: " << about;
     EXPECT_TRUE(about.Contains("Joachim Welsch")) << "Der Info-Dialog nennt den Rechteinhaber nicht: " << about;
     EXPECT_TRUE(about.Contains("GPL")) << "Der Info-Dialog nennt die Lizenz nicht: " << about;
     EXPECT_EQ(about, AFS_Core::translation::translate("about_text",
-        {wxString(afsNAME_STRING).ToStdWstring(), wxString(afsVERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}))
+        {wxString(AFS_NAME_STRING).ToStdWstring(), wxString(AFS_VERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}))
         << "Der Info-Dialog weicht vom Katalogtext ab (Umlaute?): " << about;
 }
 
 TEST_F(GuiTest, HilfeOeffnetHilfebuch)  // [WindowAndHelpTest.md#help]
 {
-    const ClosedHelp closedHelp(mainWindow());
-    ASSERT_TRUE(helpFrame(mainWindow()) == nullptr || !helpFrame(mainWindow())->IsShown());
+    const ClosedHelp closed_help(main_window());
+    ASSERT_TRUE(help_frame(main_window()) == nullptr || !help_frame(main_window())->IsShown());
 
-    activateMenuItem(mainWindow(), tul(id::Help));
-    ASSERT_TRUE(waitUntil([this] { return helpFrame(mainWindow()) != nullptr && helpFrame(mainWindow())->IsShown(); }))
+    activate_menu_item(main_window(), tul(id::Help));
+    ASSERT_TRUE(wait_until([this] { return help_frame(main_window()) != nullptr && help_frame(main_window())->IsShown(); }))
         << "Das Hilfefenster erschien nicht.";
-    EXPECT_TRUE(helpFrame(mainWindow())->GetTitle().Contains("AutoFileSync") || !helpFrame(mainWindow())->GetTitle().empty());
+    EXPECT_TRUE(help_frame(main_window())->GetTitle().Contains("AutoFileSync") || !help_frame(main_window())->GetTitle().empty());
 }
 
 TEST_F(GuiTest, WerkzeugleisteHilfeOeffnetHilfebuch)  // [WindowAndHelpTest.md#help]
 {
-    const ClosedHelp closedHelp(mainWindow());
+    const ClosedHelp closed_help(main_window());
 
-    ASSERT_TRUE(activateToolbarTool(mainWindow(), tul(id::Help))) << "Die Werkzeugleiste hat keinen Hilfe-Knopf.";
+    ASSERT_TRUE(activate_toolbar_tool(main_window(), tul(id::Help))) << "Die Werkzeugleiste hat keinen Hilfe-Knopf.";
 
-    EXPECT_TRUE(waitUntil([this] { return helpFrame(mainWindow()) != nullptr && helpFrame(mainWindow())->IsShown(); }))
+    EXPECT_TRUE(wait_until([this] { return help_frame(main_window()) != nullptr && help_frame(main_window())->IsShown(); }))
         << "Der Hilfe-Knopf der Werkzeugleiste öffnete die Hilfe nicht.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().empty()) << "Der Hilfe-Knopf zeigte einen Dialog statt der Hilfe.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answered_messages().empty()) << "Der Hilfe-Knopf zeigte einen Dialog statt der Hilfe.";
 }
 
 TEST_F(GuiTest, HintergrunddienstStartOhneDienstZeigtFehlerbox)  // [WindowAndHelpTest.md#background-service]
@@ -173,11 +173,11 @@ TEST_F(GuiTest, HintergrunddienstStartOhneDienstZeigtFehlerbox)  // [WindowAndHe
         GTEST_SKIP() << "Der Hintergrunddienst ist installiert; Start und Stopp ohne ihn lassen sich hier nicht prüfen.";
     ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("bs_caption"), wxID_OK);
 
-    activateMenuItem(mainWindow(), tul(id::BackgroundServiceStart));
+    activate_menu_item(main_window(), tul(id::BackgroundServiceStart));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der fehlende Dienst blieb ohne Meldung.";
-    EXPECT_FALSE(ModalDialogWatcher::instance().answeredMessages().front().empty());
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der fehlende Dienst blieb ohne Meldung.";
+    EXPECT_FALSE(ModalDialogWatcher::instance().answered_messages().front().empty());
 }
 
 }

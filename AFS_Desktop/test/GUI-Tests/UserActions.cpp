@@ -58,20 +58,20 @@ bool settled(wxWindow& window)
     return window.GetScreenPosition() == before;
 }
 
-void waitUntilSettled(wxWindow& window)  // [UserActions.md#wait-until-settled]
+void wait_until_settled(wxWindow& window)  // [UserActions.md#wait-until-settled]
 {
-    waitUntil([&window] { return settled(window); }, SETTLE_TIMEOUT_MILLISECONDS);
+    wait_until([&window] { return settled(window); }, SETTLE_TIMEOUT_MILLISECONDS);
 }
 
 constexpr int POINTER_TIMEOUT_MILLISECONDS = 500;
 constexpr int CLICK_TIMEOUT_MILLISECONDS = 1000;  // [UserActions.md#click-arrives-later]
 constexpr int SETTLE_AFTER_DIALOG_MILLISECONDS = 100;  // [UserActions.md#settle-after-dialog]
 
-bool moveTo(wxUIActionSimulator& simulator, const wxPoint& screenPoint)  // [UserActions.md#pointer-arrives-before-click]
+bool move_to(wxUIActionSimulator& simulator, const wxPoint& screen_point)  // [UserActions.md#pointer-arrives-before-click]
 {
-    if (!simulator.MouseMove(screenPoint))
+    if (!simulator.MouseMove(screen_point))
         return false;
-    waitUntil([screenPoint] { return wxGetMousePosition() == screenPoint; }, POINTER_TIMEOUT_MILLISECONDS);
+    wait_until([screen_point] { return wxGetMousePosition() == screen_point; }, POINTER_TIMEOUT_MILLISECONDS);
     pump(20);
     return true;
 }
@@ -96,7 +96,7 @@ public:
 #elif defined(_MACOS)
 constexpr CGKeyCode RETURN_KEY = 36;  // kVK_Return
 
-CGEventFlags flagsOf(int modifiers)  // [UserActions.md#macos-modifier-flags]
+CGEventFlags flags_of(int modifiers)  // [UserActions.md#macos-modifier-flags]
 {
     CGEventFlags flags = 0;
     if (modifiers & wxMOD_SHIFT)
@@ -110,7 +110,7 @@ CGEventFlags flagsOf(int modifiers)  // [UserActions.md#macos-modifier-flags]
     return flags;
 }
 
-bool postKeyToProcess(CGKeyCode key, CGEventFlags flags, const UniChar* unicode)  // [UserActions.md#macos-injects-the-character]
+bool post_key_to_process(CGKeyCode key, CGEventFlags flags, const UniChar* unicode)  // [UserActions.md#macos-injects-the-character]
 {
     CGEventRef down = CGEventCreateKeyboardEvent(nullptr, key, true);
     CGEventRef up = CGEventCreateKeyboardEvent(nullptr, key, false);
@@ -137,19 +137,19 @@ public:
         if (value > 0xFFFF)
             return false; // outside the BMP a single UniChar cannot carry it
         const UniChar unicode = static_cast<UniChar>(value);
-        return postKeyToProcess(0, 0, &unicode);
+        return post_key_to_process(0, 0, &unicode);
     }
 };
 #else
 constexpr int EVENT_GAP_MILLISECONDS = 20;  // [UserActions.md#x11-event-spacing]
 
-KeySym keysymOf(wxUniChar character)  // [UserActions.md#keysym-of-character]
+KeySym keysym_of(wxUniChar character)  // [UserActions.md#keysym-of-character]
 {
     const wxUint32 value = character.GetValue();
     return value < 0x100 ? value : 0x01000000 | value;
 }
 
-KeySym deadKeyOf(KeySym keysym)  // [UserActions.md#x11-dead-keys]
+KeySym dead_key_of(KeySym keysym)  // [UserActions.md#x11-dead-keys]
 {
     switch (keysym) {
     case XK_asciicircum: return XK_dead_circumflex;
@@ -170,10 +170,10 @@ public:
     bool type(wxUniChar character) const;
 private:
     struct Key { KeyCode code = 0; unsigned modifiers = 0; };
-    Key keyOf(KeySym keysym) const;
-    std::optional<unsigned> modifiersOf(int code, int group, int level) const;  // [UserActions.md#x11-level-modifiers]
-    std::optional<std::vector<KeyCode>> modifierKeysOf(unsigned modifiers) const;
-    KeyCode modifierKeyOf(unsigned bit) const;
+    Key key_of(KeySym keysym) const;
+    std::optional<unsigned> modifiers_of(int code, int group, int level) const;  // [UserActions.md#x11-level-modifiers]
+    std::optional<std::vector<KeyCode>> modifier_keys_of(unsigned modifiers) const;
+    KeyCode modifier_key_of(unsigned bit) const;
     bool press(Key key) const;
     void fake(KeyCode code, bool down) const;
     Display* display_;
@@ -203,14 +203,14 @@ bool Keyboard::type(wxUniChar character) const
 {
     if (keymap_ == nullptr)
         return false;
-    const KeySym keysym = keysymOf(character);
-    if (const Key key = keyOf(keysym); key.code != 0)
+    const KeySym keysym = keysym_of(character);
+    if (const Key key = key_of(keysym); key.code != 0)
         return press(key);
-    const Key deadKey = keyOf(deadKeyOf(keysym));  // [UserActions.md#x11-dead-keys]
-    return deadKey.code != 0 && press(deadKey) && press(keyOf(XK_space));
+    const Key dead_key = key_of(dead_key_of(keysym));  // [UserActions.md#x11-dead-keys]
+    return dead_key.code != 0 && press(dead_key) && press(key_of(XK_space));
 }
 
-Keyboard::Key Keyboard::keyOf(KeySym keysym) const
+Keyboard::Key Keyboard::key_of(KeySym keysym) const
 {
     if (keysym == NoSymbol)
         return {};
@@ -221,13 +221,13 @@ Keyboard::Key Keyboard::keyOf(KeySym keysym) const
         const int group = group_ < groups ? group_ : 0;
         for (int level = 0; level < XkbKeyGroupWidth(keymap_, code, group); ++level)
             if (XkbKeySymEntry(keymap_, code, level, group) == keysym)
-                if (const std::optional<unsigned> modifiers = modifiersOf(code, group, level))
+                if (const std::optional<unsigned> modifiers = modifiers_of(code, group, level))
                     return {static_cast<KeyCode>(code), *modifiers};
     }
     return {};
 }
 
-std::optional<unsigned> Keyboard::modifiersOf(int code, int group, int level) const  // [UserActions.md#x11-level-modifiers]
+std::optional<unsigned> Keyboard::modifiers_of(int code, int group, int level) const  // [UserActions.md#x11-level-modifiers]
 {
     if (level == 0)
         return 0u;
@@ -238,13 +238,13 @@ std::optional<unsigned> Keyboard::modifiersOf(int code, int group, int level) co
     return std::nullopt;
 }
 
-std::optional<std::vector<KeyCode>> Keyboard::modifierKeysOf(unsigned modifiers) const
+std::optional<std::vector<KeyCode>> Keyboard::modifier_keys_of(unsigned modifiers) const
 {
     std::vector<KeyCode> keys;
     for (unsigned bit = 1; bit < 0x100; bit <<= 1) {
         if (!(modifiers & bit))
             continue;
-        const KeyCode key = modifierKeyOf(bit);
+        const KeyCode key = modifier_key_of(bit);
         if (key == 0)
             return std::nullopt;
         keys.push_back(key);
@@ -252,7 +252,7 @@ std::optional<std::vector<KeyCode>> Keyboard::modifierKeysOf(unsigned modifiers)
     return keys;
 }
 
-KeyCode Keyboard::modifierKeyOf(unsigned bit) const
+KeyCode Keyboard::modifier_key_of(unsigned bit) const
 {
     for (int code = keymap_->min_key_code; code <= keymap_->max_key_code; ++code)
         if (keymap_->map->modmap[code] & bit)
@@ -262,14 +262,14 @@ KeyCode Keyboard::modifierKeyOf(unsigned bit) const
 
 bool Keyboard::press(Key key) const
 {
-    const std::optional<std::vector<KeyCode>> modifierKeys = key.code != 0 ? modifierKeysOf(key.modifiers) : std::nullopt;
-    if (!modifierKeys)
+    const std::optional<std::vector<KeyCode>> modifier_keys = key.code != 0 ? modifier_keys_of(key.modifiers) : std::nullopt;
+    if (!modifier_keys)
         return false;
-    for (KeyCode modifier : *modifierKeys)
+    for (KeyCode modifier : *modifier_keys)
         fake(modifier, true);
     fake(key.code, true);
     fake(key.code, false);
-    for (auto modifier = modifierKeys->rbegin(); modifier != modifierKeys->rend(); ++modifier)
+    for (auto modifier = modifier_keys->rbegin(); modifier != modifier_keys->rend(); ++modifier)
         fake(*modifier, false);
     return true;
 }
@@ -289,48 +289,48 @@ wxWindow* find(wxWindow& parent, wxWindowID id)
     return wxWindow::FindWindowById(id, &parent);
 }
 
-wxString valueOf(wxWindow* control)
+wxString value_of(wxWindow* control)
 {
-    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(control);
-    return textCtrl != nullptr ? textCtrl->GetValue() : wxString();
+    wxTextCtrl* text_ctrl = dynamic_cast<wxTextCtrl*>(control);
+    return text_ctrl != nullptr ? text_ctrl->GetValue() : wxString();
 }
 
-bool clickOn(wxWindow& control, const wxPoint& clientPoint)
+bool click_on(wxWindow& control, const wxPoint& client_point)
 {
     if (!control.IsShownOnScreen())
         return false;
-    waitUntilSettled(control);
+    wait_until_settled(control);
     wxUIActionSimulator simulator;
-    if (!moveTo(simulator, control.ClientToScreen(clientPoint)))  // [UserActions.md#pointer-move-settles-focus]
+    if (!move_to(simulator, control.ClientToScreen(client_point)))  // [UserActions.md#pointer-move-settles-focus]
         return false;
-    const int dialogsBefore = ModalDialogWatcher::instance().dialogsEntered();
+    const int dialogs_before = ModalDialogWatcher::instance().dialogs_entered();
     if (!simulator.MouseClick())
         return false;
     pump(20);
-    if (ModalDialogWatcher::instance().dialogsEntered() != dialogsBefore)
+    if (ModalDialogWatcher::instance().dialogs_entered() != dialogs_before)
         pump(SETTLE_AFTER_DIALOG_MILLISECONDS);  // [UserActions.md#settle-after-dialog]
     return true;
 }
 
-bool clickOn(wxWindow* control)
+bool click_on(wxWindow* control)
 {
     if (control == nullptr)
         return false;
     const wxSize size = control->GetSize();
-    return clickOn(*control, wxPoint(size.x / 2, size.y / 2));
+    return click_on(*control, wxPoint(size.x / 2, size.y / 2));
 }
 
-bool clickOn(wxTreeCtrl& tree, wxTreeItemId item)
+bool click_on(wxTreeCtrl& tree, wxTreeItemId item)
 {
     if (!item.IsOk() || !tree.IsShownOnScreen())
         return false;
     wxRect rect;
     if (!tree.GetBoundingRect(item, rect, true))  // [UserActions.md#caller-ensures-visibility]
         return false;
-    waitUntilSettled(tree);
+    wait_until_settled(tree);
     wxUIActionSimulator simulator;
-    const wxPoint screenPoint = tree.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2));
-    if (!moveTo(simulator, screenPoint))
+    const wxPoint screen_point = tree.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2));
+    if (!move_to(simulator, screen_point))
         return false;
     if (!simulator.MouseClick())
         return false;
@@ -340,12 +340,12 @@ bool clickOn(wxTreeCtrl& tree, wxTreeItemId item)
 
 namespace {
 
-bool clickAt(const wxPoint& screenPoint, bool doubleClick)
+bool click_at(const wxPoint& screen_point, bool double_click)
 {
     wxUIActionSimulator simulator;
-    if (!moveTo(simulator, screenPoint))
+    if (!move_to(simulator, screen_point))
         return false;
-    if (!(doubleClick ? simulator.MouseDblClick() : simulator.MouseClick()))
+    if (!(double_click ? simulator.MouseDblClick() : simulator.MouseClick()))
         return false;
     pump(20);
     return true;
@@ -353,28 +353,28 @@ bool clickAt(const wxPoint& screenPoint, bool doubleClick)
 
 }
 
-bool clickOn(wxListCtrl& list, long item, bool doubleClick)  // [UserActions.md#clickOn-list-item]
+bool click_on(wxListCtrl& list, long item, bool double_click)  // [UserActions.md#click_on-list-item]
 {
     wxRect rect;
     if (!list.IsShownOnScreen() || !list.GetItemRect(item, rect))
         return false;
-    waitUntilSettled(list);
-    return clickAt(list.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2)), doubleClick);
+    wait_until_settled(list);
+    return click_at(list.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2)), double_click);
 }
 
-bool clickOnRowLabel(wxGrid& grid, int row)  // [UserActions.md#clickOnRowLabel]
+bool click_on_row_label(wxGrid& grid, int row)  // [UserActions.md#click_on_row_label]
 {
     if (!grid.IsShownOnScreen() || row < 0 || row >= grid.GetNumberRows())
         return false;
-    waitUntilSettled(grid);
+    wait_until_settled(grid);
     const wxRect cell = grid.CellToRect(row, 0);
     int x = 0, y = 0;
     grid.CalcScrolledPosition(0, cell.y, &x, &y);
     wxWindow* labels = grid.GetGridRowLabelWindow();
-    return clickAt(labels->ClientToScreen(wxPoint(grid.GetRowLabelSize() / 2, y + cell.height / 2)), false);
+    return click_at(labels->ClientToScreen(wxPoint(grid.GetRowLabelSize() / 2, y + cell.height / 2)), false);
 }
 
-bool changeGridCell(wxGrid& grid, int row, int col, const wxString& value)  // [UserActions.md#changeGridCell]
+bool change_grid_cell(wxGrid& grid, int row, int col, const wxString& value)  // [UserActions.md#change_grid_cell]
 {
     if (row < 0 || row >= grid.GetNumberRows() || col < 0 || col >= grid.GetNumberCols())
         return false;
@@ -387,7 +387,7 @@ bool changeGridCell(wxGrid& grid, int row, int col, const wxString& value)  // [
 
 namespace {
 
-bool typeText(const wxString& text)
+bool type_text(const wxString& text)
 {
     Keyboard keyboard;  // [UserActions.md#keyboard-per-text]
     for (const wxUniChar character : text)
@@ -397,13 +397,13 @@ bool typeText(const wxString& text)
     return true;
 }
 
-bool typeLines(const wxString& lines)  // [UserActions.md#replaceLines]
+bool type_lines(const wxString& lines)  // [UserActions.md#replace_lines]
 {
     bool first = true;
     for (const wxString& line : wxSplit(lines, '\n')) {
-        if (!first && !pressReturn())
+        if (!first && !press_return())
             return false;
-        if (!typeText(line))
+        if (!type_text(line))
             return false;
         first = false;
     }
@@ -413,15 +413,15 @@ bool typeLines(const wxString& lines)  // [UserActions.md#replaceLines]
 constexpr int CLICK_ATTEMPTS = 3;
 constexpr int FOCUS_TIMEOUT_MILLISECONDS = 200;
 
-bool clickIntoField(wxTextCtrl& field)  // [UserActions.md#click-until-focused]
+bool click_into_field(wxTextCtrl& field)  // [UserActions.md#click-until-focused]
 {
     for (int attempt = 0; attempt < CLICK_ATTEMPTS; ++attempt) {
-        if (!clickOn(&field))
+        if (!click_on(&field))
             return false;
-        if (waitUntil([&field] { return field.HasFocus(); }, FOCUS_TIMEOUT_MILLISECONDS))
+        if (wait_until([&field] { return field.HasFocus(); }, FOCUS_TIMEOUT_MILLISECONDS))
             return true;
 #ifdef _MACOS
-        bringToForeground();  // [ForegroundApp.md#bringToForeground]
+        bring_to_foreground();  // [ForegroundApp.md#bring_to_foreground]
 #endif
         wxGetTopLevelParent(&field)->Raise();  // [UserActions.md#raise-when-not-focused]
         pump();
@@ -429,7 +429,7 @@ bool clickIntoField(wxTextCtrl& field)  // [UserActions.md#click-until-focused]
     return true;
 }
 
-bool typedAndShown(wxTextCtrl& field, const wxString& wanted, const std::function<bool()>& type)  // [UserActions.md#retype-once]
+bool typed_and_shown(wxTextCtrl& field, const wxString& wanted, const std::function<bool()>& type)  // [UserActions.md#retype-once]
 {
     if (!type())
         return false;
@@ -441,44 +441,44 @@ bool typedAndShown(wxTextCtrl& field, const wxString& wanted, const std::functio
 
 }
 
-bool pressReturn(int modifiers)  // [UserActions.md#pressReturn]
+bool press_return(int modifiers)  // [UserActions.md#press_return]
 {
 #ifdef _MACOS
-    return postKeyToProcess(RETURN_KEY, flagsOf(modifiers), nullptr);
+    return post_key_to_process(RETURN_KEY, flags_of(modifiers), nullptr);
 #else
     return wxUIActionSimulator().Char(WXK_RETURN, modifiers);
 #endif
 }
 
-bool typeInto(wxWindow* field, const wxString& text)
+bool type_into(wxWindow* field, const wxString& text)
 {
-    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
-    if (textCtrl == nullptr || !clickIntoField(*textCtrl))
+    wxTextCtrl* text_ctrl = dynamic_cast<wxTextCtrl*>(field);
+    if (text_ctrl == nullptr || !click_into_field(*text_ctrl))
         return false;
-    return typedAndShown(*textCtrl, text, [&text] { return typeText(text); });
+    return typed_and_shown(*text_ctrl, text, [&text] { return type_text(text); });
 }
 
-bool replaceText(wxWindow* field, const wxString& text)
+bool replace_text(wxWindow* field, const wxString& text)
 {
-    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
-    if (textCtrl == nullptr || !clickIntoField(*textCtrl))
+    wxTextCtrl* text_ctrl = dynamic_cast<wxTextCtrl*>(field);
+    if (text_ctrl == nullptr || !click_into_field(*text_ctrl))
         return false;
-    textCtrl->SelectAll();  // [UserActions.md#select-after-the-click]
-    return typedAndShown(*textCtrl, text, [&text] { return typeText(text); });
+    text_ctrl->SelectAll();  // [UserActions.md#select-after-the-click]
+    return typed_and_shown(*text_ctrl, text, [&text] { return type_text(text); });
 }
 
-bool replaceLines(wxWindow* field, const wxString& lines)  // [UserActions.md#replaceLines]
+bool replace_lines(wxWindow* field, const wxString& lines)  // [UserActions.md#replace_lines]
 {
-    wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(field);
-    if (textCtrl == nullptr || !textCtrl->IsMultiLine() || !clickIntoField(*textCtrl))
+    wxTextCtrl* text_ctrl = dynamic_cast<wxTextCtrl*>(field);
+    if (text_ctrl == nullptr || !text_ctrl->IsMultiLine() || !click_into_field(*text_ctrl))
         return false;
-    textCtrl->SelectAll();
-    return typedAndShown(*textCtrl, lines, [&lines] { return typeLines(lines); });
+    text_ctrl->SelectAll();
+    return typed_and_shown(*text_ctrl, lines, [&lines] { return type_lines(lines); });
 }
 
 namespace {
 
-void sendCommand(wxWindow& control, wxEventType type, int value)
+void send_command(wxWindow& control, wxEventType type, int value)
 {
     wxCommandEvent event(type, control.GetId());
     event.SetEventObject(&control);
@@ -489,56 +489,56 @@ void sendCommand(wxWindow& control, wxEventType type, int value)
 
 }
 
-bool selectRadioOption(wxWindow* radioBox, int option)  // [UserActions.md#selectRadioOption]
+bool select_radio_option(wxWindow* radio_box, int option)  // [UserActions.md#select_radio_option]
 {
-    wxRadioBox* box = dynamic_cast<wxRadioBox*>(radioBox);
+    wxRadioBox* box = dynamic_cast<wxRadioBox*>(radio_box);
     if (box == nullptr || option < 0 || option >= static_cast<int>(box->GetCount()))
         return false;
     box->SetSelection(option);
-    sendCommand(*box, wxEVT_RADIOBOX, option);
+    send_command(*box, wxEVT_RADIOBOX, option);
     return box->GetSelection() == option;
 }
 
-bool selectEntry(wxWindow* control, const wxString& entry)  // [UserActions.md#selectEntry]
+bool select_entry(wxWindow* control, const wxString& entry)  // [UserActions.md#select_entry]
 {
     wxControlWithItems* box = dynamic_cast<wxControlWithItems*>(control);
     const int index = box != nullptr ? box->FindString(entry) : wxNOT_FOUND;
     if (index == wxNOT_FOUND)
         return false;
     box->SetSelection(index);
-    sendCommand(*box, dynamic_cast<wxListBox*>(control) != nullptr ? wxEVT_LISTBOX : wxEVT_CHOICE, index);
+    send_command(*box, dynamic_cast<wxListBox*>(control) != nullptr ? wxEVT_LISTBOX : wxEVT_CHOICE, index);
     return box->GetSelection() == index;
 }
 
-bool setCheckBox(wxWindow* checkBox, bool checked)  // [UserActions.md#setCheckBox]
+bool set_check_box(wxWindow* check_box, bool checked)  // [UserActions.md#set_check_box]
 {
-    wxCheckBox* box = dynamic_cast<wxCheckBox*>(checkBox);
+    wxCheckBox* box = dynamic_cast<wxCheckBox*>(check_box);
     if (box == nullptr || !box->IsEnabled())
         return false;
-    const int boxSide = box->GetSize().y;
-    if (box->GetValue() != checked && !clickOn(*box, wxPoint(boxSide / 2, boxSide / 2)))  // [UserActions.md#click-the-box]
+    const int box_side = box->GetSize().y;
+    if (box->GetValue() != checked && !click_on(*box, wxPoint(box_side / 2, box_side / 2)))  // [UserActions.md#click-the-box]
         return false;
-    return waitUntil([box, checked] { return box->GetValue() == checked; }, CLICK_TIMEOUT_MILLISECONDS);  // [UserActions.md#click-arrives-later]
+    return wait_until([box, checked] { return box->GetValue() == checked; }, CLICK_TIMEOUT_MILLISECONDS);  // [UserActions.md#click-arrives-later]
 }
 
-bool setSpinValue(wxWindow* spin, int value)  // [UserActions.md#setSpinValue]
+bool set_spin_value(wxWindow* spin, int value)  // [UserActions.md#set_spin_value]
 {
     wxSpinCtrl* control = dynamic_cast<wxSpinCtrl*>(spin);
     if (control == nullptr)
         return false;
     control->SetValue(value);
-    sendCommand(*control, wxEVT_SPINCTRL, control->GetValue());
+    send_command(*control, wxEVT_SPINCTRL, control->GetValue());
     return control->GetValue() == value;
 }
 
-bool showNotebookPage(wxWindow& dialog, const wxString& pageTitle)  // [UserActions.md#showNotebookPage]
+bool show_notebook_page(wxWindow& dialog, const wxString& page_title)  // [UserActions.md#show_notebook_page]
 {
     for (wxWindow* child : dialog.GetChildren()) {
         wxNotebook* notebook = dynamic_cast<wxNotebook*>(child);
         if (notebook == nullptr)
             continue;
         for (size_t page = 0; page < notebook->GetPageCount(); ++page) {
-            if (notebook->GetPageText(page) != pageTitle)
+            if (notebook->GetPageText(page) != page_title)
                 continue;
             notebook->ChangeSelection(page);
             pump();
@@ -548,28 +548,28 @@ bool showNotebookPage(wxWindow& dialog, const wxString& pageTitle)  // [UserActi
     return false;
 }
 
-bool clickWhenEnabled(wxWindow* control, int timeoutMilliseconds)
+bool click_when_enabled(wxWindow* control, int timeout_milliseconds)
 {
     if (control == nullptr)
         return false;
-    if (!waitUntil([control] { return control->IsEnabled(); }, timeoutMilliseconds))  // [UserActions.md#update-ui-needs-idle]
+    if (!wait_until([control] { return control->IsEnabled(); }, timeout_milliseconds))  // [UserActions.md#update-ui-needs-idle]
         return false;
-    return clickOn(control);
+    return click_on(control);
 }
 
-void activateMenuItem(wxFrame& frame, int menuItemId)
+void activate_menu_item(wxFrame& frame, int menu_item_id)
 {
-    wxCommandEvent event(wxEVT_MENU, menuItemId);  // [UserActions.md#activateMenuItem]
+    wxCommandEvent event(wxEVT_MENU, menu_item_id);  // [UserActions.md#activate_menu_item]
     event.SetEventObject(&frame);
     frame.GetEventHandler()->ProcessEvent(event);
 }
 
-bool activateToolbarTool(wxFrame& frame, int toolId)  // [UserActions.md#activateToolbarTool]
+bool activate_toolbar_tool(wxFrame& frame, int tool_id)  // [UserActions.md#activate_toolbar_tool]
 {
     wxToolBar* toolbar = frame.GetToolBar();
-    if (toolbar == nullptr || toolbar->FindById(toolId) == nullptr || !toolbar->GetToolEnabled(toolId))
+    if (toolbar == nullptr || toolbar->FindById(tool_id) == nullptr || !toolbar->GetToolEnabled(tool_id))
         return false;
-    wxCommandEvent event(wxEVT_TOOL, toolId);
+    wxCommandEvent event(wxEVT_TOOL, tool_id);
     event.SetEventObject(toolbar);
     toolbar->GetEventHandler()->ProcessEvent(event);
     pump();
@@ -578,7 +578,7 @@ bool activateToolbarTool(wxFrame& frame, int toolId)  // [UserActions.md#activat
 
 namespace {
 
-wxTreeItemId childNamed(wxTreeCtrl& tree, wxTreeItemId parent, const wxString& label)
+wxTreeItemId child_named(wxTreeCtrl& tree, wxTreeItemId parent, const wxString& label)
 {
     wxTreeItemIdValue cookie;
     for (wxTreeItemId child = tree.GetFirstChild(parent, cookie); child.IsOk();
@@ -591,13 +591,13 @@ wxTreeItemId childNamed(wxTreeCtrl& tree, wxTreeItemId parent, const wxString& l
 
 }
 
-wxTreeItemId findTreeItemForPath(wxTreeCtrl& tree, const std::filesystem::path& path)
+wxTreeItemId find_tree_item_for_path(wxTreeCtrl& tree, const std::filesystem::path& path)
 {
     wxTreeItemId current = tree.GetRootItem();
     for (const auto& segment : path) {
         if (segment == path.root_directory())
             continue;
-        current = childNamed(tree, current, segment.wstring());
+        current = child_named(tree, current, segment.wstring());
         if (!current.IsOk())
             return current;
     }

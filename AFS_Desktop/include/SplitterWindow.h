@@ -32,18 +32,18 @@ class SplitterWindow: public wxSplitterWindow {
 public:
     SplitterWindow(wxFrame *parent);
 
-    void OnPositionChanged(wxSplitterEvent& event);
-    void OnPositionChanging(wxSplitterEvent& event);
-    void OnDClick(wxSplitterEvent& event);
-    void OnUnsplitEvent(wxSplitterEvent& event);
+    void on_position_changed(wxSplitterEvent& event);
+    void on_position_changing(wxSplitterEvent& event);
+    void on_double_click(wxSplitterEvent& event);
+    void on_unsplit_event(wxSplitterEvent& event);
 
-    void splitVertically();
-    void onSelectRoot();
+    void split_vertically();
+    void on_select_root();
     void update();
-    void setSize(int x, int y, int width, int height, int sizeFlags = wxSIZE_AUTO);
-    std::wstring selectedSourcePath() const;
-    std::wstring selectedTargetPath() const;
-    bool mouseClicked() const;
+    void set_size(int x, int y, int width, int height, int size_flags = wxSIZE_AUTO);
+    std::wstring selected_source_path() const;
+    std::wstring selected_target_path() const;
+    bool mouse_clicked() const;
 private:
     wxFrame* parent_;
     Canvas* left_ = nullptr;

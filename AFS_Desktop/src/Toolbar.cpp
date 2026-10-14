@@ -48,20 +48,6 @@ wxString tooltip(const char* msgid)  // [Toolbar.md#tooltips-without-ellipsis]
 }
 }
 
-enum
-{
-    Tool_new,
-    Tool_edit,
-    Tool_save,
-    Tool_delete,
-    Tool_start,
-	Tool_stop,
-    Tool_help,
-    Tool_settings,
-    Tool_Max
-};
-wxBitmap toolBarBitmaps[Tool_Max];
-
 wxToolBar* Toolbar::toolbar()
 {
 	return toolbar_;
@@ -70,21 +56,6 @@ wxToolBar* Toolbar::toolbar()
 void Toolbar::create(wxFrame* parent)
 {
 	toolbar_ = parent->CreateToolBar(wxTB_FLAT | wxTB_NODIVIDER | wxTB_HORIZONTAL, tul(id::ToolBar));
-
-#define INIT_TOOL_BMP(bmp) \
-		toolBarBitmaps[Tool_##bmp] = wxBITMAP(bmp)
-
-	INIT_TOOL_BMP(new);
-	INIT_TOOL_BMP(edit);
-	INIT_TOOL_BMP(save);
-	INIT_TOOL_BMP(delete);
-	INIT_TOOL_BMP(start);
-	INIT_TOOL_BMP(stop);
-	INIT_TOOL_BMP(help);
-	INIT_TOOL_BMP(settings);
-
-	long style = 0;
-	style |= wxTB_TOP;
 	toolbar_->SetToolBitmapSize(wxSize(24, 24));
 	toolbar_->AddTool(tul(id::File_new_Synchronization), wxEmptyString, wxBITMAP(new), tooltip("menu_new_synchronisation"));  // [Toolbar.md#new-first]
 	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), tooltip("edit_synchronisation"));
@@ -99,22 +70,22 @@ void Toolbar::create(wxFrame* parent)
 }
 
 
-void Toolbar::replaceTool(int oldToolId, int newToolId, const wxString& label, const wxBitmap& newBitmap, const wxString& shortHelp)
+void Toolbar::replace_tool(int old_tool_id, int new_tool_id, const wxString& label, const wxBitmap& new_bitmap, const wxString& short_help)
 {
-    size_t pos = toolbar_->GetToolPos(oldToolId);
+    size_t pos = toolbar_->GetToolPos(old_tool_id);
     if (pos != wxNOT_FOUND) {
-        toolbar_->DeleteTool(oldToolId);
-        toolbar_->InsertTool(pos, newToolId, label, newBitmap, wxBitmapBundle(), wxITEM_NORMAL, shortHelp);
+        toolbar_->DeleteTool(old_tool_id);
+        toolbar_->InsertTool(pos, new_tool_id, label, new_bitmap, wxBitmapBundle(), wxITEM_NORMAL, short_help);
         toolbar_->Realize();
     }
 }
 
-void Toolbar::setStarted(bool started)
+void Toolbar::set_started(bool started)
 {
     if (started) {
-        replaceTool(tul(id::StartSync), tul(id::StopSync), tooltip("toolbar_stop_sync"), wxBITMAP(stop), tooltip("toolbar_stop_sync"));
+        replace_tool(tul(id::StartSync), tul(id::StopSync), tooltip("toolbar_stop_sync"), wxBITMAP(stop), tooltip("toolbar_stop_sync"));
     }
     else {
-        replaceTool(tul(id::StopSync), tul(id::StartSync), tooltip("toolbar_start_sync"), wxBITMAP(start), tooltip("toolbar_start_sync"));
+        replace_tool(tul(id::StopSync), tul(id::StartSync), tooltip("toolbar_start_sync"), wxBITMAP(start), tooltip("toolbar_start_sync"));
     }
 }

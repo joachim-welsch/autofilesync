@@ -19,7 +19,7 @@
 #ifdef _MACOS
 #import <Cocoa/Cocoa.h>
 
-void macTransformToForegroundApp()
+void mac_transform_to_foreground_app()
 {
     // Not needed for .app bundles - they are already foreground apps.
     // Calling [NSApp setActivationPolicy:] before wxWidgets initialization

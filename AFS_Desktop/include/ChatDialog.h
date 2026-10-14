@@ -33,7 +33,7 @@ using namespace AFS_Core;  // [ChatDialog.md#ChatDialog]
 class ChatDialog: public wxDialog {
 public:
     using ApplyProposal = std::function<void(const sync_proposal::Proposal& proposal)>;  // [ChatDialog.md#ApplyProposal]
-    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal applyProposal);
+    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal);
     ~ChatDialog() override;
 private:
     struct Pending {  // [ChatDialog.md#Pending]
@@ -41,32 +41,32 @@ private:
         ChatDialog* dialog = nullptr;
     };
 
-    void onSend(wxCommandEvent&);
-    void onProposal(wxCommandEvent&);
-    void onPiece(wxThreadEvent&);
-    void onReply(wxThreadEvent&);
-    void onClose(wxCloseEvent&);
-    void onInputKey(wxKeyEvent&);
-    void appendSpeaker(const wxString& speaker);
-    void appendTurn(const wxString& speaker, const wxString& text);
-    void showStreamed(const wxString& piece);
-    void replaceStreamedTurn(const wxString& text);
-    void showProposal(const std::optional<sync_proposal::Proposal>& proposal);
-    void setWaiting(bool waiting);
-    void runAsync(std::function<ChatReply(const ChatPieceSink&)> call);  // [ChatDialog.md#runAsync]
+    void on_send(wxCommandEvent&);
+    void on_proposal(wxCommandEvent&);
+    void on_piece(wxThreadEvent&);
+    void on_reply(wxThreadEvent&);
+    void on_close(wxCloseEvent&);
+    void on_input_key(wxKeyEvent&);
+    void append_speaker(const wxString& speaker);
+    void append_turn(const wxString& speaker, const wxString& text);
+    void show_streamed(const wxString& piece);
+    void replace_streamed_turn(const wxString& text);
+    void show_proposal(const std::optional<sync_proposal::Proposal>& proposal);
+    void set_waiting(bool waiting);
+    void run_async(std::function<ChatReply(const ChatPieceSink&)> call);  // [ChatDialog.md#run_async]
 
     wxTextCtrl*   transcript_ = nullptr;
     wxTextCtrl*   input_ = nullptr;
-    wxButton*     sendButton_ = nullptr;
-    wxButton*     proposalButton_ = nullptr;  // [ChatDialog.md#proposal-button]
+    wxButton*     send_button_ = nullptr;
+    wxButton*     proposal_button_ = nullptr;  // [ChatDialog.md#proposal-button]
     wxStaticText* status_ = nullptr;
     ChatHistory   history_;
-    bool          answerStreaming_ = false;  // [ChatDialog.md#answerStreaming_]
-    long          turnStart_ = 0;
+    bool          answer_streaming_ = false;  // [ChatDialog.md#answer_streaming_]
+    long          turn_start_ = 0;
     wxString      streamed_;
     std::size_t   shown_ = 0;  // [ChatDialog.md#block-held-back]
     std::optional<sync_proposal::Proposal> proposal_;
-    ApplyProposal applyProposal_;
+    ApplyProposal apply_proposal_;
     std::shared_ptr<LlamaClient> client_ = std::make_shared<LlamaClient>();  // [ChatDialog.md#client_]
     std::shared_ptr<Pending> pending_ = std::make_shared<Pending>();
 

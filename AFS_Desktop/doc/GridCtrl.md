@@ -2,10 +2,10 @@
 
 Module comment for GridCtrl.h / GridCtrl.cpp.
 
-## kMinRowLabelSize
+## MIN_ROW_LABEL_SIZE
 
 Lower bound for the name column (the row label) so that short names do not leave it needlessly
-narrow; longer names widen it beyond this through wxGRID_AUTOSIZE in addDataItems().
+narrow; longer names widen it beyond this through wxGRID_AUTOSIZE in add_data_items().
 
 ## row-label-alignment
 
@@ -30,6 +30,6 @@ renamed it).
 
 ## empty-source-or-target-rejected
 
-SyncItemDialog disables its OK button while source/target are empty (onUpdateOkButton); the
+SyncItemDialog disables its OK button while source/target are empty (on_update_ok_button); the
 grid's inline cell edit has no such gate, so it must reject the same case explicitly instead of
 silently saving it.

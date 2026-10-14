@@ -9,7 +9,7 @@ the dialog opened with - which are the current settings, so the same driver serv
 that changes one value and one that provokes a validation message. The log level is given
 as the entry's text ("Debug" ... "FatalError"), the way the user reads it in the list.
 
-## enterValues
+## enter_values
 
 Each field reports itself: without that, a failed interaction is indistinguishable from a
 broken feature - both end as "not taken over".
@@ -31,7 +31,7 @@ dialog open behind a message box. A test that expects that answers the box throu
 ModalDialogWatcher::answer(); the driver then finds the dialog still open and cancels it, so
 the test does not hang and the settings stay untouched.
 
-## fillLoggingDialog
+## fill_logging_dialog
 
 Fills the "Logging-Einstellungen" dialog the way a user would and confirms it with OK. Pass the
 result to ModalDialogWatcher::expect().

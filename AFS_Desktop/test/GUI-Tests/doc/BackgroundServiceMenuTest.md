@@ -2,14 +2,14 @@
 
 Module comment for BackgroundServiceMenuTest.cpp.
 
-## backgroundServiceMenu
+## background_service_menu
 
 The menu bar owns what Menu::create() appended, so the item lookup yields the same wxMenu that
-MainWindow::onMenuOpen compares the opened menu against.
+MainWindow::on_menu_open compares the opened menu against.
 
-## openMenu
+## open_menu
 
-A menu bar cannot be opened headlessly (see UserActions.cpp's activateMenuItem()), so this sends
+A menu bar cannot be opened headlessly (see UserActions.cpp's activate_menu_item()), so this sends
 the event that opening it produces. MainWindow refreshes the two commands from there, because
 the service can be started and stopped outside of AutoFileSync as well.
 

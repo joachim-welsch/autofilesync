@@ -27,13 +27,13 @@ class GridCtrl: public wxGrid {
 public:
     GridCtrl(wxWindow* parent, const wxWindowID id, const wxPoint& pos, const wxSize& size);
 
-    void addDataItems();
-    std::wstring getSelected() const;
+    void add_data_items();
+    std::wstring get_selected() const;
     void update();
-    void adjustColumnWidths(int windowWidth);
+    void adjust_column_widths(int window_width);
 private:
-    void OnCellValueChanged(wxGridEvent&);
-    void OnModifyEntry(wxGridEvent&);
+    void on_cell_value_changed(wxGridEvent&);
+    void on_modify_entry(wxGridEvent&);
     wxDECLARE_EVENT_TABLE();
 };
 

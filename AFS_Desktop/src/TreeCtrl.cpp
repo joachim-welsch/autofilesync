@@ -49,7 +49,7 @@ using std::vector;
 using std::nullopt;
 
 wxBEGIN_EVENT_TABLE(TreeCtrl, wxTreeCtrl)
-    EVT_LEFT_DOWN(TreeCtrl::OnMouseLeftDown)
+    EVT_LEFT_DOWN(TreeCtrl::on_mouse_left_down)
 wxEND_EVENT_TABLE()
 
 TreeCtrl::TreeCtrl(Canvas* parent, const wxWindowID id,
@@ -57,33 +57,33 @@ TreeCtrl::TreeCtrl(Canvas* parent, const wxWindowID id,
     : wxTreeCtrl(parent, id, pos, size, style)
     , parent_(parent)
 {
-    CreateImageList();
-    AddRootItemToTree();
+    create_image_list();
+    add_root_item_to_tree();
 }
 
-void TreeCtrl::OnMouseLeftDown(wxMouseEvent& evt)
+void TreeCtrl::on_mouse_left_down(wxMouseEvent& evt)
 {
     wxPoint position = evt.GetPosition();
     int flags = 0;
-    parent_->onItemLeftClicked(HitTest(position, flags));
+    parent_->on_item_left_clicked(HitTest(position, flags));
     if (position.x >= 0 && position.y >= 0) {
-        mouseClicked_ = true;
+        mouse_clicked_ = true;
     }
     evt.Skip();
 }
 
-void TreeCtrl::AddRootItemToTree()
+void TreeCtrl::add_root_item_to_tree()
 {
     const wxString label = translation::translate("tree_root");
-    rootId_ = AddRoot(label, TreeCtrlIcon_Folder, TreeCtrlIcon_Folder, new TreeItemData(label));
+    root_id_ = AddRoot(label, TreeCtrlIcon_Folder, TreeCtrlIcon_Folder, new TreeItemData(label));
     if (!HasFlag(wxTR_HIDE_ROOT) /* && image != -1*/)
     {
-        SetItemImage(rootId_, TreeCtrlIcon_FolderOpened, wxTreeItemIcon_Expanded);
+        SetItemImage(root_id_, TreeCtrlIcon_FolderOpened, wxTreeItemIcon_Expanded);
     }
 }
 
 
-void TreeCtrl::CreateImageList(int size)
+void TreeCtrl::create_image_list(int size)
 {
     if (size == -1)
     {
@@ -91,9 +91,9 @@ void TreeCtrl::CreateImageList(int size)
         return;
     }
     if (size == 0)
-        size = imageSize_;
+        size = image_size_;
     else
-        imageSize_ = size;
+        image_size_ = size;
 
     wxImageList* images = new wxImageList(size, size, true);
 
@@ -105,8 +105,8 @@ void TreeCtrl::CreateImageList(int size)
     icons[TreeCtrlIcon_FolderOpened] = wxIcon(icon5_xpm);
     for (size_t i = 0; i < WXSIZEOF(icons); i++)
     {
-        int sizeOrig = icons[0].GetWidth();
-        if (size == sizeOrig)
+        int size_orig = icons[0].GetWidth();
+        if (size == size_orig)
         {
             images->Add(icons[i]);
         }
@@ -118,38 +118,38 @@ void TreeCtrl::CreateImageList(int size)
     AssignImageList(images);
 }
 
-void TreeCtrl::CreateStateImageList(bool /*del*/)
+void TreeCtrl::create_state_image_list(bool /*del*/)
 {
 }
 
-wxTreeItemId TreeCtrl::rootId() const
+wxTreeItemId TreeCtrl::root_id() const
 {
-    return rootId_;
+    return root_id_;
 }
 
-wxTreeItemId TreeCtrl::addBranch(const wstring& l, Tree& tree, SyncItemType syncType)
+wxTreeItemId TreeCtrl::add_branch(const wstring& l, Tree& tree, SyncItemType sync_type)
 {
     vector<wstring> strs;
-    const bool backslashPath = l.find(L'\\') != wstring::npos;  // [TreeCtrl.md#separator-detected-from-path]
-    boost::split(strs, l, boost::is_any_of(backslashPath ? "\\" : "/"));
+    const bool backslash_path = l.find(L'\\') != wstring::npos;  // [TreeCtrl.md#separator-detected-from-path]
+    boost::split(strs, l, boost::is_any_of(backslash_path ? "\\" : "/"));
     strs.erase(std::remove_if(strs.begin(), strs.end(), [](const wstring& s) { return s.empty(); }), strs.end());  // [TreeCtrl.md#empty-segments-removed]
     int image = 0;
-    wxTreeItemId id = rootId_;
-    const wchar_t separator = backslashPath ? L'\\' : L'/';
+    wxTreeItemId id = root_id_;
+    const wchar_t separator = backslash_path ? L'\\' : L'/';
     wstring path = l.substr(0, l.find_first_not_of(separator));  // [TreeCtrl.md#leading-separator-restored]
     for (const wstring& i: strs) {
         path += i;
-        wxTreeItemId parentId = id;
+        wxTreeItemId parent_id = id;
         auto optid=tree.id(path);
         if (optid == nullopt) {
             id = AppendItem(id, i, image, image, new TreeItemData(i));
             if (&i != &strs.back()) {
-                tree.addNode(parentId, id, path);
+                tree.add_node(parent_id, id, path);
                 SetItemImage(id, TreeCtrlIcon_FolderOpened, wxTreeItemIcon_Normal);
             }
             else {
-                tree.addLeaf(parentId, id, path, nullptr);
-                if (syncType == SyncItemType::File) {
+                tree.add_leaf(parent_id, id, path, nullptr);
+                if (sync_type == SyncItemType::File) {
                     SetItemImage(id, TreeCtrlIcon_File, wxTreeItemIcon_Normal);
                     SetItemImage(id, TreeCtrlIcon_FileSelected, wxTreeItemIcon_Selected);
                 }
@@ -171,10 +171,10 @@ wxTreeItemId TreeCtrl::addBranch(const wstring& l, Tree& tree, SyncItemType sync
 void TreeCtrl::update()
 {
     DeleteAllItems();
-    AddRootItemToTree();
+    add_root_item_to_tree();
 }
 
-void TreeCtrl::ExpandNode(wxTreeItemId node)
+void TreeCtrl::expand_node(wxTreeItemId node)
 {
     if (node != GetRootItem())
         Expand(node);
@@ -182,19 +182,19 @@ void TreeCtrl::ExpandNode(wxTreeItemId node)
     wxTreeItemId child = GetFirstChild(node, cookie);
     while (child.IsOk())
     {
-        ExpandNode(child);
+        expand_node(child);
         child = GetNextChild(node, cookie);
     }
 }
 
-bool TreeCtrl::mouseClicked() 
+bool TreeCtrl::mouse_clicked() 
 { 
     static int requestcout = 0;
-    bool retval = mouseClicked_;
-    if (mouseClicked_)
+    bool retval = mouse_clicked_;
+    if (mouse_clicked_)
         ++requestcout;
     if (requestcout==2) {  // there are always 2 instances of TreeCtrl asked about mouse clicked
-        mouseClicked_ = false;
+        mouse_clicked_ = false;
         requestcout = 0;
     }
     return retval; 

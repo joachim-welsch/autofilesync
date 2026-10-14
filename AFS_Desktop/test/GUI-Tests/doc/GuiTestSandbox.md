@@ -2,7 +2,7 @@
 
 Module comment for GuiTestSandbox.h / GuiTestSandbox.cpp.
 
-## setEnvironmentVariable
+## set_environment_variable
 
 Both blocks are needed: the configuration reads its paths through the CRT environment
 (_wdupenv_s), wxWidgets through the Win32 one.
@@ -19,14 +19,14 @@ recycle bin's default path hangs on it. Without these two the application under 
 emptied into - and a test once emptied - the developer's real `~/.recyclebin`. HOMEPATH
 carries the path without the drive and with a leading backslash, the way Windows sets it.
 
-## minimalConfig
+## minimal_config
 
 Enough of a configuration to keep the start-up quiet: an unreadable or missing file makes
 Config::read() pop up a message box before any test runs. The log path is written with forward
 slashes - a Windows path with backslashes would be an invalid escape sequence for the JSON
 parser.
 
-## isolateInputMethod
+## isolate_input_method
 
 Under GTK the application under test would otherwise connect to the desktop's input method
 daemon (ibus on GNOME), which then stands between the simulated keystrokes and the text field:
@@ -36,7 +36,7 @@ the developer's keyboard layout through it. GTK's built-in context translates th
 itself, synchronously, with the layout the keys were looked up in (see UserActions.md). Set
 before wxWidgets starts, because GTK reads the variable while it initialises.
 
-## isolatePreferences
+## isolate_preferences
 
 The window geometry and the help window's settings go through wxConfig, which does not follow
 the redirected environment everywhere: on macOS wxStandardPaths asks the system for the
@@ -46,7 +46,7 @@ every click on the synchronisation list landed outside the display. A file in th
 replaces the default before the application initialises, and wxWidgets deletes it with the
 other modules at wxEntryCleanup(), before the sandbox is removed.
 
-## configFile
+## config_file
 
 The same place Config::get_root_pathname() derives from the redirected environment, per
 platform: APPDATA on Windows, Library/Application Support under HOME on macOS,

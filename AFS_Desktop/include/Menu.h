@@ -23,25 +23,25 @@
 #endif
 
 class Menu {
-	wxMenu*		editMenu_ = nullptr;
-	wxMenu*		viewMenu_ = nullptr;
-	wxMenu*		syncMenu_ = nullptr;
-	wxMenu*		backgroundServiceMenu_ = nullptr;
-	wxMenuBar*	menuBar_ = nullptr;
+	wxMenu*		edit_menu_ = nullptr;
+	wxMenu*		view_menu_ = nullptr;
+	wxMenu*		sync_menu_ = nullptr;
+	wxMenu*		background_service_menu_ = nullptr;
+	wxMenuBar*	menu_bar_ = nullptr;
 
-	wxMenu* createFileMenu();
-	wxMenu* createEditMenu();
-	wxMenu* createViewMenu();
-	wxMenu* createSyncMenu();
-	wxMenu* createBackgroundServiceMenu();
-	wxMenu* createHelpMenu();
+	wxMenu* create_file_menu();
+	wxMenu* create_edit_menu();
+	wxMenu* create_view_menu();
+	wxMenu* create_sync_menu();
+	wxMenu* create_background_service_menu();
+	wxMenu* create_help_menu();
 public:
 	void create();
-	wxMenuBar* menuBar();
-	wxMenu* editMenu();
-	wxMenu* viewMenu();
-	wxMenu* syncMenu();
-	wxMenu* backgroundServiceMenu();
+	wxMenuBar* menu_bar();
+	wxMenu* edit_menu();
+	wxMenu* view_menu();
+	wxMenu* sync_menu();
+	wxMenu* background_service_menu();
 	~Menu();
 };
 

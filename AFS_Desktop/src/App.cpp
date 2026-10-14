@@ -47,7 +47,7 @@ IMPLEMENT_APP(App);
 using utilwx::tul;
 
 namespace {
-std::filesystem::path messageCatalogueDir()  // [App.md#messageCatalogueDir]
+std::filesystem::path message_catalogue_dir()  // [App.md#message_catalogue_dir]
 {
     wxFileName exe(wxStandardPaths::Get().GetExecutablePath());
     exe.SetFullName(wxEmptyString);
@@ -63,12 +63,12 @@ std::filesystem::path messageCatalogueDir()  // [App.md#messageCatalogueDir]
 bool App::OnInit()
 {
 #ifdef _MACOS
-    macTransformToForegroundApp();
+    mac_transform_to_foreground_app();
 #endif
     locale_.Init(wxLANGUAGE_DEFAULT);  // [App.md#wx-locale]
-    translation::init_locale(translation::DEFAULT_LOCALES);  // [App.md#initLocale]
-    translation::init(messageCatalogueDir());  // [App.md#language-from-environment]
-    if (singleInstanceChecker_.IsAnotherRunning()) {
+    translation::init_locale(translation::DEFAULT_LOCALES);  // [App.md#init_locale]
+    translation::init(message_catalogue_dir());  // [App.md#language-from-environment]
+    if (single_instance_checker_.IsAnotherRunning()) {
         log_error(translation::translate("start_aborted_other_instance"));  // [App.md#log-single-instance]
         wxLogError("%s", translation::translate("already_running"));
 		return false;
@@ -85,16 +85,16 @@ bool App::OnInit()
         log_warning(*mismatch);
         wxLogWarning("%s", *mismatch);
     }
-	if (consoleMode_) {
-		main->setConsoleMode();
-		main->syncInterface().runConsoleSync();
+	if (console_mode_) {
+		main->set_console_mode();
+		main->sync_interface().run_console_sync();
 		main->Close(true);
 		return true;
 	}
     if (Config::instance().settings().start_minimized())
 		main->Iconize(true);
     else {
-        provider->SetHelpController(&main->GetHelpController());
+        provider->SetHelpController(&main->get_help_controller());
         main->Center();
 		main->Show(true);
     }
@@ -125,6 +125,6 @@ void App::OnInitCmdLine(wxCmdLineParser& parser)
 
 bool App::OnCmdLineParsed(wxCmdLineParser& parser)
 {
-    consoleMode_ = parser.Found(wxT("console"));
+    console_mode_ = parser.Found(wxT("console"));
     return true;
 }

@@ -2,7 +2,7 @@
 
 Module comment for ForegroundApp.h / ForegroundApp.mm (macOS only).
 
-## bringToForeground
+## bring_to_foreground
 
 macOS delivers keyboard events to the active application and lets only its windows become key.
 A test binary started from a terminal is not necessarily activated - which application is

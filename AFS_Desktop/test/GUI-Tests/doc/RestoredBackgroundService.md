@@ -2,7 +2,7 @@
 
 Module comment for RestoredBackgroundService.h.
 
-## serviceControllable
+## service_controllable
 
 Whether this user may start and stop the installed service without a password prompt - the
 prompt of UAC or polkit is something no test can answer. polkit only tells root whether a given

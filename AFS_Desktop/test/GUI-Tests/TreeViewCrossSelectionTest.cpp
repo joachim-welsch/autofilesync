@@ -36,48 +36,48 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString syncItemName = "guitest-baumansicht-gegenseite";
+const wxString sync_item_name = "guitest-baumansicht-gegenseite";
 
 }
 
 TEST_F(GuiTest, LinksclickImBaumZeigtDenPfadAufDerAnderenSeite)  // [TreeViewCrossSelectionTest.md#LinksclickImBaumZeigtDenPfadAufDerAnderenSeite]
 {
-    const SyncItemInput input{syncItemName,
-        GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
-    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(input));
-    activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
+    const SyncItemInput input{sync_item_name,
+        GuiTestSandbox::source_dir().string(), GuiTestSandbox::target_dir().string()};
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fill_sync_item_dialog(input));
+    activate_menu_item(main_window(), tul(id::File_new_Synchronization));
     pump();
-    ASSERT_TRUE(Config::instance().find_by_name(syncItemName.ToStdWstring()).has_value())
+    ASSERT_TRUE(Config::instance().find_by_name(sync_item_name.ToStdWstring()).has_value())
         << "Die Synchronisation wurde nicht angelegt.";
 
-    activateMenuItem(mainWindow(), tul(id::View_Tree));
+    activate_menu_item(main_window(), tul(id::View_Tree));
     pump();
 
-    wxWindow* sourceCanvas = wxWindow::FindWindowByName("source", &mainWindow());
-    wxWindow* targetCanvas = wxWindow::FindWindowByName("target", &mainWindow());
-    ASSERT_NE(sourceCanvas, nullptr) << "Das Quell-Panel der Baumansicht wurde nicht gefunden.";
-    ASSERT_NE(targetCanvas, nullptr) << "Das Ziel-Panel der Baumansicht wurde nicht gefunden.";
-    wxTreeCtrl* sourceTree = dynamic_cast<wxTreeCtrl*>(find(*sourceCanvas, ID_SRC_TREE_CTRL));
-    wxTreeCtrl* targetTree = dynamic_cast<wxTreeCtrl*>(find(*targetCanvas, ID_SRC_TREE_CTRL));
-    ASSERT_NE(sourceTree, nullptr) << "Der Baum des Quell-Panels wurde nicht gefunden.";
-    ASSERT_NE(targetTree, nullptr) << "Der Baum des Ziel-Panels wurde nicht gefunden.";
+    wxWindow* source_canvas = wxWindow::FindWindowByName("source", &main_window());
+    wxWindow* target_canvas = wxWindow::FindWindowByName("target", &main_window());
+    ASSERT_NE(source_canvas, nullptr) << "Das Quell-Panel der Baumansicht wurde nicht gefunden.";
+    ASSERT_NE(target_canvas, nullptr) << "Das Ziel-Panel der Baumansicht wurde nicht gefunden.";
+    wxTreeCtrl* source_tree = dynamic_cast<wxTreeCtrl*>(find(*source_canvas, ID_SRC_TREE_CTRL));
+    wxTreeCtrl* target_tree = dynamic_cast<wxTreeCtrl*>(find(*target_canvas, ID_SRC_TREE_CTRL));
+    ASSERT_NE(source_tree, nullptr) << "Der Baum des Quell-Panels wurde nicht gefunden.";
+    ASSERT_NE(target_tree, nullptr) << "Der Baum des Ziel-Panels wurde nicht gefunden.";
 
-    const wxTreeItemId sourceItem = findTreeItemForPath(*sourceTree, GuiTestSandbox::sourceDir());
-    const wxTreeItemId targetItem = findTreeItemForPath(*targetTree, GuiTestSandbox::targetDir());
-    ASSERT_TRUE(sourceItem.IsOk()) << "Der Quellordner der Synchronisation fehlt im Baum.";
-    ASSERT_TRUE(targetItem.IsOk()) << "Der Zielordner der Synchronisation fehlt im Baum.";
-    sourceTree->EnsureVisible(sourceItem);
+    const wxTreeItemId source_item = find_tree_item_for_path(*source_tree, GuiTestSandbox::source_dir());
+    const wxTreeItemId target_item = find_tree_item_for_path(*target_tree, GuiTestSandbox::target_dir());
+    ASSERT_TRUE(source_item.IsOk()) << "Der Quellordner der Synchronisation fehlt im Baum.";
+    ASSERT_TRUE(target_item.IsOk()) << "Der Zielordner der Synchronisation fehlt im Baum.";
+    source_tree->EnsureVisible(source_item);
     pump();
 
-    ASSERT_TRUE(clickOn(*sourceTree, sourceItem)) << "Der Quellordner konnte nicht angeklickt werden.";
-    EXPECT_EQ(targetTree->GetSelection(), targetItem)
+    ASSERT_TRUE(click_on(*source_tree, source_item)) << "Der Quellordner konnte nicht angeklickt werden.";
+    EXPECT_EQ(target_tree->GetSelection(), target_item)
         << "Der Klick auf den Quellordner haette den zugehoerigen Zielordner auswaehlen sollen.";
 
-    sourceTree->SelectItem(sourceTree->GetRootItem(), false);  // and the other way round: clicking the target side reveals the source
-    targetTree->EnsureVisible(targetItem);
+    source_tree->SelectItem(source_tree->GetRootItem(), false);  // and the other way round: clicking the target side reveals the source
+    target_tree->EnsureVisible(target_item);
     pump();
-    ASSERT_TRUE(clickOn(*targetTree, targetItem)) << "Der Zielordner konnte nicht angeklickt werden.";
-    EXPECT_EQ(sourceTree->GetSelection(), sourceItem)
+    ASSERT_TRUE(click_on(*target_tree, target_item)) << "Der Zielordner konnte nicht angeklickt werden.";
+    EXPECT_EQ(source_tree->GetSelection(), source_item)
         << "Der Klick auf den Zielordner haette den zugehoerigen Quellordner auswaehlen sollen.";
 }
 

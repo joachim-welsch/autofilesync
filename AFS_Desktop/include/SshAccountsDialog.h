@@ -37,24 +37,24 @@ public:
     virtual ~SshAccountsDialog();
 
 private:
-    void populateList();
-    void updateButtons();
+    void populate_list();
+    void update_buttons();
     
-    void onAdd(wxCommandEvent& event);
-    void onEdit(wxCommandEvent& event);
-    void onDelete(wxCommandEvent& event);
-    void onListDClick(wxMouseEvent& event);
-    void onListSelect(wxListEvent& event);
-    void onListDeselect(wxListEvent& event);
-    void onEndLabelEdit(wxListEvent& event);
+    void on_add(wxCommandEvent& event);
+    void on_edit(wxCommandEvent& event);
+    void on_delete(wxCommandEvent& event);
+    void on_list_double_click(wxMouseEvent& event);
+    void on_list_select(wxListEvent& event);
+    void on_list_deselect(wxListEvent& event);
+    void on_end_label_edit(wxListEvent& event);
     
-    void editSelectedItem();
-    long getSelectedIndex() const;
+    void edit_selected_item();
+    long get_selected_index() const;
 
-    wxListCtrl* listCtrl_ = nullptr;
-    wxButton* addButton_ = nullptr;
-    wxButton* editButton_ = nullptr;
-    wxButton* deleteButton_ = nullptr;
+    wxListCtrl* list_ctrl_ = nullptr;
+    wxButton* add_button_ = nullptr;
+    wxButton* edit_button_ = nullptr;
+    wxButton* delete_button_ = nullptr;
 
     DECLARE_EVENT_TABLE()
 };

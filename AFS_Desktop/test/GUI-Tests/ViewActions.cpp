@@ -30,33 +30,33 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-wxTreeCtrl* treeOf(MainWindow& window, const char* canvasName)
+wxTreeCtrl* tree_of(MainWindow& window, const char* canvas_name)
 {
-    wxWindow* canvas = wxWindow::FindWindowByName(canvasName, &window);
+    wxWindow* canvas = wxWindow::FindWindowByName(canvas_name, &window);
     return canvas != nullptr ? dynamic_cast<wxTreeCtrl*>(find(*canvas, ID_SRC_TREE_CTRL)) : nullptr;
 }
 
 }
 
-void showView(MainWindow& window, id view)
+void show_view(MainWindow& window, id view)
 {
-    activateMenuItem(window, tul(view));
+    activate_menu_item(window, tul(view));
     pump();
 }
 
-GridCtrl* gridView(MainWindow& window)
+GridCtrl* grid_view(MainWindow& window)
 {
     return dynamic_cast<GridCtrl*>(find(window, tul(id::GridCtrl)));
 }
 
-wxTreeCtrl* sourceTree(MainWindow& window)
+wxTreeCtrl* source_tree(MainWindow& window)
 {
-    return treeOf(window, "source");
+    return tree_of(window, "source");
 }
 
-wxTreeCtrl* targetTree(MainWindow& window)
+wxTreeCtrl* target_tree(MainWindow& window)
 {
-    return treeOf(window, "target");
+    return tree_of(window, "target");
 }
 
 }

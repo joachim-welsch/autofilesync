@@ -28,7 +28,7 @@
 
 namespace guitest {
 
-inline bool serviceControllable()  // [RestoredBackgroundService.md#serviceControllable]
+inline bool service_controllable()  // [RestoredBackgroundService.md#service_controllable]
 {
     using State = BackgroundService::State;
     const State state = BackgroundService::state();
@@ -53,19 +53,19 @@ inline bool serviceControllable()  // [RestoredBackgroundService.md#serviceContr
 
 class RestoredBackgroundService {  // [RestoredBackgroundService.md#RestoredBackgroundService]
 public:
-    RestoredBackgroundService(): wasRunning_(running()) {}
+    RestoredBackgroundService(): was_running_(running()) {}
     ~RestoredBackgroundService()
     {
-        if (running() && !wasRunning_)
+        if (running() && !was_running_)
             BackgroundService::stop();
-        else if (!running() && wasRunning_)
+        else if (!running() && was_running_)
             BackgroundService::start();
     }
     RestoredBackgroundService(const RestoredBackgroundService&) = delete;
     RestoredBackgroundService& operator=(const RestoredBackgroundService&) = delete;
 private:
     static bool running() { return BackgroundService::state() == BackgroundService::State::Running; }
-    bool wasRunning_;
+    bool was_running_;
 };
 
 }

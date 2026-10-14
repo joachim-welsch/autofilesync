@@ -7,7 +7,7 @@ Module comment for SshSyncTest.cpp.
 An SSH path is "account:path", and the account is looked up by that prefix; the account is
 named after the host here so that a path reads the way the help shows it.
 
-## statusOf
+## status_of
 
 The dialog exposes no accessor for its status line; it is the static text that does not start
 like the connection header (ssh_connection_info up to its first placeholder). The status is what

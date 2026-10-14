@@ -37,14 +37,14 @@ using util::wstring_to_string;
 namespace guitest {
 namespace {
 constexpr int REPLY_TIMEOUT_MILLISECONDS = 600000;  // [ChatLogQuestionTest.md#wait-for-the-answer]
-const wxString logQuestion = "Gibt es Warnings im Log?";
+const wxString LOG_QUESTION = "Gibt es Warnings im Log?";
 
-void writeSampleLogEntries(const std::string& path)  // [ChatLogQuestionTest.md#writeSampleLogEntries]
+void write_sample_log_entries(const std::string& path)  // [ChatLogQuestionTest.md#write_sample_log_entries]
 {
     std::ofstream out(path, std::ios::app);
-    constexpr std::size_t minBytes = 4000; // comfortably above maxLogExcerptChars
+    constexpr std::size_t MIN_BYTES = 4000; // comfortably above MAX_LOG_EXCERPT_CHARS
     std::size_t written = 0;
-    for (int i = 0; written < minBytes; ++i) {
+    for (int i = 0; written < MIN_BYTES; ++i) {
         std::ostringstream line;
         line << "2026-08-12 16:35:" << std::setw(2) << std::setfill('0') << (i % 60)
              << ".415 Warning\tZielverzeichnis fast voll (Eintrag " << i
@@ -56,19 +56,19 @@ void writeSampleLogEntries(const std::string& path)  // [ChatLogQuestionTest.md#
 
 class ScopedSampleLogEntries {  // [ChatLogQuestionTest.md#ScopedSampleLogEntries]
     std::string path_;
-    std::string originalContent_;
+    std::string original_content_;
 public:
     explicit ScopedSampleLogEntries(std::string path)
         : path_(std::move(path))
     {
         std::ostringstream content;
         content << std::ifstream(path_).rdbuf();
-        originalContent_ = content.str();
-        writeSampleLogEntries(path_);
+        original_content_ = content.str();
+        write_sample_log_entries(path_);
     }
     ~ScopedSampleLogEntries()
     {
-        std::ofstream(path_, std::ios::trunc) << originalContent_;
+        std::ofstream(path_, std::ios::trunc) << original_content_;
     }
 };
 
@@ -87,30 +87,30 @@ private:
 
 TEST_F(SlowGuiTest, LogFrageWirdImChatBeantwortet)  // [ChatLogQuestionTest.md#LogFrageWirdImChatBeantwortet]
 {
-    const ScopedSampleLogEntries sampleLog(wstring_to_string(Logging::instance().get_log_file_path_name()));
+    const ScopedSampleLogEntries sample_log(wstring_to_string(Logging::instance().get_log_file_path_name()));
 
-    activateMenuItem(mainWindow(), tul(id::Chat));
+    activate_menu_item(main_window(), tul(id::Chat));
 
     wxWindow* input = nullptr;  // [ChatLogQuestionTest.md#dialog-is-a-separate-window]
-    ASSERT_TRUE(waitUntil([&input] {
+    ASSERT_TRUE(wait_until([&input] {
         input = wxWindow::FindWindowById(ID_CHAT_INPUT);
         return input != nullptr && input->IsShownOnScreen();
     })) << "Der Chat-Dialog wurde nicht geöffnet.";
     const HiddenChatDialog hidden(input);
-    wxWindow* sendButton = wxWindow::FindWindowById(ID_CHAT_SEND);
+    wxWindow* send_button = wxWindow::FindWindowById(ID_CHAT_SEND);
     wxWindow* transcript = wxWindow::FindWindowById(ID_CHAT_TRANSCRIPT);
-    ASSERT_NE(sendButton, nullptr);
+    ASSERT_NE(send_button, nullptr);
     ASSERT_NE(transcript, nullptr);
 
-    ASSERT_TRUE(typeInto(input, logQuestion));
-    ASSERT_TRUE(clickWhenEnabled(sendButton));
+    ASSERT_TRUE(type_into(input, LOG_QUESTION));
+    ASSERT_TRUE(click_when_enabled(send_button));
 
-    ASSERT_TRUE(waitUntil([sendButton] { return sendButton->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS))  // [ChatLogQuestionTest.md#wait-for-the-answer]
+    ASSERT_TRUE(wait_until([send_button] { return send_button->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS))  // [ChatLogQuestionTest.md#wait-for-the-answer]
         << "Der Assistent hat nicht geantwortet.";
 
-    const wxString transcriptText = valueOf(transcript);
-    EXPECT_NE(transcriptText.Find(logQuestion), wxNOT_FOUND) << "Die Frage fehlt im Verlauf.";
-    EXPECT_TRUE(transcriptText.Contains(translation::translate("chat_assistant") + L":") || transcriptText.Contains(translation::translate("error") + L":"))
+    const wxString transcript_text = value_of(transcript);
+    EXPECT_NE(transcript_text.Find(LOG_QUESTION), wxNOT_FOUND) << "Die Frage fehlt im Verlauf.";
+    EXPECT_TRUE(transcript_text.Contains(translation::translate("chat_assistant") + L":") || transcript_text.Contains(translation::translate("error") + L":"))
         << "Es kam keine Antwort im Verlauf an.";
 }
 

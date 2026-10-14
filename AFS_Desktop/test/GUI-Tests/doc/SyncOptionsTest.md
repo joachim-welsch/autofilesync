@@ -22,7 +22,7 @@ the recycle bin, i.e. removed according to the delete mode, not lost.
 The second run has to see a newer source, and the comparison is by date: the pause before
 the rewrite keeps the two write times apart on a file system with coarse timestamps.
 
-## sameWriteTime
+## same_write_time
 
 Same size, same write time, different content: the case only a content comparison can tell
 apart. The pair of tests shows both sides - the content comparison copies, the date

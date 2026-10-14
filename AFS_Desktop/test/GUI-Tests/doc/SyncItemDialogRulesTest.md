@@ -2,13 +2,13 @@
 
 Module comment for SyncItemDialogRulesTest.cpp.
 
-## inspectAndCancel
+## inspect_and_cancel
 
 These tests are about the dialog's own rules, not about creating anything: the action reads
 and pokes the controls and always cancels, so the configuration is untouched and the fixture's
 TearDown has nothing to find.
 
-## okEnabled
+## ok_enabled
 
 OK is guarded by EVT_UPDATE_UI, which only runs while the event loop is idle; the pump before
 reading the state is what lets the rule catch up with the last keystroke.

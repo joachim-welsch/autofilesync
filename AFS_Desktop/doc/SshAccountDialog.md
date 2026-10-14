@@ -8,14 +8,14 @@ The colon is checked before the character rule, which would reject it too: the c
 separator between account name and path in "name:/path", and the message naming it tells the
 user why this one character matters more than any other rejected one.
 
-## validateSshAccountName
+## validate_ssh_account_name
 
 Shared with SshAccountsDialog's inline label edit, which otherwise bypasses this dialog's
 validation entirely. Returns the German error message if name is invalid, nullopt if it's fine.
 
-## passwordFromAccount
+## password_from_account
 
-Counterpart of saveData(): passwords are stored as UTF-8 bytes. FromUTF8() yields an empty
+Counterpart of save_data(): passwords are stored as UTF-8 bytes. FromUTF8() yields an empty
 string for anything else, so a password written by an older version that encoded it in the local
 codepage still has to go through the locale converter instead of being wiped when the dialog is
 reopened.
@@ -35,6 +35,6 @@ would silently be lost on Windows. UTF-8 keeps every character, is what SSH expe
 
 ## name-compared-against-original
 
-name_ still holds the original name at Validate() time (setData() set it,
+name_ still holds the original name at Validate() time (set_data() set it,
 TransferDataFromWindow() only runs after Validate() succeeds) - comparing against it, not just
 checking for any existing match, also allows leaving an existing account's own name unchanged.

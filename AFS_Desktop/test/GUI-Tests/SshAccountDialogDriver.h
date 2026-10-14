@@ -30,11 +30,11 @@ struct SshAccountInput {
     wxString password;
 };
 
-DialogAction fillSshAccountDialog(const SshAccountInput& input);  // [SshAccountDialogDriver.md#fillSshAccountDialog]
+DialogAction fill_ssh_account_dialog(const SshAccountInput& input);  // [SshAccountDialogDriver.md#fill_ssh_account_dialog]
 
-DialogAction addSshAccountAndClose();  // [SshAccountDialogDriver.md#addSshAccountAndClose]
-DialogAction editSshAccountAndClose(const wxString& accountName);  // [SshAccountDialogDriver.md#editSshAccountAndClose]
-DialogAction deleteSshAccountAndClose(const wxString& accountName);  // [SshAccountDialogDriver.md#deleteSshAccountAndClose]
-DialogAction renameSshAccountAndClose(const wxString& accountName, const wxString& newName);  // [SshAccountDialogDriver.md#renameSshAccountAndClose]
+DialogAction add_ssh_account_and_close();  // [SshAccountDialogDriver.md#add_ssh_account_and_close]
+DialogAction edit_ssh_account_and_close(const wxString& account_name);  // [SshAccountDialogDriver.md#edit_ssh_account_and_close]
+DialogAction delete_ssh_account_and_close(const wxString& account_name);  // [SshAccountDialogDriver.md#delete_ssh_account_and_close]
+DialogAction rename_ssh_account_and_close(const wxString& account_name, const wxString& new_name);  // [SshAccountDialogDriver.md#rename_ssh_account_and_close]
 
 }

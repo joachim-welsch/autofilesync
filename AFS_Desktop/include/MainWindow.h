@@ -59,101 +59,101 @@ public:
 			long style = wxDEFAULT_FRAME_STYLE,
 			const wxString& name = wxASCII_STR(wxFrameNameStr));
 	~MainWindow();
-	static wxAboutDialogInfo aboutInfo();
+	static wxAboutDialogInfo about_info();
 
-	void startSyncTimer();
-	void setTitle();  // [MainWindow.md#setTitle]
+	void start_sync_timer();
+	void set_title();  // [MainWindow.md#set_title]
 	void notify(const wxString& title, const wxString& message);  // [MainWindow.md#notify]
-	bool askAndSave(const char* question, long extra_style = 0);  // [MainWindow.md#askAndSave]
-	void setConsoleMode();
-	void registerAutomaticStart(bool);
+	bool ask_and_save(const char* question, long extra_style = 0);  // [MainWindow.md#ask_and_save]
+	void set_console_mode();
+	void register_automatic_start(bool);
 	void close();
-	void createMenu();
+	void create_menu();
 	Menu& menu() { return menu_; }
-	SyncInterface& syncInterface() { return syncInterface_; }
-	TaskBarIcon* taskBarIcon() { return taskBarIcon_; }
-	wxHelpControllerBase& GetHelpController() { return *htmlHelpController_; }
-	void addSyncItemFrom(SyncItem preset);  // [MainWindow.md#addSyncItemFrom]
-	void applyProposal(const AFS_Core::sync_proposal::Proposal& proposal);  // [MainWindow.md#applyProposal]
+	SyncInterface& sync_interface() { return sync_interface_; }
+	TaskBarIcon* task_bar_icon() { return task_bar_icon_; }
+	wxHelpControllerBase& get_help_controller() { return *html_help_controller_; }
+	void add_sync_item_from(SyncItem preset);  // [MainWindow.md#add_sync_item_from]
+	void apply_proposal(const AFS_Core::sync_proposal::Proposal& proposal);  // [MainWindow.md#apply_proposal]
 private:
 	void resize();
 	void update();
-	void runAddSyncItemDialog(SyncItem* preset);
-	void deleteSyncItem(const std::optional<SyncItem>& found);  // [MainWindow.md#deleteSyncItem]
-	void createToolBar();
-	void createHelp();
-    void updateMenu();
-    void updateSyncState();  // [MainWindow.md#updateSyncState]
-    void createSplitterWindow();
-	void createListWindow();
-	void createGridWindow();
-	void setStatusTextWithTimer(const wxString& text, int milliseconds);
-	void restoreSizeAndPosition();
-	void createTaskBar();
-	void setTaskBarIcon();
-	void switchLanguage();  // [MainWindow.md#switchLanguage]
-	void rebuildMenu();
-	void rebuildToolBar();
-	void rebuildView();
+	void run_add_sync_item_dialog(SyncItem* preset);
+	void delete_sync_item(const std::optional<SyncItem>& found);  // [MainWindow.md#delete_sync_item]
+	void create_tool_bar();
+	void create_help();
+    void update_menu();
+    void update_sync_state();  // [MainWindow.md#update_sync_state]
+    void create_splitter_window();
+	void create_list_window();
+	void create_grid_window();
+	void set_status_text_with_timer(const wxString& text, int milliseconds);
+	void restore_size_and_position();
+	void create_task_bar();
+	void set_task_bar_icon();
+	void switch_language();  // [MainWindow.md#switch_language]
+	void rebuild_menu();
+	void rebuild_tool_bar();
+	void rebuild_view();
 
-	void onQuit(wxCommandEvent& event);
-	void onAbout(wxCommandEvent& event);
+	void on_quit(wxCommandEvent& event);
+	void on_about(wxCommandEvent& event);
 
-	void onSize(wxSizeEvent& event);
-	void onTimer(wxTimerEvent& event);
-	void onViewTree(wxCommandEvent&);
-    void onViewList(wxCommandEvent&);
-    void onViewGrid(wxCommandEvent&);
-    void onViewLog(wxCommandEvent&);
-    void onViewBackground(wxCommandEvent&);
-    void onClose(wxCloseEvent& event);
+	void on_size(wxSizeEvent& event);
+	void on_timer(wxTimerEvent& event);
+	void on_view_tree(wxCommandEvent&);
+    void on_view_list(wxCommandEvent&);
+    void on_view_grid(wxCommandEvent&);
+    void on_view_log(wxCommandEvent&);
+    void on_view_background(wxCommandEvent&);
+    void on_close(wxCloseEvent& event);
 
-    void onAddSyncItem(wxCommandEvent&);
-    void onAddSshConnection(wxCommandEvent&);
-    void onFileOpen(wxCommandEvent&);
-    void onFileSave(wxCommandEvent&);
-    void onFileSaveAs(wxCommandEvent&);
-    void onEditSync(wxCommandEvent& event);
-    void onUpdateSyncItemSelected(wxUpdateUIEvent& event);  // [MainWindow.md#onUpdateSyncItemSelected]
-    void onUpdateFileSave(wxUpdateUIEvent& event);  // [MainWindow.md#autosave]
-    void onEditSshAccounts(wxCommandEvent& event);
-    void onEditSettings(wxCommandEvent& event);
-    void onEditLogging(wxCommandEvent& event);
-    void onDeleteSync(wxCommandEvent&);
-    void onStartBackgroundService(wxCommandEvent&);
-    void onStopBackgroundService(wxCommandEvent&);
-    void onChat(wxCommandEvent&);
-    void onMenuOpen(wxMenuEvent& event);
-    void updateBackgroundServiceMenu();
-    void reportBackgroundService(const std::wstring& error, const wxString& success);  // [MainWindow.md#reportBackgroundService]
-    void onStartSingleSync(wxCommandEvent& event);
-    void onStartContinuousSync(wxCommandEvent& event);
-    void onStopContinuousSync(wxCommandEvent& event);
-    void onStatusTimer(wxTimerEvent& event);
+    void on_add_sync_item(wxCommandEvent&);
+    void on_add_ssh_connection(wxCommandEvent&);
+    void on_file_open(wxCommandEvent&);
+    void on_file_save(wxCommandEvent&);
+    void on_file_save_as(wxCommandEvent&);
+    void on_edit_sync(wxCommandEvent& event);
+    void on_update_sync_item_selected(wxUpdateUIEvent& event);  // [MainWindow.md#on_update_sync_item_selected]
+    void on_update_file_save(wxUpdateUIEvent& event);  // [MainWindow.md#autosave]
+    void on_edit_ssh_accounts(wxCommandEvent& event);
+    void on_edit_settings(wxCommandEvent& event);
+    void on_edit_logging(wxCommandEvent& event);
+    void on_delete_sync(wxCommandEvent&);
+    void on_start_background_service(wxCommandEvent&);
+    void on_stop_background_service(wxCommandEvent&);
+    void on_chat(wxCommandEvent&);
+    void on_menu_open(wxMenuEvent& event);
+    void update_background_service_menu();
+    void report_background_service(const std::wstring& error, const wxString& success);  // [MainWindow.md#report_background_service]
+    void on_start_single_sync(wxCommandEvent& event);
+    void on_start_continuous_sync(wxCommandEvent& event);
+    void on_stop_continuous_sync(wxCommandEvent& event);
+    void on_status_timer(wxTimerEvent& event);
     void OnHelp(wxCommandEvent& event);
 
-	template <class T> void deleteWindow(T*&);
-	std::optional<SyncItem> findSyncItem();
+	template <class T> void delete_window(T*&);
+	std::optional<SyncItem> find_sync_item();
 
 	Menu            menu_;
-	SyncInterface   syncInterface_;
-	SplitterWindow* splitterWindow_ = nullptr;
-	ListWindow*     listWindow_ = nullptr;
-	GridWindow*     gridWindow_ = nullptr;
-	wxTimer         syncTimer_;
-	wxTimer         statusTimer_;
+	SyncInterface   sync_interface_;
+	SplitterWindow* splitter_window_ = nullptr;
+	ListWindow*     list_window_ = nullptr;
+	GridWindow*     grid_window_ = nullptr;
+	wxTimer         sync_timer_;
+	wxTimer         status_timer_;
 	Toolbar         toolbar_;
-	TaskBarIcon*    taskBarIcon_ = nullptr;
-	ChatDialog*     chatDialog_ = nullptr;  // [MainWindow.md#chatDialog_]
-	bool            firstTick_ = true;
-	wxHtmlHelpController*   htmlHelpController_ = nullptr;
+	TaskBarIcon*    task_bar_icon_ = nullptr;
+	ChatDialog*     chat_dialog_ = nullptr;  // [MainWindow.md#chat_dialog_]
+	bool            first_tick_ = true;
+	wxHtmlHelpController*   html_help_controller_ = nullptr;
 
 private:
 	wxDECLARE_EVENT_TABLE();
 };
 
 template <class T> 
-void MainWindow::deleteWindow(T*& window)
+void MainWindow::delete_window(T*& window)
 {
 	if (window != nullptr) {
 		window->Destroy();

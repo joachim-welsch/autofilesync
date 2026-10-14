@@ -2,7 +2,7 @@
 
 Module comment for SyncMessagesTest.cpp.
 
-## filterMessages
+## filter_messages
 
 The three filters are set through the settings dialog, the way a user reaches them; the
 sandbox configuration starts with all three off, so every test states what it wants.

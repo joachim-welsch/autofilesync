@@ -28,65 +28,65 @@ namespace {
 
 constexpr int CLOSE_TIMEOUT_MILLISECONDS = 2000;  // a dialog that OK does not close is being kept open by a message box, not by slowness
 
-bool enterText(wxDialog& dialog, wxWindowID id, const std::optional<wxString>& text, const char* label)
+bool enter_text(wxDialog& dialog, wxWindowID id, const std::optional<wxString>& text, const char* label)
 {
-    if (!text || replaceText(find(dialog, id), *text))
+    if (!text || replace_text(find(dialog, id), *text))
         return true;
     ADD_FAILURE() << label << " konnte nicht eingegeben werden.\n  erwartet: " << *text
-                  << "\n  im Feld:  " << valueOf(find(dialog, id));
+                  << "\n  im Feld:  " << value_of(find(dialog, id));
     return false;
 }
 
-bool enterNumber(wxDialog& dialog, wxWindowID id, const std::optional<int>& value, const char* label)
+bool enter_number(wxDialog& dialog, wxWindowID id, const std::optional<int>& value, const char* label)
 {
-    if (!value || setSpinValue(find(dialog, id), *value))
+    if (!value || set_spin_value(find(dialog, id), *value))
         return true;
     ADD_FAILURE() << label << " konnte nicht auf " << *value << " gesetzt werden.";
     return false;
 }
 
-bool enterLoggingPage(wxDialog& dialog, const LoggingInput& input)  // [LoggingDialogDriver.md#enterValues]
+bool enter_logging_page(wxDialog& dialog, const LoggingInput& input)  // [LoggingDialogDriver.md#enter_values]
 {
-    if (input.logLevel && !selectEntry(find(dialog, ID_LOG_LEVEL_CHOICE), *input.logLevel)) {
-        ADD_FAILURE() << "Der Log Level \"" << *input.logLevel << "\" konnte nicht ausgewählt werden.";
+    if (input.log_level && !select_entry(find(dialog, ID_LOG_LEVEL_CHOICE), *input.log_level)) {
+        ADD_FAILURE() << "Der Log Level \"" << *input.log_level << "\" konnte nicht ausgewählt werden.";
         return false;
     }
-    return enterText(dialog, ID_LOG_PATH_BOX, input.logPath, "Der Protokolldatei-Pfad")
-        && enterNumber(dialog, ID_RETENTIONDAYS_SPIN, input.retentionDays, "Die Historie")
-        && enterText(dialog, ID_EDIT_PATH_BOX, input.editor, "Der Editor")
-        && enterText(dialog, ID_BACKUP_PROOF_PATH_BOX, input.backupProofPath, "Der Pfad für Sicherungsnachweise");
+    return enter_text(dialog, ID_LOG_PATH_BOX, input.log_path, "Der Protokolldatei-Pfad")
+        && enter_number(dialog, ID_RETENTIONDAYS_SPIN, input.retention_days, "Die Historie")
+        && enter_text(dialog, ID_EDIT_PATH_BOX, input.editor, "Der Editor")
+        && enter_text(dialog, ID_BACKUP_PROOF_PATH_BOX, input.backup_proof_path, "Der Pfad für Sicherungsnachweise");
 }
 
-bool enterEmailPage(wxDialog& dialog, const EmailInput& email)  // [LoggingDialogDriver.md#email-active-first]
+bool enter_email_page(wxDialog& dialog, const EmailInput& email)  // [LoggingDialogDriver.md#email-active-first]
 {
-    if (email.active && !setCheckBox(find(dialog, ID_EMAIL_ACTIVE_CHECK), *email.active)) {
+    if (email.active && !set_check_box(find(dialog, ID_EMAIL_ACTIVE_CHECK), *email.active)) {
         ADD_FAILURE() << "\"Aktiv\" konnte nicht gesetzt werden.";
         return false;
     }
-    return enterText(dialog, ID_EMAIL_BOX, email.address, "Die E-Mail-Adresse")
-        && enterText(dialog, ID_SMTP_SERVER_BOX, email.server, "Der Postausgangsserver")
-        && enterNumber(dialog, ID_SMTP_PORT_SPIN, email.port, "Der Port")
-        && enterText(dialog, ID_SMTP_USER_BOX, email.user, "Der Benutzer")
-        && enterText(dialog, ID_SMTP_PASSWORD_BOX, email.password, "Das Passwort")
-        && enterText(dialog, ID_SMTP_FROM_BOX, email.sender, "Der Absender");
+    return enter_text(dialog, ID_EMAIL_BOX, email.address, "Die E-Mail-Adresse")
+        && enter_text(dialog, ID_SMTP_SERVER_BOX, email.server, "Der Postausgangsserver")
+        && enter_number(dialog, ID_SMTP_PORT_SPIN, email.port, "Der Port")
+        && enter_text(dialog, ID_SMTP_USER_BOX, email.user, "Der Benutzer")
+        && enter_text(dialog, ID_SMTP_PASSWORD_BOX, email.password, "Das Passwort")
+        && enter_text(dialog, ID_SMTP_FROM_BOX, email.sender, "Der Absender");
 }
 
-bool enterValues(wxDialog& dialog, const LoggingInput& input)
+bool enter_values(wxDialog& dialog, const LoggingInput& input)
 {
-    return showNotebookPage(dialog, AFS_Core::translation::translate("tab_logging")) && enterLoggingPage(dialog, input)
-        && showNotebookPage(dialog, AFS_Core::translation::translate("tab_email")) && enterEmailPage(dialog, input.email)
-        && showNotebookPage(dialog, AFS_Core::translation::translate("tab_logging"));
+    return show_notebook_page(dialog, AFS_Core::translation::translate("tab_logging")) && enter_logging_page(dialog, input)
+        && show_notebook_page(dialog, AFS_Core::translation::translate("tab_email")) && enter_email_page(dialog, input.email)
+        && show_notebook_page(dialog, AFS_Core::translation::translate("tab_logging"));
 }
 
 }
 
-DialogAction fillLoggingDialog(const LoggingInput& input)
+DialogAction fill_logging_dialog(const LoggingInput& input)
 {
     return [input](wxDialog& dialog) {
-        const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
-            && enterValues(dialog, input)
-            && clickWhenEnabled(find(dialog, wxID_OK))
-            && waitUntil([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS);  // [LoggingDialogDriver.md#rejected-input-keeps-the-dialog-open]
+        const bool confirmed = wait_until([&dialog] { return dialog.IsShownOnScreen(); })
+            && enter_values(dialog, input)
+            && click_when_enabled(find(dialog, wxID_OK))
+            && wait_until([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS);  // [LoggingDialogDriver.md#rejected-input-keeps-the-dialog-open]
         if (!confirmed)  // [LoggingDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };

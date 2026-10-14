@@ -27,12 +27,12 @@
 using namespace AFS_Core;
 
 BEGIN_EVENT_TABLE(SshAccountsDialog, wxDialog)
-    EVT_BUTTON(ID_SSHACCOUNTS_ADD, SshAccountsDialog::onAdd)
-    EVT_BUTTON(ID_SSHACCOUNTS_EDIT, SshAccountsDialog::onEdit)
-    EVT_BUTTON(ID_SSHACCOUNTS_DELETE, SshAccountsDialog::onDelete)
-    EVT_LIST_ITEM_SELECTED(ID_SSHACCOUNTS_LIST, SshAccountsDialog::onListSelect)
-    EVT_LIST_ITEM_DESELECTED(ID_SSHACCOUNTS_LIST, SshAccountsDialog::onListDeselect)
-    EVT_LIST_END_LABEL_EDIT(ID_SSHACCOUNTS_LIST, SshAccountsDialog::onEndLabelEdit)
+    EVT_BUTTON(ID_SSHACCOUNTS_ADD, SshAccountsDialog::on_add)
+    EVT_BUTTON(ID_SSHACCOUNTS_EDIT, SshAccountsDialog::on_edit)
+    EVT_BUTTON(ID_SSHACCOUNTS_DELETE, SshAccountsDialog::on_delete)
+    EVT_LIST_ITEM_SELECTED(ID_SSHACCOUNTS_LIST, SshAccountsDialog::on_list_select)
+    EVT_LIST_ITEM_DESELECTED(ID_SSHACCOUNTS_LIST, SshAccountsDialog::on_list_deselect)
+    EVT_LIST_END_LABEL_EDIT(ID_SSHACCOUNTS_LIST, SshAccountsDialog::on_end_label_edit)
 END_EVENT_TABLE()
 
 SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
@@ -43,92 +43,92 @@ SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
     const wxString& name)
     : wxDialog(parent, id, title, pos, size, style, name)
 {
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
 
-    listCtrl_ = new wxListCtrl(this, ID_SSHACCOUNTS_LIST, wxDefaultPosition, 
+    list_ctrl_ = new wxListCtrl(this, ID_SSHACCOUNTS_LIST, wxDefaultPosition, 
         FromDIP(wxSize(500, 200)), wxLC_REPORT | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
     
-    listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 120);
-    listCtrl_->InsertColumn(1, translation::translate("host"), wxLIST_FORMAT_LEFT, 150);
-    listCtrl_->InsertColumn(2, translation::translate("user"), wxLIST_FORMAT_LEFT, 100);
-    listCtrl_->InsertColumn(3, translation::translate("password"), wxLIST_FORMAT_LEFT, 100);
+    list_ctrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 120);
+    list_ctrl_->InsertColumn(1, translation::translate("host"), wxLIST_FORMAT_LEFT, 150);
+    list_ctrl_->InsertColumn(2, translation::translate("user"), wxLIST_FORMAT_LEFT, 100);
+    list_ctrl_->InsertColumn(3, translation::translate("password"), wxLIST_FORMAT_LEFT, 100);
     
-    mainSizer->Add(listCtrl_, 1, wxEXPAND | wxALL, 10);
+    main_sizer->Add(list_ctrl_, 1, wxEXPAND | wxALL, 10);
 
-    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* button_sizer = new wxBoxSizer(wxHORIZONTAL);
     
-    addButton_ = new wxButton(this, ID_SSHACCOUNTS_ADD, translation::translate("button_add"));
-    editButton_ = new wxButton(this, ID_SSHACCOUNTS_EDIT, translation::translate("button_edit"));
-    deleteButton_ = new wxButton(this, ID_SSHACCOUNTS_DELETE, translation::translate("button_delete"));
+    add_button_ = new wxButton(this, ID_SSHACCOUNTS_ADD, translation::translate("button_add"));
+    edit_button_ = new wxButton(this, ID_SSHACCOUNTS_EDIT, translation::translate("button_edit"));
+    delete_button_ = new wxButton(this, ID_SSHACCOUNTS_DELETE, translation::translate("button_delete"));
     
-    buttonSizer->Add(addButton_, 0, wxRIGHT, 5);
-    buttonSizer->Add(editButton_, 0, wxRIGHT, 5);
-    buttonSizer->Add(deleteButton_, 0, wxRIGHT, 5);
-    buttonSizer->AddStretchSpacer();
-    buttonSizer->Add(CreateStdDialogButtonSizer(wxOK | wxCANCEL), 0);  // [SshAccountsDialog.md#standard-buttons]
+    button_sizer->Add(add_button_, 0, wxRIGHT, 5);
+    button_sizer->Add(edit_button_, 0, wxRIGHT, 5);
+    button_sizer->Add(delete_button_, 0, wxRIGHT, 5);
+    button_sizer->AddStretchSpacer();
+    button_sizer->Add(CreateStdDialogButtonSizer(wxOK | wxCANCEL), 0);  // [SshAccountsDialog.md#standard-buttons]
     
-    mainSizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    main_sizer->Add(button_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
 
-    SetSizer(mainSizer);
+    SetSizer(main_sizer);
     SetMinSize(FromDIP(wxSize(550, 300)));
     Fit();
     Centre();
     
-    listCtrl_->Bind(wxEVT_LEFT_DCLICK, &SshAccountsDialog::onListDClick, this);
+    list_ctrl_->Bind(wxEVT_LEFT_DCLICK, &SshAccountsDialog::on_list_double_click, this);
     
-    populateList();
-    updateButtons();
+    populate_list();
+    update_buttons();
 }
 
 SshAccountsDialog::~SshAccountsDialog()
 {}
 
-void SshAccountsDialog::populateList()
+void SshAccountsDialog::populate_list()
 {
-    listCtrl_->DeleteAllItems();
+    list_ctrl_->DeleteAllItems();
 
     const SshAccounts accounts = Config::instance().ssh_accounts_snapshot();
     long index = 0;
     for (const auto& account : accounts) {
-        long item = listCtrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
-        listCtrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
-        listCtrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
-        listCtrl_->SetItem(item, 3, wxString(account.password().empty() ? "" : "********"));
+        long item = list_ctrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
+        list_ctrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
+        list_ctrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
+        list_ctrl_->SetItem(item, 3, wxString(account.password().empty() ? "" : "********"));
         index++;
     }
 }
 
-void SshAccountsDialog::updateButtons()
+void SshAccountsDialog::update_buttons()
 {
-    bool hasSelection = getSelectedIndex() != -1;
-    editButton_->Enable(hasSelection);
-    deleteButton_->Enable(hasSelection);
+    bool has_selection = get_selected_index() != -1;
+    edit_button_->Enable(has_selection);
+    delete_button_->Enable(has_selection);
 }
 
-long SshAccountsDialog::getSelectedIndex() const
+long SshAccountsDialog::get_selected_index() const
 {
-    return listCtrl_->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+    return list_ctrl_->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 }
 
-void SshAccountsDialog::onAdd(wxCommandEvent&)
+void SshAccountsDialog::on_add(wxCommandEvent&)
 {
-    SshAccount newAccount;
-    SshAccountDialog dlg(&newAccount, this, wxID_ANY, txt::add_ssh_connection());
+    SshAccount new_account;
+    SshAccountDialog dlg(&new_account, this, wxID_ANY, txt::add_ssh_connection());
     if (dlg.ShowModal() == wxID_OK) {
-        dlg.saveData(newAccount);
-        Config::instance().add(newAccount);
-        populateList();
+        dlg.save_data(new_account);
+        Config::instance().add(new_account);
+        populate_list();
     }
 }
 
-void SshAccountsDialog::onEdit(wxCommandEvent&)
+void SshAccountsDialog::on_edit(wxCommandEvent&)
 {
-    editSelectedItem();
+    edit_selected_item();
 }
 
-void SshAccountsDialog::onDelete(wxCommandEvent&)
+void SshAccountsDialog::on_delete(wxCommandEvent&)
 {
-    long sel = getSelectedIndex();
+    long sel = get_selected_index();
     if (sel == -1)
         return;
 
@@ -143,26 +143,26 @@ void SshAccountsDialog::onDelete(wxCommandEvent&)
     if (!utilwx::confirm(this, message, translation::translate("confirm_delete_title"), translation::translate("button_delete")))
         return;
     Config::instance().remove_ssh_account(static_cast<size_t>(sel));
-    populateList();
-    updateButtons();
+    populate_list();
+    update_buttons();
 }
 
-void SshAccountsDialog::onListDClick(wxMouseEvent&)
+void SshAccountsDialog::on_list_double_click(wxMouseEvent&)
 {
-    editSelectedItem();
+    edit_selected_item();
 }
 
-void SshAccountsDialog::onListSelect(wxListEvent&)
+void SshAccountsDialog::on_list_select(wxListEvent&)
 {
-    updateButtons();
+    update_buttons();
 }
 
-void SshAccountsDialog::onListDeselect(wxListEvent&)
+void SshAccountsDialog::on_list_deselect(wxListEvent&)
 {
-    updateButtons();
+    update_buttons();
 }
 
-void SshAccountsDialog::onEndLabelEdit(wxListEvent& event)
+void SshAccountsDialog::on_end_label_edit(wxListEvent& event)
 {
     if (event.IsEditCancelled())
         return;
@@ -172,28 +172,28 @@ void SshAccountsDialog::onEndLabelEdit(wxListEvent& event)
     if (!account.has_value())
         return;
 
-    if (auto err = validateSshAccountName(event.GetLabel())) {
+    if (auto err = validate_ssh_account_name(event.GetLabel())) {
         wxMessageBox(*err, translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         event.Veto();
         return;
     }
 
-    const std::string oldName = account->name();
-    const std::string newName = std::string(event.GetLabel().ToUTF8());
-    if (newName != oldName && Config::instance().find_ssh_account_by_name(newName) != std::nullopt) {
+    const std::string old_name = account->name();
+    const std::string new_name = std::string(event.GetLabel().ToUTF8());
+    if (new_name != old_name && Config::instance().find_ssh_account_by_name(new_name) != std::nullopt) {
         wxMessageBox(translation::translate("ssh_account_exists", {event.GetLabel().ToStdWstring()}),
             translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         event.Veto();
         return;
     }
-    account->set_name(newName);
+    account->set_name(new_name);
     Config::instance().update_ssh_account(static_cast<size_t>(sel), *account);
-    Config::instance().update_ssh_account_references(oldName, *account);  // [SshAccountsDialog.md#account-references-updated]
+    Config::instance().update_ssh_account_references(old_name, *account);  // [SshAccountsDialog.md#account-references-updated]
 }
 
-void SshAccountsDialog::editSelectedItem()
+void SshAccountsDialog::edit_selected_item()
 {
-    long sel = getSelectedIndex();
+    long sel = get_selected_index();
     if (sel == -1)
         return;
 
@@ -201,12 +201,12 @@ void SshAccountsDialog::editSelectedItem()
     if (!account.has_value())
         return;
 
-    const std::string oldName = account->name();
+    const std::string old_name = account->name();
     SshAccountDialog dlg(&account.value(), this, wxID_ANY, txt::edit_ssh_connection());
     if (dlg.ShowModal() == wxID_OK) {
-        dlg.saveData(account.value());
+        dlg.save_data(account.value());
         Config::instance().update_ssh_account(static_cast<size_t>(sel), account.value());
-        Config::instance().update_ssh_account_references(oldName, account.value());  // [SshAccountsDialog.md#account-references-updated]
-        populateList();
+        Config::instance().update_ssh_account_references(old_name, account.value());  // [SshAccountsDialog.md#account-references-updated]
+        populate_list();
     }
 }

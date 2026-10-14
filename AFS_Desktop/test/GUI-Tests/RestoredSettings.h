@@ -27,17 +27,17 @@ namespace guitest {
 
 class RestoredSettings {  // [RestoredSettings.md#RestoredSettings]
 public:
-    RestoredSettings(): settings_(AFS_Core::Config::instance().settings()), binPath_(AFS_Core::RecycleBin::instance().bin_path()) {}
+    RestoredSettings(): settings_(AFS_Core::Config::instance().settings()), bin_path_(AFS_Core::RecycleBin::instance().bin_path()) {}
     ~RestoredSettings()
     {
         AFS_Core::Config::instance().settings() = settings_;
-        AFS_Core::RecycleBin::instance().bin_path(binPath_);
+        AFS_Core::RecycleBin::instance().bin_path(bin_path_);
     }
     RestoredSettings(const RestoredSettings&) = delete;
     RestoredSettings& operator=(const RestoredSettings&) = delete;
 private:
     AFS_Core::Settings settings_;
-    std::filesystem::path binPath_;
+    std::filesystem::path bin_path_;
 };
 
 }

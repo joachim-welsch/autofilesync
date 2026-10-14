@@ -32,12 +32,12 @@
 #include "TargetCanvas.h"
 
 wxBEGIN_EVENT_TABLE(SplitterWindow, wxSplitterWindow)
-    EVT_SPLITTER_SASH_POS_CHANGED(wxID_ANY, SplitterWindow::OnPositionChanged)
-    EVT_SPLITTER_SASH_POS_CHANGING(wxID_ANY, SplitterWindow::OnPositionChanging)
+    EVT_SPLITTER_SASH_POS_CHANGED(wxID_ANY, SplitterWindow::on_position_changed)
+    EVT_SPLITTER_SASH_POS_CHANGING(wxID_ANY, SplitterWindow::on_position_changing)
 
-    EVT_SPLITTER_DCLICK(wxID_ANY, SplitterWindow::OnDClick)
+    EVT_SPLITTER_DCLICK(wxID_ANY, SplitterWindow::on_double_click)
 
-    EVT_SPLITTER_UNSPLIT(wxID_ANY, SplitterWindow::OnUnsplitEvent)
+    EVT_SPLITTER_UNSPLIT(wxID_ANY, SplitterWindow::on_unsplit_event)
 wxEND_EVENT_TABLE()
 
 SplitterWindow::SplitterWindow(wxFrame *parent)
@@ -48,41 +48,41 @@ SplitterWindow::SplitterWindow(wxFrame *parent)
 {
     parent_ = parent;
     left_ = new SourceCanvas(this);
-    left_->addDataItems();
+    left_->add_data_items();
     right_ = new TargetCanvas(this);
     right_->other(left_);
     left_->other(right_);
-    right_->addDataItems();
+    right_->add_data_items();
 }
 
-void SplitterWindow::OnPositionChanged(wxSplitterEvent& event)
+void SplitterWindow::on_position_changed(wxSplitterEvent& event)
 {
     event.Skip();
 }
 
-void SplitterWindow::OnPositionChanging(wxSplitterEvent& event)
+void SplitterWindow::on_position_changing(wxSplitterEvent& event)
 {
     event.Skip();
 }
 
-void SplitterWindow::OnDClick(wxSplitterEvent& event)
+void SplitterWindow::on_double_click(wxSplitterEvent& event)
 {
     event.Skip();
 }
 
-void SplitterWindow::OnUnsplitEvent(wxSplitterEvent& event)
+void SplitterWindow::on_unsplit_event(wxSplitterEvent& event)
 {
     event.Skip();
 }
 
-void SplitterWindow::splitVertically()
+void SplitterWindow::split_vertically()
 {
     SplitVertically(left_, right_, 100);
 }
 
-void SplitterWindow::onSelectRoot()
+void SplitterWindow::on_select_root()
 {
-    left_->onSelectRoot();
+    left_->on_select_root();
 }
 
 void SplitterWindow::update()
@@ -91,26 +91,26 @@ void SplitterWindow::update()
     right_->update();
 }
 
-void SplitterWindow::setSize(int x, int y, int width, int height, int sizeFlags)
+void SplitterWindow::set_size(int x, int y, int width, int height, int size_flags)
 {
-    SetSize(x, y, width, height, sizeFlags);
+    SetSize(x, y, width, height, size_flags);
     left_->SetSize(x, y, width, height);
     right_->SetSize(x, y, width, height);
 }
 
-std::wstring SplitterWindow::selectedSourcePath() const
+std::wstring SplitterWindow::selected_source_path() const
 {
-    return left_->selectedPath();
+    return left_->selected_path();
 }
 
-std::wstring SplitterWindow::selectedTargetPath() const
+std::wstring SplitterWindow::selected_target_path() const
 {
-    return right_->selectedPath();
+    return right_->selected_path();
 }
 
-bool SplitterWindow::mouseClicked() const
+bool SplitterWindow::mouse_clicked() const
 {
-    bool leftClicked = left_->mouseClicked();  // [SplitterWindow.md#both-trees-polled]
-    bool rightClicked = right_->mouseClicked();
-    return leftClicked || rightClicked;
+    bool left_clicked = left_->mouse_clicked();  // [SplitterWindow.md#both-trees-polled]
+    bool right_clicked = right_->mouse_clicked();
+    return left_clicked || right_clicked;
 }

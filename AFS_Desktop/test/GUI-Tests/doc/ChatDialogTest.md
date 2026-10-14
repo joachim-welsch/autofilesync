@@ -10,7 +10,7 @@ configuration makes the model decode that prefix again. On a laptop CPU that thr
 sustained load (measured 96 °C after an hour of tests) one answer took over three minutes; a
 tighter limit fails the test for the hardware, not for the code.
 
-## openChat
+## open_chat
 
 The chat is a modeless dialog owned by the main window, created on the first "Assistent → Chat"
 and re-shown afterwards; its controls are looked up by id across all windows because the dialog
@@ -37,7 +37,7 @@ SlowGuiTest.
 
 The answer shows up in the transcript while the dialog still waits, and grows afterwards; a
 counting answer is long enough that its first piece arrives well before the last. The speaker
-line is counted because onReply() must close the streamed turn, not append the answer again.
+line is counted because on_reply() must close the streamed turn, not append the answer again.
 Skipped without a model: the sandbox moves HOME, so only AUTOFILESYNC_LLAMA_MODEL can name one.
 
 ## ChatKenntDieAnzahlDerSynchronisationen

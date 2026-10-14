@@ -37,113 +37,113 @@ constexpr const char* HELP_SHORTCUT = "F1";
 #endif
 }
 
-wxMenuBar*  Menu::menuBar()
+wxMenuBar*  Menu::menu_bar()
 {
-	return menuBar_;
+	return menu_bar_;
 }
 
-wxMenu* Menu::editMenu()
+wxMenu* Menu::edit_menu()
 {
-	return editMenu_;
+	return edit_menu_;
 }
 
-wxMenu* Menu::viewMenu()
+wxMenu* Menu::view_menu()
 {
-	return viewMenu_;
+	return view_menu_;
 }
 
-wxMenu* Menu::syncMenu()
+wxMenu* Menu::sync_menu()
 {
-	return syncMenu_;
+	return sync_menu_;
 }
 
-wxMenu* Menu::backgroundServiceMenu()
+wxMenu* Menu::background_service_menu()
 {
-	return backgroundServiceMenu_;
+	return background_service_menu_;
 }
 
-wxMenu* Menu::createFileMenu()
+wxMenu* Menu::create_file_menu()
 {
-    wxMenu* fileMenu = new wxMenu;  // [Menu.md#structure]
-    fileMenu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
-    fileMenu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
-    fileMenu->AppendSeparator();
-    fileMenu->Append(tul(id::File_open), with_shortcut(translate("menu_open"), "Ctrl+O"));
-    fileMenu->Append(tul(id::File_save), with_shortcut(translate("menu_save"), "Ctrl+S"));
-    fileMenu->Append(tul(id::File_save_as), with_shortcut(translate("menu_save_as"), "Ctrl+Shift+S"));
-    fileMenu->AppendSeparator();
-    fileMenu->Append(tul(id::Quit), with_shortcut(translate("menu_quit"), "Ctrl+Q"), translate("menu_quit_help"));
-    return fileMenu;
+    wxMenu* file_menu = new wxMenu;  // [Menu.md#structure]
+    file_menu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
+    file_menu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
+    file_menu->AppendSeparator();
+    file_menu->Append(tul(id::File_open), with_shortcut(translate("menu_open"), "Ctrl+O"));
+    file_menu->Append(tul(id::File_save), with_shortcut(translate("menu_save"), "Ctrl+S"));
+    file_menu->Append(tul(id::File_save_as), with_shortcut(translate("menu_save_as"), "Ctrl+Shift+S"));
+    file_menu->AppendSeparator();
+    file_menu->Append(tul(id::Quit), with_shortcut(translate("menu_quit"), "Ctrl+Q"), translate("menu_quit_help"));
+    return file_menu;
 }
 
-wxMenu* Menu::createHelpMenu()
+wxMenu* Menu::create_help_menu()
 {
-    wxMenu* helpMenu = new wxMenu;  // [Menu.md#structure]
-    helpMenu->Append(tul(id::Help), with_shortcut(translate("menu_help"), HELP_SHORTCUT), translate("menu_help"));
-    helpMenu->Append(tul(id::Chat), translate("menu_chat"), translate("menu_chat_help"));
-    helpMenu->AppendSeparator();
-    helpMenu->Append(tul(id::About), translate("menu_about"), translate("menu_about"));
-    return helpMenu;
+    wxMenu* help_menu = new wxMenu;  // [Menu.md#structure]
+    help_menu->Append(tul(id::Help), with_shortcut(translate("menu_help"), HELP_SHORTCUT), translate("menu_help"));
+    help_menu->Append(tul(id::Chat), translate("menu_chat"), translate("menu_chat_help"));
+    help_menu->AppendSeparator();
+    help_menu->Append(tul(id::About), translate("menu_about"), translate("menu_about"));
+    return help_menu;
 }
 
-wxMenu* Menu::createEditMenu()
+wxMenu* Menu::create_edit_menu()
 {
-    editMenu_ = new wxMenu;
-    editMenu_->Append(tul(id::EditSync), translate("edit_synchronisation"));
-    editMenu_->Append(tul(id::DeleteSync), translate("delete_synchronisation"));
-    editMenu_->Append(tul(id::EditSshAccounts), translate("menu_ssh_connections"));
-    editMenu_->Append(tul(id::EditSettings), with_shortcut(translate("menu_settings"), "Ctrl+,"));
-    editMenu_->AppendSeparator();
-    editMenu_->Append(tul(id::EditLogging), translate("menu_logging_settings"));
-    return editMenu_;
+    edit_menu_ = new wxMenu;
+    edit_menu_->Append(tul(id::EditSync), translate("edit_synchronisation"));
+    edit_menu_->Append(tul(id::DeleteSync), translate("delete_synchronisation"));
+    edit_menu_->Append(tul(id::EditSshAccounts), translate("menu_ssh_connections"));
+    edit_menu_->Append(tul(id::EditSettings), with_shortcut(translate("menu_settings"), "Ctrl+,"));
+    edit_menu_->AppendSeparator();
+    edit_menu_->Append(tul(id::EditLogging), translate("menu_logging_settings"));
+    return edit_menu_;
 }
 
-wxMenu* Menu::createViewMenu()
+wxMenu* Menu::create_view_menu()
 {
-    viewMenu_ = new wxMenu;
-    viewMenu_->AppendRadioItem(tul(id::View_List), translate("menu_view_list"), translate("menu_view_list_help"));
-    viewMenu_->AppendRadioItem(tul(id::View_Tree), translate("menu_view_tree"), translate("menu_view_tree_help"));
-    viewMenu_->AppendRadioItem(tul(id::View_Grid), translate("menu_view_grid"), translate("menu_view_grid_help"));
-    viewMenu_->AppendSeparator();
-    viewMenu_->Append(tul(id::View_Log), translate("menu_view_log"));
-    viewMenu_->AppendSeparator();
-    viewMenu_->Append(tul(id::View_Background), translate("menu_view_background"));
-    return viewMenu_;
+    view_menu_ = new wxMenu;
+    view_menu_->AppendRadioItem(tul(id::View_List), translate("menu_view_list"), translate("menu_view_list_help"));
+    view_menu_->AppendRadioItem(tul(id::View_Tree), translate("menu_view_tree"), translate("menu_view_tree_help"));
+    view_menu_->AppendRadioItem(tul(id::View_Grid), translate("menu_view_grid"), translate("menu_view_grid_help"));
+    view_menu_->AppendSeparator();
+    view_menu_->Append(tul(id::View_Log), translate("menu_view_log"));
+    view_menu_->AppendSeparator();
+    view_menu_->Append(tul(id::View_Background), translate("menu_view_background"));
+    return view_menu_;
 }
  
-wxMenu* Menu::createSyncMenu()
+wxMenu* Menu::create_sync_menu()
 {
-    syncMenu_ = new wxMenu;
-    syncMenu_->Append(tul(id::StartSync), translate("menu_start"));
-    syncMenu_->Append(tul(id::StopSync), translate("menu_stop"));
-    syncMenu_->Append(tul(id::SyncOnce), translate("menu_sync_once"));
-    return syncMenu_;
+    sync_menu_ = new wxMenu;
+    sync_menu_->Append(tul(id::StartSync), translate("menu_start"));
+    sync_menu_->Append(tul(id::StopSync), translate("menu_stop"));
+    sync_menu_->Append(tul(id::SyncOnce), translate("menu_sync_once"));
+    return sync_menu_;
 }
 
-wxMenu* Menu::createBackgroundServiceMenu()
+wxMenu* Menu::create_background_service_menu()
 {
-    backgroundServiceMenu_ = new wxMenu;
-    backgroundServiceMenu_->Append(tul(id::BackgroundServiceState), translate("bs_state_unknown"));  // [Menu.md#background-service-state-entry]
-    backgroundServiceMenu_->Enable(tul(id::BackgroundServiceState), false);
-    backgroundServiceMenu_->AppendSeparator();
-    backgroundServiceMenu_->Append(tul(id::BackgroundServiceStart), translate("menu_start"), translate("menu_bs_start_help"));
-    backgroundServiceMenu_->Append(tul(id::BackgroundServiceStop), translate("menu_stop"), translate("menu_bs_stop_help"));
-    return backgroundServiceMenu_;
+    background_service_menu_ = new wxMenu;
+    background_service_menu_->Append(tul(id::BackgroundServiceState), translate("bs_state_unknown"));  // [Menu.md#background-service-state-entry]
+    background_service_menu_->Enable(tul(id::BackgroundServiceState), false);
+    background_service_menu_->AppendSeparator();
+    background_service_menu_->Append(tul(id::BackgroundServiceStart), translate("menu_start"), translate("menu_bs_start_help"));
+    background_service_menu_->Append(tul(id::BackgroundServiceStop), translate("menu_stop"), translate("menu_bs_stop_help"));
+    return background_service_menu_;
 }
 
 void Menu::create()
 {
-    menuBar_ = new wxMenuBar();
-    menuBar_->Append(createFileMenu(), translate("menu_file"));
-    menuBar_->Append(createEditMenu(), translate("menu_edit"));
-    menuBar_->Append(createSyncMenu(), translate("menu_synchronisation"));
-    menuBar_->Append(createBackgroundServiceMenu(), translate("menu_background_service"));
-    menuBar_->Append(createViewMenu(), translate("menu_view"));
-    menuBar_->Append(createHelpMenu(), translate("menu_help_menu"));
+    menu_bar_ = new wxMenuBar();
+    menu_bar_->Append(create_file_menu(), translate("menu_file"));
+    menu_bar_->Append(create_edit_menu(), translate("menu_edit"));
+    menu_bar_->Append(create_sync_menu(), translate("menu_synchronisation"));
+    menu_bar_->Append(create_background_service_menu(), translate("menu_background_service"));
+    menu_bar_->Append(create_view_menu(), translate("menu_view"));
+    menu_bar_->Append(create_help_menu(), translate("menu_help_menu"));
 }
 
 Menu::~Menu()
 {
-    editMenu_ = nullptr;  // menuBar_ is deleted by the framework
+    edit_menu_ = nullptr;  // menu_bar_ is deleted by the framework
 }
 

@@ -31,52 +31,52 @@ Leaf::Leaf(wxTreeItemId id, wxTreeItemId reference)
 
 void TreeNode::add(std::shared_ptr<TreeItem> item)
 {
-	subNodes_.push_back(item);
+	sub_nodes_.push_back(item);
 }
 
-void Tree::addLeaf(wxTreeItemId parentId, wxTreeItemId id, const std::wstring& path, wxTreeItemId ref)
+void Tree::add_leaf(wxTreeItemId parent_id, wxTreeItemId id, const std::wstring& path, wxTreeItemId ref)
 {
 	auto leaf = std::make_shared<Leaf>(id, ref);
-	auto found = idMap_.find(parentId);
+	auto found = id_map_.find(parent_id);
 	std::shared_ptr<TreeItem> base;
-	if (found == idMap_.end()) {
+	if (found == id_map_.end()) {
 		add(leaf);
 	} else {
 		found->second->add(leaf);
 	}
-	pathMap_.insert(make_pair(path, leaf));
-	idMap_.insert(make_pair(id, leaf));
-	idPathMap_.insert(make_pair(id, path));
+	path_map_.insert(make_pair(path, leaf));
+	id_map_.insert(make_pair(id, leaf));
+	id_path_map_.insert(make_pair(id, path));
 }
 
-void Tree::addNode(wxTreeItemId parentId, wxTreeItemId id, const std::wstring& path)
+void Tree::add_node(wxTreeItemId parent_id, wxTreeItemId id, const std::wstring& path)
 {
 	auto node = std::make_shared<TreeNode>(id);
-	auto found = idMap_.find(parentId);
+	auto found = id_map_.find(parent_id);
 	std::shared_ptr<TreeItem> base;
-	if (found == idMap_.end()) {
+	if (found == id_map_.end()) {
 		add(node);
 	}
 	else {
 		found->second->add(node);
 	}
-	pathMap_.insert(make_pair(path, node));
-	idMap_.insert(make_pair(id, node));
-	idPathMap_.insert(make_pair(id, path));
+	path_map_.insert(make_pair(path, node));
+	id_map_.insert(make_pair(id, node));
+	id_path_map_.insert(make_pair(id, path));
 }
 
 std::optional<PTreeItem> Tree::find(wxTreeItemId id) const
 {
-	auto found = idMap_.find(id);
-	if (found == idMap_.end())
+	auto found = id_map_.find(id);
+	if (found == id_map_.end())
 		return nullopt;
 	return found->second;
 }
 
 std::wstring Tree::path(wxTreeItemId id) const
 {
-	const auto found = idPathMap_.find(id);
-	if (found == idPathMap_.end())
+	const auto found = id_path_map_.find(id);
+	if (found == id_path_map_.end())
 		return L"";
 	return found->second;
 }
@@ -84,7 +84,7 @@ std::wstring Tree::path(wxTreeItemId id) const
 std::optional<wxTreeItemId> Tree::id(const std::wstring& path) const
 {
 	std::vector<wxTreeItemId> retval;
-	auto ir = pathMap_.equal_range(path);
+	auto ir = path_map_.equal_range(path);
 	for (auto itr = ir.first; itr != ir.second; ++itr)
 		retval.push_back(itr->second->id());
 	if (retval.size() == 1)
@@ -95,7 +95,7 @@ std::optional<wxTreeItemId> Tree::id(const std::wstring& path) const
 std::vector<wxTreeItemId> Tree::ids(const std::wstring& path) const
 {
 	std::vector<wxTreeItemId> retval;
-	auto ir = pathMap_.equal_range(path);
+	auto ir = path_map_.equal_range(path);
 	for (auto itr = ir.first; itr != ir.second; ++itr)
 		retval.push_back(itr->second->id());
 	return retval;
@@ -103,8 +103,8 @@ std::vector<wxTreeItemId> Tree::ids(const std::wstring& path) const
 
 void Tree::clear()
 {
-	idMap_.clear();
-	pathMap_.clear();
-	idPathMap_.clear();
-	subNodes_.clear();
+	id_map_.clear();
+	path_map_.clear();
+	id_path_map_.clear();
+	sub_nodes_.clear();
 }

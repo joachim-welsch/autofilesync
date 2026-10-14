@@ -44,10 +44,10 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-void applySettings(MainWindow& window, const SettingsInput& input)
+void apply_settings(MainWindow& window, const SettingsInput& input)
 {
-    ModalDialogWatcher::instance().expect(txt::settings(), fillSettingsDialog(input));
-    activateMenuItem(window, tul(id::EditSettings));
+    ModalDialogWatcher::instance().expect(txt::settings(), fill_settings_dialog(input));
+    activate_menu_item(window, tul(id::EditSettings));
     pump();
 }
 
@@ -91,13 +91,13 @@ TEST_F(GuiTest, EinstellungenKommenInDieKonfiguration)  // [SettingsTest.md#Eins
     ASSERT_FALSE(settings.start_minimized());
     ASSERT_FALSE(settings.show_infos());
     SettingsInput input;
-    input.startSyncAtStart = true;
-    input.startMinimized = true;
-    input.showErrors = true;
-    input.showWarnings = true;
-    input.showInfos = true;
+    input.start_sync_at_start = true;
+    input.start_minimized = true;
+    input.show_errors = true;
+    input.show_warnings = true;
+    input.show_infos = true;
 
-    applySettings(mainWindow(), input);
+    apply_settings(main_window(), input);
 
     EXPECT_TRUE(settings.start_sync_at_start());
     EXPECT_TRUE(settings.start_minimized());
@@ -105,9 +105,9 @@ TEST_F(GuiTest, EinstellungenKommenInDieKonfiguration)  // [SettingsTest.md#Eins
     EXPECT_TRUE(settings.show_warnings());
     EXPECT_TRUE(settings.show_infos());
     EXPECT_FALSE(Config::instance().changed()) << "Die geänderten Einstellungen wurden nicht sofort gespeichert.";
-    std::ostringstream savedFile;
-    savedFile << std::ifstream(GuiTestSandbox::configFile()).rdbuf();
-    EXPECT_NE(savedFile.str().find("\"ShowInfos\": \"true\""), std::string::npos) << "Die Einstellung steht nicht in der Datei.";
+    std::ostringstream saved_file;
+    saved_file << std::ifstream(GuiTestSandbox::config_file()).rdbuf();
+    EXPECT_NE(saved_file.str().find("\"ShowInfos\": \"true\""), std::string::npos) << "Die Einstellung steht nicht in der Datei.";
 }
 
 TEST_F(GuiTest, SpracheSchaltetSofortUmUndKommtInDieKonfiguration)  // [SettingsTest.md#SpracheSchaltetSofortUmUndKommtInDieKonfiguration]
@@ -117,51 +117,51 @@ TEST_F(GuiTest, SpracheSchaltetSofortUmUndKommtInDieKonfiguration)  // [Settings
     SettingsInput english;
     english.language = "English";
 
-    applySettings(mainWindow(), english);
+    apply_settings(main_window(), english);
 
     EXPECT_EQ(Config::instance().settings().language(), "en");
-    EXPECT_EQ(mainWindow().GetMenuBar()->GetMenuLabelText(0), "File") << "Das Menü wurde nicht sofort umgestellt.";
-    EXPECT_EQ(mainWindow().GetToolBar()->GetToolShortHelp(tul(id::EditSettings)), "Global settings") << "Die Werkzeugleiste wurde nicht umgestellt.";
-    std::ostringstream savedFile;
-    savedFile << std::ifstream(GuiTestSandbox::configFile()).rdbuf();
-    EXPECT_NE(savedFile.str().find("\"Language\": \"en\""), std::string::npos) << "Die Sprache steht nicht in der Datei.";
+    EXPECT_EQ(main_window().GetMenuBar()->GetMenuLabelText(0), "File") << "Das Menü wurde nicht sofort umgestellt.";
+    EXPECT_EQ(main_window().GetToolBar()->GetToolShortHelp(tul(id::EditSettings)), "Global settings") << "Die Werkzeugleiste wurde nicht umgestellt.";
+    std::ostringstream saved_file;
+    saved_file << std::ifstream(GuiTestSandbox::config_file()).rdbuf();
+    EXPECT_NE(saved_file.str().find("\"Language\": \"en\""), std::string::npos) << "Die Sprache steht nicht in der Datei.";
 
     SettingsInput system;
     system.language = translation::translate("language_system");
-    applySettings(mainWindow(), system);
+    apply_settings(main_window(), system);
 
     EXPECT_TRUE(Config::instance().settings().language().empty());
-    EXPECT_EQ(mainWindow().GetMenuBar()->GetMenuLabel(0), translation::translate("menu_file")) << "Die Sprache des Betriebssystems kam nicht zurück.";
+    EXPECT_EQ(main_window().GetMenuBar()->GetMenuLabel(0), translation::translate("menu_file")) << "Die Sprache des Betriebssystems kam nicht zurück.";
 }
 
 TEST_F(GuiTest, WerkzeugleisteZahnradOeffnetEinstellungen)  // [SettingsTest.md#WerkzeugleisteZahnradOeffnetEinstellungen]
 {
     ModalDialogWatcher::instance().answer(txt::settings(), wxID_CANCEL);
 
-    ASSERT_TRUE(activateToolbarTool(mainWindow(), tul(id::EditSettings))) << "Die Werkzeugleiste hat kein Zahnrad.";
+    ASSERT_TRUE(activate_toolbar_tool(main_window(), tul(id::EditSettings))) << "Die Werkzeugleiste hat kein Zahnrad.";
     pump();
 
-    EXPECT_FALSE(ModalDialogWatcher::instance().hasPendingExpectations()) << "Das Zahnrad öffnete die globalen Einstellungen nicht.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().unexpectedDialogs().empty());
+    EXPECT_FALSE(ModalDialogWatcher::instance().has_pending_expectations()) << "Das Zahnrad öffnete die globalen Einstellungen nicht.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty());
 }
 
 TEST_F(GuiTest, MinimierenStattSchliessenVerstecktAnstattZuBeenden)  // [SettingsTest.md#MinimierenStattSchliessenVerstecktAnstattZuBeenden]
 {
     const RestoredSettings restored;
     SettingsInput input;
-    input.minimizeInsteadOfClose = true;
-    applySettings(mainWindow(), input);
+    input.minimize_instead_of_close = true;
+    apply_settings(main_window(), input);
     ASSERT_TRUE(Config::instance().settings().minimize_instead_of_close());
-    ASSERT_TRUE(mainWindow().IsShown());
+    ASSERT_TRUE(main_window().IsShown());
 
-    mainWindow().Close();
+    main_window().Close();
     pump();
 
-    EXPECT_FALSE(mainWindow().IsShown()) << "Das Fenster wurde beim Schließen nicht versteckt.";
+    EXPECT_FALSE(main_window().IsShown()) << "Das Fenster wurde beim Schließen nicht versteckt.";
     EXPECT_NE(wxTheApp->GetTopWindow(), nullptr) << "Das Fenster wurde trotz Einstellung zerstört.";
-    mainWindow().Show();
+    main_window().Show();
     pump();
-    EXPECT_TRUE(mainWindow().IsShown());
+    EXPECT_TRUE(main_window().IsShown());
 }
 
 TEST_F(GuiTest, EndgueltigLoeschenLoeschtOhnePapierkorb)  // [SettingsTest.md#EndgueltigLoeschenLoeschtOhnePapierkorb]
@@ -169,33 +169,33 @@ TEST_F(GuiTest, EndgueltigLoeschenLoeschtOhnePapierkorb)  // [SettingsTest.md#En
     const RestoredSettings restored;
     const SandboxTree tree(GuiTestSandbox::root() / "endgueltig", {{"weg.txt", "x"}});
     SettingsInput input;
-    input.deleteMode = DeleteMode::Permanent;
-    applySettings(mainWindow(), input);
+    input.delete_mode = DeleteMode::Permanent;
+    apply_settings(main_window(), input);
     ASSERT_EQ(Config::instance().settings().delete_mode(), DeleteMode::Permanent);
-    const std::size_t itemsBefore = RecycleBin::instance().list_items().size();
+    const std::size_t items_before = RecycleBin::instance().list_items().size();
 
     ASSERT_TRUE(delete_file(tree.path("weg.txt").wstring()));
 
     EXPECT_FALSE(tree.exists("weg.txt"));
-    EXPECT_EQ(RecycleBin::instance().list_items().size(), itemsBefore) << "Die Datei landete trotz \"Endgültig löschen\" im Papierkorb.";
+    EXPECT_EQ(RecycleBin::instance().list_items().size(), items_before) << "Die Datei landete trotz \"Endgültig löschen\" im Papierkorb.";
 }
 
 #ifdef _WIN32
 TEST_F(GuiTest, AutostartSchreibtRunEintrag)  // [SettingsTest.md#RestoredRunEntry]
 {
     const RestoredSettings restored;
-    const RestoredRunEntry runEntry;
+    const RestoredRunEntry run_entry;
     SettingsInput input;
     input.autostart = true;
-    applySettings(mainWindow(), input);
+    apply_settings(main_window(), input);
 
-    const std::optional<wxString> command = runEntry.command();
+    const std::optional<wxString> command = run_entry.command();
     ASSERT_TRUE(command.has_value()) << "Der Run-Eintrag wurde nicht angelegt.";
     EXPECT_TRUE(command->Lower().Contains("guitests.exe")) << "Der Run-Eintrag zeigt nicht auf das laufende Programm: " << *command;
 
     input.autostart = false;
-    applySettings(mainWindow(), input);
-    EXPECT_FALSE(runEntry.command().has_value()) << "Der Run-Eintrag blieb nach dem Abwählen stehen.";
+    apply_settings(main_window(), input);
+    EXPECT_FALSE(run_entry.command().has_value()) << "Der Run-Eintrag blieb nach dem Abwählen stehen.";
 }
 #endif
 

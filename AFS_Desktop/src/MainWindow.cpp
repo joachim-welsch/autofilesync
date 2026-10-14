@@ -44,7 +44,7 @@
 #include "Util.h"
 #include "Translation.h"
 #ifdef WIN32
-    #include <Windows.h> // registerAutomaticStart() writes the autostart registry key
+    #include <Windows.h> // register_automatic_start() writes the autostart registry key
 #endif
 #include "wx/filesys.h"
 #include "wx/fs_zip.h"
@@ -77,35 +77,35 @@ using std::nullopt;
 wxDECLARE_APP(App);
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
-    EVT_SIZE(MainWindow::onSize)
-    EVT_CLOSE(MainWindow::onClose)
-    EVT_MENU(tul(id::Quit),  MainWindow::onQuit)
-    EVT_MENU(tul(id::About), MainWindow::onAbout)
-    EVT_MENU(tul(id::SyncOnce), MainWindow::onStartSingleSync)
-    EVT_MENU(tul(id::StartSync), MainWindow::onStartContinuousSync)
-    EVT_MENU(tul(id::StopSync), MainWindow::onStopContinuousSync)
-    EVT_MENU(tul(id::EditSync), MainWindow::onEditSync)
-    EVT_UPDATE_UI(tul(id::EditSync), MainWindow::onUpdateSyncItemSelected)
-    EVT_MENU(tul(id::EditSettings), MainWindow::onEditSettings)
-    EVT_MENU(tul(id::EditSshAccounts), MainWindow::onEditSshAccounts)
-    EVT_MENU(tul(id::EditLogging), MainWindow::onEditLogging)
-    EVT_MENU(tul(id::DeleteSync), MainWindow::onDeleteSync)
-    EVT_UPDATE_UI(tul(id::DeleteSync), MainWindow::onUpdateSyncItemSelected)
-    EVT_MENU(tul(id::File_new_Synchronization), MainWindow::onAddSyncItem)
-    EVT_MENU(tul(id::File_new_SshConnection), MainWindow::onAddSshConnection)
-    EVT_MENU(tul(id::File_open), MainWindow::onFileOpen)
-    EVT_MENU(tul(id::File_save), MainWindow::onFileSave)
-    EVT_UPDATE_UI(tul(id::File_save), MainWindow::onUpdateFileSave)
-    EVT_MENU(tul(id::File_save_as), MainWindow::onFileSaveAs)
-    EVT_MENU(tul(id::View_Tree), MainWindow::onViewTree)
-    EVT_MENU(tul(id::View_List), MainWindow::onViewList)
-    EVT_MENU(tul(id::View_Grid), MainWindow::onViewGrid)
-    EVT_MENU(tul(id::View_Log), MainWindow::onViewLog)
-    EVT_MENU(tul(id::View_Background), MainWindow::onViewBackground)
-    EVT_MENU(tul(id::BackgroundServiceStart), MainWindow::onStartBackgroundService)
-    EVT_MENU(tul(id::BackgroundServiceStop), MainWindow::onStopBackgroundService)
-    EVT_MENU(tul(id::Chat), MainWindow::onChat)
-    EVT_MENU_OPEN(MainWindow::onMenuOpen)
+    EVT_SIZE(MainWindow::on_size)
+    EVT_CLOSE(MainWindow::on_close)
+    EVT_MENU(tul(id::Quit),  MainWindow::on_quit)
+    EVT_MENU(tul(id::About), MainWindow::on_about)
+    EVT_MENU(tul(id::SyncOnce), MainWindow::on_start_single_sync)
+    EVT_MENU(tul(id::StartSync), MainWindow::on_start_continuous_sync)
+    EVT_MENU(tul(id::StopSync), MainWindow::on_stop_continuous_sync)
+    EVT_MENU(tul(id::EditSync), MainWindow::on_edit_sync)
+    EVT_UPDATE_UI(tul(id::EditSync), MainWindow::on_update_sync_item_selected)
+    EVT_MENU(tul(id::EditSettings), MainWindow::on_edit_settings)
+    EVT_MENU(tul(id::EditSshAccounts), MainWindow::on_edit_ssh_accounts)
+    EVT_MENU(tul(id::EditLogging), MainWindow::on_edit_logging)
+    EVT_MENU(tul(id::DeleteSync), MainWindow::on_delete_sync)
+    EVT_UPDATE_UI(tul(id::DeleteSync), MainWindow::on_update_sync_item_selected)
+    EVT_MENU(tul(id::File_new_Synchronization), MainWindow::on_add_sync_item)
+    EVT_MENU(tul(id::File_new_SshConnection), MainWindow::on_add_ssh_connection)
+    EVT_MENU(tul(id::File_open), MainWindow::on_file_open)
+    EVT_MENU(tul(id::File_save), MainWindow::on_file_save)
+    EVT_UPDATE_UI(tul(id::File_save), MainWindow::on_update_file_save)
+    EVT_MENU(tul(id::File_save_as), MainWindow::on_file_save_as)
+    EVT_MENU(tul(id::View_Tree), MainWindow::on_view_tree)
+    EVT_MENU(tul(id::View_List), MainWindow::on_view_list)
+    EVT_MENU(tul(id::View_Grid), MainWindow::on_view_grid)
+    EVT_MENU(tul(id::View_Log), MainWindow::on_view_log)
+    EVT_MENU(tul(id::View_Background), MainWindow::on_view_background)
+    EVT_MENU(tul(id::BackgroundServiceStart), MainWindow::on_start_background_service)
+    EVT_MENU(tul(id::BackgroundServiceStop), MainWindow::on_stop_background_service)
+    EVT_MENU(tul(id::Chat), MainWindow::on_chat)
+    EVT_MENU_OPEN(MainWindow::on_menu_open)
     EVT_MENU(wxID_HELP, MainWindow::OnHelp)
 wxEND_EVENT_TABLE()
 
@@ -117,55 +117,55 @@ MainWindow::MainWindow(wxWindow *parent,
 		long style,
 		const wxString& name):
 		wxFrame(parent, id, title, pos, size, style, name),
-		syncInterface_(*this, menu_)
+		sync_interface_(*this, menu_)
 {
 
 	SetIcon(wxICON(sample));
-	const std::wstring pathName = Config::get_root_pathname();
-	Config::instance().pathname(pathName);
-	Config::instance().read(pathName);
+	const std::wstring path_name = Config::get_root_pathname();
+	Config::instance().pathname(path_name);
+	Config::instance().read(path_name);
 	translation::set_language(Config::instance().settings().language());  // before the first label is built
-	createMenu();
-	setTitle();
-	restoreSizeAndPosition();
+	create_menu();
+	set_title();
+	restore_size_and_position();
 	CreateStatusBar(2);
-	updateSyncState();
-	createToolBar();
-	createListWindow();
-	createHelp();
-	createTaskBar();
+	update_sync_state();
+	create_tool_bar();
+	create_list_window();
+	create_help();
+	create_task_bar();
 	LogCut()();
 	if (Config::instance().settings().start_minimized())
 		notify(translation::translate("info"), translation::translate("started_minimized"));
 	if (Config::sync_possible() && Config::instance().settings().start_sync_at_start()) {
-		syncInterface_.setActSyncType(SyncType::Continuous);
-		menu_.syncMenu()->Enable(tul(id::StartSync), false);
-		menu_.syncMenu()->Enable(tul(id::SyncOnce), false);
-		toolbar_.setStarted(true);  // [MainWindow.md#autostart-toolbar-state]
+		sync_interface_.set_act_sync_type(SyncType::Continuous);
+		menu_.sync_menu()->Enable(tul(id::StartSync), false);
+		menu_.sync_menu()->Enable(tul(id::SyncOnce), false);
+		toolbar_.set_started(true);  // [MainWindow.md#autostart-toolbar-state]
 	}
 	else {
-		menu_.syncMenu()->Enable(tul(id::StopSync), false);
+		menu_.sync_menu()->Enable(tul(id::StopSync), false);
 	}
-	startSyncTimer();
+	start_sync_timer();
 }
 
 MainWindow::~MainWindow()
 {
-    delete htmlHelpController_;
-    delete taskBarIcon_;
+    delete html_help_controller_;
+    delete task_bar_icon_;
 }
 
-void MainWindow::onStatusTimer(wxTimerEvent&)
+void MainWindow::on_status_timer(wxTimerEvent&)
 {
     SetStatusText("");
 }
 
-void MainWindow::updateSyncState()
+void MainWindow::update_sync_state()
 {
-    SetStatusText(syncInterface_.stateText(), 1);
+    SetStatusText(sync_interface_.state_text(), 1);
 }
 
-void MainWindow::setTitle()
+void MainWindow::set_title()
 {
     wstring title = L"AutoFileSync - " + Config::instance().pathname();
     if (Config::instance().changed())
@@ -173,7 +173,7 @@ void MainWindow::setTitle()
     if (GetTitle() == wxString(title))
         return;
     SetTitle(title);
-    OSXSetModified(Config::instance().changed());  // [MainWindow.md#setTitle]
+    OSXSetModified(Config::instance().changed());  // [MainWindow.md#set_title]
     SetRepresentedFilename(Config::instance().pathname());
 }
 
@@ -182,39 +182,39 @@ void MainWindow::notify(const wxString& title, const wxString& message)  // [Mai
     wxNotificationMessage(title, message, this).Show();
 }
 
-void MainWindow::startSyncTimer()
+void MainWindow::start_sync_timer()
 {
-    log_debug(L"MainWindow::startTimer()");
-    syncTimer_.Bind(wxEVT_TIMER, &MainWindow::onTimer, this);
-    syncTimer_.Start(1000);
+    log_debug(L"MainWindow::start_timer()");
+    sync_timer_.Bind(wxEVT_TIMER, &MainWindow::on_timer, this);
+    sync_timer_.Start(1000);
 }
 
 #ifdef _UNIX
-const std::string autostartDir = std::string(getenv("HOME")) + "/.config/autostart/";
-const std::string desktopFileName = "my_program.desktop";
+const std::string AUTOSTART_DIR = std::string(getenv("HOME")) + "/.config/autostart/";
+const std::string DESKTOP_FILE_NAME = "my_program.desktop";
 
-void enableAutostart(const std::string &execPath) {  // [MainWindow.md#enableAutostart]
-    std::ofstream desktopFile(autostartDir + desktopFileName);
+void enable_autostart(const std::string &exec_path) {  // [MainWindow.md#enable_autostart]
+    std::ofstream desktop_file(AUTOSTART_DIR + DESKTOP_FILE_NAME);
 
-    if (desktopFile.is_open()) {
-        desktopFile << "[Desktop Entry]\n";
-        desktopFile << "Type=Application\n";
-        desktopFile << "Exec=" << execPath << "\n";
-        desktopFile << "Hidden=false\n";
-        desktopFile << "NoDisplay=false\n";
-        desktopFile << "X-GNOME-Autostart-enabled=true\n";
-        desktopFile << "Name=My Program\n";
-        desktopFile << "Comment=Start My Program automatically after login\n";
-        desktopFile.close();
+    if (desktop_file.is_open()) {
+        desktop_file << "[Desktop Entry]\n";
+        desktop_file << "Type=Application\n";
+        desktop_file << "Exec=" << exec_path << "\n";
+        desktop_file << "Hidden=false\n";
+        desktop_file << "NoDisplay=false\n";
+        desktop_file << "X-GNOME-Autostart-enabled=true\n";
+        desktop_file << "Name=My Program\n";
+        desktop_file << "Comment=Start My Program automatically after login\n";
+        desktop_file.close();
         std::cout << translation::translate_utf8("autostart_enabled") << "\n";
     } else {
         std::cerr << translation::translate_utf8("autostart_file_not_created") << "\n";
     }
 }
 
-void disableAutostart() {  // [MainWindow.md#disableAutostart]
-    if (access((autostartDir + desktopFileName).c_str(), F_OK) == 0) {
-        if (remove((autostartDir + desktopFileName).c_str()) == 0) {
+void disable_autostart() {  // [MainWindow.md#disable_autostart]
+    if (access((AUTOSTART_DIR + DESKTOP_FILE_NAME).c_str(), F_OK) == 0) {
+        if (remove((AUTOSTART_DIR + DESKTOP_FILE_NAME).c_str()) == 0) {
             std::cout << translation::translate_utf8("autostart_disabled") << "\n";
         } else {
             std::cerr << translation::translate_utf8("autostart_file_delete_failed") << "\n";
@@ -224,7 +224,7 @@ void disableAutostart() {  // [MainWindow.md#disableAutostart]
     }
 }
 
-std::string getExecutablePath() {
+std::string get_executable_path() {
     char result[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
 
@@ -237,219 +237,219 @@ std::string getExecutablePath() {
 }
 #endif
 
-void MainWindow::registerAutomaticStart(bool yes)
+void MainWindow::register_automatic_start(bool yes)
 {
 #ifdef WIN32
-    HKEY hKey;
-    auto programName = L"AutoFileSync";
+    HKEY key;
+    auto program_name = L"AutoFileSync";
     if (yes) {
-        TCHAR szPath[MAX_PATH];
-        GetModuleFileName(NULL, szPath, MAX_PATH);
-        RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &hKey);
-        RegSetValueEx(hKey, programName, 0, REG_SZ, (LPBYTE)szPath, wcslen(szPath) * sizeof(TCHAR));
-        RegCloseKey(hKey);
+        TCHAR path[MAX_PATH];
+        GetModuleFileName(NULL, path, MAX_PATH);
+        RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &key);
+        RegSetValueEx(key, program_name, 0, REG_SZ, (LPBYTE)path, wcslen(path) * sizeof(TCHAR));
+        RegCloseKey(key);
     }
 	else {
-		RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &hKey);
-		RegDeleteValue(hKey, programName);
-        RegCloseKey(hKey);
+		RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &key);
+		RegDeleteValue(key, program_name);
+        RegCloseKey(key);
     }
 #elif _UNIX
     if (yes)
-        enableAutostart(getExecutablePath());
+        enable_autostart(get_executable_path());
     else
-        disableAutostart();
+        disable_autostart();
 #endif
 }
 
-void MainWindow::createSplitterWindow()
+void MainWindow::create_splitter_window()
 {
-    if (splitterWindow_ == nullptr) {
-        splitterWindow_ = new SplitterWindow(this);
-        splitterWindow_->SetSize(GetClientSize());
-        splitterWindow_->SetSashGravity(1.0);
-        splitterWindow_->splitVertically();
+    if (splitter_window_ == nullptr) {
+        splitter_window_ = new SplitterWindow(this);
+        splitter_window_->SetSize(GetClientSize());
+        splitter_window_->SetSashGravity(1.0);
+        splitter_window_->split_vertically();
         resize();
     }
 }
 
-void MainWindow::createListWindow()
+void MainWindow::create_list_window()
 {
-    if (listWindow_ == nullptr) {
-        listWindow_ = new ListWindow(this);
+    if (list_window_ == nullptr) {
+        list_window_ = new ListWindow(this);
         resize();
     }
 }
 
-void MainWindow::createGridWindow()
+void MainWindow::create_grid_window()
 {
-    if (gridWindow_ == nullptr) {
-        gridWindow_ = new GridWindow(this);
+    if (grid_window_ == nullptr) {
+        grid_window_ = new GridWindow(this);
         resize();
     }
 }
 
-void MainWindow::createToolBar()
+void MainWindow::create_tool_bar()
 {
 	toolbar_.create(this);
 }
 
-void MainWindow::createMenu()
+void MainWindow::create_menu()
 {
     menu_.create();
-    SetMenuBar(menu_.menuBar()); // attach this menu bar to the frame
+    SetMenuBar(menu_.menu_bar()); // attach this menu bar to the frame
 }
 
 void MainWindow::resize()
 {
     wxSize size = GetClientSize();
-    if (splitterWindow_ != nullptr) {
-        splitterWindow_->setSize(0, 0, size.x, size.y);
-        splitterWindow_->SetSashPosition(size.x / 2);
+    if (splitter_window_ != nullptr) {
+        splitter_window_->set_size(0, 0, size.x, size.y);
+        splitter_window_->SetSashPosition(size.x / 2);
     }
-    else if (listWindow_ != nullptr) {
-        listWindow_->SetSize(0, 0, size.x, size.y); 
+    else if (list_window_ != nullptr) {
+        list_window_->SetSize(0, 0, size.x, size.y); 
     }
-    else if (gridWindow_ != nullptr) {
-        gridWindow_->SetSize(0, 0, size.x, size.y);
+    else if (grid_window_ != nullptr) {
+        grid_window_->SetSize(0, 0, size.x, size.y);
     }
 }
 
-void MainWindow::onSize(wxSizeEvent& event)
+void MainWindow::on_size(wxSizeEvent& event)
 {
-    if (splitterWindow_)
+    if (splitter_window_)
         resize();
     event.Skip();
 }
 
-wxAboutDialogInfo MainWindow::aboutInfo()  // [MainWindow.md#onAbout]
+wxAboutDialogInfo MainWindow::about_info()  // [MainWindow.md#on_about]
 {
     wxAboutDialogInfo info;
-    info.SetName(afsNAME_STRING);
-    info.SetVersion(afsVERSION_STRING);
+    info.SetName(AFS_NAME_STRING);
+    info.SetVersion(AFS_VERSION_STRING);
     info.SetCopyright(translation::translate("about_copyright"));
     info.SetDescription(translation::translate("about_description", {wxGetOsDescription().ToStdWstring()}));
     return info;
 }
 
-void MainWindow::onAbout(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_about(wxCommandEvent& WXUNUSED(event))
 {
 #ifdef __WXOSX__
-    wxAboutBox(aboutInfo(), this);  // [MainWindow.md#onAbout]
+    wxAboutBox(about_info(), this);  // [MainWindow.md#on_about]
 #else
     wxMessageBox(translation::translate("about_text",
-                     {wxString(afsNAME_STRING).ToStdWstring(), wxString(afsVERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}),
+                     {wxString(AFS_NAME_STRING).ToStdWstring(), wxString(AFS_VERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}),
                  translation::translate("about_title"), wxOK | wxICON_INFORMATION, this);
 #endif
 }
 
-void MainWindow::onAddSyncItem(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_add_sync_item(wxCommandEvent& WXUNUSED(event))
 {
-    runAddSyncItemDialog(nullptr);
+    run_add_sync_item_dialog(nullptr);
 }
 
-void MainWindow::addSyncItemFrom(SyncItem preset)
+void MainWindow::add_sync_item_from(SyncItem preset)
 {
-    runAddSyncItemDialog(&preset);
+    run_add_sync_item_dialog(&preset);
 }
 
-void MainWindow::applyProposal(const sync_proposal::Proposal& proposal)
+void MainWindow::apply_proposal(const sync_proposal::Proposal& proposal)
 {
     if (const auto* item = std::get_if<SyncItem>(&proposal))
-        addSyncItemFrom(*item);
+        add_sync_item_from(*item);
     else
-        deleteSyncItem(Config::instance().find_by_name(std::get<sync_proposal::Deletion>(proposal).name));
+        delete_sync_item(Config::instance().find_by_name(std::get<sync_proposal::Deletion>(proposal).name));
 }
 
-void MainWindow::runAddSyncItemDialog(SyncItem* preset)
+void MainWindow::run_add_sync_item_dialog(SyncItem* preset)
 {
     SyncItemDialog dlg(preset, this, wxID_ANY, txt::add_synchronisation());
     if (dlg.ShowModal() == wxID_OK) {
-        SyncItem syncItem;  // [MainWindow.md#saveData-single-source]
-        dlg.saveData(syncItem);
+        SyncItem sync_item;  // [MainWindow.md#save_data-single-source]
+        dlg.save_data(sync_item);
         Config& cfg(Config::instance());
-        cfg.add(syncItem);
+        cfg.add(sync_item);
         autosave::after_change(this);  // [MainWindow.md#autosave]
         update();
     }
 }
 
-void MainWindow::onAddSshConnection(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_add_ssh_connection(wxCommandEvent& WXUNUSED(event))
 {
-    SshAccount sshAccount;
-    SshAccountDialog dlg(&sshAccount, this, wxID_ANY, txt::add_ssh_connection());
+    SshAccount ssh_account;
+    SshAccountDialog dlg(&ssh_account, this, wxID_ANY, txt::add_ssh_connection());
     if (dlg.ShowModal() == wxID_OK) {
-        dlg.saveData(sshAccount);
+        dlg.save_data(ssh_account);
         Config& cfg(Config::instance());
-        cfg.add(sshAccount);
+        cfg.add(ssh_account);
         autosave::after_change(this);
     }
 }
 
 void MainWindow::update()
 {
-    if (splitterWindow_ != nullptr)
-        splitterWindow_->update();
-    else if (listWindow_ != nullptr) {
-        listWindow_->update();
+    if (splitter_window_ != nullptr)
+        splitter_window_->update();
+    else if (list_window_ != nullptr) {
+        list_window_->update();
         resize();
     }
-    else if (gridWindow_ != nullptr) {
-        gridWindow_->update();
+    else if (grid_window_ != nullptr) {
+        grid_window_->update();
         resize();
     }
-    setTitle();
+    set_title();
 }
 
-static wxString configWildcard()
+static wxString config_wildcard()
 {
     return translation::translate("config_file_wildcard");
 }
 
-static wxString configDialogDir(const std::filesystem::path& pathname)  // [MainWindow.md#configDialogDir]
+static wxString config_dialog_dir(const std::filesystem::path& pathname)  // [MainWindow.md#config_dialog_dir]
 {
     return pathname.has_parent_path() ? wxString(pathname.parent_path().wstring()) : wxGetHomeDir();
 }
 
-void MainWindow::onFileOpen(wxCommandEvent&)
+void MainWindow::on_file_open(wxCommandEvent&)
 {
-    askAndSave("save_question");
+    ask_and_save("save_question");
 	Config& cfg(Config::instance());
     const std::filesystem::path current(cfg.pathname());
-    wxFileDialog dialog(this, translation::translate("open_config_title"), configDialogDir(current), wxEmptyString,
-        configWildcard(), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    wxFileDialog dialog(this, translation::translate("open_config_title"), config_dialog_dir(current), wxEmptyString,
+        config_wildcard(), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (dialog.ShowModal() != wxID_OK)
         return;
     const wstring path = dialog.GetPath().ToStdWstring();
     if (cfg.read(path)) {
         cfg.pathname(path);
-        setTitle();
+        set_title();
     }
     else if (std::filesystem::exists(current))  // [MainWindow.md#reload-after-failed-read]
         cfg.read(current.wstring());
     update();
 }
 
-void MainWindow::setStatusTextWithTimer(const wxString& text, int milliseconds)
+void MainWindow::set_status_text_with_timer(const wxString& text, int milliseconds)
 {
     SetStatusText(text);
-    statusTimer_.Bind(wxEVT_TIMER, &MainWindow::onStatusTimer, this);
-    statusTimer_.Start(milliseconds, wxTIMER_ONE_SHOT);
+    status_timer_.Bind(wxEVT_TIMER, &MainWindow::on_status_timer, this);
+    status_timer_.Start(milliseconds, wxTIMER_ONE_SHOT);
 }
 
-void MainWindow::onFileSave(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_file_save(wxCommandEvent& WXUNUSED(event))
 {
     if (autosave::save(this))
-        setStatusTextWithTimer(translation::translate("config_saved"), 5000);
-    setTitle();
+        set_status_text_with_timer(translation::translate("config_saved"), 5000);
+    set_title();
 }
 
-static wstring withJsonExtension(const wstring& path)  // [MainWindow.md#withJsonExtension]
+static wstring with_json_extension(const wstring& path)  // [MainWindow.md#with_json_extension]
 {
     return std::filesystem::path(path).extension() == L".json" ? path : path + L".json";
 }
 
-static bool confirmOverwrite(wxWindow* parent, const wstring& path)  // [MainWindow.md#confirmOverwrite]
+static bool confirm_overwrite(wxWindow* parent, const wstring& path)  // [MainWindow.md#confirm_overwrite]
 {
     if (!std::filesystem::exists(path))
         return true;
@@ -457,223 +457,223 @@ static bool confirmOverwrite(wxWindow* parent, const wstring& path)  // [MainWin
         translation::translate("overwrite_title"), translation::translate("button_overwrite"));
 }
 
-void MainWindow::onFileSaveAs(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_file_save_as(wxCommandEvent& WXUNUSED(event))
 {
 	Config& cfg(Config::instance());
     const std::filesystem::path current(cfg.pathname());
-    wxFileDialog dialog(this, translation::translate("save_as_title"), configDialogDir(current),
-        current.filename().wstring(), configWildcard(), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    wxFileDialog dialog(this, translation::translate("save_as_title"), config_dialog_dir(current),
+        current.filename().wstring(), config_wildcard(), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
     if (dialog.ShowModal() != wxID_OK)
         return;
     const wstring chosen = dialog.GetPath().ToStdWstring();
-    const wstring path = withJsonExtension(chosen);
-    if (path != chosen && !confirmOverwrite(this, path))
+    const wstring path = with_json_extension(chosen);
+    if (path != chosen && !confirm_overwrite(this, path))
         return;
     if (!cfg.write(path)) {
         wxMessageBox(translation::translate("config_save_failed"), translation::translate("error"), wxOK | wxICON_ERROR, this);
         return;
     }
     cfg.pathname(path);
-    setTitle();
-    setStatusTextWithTimer(translation::translate("config_saved"), 5000);
+    set_title();
+    set_status_text_with_timer(translation::translate("config_saved"), 5000);
 }
 
-void MainWindow::onStartSingleSync(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_start_single_sync(wxCommandEvent& WXUNUSED(event))
 {
-	log_debug(L"MainWindow::onStartSingleSync()");
-	if (syncInterface_.singleSync()) {
-		menu_.syncMenu()->Enable(tul(id::StartSync), false);
-		menu_.syncMenu()->Enable(tul(id::SyncOnce), false);
+	log_debug(L"MainWindow::on_start_single_sync()");
+	if (sync_interface_.single_sync()) {
+		menu_.sync_menu()->Enable(tul(id::StartSync), false);
+		menu_.sync_menu()->Enable(tul(id::SyncOnce), false);
 	}
-	updateSyncState();
+	update_sync_state();
 }
 
-void MainWindow::onStartContinuousSync(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_start_continuous_sync(wxCommandEvent& WXUNUSED(event))
 {
-	log_debug(L"MainWindow::onStartContinuousSync()");  
-	syncInterface_.startContinuousSync();
-	toolbar_.setStarted(true);
-	updateSyncState();
+	log_debug(L"MainWindow::on_start_continuous_sync()");  
+	sync_interface_.start_continuous_sync();
+	toolbar_.set_started(true);
+	update_sync_state();
 }
 
-void MainWindow::onStopContinuousSync(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_stop_continuous_sync(wxCommandEvent& WXUNUSED(event))
 {
-	log_debug(L"MainWindow::onStopContinuousSync()");
-	syncInterface_.stopContinuousSync();
-	toolbar_.setStarted(false);
-	updateSyncState();
+	log_debug(L"MainWindow::on_stop_continuous_sync()");
+	sync_interface_.stop_continuous_sync();
+	toolbar_.set_started(false);
+	update_sync_state();
 }
 
-void MainWindow::setConsoleMode()
+void MainWindow::set_console_mode()
 {
-    syncInterface_.setConsoleMode();
+    sync_interface_.set_console_mode();
 }
 
-void MainWindow::updateMenu()
+void MainWindow::update_menu()
 {
-    if (splitterWindow_ && splitterWindow_->mouseClicked()) {
-        bool found = findSyncItem() != nullopt;
-        menu_.editMenu()->Enable(tul(id::EditSync), found);
+    if (splitter_window_ && splitter_window_->mouse_clicked()) {
+        bool found = find_sync_item() != nullopt;
+        menu_.edit_menu()->Enable(tul(id::EditSync), found);
     }
 }
 
-void MainWindow::onTimer(wxTimerEvent&)
+void MainWindow::on_timer(wxTimerEvent&)
 {
-	log_debug(L"MainWindow::onTimer()");
+	log_debug(L"MainWindow::on_timer()");
 	if (!Config::exists() || !Config::instance().ready())
 		return;
-	updateMenu();
-	setTitle();
-	syncInterface_.onTimer();
-	updateSyncState();
-	if (firstTick_) {
-		firstTick_ = false;
+	update_menu();
+	set_title();
+	sync_interface_.on_timer();
+	update_sync_state();
+	if (first_tick_) {
+		first_tick_ = false;
 		resize();  // the toolbar and status bar have their final height only once the window is shown
 	}
 }
 
-std::optional<SyncItem> MainWindow::findSyncItem()
+std::optional<SyncItem> MainWindow::find_sync_item()
 {
     std::optional<SyncItem> found = nullopt;
-    if (splitterWindow_ != nullptr) {
-        found = Config::instance().find(splitterWindow_->selectedSourcePath(), true);
+    if (splitter_window_ != nullptr) {
+        found = Config::instance().find(splitter_window_->selected_source_path(), true);
         if (found == nullopt) {
-            found = Config::instance().find(splitterWindow_->selectedTargetPath(), false);
+            found = Config::instance().find(splitter_window_->selected_target_path(), false);
         }
     }
-    else if (listWindow_ != nullptr) {
-        const wstring syncName = listWindow_->getSelected();
-        if (!syncName.empty())
-            found = Config::instance().find_by_name(syncName);
+    else if (list_window_ != nullptr) {
+        const wstring sync_name = list_window_->get_selected();
+        if (!sync_name.empty())
+            found = Config::instance().find_by_name(sync_name);
     }
-    else if (gridWindow_ != nullptr) {
-        const wstring syncName = gridWindow_->getSelected();
-        if (!syncName.empty())
-            found = Config::instance().find_by_name(syncName);
+    else if (grid_window_ != nullptr) {
+        const wstring sync_name = grid_window_->get_selected();
+        if (!sync_name.empty())
+            found = Config::instance().find_by_name(sync_name);
     }
     return found;
 }
 
-void MainWindow::onEditSync(wxCommandEvent&)
+void MainWindow::on_edit_sync(wxCommandEvent&)
 {
-    auto found = findSyncItem();
+    auto found = find_sync_item();
     if (found == nullopt) {
         wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"), wxOK | wxICON_ERROR, this);
         return;
     }
-    const std::wstring originalName = found->name();  // [MainWindow.md#copy-written-back]
+    const std::wstring original_name = found->name();  // [MainWindow.md#copy-written-back]
     SyncItemDialog dlg(&*found, this, wxID_ANY, txt::edit_synchronisation());
     if (dlg.ShowModal() == wxID_OK) {
-        dlg.saveData(*found);
-        Config::instance().update_by_name(originalName, *found);
+        dlg.save_data(*found);
+        Config::instance().update_by_name(original_name, *found);
         autosave::after_change(this);
         update();
     }
 }
 
-void MainWindow::onUpdateSyncItemSelected(wxUpdateUIEvent& event)
+void MainWindow::on_update_sync_item_selected(wxUpdateUIEvent& event)
 {
-    auto found = findSyncItem();
+    auto found = find_sync_item();
     event.Enable(found.has_value());
 }
 
-void MainWindow::onUpdateFileSave(wxUpdateUIEvent& event)
+void MainWindow::on_update_file_save(wxUpdateUIEvent& event)
 {
     event.Enable(Config::instance().changed());
 }
 
-void MainWindow::onEditSshAccounts(wxCommandEvent&)
+void MainWindow::on_edit_ssh_accounts(wxCommandEvent&)
 {
     SshAccountsDialog dlg(this, wxID_ANY, txt::ssh_connections());
     dlg.ShowModal();
     autosave::after_change(this);
 }
 
-void MainWindow::onEditSettings(wxCommandEvent&)
+void MainWindow::on_edit_settings(wxCommandEvent&)
 {
-    bool autoStartLast = Config::instance().settings().auto_start();
-    const std::string languageLast = Config::instance().settings().language();
+    bool auto_start_last = Config::instance().settings().auto_start();
+    const std::string language_last = Config::instance().settings().language();
     SettingsDialog dlg(this, wxID_ANY, txt::settings());
     dlg.ShowModal();
     autosave::after_change(this);
-    if (autoStartLast !=  Config::instance().settings().auto_start())
-        registerAutomaticStart(Config::instance().settings().auto_start());
-    if (languageLast != Config::instance().settings().language())
-        switchLanguage();
+    if (auto_start_last !=  Config::instance().settings().auto_start())
+        register_automatic_start(Config::instance().settings().auto_start());
+    if (language_last != Config::instance().settings().language())
+        switch_language();
 }
 
-void MainWindow::switchLanguage()
+void MainWindow::switch_language()
 {
     translation::set_language(Config::instance().settings().language());
-    rebuildMenu();
-    rebuildToolBar();
-    rebuildView();
-    updateSyncState();
-    setTitle();
-    setTaskBarIcon();
+    rebuild_menu();
+    rebuild_tool_bar();
+    rebuild_view();
+    update_sync_state();
+    set_title();
+    set_task_bar_icon();
 }
 
-void MainWindow::rebuildMenu()  // [MainWindow.md#switchLanguage]
+void MainWindow::rebuild_menu()  // [MainWindow.md#switch_language]
 {
-    wxMenu* sync = menu_.syncMenu();
-    const bool startEnabled = sync->IsEnabled(tul(id::StartSync));
-    const bool onceEnabled = sync->IsEnabled(tul(id::SyncOnce));
-    const bool stopEnabled = sync->IsEnabled(tul(id::StopSync));
+    wxMenu* sync = menu_.sync_menu();
+    const bool start_enabled = sync->IsEnabled(tul(id::StartSync));
+    const bool once_enabled = sync->IsEnabled(tul(id::SyncOnce));
+    const bool stop_enabled = sync->IsEnabled(tul(id::StopSync));
     wxMenuBar* old = GetMenuBar();
-    createMenu();
+    create_menu();
     delete old;
-    menu_.syncMenu()->Enable(tul(id::StartSync), startEnabled);
-    menu_.syncMenu()->Enable(tul(id::SyncOnce), onceEnabled);
-    menu_.syncMenu()->Enable(tul(id::StopSync), stopEnabled);
+    menu_.sync_menu()->Enable(tul(id::StartSync), start_enabled);
+    menu_.sync_menu()->Enable(tul(id::SyncOnce), once_enabled);
+    menu_.sync_menu()->Enable(tul(id::StopSync), stop_enabled);
 }
 
-void MainWindow::rebuildToolBar()
+void MainWindow::rebuild_tool_bar()
 {
     wxToolBar* old = GetToolBar();
     const bool started = old->FindById(tul(id::StopSync)) != nullptr;
     SetToolBar(nullptr);
     old->Destroy();
-    createToolBar();
-    toolbar_.setStarted(started);
+    create_tool_bar();
+    toolbar_.set_started(started);
 }
 
-void MainWindow::rebuildView()  // [MainWindow.md#switchLanguage]
+void MainWindow::rebuild_view()  // [MainWindow.md#switch_language]
 {
-    if (listWindow_ != nullptr) {
-        deleteWindow(listWindow_);
-        createListWindow();
+    if (list_window_ != nullptr) {
+        delete_window(list_window_);
+        create_list_window();
     }
-    else if (gridWindow_ != nullptr) {
-        deleteWindow(gridWindow_);
-        createGridWindow();
+    else if (grid_window_ != nullptr) {
+        delete_window(grid_window_);
+        create_grid_window();
     }
-    else if (splitterWindow_ != nullptr) {
-        deleteWindow(splitterWindow_);
-        createSplitterWindow();
+    else if (splitter_window_ != nullptr) {
+        delete_window(splitter_window_);
+        create_splitter_window();
     }
 }
 
-void MainWindow::onEditLogging(wxCommandEvent&)
+void MainWindow::on_edit_logging(wxCommandEvent&)
 {
     LoggingDialog dlg(this, wxID_ANY, txt::logging_settings());
     dlg.ShowModal();
     autosave::after_change(this);
 }
 
-void MainWindow::onChat(wxCommandEvent&)
+void MainWindow::on_chat(wxCommandEvent&)
 {
-    if (chatDialog_ == nullptr)
-        chatDialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const sync_proposal::Proposal& proposal) { applyProposal(proposal); });
-    chatDialog_->Show();
-    chatDialog_->Raise();
+    if (chat_dialog_ == nullptr)
+        chat_dialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const sync_proposal::Proposal& proposal) { apply_proposal(proposal); });
+    chat_dialog_->Show();
+    chat_dialog_->Raise();
 }
 
-void MainWindow::onDeleteSync(wxCommandEvent&)
+void MainWindow::on_delete_sync(wxCommandEvent&)
 {
-    deleteSyncItem(findSyncItem());
+    delete_sync_item(find_sync_item());
 }
 
-void MainWindow::deleteSyncItem(const std::optional<SyncItem>& found)
+void MainWindow::delete_sync_item(const std::optional<SyncItem>& found)
 {
     if (found == nullopt) {
         wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"), wxOK | wxICON_ERROR, this);
@@ -688,31 +688,31 @@ void MainWindow::deleteSyncItem(const std::optional<SyncItem>& found)
     update();
 }
 
-void MainWindow::onViewTree(wxCommandEvent& )
+void MainWindow::on_view_tree(wxCommandEvent& )
 {
-    deleteWindow(listWindow_);
-    deleteWindow(gridWindow_);
-    createSplitterWindow();
+    delete_window(list_window_);
+    delete_window(grid_window_);
+    create_splitter_window();
 }
 
-void MainWindow::onViewList(wxCommandEvent& )
+void MainWindow::on_view_list(wxCommandEvent& )
 {
-    deleteWindow(splitterWindow_);
-    deleteWindow(gridWindow_);
-    createListWindow();
+    delete_window(splitter_window_);
+    delete_window(grid_window_);
+    create_list_window();
 }
 
-void MainWindow::onViewGrid(wxCommandEvent&)
+void MainWindow::on_view_grid(wxCommandEvent&)
 {
-    deleteWindow(splitterWindow_);
-    deleteWindow(listWindow_);
-    createGridWindow();
+    delete_window(splitter_window_);
+    delete_window(list_window_);
+    create_grid_window();
 }
 
 #ifndef WIN32
-static bool editorExists(const wxString& commandLine)  // [MainWindow.md#editorExists]
+static bool editor_exists(const wxString& command_line)  // [MainWindow.md#editor_exists]
 {
-    const wxArrayString args = wxCmdLineParser::ConvertStringToArgs(commandLine, wxCMD_LINE_SPLIT_UNIX);
+    const wxArrayString args = wxCmdLineParser::ConvertStringToArgs(command_line, wxCMD_LINE_SPLIT_UNIX);
     if (args.empty())
         return false;
     wxString found;
@@ -720,37 +720,37 @@ static bool editorExists(const wxString& commandLine)  // [MainWindow.md#editorE
 }
 #endif
 
-static bool startEditor(const wxString& commandLine)
+static bool start_editor(const wxString& command_line)
 {
-    const wxLogNull noWxErrorDialog;  // [MainWindow.md#onViewLog]
+    const wxLogNull no_wx_error_dialog;  // [MainWindow.md#on_view_log]
 #ifdef WIN32
-    return wxExecute(commandLine) != 0;
+    return wxExecute(command_line) != 0;
 #else
-    return editorExists(commandLine) && wxExecute(commandLine) != 0;
+    return editor_exists(command_line) && wxExecute(command_line) != 0;
 #endif
 }
 
-void MainWindow::onViewLog(wxCommandEvent&)
+void MainWindow::on_view_log(wxCommandEvent&)
 {
-    const wxString commandLine = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
-    if (!startEditor(commandLine))
+    const wxString command_line = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
+    if (!start_editor(command_line))
         wxMessageBox(translation::translate("editor_start_failed"), translation::translate("error"), wxOK | wxICON_ERROR, this);
 }
 
-void MainWindow::onViewBackground(wxCommandEvent&)
+void MainWindow::on_view_background(wxCommandEvent&)
 {
     Show(false);
 }
 
-void MainWindow::onMenuOpen(wxMenuEvent& event)
+void MainWindow::on_menu_open(wxMenuEvent& event)
 {
-    if (event.GetMenu() == menu_.backgroundServiceMenu())
-        updateBackgroundServiceMenu();
+    if (event.GetMenu() == menu_.background_service_menu())
+        update_background_service_menu();
     event.Skip();
 }
 
 namespace {
-wxString backgroundServiceStateText(BackgroundService::State state)
+wxString background_service_state_text(BackgroundService::State state)
 {
     switch (state) {
         case BackgroundService::State::Running: return translation::translate("bs_state_running");
@@ -762,49 +762,49 @@ wxString backgroundServiceStateText(BackgroundService::State state)
 }
 }
 
-void MainWindow::updateBackgroundServiceMenu()  // [MainWindow.md#updateBackgroundServiceMenu-state]
+void MainWindow::update_background_service_menu()  // [MainWindow.md#update_background_service_menu-state]
 {
     using State = BackgroundService::State;
     const State state = BackgroundService::state();
-    wxMenu* menu = menu_.backgroundServiceMenu();
-    menu->SetLabel(tul(id::BackgroundServiceState), backgroundServiceStateText(state));
+    wxMenu* menu = menu_.background_service_menu();
+    menu->SetLabel(tul(id::BackgroundServiceState), background_service_state_text(state));
     menu->Enable(tul(id::BackgroundServiceStart), state == State::Stopped || state == State::Unknown);
     menu->Enable(tul(id::BackgroundServiceStop), state == State::Running || state == State::Unknown);
 }
 
-void MainWindow::onStartBackgroundService(wxCommandEvent&)
+void MainWindow::on_start_background_service(wxCommandEvent&)
 {
-    if (!askAndSave("bs_save_question", wxCANCEL))  // [MainWindow.md#service-reads-the-saved-file]
+    if (!ask_and_save("bs_save_question", wxCANCEL))  // [MainWindow.md#service-reads-the-saved-file]
         return;
     const std::wstring error = BackgroundService::start();
     if (error.empty())
         log_info(translation::translate("bs_started"));
-    reportBackgroundService(error, translation::translate("bs_started"));
+    report_background_service(error, translation::translate("bs_started"));
 }
 
-void MainWindow::onStopBackgroundService(wxCommandEvent&)
+void MainWindow::on_stop_background_service(wxCommandEvent&)
 {
     const std::wstring error = BackgroundService::stop();
     if (error.empty())
         log_info(translation::translate("bs_stopped"));
-    reportBackgroundService(error, translation::translate("bs_stopped"));
+    report_background_service(error, translation::translate("bs_stopped"));
 }
 
-void MainWindow::reportBackgroundService(const std::wstring& error, const wxString& success)
+void MainWindow::report_background_service(const std::wstring& error, const wxString& success)
 {
     if (error.empty())
-        setStatusTextWithTimer(success, 10000);
+        set_status_text_with_timer(success, 10000);
     else
         wxMessageBox(error, translation::translate("bs_caption"), wxOK | wxICON_ERROR, this);
 }
 
-void MainWindow::onQuit(wxCommandEvent& event)
+void MainWindow::on_quit(wxCommandEvent& event)
 {
     close();
     event.Skip();
 }
 
-void MainWindow::onClose(wxCloseEvent& event)
+void MainWindow::on_close(wxCloseEvent& event)
 {
     wxConfigBase* config = wxConfig::Get();
     wxPoint pos = GetPosition();
@@ -826,11 +826,11 @@ void MainWindow::onClose(wxCloseEvent& event)
 
 void MainWindow::OnHelp(wxCommandEvent&)
 {
-    GetHelpController().DisplayContents();
+    get_help_controller().DisplayContents();
 }
 
 namespace {
-wxString helpBookIn(const wxString& directory)
+wxString help_book_in(const wxString& directory)
 {
     wxFileName book = wxFileName::DirName(directory);
     book.AppendDir("help");
@@ -838,42 +838,42 @@ wxString helpBookIn(const wxString& directory)
     return book.GetFullPath();
 }
 
-wxString executableDir()
+wxString executable_dir()
 {
     wxFileName exe(wxStandardPaths::Get().GetExecutablePath());
     exe.SetFullName(wxEmptyString);
     return exe.GetPath();
 }
 
-wxString locateHelpBook()  // [MainWindow.md#locateHelpBook]
+wxString locate_help_book()  // [MainWindow.md#locate_help_book]
 {
-    constexpr int maxBuildTreeDepth = 3;
-    wxFileName dir = wxFileName::DirName(executableDir());
-    for (int level = 0; level <= maxBuildTreeDepth && dir.GetDirCount() > 0; ++level, dir.RemoveLastDir())
-        if (const wxString candidate = helpBookIn(dir.GetPath()); wxFileExists(candidate))
+    constexpr int MAX_BUILD_TREE_DEPTH = 3;
+    wxFileName dir = wxFileName::DirName(executable_dir());
+    for (int level = 0; level <= MAX_BUILD_TREE_DEPTH && dir.GetDirCount() > 0; ++level, dir.RemoveLastDir())
+        if (const wxString candidate = help_book_in(dir.GetPath()); wxFileExists(candidate))
             return candidate;
     for (const wxString& directory : {wxStandardPaths::Get().GetResourcesDir(), wxGetCwd()})
-        if (const wxString candidate = helpBookIn(directory); wxFileExists(candidate))
+        if (const wxString candidate = help_book_in(directory); wxFileExists(candidate))
             return candidate;
     return wxEmptyString;
 }
 }
 
-void MainWindow::createHelp()
+void MainWindow::create_help()
 {
     wxFileSystem::AddHandler(new wxZipFSHandler);
-    htmlHelpController_ = new wxHtmlHelpController;
-    const wxString helpFilePath = locateHelpBook();
-    if (helpFilePath.empty())
-        notify(translation::translate("help_file_not_found"), helpBookIn(executableDir()));  // [MainWindow.md#help-path-in-message]
-    else if (!htmlHelpController_->AddBook(helpFilePath))
-        wxMessageBox(translation::translate("help_file_add_failed") + helpFilePath, translation::translate("error"), wxOK | wxICON_ERROR, this);
+    html_help_controller_ = new wxHtmlHelpController;
+    const wxString help_file_path = locate_help_book();
+    if (help_file_path.empty())
+        notify(translation::translate("help_file_not_found"), help_book_in(executable_dir()));  // [MainWindow.md#help-path-in-message]
+    else if (!html_help_controller_->AddBook(help_file_path))
+        wxMessageBox(translation::translate("help_file_add_failed") + help_file_path, translation::translate("error"), wxOK | wxICON_ERROR, this);
     else
-        log_debug("Hilfedatei erfolgreich hinzugefügt: ", std::string(helpFilePath.ToUTF8()));
-    GetHelpController().SetViewer("internal");
+        log_debug("Hilfedatei erfolgreich hinzugefügt: ", std::string(help_file_path.ToUTF8()));
+    get_help_controller().SetViewer("internal");
 }
 
-void MainWindow::restoreSizeAndPosition()  // [MainWindow.md#restore-fits-the-screen]
+void MainWindow::restore_size_and_position()  // [MainWindow.md#restore-fits-the-screen]
 {
     SetMinSize(FromDIP(wxSize(500, 400)));
     wxConfigBase* config = wxConfig::Get();
@@ -887,39 +887,39 @@ void MainWindow::restoreSizeAndPosition()  // [MainWindow.md#restore-fits-the-sc
     SetSize(size);
 }
 
-void MainWindow::createTaskBar()
+void MainWindow::create_task_bar()
 {
-    taskBarIcon_ = new TaskBarIcon(this);
-    setTaskBarIcon();
+    task_bar_icon_ = new TaskBarIcon(this);
+    set_task_bar_icon();
 }
 
-void MainWindow::setTaskBarIcon()
+void MainWindow::set_task_bar_icon()
 {
 #ifndef __WXOSX__
-    if (!taskBarIcon_->SetIcon(wxICON(sample), translation::translate("taskbar_tooltip")))  // [MainWindow.md#taskbar-icon-macos]
+    if (!task_bar_icon_->SetIcon(wxICON(sample), translation::translate("taskbar_tooltip")))  // [MainWindow.md#taskbar-icon-macos]
         wxLogError("%s", translation::translate("icon_set_failed"));
 #endif
 }
 
-bool MainWindow::askAndSave(const char* question, long extra_style)
+bool MainWindow::ask_and_save(const char* question, long extra_style)
 {
     if (!Config::instance().changed())
         return true;
     wxMessageDialog dlg(this, translation::translate(question), translation::translate("not_saved_title"),
         wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION | extra_style);
-    dlg.SetYesNoCancelLabels(wxString(translation::translate("button_save")), wxString(translation::translate("button_dont_save")),  // [MainWindow.md#askAndSave]
+    dlg.SetYesNoCancelLabels(wxString(translation::translate("button_save")), wxString(translation::translate("button_dont_save")),  // [MainWindow.md#ask_and_save]
         wxString(translation::translate("button_cancel")));
     const int answer = dlg.ShowModal();
     if (answer == wxID_CANCEL)
         return false;
     const bool saved = answer == wxID_NO || autosave::save(this);
-    setTitle();
+    set_title();
     return saved;
 }
 
 void MainWindow::close()
 {
-    syncInterface_.stopSync();  // [MainWindow.md#real-shutdown]
-    askAndSave("save_question");
+    sync_interface_.stop_sync();  // [MainWindow.md#real-shutdown]
+    ask_and_save("save_question");
     wxGetApp().ExitMainLoop();
 }

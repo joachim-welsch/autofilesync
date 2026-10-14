@@ -35,36 +35,36 @@ class Menu;
 using namespace AFS_Core;
 
 class SyncInterface {
-    wxWindow&       parentWindow_;
+    wxWindow&       parent_window_;
     Menu&           menu_;
-    SyncControler&  syncControler_;
-    ProgressDialog* progressDialog_ = nullptr;
-    bool            consoleMode_ = false;
-    SyncType        actSyncType_ = SyncType::None;  // [SyncInterface.md#stateText]
-    std::size_t     countFiles_ = 0;
-    std::chrono::high_resolution_clock::time_point startTime_;
-    bool silentMode() const;
-    void showRunMessages();  // [SyncInterface.md#showRunMessages]
-    wxFrame* parentFrame() { return dynamic_cast<wxFrame*>(&parentWindow_); }
+    SyncControler&  sync_controler_;
+    ProgressDialog* progress_dialog_ = nullptr;
+    bool            console_mode_ = false;
+    SyncType        act_sync_type_ = SyncType::None;  // [SyncInterface.md#state_text]
+    std::size_t     count_files_ = 0;
+    std::chrono::high_resolution_clock::time_point start_time_;
+    bool silent_mode() const;
+    void show_run_messages();  // [SyncInterface.md#show_run_messages]
+    wxFrame* parent_frame() { return dynamic_cast<wxFrame*>(&parent_window_); }
 public:
-    explicit SyncInterface(wxWindow& parentWindow, Menu& menu);
+    explicit SyncInterface(wxWindow& parent_window, Menu& menu);
     ~SyncInterface();
-    void onSync();
-    void runConsoleSync();
-    bool startSync();
-    bool singleSync();
-    void setConsoleMode();
-    void openProgressDialog(uint32_t nFiles);
-    void stopSync();
-    void syncOnceFinished();
-    void countFilesFinished();
-    void continuousSyncFinished();
-    void onTimer();
-    void startContinuousSync();
-    void stopContinuousSync();
-    wxString stateText() const;  // [SyncInterface.md#stateText]
-    SyncControler& syncControler() { return syncControler_; }
-    SyncType actSyncType() const { return actSyncType_; }
-    void setActSyncType(SyncType type) { actSyncType_ = type; }
-    bool isContinuouslySyncing() const { return actSyncType_ == SyncType::Continuous; }
+    void on_sync();
+    void run_console_sync();
+    bool start_sync();
+    bool single_sync();
+    void set_console_mode();
+    void open_progress_dialog(uint32_t n_files);
+    void stop_sync();
+    void sync_once_finished();
+    void count_files_finished();
+    void continuous_sync_finished();
+    void on_timer();
+    void start_continuous_sync();
+    void stop_continuous_sync();
+    wxString state_text() const;  // [SyncInterface.md#state_text]
+    SyncControler& sync_controler() { return sync_controler_; }
+    SyncType act_sync_type() const { return act_sync_type_; }
+    void set_act_sync_type(SyncType type) { act_sync_type_ = type; }
+    bool is_continuously_syncing() const { return act_sync_type_ == SyncType::Continuous; }
 };

@@ -29,7 +29,7 @@ constexpr char SSH_TEST_HOST[] = "localhost";
 constexpr char SSH_TEST_USER[] = "testuser";
 constexpr char SSH_TEST_PASSWORD[] = "testpassword";
 
-AFS_Core::SshAccount sshTestAccount(const std::string& name);
+AFS_Core::SshAccount ssh_test_account(const std::string& name);
 
 class RemoteSftp {  // [SshTestServer.md#RemoteSftp]
 public:
@@ -37,17 +37,17 @@ public:
     ~RemoteSftp();
     RemoteSftp(const RemoteSftp&) = delete;
     RemoteSftp& operator=(const RemoteSftp&) = delete;
-    std::string homeDir() const;
-    std::string scratchDir() const;  // [SshTestServer.md#scratchDir]
-    bool makeDir(const std::string& path) const;
-    bool createFile(const std::string& path, const std::string& content = std::string()) const;
-    std::string readFile(const std::string& path) const;
+    std::string home_dir() const;
+    std::string scratch_dir() const;  // [SshTestServer.md#scratch_dir]
+    bool make_dir(const std::string& path) const;
+    bool create_file(const std::string& path, const std::string& content = std::string()) const;
+    std::string read_file(const std::string& path) const;
     bool exists(const std::string& path) const;
-    void removeFile(const std::string& path) const;
-    void removeDir(const std::string& path) const;
+    void remove_file(const std::string& path) const;
+    void remove_dir(const std::string& path) const;
 private:
     struct Session;
-    std::unique_ptr<Session> session_;
+    std::unique_ptr<Session> session;
 };
 
 class SshGuiTest: public GuiTest {  // [SshTestServer.md#SshGuiTest]
@@ -55,10 +55,10 @@ protected:
     void SetUp() override;
     void TearDown() override;
     RemoteSftp& sftp() { return *sftp_; }
-    std::string probeDir() const { return probeDir_; }  // [SshTestServer.md#probeDir]
+    std::string probe_dir() const { return probe_dir_; }  // [SshTestServer.md#probe_dir]
 private:
     std::unique_ptr<RemoteSftp> sftp_;
-    std::string probeDir_;
+    std::string probe_dir_;
 };
 
 }

@@ -32,7 +32,7 @@ the frontmost application, and cannot land in whatever else is open on the devel
 wxMOD_CONTROL is the Command key on macOS, as it is for wxKeyEvent::ControlDown() there, and
 wxMOD_RAW_CONTROL the Control key - the same mapping the application's key handlers see.
 
-## pressReturn
+## press_return
 
 The Return key goes the same way as the characters on macOS: wxUIActionSimulator::Char() posts
 it to the HID tap, where it goes to whatever application is frontmost, and the queued
@@ -147,7 +147,7 @@ before this call is the caller's responsibility.
 Selected after the click, not before: the click sets the caret and drops an earlier selection,
 so the new text would land in the middle of the old value instead of replacing it.
 
-## selectRadioOption
+## select_radio_option
 
 wxRadioBox is a single window: on MSW its buttons are internal children that wx does not expose,
 so there is nothing to point the mouse at. Selecting and sending the command the click would
@@ -156,9 +156,9 @@ produce runs the same dialog handler.
 ## update-ui-needs-idle
 
 Buttons guarded by EVT_UPDATE_UI only become enabled while the event loop is idle, which is
-exactly what pumping inside waitUntil() provides.
+exactly what pumping inside wait_until() provides.
 
-## activateMenuItem
+## activate_menu_item
 
 wxUIActionSimulator cannot drive a menu bar reliably - the menus are native popup windows whose
 position wx does not expose on either platform - so the command takes the same event table entry
@@ -169,29 +169,29 @@ that a real click would reach.
 User level actions on top of wxUIActionSimulator: every helper is null safe and reports failure
 instead of aborting, so a test states what went wrong.
 
-## clickOn-tree-item
+## click_on-tree-item
 
 Clicks the tree item's on-screen position, the way a user would - unlike
 wxTreeCtrl::SelectItem() this goes through the real mouse event handlers
-(TreeCtrl::OnMouseLeftDown and whatever it triggers).
+(TreeCtrl::on_mouse_left_down and whatever it triggers).
 
-## replaceText
+## replace_text
 
 For a field that already holds a value: selects it first, the way a user overwrites an entry
 instead of appending to it.
 
-## findTreeItemForPath
+## find_tree_item_for_path
 
-Walks the tree the same way TreeCtrl::addBranch() built it: one child node per path segment, the
+Walks the tree the same way TreeCtrl::add_branch() built it: one child node per path segment, the
 filesystem root itself excluded. Invalid if any segment has no matching node.
 
-## selectEntry
+## select_entry
 
 wxChoice opens a native popup list whose entries the simulator cannot locate, and wxListBox
 exposes no portable item rectangle, so the entry is selected directly and the command the
-selection would produce is sent - the same handler as for a real pick, see selectRadioOption.
+selection would produce is sent - the same handler as for a real pick, see select_radio_option.
 
-## setCheckBox
+## set_check_box
 
 A real click, because the dialog's rules (two-way sync locking "copy when target newer") hang
 on the click's command event. Only the difference to the wanted state is clicked, so the
@@ -222,47 +222,47 @@ run opens, which sits behind the main window from then on - every click aimed at
 main window instead. The idle time after such a click lets the re-ordering happen while the
 dialog it concerns is still there.
 
-## clickOn-point
+## click_on-point
 
 The variant with a client point is for controls whose centre is the wrong spot; the pointer
 version keeps clicking the centre.
 
-## setSpinValue
+## set_spin_value
 
 Typing into a wxSpinCtrl differs per platform (the text part is an internal child on MSW), so
-the value is set and the spin command sent instead, like selectRadioOption.
+the value is set and the spin command sent instead, like select_radio_option.
 
-## showNotebookPage
+## show_notebook_page
 
 Controls on a page that is not shown are not on screen, and clicking them fails. The page is
 switched through the notebook itself: the dialogs do not react to page changes, so nothing is
 skipped by not clicking the tab.
 
-## activateToolbarTool
+## activate_toolbar_tool
 
 wx exposes no cross-platform rectangle of a toolbar tool to click on, so the command a click
 would produce is sent through the toolbar's handler - wxEVT_TOOL is what the click ends up as.
 The tool has to exist and be enabled, so a greyed-out tool fails the way it would for a user.
 
-## replaceLines
+## replace_lines
 
 Line breaks go in as the Return key, not as a character: an injected '\n' is not a key press
 and a multi-line wxTextCtrl ignores it. The field must be multi-line, a single-line one would
 swallow the Return as "OK".
 
-## clickOn-list-item
+## click_on-list-item
 
 Clicks the row's on-screen rectangle, so the list's own selection handling and - with a
-double click - ListCtrl::OnDClick run the way they do for a user.
+double click - ListCtrl::on_double_click run the way they do for a user.
 
-## clickOnRowLabel
+## click_on_row_label
 
 The row labels live in their own child window of the grid, positioned in scrolled
 coordinates; the cell rectangle gives the row's height and unscrolled top, which is scrolled
 here. A click on the label is what opens the edit dialog in the grid view.
 
-## changeGridCell
+## change_grid_cell
 
 In-place editing differs per platform and cell editor (the bool editor toggles on a click,
 the text editor needs Enter to end), so the value is set and the "cell changed" event sent -
-the same handler that ends a real edit, GridCtrl::OnCellValueChanged.
+the same handler that ends a real edit, GridCtrl::on_cell_value_changed.

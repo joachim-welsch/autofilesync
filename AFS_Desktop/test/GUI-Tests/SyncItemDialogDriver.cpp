@@ -28,86 +28,86 @@ namespace {
 
 constexpr int CLOSE_TIMEOUT_MILLISECONDS = 2000;  // a dialog that OK does not close is being kept open by a message box, not by slowness
 
-bool enterText(wxDialog& dialog, wxWindowID id, const wxString& text, const char* label)
+bool enter_text(wxDialog& dialog, wxWindowID id, const wxString& text, const char* label)
 {
-    if (replaceText(find(dialog, id), text))
+    if (replace_text(find(dialog, id), text))
         return true;
     ADD_FAILURE() << label << " konnte nicht eingegeben werden.\n  erwartet: " << text
-                  << "\n  im Feld:  " << valueOf(find(dialog, id));
+                  << "\n  im Feld:  " << value_of(find(dialog, id));
     return false;
 }
 
-bool enterLines(wxDialog& dialog, wxWindowID id, const wxString& lines, const char* label)
+bool enter_lines(wxDialog& dialog, wxWindowID id, const wxString& lines, const char* label)
 {
-    if (replaceLines(find(dialog, id), lines))
+    if (replace_lines(find(dialog, id), lines))
         return true;
-    ADD_FAILURE() << label << " konnten nicht eingegeben werden; im Feld steht: " << valueOf(find(dialog, id));
+    ADD_FAILURE() << label << " konnten nicht eingegeben werden; im Feld steht: " << value_of(find(dialog, id));
     return false;
 }
 
-bool enterGeneral(wxDialog& dialog, const SyncItemInput& input)  // [SyncItemDialogDriver.md#enterValues]
+bool enter_general(wxDialog& dialog, const SyncItemInput& input)  // [SyncItemDialogDriver.md#enter_values]
 {
-    if (!enterText(dialog, ID_NAME_BOX, input.name, "Name"))
+    if (!enter_text(dialog, ID_NAME_BOX, input.name, "Name"))
         return false;
-    if (input.type && !selectEntry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(*input.type))) {
+    if (input.type && !select_entry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(*input.type))) {
         ADD_FAILURE() << "Der Typ konnte nicht ausgewählt werden.";
         return false;
     }
-    if (input.wildcard && !enterText(dialog, ID_WILDCARD_BOX, *input.wildcard, "Platzhalter"))
+    if (input.wildcard && !enter_text(dialog, ID_WILDCARD_BOX, *input.wildcard, "Platzhalter"))
         return false;
-    return enterText(dialog, ID_SOURCE_DIR_BOX, input.source, "Quelle")
-        && enterText(dialog, ID_TARGET_DIR_BOX, input.target, "Ziel");
+    return enter_text(dialog, ID_SOURCE_DIR_BOX, input.source, "Quelle")
+        && enter_text(dialog, ID_TARGET_DIR_BOX, input.target, "Ziel");
 }
 
-bool enterOptions(wxDialog& dialog, const SyncItemOptions& options)  // [SyncItemDialogDriver.md#enterOptions]
+bool enter_options(wxDialog& dialog, const SyncItemOptions& options)  // [SyncItemDialogDriver.md#enter_options]
 {
     const struct { std::optional<bool> wanted; wxWindowID id; const char* label; } boxes[] = {
         { options.enabled, ID_ENABLED_CHECK, "Aktiv" },
-        { options.compareDate, ID_COMPARE_DATE_CHECK, "Vergleich nach Datum" },
-        { options.compareSize, ID_COMPARE_SIZE_CHECK, "Vergleich nach Größe" },
-        { options.compareContent, ID_COMPARE_CONTENT_CHECK, "Vergleich nach Inhalt" },
-        { options.deleteSourceAfter, ID_DEL_SOURCE_AFTER_CHECK, "Quelle nach Kopieren löschen" },
-        { options.twoWaySync, ID_TWO_WAY_SYNC_CHECK, "Zwei-Wege-Sync" },
-        { options.copyWhenTargetNewer, ID_CPY_WHEN_TARGET_NEWER_CHECK, "Kopieren wenn Ziel neuer" },
-        { options.fatherSonPrinciple, ID_FATHER_SON_PRINCIPLE_CHECK, "Generationenprinzip" },
-        { options.deleteInTarget, ID_DELETE_IN_TARGET_CHECK, "Gelöschte Dateien im Ziel löschen" },
-        { options.backupProof, ID_BACKUP_PROOF_CHECK, "Backup-Nachweis" },
-        { options.syncEmptyFiles, ID_SYNC_EMPTY_FILES_CHECK, "Leere Dateien synchronisieren" },
+        { options.compare_date, ID_COMPARE_DATE_CHECK, "Vergleich nach Datum" },
+        { options.compare_size, ID_COMPARE_SIZE_CHECK, "Vergleich nach Größe" },
+        { options.compare_content, ID_COMPARE_CONTENT_CHECK, "Vergleich nach Inhalt" },
+        { options.delete_source_after, ID_DEL_SOURCE_AFTER_CHECK, "Quelle nach Kopieren löschen" },
+        { options.two_way_sync, ID_TWO_WAY_SYNC_CHECK, "Zwei-Wege-Sync" },
+        { options.copy_when_target_newer, ID_CPY_WHEN_TARGET_NEWER_CHECK, "Kopieren wenn Ziel neuer" },
+        { options.father_son_principle, ID_FATHER_SON_PRINCIPLE_CHECK, "Generationenprinzip" },
+        { options.delete_in_target, ID_DELETE_IN_TARGET_CHECK, "Gelöschte Dateien im Ziel löschen" },
+        { options.backup_proof, ID_BACKUP_PROOF_CHECK, "Backup-Nachweis" },
+        { options.sync_empty_files, ID_SYNC_EMPTY_FILES_CHECK, "Leere Dateien synchronisieren" },
     };
     for (const auto& box : boxes) {
-        if (box.wanted && !setCheckBox(find(dialog, box.id), *box.wanted)) {
+        if (box.wanted && !set_check_box(find(dialog, box.id), *box.wanted)) {
             ADD_FAILURE() << "Die Option \"" << box.label << "\" konnte nicht gesetzt werden.";
             return false;
         }
     }
-    if (options.syncCycleSeconds && !setSpinValue(find(dialog, ID_SYNC_CYCLE_SPIN), *options.syncCycleSeconds)) {
-        ADD_FAILURE() << "Der Zyklus konnte nicht auf " << *options.syncCycleSeconds << " gesetzt werden.";
+    if (options.sync_cycle_seconds && !set_spin_value(find(dialog, ID_SYNC_CYCLE_SPIN), *options.sync_cycle_seconds)) {
+        ADD_FAILURE() << "Der Zyklus konnte nicht auf " << *options.sync_cycle_seconds << " gesetzt werden.";
         return false;
     }
     return true;
 }
 
-bool enterValues(wxDialog& dialog, const SyncItemInput& input)
+bool enter_values(wxDialog& dialog, const SyncItemInput& input)
 {
-    if (!showNotebookPage(dialog, AFS_Core::translation::translate("tab_general")) || !enterGeneral(dialog, input))
+    if (!show_notebook_page(dialog, AFS_Core::translation::translate("tab_general")) || !enter_general(dialog, input))
         return false;
-    if (!showNotebookPage(dialog, AFS_Core::translation::translate("tab_options")) || !enterOptions(dialog, input.options))
+    if (!show_notebook_page(dialog, AFS_Core::translation::translate("tab_options")) || !enter_options(dialog, input.options))
         return false;
-    if (input.exclusions && (!showNotebookPage(dialog, AFS_Core::translation::translate("tab_exclusions"))
-            || !enterLines(dialog, ID_EXCLUSIONS_BOX, *input.exclusions, "Die Ausschlüsse")))
+    if (input.exclusions && (!show_notebook_page(dialog, AFS_Core::translation::translate("tab_exclusions"))
+            || !enter_lines(dialog, ID_EXCLUSIONS_BOX, *input.exclusions, "Die Ausschlüsse")))
         return false;
-    return showNotebookPage(dialog, AFS_Core::translation::translate("tab_general"));
+    return show_notebook_page(dialog, AFS_Core::translation::translate("tab_general"));
 }
 
 }
 
-DialogAction fillSyncItemDialog(const SyncItemInput& input)
+DialogAction fill_sync_item_dialog(const SyncItemInput& input)
 {
     return [input](wxDialog& dialog) {
-        const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
-            && enterValues(dialog, input)
-            && clickWhenEnabled(find(dialog, wxID_OK))
-            && waitUntil([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS);  // [SyncItemDialogDriver.md#rejected-input-keeps-the-dialog-open]
+        const bool confirmed = wait_until([&dialog] { return dialog.IsShownOnScreen(); })
+            && enter_values(dialog, input)
+            && click_when_enabled(find(dialog, wxID_OK))
+            && wait_until([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS);  // [SyncItemDialogDriver.md#rejected-input-keeps-the-dialog-open]
         if (!confirmed)  // [SyncItemDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };

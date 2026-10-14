@@ -39,7 +39,7 @@ using namespace AFS_Core;
 
 namespace guitest {
 
-SshAccount sshTestAccount(const std::string& name)
+SshAccount ssh_test_account(const std::string& name)
 {
     SshAccount account;
     account.set_name(name);
@@ -53,9 +53,9 @@ SshAccount sshTestAccount(const std::string& name)
 
 struct RemoteSftp::Session {  // [SshTestServer.md#RemoteSftp]
     SOCKET socket_ = INVALID_SOCKET;
-    LIBSSH2_SESSION* session_ = nullptr;
-    LIBSSH2_SFTP* sftp_ = nullptr;
-    bool winsockStarted_ = false;
+    LIBSSH2_SESSION* session = nullptr;
+    LIBSSH2_SFTP* sftp = nullptr;
+    bool winsock_started_ = false;
 
     Session()
     {
@@ -74,27 +74,27 @@ struct RemoteSftp::Session {  // [SshTestServer.md#RemoteSftp]
 
     void open()
     {
-        WSADATA wsaData;
-        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+        WSADATA wsa_data;
+        if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
             throw std::runtime_error("WSAStartup fehlgeschlagen");
-        winsockStarted_ = true;
-        connectSocket();
+        winsock_started_ = true;
+        connect_socket();
         ensure_libssh2_initialized();
-        session_ = libssh2_session_init();
-        if (session_ == nullptr)
+        session = libssh2_session_init();
+        if (session == nullptr)
             throw std::runtime_error("libssh2_session_init fehlgeschlagen");
-        if (libssh2_session_handshake(session_, socket_) != 0)
+        if (libssh2_session_handshake(session, socket_) != 0)
             fail("SSH-Handshake fehlgeschlagen");
-        if (!verify_ssh_host_key(session_, SSH_TEST_HOST))
+        if (!verify_ssh_host_key(session, SSH_TEST_HOST))
             throw std::runtime_error("Host-Key-Pruefung fehlgeschlagen");
-        if (libssh2_userauth_password(session_, SSH_TEST_USER, SSH_TEST_PASSWORD) != 0)
+        if (libssh2_userauth_password(session, SSH_TEST_USER, SSH_TEST_PASSWORD) != 0)
             fail("Anmeldung fehlgeschlagen");
-        sftp_ = libssh2_sftp_init(session_);
-        if (sftp_ == nullptr)
+        sftp = libssh2_sftp_init(session);
+        if (sftp == nullptr)
             fail("SFTP-Initialisierung fehlgeschlagen");
     }
 
-    void connectSocket()
+    void connect_socket()
     {
         addrinfo hints{};
         hints.ai_family = AF_INET;  // same address family SshDirInspector connects with
@@ -113,51 +113,51 @@ struct RemoteSftp::Session {  // [SshTestServer.md#RemoteSftp]
     [[noreturn]] void fail(const char* what) const
     {
         char* message = nullptr;
-        libssh2_session_last_error(session_, &message, nullptr, 0);
+        libssh2_session_last_error(session, &message, nullptr, 0);
         throw std::runtime_error(std::string(what) + ": " + (message ? message : ""));
     }
 
     void release()
     {
-        if (sftp_ != nullptr)
-            libssh2_sftp_shutdown(sftp_);
-        if (session_ != nullptr) {
-            libssh2_session_disconnect(session_, "Normal Shutdown");
-            libssh2_session_free(session_);
+        if (sftp != nullptr)
+            libssh2_sftp_shutdown(sftp);
+        if (session != nullptr) {
+            libssh2_session_disconnect(session, "Normal Shutdown");
+            libssh2_session_free(session);
         }
         if (socket_ != INVALID_SOCKET)
             closesocket(socket_);
-        if (winsockStarted_)
+        if (winsock_started_)
             WSACleanup();
-        sftp_ = nullptr;
-        session_ = nullptr;
+        sftp = nullptr;
+        session = nullptr;
         socket_ = INVALID_SOCKET;
-        winsockStarted_ = false;
+        winsock_started_ = false;
     }
 };
 
-std::string RemoteSftp::homeDir() const
+std::string RemoteSftp::home_dir() const
 {
     char buffer[1024];
-    const int length = libssh2_sftp_realpath(session_->sftp_, ".", buffer, sizeof(buffer));
+    const int length = libssh2_sftp_realpath(session->sftp, ".", buffer, sizeof(buffer));
     if (length < 0)
-        session_->fail("Login-Verzeichnis nicht ermittelbar");
+        session->fail("Login-Verzeichnis nicht ermittelbar");
     return std::string(buffer, length);
 }
 
-std::string RemoteSftp::scratchDir() const  // [SshTestServer.md#scratchDir]
+std::string RemoteSftp::scratch_dir() const  // [SshTestServer.md#scratch_dir]
 {
-    return homeDir();
+    return home_dir();
 }
 
-bool RemoteSftp::makeDir(const std::string& path) const
+bool RemoteSftp::make_dir(const std::string& path) const
 {
-    return libssh2_sftp_mkdir(session_->sftp_, path.c_str(), 0755) == 0;
+    return libssh2_sftp_mkdir(session->sftp, path.c_str(), 0755) == 0;
 }
 
-bool RemoteSftp::createFile(const std::string& path, const std::string& content) const
+bool RemoteSftp::create_file(const std::string& path, const std::string& content) const
 {
-    LIBSSH2_SFTP_HANDLE* file = libssh2_sftp_open(session_->sftp_, path.c_str(),
+    LIBSSH2_SFTP_HANDLE* file = libssh2_sftp_open(session->sftp, path.c_str(),
         LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC, 0644);
     if (file == nullptr)
         return false;
@@ -166,9 +166,9 @@ bool RemoteSftp::createFile(const std::string& path, const std::string& content)
     return written;
 }
 
-std::string RemoteSftp::readFile(const std::string& path) const
+std::string RemoteSftp::read_file(const std::string& path) const
 {
-    LIBSSH2_SFTP_HANDLE* file = libssh2_sftp_open(session_->sftp_, path.c_str(), LIBSSH2_FXF_READ, 0);
+    LIBSSH2_SFTP_HANDLE* file = libssh2_sftp_open(session->sftp, path.c_str(), LIBSSH2_FXF_READ, 0);
     if (file == nullptr)
         return std::string();
     std::string content;
@@ -182,57 +182,57 @@ std::string RemoteSftp::readFile(const std::string& path) const
 bool RemoteSftp::exists(const std::string& path) const
 {
     LIBSSH2_SFTP_ATTRIBUTES attributes;
-    return libssh2_sftp_stat(session_->sftp_, path.c_str(), &attributes) == 0;
+    return libssh2_sftp_stat(session->sftp, path.c_str(), &attributes) == 0;
 }
 
-void RemoteSftp::removeFile(const std::string& path) const
+void RemoteSftp::remove_file(const std::string& path) const
 {
-    libssh2_sftp_unlink(session_->sftp_, path.c_str());
+    libssh2_sftp_unlink(session->sftp, path.c_str());
 }
 
-void RemoteSftp::removeDir(const std::string& path) const
+void RemoteSftp::remove_dir(const std::string& path) const
 {
-    libssh2_sftp_rmdir(session_->sftp_, path.c_str());
+    libssh2_sftp_rmdir(session->sftp, path.c_str());
 }
 
 #else
 
 struct RemoteSftp::Session {  // [SshTestServer.md#RemoteSftp]
-    ssh_session session_ = nullptr;
-    sftp_session sftp_ = nullptr;
+    ssh_session session = nullptr;
+    sftp_session sftp = nullptr;
 
     Session()
     {
-        session_ = ssh_new();
-        if (session_ == nullptr)
+        session = ssh_new();
+        if (session == nullptr)
             throw std::runtime_error("ssh_new fehlgeschlagen");
-        ssh_options_set(session_, SSH_OPTIONS_HOST, SSH_TEST_HOST);
-        ssh_options_set(session_, SSH_OPTIONS_USER, SSH_TEST_USER);
-        if (ssh_connect(session_) != SSH_OK)
-            throw std::runtime_error(ssh_get_error(session_));
-        if (!verify_ssh_host_key(session_, SSH_TEST_HOST))
+        ssh_options_set(session, SSH_OPTIONS_HOST, SSH_TEST_HOST);
+        ssh_options_set(session, SSH_OPTIONS_USER, SSH_TEST_USER);
+        if (ssh_connect(session) != SSH_OK)
+            throw std::runtime_error(ssh_get_error(session));
+        if (!verify_ssh_host_key(session, SSH_TEST_HOST))
             throw std::runtime_error("Host-Key-Pruefung fehlgeschlagen");
-        if (ssh_userauth_password(session_, nullptr, SSH_TEST_PASSWORD) != SSH_AUTH_SUCCESS)
-            throw std::runtime_error(ssh_get_error(session_));
-        sftp_ = sftp_new(session_);
-        if (sftp_ == nullptr || sftp_init(sftp_) != SSH_OK)
+        if (ssh_userauth_password(session, nullptr, SSH_TEST_PASSWORD) != SSH_AUTH_SUCCESS)
+            throw std::runtime_error(ssh_get_error(session));
+        sftp = sftp_new(session);
+        if (sftp == nullptr || sftp_init(sftp) != SSH_OK)
             throw std::runtime_error("SFTP-Initialisierung fehlgeschlagen");
     }
 
     ~Session()
     {
-        if (sftp_ != nullptr)
-            sftp_free(sftp_);
-        if (session_ != nullptr) {
-            ssh_disconnect(session_);
-            ssh_free(session_);
+        if (sftp != nullptr)
+            sftp_free(sftp);
+        if (session != nullptr) {
+            ssh_disconnect(session);
+            ssh_free(session);
         }
     }
 };
 
-std::string RemoteSftp::homeDir() const
+std::string RemoteSftp::home_dir() const
 {
-    char* path = sftp_canonicalize_path(session_->sftp_, ".");
+    char* path = sftp_canonicalize_path(session->sftp, ".");
     if (path == nullptr)
         throw std::runtime_error("Login-Verzeichnis nicht ermittelbar");
     std::string home(path);
@@ -240,19 +240,19 @@ std::string RemoteSftp::homeDir() const
     return home;
 }
 
-std::string RemoteSftp::scratchDir() const  // [SshTestServer.md#scratchDir]
+std::string RemoteSftp::scratch_dir() const  // [SshTestServer.md#scratch_dir]
 {
     return "/tmp";
 }
 
-bool RemoteSftp::makeDir(const std::string& path) const
+bool RemoteSftp::make_dir(const std::string& path) const
 {
-    return sftp_mkdir(session_->sftp_, path.c_str(), 0755) == SSH_OK;
+    return sftp_mkdir(session->sftp, path.c_str(), 0755) == SSH_OK;
 }
 
-bool RemoteSftp::createFile(const std::string& path, const std::string& content) const
+bool RemoteSftp::create_file(const std::string& path, const std::string& content) const
 {
-    sftp_file file = sftp_open(session_->sftp_, path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    sftp_file file = sftp_open(session->sftp, path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (file == nullptr)
         return false;
     const bool written = content.empty() || sftp_write(file, content.data(), content.size()) == static_cast<ssize_t>(content.size());
@@ -260,9 +260,9 @@ bool RemoteSftp::createFile(const std::string& path, const std::string& content)
     return written;
 }
 
-std::string RemoteSftp::readFile(const std::string& path) const
+std::string RemoteSftp::read_file(const std::string& path) const
 {
-    sftp_file file = sftp_open(session_->sftp_, path.c_str(), O_RDONLY, 0);
+    sftp_file file = sftp_open(session->sftp, path.c_str(), O_RDONLY, 0);
     if (file == nullptr)
         return std::string();
     std::string content;
@@ -275,32 +275,32 @@ std::string RemoteSftp::readFile(const std::string& path) const
 
 bool RemoteSftp::exists(const std::string& path) const
 {
-    sftp_attributes attributes = sftp_stat(session_->sftp_, path.c_str());
+    sftp_attributes attributes = sftp_stat(session->sftp, path.c_str());
     if (attributes == nullptr)
         return false;
     sftp_attributes_free(attributes);
     return true;
 }
 
-void RemoteSftp::removeFile(const std::string& path) const
+void RemoteSftp::remove_file(const std::string& path) const
 {
-    sftp_unlink(session_->sftp_, path.c_str());
+    sftp_unlink(session->sftp, path.c_str());
 }
 
-void RemoteSftp::removeDir(const std::string& path) const
+void RemoteSftp::remove_dir(const std::string& path) const
 {
-    sftp_rmdir(session_->sftp_, path.c_str());
+    sftp_rmdir(session->sftp, path.c_str());
 }
 
 #endif
 
-RemoteSftp::RemoteSftp(): session_(std::make_unique<Session>()) {}
+RemoteSftp::RemoteSftp(): session(std::make_unique<Session>()) {}
 
 RemoteSftp::~RemoteSftp() = default;
 
 namespace {
 
-int currentProcessId()
+int current_process_id()
 {
 #ifdef _WIN32
     return _getpid();
@@ -319,16 +319,16 @@ void SshGuiTest::SetUp()
     } catch (const std::exception& ex) {
         GTEST_SKIP() << "Kein SSH-Testserver auf " << SSH_TEST_HOST << " erreichbar: " << ex.what();
     }
-    probeDir_ = sftp_->scratchDir() + "/autofilesync_guitest_" + std::to_string(currentProcessId());  // [SshTestServer.md#probeDir]
-    sftp_->removeDir(probeDir_);
-    if (!sftp_->makeDir(probeDir_))
-        FAIL() << "Das Testverzeichnis auf dem Server ließ sich nicht anlegen: " << probeDir_;
+    probe_dir_ = sftp_->scratch_dir() + "/autofilesync_guitest_" + std::to_string(current_process_id());  // [SshTestServer.md#probe_dir]
+    sftp_->remove_dir(probe_dir_);
+    if (!sftp_->make_dir(probe_dir_))
+        FAIL() << "Das Testverzeichnis auf dem Server ließ sich nicht anlegen: " << probe_dir_;
 }
 
 void SshGuiTest::TearDown()
 {
-    if (sftp_ != nullptr && !probeDir_.empty())
-        sftp_->removeDir(probeDir_);  // [SshTestServer.md#probeDir]
+    if (sftp_ != nullptr && !probe_dir_.empty())
+        sftp_->remove_dir(probe_dir_);  // [SshTestServer.md#probe_dir]
     sftp_.reset();
     GuiTest::TearDown();
 }

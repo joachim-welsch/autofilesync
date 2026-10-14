@@ -22,7 +22,7 @@ synthetic keyboard input into a non-modal Show()'d window (e.g. ChatDialog) neve
 text - see GuiTest.LogFrageWirdImChatBeantwortet, which failed until a real, continuously active
 loop existed for the run.
 
-## waitUntilPlaced
+## wait_until_placed
 
 The window manager keeps adjusting the freshly shown main window for a moment: GNOME fits it
 into the work area about a second after it appears, and moves the modal dialogs attached to it

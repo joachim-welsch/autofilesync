@@ -25,11 +25,11 @@
 using namespace AFS_Core;
 
 wxBEGIN_EVENT_TABLE(ChatDialog, wxDialog)
-    EVT_BUTTON(ID_CHAT_SEND, ChatDialog::onSend)
-    EVT_BUTTON(ID_CHAT_PROPOSAL, ChatDialog::onProposal)
-    EVT_THREAD(ID_CHAT_PIECE, ChatDialog::onPiece)
-    EVT_THREAD(ID_CHAT_REPLY, ChatDialog::onReply)
-    EVT_CLOSE(ChatDialog::onClose)
+    EVT_BUTTON(ID_CHAT_SEND, ChatDialog::on_send)
+    EVT_BUTTON(ID_CHAT_PROPOSAL, ChatDialog::on_proposal)
+    EVT_THREAD(ID_CHAT_PIECE, ChatDialog::on_piece)
+    EVT_THREAD(ID_CHAT_REPLY, ChatDialog::on_reply)
+    EVT_CLOSE(ChatDialog::on_close)
 wxEND_EVENT_TABLE()
 
 namespace {
@@ -38,45 +38,45 @@ constexpr const char* SEND_HINT = "chat_cmd_enter";  // [ChatDialog.md#ctrl-ente
 #else
 constexpr const char* SEND_HINT = "chat_ctrl_enter";
 #endif
-constexpr std::size_t maxLogExcerptChars = 500;  // [ChatDialog.md#maxLogExcerptChars]
+constexpr std::size_t MAX_LOG_EXCERPT_CHARS = 500;  // [ChatDialog.md#MAX_LOG_EXCERPT_CHARS]
 
-wxString answerWithProposal(const std::wstring& answer, const sync_proposal::Proposal& proposal)  // [ChatDialog.md#proposal-described]
+wxString answer_with_proposal(const std::wstring& answer, const sync_proposal::Proposal& proposal)  // [ChatDialog.md#proposal-described]
 {
     const std::wstring prose = sync_proposal::without_block(answer);
     return prose.empty() ? sync_proposal::describe(proposal) : prose + L"\n" + sync_proposal::describe(proposal);
 }
 }
 
-ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal applyProposal)
+ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal)
     : wxDialog(parent, id, title, wxDefaultPosition, FromDIP(wxSize(600, 500), parent),
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
-    , applyProposal_(std::move(applyProposal))
+    , apply_proposal_(std::move(apply_proposal))
 {
     pending_->dialog = this;
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
     transcript_ = new wxTextCtrl(this, ID_CHAT_TRANSCRIPT, wxEmptyString, wxDefaultPosition, wxDefaultSize,
                                  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2 | wxTE_BESTWRAP);
-    mainSizer->Add(transcript_, 1, wxEXPAND | wxALL, 5);
+    main_sizer->Add(transcript_, 1, wxEXPAND | wxALL, 5);
 
     input_ = new wxTextCtrl(this, ID_CHAT_INPUT, wxEmptyString, wxDefaultPosition, FromDIP(wxSize(-1, 70)),
                             wxTE_MULTILINE | wxTE_BESTWRAP);
-    mainSizer->Add(input_, 0, wxEXPAND | wxLEFT | wxRIGHT, 5);
+    main_sizer->Add(input_, 0, wxEXPAND | wxLEFT | wxRIGHT, 5);
 
-    wxBoxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* bottom_sizer = new wxBoxSizer(wxHORIZONTAL);
     status_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
-    bottomSizer->Add(status_, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-    proposalButton_ = new wxButton(this, ID_CHAT_PROPOSAL, translation::translate("chat_create_sync"));
-    proposalButton_->Hide();  // [ChatDialog.md#proposal-button]
-    bottomSizer->Add(proposalButton_, 0, wxALL, 5);
-    sendButton_ = new wxButton(this, ID_CHAT_SEND, translation::translate("button_send"));
-    bottomSizer->Add(sendButton_, 0, wxALL, 5);
-    mainSizer->Add(bottomSizer, 0, wxEXPAND);
+    bottom_sizer->Add(status_, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+    proposal_button_ = new wxButton(this, ID_CHAT_PROPOSAL, translation::translate("chat_create_sync"));
+    proposal_button_->Hide();  // [ChatDialog.md#proposal-button]
+    bottom_sizer->Add(proposal_button_, 0, wxALL, 5);
+    send_button_ = new wxButton(this, ID_CHAT_SEND, translation::translate("button_send"));
+    bottom_sizer->Add(send_button_, 0, wxALL, 5);
+    main_sizer->Add(bottom_sizer, 0, wxEXPAND);
 
-    SetSizer(mainSizer);
+    SetSizer(main_sizer);
     Centre();
-    input_->Bind(wxEVT_KEY_DOWN, &ChatDialog::onInputKey, this);  // [ChatDialog.md#key-handler-on-control]
+    input_->Bind(wxEVT_KEY_DOWN, &ChatDialog::on_input_key, this);  // [ChatDialog.md#key-handler-on-control]
     if (!LlamaClient::available()) {
-        appendTurn(translation::translate("chat_hint"), LlamaClient::missing_model_hint());  // [ChatDialog.md#hint-in-transcript]
+        append_turn(translation::translate("chat_hint"), LlamaClient::missing_model_hint());  // [ChatDialog.md#hint-in-transcript]
         status_->SetLabel(translation::translate("chat_no_model"));
     }
     else
@@ -90,21 +90,21 @@ ChatDialog::~ChatDialog()
     pending_->dialog = nullptr;
 }
 
-void ChatDialog::appendSpeaker(const wxString& speaker)
+void ChatDialog::append_speaker(const wxString& speaker)
 {
     if (!transcript_->IsEmpty())
         transcript_->AppendText("\n");
     transcript_->AppendText(speaker + ":\n");
 }
 
-void ChatDialog::appendTurn(const wxString& speaker, const wxString& text)
+void ChatDialog::append_turn(const wxString& speaker, const wxString& text)
 {
-    appendSpeaker(speaker);
+    append_speaker(speaker);
     transcript_->AppendText(text + "\n");
     transcript_->ShowPosition(transcript_->GetLastPosition());
 }
 
-void ChatDialog::showStreamed(const wxString& piece)
+void ChatDialog::show_streamed(const wxString& piece)
 {
     streamed_ += piece;
     const int fence = streamed_.Find("```");  // [ChatDialog.md#block-held-back]
@@ -116,33 +116,33 @@ void ChatDialog::showStreamed(const wxString& piece)
     shown_ = visible;
 }
 
-void ChatDialog::replaceStreamedTurn(const wxString& text)  // [ChatDialog.md#replaceStreamedTurn]
+void ChatDialog::replace_streamed_turn(const wxString& text)  // [ChatDialog.md#replace_streamed_turn]
 {
-    transcript_->Remove(turnStart_, transcript_->GetLastPosition());
+    transcript_->Remove(turn_start_, transcript_->GetLastPosition());
     transcript_->AppendText(text + "\n");
     transcript_->ShowPosition(transcript_->GetLastPosition());
-    answerStreaming_ = false;
+    answer_streaming_ = false;
 }
 
-void ChatDialog::showProposal(const std::optional<sync_proposal::Proposal>& proposal)
+void ChatDialog::show_proposal(const std::optional<sync_proposal::Proposal>& proposal)
 {
     proposal_ = proposal;
     const bool deletion = proposal_ && std::holds_alternative<sync_proposal::Deletion>(*proposal_);
-    proposalButton_->SetLabel(translation::translate(deletion ? "chat_delete_sync" : "chat_create_sync"));
-    proposalButton_->Show(proposal_.has_value());
+    proposal_button_->SetLabel(translation::translate(deletion ? "chat_delete_sync" : "chat_create_sync"));
+    proposal_button_->Show(proposal_.has_value());
     Layout();
 }
 
-void ChatDialog::setWaiting(bool waiting)
+void ChatDialog::set_waiting(bool waiting)
 {
-    sendButton_->Enable(!waiting);
+    send_button_->Enable(!waiting);
     input_->SetEditable(!waiting);
     status_->SetLabel(waiting ? translation::translate("chat_answering") : translation::translate(SEND_HINT));
 }
 
-void ChatDialog::runAsync(std::function<ChatReply(const ChatPieceSink&)> call)
+void ChatDialog::run_async(std::function<ChatReply(const ChatPieceSink&)> call)
 {
-    setWaiting(true);
+    set_waiting(true);
     std::thread([call = std::move(call), pending = pending_]() {
         const ChatReply reply = call([&pending](const std::wstring& piece) {
             std::lock_guard<std::mutex> lock(pending->mutex);
@@ -162,76 +162,76 @@ void ChatDialog::runAsync(std::function<ChatReply(const ChatPieceSink&)> call)
     }).detach();
 }
 
-void ChatDialog::onSend(wxCommandEvent&)
+void ChatDialog::on_send(wxCommandEvent&)
 {
     const wxString question = input_->GetValue().Trim().Trim(false);
     if (question.IsEmpty())
         return;
     input_->Clear();
-    showProposal(std::nullopt);  // [ChatDialog.md#proposal-button]
+    show_proposal(std::nullopt);  // [ChatDialog.md#proposal-button]
     streamed_.Clear();
     shown_ = 0;
-    appendTurn(translation::translate("chat_you"), question);
+    append_turn(translation::translate("chat_you"), question);
     history_.push_back({ true, question.ToStdWstring() });
     const ChatHistory snapshot = history_;  // [ChatDialog.md#history-snapshot]
     if (looks_like_log_question(question.ToStdWstring())) {  // [ChatDialog.md#log-excerpt-per-request]
-        const std::wstring excerpt = read_recent_log_entries(maxLogExcerptChars);
-        runAsync([client = client_, snapshot, excerpt](const ChatPieceSink& on_piece) {
+        const std::wstring excerpt = read_recent_log_entries(MAX_LOG_EXCERPT_CHARS);
+        run_async([client = client_, snapshot, excerpt](const ChatPieceSink& on_piece) {
             return client->analyze_log(snapshot, excerpt, on_piece);
         });
     }
     else
-        runAsync([client = client_, snapshot](const ChatPieceSink& on_piece) { return client->send(snapshot, on_piece); });
+        run_async([client = client_, snapshot](const ChatPieceSink& on_piece) { return client->send(snapshot, on_piece); });
 }
 
-void ChatDialog::onPiece(wxThreadEvent& event)
+void ChatDialog::on_piece(wxThreadEvent& event)
 {
-    if (!answerStreaming_) {
-        appendSpeaker(translation::translate("chat_assistant"));
-        turnStart_ = transcript_->GetLastPosition();
-        answerStreaming_ = true;
+    if (!answer_streaming_) {
+        append_speaker(translation::translate("chat_assistant"));
+        turn_start_ = transcript_->GetLastPosition();
+        answer_streaming_ = true;
     }
-    showStreamed(event.GetString());
+    show_streamed(event.GetString());
 }
 
-void ChatDialog::onReply(wxThreadEvent& event)
+void ChatDialog::on_reply(wxThreadEvent& event)
 {
-    setWaiting(false);
+    set_waiting(false);
     const wxString text = event.GetString();
     const bool ok = event.GetInt() == 1;
     const std::optional<sync_proposal::Proposal> proposal = ok ? sync_proposal::parse(text.ToStdWstring()) : std::nullopt;
-    const wxString shown = proposal ? answerWithProposal(text.ToStdWstring(), *proposal) : text;
-    if (answerStreaming_)
-        replaceStreamedTurn(shown);
+    const wxString shown = proposal ? answer_with_proposal(text.ToStdWstring(), *proposal) : text;
+    if (answer_streaming_)
+        replace_streamed_turn(shown);
     else
-        appendTurn(translation::translate(ok ? "chat_assistant" : "error"), shown);
+        append_turn(translation::translate(ok ? "chat_assistant" : "error"), shown);
     if (ok)
         history_.push_back({ false, text.ToStdWstring() });  // [ChatDialog.md#only-answers-in-history]
-    showProposal(proposal);
+    show_proposal(proposal);
     if (IsShown())  // [ChatDialog.md#focus-only-when-shown]
         input_->SetFocus();
 }
 
-void ChatDialog::onProposal(wxCommandEvent&)
+void ChatDialog::on_proposal(wxCommandEvent&)
 {
     if (!proposal_)
         return;
     const sync_proposal::Proposal proposal = *proposal_;
-    showProposal(std::nullopt);
-    applyProposal_(proposal);
+    show_proposal(std::nullopt);
+    apply_proposal_(proposal);
 }
 
-void ChatDialog::onInputKey(wxKeyEvent& event)
+void ChatDialog::on_input_key(wxKeyEvent& event)
 {
-    if (event.GetKeyCode() == WXK_RETURN && event.ControlDown() && sendButton_->IsEnabled()) {  // [ChatDialog.md#ctrl-enter-sends]
+    if (event.GetKeyCode() == WXK_RETURN && event.ControlDown() && send_button_->IsEnabled()) {  // [ChatDialog.md#ctrl-enter-sends]
         wxCommandEvent unused;
-        onSend(unused);
+        on_send(unused);
         return;
     }
     event.Skip();
 }
 
-void ChatDialog::onClose(wxCloseEvent&)
+void ChatDialog::on_close(wxCloseEvent&)
 {
     Hide();  // [ChatDialog.md#hidden-not-destroyed]
 }

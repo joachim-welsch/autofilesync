@@ -37,8 +37,8 @@ using namespace AFS_Core;
 
 class ProgressDialog: public wxDialog {
     bool closed_ = false;
-    bool canBeClosed_ = false;
-	SyncControler& syncControler_;
+    bool can_be_closed_ = false;
+	SyncControler& sync_controler_;
 	std::atomic_bool	waiting_{ false };
     mutable std::mutex mutex_;
 public:
@@ -55,14 +55,14 @@ public:
 
     void OnCloseWindow(wxCloseEvent& event);
     bool closed() const { return closed_;  }
-    bool canBeClosed() const { return canBeClosed_; }
-    void canBeClosed(bool);
-	void setRange(uint32_t range); // Switch to progress of single file
-	void setProgress(uint32_t value);
+    bool can_be_closed() const { return can_be_closed_; }
+    void can_be_closed(bool);
+	void set_range(uint32_t range); // Switch to progress of single file
+	void set_progress(uint32_t value);
 private:
-    void OnCancel(wxCommandEvent& event);
-    void onTimerUpdate(wxTimerEvent&);
-    void onUpdateCancelButton(wxUpdateUIEvent& event);
+    void on_cancel(wxCommandEvent& event);
+    void on_timer_update(wxTimerEvent&);
+    void on_update_cancel_button(wxUpdateUIEvent& event);
 
     wxGauge* gauge_ = nullptr;
     wxStaticText* current_file_ = nullptr;

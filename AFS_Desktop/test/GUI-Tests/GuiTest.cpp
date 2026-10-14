@@ -39,14 +39,14 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-std::string readFile(const fs::path& pathname)
+std::string read_file(const fs::path& pathname)
 {
     std::ostringstream content;
     content << std::ifstream(pathname).rdbuf();
     return content.str();
 }
 
-std::vector<std::string> entriesOf(const fs::path& directory)  // [GuiTest.md#entriesOf]
+std::vector<std::string> entries_of(const fs::path& directory)  // [GuiTest.md#entries_of]
 {
     std::vector<std::string> entries;
     for (const auto& entry : fs::recursive_directory_iterator(directory))
@@ -56,16 +56,16 @@ std::vector<std::string> entriesOf(const fs::path& directory)  // [GuiTest.md#en
     return entries;
 }
 
-ApplicationState captureState()
+ApplicationState capture_state()
 {
     ApplicationState state;
     for (const auto& item : Config::instance().syncitems())
-        state.syncItemNames.push_back(util::wstring_to_string(item.name()));
+        state.sync_item_names.push_back(util::wstring_to_string(item.name()));
     for (const auto& account : Config::instance().ssh_accounts_snapshot())
-        state.sshAccountNames.push_back(account.name());
-    state.configFile = readFile(GuiTestSandbox::configFile());
-    state.sourceEntries = entriesOf(GuiTestSandbox::sourceDir());
-    state.targetEntries = entriesOf(GuiTestSandbox::targetDir());
+        state.ssh_account_names.push_back(account.name());
+    state.config_file = read_file(GuiTestSandbox::config_file());
+    state.source_entries = entries_of(GuiTestSandbox::source_dir());
+    state.target_entries = entries_of(GuiTestSandbox::target_dir());
     return state;
 }
 
@@ -74,47 +74,47 @@ ApplicationState captureState()
 void GuiTest::SetUp()
 {
     ModalDialogWatcher::instance().reset();
-    before_ = captureState();
+    before_ = capture_state();
 }
 
 void GuiTest::TearDown()
 {
-    if (readFile(GuiTestSandbox::configFile()) != before_.configFile)  // [GuiTest.md#autosave-undone]
-        std::ofstream(GuiTestSandbox::configFile()) << before_.configFile;
-    Config::instance().read(GuiTestSandbox::configFile().wstring());
-    showView(mainWindow(), id::View_List);  // [GuiTest.md#list-view-restored]
-    if (ListCtrl* list = syncItemList())
+    if (read_file(GuiTestSandbox::config_file()) != before_.config_file)  // [GuiTest.md#autosave-undone]
+        std::ofstream(GuiTestSandbox::config_file()) << before_.config_file;
+    Config::instance().read(GuiTestSandbox::config_file().wstring());
+    show_view(main_window(), id::View_List);  // [GuiTest.md#list-view-restored]
+    if (ListCtrl* list = sync_item_list())
         list->update();
-    const ApplicationState after = captureState();
-    EXPECT_EQ(before_.syncItemNames, after.syncItemNames) << "Die Konfiguration wurde verändert.";
-    EXPECT_EQ(before_.sshAccountNames, after.sshAccountNames) << "Die SSH-Verbindungen wurden verändert.";
-    EXPECT_EQ(before_.sourceEntries, after.sourceEntries) << "Das Quellverzeichnis wurde verändert.";
-    EXPECT_EQ(before_.targetEntries, after.targetEntries) << "Das Zielverzeichnis wurde verändert.";
+    const ApplicationState after = capture_state();
+    EXPECT_EQ(before_.sync_item_names, after.sync_item_names) << "Die Konfiguration wurde verändert.";
+    EXPECT_EQ(before_.ssh_account_names, after.ssh_account_names) << "Die SSH-Verbindungen wurden verändert.";
+    EXPECT_EQ(before_.source_entries, after.source_entries) << "Das Quellverzeichnis wurde verändert.";
+    EXPECT_EQ(before_.target_entries, after.target_entries) << "Das Zielverzeichnis wurde verändert.";
     ModalDialogWatcher& watcher = ModalDialogWatcher::instance();
-    const std::vector<wxString>& unexpected = watcher.unexpectedDialogs();  // [GuiTest.md#both-branches-wxstring]
+    const std::vector<wxString>& unexpected = watcher.unexpected_dialogs();  // [GuiTest.md#both-branches-wxstring]
     EXPECT_TRUE(unexpected.empty())
         << "Unerwarteter Dialog: " << (unexpected.empty() ? wxString() : unexpected.front());
-    EXPECT_FALSE(watcher.hasPendingExpectations()) << "Ein erwarteter Dialog wurde nie geöffnet.";
+    EXPECT_FALSE(watcher.has_pending_expectations()) << "Ein erwarteter Dialog wurde nie geöffnet.";
     watcher.reset();
 }
 
-MainWindow& GuiTest::mainWindow() const
+MainWindow& GuiTest::main_window() const
 {
     return *static_cast<MainWindow*>(wxTheApp->GetTopWindow());
 }
 
-ListCtrl* GuiTest::syncItemList() const
+ListCtrl* GuiTest::sync_item_list() const
 {
-    return dynamic_cast<ListCtrl*>(find(mainWindow(), tul(id::ListCtrl)));
+    return dynamic_cast<ListCtrl*>(find(main_window(), tul(id::ListCtrl)));
 }
 
-bool GuiTest::listShows(const std::wstring& syncItemName) const
+bool GuiTest::list_shows(const std::wstring& sync_item_name) const
 {
-    ListCtrl* list = syncItemList();
+    ListCtrl* list = sync_item_list();
     if (list == nullptr)
         return false;
     for (long i = 0; i < list->GetItemCount(); ++i) {
-        if (list->GetItemText(i).ToStdWstring() == syncItemName)
+        if (list->GetItemText(i).ToStdWstring() == sync_item_name)
             return true;
     }
     return false;

@@ -33,16 +33,16 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-wxMenu* backgroundServiceMenu(wxFrame& frame)  // [BackgroundServiceMenuTest.md#backgroundServiceMenu]
+wxMenu* background_service_menu(wxFrame& frame)  // [BackgroundServiceMenuTest.md#background_service_menu]
 {
     wxMenu* menu = nullptr;
     frame.GetMenuBar()->FindItem(tul(id::BackgroundServiceStart), &menu);
     return menu;
 }
 
-void openMenu(wxFrame& frame, wxMenu* menu)  // [BackgroundServiceMenuTest.md#openMenu]
+void open_menu(wxFrame& frame, wxMenu* menu)  // [BackgroundServiceMenuTest.md#open_menu]
 {
-    wxLogNull noPopupOnFailedQuery;  // [BackgroundServiceMenuTest.md#no-message-box-on-failed-query]
+    wxLogNull no_popup_on_failed_query;  // [BackgroundServiceMenuTest.md#no-message-box-on-failed-query]
     wxMenuEvent opening(wxEVT_MENU_OPEN, 0, menu);
     frame.GetEventHandler()->ProcessEvent(opening);
 }
@@ -52,35 +52,35 @@ void openMenu(wxFrame& frame, wxMenu* menu)  // [BackgroundServiceMenuTest.md#op
 TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)  // [BackgroundServiceMenuTest.md#HintergrunddienstmenueZeigtObDerDienstLaeuft]
 {
     using State = BackgroundService::State;
-    wxMenu* menu = backgroundServiceMenu(mainWindow());
+    wxMenu* menu = background_service_menu(main_window());
     ASSERT_NE(menu, nullptr) << "Das Menue Hintergrunddienst wurde nicht gefunden.";
-    openMenu(mainWindow(), menu);
+    open_menu(main_window(), menu);
     EXPECT_FALSE(menu->IsEnabled(tul(id::BackgroundServiceStart)) && menu->IsEnabled(tul(id::BackgroundServiceStop)))
         << "Start und Stop sind gleichzeitig anwaehlbar, der Zustand des Dienstes also nicht ablesbar.";
     const State state = BackgroundService::state();  // [BackgroundServiceMenuTest.md#state-checked-after-symptom]
     EXPECT_NE(state, State::Unknown)
         << "Der Zustand des Hintergrunddienstes ist auf dieser Plattform nicht feststellbar.";
 
-    const bool startEnabled = menu->IsEnabled(tul(id::BackgroundServiceStart));
-    const bool stopEnabled = menu->IsEnabled(tul(id::BackgroundServiceStop));
-    const wxString stateLine = menu->GetLabel(tul(id::BackgroundServiceState));  // [BackgroundServiceMenuTest.md#state-line]
+    const bool start_enabled = menu->IsEnabled(tul(id::BackgroundServiceStart));
+    const bool stop_enabled = menu->IsEnabled(tul(id::BackgroundServiceStop));
+    const wxString state_line = menu->GetLabel(tul(id::BackgroundServiceState));  // [BackgroundServiceMenuTest.md#state-line]
     EXPECT_FALSE(menu->IsEnabled(tul(id::BackgroundServiceState)))
         << "Die Zustandszeile benennt nur den Zustand und darf nicht anwaehlbar sein.";
     switch (state) {
     case State::Running:
-        EXPECT_FALSE(startEnabled) << "Ein laufender Dienst darf nicht noch einmal startbar sein.";
-        EXPECT_TRUE(stopEnabled) << "Ein laufender Dienst muss sich stoppen lassen.";
-        EXPECT_EQ(stateLine, AFS_Core::translation::translate("bs_state_running"));
+        EXPECT_FALSE(start_enabled) << "Ein laufender Dienst darf nicht noch einmal startbar sein.";
+        EXPECT_TRUE(stop_enabled) << "Ein laufender Dienst muss sich stoppen lassen.";
+        EXPECT_EQ(state_line, AFS_Core::translation::translate("bs_state_running"));
         break;
     case State::Stopped:
-        EXPECT_TRUE(startEnabled) << "Ein gestoppter Dienst muss sich starten lassen.";
-        EXPECT_FALSE(stopEnabled) << "Ein gestoppter Dienst kann nicht noch einmal gestoppt werden.";
-        EXPECT_EQ(stateLine, AFS_Core::translation::translate("bs_state_stopped"));
+        EXPECT_TRUE(start_enabled) << "Ein gestoppter Dienst muss sich starten lassen.";
+        EXPECT_FALSE(stop_enabled) << "Ein gestoppter Dienst kann nicht noch einmal gestoppt werden.";
+        EXPECT_EQ(state_line, AFS_Core::translation::translate("bs_state_stopped"));
         break;
     case State::NotInstalled:
-        EXPECT_FALSE(startEnabled) << "Ein nicht installierter Dienst ist nicht startbar.";
-        EXPECT_FALSE(stopEnabled) << "Ein nicht installierter Dienst ist nicht stoppbar.";
-        EXPECT_EQ(stateLine, AFS_Core::translation::translate("bs_state_not_installed"));
+        EXPECT_FALSE(start_enabled) << "Ein nicht installierter Dienst ist nicht startbar.";
+        EXPECT_FALSE(stop_enabled) << "Ein nicht installierter Dienst ist nicht stoppbar.";
+        EXPECT_EQ(state_line, AFS_Core::translation::translate("bs_state_not_installed"));
         break;
     case State::Unknown:
         break; // already reported above; both commands are offered on purpose
@@ -90,19 +90,19 @@ TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)  // [BackgroundSer
 TEST_F(GuiTest, HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten)  // [BackgroundServiceMenuTest.md#HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten]
 {
     using State = BackgroundService::State;
-    if (!serviceControllable())
+    if (!service_controllable())
         GTEST_SKIP() << "Kein installierter Hintergrunddienst, den dieser Benutzer ohne Administratorrechte steuern darf.";
     const RestoredBackgroundService restored;
-    const bool wasRunning = BackgroundService::state() == State::Running;
+    const bool was_running = BackgroundService::state() == State::Running;
 
-    activateMenuItem(mainWindow(), tul(wasRunning ? id::BackgroundServiceStop : id::BackgroundServiceStart));
+    activate_menu_item(main_window(), tul(was_running ? id::BackgroundServiceStop : id::BackgroundServiceStart));
     pump();
-    EXPECT_EQ(BackgroundService::state(), wasRunning ? State::Stopped : State::Running) << "Der erste Befehl hat den Dienst nicht umgeschaltet.";
+    EXPECT_EQ(BackgroundService::state(), was_running ? State::Stopped : State::Running) << "Der erste Befehl hat den Dienst nicht umgeschaltet.";
 
-    activateMenuItem(mainWindow(), tul(wasRunning ? id::BackgroundServiceStart : id::BackgroundServiceStop));
+    activate_menu_item(main_window(), tul(was_running ? id::BackgroundServiceStart : id::BackgroundServiceStop));
     pump();
-    EXPECT_EQ(BackgroundService::state(), wasRunning ? State::Running : State::Stopped) << "Der zweite Befehl hat den Dienst nicht zurückgeschaltet.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().empty()) << "Start oder Stopp zeigten eine Meldung.";
+    EXPECT_EQ(BackgroundService::state(), was_running ? State::Running : State::Stopped) << "Der zweite Befehl hat den Dienst nicht zurückgeschaltet.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answered_messages().empty()) << "Start oder Stopp zeigten eine Meldung.";
 }
 
 }

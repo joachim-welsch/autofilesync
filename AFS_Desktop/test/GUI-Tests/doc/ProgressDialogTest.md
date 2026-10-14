@@ -11,7 +11,7 @@ a few seconds to copy and the SandboxTree a second to build.
 
 ## FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich
 
-The dialog is found among the top-level windows (see SyncActions.md#progressDialog) while
+The dialog is found among the top-level windows (see SyncActions.md#progress_dialog) while
 the run is on, and the file label is read through the dialog's only wxStaticText: the dialog
 exposes no accessor, and a user recognises the file by its name in that label.
 

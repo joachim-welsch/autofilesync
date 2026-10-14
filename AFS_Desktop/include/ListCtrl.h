@@ -33,11 +33,11 @@ public:
         : wxListCtrl(parent, id, pos, size, style)
     {}
 
-    void addDataItems();
-    std::wstring getSelected() const;
+    void add_data_items();
+    std::wstring get_selected() const;
     void update();
 private:
-    void OnDClick(wxMouseEvent& evt);
+    void on_double_click(wxMouseEvent& evt);
     wxDECLARE_EVENT_TABLE();
 };
 

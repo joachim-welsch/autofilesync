@@ -13,21 +13,21 @@ Shared with the worker thread. The worker may only reach the dialog while it hol
 dialog_ is still set; the destructor clears it under the same lock, so an answer arriving after
 the dialog is gone is dropped instead of being posted to a destroyed window.
 
-## runAsync
+## run_async
 
-Runs call() on a worker thread and posts its ChatReply back to onReply(); the pieces of the
-answer that call() passes to its ChatPieceSink go to onPiece() while it runs.
+Runs call() on a worker thread and posts its ChatReply back to on_reply(); the pieces of the
+answer that call() passes to its ChatPieceSink go to on_piece() while it runs.
 
-## answerStreaming_
+## answer_streaming_
 
 Set once the first piece of an answer is in the transcript: the speaker line is written then,
-and onReply() replaces the streamed text with the final answer instead of appending it again.
+and on_reply() replaces the streamed text with the final answer instead of appending it again.
 
 ## ApplyProposal
 
 How a proposal of the assistant takes effect: MainWindow passes its prefilled "add
 synchronisation" dialog for a new item and its delete confirmation for a deletion
-(MainWindow.md#applyProposal). A callback rather than a pointer to MainWindow keeps the dialog
+(MainWindow.md#apply_proposal). A callback rather than a pointer to MainWindow keeps the dialog
 free of the main window's interface.
 
 ## proposal-button
@@ -50,14 +50,14 @@ While the answer streams, nothing from the first code fence on is shown: the blo
 meant for parse(), and watching it appear character by character would only puzzle the user.
 Text before the fence still appears as it is generated.
 
-## replaceStreamedTurn
+## replace_streamed_turn
 
 The final answer replaces the streamed text from the start of the turn: with the block removed
 (see SyncProposal.md#without_block), and with any character the stream held back completed.
 
 ## pieces-before-reply
 
-Queued from the same thread as the final reply, so wx delivers every piece before onReply().
+Queued from the same thread as the final reply, so wx delivers every piece before on_reply().
 
 ## client_
 
@@ -69,7 +69,7 @@ the send() call, and LlamaClient's llama_model/ llama_context members are non-co
 Stable id for the read-only transcript, otherwise wxID_ANY: GUI tests need it to read the
 conversation back via FindWindowById().
 
-## maxLogExcerptChars
+## MAX_LOG_EXCERPT_CHARS
 
 Bounded by response time, not by n_batch/n_ctx: fitting inside the token budget (see
 LlamaClient::ensure_loaded()) isn't enough on its own - CPU prompt processing of a
@@ -85,7 +85,7 @@ sees the keys the text field consumes.
 
 ## deferred-focus
 
-Deferred: the dialog is not shown yet at construction time (MainWindow::onChat creates it, then
+Deferred: the dialog is not shown yet at construction time (MainWindow::on_chat creates it, then
 calls Show()), and a widget that is not yet realised cannot reliably take the X input focus -
 the very first keystroke could go nowhere.
 

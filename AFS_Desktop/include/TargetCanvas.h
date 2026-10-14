@@ -23,9 +23,9 @@ class TargetCanvas: public Canvas {
 public:
 	TargetCanvas(wxWindow* parent);
 	void update() override;
-	void onSelectRoot() override;
+	void on_select_root() override;
 	bool source() const override { return false; }
 protected:
-	void addDataItems() override;
+	void add_data_items() override;
 };
 

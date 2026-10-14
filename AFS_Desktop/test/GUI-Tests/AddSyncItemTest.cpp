@@ -34,24 +34,24 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString syncItemName = "guitest-sicherung";  // only characters wxUIActionSimulator can produce on a plain keyboard layout
+const wxString sync_item_name = "guitest-sicherung";  // only characters wxUIActionSimulator can produce on a plain keyboard layout
 
 }
 
 TEST_F(GuiTest, AngelegteSynchronisationIstInKonfigurationUndListeVorhanden)
 {
-    const SyncItemInput input{syncItemName,
-        GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
-    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(input));
+    const SyncItemInput input{sync_item_name,
+        GuiTestSandbox::source_dir().string(), GuiTestSandbox::target_dir().string()};
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fill_sync_item_dialog(input));
 
-    activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
+    activate_menu_item(main_window(), tul(id::File_new_Synchronization));
     pump();
 
-    const auto created = Config::instance().find_by_name(syncItemName.ToStdWstring());
+    const auto created = Config::instance().find_by_name(sync_item_name.ToStdWstring());
     ASSERT_TRUE(created.has_value()) << "Die Synchronisation wurde nicht angelegt.";
     EXPECT_EQ(created->source(), input.source.ToStdWstring());
     EXPECT_EQ(created->target(), input.target.ToStdWstring());
-    EXPECT_TRUE(listShows(syncItemName.ToStdWstring())) << "Die Synchronisation fehlt in der Liste.";
+    EXPECT_TRUE(list_shows(sync_item_name.ToStdWstring())) << "Die Synchronisation fehlt in der Liste.";
 }
 
 }

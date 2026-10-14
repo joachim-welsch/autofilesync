@@ -29,7 +29,7 @@ form) understands it.
 
 ## name-compared-against-original
 
-name_ is the original name (set in setData(), still unchanged here since
+name_ is the original name (set in set_data(), still unchanged here since
 TransferDataFromWindow() only runs after Validate() succeeds). Comparing against it - not just
 checking name_.empty() - also catches renaming an existing item onto another item's name, not
 just brand-new items.

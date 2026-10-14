@@ -21,7 +21,7 @@ must open the very same dialog. Cancelled, so the configuration stays as it was.
 
 ## MinimierenStattSchliessenVerstecktAnstattZuBeenden
 
-Close() runs MainWindow::onClose with a vetoable event, exactly like the window's close
+Close() runs MainWindow::on_close with a vetoable event, exactly like the window's close
 button. Without the option the window would leave the main loop, which is why only the
 minimize path is tested in-process; the real exit is left to the plan's open points.
 

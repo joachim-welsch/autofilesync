@@ -35,19 +35,19 @@ TargetCanvas::TargetCanvas(wxWindow* parent)
 void TargetCanvas::update()
 {
     tree_.clear();
-    treeCtrl_->update();
-    addDataItems();
+    tree_ctrl_->update();
+    add_data_items();
 }
 
-void TargetCanvas::onSelectRoot()
+void TargetCanvas::on_select_root()
 {}
 
-void TargetCanvas::addDataItems()
+void TargetCanvas::add_data_items()
 {
-    wxTreeItemId parentId = treeCtrl_->rootId();
+    wxTreeItemId parent_id = tree_ctrl_->root_id();
     Config& cfg = Config::instance();
     for (const auto& i : cfg.syncitems()) {
-        treeCtrl_->addBranch(i.target(), tree_, i.sync_item_type());
+        tree_ctrl_->add_branch(i.target(), tree_, i.sync_item_type());
     }
 }
 

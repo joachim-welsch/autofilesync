@@ -24,8 +24,8 @@
 using namespace AFS_Core;
 
 BEGIN_EVENT_TABLE(ProgressDialog, wxDialog)
-    EVT_UPDATE_UI(wxID_CANCEL, ProgressDialog::onUpdateCancelButton)
-    EVT_BUTTON(wxID_CANCEL, ProgressDialog::OnCancel)
+    EVT_UPDATE_UI(wxID_CANCEL, ProgressDialog::on_update_cancel_button)
+    EVT_BUTTON(wxID_CANCEL, ProgressDialog::on_cancel)
 END_EVENT_TABLE()
 
 ProgressDialog::ProgressDialog(wxWindow* parent, wxWindowID id,
@@ -37,21 +37,21 @@ ProgressDialog::ProgressDialog(wxWindow* parent, wxWindowID id,
     long style,
     const wxString& name)
     : wxDialog(parent, id, title, pos, size, style, name)
-	, syncControler_(sc)
+	, sync_controler_(sc)
     , range_(range)
 {
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
     gauge_ = new wxGauge(this, wxID_ANY, range_, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL, wxDefaultValidator, wxASCII_STR(wxGaugeNameStr));
     gauge_->SetValue(0);
-    mainSizer->Add(gauge_, 1, wxEXPAND | wxALL, 10);
+    main_sizer->Add(gauge_, 1, wxEXPAND | wxALL, 10);
     current_file_ = new wxStaticText(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE | wxST_NO_AUTORESIZE);  // long paths must not widen the dialog
-    mainSizer->Add(current_file_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    wxSizer* buttonSizer = CreateButtonSizer(wxCANCEL);
-    mainSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 5);
-    SetSizer(mainSizer);
+    main_sizer->Add(current_file_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    wxSizer* button_sizer = CreateButtonSizer(wxCANCEL);
+    main_sizer->Add(button_sizer, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 5);
+    SetSizer(main_sizer);
     SetMinSize(FromDIP(wxSize(500, 100)));
     Fit();
-    timer_.Bind(wxEVT_TIMER, &ProgressDialog::onTimerUpdate, this);
+    timer_.Bind(wxEVT_TIMER, &ProgressDialog::on_timer_update, this);
     timer_.Start(100);
 }
 
@@ -63,26 +63,26 @@ void ProgressDialog::OnCloseWindow(wxCloseEvent&)
 
 ProgressDialog::~ProgressDialog()
 {
-    timer_.Stop(); // must not fire onTimerUpdate() on an object mid-destruction
+    timer_.Stop(); // must not fire on_timer_update() on an object mid-destruction
 }
 
-void ProgressDialog::onUpdateCancelButton(wxUpdateUIEvent& event)
+void ProgressDialog::on_update_cancel_button(wxUpdateUIEvent& event)
 {
-    event.Enable(!canBeClosed_);
+    event.Enable(!can_be_closed_);
 }
 
-void ProgressDialog::OnCancel(wxCommandEvent& event)
+void ProgressDialog::on_cancel(wxCommandEvent& event)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);  // [ProgressDialog.md#lock-released-before-wait]
-        canBeClosed_ = true;
+        can_be_closed_ = true;
         timer_.Stop();
         gauge_->SetValue(range_);
         waiting_ = true;
     }
-    syncControler_.request_stop();  // [ProgressDialog.md#cancel-waits-here]
-    wxBusyCursor busyCursor;
-    while (!syncControler_.sync_finished())
+    sync_controler_.request_stop();  // [ProgressDialog.md#cancel-waits-here]
+    wxBusyCursor busy_cursor;
+    while (!sync_controler_.sync_finished())
     {
         wxSafeYield(this);
         wxMilliSleep(50);
@@ -90,35 +90,35 @@ void ProgressDialog::OnCancel(wxCommandEvent& event)
 	event.Skip();
 }
 
-void ProgressDialog::onTimerUpdate(wxTimerEvent&)
+void ProgressDialog::on_timer_update(wxTimerEvent&)
 {
     std::lock_guard<std::mutex> lock(mutex_);  // [ProgressDialog.md#no-yield-under-lock]
-    SyncMessage sm = syncControler_.get_message();
+    SyncMessage sm = sync_controler_.get_message();
     if (!sm.msg().empty())
         gauge_->SetValue(sm.filenumber());
     if (!sm.file().empty())
         current_file_->SetLabelText(sm.file());
 }
 
-void ProgressDialog::canBeClosed(bool yesNo)
+void ProgressDialog::can_be_closed(bool yes_no)
 {
     if (!wxThread::IsMain()) {  // [ProgressDialog.md#gui-thread-only]
-        CallAfter(&ProgressDialog::canBeClosed, yesNo);
+        CallAfter(&ProgressDialog::can_be_closed, yes_no);
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    canBeClosed_ = yesNo;
-    if (canBeClosed_) {
+    can_be_closed_ = yes_no;
+    if (can_be_closed_) {
 		if (timer_.IsRunning())
             timer_.Stop();
         gauge_->SetValue(range_);
     }
 }
 
-void ProgressDialog::setRange(uint32_t range)
+void ProgressDialog::set_range(uint32_t range)
 {
     if (!wxThread::IsMain()) {
-        CallAfter(&ProgressDialog::setRange, range);
+        CallAfter(&ProgressDialog::set_range, range);
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
@@ -128,10 +128,10 @@ void ProgressDialog::setRange(uint32_t range)
 	gauge_->SetValue(0);
 }
 
-void ProgressDialog::setProgress(uint32_t value)
+void ProgressDialog::set_progress(uint32_t value)
 {
     if (!wxThread::IsMain()) {
-        CallAfter(&ProgressDialog::setProgress, value);
+        CallAfter(&ProgressDialog::set_progress, value);
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);

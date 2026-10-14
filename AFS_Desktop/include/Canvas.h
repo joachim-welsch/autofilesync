@@ -37,27 +37,27 @@ class Canvas: public wxScrolledWindow {
 public:
     Canvas(wxWindow* parent, const wxString& heading);
     virtual ~Canvas(){}
-    virtual void onSelectRoot() = 0;
+    virtual void on_select_root() = 0;
     virtual void update() = 0;
     virtual bool source() const = 0;
-    virtual void addDataItems() = 0;
-    std::wstring selectedPath() const;
-    bool mouseClicked() const;
+    virtual void add_data_items() = 0;
+    std::wstring selected_path() const;
+    bool mouse_clicked() const;
     void other(Canvas* o) { other_ = o; }
     Canvas* other() const { return other_; }
-    void deSelect();
-    bool selectPath(const std::wstring& path);  // [Canvas.md#selectPath]
-    void onItemLeftClicked(wxTreeItemId item);  // [Canvas.md#onItemLeftClicked]
+    void deselect();
+    bool select_path(const std::wstring& path);  // [Canvas.md#select_path]
+    void on_item_left_clicked(wxTreeItemId item);  // [Canvas.md#on_item_left_clicked]
 protected:
     wxStaticText* heading_ = nullptr;
-    TreeCtrl* treeCtrl_ = nullptr;
+    TreeCtrl* tree_ctrl_ = nullptr;
     Tree tree_;
     Canvas* other_ = nullptr;
 private:
-    void ShowContextMenu(const wxPoint& pos);
-    void OnRightUp(wxMouseEvent& event);
-    void OnContextMenu(wxContextMenuEvent& event);
-    void OnSize(wxSizeEvent& event);  // [Canvas.md#OnSize]
+    void show_context_menu(const wxPoint& pos);
+    void on_right_up(wxMouseEvent& event);
+    void on_context_menu(wxContextMenuEvent& event);
+    void on_size(wxSizeEvent& event);  // [Canvas.md#on_size]
 
     wxDECLARE_NO_COPY_CLASS(Canvas);
     wxDECLARE_EVENT_TABLE();

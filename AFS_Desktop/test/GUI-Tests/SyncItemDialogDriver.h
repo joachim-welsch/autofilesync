@@ -29,17 +29,17 @@ namespace guitest {
 
 struct SyncItemOptions {  // [SyncItemDialogDriver.md#SyncItemOptions]
     std::optional<bool> enabled;
-    std::optional<bool> deleteSourceAfter;
-    std::optional<bool> twoWaySync;
-    std::optional<bool> copyWhenTargetNewer;
-    std::optional<bool> fatherSonPrinciple;
-    std::optional<bool> deleteInTarget;
-    std::optional<bool> backupProof;
-    std::optional<bool> syncEmptyFiles;
-    std::optional<bool> compareDate;
-    std::optional<bool> compareSize;
-    std::optional<bool> compareContent;
-    std::optional<int> syncCycleSeconds;
+    std::optional<bool> delete_source_after;
+    std::optional<bool> two_way_sync;
+    std::optional<bool> copy_when_target_newer;
+    std::optional<bool> father_son_principle;
+    std::optional<bool> delete_in_target;
+    std::optional<bool> backup_proof;
+    std::optional<bool> sync_empty_files;
+    std::optional<bool> compare_date;
+    std::optional<bool> compare_size;
+    std::optional<bool> compare_content;
+    std::optional<int> sync_cycle_seconds;
 };
 
 struct SyncItemInput {
@@ -52,6 +52,6 @@ struct SyncItemInput {
     SyncItemOptions options;
 };
 
-DialogAction fillSyncItemDialog(const SyncItemInput& input);  // [SyncItemDialogDriver.md#fillSyncItemDialog]
+DialogAction fill_sync_item_dialog(const SyncItemInput& input);  // [SyncItemDialogDriver.md#fill_sync_item_dialog]
 
 }

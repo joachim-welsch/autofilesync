@@ -33,15 +33,15 @@ class GridWindow: public wxScrolledWindow {
 public:
     GridWindow(wxWindow* parent);
     GridWindow() {}
-    std::wstring getSelected() const;
+    std::wstring get_selected() const;
     void update();
 
-    void OnContextMenu(wxContextMenuEvent& event);
-    void OnSize(wxSizeEvent& event);
+    void on_context_menu(wxContextMenuEvent& event);
+    void on_size(wxSizeEvent& event);
 private:
-    void ShowContextMenu(const wxPoint& pos);
+    void show_context_menu(const wxPoint& pos);
 
-    GridCtrl* gridCtrl_ = nullptr;
+    GridCtrl* grid_ctrl_ = nullptr;
     wxDECLARE_NO_COPY_CLASS(GridWindow);
     wxDECLARE_EVENT_TABLE();
 };

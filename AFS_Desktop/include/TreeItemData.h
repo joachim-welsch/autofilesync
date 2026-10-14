@@ -30,7 +30,7 @@ class TreeItemData: public wxTreeItemData {
 	wxString description_;
 public:
 	TreeItemData(const wxString& desc) : description_(desc) { }
-	void ShowInfo(wxTreeCtrl* tree);
-	wxString const& GetDesc() const { return description_; }
+	void show_info(wxTreeCtrl* tree);
+	wxString const& get_desc() const { return description_; }
 };
 

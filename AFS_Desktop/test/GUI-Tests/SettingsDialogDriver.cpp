@@ -28,57 +28,57 @@ using namespace AFS_Core;
 namespace guitest {
 namespace {
 
-bool enterCheckBox(wxDialog& dialog, const wxString& label, const std::optional<bool>& wanted)  // [SettingsDialogDriver.md#checkboxes-by-label]
+bool enter_check_box(wxDialog& dialog, const wxString& label, const std::optional<bool>& wanted)  // [SettingsDialogDriver.md#checkboxes-by-label]
 {
-    if (!wanted || setCheckBox(wxWindow::FindWindowByLabel(label, &dialog), *wanted))
+    if (!wanted || set_check_box(wxWindow::FindWindowByLabel(label, &dialog), *wanted))
         return true;
     ADD_FAILURE() << "\"" << label << "\" konnte nicht gesetzt werden.";
     return false;
 }
 
-bool enterValues(wxDialog& dialog, const SettingsInput& input)  // [SettingsDialogDriver.md#enterValues]
+bool enter_values(wxDialog& dialog, const SettingsInput& input)  // [SettingsDialogDriver.md#enter_values]
 {
-    if (input.deleteMode && !selectRadioOption(find(dialog, ID_DELETE_MODE_RADIO), *input.deleteMode == DeleteMode::Permanent ? 1 : 0)) {
+    if (input.delete_mode && !select_radio_option(find(dialog, ID_DELETE_MODE_RADIO), *input.delete_mode == DeleteMode::Permanent ? 1 : 0)) {
         ADD_FAILURE() << "Der Löschmodus konnte im Dialog nicht ausgewählt werden.";
         return false;
     }
-    if (input.language && !selectEntry(find(dialog, ID_LANGUAGE_CHOICE), *input.language)) {
+    if (input.language && !select_entry(find(dialog, ID_LANGUAGE_CHOICE), *input.language)) {
         ADD_FAILURE() << "Die Sprache \"" << *input.language << "\" steht nicht in der Auswahl.";
         return false;
     }
-    if (input.recycleBinPath && !replaceText(find(dialog, ID_RECYCLEBIN_PATH_BOX), *input.recycleBinPath)) {
+    if (input.recycle_bin_path && !replace_text(find(dialog, ID_RECYCLEBIN_PATH_BOX), *input.recycle_bin_path)) {
         ADD_FAILURE() << "Der Papierkorb-Pfad konnte nicht eingegeben werden; im Feld steht: "
-                      << valueOf(find(dialog, ID_RECYCLEBIN_PATH_BOX));
+                      << value_of(find(dialog, ID_RECYCLEBIN_PATH_BOX));
         return false;
     }
-    return enterCheckBox(dialog, translation::translate("settings_autostart"), input.autostart)
-        && enterCheckBox(dialog, translation::translate("settings_sync_at_start"), input.startSyncAtStart)
-        && enterCheckBox(dialog, translation::translate("settings_start_minimized"), input.startMinimized)
-        && enterCheckBox(dialog, translation::translate("settings_minimize_instead_of_close"), input.minimizeInsteadOfClose)
-        && enterCheckBox(dialog, translation::translate("error"), input.showErrors)
-        && enterCheckBox(dialog, translation::translate("warning"), input.showWarnings)
-        && enterCheckBox(dialog, translation::translate("info"), input.showInfos);
+    return enter_check_box(dialog, translation::translate("settings_autostart"), input.autostart)
+        && enter_check_box(dialog, translation::translate("settings_sync_at_start"), input.start_sync_at_start)
+        && enter_check_box(dialog, translation::translate("settings_start_minimized"), input.start_minimized)
+        && enter_check_box(dialog, translation::translate("settings_minimize_instead_of_close"), input.minimize_instead_of_close)
+        && enter_check_box(dialog, translation::translate("error"), input.show_errors)
+        && enter_check_box(dialog, translation::translate("warning"), input.show_warnings)
+        && enter_check_box(dialog, translation::translate("info"), input.show_infos);
 }
 
 }
 
-DialogAction fillSettingsDialog(const SettingsInput& input)
+DialogAction fill_settings_dialog(const SettingsInput& input)
 {
     return [input](wxDialog& dialog) {
-        const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
-            && enterValues(dialog, input)
-            && clickWhenEnabled(find(dialog, wxID_OK));
+        const bool confirmed = wait_until([&dialog] { return dialog.IsShownOnScreen(); })
+            && enter_values(dialog, input)
+            && click_when_enabled(find(dialog, wxID_OK));
         if (!confirmed)  // [SettingsDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };
 }
 
-DialogAction fillSettingsDialog(const wxString& recycleBinPath, DeleteMode deleteMode)
+DialogAction fill_settings_dialog(const wxString& recycle_bin_path, DeleteMode delete_mode)
 {
     SettingsInput input;
-    input.recycleBinPath = recycleBinPath;
-    input.deleteMode = deleteMode;
-    return fillSettingsDialog(input);
+    input.recycle_bin_path = recycle_bin_path;
+    input.delete_mode = delete_mode;
+    return fill_settings_dialog(input);
 }
 
 }

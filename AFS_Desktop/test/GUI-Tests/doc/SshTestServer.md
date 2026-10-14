@@ -16,7 +16,7 @@ small remote directories they navigate into and to read back what a run put on t
 uses libssh on Unix and libssh2 under `_WIN32`, the same split AFS_Core makes; the platform
 session lives behind the opaque Session, so the tests see one interface.
 
-## scratchDir
+## scratch_dir
 
 On Unix the remote fixtures live under `/tmp`. The SFTP server of Win32-OpenSSH has no `/tmp` -
 its paths look like `/C:/Users/testuser` - so on Windows they are placed in the login
@@ -28,7 +28,7 @@ GuiTest plus the test server: SetUp connects once and skips the test with the co
 when that fails, the same way the SSH Integrationtests do, and provides an empty probe
 directory per process.
 
-## probeDir
+## probe_dir
 
 Own directory per process, distinct from the fixtures the Integrationtests project keeps under
 the same account, so the two suites cannot collide. A leftover from an interrupted run is

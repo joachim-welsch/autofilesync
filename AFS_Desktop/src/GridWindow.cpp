@@ -27,34 +27,34 @@ using utilwx::tul;
 using std::wstring;
 
 wxBEGIN_EVENT_TABLE(GridWindow, wxScrolledWindow)
-EVT_CONTEXT_MENU(GridWindow::OnContextMenu)
-EVT_SIZE(GridWindow::OnSize)
+EVT_CONTEXT_MENU(GridWindow::on_context_menu)
+EVT_SIZE(GridWindow::on_size)
 wxEND_EVENT_TABLE()
 
 GridWindow::GridWindow(wxWindow* parent)
 	: wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 		wxHSCROLL | wxVSCROLL)
 {
-	gridCtrl_ = new GridCtrl(this, tul(id::GridCtrl), wxDefaultPosition, wxDefaultSize);
+	grid_ctrl_ = new GridCtrl(this, tul(id::GridCtrl), wxDefaultPosition, wxDefaultSize);
 	wxBoxSizer* const sizer = new wxBoxSizer(wxVERTICAL);
-	sizer->Add(gridCtrl_, wxSizerFlags(2).Expand().Expand());
+	sizer->Add(grid_ctrl_, wxSizerFlags(2).Expand().Expand());
 	SetSizer(sizer);
 	SetClientSize(GetBestSize());
-	gridCtrl_->addDataItems();
+	grid_ctrl_->add_data_items();
 }
 
-wstring GridWindow::getSelected() const
+wstring GridWindow::get_selected() const
 {
-	return gridCtrl_->getSelected();
+	return grid_ctrl_->get_selected();
 }
 
 void GridWindow::update()
 {
-	gridCtrl_->update();
+	grid_ctrl_->update();
 	SetClientSize(GetBestSize());
 }
 
-void GridWindow::ShowContextMenu(const wxPoint& pos)
+void GridWindow::show_context_menu(const wxPoint& pos)
 {
 	wxMenu menu;
 	if (wxGetKeyState(WXK_SHIFT)) {
@@ -66,7 +66,7 @@ void GridWindow::ShowContextMenu(const wxPoint& pos)
 	}
 }
 
-void GridWindow::OnContextMenu(wxContextMenuEvent& event)
+void GridWindow::on_context_menu(wxContextMenuEvent& event)
 {
 	wxPoint point = event.GetPosition();
 	if (point.x == -1 && point.y == -1) {  // (-1,-1) means the menu came from the keyboard
@@ -77,13 +77,13 @@ void GridWindow::OnContextMenu(wxContextMenuEvent& event)
 	else {
 		point = ScreenToClient(point);
 	}
-	ShowContextMenu(point);
+	show_context_menu(point);
 }
 
-void GridWindow::OnSize(wxSizeEvent& event)
+void GridWindow::on_size(wxSizeEvent& event)
 {
-	if (gridCtrl_) {
-		gridCtrl_->adjustColumnWidths(event.GetSize().GetWidth());
+	if (grid_ctrl_) {
+		grid_ctrl_->adjust_column_widths(event.GetSize().GetWidth());
 	}
 	event.Skip();
 }

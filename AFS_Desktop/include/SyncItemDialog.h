@@ -32,7 +32,7 @@ using namespace AFS_Core;
 
 class SyncItemDialog: public wxDialog {
 public:
-	SyncItemDialog(SyncItem* syncItem, 
+	SyncItemDialog(SyncItem* sync_item, 
         wxWindow* parent, wxWindowID id,
         const wxString& title,
         const wxPoint& pos = wxDefaultPosition,
@@ -44,74 +44,74 @@ public:
     wxString name() const { return name_; }
     wxString type() const { return type_; }
     wxString wildcard() const { return wildcard_; }
-    wxString sourceDir() const { return source_; }
-    wxString targetDir() const { return target_; }
-    bool delSourceAfter() const { return delSourceAfter_; }
-    bool twoWaySync() const { return twoWaySync_; }
-    bool copyWhenTargetNewer() const { return copyWhenTargetNewer_; }
-    bool fatherSonPrinciple() const { return fatherSonPrinciple_; }
-    bool backupProof() const { return backupProof_; }
-    bool syncEmptyFiles() const { return syncEmptyFiles_; }
+    wxString source_dir() const { return source_; }
+    wxString target_dir() const { return target_; }
+    bool del_source_after() const { return del_source_after_; }
+    bool two_way_sync() const { return two_way_sync_; }
+    bool copy_when_target_newer() const { return copy_when_target_newer_; }
+    bool father_son_principle() const { return father_son_principle_; }
+    bool backup_proof() const { return backup_proof_; }
+    bool sync_empty_files() const { return sync_empty_files_; }
     bool enabled() const { return enabled_; }
-    void saveData(SyncItem& si);
+    void save_data(SyncItem& si);
 
 private:
-    void eventBindings();
-    void updateDeleteInTargetState();
-    wxPanel* createOptionsPage(wxNotebook* notebook);
+    void event_bindings();
+    void update_delete_in_target_state();
+    wxPanel* create_options_page(wxNotebook* notebook);
 
     bool TransferDataToWindow() override;
     bool TransferDataFromWindow() override;
     bool Validate() override;
 
-    void onUpdateOkButton(wxUpdateUIEvent& event);
-    void onPickSourceDirText(wxCommandEvent& WXUNUSED(event));
-    void onPickTargetDirText(wxCommandEvent& WXUNUSED(event));
-    void onSshSource(wxCommandEvent& event);
-    void onSshTarget(wxCommandEvent& event);
-    void handleSshButton(wxTextCtrl* targetBox);
-    void setData(const SyncItem& si);
-    SyncItemType actSyncItemType(wxChoice* typeChoice);
+    void on_update_ok_button(wxUpdateUIEvent& event);
+    void on_pick_source_dir_text(wxCommandEvent& WXUNUSED(event));
+    void on_pick_target_dir_text(wxCommandEvent& WXUNUSED(event));
+    void on_ssh_source(wxCommandEvent& event);
+    void on_ssh_target(wxCommandEvent& event);
+    void handle_ssh_button(wxTextCtrl* target_box);
+    void set_data(const SyncItem& si);
+    SyncItemType act_sync_item_type(wxChoice* type_choice);
     
     wxString name_;
     wxString type_ = sync_item_type_to_str(SyncItemType::File); // must match an entry of the type choice, which is translated
     wxString wildcard_ = "*.*";
-    wxString exclusions_; // one wildcard pattern per line, converted to/from Exclusions in saveData()/setData()
+    wxString exclusions_; // one wildcard pattern per line, converted to/from Exclusions in save_data()/set_data()
     wxString source_;
     wxString target_;
-    wxString volumneNameSource_;
-    wxString volumneNameTarget_;
+    wxString volume_name_source_;
+    wxString volume_name_target_;
     bool     enabled_ = true;
-    bool     delSourceAfter_ = false;
-    bool     twoWaySync_ = false;
-    bool     copyWhenTargetNewer_ = false;
-    bool     fatherSonPrinciple_ = false;
-    bool     deleteInTarget_ = false;
-    bool     backupProof_ = false;
-    bool     syncEmptyFiles_ = false;
-    bool     compareDate_ = true;
-    bool     compareSize_ = false;
-    bool     compareContent_ = false;
-    uint16_t syncCycle_ = 1;
+    bool     del_source_after_ = false;
+    bool     two_way_sync_ = false;
+    bool     copy_when_target_newer_ = false;
+    bool     father_son_principle_ = false;
+    bool     delete_in_target_ = false;
+    bool     backup_proof_ = false;
+    bool     sync_empty_files_ = false;
+    bool     compare_date_ = true;
+    bool     compare_size_ = false;
+    bool     compare_content_ = false;
+    uint16_t sync_cycle_ = 1;
     
-    wxTextCtrl* nameBox_ = nullptr;
-    wxChoice* typeChoice_ = nullptr;
-    wxTextCtrl* wildcardBox_ = nullptr;
-    wxTextCtrl* exclusionsBox_ = nullptr;
-    wxTextCtrl* sourceDirBox_ = nullptr;
-    wxTextCtrl* targetDirBox_ = nullptr;
-    wxCheckBox* enabledCheck_ = nullptr;
-    wxCheckBox* delSourceAfterCheck_ = nullptr;
-    wxCheckBox* compareDateCheck_ = nullptr;
-    wxCheckBox* twoWaySyncCheck_ = nullptr;
-    wxCheckBox* compareSizeCheck_ = nullptr;
-    wxCheckBox* copyWhenTargetNewerCheck_ = nullptr;
-    wxCheckBox* compareContentCheck_ = nullptr;
-    wxCheckBox* fatherSonPrincipleCheck_ = nullptr;
-    wxCheckBox* deleteInTargetCheck_ = nullptr;
-    wxCheckBox* backupProofCheck_ = nullptr;
-    wxCheckBox* syncEmptyFilesCheck_ = nullptr;
-    wxSpinCtrl* syncCycleSpin_ = nullptr;
+    wxTextCtrl* name_box_ = nullptr;
+    wxChoice* type_choice_ = nullptr;
+    wxTextCtrl* wildcard_box_ = nullptr;
+    wxTextCtrl* exclusions_box_ = nullptr;
+    wxTextCtrl* source_dir_box_ = nullptr;
+    wxTextCtrl* target_dir_box_ = nullptr;
+    wxCheckBox* enabled_check_ = nullptr;
+    wxCheckBox* del_source_after_check_ = nullptr;
+    wxCheckBox* compare_date_check_ = nullptr;
+    wxCheckBox* two_way_sync_check_ = nullptr;
+    wxCheckBox* compare_size_check_ = nullptr;
+    wxCheckBox* copy_when_target_newer_check_ = nullptr;
+    wxCheckBox* compare_content_check_ = nullptr;
+    wxCheckBox* father_son_principle_check_ = nullptr;
+    wxCheckBox* delete_in_target_check_ = nullptr;
+    wxCheckBox* backup_proof_check_ = nullptr;
+    wxCheckBox* sync_empty_files_check_ = nullptr;
+    wxSpinCtrl* sync_cycle_spin_ = nullptr;
 
     DECLARE_EVENT_TABLE()
 };

@@ -40,10 +40,10 @@ using util::string_to_wstring;
 using std::wstring;
 
 BEGIN_EVENT_TABLE(SyncItemDialog, wxDialog)
-    EVT_UPDATE_UI(wxID_OK, SyncItemDialog::onUpdateOkButton)
+    EVT_UPDATE_UI(wxID_OK, SyncItemDialog::on_update_ok_button)
 END_EVENT_TABLE()
 
-SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID id,
+SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID id,
     const wxString& title,
     const wxPoint& pos,
     const wxSize& size,
@@ -51,172 +51,172 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     const wxString& name)
     : wxDialog(parent, id, title, pos, size, style, name)
 {
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
 
     wxNotebook* notebook = new wxNotebook(this, wxID_ANY);
 
     wxPanel* tab1 = new wxPanel(notebook);
-    wxBoxSizer* tab1Sizer = new wxBoxSizer(wxVERTICAL);
-    tab1Sizer->AddStretchSpacer()->SetMinSize(FromDIP(wxSize(720, 10)));
+    wxBoxSizer* tab1_sizer = new wxBoxSizer(wxVERTICAL);
+    tab1_sizer->AddStretchSpacer()->SetMinSize(FromDIP(wxSize(720, 10)));
 
-    wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* nameLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("name"));
-    nameLable->SetMinSize(wxSize(FromDIP(60), nameLable->GetMinSize().y));
-    nameSizer->Add(nameLable, 0, wxALIGN_CENTER_VERTICAL);
-    nameBox_ = new wxTextCtrl(tab1, ID_NAME_BOX);
-    nameSizer->Add(nameBox_, 1);
-    tab1Sizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* name_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* name_lable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("name"));
+    name_lable->SetMinSize(wxSize(FromDIP(60), name_lable->GetMinSize().y));
+    name_sizer->Add(name_lable, 0, wxALIGN_CENTER_VERTICAL);
+    name_box_ = new wxTextCtrl(tab1, ID_NAME_BOX);
+    name_sizer->Add(name_box_, 1);
+    tab1_sizer->Add(name_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* typeSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* typeLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("type"));
-    typeLable->SetMinSize(wxSize(FromDIP(60), typeLable->GetMinSize().y));
-    typeSizer->Add(typeLable, 0, wxALIGN_CENTER_VERTICAL);
+    wxBoxSizer* type_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* type_lable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("type"));
+    type_lable->SetMinSize(wxSize(FromDIP(60), type_lable->GetMinSize().y));
+    type_sizer->Add(type_lable, 0, wxALIGN_CENTER_VERTICAL);
     wxArrayString types;
     types.push_back(sync_item_type_to_str(SyncItemType::File));
     types.push_back(sync_item_type_to_str(SyncItemType::Dir));
     types.push_back(sync_item_type_to_str(SyncItemType::Tree));
 
-    typeChoice_ = new wxChoice(tab1, ID_TYPE_CHOICE, wxDefaultPosition, wxDefaultSize, types);
-    typeSizer->Add(typeChoice_, 1);
+    type_choice_ = new wxChoice(tab1, ID_TYPE_CHOICE, wxDefaultPosition, wxDefaultSize, types);
+    type_sizer->Add(type_choice_, 1);
 
-    wxStaticText* wildcardLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("wildcard"));
-    wildcardLable->SetMinSize(wxSize(FromDIP(75), wildcardLable->GetMinSize().y));
-    typeSizer->Add(wildcardLable, wxSizerFlags().Border(wxLEFT).CenterVertical());
+    wxStaticText* wildcard_lable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("wildcard"));
+    wildcard_lable->SetMinSize(wxSize(FromDIP(75), wildcard_lable->GetMinSize().y));
+    type_sizer->Add(wildcard_lable, wxSizerFlags().Border(wxLEFT).CenterVertical());
 
-    wildcardBox_ = new wxTextCtrl(tab1, ID_WILDCARD_BOX);
-    typeSizer->Add(wildcardBox_, wxSizerFlags().Border(wxLEFT));
+    wildcard_box_ = new wxTextCtrl(tab1, ID_WILDCARD_BOX);
+    type_sizer->Add(wildcard_box_, wxSizerFlags().Border(wxLEFT));
 
-    tab1Sizer->Add(typeSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    tab1_sizer->Add(type_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* sourceDirSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* sourceDirLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("source"));
-    sourceDirLable->SetMinSize(wxSize(FromDIP(60), sourceDirLable->GetMinSize().y));
-    sourceDirSizer->Add(sourceDirLable, 0, wxALIGN_CENTER_VERTICAL);
+    wxBoxSizer* source_dir_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* source_dir_lable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("source"));
+    source_dir_lable->SetMinSize(wxSize(FromDIP(60), source_dir_lable->GetMinSize().y));
+    source_dir_sizer->Add(source_dir_lable, 0, wxALIGN_CENTER_VERTICAL);
 
-    sourceDirBox_ = new wxTextCtrl(tab1, ID_SOURCE_DIR_BOX);
-    sourceDirSizer->Add(sourceDirBox_, 1);
-    wxButton* btnPickSourceDirText = new wxButton(tab1, ID_BTN_PICK_SOURCE_DIR, translation::translate("button_choose"));
-    sourceDirSizer->Add(btnPickSourceDirText, wxSizerFlags().Border(wxLEFT, 2));
-    wxButton* btnSshSource = new wxButton(tab1, ID_BTN_SSH_SOURCE, L"SSH\u2026");
-    sourceDirSizer->Add(btnSshSource, wxSizerFlags().Border(wxLEFT, 2));
+    source_dir_box_ = new wxTextCtrl(tab1, ID_SOURCE_DIR_BOX);
+    source_dir_sizer->Add(source_dir_box_, 1);
+    wxButton* btn_pick_source_dir_text = new wxButton(tab1, ID_BTN_PICK_SOURCE_DIR, translation::translate("button_choose"));
+    source_dir_sizer->Add(btn_pick_source_dir_text, wxSizerFlags().Border(wxLEFT, 2));
+    wxButton* btn_ssh_source = new wxButton(tab1, ID_BTN_SSH_SOURCE, L"SSH\u2026");
+    source_dir_sizer->Add(btn_ssh_source, wxSizerFlags().Border(wxLEFT, 2));
 
-    tab1Sizer->Add(sourceDirSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    tab1_sizer->Add(source_dir_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* targetDirSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* targetDirLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("target"));
-    targetDirLable->SetMinSize(wxSize(FromDIP(60), targetDirLable->GetMinSize().y));
-    targetDirSizer->Add(targetDirLable, 0, wxALIGN_CENTER_VERTICAL);
+    wxBoxSizer* target_dir_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* target_dir_lable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("target"));
+    target_dir_lable->SetMinSize(wxSize(FromDIP(60), target_dir_lable->GetMinSize().y));
+    target_dir_sizer->Add(target_dir_lable, 0, wxALIGN_CENTER_VERTICAL);
 
-    targetDirBox_ = new wxTextCtrl(tab1, ID_TARGET_DIR_BOX);
-    targetDirSizer->Add(targetDirBox_, 1);
+    target_dir_box_ = new wxTextCtrl(tab1, ID_TARGET_DIR_BOX);
+    target_dir_sizer->Add(target_dir_box_, 1);
 
-    wxButton* btnPickTargetDirText = new wxButton(tab1, ID_BTN_PICK_TARGET_DIR, translation::translate("button_choose"));
-    targetDirSizer->Add(btnPickTargetDirText, wxSizerFlags().Border(wxLEFT, 2));
-    wxButton* btnSshTarget = new wxButton(tab1, ID_BTN_SSH_TARGET, L"SSH\u2026");
-    targetDirSizer->Add(btnSshTarget, wxSizerFlags().Border(wxLEFT, 2));
+    wxButton* btn_pick_target_dir_text = new wxButton(tab1, ID_BTN_PICK_TARGET_DIR, translation::translate("button_choose"));
+    target_dir_sizer->Add(btn_pick_target_dir_text, wxSizerFlags().Border(wxLEFT, 2));
+    wxButton* btn_ssh_target = new wxButton(tab1, ID_BTN_SSH_TARGET, L"SSH\u2026");
+    target_dir_sizer->Add(btn_ssh_target, wxSizerFlags().Border(wxLEFT, 2));
 
-    tab1Sizer->Add(targetDirSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    tab1_sizer->Add(target_dir_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    tab1->SetSizer(tab1Sizer);
+    tab1->SetSizer(tab1_sizer);
     notebook->AddPage(tab1, translation::translate("tab_general"));
 
-    notebook->AddPage(createOptionsPage(notebook), translation::translate("tab_options"));
+    notebook->AddPage(create_options_page(notebook), translation::translate("tab_options"));
 
     wxPanel* tab3 = new wxPanel(notebook);
-    wxBoxSizer* tab3Sizer = new wxBoxSizer(wxVERTICAL);
-    tab3Sizer->Add(new wxStaticText(tab3, wxID_STATIC, translation::translate("exclusions_hint")), 0, wxALL, 5);
-    exclusionsBox_ = new wxTextCtrl(tab3, ID_EXCLUSIONS_BOX, wxEmptyString,
+    wxBoxSizer* tab3_sizer = new wxBoxSizer(wxVERTICAL);
+    tab3_sizer->Add(new wxStaticText(tab3, wxID_STATIC, translation::translate("exclusions_hint")), 0, wxALL, 5);
+    exclusions_box_ = new wxTextCtrl(tab3, ID_EXCLUSIONS_BOX, wxEmptyString,
         wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    tab3Sizer->Add(exclusionsBox_, 1, wxEXPAND | wxALL, 5);
-    tab3->SetSizer(tab3Sizer);
+    tab3_sizer->Add(exclusions_box_, 1, wxEXPAND | wxALL, 5);
+    tab3->SetSizer(tab3_sizer);
     notebook->AddPage(tab3, translation::translate("tab_exclusions"));
 
-    mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
+    main_sizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
 
-    wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
-    mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 5);
+    wxSizer* button_sizer = CreateButtonSizer(wxOK | wxCANCEL);
+    main_sizer->Add(button_sizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 5);
 
-    btnPickSourceDirText->Bind(wxEVT_BUTTON, &SyncItemDialog::onPickSourceDirText, this);
-    btnPickTargetDirText->Bind(wxEVT_BUTTON, &SyncItemDialog::onPickTargetDirText, this);
-    btnSshSource->Bind(wxEVT_BUTTON, &SyncItemDialog::onSshSource, this);
-    btnSshTarget->Bind(wxEVT_BUTTON, &SyncItemDialog::onSshTarget, this);
+    btn_pick_source_dir_text->Bind(wxEVT_BUTTON, &SyncItemDialog::on_pick_source_dir_text, this);
+    btn_pick_target_dir_text->Bind(wxEVT_BUTTON, &SyncItemDialog::on_pick_target_dir_text, this);
+    btn_ssh_source->Bind(wxEVT_BUTTON, &SyncItemDialog::on_ssh_source, this);
+    btn_ssh_target->Bind(wxEVT_BUTTON, &SyncItemDialog::on_ssh_target, this);
 
-    SetSizer(mainSizer);
+    SetSizer(main_sizer);
     SetMinSize(FromDIP(wxSize(300, 100)));
     Fit();
     Centre();
-    if (syncItem != nullptr)
-        setData(*syncItem);
-    eventBindings();
+    if (sync_item != nullptr)
+        set_data(*sync_item);
+    event_bindings();
 }
 
-wxPanel* SyncItemDialog::createOptionsPage(wxNotebook* notebook)  // [SyncItemDialog.md#options-grouped]
+wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItemDialog.md#options-grouped]
 {
     wxPanel* page = new wxPanel(notebook);
-    wxBoxSizer* pageSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer* behaviourSizer = new wxBoxSizer(wxVERTICAL);
-    const auto addOption = [&](wxCheckBox*& check, wxWindowID id, const char* msgid) {
+    wxBoxSizer* page_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* behaviour_sizer = new wxBoxSizer(wxVERTICAL);
+    const auto add_option = [&](wxCheckBox*& check, wxWindowID id, const char* msgid) {
         check = new wxCheckBox(page, id, translation::translate(msgid));
-        behaviourSizer->Add(check, 0, wxBOTTOM, 5);
+        behaviour_sizer->Add(check, 0, wxBOTTOM, 5);
     };
-    addOption(enabledCheck_, ID_ENABLED_CHECK, "option_enabled");
-    addOption(delSourceAfterCheck_, ID_DEL_SOURCE_AFTER_CHECK, "option_delete_source_after_copy");
-    addOption(twoWaySyncCheck_, ID_TWO_WAY_SYNC_CHECK, "option_two_way_sync");
-    addOption(copyWhenTargetNewerCheck_, ID_CPY_WHEN_TARGET_NEWER_CHECK, "option_copy_when_target_newer");
-    addOption(fatherSonPrincipleCheck_, ID_FATHER_SON_PRINCIPLE_CHECK, "option_father_son_principle");
-    addOption(deleteInTargetCheck_, ID_DELETE_IN_TARGET_CHECK, "option_delete_in_target");
-    addOption(backupProofCheck_, ID_BACKUP_PROOF_CHECK, "option_backup_proof");
-    addOption(syncEmptyFilesCheck_, ID_SYNC_EMPTY_FILES_CHECK, "option_sync_empty_files");
-    wxBoxSizer* syncCycleSizer = new wxBoxSizer(wxHORIZONTAL);
-    syncCycleSizer->Add(new wxStaticText(page, wxID_STATIC, translation::translate("pause_seconds")), 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
-    syncCycleSpin_ = new wxSpinCtrl(page, ID_SYNC_CYCLE_SPIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
-    syncCycleSizer->Add(syncCycleSpin_);
-    behaviourSizer->Add(syncCycleSizer, 0, wxTOP, 5);
-    pageSizer->Add(behaviourSizer, 1, wxEXPAND | wxALL, 10);
-    wxStaticBoxSizer* compareSizer = new wxStaticBoxSizer(wxVERTICAL, page, translation::translate("compare_by"));
-    wxStaticBox* box = compareSizer->GetStaticBox();
-    compareDateCheck_ = new wxCheckBox(box, ID_COMPARE_DATE_CHECK, translation::translate("compare_time"));
-    compareSizeCheck_ = new wxCheckBox(box, ID_COMPARE_SIZE_CHECK, translation::translate("size"));
-    compareContentCheck_ = new wxCheckBox(box, ID_COMPARE_CONTENT_CHECK, translation::translate("compare_content"));
-    for (wxCheckBox* check : {compareDateCheck_, compareSizeCheck_, compareContentCheck_})
-        compareSizer->Add(check, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
-    pageSizer->Add(compareSizer, 0, wxTOP | wxRIGHT | wxBOTTOM, 10);
-    page->SetSizer(pageSizer);
+    add_option(enabled_check_, ID_ENABLED_CHECK, "option_enabled");
+    add_option(del_source_after_check_, ID_DEL_SOURCE_AFTER_CHECK, "option_delete_source_after_copy");
+    add_option(two_way_sync_check_, ID_TWO_WAY_SYNC_CHECK, "option_two_way_sync");
+    add_option(copy_when_target_newer_check_, ID_CPY_WHEN_TARGET_NEWER_CHECK, "option_copy_when_target_newer");
+    add_option(father_son_principle_check_, ID_FATHER_SON_PRINCIPLE_CHECK, "option_father_son_principle");
+    add_option(delete_in_target_check_, ID_DELETE_IN_TARGET_CHECK, "option_delete_in_target");
+    add_option(backup_proof_check_, ID_BACKUP_PROOF_CHECK, "option_backup_proof");
+    add_option(sync_empty_files_check_, ID_SYNC_EMPTY_FILES_CHECK, "option_sync_empty_files");
+    wxBoxSizer* sync_cycle_sizer = new wxBoxSizer(wxHORIZONTAL);
+    sync_cycle_sizer->Add(new wxStaticText(page, wxID_STATIC, translation::translate("pause_seconds")), 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
+    sync_cycle_spin_ = new wxSpinCtrl(page, ID_SYNC_CYCLE_SPIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
+    sync_cycle_sizer->Add(sync_cycle_spin_);
+    behaviour_sizer->Add(sync_cycle_sizer, 0, wxTOP, 5);
+    page_sizer->Add(behaviour_sizer, 1, wxEXPAND | wxALL, 10);
+    wxStaticBoxSizer* compare_sizer = new wxStaticBoxSizer(wxVERTICAL, page, translation::translate("compare_by"));
+    wxStaticBox* box = compare_sizer->GetStaticBox();
+    compare_date_check_ = new wxCheckBox(box, ID_COMPARE_DATE_CHECK, translation::translate("compare_time"));
+    compare_size_check_ = new wxCheckBox(box, ID_COMPARE_SIZE_CHECK, translation::translate("size"));
+    compare_content_check_ = new wxCheckBox(box, ID_COMPARE_CONTENT_CHECK, translation::translate("compare_content"));
+    for (wxCheckBox* check : {compare_date_check_, compare_size_check_, compare_content_check_})
+        compare_sizer->Add(check, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    page_sizer->Add(compare_sizer, 0, wxTOP | wxRIGHT | wxBOTTOM, 10);
+    page->SetSizer(page_sizer);
     return page;
 }
 
-void SyncItemDialog::updateDeleteInTargetState()
+void SyncItemDialog::update_delete_in_target_state()
 {
-    bool isFileType = (typeChoice_->GetSelection() != wxNOT_FOUND) &&
-                      (typeChoice_->GetString(typeChoice_->GetSelection()) == sync_item_type_to_str(SyncItemType::File));
-    if (isFileType) {
-        deleteInTargetCheck_->SetValue(false);
-        deleteInTargetCheck_->Enable(false);
+    bool is_file_type = (type_choice_->GetSelection() != wxNOT_FOUND) &&
+                      (type_choice_->GetString(type_choice_->GetSelection()) == sync_item_type_to_str(SyncItemType::File));
+    if (is_file_type) {
+        delete_in_target_check_->SetValue(false);
+        delete_in_target_check_->Enable(false);
     } else {
-        deleteInTargetCheck_->Enable(true);
+        delete_in_target_check_->Enable(true);
     }
 }
 
-void SyncItemDialog::eventBindings()
+void SyncItemDialog::event_bindings()
 {
-    twoWaySyncCheck_->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) {
-        if (twoWaySyncCheck_->GetValue()) {
-            copyWhenTargetNewerCheck_->SetValue(false);
-            copyWhenTargetNewerCheck_->Enable(false);
+    two_way_sync_check_->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) {
+        if (two_way_sync_check_->GetValue()) {
+            copy_when_target_newer_check_->SetValue(false);
+            copy_when_target_newer_check_->Enable(false);
         } else {
-            copyWhenTargetNewerCheck_->Enable(true);
+            copy_when_target_newer_check_->Enable(true);
         }
     });
 
-    typeChoice_->Bind(wxEVT_CHOICE, [this](wxCommandEvent&) {
-        updateDeleteInTargetState();
+    type_choice_->Bind(wxEVT_CHOICE, [this](wxCommandEvent&) {
+        update_delete_in_target_state();
     });
 }
 
 SyncItemDialog::~SyncItemDialog()
 {}
 
-void SyncItemDialog::setData(const SyncItem& si)
+void SyncItemDialog::set_data(const SyncItem& si)
 {
     wildcard_ = si.wildcard();
     exclusions_.Clear();
@@ -230,23 +230,23 @@ void SyncItemDialog::setData(const SyncItem& si)
     name_ = si.name();
     type_ = si.item_type_str();
     enabled_ = si.enabled();
-    delSourceAfter_ = si.del_aftercopy();
-    compareDate_ = si.compare_items().time();
-    twoWaySync_ = si.two_way_sync();
-    compareSize_ = si.compare_items().size();
-    copyWhenTargetNewer_ = si.copy_when_target_newer();
-    compareContent_ = si.compare_items().content();
-    fatherSonPrinciple_ = si.father_son_principle();
-    deleteInTarget_ = si.delete_in_target();
-    backupProof_ = si.backup_proof();
-    syncEmptyFiles_ = si.sync_empty_files();
-    syncCycle_ = si.sync_cycle();
+    del_source_after_ = si.del_aftercopy();
+    compare_date_ = si.compare_items().time();
+    two_way_sync_ = si.two_way_sync();
+    compare_size_ = si.compare_items().size();
+    copy_when_target_newer_ = si.copy_when_target_newer();
+    compare_content_ = si.compare_items().content();
+    father_son_principle_ = si.father_son_principle();
+    delete_in_target_ = si.delete_in_target();
+    backup_proof_ = si.backup_proof();
+    sync_empty_files_ = si.sync_empty_files();
+    sync_cycle_ = si.sync_cycle();
     
 }
 
-void SyncItemDialog::saveData(SyncItem& si)
+void SyncItemDialog::save_data(SyncItem& si)
 {
-    log_info("SyncItemDialog::saveData called");
+    log_info("SyncItemDialog::save_data called");
     si.name(name_.ToStdWstring());
     si.wildcard(wildcard_.ToStdWstring());
     {
@@ -266,94 +266,94 @@ void SyncItemDialog::saveData(SyncItem& si)
     si.target(target_.ToStdWstring());
     si.sync_item_type(str_to_sync_item_type(type_.ToStdWstring()));
     si.enabled(enabled_);
-    si.del_aftercopy(delSourceAfter_);
-    CompareItems compareItems;
-    compareItems.time(compareDate_);
-    si.two_way_sync(twoWaySync_);
-    compareItems.size(compareSize_);
-    si.copy_when_target_newer(copyWhenTargetNewer_);
-    compareItems.content(compareContent_);
-    si.compare_items(compareItems);
-    si.father_son_principle(fatherSonPrinciple_);
-    si.delete_in_target(deleteInTarget_);
-    si.backup_proof(backupProof_);
-    si.sync_empty_files(syncEmptyFiles_);
-    si.sync_cycle(syncCycle_);
+    si.del_aftercopy(del_source_after_);
+    CompareItems compare_items;
+    compare_items.time(compare_date_);
+    si.two_way_sync(two_way_sync_);
+    compare_items.size(compare_size_);
+    si.copy_when_target_newer(copy_when_target_newer_);
+    compare_items.content(compare_content_);
+    si.compare_items(compare_items);
+    si.father_son_principle(father_son_principle_);
+    si.delete_in_target(delete_in_target_);
+    si.backup_proof(backup_proof_);
+    si.sync_empty_files(sync_empty_files_);
+    si.sync_cycle(sync_cycle_);
 }
 
-void SyncItemDialog::onUpdateOkButton(wxUpdateUIEvent& event)
+void SyncItemDialog::on_update_ok_button(wxUpdateUIEvent& event)
 {
     event.Enable(false);
-    if (!sourceDirBox_->GetValue().empty() && !targetDirBox_->GetValue().empty()) {  // [SyncItemDialog.md#empty-wildcard-allowed]
-        int selection = typeChoice_->GetSelection();
-        if (selection != wxNOT_FOUND && (compareSizeCheck_->GetValue() || compareContentCheck_->GetValue() || compareDateCheck_->GetValue()))
+    if (!source_dir_box_->GetValue().empty() && !target_dir_box_->GetValue().empty()) {  // [SyncItemDialog.md#empty-wildcard-allowed]
+        int selection = type_choice_->GetSelection();
+        if (selection != wxNOT_FOUND && (compare_size_check_->GetValue() || compare_content_check_->GetValue() || compare_date_check_->GetValue()))
             event.Enable(true);
     }
 }
 
 bool SyncItemDialog::TransferDataToWindow()
 {
-    nameBox_->SetValue(name_);
-    wildcardBox_->SetValue(wildcard_);
-    exclusionsBox_->SetValue(exclusions_);
-    sourceDirBox_->SetValue(source_);
-    targetDirBox_->SetValue(target_);
-    int selection = typeChoice_->FindString(type_);
+    name_box_->SetValue(name_);
+    wildcard_box_->SetValue(wildcard_);
+    exclusions_box_->SetValue(exclusions_);
+    source_dir_box_->SetValue(source_);
+    target_dir_box_->SetValue(target_);
+    int selection = type_choice_->FindString(type_);
     if (selection != wxNOT_FOUND)
-        typeChoice_->SetSelection(selection);
-    enabledCheck_->SetValue(enabled_);
-    delSourceAfterCheck_->SetValue(delSourceAfter_);
-    compareDateCheck_->SetValue(compareDate_);
-    twoWaySyncCheck_->SetValue(twoWaySync_);
-    compareSizeCheck_->SetValue(compareSize_);
-    copyWhenTargetNewerCheck_->SetValue(copyWhenTargetNewer_);
-    compareContentCheck_->SetValue(compareContent_);
-    fatherSonPrincipleCheck_->SetValue(fatherSonPrinciple_);
-    deleteInTargetCheck_->SetValue(deleteInTarget_);
-    backupProofCheck_->SetValue(backupProof_);
-    syncEmptyFilesCheck_->SetValue(syncEmptyFiles_);
-    syncCycleSpin_->SetValue(syncCycle_);
-    updateDeleteInTargetState();
+        type_choice_->SetSelection(selection);
+    enabled_check_->SetValue(enabled_);
+    del_source_after_check_->SetValue(del_source_after_);
+    compare_date_check_->SetValue(compare_date_);
+    two_way_sync_check_->SetValue(two_way_sync_);
+    compare_size_check_->SetValue(compare_size_);
+    copy_when_target_newer_check_->SetValue(copy_when_target_newer_);
+    compare_content_check_->SetValue(compare_content_);
+    father_son_principle_check_->SetValue(father_son_principle_);
+    delete_in_target_check_->SetValue(delete_in_target_);
+    backup_proof_check_->SetValue(backup_proof_);
+    sync_empty_files_check_->SetValue(sync_empty_files_);
+    sync_cycle_spin_->SetValue(sync_cycle_);
+    update_delete_in_target_state();
     return true;
 }
 
 bool SyncItemDialog::TransferDataFromWindow()
 {
-    name_ = nameBox_->GetValue();
-    wildcard_ = wildcardBox_->GetValue();
-    exclusions_ = exclusionsBox_->GetValue();
-    source_ = sourceDirBox_->GetValue();
-    target_ = targetDirBox_->GetValue();
-    int selection = typeChoice_->GetSelection();
+    name_ = name_box_->GetValue();
+    wildcard_ = wildcard_box_->GetValue();
+    exclusions_ = exclusions_box_->GetValue();
+    source_ = source_dir_box_->GetValue();
+    target_ = target_dir_box_->GetValue();
+    int selection = type_choice_->GetSelection();
     if (selection != wxNOT_FOUND)
-        type_ = typeChoice_->GetString(selection);
+        type_ = type_choice_->GetString(selection);
     else
         type_ = "";
-    enabled_ = enabledCheck_->GetValue();
-    delSourceAfter_ = delSourceAfterCheck_->GetValue();
-    compareDate_ = compareDateCheck_->GetValue();
-    twoWaySync_ = twoWaySyncCheck_->GetValue();
-    compareSize_ = compareSizeCheck_->GetValue();
-    copyWhenTargetNewer_ = copyWhenTargetNewerCheck_->GetValue();
-    compareContent_ = compareContentCheck_->GetValue();
-    fatherSonPrinciple_ = fatherSonPrincipleCheck_->GetValue();
-    deleteInTarget_ = deleteInTargetCheck_->GetValue();
-    backupProof_ = backupProofCheck_->GetValue();
-    syncEmptyFiles_ = syncEmptyFilesCheck_->GetValue();
-    syncCycle_ = syncCycleSpin_->GetValue();
+    enabled_ = enabled_check_->GetValue();
+    del_source_after_ = del_source_after_check_->GetValue();
+    compare_date_ = compare_date_check_->GetValue();
+    two_way_sync_ = two_way_sync_check_->GetValue();
+    compare_size_ = compare_size_check_->GetValue();
+    copy_when_target_newer_ = copy_when_target_newer_check_->GetValue();
+    compare_content_ = compare_content_check_->GetValue();
+    father_son_principle_ = father_son_principle_check_->GetValue();
+    delete_in_target_ = delete_in_target_check_->GetValue();
+    backup_proof_ = backup_proof_check_->GetValue();
+    sync_empty_files_ = sync_empty_files_check_->GetValue();
+    sync_cycle_ = sync_cycle_spin_->GetValue();
     return true;
 }
 
-wxString withVolumenName(const wxString& path)
+wxString with_volumen_name(const wxString& path)
 {
 #ifdef _UNIX
     return path;  // [SyncItemDialog.md#no-volume-spec-on-unix]
 #else
     wstring ws_path = path.ToStdWstring();
     fs::path fs_path;
-    std::string pathStr = wstring_to_string(ws_path);
+    std::string path_str = wstring_to_string(ws_path);
 	try {
-        fs_path = fs::path(pathStr);
+        fs_path = fs::path(path_str);
 	}
 	catch (std::exception& e) {
 		log_error(translation::translate("volume_name_error") + string_to_wstring(e.what()));
@@ -361,25 +361,25 @@ wxString withVolumenName(const wxString& path)
 	}
     if (fs_path.empty() || !fs_path.has_root_name())
 		return path;
-    wstring rootName = fs_path.root_name().wstring();
-    wstring relativePath = ws_path.substr(rootName.size());
-    TCHAR volumeName[MAX_PATH + 1] = { 0 };
-    TCHAR fileSystemName[MAX_PATH + 1] = { 0 };
-    DWORD serialNumber = 0;
-    DWORD maxComponentLength = 0;
-    DWORD fileSystemFlags = 0;
+    wstring root_name = fs_path.root_name().wstring();
+    wstring relative_path = ws_path.substr(root_name.size());
+    TCHAR volume_name[MAX_PATH + 1] = { 0 };
+    TCHAR file_system_name[MAX_PATH + 1] = { 0 };
+    DWORD serial_number = 0;
+    DWORD max_component_length = 0;
+    DWORD file_system_flags = 0;
     if (GetVolumeInformation(
-        rootName.c_str(),
-        volumeName,
-        ARRAYSIZE(volumeName),
-        &serialNumber,
-        &maxComponentLength,
-        &fileSystemFlags,
-        fileSystemName,
-        ARRAYSIZE(fileSystemName)
+        root_name.c_str(),
+        volume_name,
+        ARRAYSIZE(volume_name),
+        &serial_number,
+        &max_component_length,
+        &file_system_flags,
+        file_system_name,
+        ARRAYSIZE(file_system_name)
     )) {
         std::wstringstream os;
-        os << volumeName << L" (" << rootName << L")" << relativePath;
+        os << volume_name << L" (" << root_name << L")" << relative_path;
         return os.str();
     }
     else {
@@ -388,11 +388,11 @@ wxString withVolumenName(const wxString& path)
 #endif
 }
 
-wxString chooseFile(SyncItemDialog* syncItemDialog)
+wxString choose_file(SyncItemDialog* sync_item_dialog)
 {
     wxFileDialog dialog
     (
-        syncItemDialog,
+        sync_item_dialog,
         translation::translate("choose_file_title"),
         wxEmptyString,
         wxEmptyString,
@@ -402,57 +402,57 @@ wxString chooseFile(SyncItemDialog* syncItemDialog)
     dialog.SetDirectory(wxGetHomeDir());
     if (dialog.ShowModal() == wxID_OK)
     {
-        return withVolumenName(dialog.GetPath());
+        return with_volumen_name(dialog.GetPath());
     }
     return "";
 }
 
-wxString chooseDir(SyncItemDialog* syncItemDialog)
+wxString choose_dir(SyncItemDialog* sync_item_dialog)
 {
-    wxString dirHome;
-    wxGetHomeDir(&dirHome);
-    wxDirDialog dialog(syncItemDialog, translation::translate("choose_dir_title"), dirHome, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    wxString dir_home;
+    wxGetHomeDir(&dir_home);
+    wxDirDialog dialog(sync_item_dialog, translation::translate("choose_dir_title"), dir_home, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
     if (dialog.ShowModal() == wxID_OK)
     {
-        return withVolumenName(dialog.GetPath());
+        return with_volumen_name(dialog.GetPath());
     }
     return "";
 }
 
-SyncItemType SyncItemDialog::actSyncItemType(wxChoice* typeChoice)
+SyncItemType SyncItemDialog::act_sync_item_type(wxChoice* type_choice)
 {
-    auto selection = typeChoice->GetSelection();
+    auto selection = type_choice->GetSelection();
     wxString stype;
     if (selection != wxNOT_FOUND) {
-        stype = typeChoice->GetString(selection);
+        stype = type_choice->GetString(selection);
         return str_to_sync_item_type(stype.ToStdWstring());
     }
     else
         return SyncItemType::Undefined;
 }
 
-void SyncItemDialog::onPickSourceDirText(wxCommandEvent& WXUNUSED(event))
+void SyncItemDialog::on_pick_source_dir_text(wxCommandEvent& WXUNUSED(event))
 {
-    SyncItemType syncType = actSyncItemType(typeChoice_);
+    SyncItemType sync_type = act_sync_item_type(type_choice_);
     wxString value;
-    if (syncType == SyncItemType::File)
-        value = chooseFile(this);
+    if (sync_type == SyncItemType::File)
+        value = choose_file(this);
     else
-        value = chooseDir(this);
+        value = choose_dir(this);
     if (!value.empty())
-        sourceDirBox_->SetValue(value);
+        source_dir_box_->SetValue(value);
 }
 
-void SyncItemDialog::onPickTargetDirText(wxCommandEvent& WXUNUSED(event))
+void SyncItemDialog::on_pick_target_dir_text(wxCommandEvent& WXUNUSED(event))
 {
-    wxString value = chooseDir(this);
+    wxString value = choose_dir(this);
     if (!value.empty())
-        targetDirBox_->SetValue(value);
+        target_dir_box_->SetValue(value);
 }
 
 bool SyncItemDialog::Validate()
 {
-    auto name = nameBox_->GetValue();
+    auto name = name_box_->GetValue();
     if (name.IsEmpty()) {
         wxMessageBox(translation::translate("name_empty"), translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         return false;
@@ -464,35 +464,35 @@ bool SyncItemDialog::Validate()
     return true;
 }
 
-void SyncItemDialog::onSshSource(wxCommandEvent& event)
+void SyncItemDialog::on_ssh_source(wxCommandEvent& event)
 {
-    handleSshButton(sourceDirBox_);
+    handle_ssh_button(source_dir_box_);
 }
 
-void SyncItemDialog::onSshTarget(wxCommandEvent& event)
+void SyncItemDialog::on_ssh_target(wxCommandEvent& event)
 {
-    handleSshButton(targetDirBox_);
+    handle_ssh_button(target_dir_box_);
 }
 
-void SyncItemDialog::handleSshButton(wxTextCtrl* targetBox)
+void SyncItemDialog::handle_ssh_button(wxTextCtrl* target_box)
 {
     SshAccount account;
-    wxString currentValue = targetBox->GetValue();
+    wxString current_value = target_box->GetValue();
     
-    int colonPos = currentValue.Find(':');  // does the value hold an SSH path of the form "sshname:/path"?
-    if (colonPos != wxNOT_FOUND && colonPos > 0) {
-        wxString sshName = currentValue.Left(colonPos);
-        auto found = Config::instance().find_ssh_account_by_name(std::string(sshName.ToUTF8()));  // is this name a configured SSH account?
+    int colon_pos = current_value.Find(':');  // does the value hold an SSH path of the form "sshname:/path"?
+    if (colon_pos != wxNOT_FOUND && colon_pos > 0) {
+        wxString ssh_name = current_value.Left(colon_pos);
+        auto found = Config::instance().find_ssh_account_by_name(std::string(ssh_name.ToUTF8()));  // is this name a configured SSH account?
         if (found.has_value())
             account = found.value();
     }
     
     if (account.name().empty()) {  // no account found: let the user pick one
-        SshAccountSelectDialog selectDlg(this);
-        if (selectDlg.ShowModal() == wxID_OK) {
-            auto selectedAccount = selectDlg.getSelectedAccount();
-            if (selectedAccount.has_value()) {
-                account = selectedAccount.value();
+        SshAccountSelectDialog select_dlg(this);
+        if (select_dlg.ShowModal() == wxID_OK) {
+            auto selected_account = select_dlg.get_selected_account();
+            if (selected_account.has_value()) {
+                account = selected_account.value();
             } else {
                 return;
             }
@@ -501,18 +501,18 @@ void SyncItemDialog::handleSshButton(wxTextCtrl* targetBox)
         }
     }
     
-    wxString initialPath = "/";  // keep the remote path that is already configured
-    if (colonPos != wxNOT_FOUND) {
-        initialPath = currentValue.Mid(colonPos + 1);
-        if (initialPath.empty()) {
-            initialPath = "/";
+    wxString initial_path = "/";  // keep the remote path that is already configured
+    if (colon_pos != wxNOT_FOUND) {
+        initial_path = current_value.Mid(colon_pos + 1);
+        if (initial_path.empty()) {
+            initial_path = "/";
         }
     }
     
-    SshDirDialog dirDlg(this, txt::select_ssh_dir(), account, std::string(initialPath.ToUTF8()));
-    if (dirDlg.ShowModal() == wxID_OK) {
-        wxString selectedPath = dirDlg.getPath();
-        wxString fullPath = wxString::FromUTF8(account.name()) + ":" + selectedPath;
-        targetBox->SetValue(fullPath);
+    SshDirDialog dir_dlg(this, txt::select_ssh_dir(), account, std::string(initial_path.ToUTF8()));
+    if (dir_dlg.ShowModal() == wxID_OK) {
+        wxString selected_path = dir_dlg.get_path();
+        wxString full_path = wxString::FromUTF8(account.name()) + ":" + selected_path;
+        target_box->SetValue(full_path);
     }
 }

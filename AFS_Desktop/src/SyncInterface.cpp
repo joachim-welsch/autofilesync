@@ -35,45 +35,45 @@ using namespace AFS_Core;
 
 using utilwx::tul;
 
-SyncInterface::SyncInterface(wxWindow& parentWindow, Menu& menu)
-    : parentWindow_(parentWindow)
+SyncInterface::SyncInterface(wxWindow& parent_window, Menu& menu)
+    : parent_window_(parent_window)
     , menu_(menu)
-    , syncControler_(SyncControler::instance())
+    , sync_controler_(SyncControler::instance())
 {
 }
 
 SyncInterface::~SyncInterface()
 {
-    if (progressDialog_ != nullptr) {
-        progressDialog_->canBeClosed(true);
-        progressDialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
-        progressDialog_ = nullptr;
-        syncControler_.register_progress_dialog(nullptr);
+    if (progress_dialog_ != nullptr) {
+        progress_dialog_->can_be_closed(true);
+        progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
+        progress_dialog_ = nullptr;
+        sync_controler_.register_progress_dialog(nullptr);
     }
 }
 
-bool SyncInterface::silentMode() const
+bool SyncInterface::silent_mode() const
 {
-    return consoleMode_ || Config::instance().settings().start_minimized();
+    return console_mode_ || Config::instance().settings().start_minimized();
 }
 
-void SyncInterface::setConsoleMode()
+void SyncInterface::set_console_mode()
 {
-    consoleMode_ = true;
+    console_mode_ = true;
 }
 
-void SyncInterface::openProgressDialog(uint32_t nFiles)
+void SyncInterface::open_progress_dialog(uint32_t n_files)
 {
-    if (progressDialog_ != nullptr || silentMode())
+    if (progress_dialog_ != nullptr || silent_mode())
         return;
-    progressDialog_ = new ProgressDialog(&parentWindow_, wxID_ANY, translation::translate("progress_title"), syncControler_, nFiles);
-    progressDialog_->Show();
-    syncControler_.register_progress_dialog(progressDialog_);
+    progress_dialog_ = new ProgressDialog(&parent_window_, wxID_ANY, translation::translate("progress_title"), sync_controler_, n_files);
+    progress_dialog_->Show();
+    sync_controler_.register_progress_dialog(progress_dialog_);
 }
 
 namespace {
 
-constexpr std::size_t MAX_LINES_IN_BOX = 15;  // [SyncInterface.md#runMessagesText]
+constexpr std::size_t MAX_LINES_IN_BOX = 15;  // [SyncInterface.md#run_messages_text]
 
 bool wanted(const LogMessage& message, const Settings& settings)
 {
@@ -84,7 +84,7 @@ bool wanted(const LogMessage& message, const Settings& settings)
     }
 }
 
-wxString levelLabel(LogLevel level)
+wxString level_label(LogLevel level)
 {
     switch (level) {
     case LogLevel::Info: return translation::translate("info");
@@ -93,7 +93,7 @@ wxString levelLabel(LogLevel level)
     }
 }
 
-wxString runMessagesText(const std::vector<LogMessage>& messages)  // [SyncInterface.md#runMessagesText]
+wxString run_messages_text(const std::vector<LogMessage>& messages)  // [SyncInterface.md#run_messages_text]
 {
     wxString text;
     std::size_t shown = 0;
@@ -102,12 +102,12 @@ wxString runMessagesText(const std::vector<LogMessage>& messages)  // [SyncInter
             text += translation::translate("more_messages", {std::to_wstring(messages.size() - MAX_LINES_IN_BOX)});
             break;
         }
-        text += levelLabel(message.level) + ": " + wxString::FromUTF8(message.text) + "\n";
+        text += level_label(message.level) + ": " + wxString::FromUTF8(message.text) + "\n";
     }
     return text;
 }
 
-LogLevel highestLevel(const std::vector<LogMessage>& messages)
+LogLevel highest_level(const std::vector<LogMessage>& messages)
 {
     LogLevel highest = LogLevel::Info;
     for (const LogMessage& message : messages)
@@ -117,181 +117,181 @@ LogLevel highestLevel(const std::vector<LogMessage>& messages)
 
 }
 
-void SyncInterface::showRunMessages()
+void SyncInterface::show_run_messages()
 {
     Logging::instance().collect_messages(false);
     std::vector<LogMessage> messages = Logging::instance().take_collected_messages();
     const Settings& settings = Config::instance().settings();
     std::erase_if(messages, [&settings](const LogMessage& message) { return !wanted(message, settings); });
-    if (messages.empty() || silentMode())
+    if (messages.empty() || silent_mode())
         return;
-    const LogLevel highest = highestLevel(messages);
+    const LogLevel highest = highest_level(messages);
     const long icon = highest == LogLevel::Info ? wxICON_INFORMATION : highest == LogLevel::Warning ? wxICON_WARNING : wxICON_ERROR;
-    wxMessageBox(runMessagesText(messages), translation::translate("synchronisation") + L": " + levelLabel(highest).ToStdWstring(), wxOK | icon, &parentWindow_);
+    wxMessageBox(run_messages_text(messages), translation::translate("synchronisation") + L": " + level_label(highest).ToStdWstring(), wxOK | icon, &parent_window_);
 }
 
-void SyncInterface::syncOnceFinished()
+void SyncInterface::sync_once_finished()
 {
-    log_debug(L"SyncInterface::syncOnceFinished()");
-    syncControler_.destroy_synchronize();
-    if (progressDialog_ != nullptr) {
-        progressDialog_->canBeClosed(true);
-        progressDialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
-        progressDialog_ = nullptr;
-        syncControler_.register_progress_dialog(nullptr);
+    log_debug(L"SyncInterface::sync_once_finished()");
+    sync_controler_.destroy_synchronize();
+    if (progress_dialog_ != nullptr) {
+        progress_dialog_->can_be_closed(true);
+        progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
+        progress_dialog_ = nullptr;
+        sync_controler_.register_progress_dialog(nullptr);
     }
-    menu_.syncMenu()->Enable(tul(id::StartSync), true);
-    menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
-    actSyncType_ = SyncType::None;
-    showRunMessages();
+    menu_.sync_menu()->Enable(tul(id::StartSync), true);
+    menu_.sync_menu()->Enable(tul(id::SyncOnce), true);
+    act_sync_type_ = SyncType::None;
+    show_run_messages();
 }
 
-void SyncInterface::countFilesFinished()
+void SyncInterface::count_files_finished()
 {
-    log_debug(L"SyncInterface::countFilesFinished()");
-    syncControler_.destroy_synchronize();
-    countFiles_ = 0;
-    if (progressDialog_ != nullptr) {
-        progressDialog_->canBeClosed(true);
-        progressDialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
-        progressDialog_ = nullptr;
-        syncControler_.register_progress_dialog(nullptr);
+    log_debug(L"SyncInterface::count_files_finished()");
+    sync_controler_.destroy_synchronize();
+    count_files_ = 0;
+    if (progress_dialog_ != nullptr) {
+        progress_dialog_->can_be_closed(true);
+        progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
+        progress_dialog_ = nullptr;
+        sync_controler_.register_progress_dialog(nullptr);
     }
-    countFiles_ = syncControler_.count_files();
-    if (countFiles_ > 0) {
-        actSyncType_ = SyncType::Single;
-        startSync();
+    count_files_ = sync_controler_.count_files();
+    if (count_files_ > 0) {
+        act_sync_type_ = SyncType::Single;
+        start_sync();
     }
     else {
-        wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parentWindow_);
-        actSyncType_ = SyncType::None;
-        menu_.syncMenu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
-        menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
-        showRunMessages();
+        wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parent_window_);
+        act_sync_type_ = SyncType::None;
+        menu_.sync_menu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
+        menu_.sync_menu()->Enable(tul(id::SyncOnce), true);
+        show_run_messages();
     }
 }
 
-void SyncInterface::continuousSyncFinished()
+void SyncInterface::continuous_sync_finished()
 {
-    syncControler_.destroy_synchronize();
-    actSyncType_ = SyncType::None;
+    sync_controler_.destroy_synchronize();
+    act_sync_type_ = SyncType::None;
 }
 
-void SyncInterface::onTimer()
+void SyncInterface::on_timer()
 {
-    log_debug(L"SyncInterface::onTimer()");
+    log_debug(L"SyncInterface::on_timer()");
     if (!Config::exists() || !Config::instance().ready())
         return;
-    if (syncControler_.sync_finished()) {
-        syncControler_.reset_state();  // [SyncInterface.md#reset-before-the-next-run]
-        if (actSyncType_ == SyncType::CountFiles)
-            countFilesFinished();
-        else if (actSyncType_ == SyncType::Single)
-            syncOnceFinished();
-        else if (actSyncType_ == SyncType::Continuous)
-            continuousSyncFinished();
+    if (sync_controler_.sync_finished()) {
+        sync_controler_.reset_state();  // [SyncInterface.md#reset-before-the-next-run]
+        if (act_sync_type_ == SyncType::CountFiles)
+            count_files_finished();
+        else if (act_sync_type_ == SyncType::Single)
+            sync_once_finished();
+        else if (act_sync_type_ == SyncType::Continuous)
+            continuous_sync_finished();
     }
-    if (actSyncType_ == SyncType::Continuous && !Synchronize::has_instance())
-        onSync();
+    if (act_sync_type_ == SyncType::Continuous && !Synchronize::has_instance())
+        on_sync();
 }
 
-bool SyncInterface::singleSync()
+bool SyncInterface::single_sync()
 {
-    auto canSync = []() {
+    auto can_sync = []() {
         return Config::instance().ready() && !Config::instance().syncitems().empty() && !Synchronize::has_instance();
     };
-    if (canSync()) {
-        Logging::instance().collect_messages(true);  // [SyncInterface.md#showRunMessages]
-        actSyncType_ = SyncType::CountFiles;
-        return startSync();
+    if (can_sync()) {
+        Logging::instance().collect_messages(true);  // [SyncInterface.md#show_run_messages]
+        act_sync_type_ = SyncType::CountFiles;
+        return start_sync();
     }
     return false;
 }
 
-bool SyncInterface::startSync()
+bool SyncInterface::start_sync()
 {
-    log_debug(L"SyncInterface::startSync()");
-    if (actSyncType_ == SyncType::CountFiles) {
-        wxBusyCursor busyCursor;
+    log_debug(L"SyncInterface::start_sync()");
+    if (act_sync_type_ == SyncType::CountFiles) {
+        wxBusyCursor busy_cursor;
         wxYield();
     }
-    else if (actSyncType_ == SyncType::Single) {
-        if (countFiles_ == 0) {
-            wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parentWindow_);
+    else if (act_sync_type_ == SyncType::Single) {
+        if (count_files_ == 0) {
+            wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parent_window_);
             return false;
         }
-        openProgressDialog(countFiles_);
+        open_progress_dialog(count_files_);
     }
-    if (!syncControler_.start_sync(actSyncType_)) {
-        wxMessageBox(translation::translate("sync_start_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
+    if (!sync_controler_.start_sync(act_sync_type_)) {
+        wxMessageBox(translation::translate("sync_start_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parent_window_);
         return false;
     }
     return true;
 }
 
-void SyncInterface::runConsoleSync()
+void SyncInterface::run_console_sync()
 {
-    log_debug(L"SyncInterface::runConsoleSync()");
+    log_debug(L"SyncInterface::run_console_sync()");
     if (Config::instance().syncitems().empty() || Synchronize::has_instance())
         return;
-    actSyncType_ = SyncType::Single;  // [SyncInterface.md#console-single-sync]
-    if (!syncControler_.start_sync(actSyncType_))
+    act_sync_type_ = SyncType::Single;  // [SyncInterface.md#console-single-sync]
+    if (!sync_controler_.start_sync(act_sync_type_))
         return;
-    while (!syncControler_.sync_finished())  // [SyncInterface.md#poll-for-completion]
+    while (!sync_controler_.sync_finished())  // [SyncInterface.md#poll-for-completion]
         wxMilliSleep(50);
-    syncControler_.destroy_synchronize();
-    syncControler_.reset_state();
+    sync_controler_.destroy_synchronize();
+    sync_controler_.reset_state();
 }
 
-void SyncInterface::onSync()
+void SyncInterface::on_sync()
 {
     if (Config::instance().syncitems().empty()) {
-        if (!silentMode())
-            wxMessageBox(translation::translate("no_sync_items"), translation::translate("attention"), wxOK | wxICON_WARNING, &parentWindow_);
+        if (!silent_mode())
+            wxMessageBox(translation::translate("no_sync_items"), translation::translate("attention"), wxOK | wxICON_WARNING, &parent_window_);
         return;
     }
     try {
         if (Synchronize::has_instance()) {
-            wxMessageBox(translation::translate("sync_already_running"), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
+            wxMessageBox(translation::translate("sync_already_running"), translation::translate("error"), wxOK | wxICON_ERROR, &parent_window_);
             return;
         }
-        startSync();
+        start_sync();
     }
     catch (std::exception& ex) {
-        if (!silentMode())
-            wxMessageBox(wxString::FromUTF8(ex.what()), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
+        if (!silent_mode())
+            wxMessageBox(wxString::FromUTF8(ex.what()), translation::translate("error"), wxOK | wxICON_ERROR, &parent_window_);
         log_error(ex.what());
     }
     catch (...) {
-        if (!silentMode())
-            wxMessageBox(translation::translate("sync_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
+        if (!silent_mode())
+            wxMessageBox(translation::translate("sync_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parent_window_);
         log_error(translation::translate("sync_failed"));
     }
 }
 
-void SyncInterface::startContinuousSync()
+void SyncInterface::start_continuous_sync()
 {
-    log_debug(L"SyncInterface::startContinuousSync()");
-    actSyncType_ = SyncType::Continuous;
-    menu_.syncMenu()->Enable(tul(id::StartSync), false);
-    menu_.syncMenu()->Enable(tul(id::SyncOnce), false);
-    menu_.syncMenu()->Enable(tul(id::StopSync), true);
+    log_debug(L"SyncInterface::start_continuous_sync()");
+    act_sync_type_ = SyncType::Continuous;
+    menu_.sync_menu()->Enable(tul(id::StartSync), false);
+    menu_.sync_menu()->Enable(tul(id::SyncOnce), false);
+    menu_.sync_menu()->Enable(tul(id::StopSync), true);
 }
 
-void SyncInterface::stopContinuousSync()
+void SyncInterface::stop_continuous_sync()
 {
-    log_debug(L"SyncInterface::stopContinuousSync()");
-    menu_.syncMenu()->Enable(tul(id::StartSync), true);
-    menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
-    menu_.syncMenu()->Enable(tul(id::StopSync), false);
-    syncControler_.stop_sync();
-    continuousSyncFinished();  // [SyncInterface.md#stop-leaves-continuous-mode]
-    syncControler_.reset_state();
+    log_debug(L"SyncInterface::stop_continuous_sync()");
+    menu_.sync_menu()->Enable(tul(id::StartSync), true);
+    menu_.sync_menu()->Enable(tul(id::SyncOnce), true);
+    menu_.sync_menu()->Enable(tul(id::StopSync), false);
+    sync_controler_.stop_sync();
+    continuous_sync_finished();  // [SyncInterface.md#stop-leaves-continuous-mode]
+    sync_controler_.reset_state();
 }
 
 namespace {
 
-std::optional<std::chrono::seconds> remainingPause()  // [SyncInterface.md#remainingPause]
+std::optional<std::chrono::seconds> remaining_pause()  // [SyncInterface.md#remaining_pause]
 {
     std::optional<std::chrono::steady_clock::duration> shortest;
     for (const auto& item : Config::instance().syncitems()) {
@@ -310,20 +310,20 @@ std::optional<std::chrono::seconds> remainingPause()  // [SyncInterface.md#remai
 
 }
 
-wxString SyncInterface::stateText() const
+wxString SyncInterface::state_text() const
 {
-    switch (actSyncType_) {
+    switch (act_sync_type_) {
     case SyncType::None: return translation::translate("state_stopped");
     case SyncType::CountFiles: return translation::translate("state_counting");
     case SyncType::Single: return translation::translate("state_single_running");
     case SyncType::Continuous: break;
     }
-    if (const auto pause = remainingPause())
+    if (const auto pause = remaining_pause())
         return translation::translate("state_paused", {std::to_wstring(pause->count())});
     return translation::translate("state_running");
 }
 
-void SyncInterface::stopSync()
+void SyncInterface::stop_sync()
 {
-    syncControler_.stop_sync();
+    sync_controler_.stop_sync();
 }
