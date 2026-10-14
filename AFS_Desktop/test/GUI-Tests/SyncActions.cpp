@@ -90,4 +90,22 @@ wxGauge* gauge_of(ProgressDialog& dialog)
     return nullptr;
 }
 
+std::optional<ProgressWatch> watch_progress_dialog(int timeout_milliseconds)  // [SyncActions.md#watch_progress_dialog]
+{
+    ProgressWatch watch;
+    const bool closed = wait_until([&watch] {
+        ProgressDialog* dialog = progress_dialog();
+        if (dialog == nullptr)
+            return true;
+        watch.bar_values.push_back(gauge_of(*dialog)->GetValue());
+        const wxString file = current_file_shown(*dialog);
+        if (!file.empty() && (watch.files.empty() || watch.files.back() != file))
+            watch.files.push_back(file);
+        return false;
+    }, timeout_milliseconds);
+    if (!closed)
+        return std::nullopt;
+    return watch;
+}
+
 }

@@ -37,6 +37,15 @@ that run was active, and request_stop() - the progress dialog's Cancel - then re
 without doing anything, so Cancel let every "Einmal synchronisieren" run through to the
 end. Found by GuiTest.AbbrechenImFortschrittsdialogBeendetDenLauf.
 
+## counting_cursor_
+
+The count pass runs on the worker thread and ends on a later timer tick, but the scoped
+wxBusyCursor that start_sync() used to create ended with the call: over a large tree the user
+saw a normal cursor and a greyed-out menu for seconds with nothing to tell them the program
+was working. The cursor now lives in a member for the whole pass and is released in
+count_files_finished() before the "Info" box or the progress dialog appears, and in
+start_sync() when the pass could not be started.
+
 ## state_text
 
 One line for the status bar saying what the synchronisation is doing right now, refreshed by

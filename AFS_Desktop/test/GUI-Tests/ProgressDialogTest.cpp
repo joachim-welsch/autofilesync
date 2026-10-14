@@ -27,6 +27,9 @@
 #include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
+#include <wx/gauge.h>
+#include <wx/utils.h>
+#include <algorithm>
 
 using namespace AFS_Core;
 
@@ -77,6 +80,44 @@ TEST_F(GuiTest, FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich)  // [Progr
 
     ASSERT_TRUE(wait_until_sync_finished(main_window()));
     EXPECT_TRUE(wait_until([] { return progress_dialog() == nullptr; })) << "Der Fortschrittsdialog blieb nach dem Lauf offen.";
+    EXPECT_EQ(copied_files(tree), MANY_FILES);
+}
+
+TEST_F(GuiTest, FortschrittsbalkenRuecktMitJederDateiVor)  // [ProgressDialogTest.md#FortschrittsbalkenRuecktMitJederDateiVor]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "balken", many_files());
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-balken")));
+
+    activate_menu_item(main_window(), tul(id::SyncOnce));
+    ASSERT_TRUE(wait_until([] { return progress_dialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
+    const int range = gauge_of(*progress_dialog())->GetRange();
+    const std::optional<ProgressWatch> watch = watch_progress_dialog();
+    ASSERT_TRUE(watch) << "Der Fortschrittsdialog blieb nach dem Lauf offen.";
+    ASSERT_TRUE(wait_until_sync_finished(main_window()));
+
+    EXPECT_EQ(range % MANY_FILES, 0) << "Der Balken ist nicht auf die Dateien des Laufs eingeteilt.";
+    EXPECT_GT(std::ranges::count_if(watch->bar_values, [range](int value) { return value > 0 && value < range; }), 1)
+        << "Der Balken rückte während des Laufs nicht vor.";
+    EXPECT_TRUE(std::ranges::is_sorted(watch->bar_values)) << "Der Balken sprang zurück.";
+    EXPECT_EQ(watch->bar_values.back(), range) << "Der Balken war am Ende nicht voll.";
+    EXPECT_GT(watch->files.size(), 1u) << "Der Dialog nannte nicht nacheinander verschiedene Dateien.";
+    EXPECT_EQ(copied_files(tree), MANY_FILES);
+}
+
+TEST_F(GuiTest, ZaehlenZeigtWartecursorBisDerDialogErscheint)  // [ProgressDialogTest.md#ZaehlenZeigtWartecursorBisDerDialogErscheint]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "zaehlen", many_files());
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-zaehlen")));
+    ASSERT_FALSE(wxIsBusy());
+
+    activate_menu_item(main_window(), tul(id::SyncOnce));
+    ASSERT_EQ(main_window().sync_interface().act_sync_type(), SyncType::CountFiles) << "Der Lauf begann nicht mit dem Zählen.";
+    EXPECT_TRUE(wxIsBusy()) << "Während des Zählens fehlt der Wartecursor.";
+    ASSERT_TRUE(wait_until([] { return progress_dialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
+    EXPECT_FALSE(wxIsBusy()) << "Der Wartecursor blieb, obwohl der Fortschrittsdialog schon offen ist.";
+
+    ASSERT_TRUE(wait_until_sync_finished(main_window()));
+    EXPECT_FALSE(wxIsBusy()) << "Der Wartecursor blieb nach dem Lauf.";
     EXPECT_EQ(copied_files(tree), MANY_FILES);
 }
 

@@ -19,6 +19,8 @@
 #pragma once
 
 #include "SyncItemDialogDriver.h"
+#include <optional>
+#include <vector>
 
 class MainWindow;
 class ProgressDialog;
@@ -36,5 +38,11 @@ bool sync_menu_item_enabled(MainWindow& window, int menu_item_id);
 ProgressDialog* progress_dialog();  // [SyncActions.md#progress_dialog]
 wxString current_file_shown(ProgressDialog& dialog);  // [SyncActions.md#current_file_shown]
 wxGauge* gauge_of(ProgressDialog& dialog);
+
+struct ProgressWatch {  // [SyncActions.md#watch_progress_dialog]
+    std::vector<int> bar_values;
+    std::vector<wxString> files;
+};
+std::optional<ProgressWatch> watch_progress_dialog(int timeout_milliseconds = SYNC_TIMEOUT_MILLISECONDS);
 
 }

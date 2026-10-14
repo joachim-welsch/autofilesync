@@ -40,3 +40,11 @@ moment after the run.
 The dialog exposes no accessor for its file label, so the label is read through the dialog's
 only wxStaticText, and the bar through its only wxGauge: a user recognises the file by its
 name in that label, and the bar is what tells them how far the run is.
+
+## watch_progress_dialog
+
+Samples the shown progress dialog every 10 ms until it is gone: every bar value, and the file
+label whenever it changes. A single look at the dialog could fall before the first timer tick
+or after the last one, so the tests judge the whole course instead - a bar that moves, rises
+monotonically and ends full, and a label that names the files one after the other. Returns
+nothing when the dialog is still open at the timeout.

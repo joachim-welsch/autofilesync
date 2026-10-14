@@ -31,7 +31,6 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <vector>
 
 using namespace AFS_Core;
 
@@ -93,20 +92,14 @@ TEST_F(GuiTest, EinmalSynchronisierenKopiertRiesigeDateiMitFortschrittsdialog)  
         << "Der Dialog nennt die Datei nicht, zuletzt: " << current_file_shown(dialog);
     EXPECT_TRUE(find(dialog, wxID_CANCEL)->IsEnabled()) << "Abbrechen ist während der Kopie gesperrt.";
     const int range = gauge_of(dialog)->GetRange();
-    std::vector<int> bar_values;  // [HugeFileTest.md#bar_values]
-    ASSERT_TRUE(wait_until([&bar_values] {
-        ProgressDialog* open = progress_dialog();
-        if (open != nullptr)
-            bar_values.push_back(gauge_of(*open)->GetValue());
-        return open == nullptr;
-    }, SYNC_TIMEOUT_MILLISECONDS)) << "Der Fortschrittsdialog blieb nach der Kopie offen.";
+    const std::optional<ProgressWatch> watch = watch_progress_dialog();  // [HugeFileTest.md#bar-samples]
+    ASSERT_TRUE(watch) << "Der Fortschrittsdialog blieb nach der Kopie offen.";
     ASSERT_TRUE(wait_until_sync_finished(main_window())) << "Die Kopie kam nicht zu Ende.";
 
-    EXPECT_TRUE(std::ranges::any_of(bar_values, [range](int value) { return value > 0 && value < range; }))
+    EXPECT_TRUE(std::ranges::any_of(watch->bar_values, [range](int value) { return value > 0 && value < range; }))
         << "Der Balken zeigte während der Kopie keinen Zwischenstand.";
-    EXPECT_TRUE(std::ranges::is_sorted(bar_values)) << "Der Balken sprang zurück.";
-    ASSERT_FALSE(bar_values.empty());
-    EXPECT_EQ(bar_values.back(), range) << "Der Balken war am Ende der Kopie nicht voll.";
+    EXPECT_TRUE(std::ranges::is_sorted(watch->bar_values)) << "Der Balken sprang zurück.";
+    EXPECT_EQ(watch->bar_values.back(), range) << "Der Balken war am Ende der Kopie nicht voll.";
     const fs::path copy = tree.path("ziel") / HUGE_FILE;
     ASSERT_TRUE(fs::exists(copy)) << "Die riesige Datei wurde nicht ins Ziel kopiert.";
     EXPECT_EQ(fs::file_size(copy), HUGE_FILE_BLOCKS * BLOCK_BYTES);

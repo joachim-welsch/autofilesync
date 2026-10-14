@@ -146,6 +146,7 @@ void SyncInterface::sync_once_finished()
 void SyncInterface::count_files_finished()
 {
     log_debug(L"SyncInterface::count_files_finished()");
+    counting_cursor_.reset();  // [SyncInterface.md#counting_cursor_]
     sync_controler_.destroy_synchronize();
     count_files_ = 0;
     if (progress_dialog_ != nullptr) {
@@ -207,10 +208,8 @@ bool SyncInterface::single_sync()
 bool SyncInterface::start_sync()
 {
     log_debug(L"SyncInterface::start_sync()");
-    if (act_sync_type_ == SyncType::CountFiles) {
-        wxBusyCursor busy_cursor;
-        wxYield();
-    }
+    if (act_sync_type_ == SyncType::CountFiles)
+        counting_cursor_ = std::make_unique<wxBusyCursor>();  // [SyncInterface.md#counting_cursor_]
     else if (act_sync_type_ == SyncType::Single) {
         if (count_files_ == 0) {
             wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parent_window_);
@@ -219,6 +218,7 @@ bool SyncInterface::start_sync()
         open_progress_dialog(count_files_);
     }
     if (!sync_controler_.start_sync(act_sync_type_)) {
+        counting_cursor_.reset();
         wxMessageBox(translation::translate("sync_start_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parent_window_);
         return false;
     }

@@ -26,6 +26,7 @@
 
 #include <cstdint>
 #include <chrono>
+#include <memory>
 #include "Global.h"
 
 namespace AFS_Core { class SyncControler; }
@@ -39,6 +40,7 @@ class SyncInterface {
     Menu&           menu_;
     SyncControler&  sync_controler_;
     ProgressDialog* progress_dialog_ = nullptr;
+    std::unique_ptr<wxBusyCursor> counting_cursor_;  // [SyncInterface.md#counting_cursor_]
     bool            console_mode_ = false;
     SyncType        act_sync_type_ = SyncType::None;  // [SyncInterface.md#state_text]
     std::size_t     count_files_ = 0;

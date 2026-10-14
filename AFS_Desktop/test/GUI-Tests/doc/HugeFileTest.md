@@ -25,12 +25,12 @@ file being copied, a Cancel that is enabled and a bar that moves while the file 
 After the run the copy must be complete, carry the source's write time and leave no .bak
 behind.
 
-## bar_values
+## bar-samples
 
-The bar is sampled every 10 ms for as long as the dialog is shown. A single look could fall
-before the first timer tick or after the last one; the samples have to contain a value
-between empty and full (the bar moved inside the file, ProgressDialog.md#file-progress),
-rise monotonically and end full. The dialog's timer ticks every 100 ms; the copy of 512 MiB
+The bar is watched for as long as the dialog is shown (SyncActions.md#watch_progress_dialog).
+The samples have to contain a value between empty and full (the bar moved inside the file,
+ProgressDialog.md#file-progress), rise monotonically and end full. The dialog's timer ticks
+every 100 ms; the copy of 512 MiB
 takes a few hundred milliseconds even in RAM, so the samples see at least one step inside
 the file, and the verification read that follows shows the full bar before the dialog goes.
 
