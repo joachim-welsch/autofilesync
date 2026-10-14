@@ -875,7 +875,7 @@ void MainWindow::createHelp()
 
 void MainWindow::restoreSizeAndPosition()  // [MainWindow.md#restore-fits-the-screen]
 {
-    SetMinSize(wxSize(500, 400));
+    SetMinSize(FromDIP(wxSize(500, 400)));
     wxConfigBase* config = wxConfig::Get();
     const wxPoint saved(config->ReadLong("/MainWindow/x", -1), config->ReadLong("/MainWindow/y", -1));
     const int display = config->HasEntry("/MainWindow/x") ? wxDisplay::GetFromPoint(saved) : wxNOT_FOUND;

@@ -86,6 +86,7 @@ void Toolbar::create(wxFrame* parent)
 	long style = 0;
 	style |= wxTB_TOP;
 	toolbar_->SetToolBitmapSize(wxSize(24, 24));
+	toolbar_->AddTool(tul(id::File_new_Synchronization), wxEmptyString, wxBITMAP(new), tooltip("menu_new_synchronisation"));  // [Toolbar.md#new-first]
 	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), tooltip("edit_synchronisation"));
 	toolbar_->AddTool(tul(id::File_save), wxEmptyString, wxBITMAP(save), tooltip("toolbar_save"));
 	toolbar_->AddTool(tul(id::DeleteSync), wxEmptyString, wxBITMAP(delete), tooltip("delete_synchronisation"));

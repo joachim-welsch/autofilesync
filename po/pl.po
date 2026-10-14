@@ -1255,11 +1255,11 @@ msgstr "(niezapisane)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
-msgstr "Synchronizacja…"
+msgstr "Nowa synchronizacja…"
 
 #: AFS_Desktop/src/Menu.cpp:58
 msgid "menu_new_ssh_connection"
-msgstr "Połączenie SSH…"
+msgstr "Nowe połączenie SSH…"
 
 #: AFS_Desktop/src/Menu.cpp:59
 msgid "menu_new"
@@ -1367,7 +1367,7 @@ msgstr "Zatrzymaj usługę w tle"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Czat…"
+msgstr "&Asystent…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1647,7 +1647,7 @@ msgstr "Synchronizacja aktywna"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:133
 msgid "compare_by"
-msgstr "Porównuj pliki według:"
+msgstr "Porównuj pliki według"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:138
 msgid "option_delete_source_after_copy"
@@ -1848,3 +1848,7 @@ msgstr "Wybierz…"
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_cmd_enter"
 msgstr "Cmd+Enter wysyła."
+
+#: AFS_Desktop/src/TreeCtrl.cpp
+msgid "tree_root"
+msgstr "Ten komputer"

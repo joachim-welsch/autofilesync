@@ -54,7 +54,7 @@ LoggingDialog::LoggingDialog(wxWindow* parent, wxWindowID id,
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM, 5);
 
     SetSizer(mainSizer);
-    SetMinSize(wxSize(300, 100));
+    SetMinSize(FromDIP(wxSize(300, 100)));
     Fit();
     Centre();
 }
@@ -63,7 +63,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
 {
     wxPanel* page = new wxPanel(notebook);
     wxBoxSizer* pageSizer = new wxBoxSizer(wxVERTICAL);
-    pageSizer->AddStretchSpacer()->SetMinSize(300, 20);
+    pageSizer->AddStretchSpacer()->SetMinSize(FromDIP(wxSize(300, 20)));
 
     const int labelWidth = page->GetTextExtent(translation::translate("backup_proof_path")).x + 5;  // [LoggingDialog.md#labelWidth]
 
@@ -72,7 +72,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     nameLable->SetMinSize(wxSize(labelWidth, nameLable->GetMinSize().y));
     logPathSizer->Add(nameLable, 0, wxTOP, 3);
     logPathBox_ = new wxTextCtrl(page, ID_LOG_PATH_BOX);
-    logPathBox_->SetMinSize(wxSize(250, logPathBox_->GetMinSize().y));
+    logPathBox_->SetMinSize(wxSize(FromDIP(250), logPathBox_->GetMinSize().y));
     logPathSizer->Add(logPathBox_);
     pageSizer->Add(logPathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
@@ -97,7 +97,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     editLable->SetMinSize(wxSize(labelWidth, editLable->GetMinSize().y));
     editPathSizer->Add(editLable, 0, wxTOP, 3);
     editPathBox_ = new wxTextCtrl(page, ID_EDIT_PATH_BOX);
-    editPathBox_->SetMinSize(wxSize(250, editPathBox_->GetMinSize().y));
+    editPathBox_->SetMinSize(wxSize(FromDIP(250), editPathBox_->GetMinSize().y));
     editPathSizer->Add(editPathBox_);
     pageSizer->Add(editPathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
@@ -106,7 +106,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     backupProofLable->SetMinSize(wxSize(labelWidth, backupProofLable->GetMinSize().y));
     backupProofPathSizer->Add(backupProofLable, 0, wxTOP, 3);
     backupProofPathBox_ = new wxTextCtrl(page, ID_BACKUP_PROOF_PATH_BOX);
-    backupProofPathBox_->SetMinSize(wxSize(250, backupProofPathBox_->GetMinSize().y));
+    backupProofPathBox_->SetMinSize(wxSize(FromDIP(250), backupProofPathBox_->GetMinSize().y));
     backupProofPathSizer->Add(backupProofPathBox_);
     backupProofPathSizer->Add(new wxButton(page, ID_BTN_PICK_BACKUP_PROOF_PATH, translation::translate("button_choose")), wxSizerFlags().Border(wxLEFT, 2));
     pageSizer->Add(backupProofPathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
@@ -120,10 +120,10 @@ void LoggingDialog::addField(wxPanel* page, wxSizer* pageSizer, const wxString& 
 {
     wxBoxSizer* fieldSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* text = new wxStaticText(page, wxID_STATIC, label);
-    text->SetMinSize(wxSize(110, text->GetMinSize().y));
+    text->SetMinSize(wxSize(FromDIP(110), text->GetMinSize().y));
     fieldSizer->Add(text, 0, wxTOP, 3);
     box = new wxTextCtrl(page, id, wxEmptyString, wxDefaultPosition, wxDefaultSize, style);
-    box->SetMinSize(wxSize(250, box->GetMinSize().y));
+    box->SetMinSize(wxSize(FromDIP(250), box->GetMinSize().y));
     fieldSizer->Add(box);
     pageSizer->Add(fieldSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 }
@@ -132,7 +132,7 @@ wxPanel* LoggingDialog::createEmailPage(wxNotebook* notebook)
 {
     wxPanel* page = new wxPanel(notebook);
     wxBoxSizer* pageSizer = new wxBoxSizer(wxVERTICAL);
-    pageSizer->AddStretchSpacer()->SetMinSize(300, 20);
+    pageSizer->AddStretchSpacer()->SetMinSize(FromDIP(wxSize(300, 20)));
     emailActiveCheck_ = new wxCheckBox(page, ID_EMAIL_ACTIVE_CHECK, translation::translate("active"));
     pageSizer->Add(emailActiveCheck_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
     addField(page, pageSizer, translation::translate("email_address"), ID_EMAIL_BOX, emailBox_);
@@ -143,7 +143,7 @@ wxPanel* LoggingDialog::createEmailPage(wxNotebook* notebook)
 
     wxBoxSizer* portSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* portLabel = new wxStaticText(page, wxID_STATIC, translation::translate("port"));
-    portLabel->SetMinSize(wxSize(110, portLabel->GetMinSize().y));
+    portLabel->SetMinSize(wxSize(FromDIP(110), portLabel->GetMinSize().y));
     portSizer->Add(portLabel, 0, wxTOP, 3);
     smtpPortCtrl_ = new wxSpinCtrl(page, ID_SMTP_PORT_SPIN, wxEmptyString,
         wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 65535, 587);

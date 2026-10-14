@@ -1255,11 +1255,11 @@ msgstr "(не збережено)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
-msgstr "Синхронізація…"
+msgstr "Нова синхронізація…"
 
 #: AFS_Desktop/src/Menu.cpp:58
 msgid "menu_new_ssh_connection"
-msgstr "З'єднання SSH…"
+msgstr "Нове з'єднання SSH…"
 
 #: AFS_Desktop/src/Menu.cpp:59
 msgid "menu_new"
@@ -1367,7 +1367,7 @@ msgstr "Зупинити фонову службу"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Чат…"
+msgstr "&Помічник…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1647,7 +1647,7 @@ msgstr "Синхронізація активна"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:133
 msgid "compare_by"
-msgstr "Порівнювати файли за:"
+msgstr "Порівнювати файли за"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:138
 msgid "option_delete_source_after_copy"
@@ -1848,3 +1848,7 @@ msgstr "Вибрати…"
 #: AFS_Desktop/src/ChatDialog.cpp
 msgid "chat_cmd_enter"
 msgstr "Cmd+Enter надсилає."
+
+#: AFS_Desktop/src/TreeCtrl.cpp
+msgid "tree_root"
+msgstr "Цей комп'ютер"

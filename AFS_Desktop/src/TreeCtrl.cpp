@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include "Tree.h"
+#include "Translation.h"
 #include "Canvas.h"
 
 using namespace AFS_Core;
@@ -73,7 +74,8 @@ void TreeCtrl::OnMouseLeftDown(wxMouseEvent& evt)
 
 void TreeCtrl::AddRootItemToTree()
 {
-    rootId_ = AddRoot("PC", TreeCtrlIcon_Folder, TreeCtrlIcon_Folder, new TreeItemData("PC"));
+    const wxString label = translation::translate("tree_root");
+    rootId_ = AddRoot(label, TreeCtrlIcon_Folder, TreeCtrlIcon_Folder, new TreeItemData(label));
     if (!HasFlag(wxTR_HIDE_ROOT) /* && image != -1*/)
     {
         SetItemImage(rootId_, TreeCtrlIcon_FolderOpened, wxTreeItemIcon_Expanded);

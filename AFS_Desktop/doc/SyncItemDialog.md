@@ -2,6 +2,13 @@
 
 Module comment for SyncItemDialog.h / SyncItemDialog.cpp.
 
+## options-grouped
+
+The three comparison criteria form a group of their own with a frame and a title; the other
+options are the synchronisation's behaviour and stand in one column. Before, the criteria sat
+in a second column between unrelated options and could be read as belonging to the lines
+they shared.
+
 ## exclusions-one-per-line
 
 One wildcard pattern per line; blank/whitespace-only lines are ignored so trailing newlines or

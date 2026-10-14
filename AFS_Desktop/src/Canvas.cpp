@@ -42,7 +42,7 @@ Canvas::Canvas(wxWindow* parent, const wxString& heading)
 	heading_ = new wxStaticText(this, wxID_ANY, heading, wxDefaultPosition, wxDefaultSize,
 		wxALIGN_CENTRE_HORIZONTAL | wxST_NO_AUTORESIZE);
 	heading_->SetFont(heading_->GetFont().Bold());
-	long style = wxTR_DEFAULT_STYLE | wxTR_HAS_VARIABLE_ROW_HEIGHT | wxSUNKEN_BORDER;  // [Canvas.md#no-inline-rename]
+	long style = wxTR_DEFAULT_STYLE | wxTR_HAS_VARIABLE_ROW_HEIGHT | wxBORDER_THEME;  // [Canvas.md#no-inline-rename]
     treeCtrl_ = new TreeCtrl(this, ID_SRC_TREE_CTRL, wxDefaultPosition, wxDefaultSize, style);
 }
 

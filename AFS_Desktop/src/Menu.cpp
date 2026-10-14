@@ -64,24 +64,25 @@ wxMenu* Menu::backgroundServiceMenu()
 
 wxMenu* Menu::createFileMenu()
 {
-    wxMenu* fileMenu = new wxMenu;
-    
-    wxMenu* newSubMenu = new wxMenu;
-    newSubMenu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
-    newSubMenu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
-    fileMenu->AppendSubMenu(newSubMenu, translate("menu_new"));
+    wxMenu* fileMenu = new wxMenu;  // [Menu.md#structure]
+    fileMenu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
+    fileMenu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
+    fileMenu->AppendSeparator();
     fileMenu->Append(tul(id::File_open), with_shortcut(translate("menu_open"), "Ctrl+O"));
     fileMenu->Append(tul(id::File_save), with_shortcut(translate("menu_save"), "Ctrl+S"));
     fileMenu->Append(tul(id::File_save_as), with_shortcut(translate("menu_save_as"), "Ctrl+Shift+S"));
+    fileMenu->AppendSeparator();
     fileMenu->Append(tul(id::Quit), with_shortcut(translate("menu_quit"), "Ctrl+Q"), translate("menu_quit_help"));
     return fileMenu;
 }
 
 wxMenu* Menu::createHelpMenu()
 {
-    wxMenu* helpMenu = new wxMenu;
-    helpMenu->Append(tul(id::About), translate("menu_about"), translate("menu_about"));
+    wxMenu* helpMenu = new wxMenu;  // [Menu.md#structure]
     helpMenu->Append(tul(id::Help), with_shortcut(translate("menu_help"), HELP_SHORTCUT), translate("menu_help"));
+    helpMenu->Append(tul(id::Chat), translate("menu_chat"), translate("menu_chat_help"));
+    helpMenu->AppendSeparator();
+    helpMenu->Append(tul(id::About), translate("menu_about"), translate("menu_about"));
     return helpMenu;
 }
 
@@ -130,13 +131,6 @@ wxMenu* Menu::createBackgroundServiceMenu()
     return backgroundServiceMenu_;
 }
 
-wxMenu* Menu::createAssistantMenu()
-{
-    wxMenu* assistantMenu = new wxMenu;
-    assistantMenu->Append(tul(id::Chat), translate("menu_chat"), translate("menu_chat_help"));
-    return assistantMenu;
-}
-
 void Menu::create()
 {
     menuBar_ = new wxMenuBar();
@@ -145,7 +139,6 @@ void Menu::create()
     menuBar_->Append(createSyncMenu(), translate("menu_synchronisation"));
     menuBar_->Append(createBackgroundServiceMenu(), translate("menu_background_service"));
     menuBar_->Append(createViewMenu(), translate("menu_view"));
-    menuBar_->Append(createAssistantMenu(), translate("menu_assistant"));
     menuBar_->Append(createHelpMenu(), translate("menu_help_menu"));
 }
 

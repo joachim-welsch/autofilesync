@@ -51,7 +51,7 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     : wxDialog(parent, id, title, pos, size, style, name)
 {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    mainSizer->AddStretchSpacer()->SetMinSize(20, 10);
+    mainSizer->AddStretchSpacer()->SetMinSize(FromDIP(wxSize(20, 10)));
     addLanguageChoice(mainSizer);
 
     wxBoxSizer* startAutostartSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -97,7 +97,7 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     wxStaticText* recycleBinLable = new wxStaticText(this, wxID_STATIC, translation::translate("recycle_bin"));
     recycleBinSizer->Add(recycleBinLable, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
     recycleBinPathBox_ = new wxTextCtrl(this, ID_RECYCLEBIN_PATH_BOX);
-    recycleBinPathBox_->SetMinSize(wxSize(250, recycleBinPathBox_->GetMinSize().y));
+    recycleBinPathBox_->SetMinSize(wxSize(FromDIP(250), recycleBinPathBox_->GetMinSize().y));
     recycleBinSizer->Add(recycleBinPathBox_, 1);
     recycleBinPathBtn_ = new wxButton(this, ID_RECYCLEBIN_PATH_BUTTON, translation::translate("button_choose"));
     recycleBinSizer->Add(recycleBinPathBtn_, wxSizerFlags().Border(wxLEFT, 2));
@@ -108,7 +108,7 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM, 5);
 
     SetSizer(mainSizer);
-    SetMinSize(wxSize(250, 150));
+    SetMinSize(FromDIP(wxSize(250, 150)));
     Fit();
     Centre();
 }

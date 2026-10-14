@@ -49,7 +49,7 @@ ProgressDialog::ProgressDialog(wxWindow* parent, wxWindowID id,
     wxSizer* buttonSizer = CreateButtonSizer(wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 5);
     SetSizer(mainSizer);
-    SetMinSize(wxSize(500, 100));
+    SetMinSize(FromDIP(wxSize(500, 100)));
     Fit();
     timer_.Bind(wxEVT_TIMER, &ProgressDialog::onTimerUpdate, this);
     timer_.Start(100);

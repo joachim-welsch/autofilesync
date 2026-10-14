@@ -38,74 +38,6 @@ EVT_GRID_LABEL_LEFT_CLICK(GridCtrl::OnModifyEntry)
 EVT_GRID_CELL_CHANGED(GridCtrl::OnCellValueChanged)
 wxEND_EVENT_TABLE()
 
-class CustomColumnHeaderRenderer : public wxGridColumnHeaderRenderer
-{
-public:
-	CustomColumnHeaderRenderer(const wxColour& colFg, const wxColour& colBg)
-		: m_colFg(colFg),
-		m_colBg(colBg)
-	{}
-
-	virtual void DrawLabel(const wxGrid& WXUNUSED(grid),
-		wxDC& dc,
-		const wxString& value,
-		const wxRect& rect,
-		int horizAlign,
-		int vertAlign,
-		int WXUNUSED(textOrientation)) const wxOVERRIDE
-	{
-		dc.SetTextForeground(m_colFg);
-		dc.SetFont(wxITALIC_FONT->Bold());
-		dc.DrawLabel(value, rect, horizAlign | vertAlign);
-	}
-
-	virtual void DrawBorder(const wxGrid& WXUNUSED(grid),
-		wxDC& dc,
-		wxRect& rect) const wxOVERRIDE
-	{
-		dc.SetPen(*wxTRANSPARENT_PEN);
-		dc.SetBrush(wxBrush(m_colBg));
-		dc.DrawRectangle(rect);
-	}
-
-private:
-	const wxColour m_colFg, m_colBg;
-
-	wxDECLARE_NO_COPY_CLASS(CustomColumnHeaderRenderer);
-};
-
-class CustomColumnHeadersProvider : public wxGridCellAttrProvider
-{
-public:
-	CustomColumnHeadersProvider()  // [GridCtrl.md#CustomColumnHeadersProvider]
-		: m_customOddRenderer(*wxYELLOW, *wxBLUE),
-		m_customEvenRenderer(*wxWHITE, *wxBLACK),
-		m_useCustom(false)
-	{
-	}
-
-	void UseCustomColHeaders(bool use = true) { m_useCustom = use; }
-
-protected:
-	virtual const wxGridColumnHeaderRenderer& GetColumnHeaderRenderer(int col) wxOVERRIDE
-	{
-		if (m_useCustom)
-		{
-			return col % 2 ? m_customOddRenderer : m_customEvenRenderer;
-		}
-
-		return wxGridCellAttrProvider::GetColumnHeaderRenderer(col);
-	}
-
-private:
-	CustomColumnHeaderRenderer m_customOddRenderer,
-		m_customEvenRenderer;
-
-	bool m_useCustom;
-
-	wxDECLARE_NO_COPY_CLASS(CustomColumnHeadersProvider);
-};
-
 GridCtrl::GridCtrl(wxWindow* parent,
 	const wxWindowID id,
 	const wxPoint& pos,
@@ -113,17 +45,16 @@ GridCtrl::GridCtrl(wxWindow* parent,
 	: wxGrid(parent, id, pos, size)
 {
 	CreateGrid(0, 0);
-	GetTable()->SetAttrProvider(new CustomColumnHeadersProvider());
 	AppendCols(3);
 	SetCornerLabelValue(translation::translate("name"));
 	SetColLabelValue(0, translation::translate("active"));
 	SetColLabelValue(1, translation::translate("source"));
 	SetColLabelValue(2, translation::translate("target"));
-	SetColSize(0, 40);
-	SetColSize(1, 200);
-	SetColSize(2, 200);
-	SetColLabelSize(25);
-	SetRowLabelSize(kMinRowLabelSize);
+	SetColSize(0, FromDIP(40));
+	SetColSize(1, FromDIP(200));
+	SetColSize(2, FromDIP(200));
+	SetColLabelSize(FromDIP(25));
+	SetRowLabelSize(FromDIP(kMinRowLabelSize));
 	SetRowLabelAlignment(wxALIGN_LEFT, wxALIGN_CENTRE);  // [GridCtrl.md#row-label-alignment]
 }
 
@@ -145,8 +76,8 @@ void GridCtrl::addDataItems()
 		index++;
 	}
 	SetRowLabelSize(wxGRID_AUTOSIZE);  // [GridCtrl.md#autosize-row-label]
-	if (GetRowLabelSize() < kMinRowLabelSize)
-		SetRowLabelSize(kMinRowLabelSize);
+	if (GetRowLabelSize() < FromDIP(kMinRowLabelSize))
+		SetRowLabelSize(FromDIP(kMinRowLabelSize));
 	adjustColumnWidths(GetSize().GetWidth());
 }
 

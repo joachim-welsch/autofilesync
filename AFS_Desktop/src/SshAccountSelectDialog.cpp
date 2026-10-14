@@ -40,7 +40,7 @@ SshAccountSelectDialog::SshAccountSelectDialog(wxWindow* parent,
     mainSizer->Add(infoText, 0, wxEXPAND | wxALL, 10);
 
     listCtrl_ = new wxListCtrl(this, ID_SSH_SELECT_LIST, wxDefaultPosition,
-        wxSize(400, 200), wxLC_REPORT | wxLC_SINGLE_SEL);
+        FromDIP(wxSize(400, 200)), wxLC_REPORT | wxLC_SINGLE_SEL);
     
     listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 150);
     listCtrl_->InsertColumn(1, translation::translate("host"), wxLIST_FORMAT_LEFT, 150);
@@ -54,7 +54,7 @@ SshAccountSelectDialog::SshAccountSelectDialog(wxWindow* parent,
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 10);
 
     SetSizer(mainSizer);
-    SetMinSize(wxSize(450, 300));
+    SetMinSize(FromDIP(wxSize(450, 300)));
     Fit();
     Centre();
 

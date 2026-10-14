@@ -52,11 +52,11 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     wxBoxSizer* pathSizer = new wxBoxSizer(wxHORIZONTAL);
     
     homeButton_ = new wxButton(this, ID_SSH_DIR_HOME_BUTTON, translation::translate("home"),
-        wxDefaultPosition, wxSize(50, -1));
+        wxDefaultPosition, FromDIP(wxSize(50, -1)));
     pathSizer->Add(homeButton_, 0, wxRIGHT, 2);
 
     sortButton_ = new wxButton(this, ID_SSH_DIR_SORT_BUTTON, "A-Z",
-        wxDefaultPosition, wxSize(35, -1));
+        wxDefaultPosition, FromDIP(wxSize(35, -1)));
     pathSizer->Add(sortButton_, 0, wxRIGHT, 5);
 
     pathBox_ = new wxTextCtrl(this, ID_SSH_DIR_PATH_BOX, currentPath_,
@@ -66,7 +66,7 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     mainSizer->Add(pathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     listCtrl_ = new wxListCtrl(this, ID_SSH_DIR_LIST, wxDefaultPosition,
-        wxSize(500, 300), wxLC_REPORT | wxLC_SINGLE_SEL);
+        FromDIP(wxSize(500, 300)), wxLC_REPORT | wxLC_SINGLE_SEL);
     
     listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 250);
     listCtrl_->InsertColumn(1, translation::translate("size"), wxLIST_FORMAT_RIGHT, 80);
@@ -83,7 +83,7 @@ SshDirDialog::SshDirDialog(wxWindow* parent,
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 5);
 
     SetSizer(mainSizer);
-    SetMinSize(wxSize(550, 400));
+    SetMinSize(FromDIP(wxSize(550, 400)));
     Fit();
     Centre();
 

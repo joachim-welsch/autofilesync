@@ -48,7 +48,7 @@ wxString answerWithProposal(const std::wstring& answer, const sync_proposal::Pro
 }
 
 ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal applyProposal)
-    : wxDialog(parent, id, title, wxDefaultPosition, wxSize(600, 500),
+    : wxDialog(parent, id, title, wxDefaultPosition, FromDIP(wxSize(600, 500), parent),
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
     , applyProposal_(std::move(applyProposal))
 {
@@ -58,7 +58,7 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, A
                                  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2 | wxTE_BESTWRAP);
     mainSizer->Add(transcript_, 1, wxEXPAND | wxALL, 5);
 
-    input_ = new wxTextCtrl(this, ID_CHAT_INPUT, wxEmptyString, wxDefaultPosition, wxSize(-1, 70),
+    input_ = new wxTextCtrl(this, ID_CHAT_INPUT, wxEmptyString, wxDefaultPosition, FromDIP(wxSize(-1, 70)),
                             wxTE_MULTILINE | wxTE_BESTWRAP);
     mainSizer->Add(input_, 0, wxEXPAND | wxLEFT | wxRIGHT, 5);
 

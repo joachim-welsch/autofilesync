@@ -57,11 +57,11 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
 
     wxPanel* tab1 = new wxPanel(notebook);
     wxBoxSizer* tab1Sizer = new wxBoxSizer(wxVERTICAL);
-    tab1Sizer->AddStretchSpacer()->SetMinSize(720, 10);
+    tab1Sizer->AddStretchSpacer()->SetMinSize(FromDIP(wxSize(720, 10)));
 
     wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* nameLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("name"));
-    nameLable->SetMinSize(wxSize(60, nameLable->GetMinSize().y));
+    nameLable->SetMinSize(wxSize(FromDIP(60), nameLable->GetMinSize().y));
     nameSizer->Add(nameLable, 0, wxALIGN_CENTER_VERTICAL);
     nameBox_ = new wxTextCtrl(tab1, ID_NAME_BOX);
     nameSizer->Add(nameBox_, 1);
@@ -69,7 +69,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
 
     wxBoxSizer* typeSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* typeLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("type"));
-    typeLable->SetMinSize(wxSize(60, typeLable->GetMinSize().y));
+    typeLable->SetMinSize(wxSize(FromDIP(60), typeLable->GetMinSize().y));
     typeSizer->Add(typeLable, 0, wxALIGN_CENTER_VERTICAL);
     wxArrayString types;
     types.push_back(sync_item_type_to_str(SyncItemType::File));
@@ -80,7 +80,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     typeSizer->Add(typeChoice_, 1);
 
     wxStaticText* wildcardLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("wildcard"));
-    wildcardLable->SetMinSize(wxSize(75, wildcardLable->GetMinSize().y));
+    wildcardLable->SetMinSize(wxSize(FromDIP(75), wildcardLable->GetMinSize().y));
     typeSizer->Add(wildcardLable, wxSizerFlags().Border(wxLEFT).CenterVertical());
 
     wildcardBox_ = new wxTextCtrl(tab1, ID_WILDCARD_BOX);
@@ -90,7 +90,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
 
     wxBoxSizer* sourceDirSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* sourceDirLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("source"));
-    sourceDirLable->SetMinSize(wxSize(60, sourceDirLable->GetMinSize().y));
+    sourceDirLable->SetMinSize(wxSize(FromDIP(60), sourceDirLable->GetMinSize().y));
     sourceDirSizer->Add(sourceDirLable, 0, wxALIGN_CENTER_VERTICAL);
 
     sourceDirBox_ = new wxTextCtrl(tab1, ID_SOURCE_DIR_BOX);
@@ -104,7 +104,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
 
     wxBoxSizer* targetDirSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* targetDirLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("target"));
-    targetDirLable->SetMinSize(wxSize(60, targetDirLable->GetMinSize().y));
+    targetDirLable->SetMinSize(wxSize(FromDIP(60), targetDirLable->GetMinSize().y));
     targetDirSizer->Add(targetDirLable, 0, wxALIGN_CENTER_VERTICAL);
 
     targetDirBox_ = new wxTextCtrl(tab1, ID_TARGET_DIR_BOX);
@@ -120,74 +120,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1->SetSizer(tab1Sizer);
     notebook->AddPage(tab1, translation::translate("tab_general"));
 
-    wxPanel* tab2 = new wxPanel(notebook);
-    wxBoxSizer* tab2Sizer = new wxBoxSizer(wxVERTICAL);
-    tab2Sizer->AddStretchSpacer()->SetMinSize(720, 10);
-
-    wxBoxSizer* enabledSizer = new wxBoxSizer(wxHORIZONTAL);
-    enabledCheck_ = new wxCheckBox(tab2, ID_ENABLED_CHECK, translation::translate("option_enabled"));
-    enabledSizer->Add(enabledCheck_, 1);
-    wxStaticText* compareLable = new wxStaticText(tab2, wxID_STATIC, translation::translate("compare_by"));
-    enabledSizer->Add(compareLable, 1);
-    tab2Sizer->Add(enabledSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* delSourceAfterSizer = new wxBoxSizer(wxHORIZONTAL);
-    delSourceAfterCheck_ = new wxCheckBox(tab2, ID_DEL_SOURCE_AFTER_CHECK, translation::translate("option_delete_source_after_copy"));
-    delSourceAfterSizer->Add(delSourceAfterCheck_, 1);
-    compareDateCheck_ = new wxCheckBox(tab2, ID_COMPARE_DATE_CHECK, translation::translate("compare_time"));
-    delSourceAfterSizer->Add(compareDateCheck_, 1);
-
-    tab2Sizer->Add(delSourceAfterSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* twoWaySyncSizer = new wxBoxSizer(wxHORIZONTAL);
-    twoWaySyncCheck_ = new wxCheckBox(tab2, ID_TWO_WAY_SYNC_CHECK, translation::translate("option_two_way_sync"));
-    twoWaySyncSizer->Add(twoWaySyncCheck_, 1);
-    compareSizeCheck_ = new wxCheckBox(tab2, ID_COMPARE_SIZE_CHECK, translation::translate("size"));
-    twoWaySyncSizer->Add(compareSizeCheck_, 1);
-
-    tab2Sizer->Add(twoWaySyncSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* copyWhenTargetNewerSizer = new wxBoxSizer(wxHORIZONTAL);
-    copyWhenTargetNewerCheck_ = new wxCheckBox(tab2, ID_CPY_WHEN_TARGET_NEWER_CHECK, translation::translate("option_copy_when_target_newer"));
-    copyWhenTargetNewerSizer->Add(copyWhenTargetNewerCheck_, 1);
-    compareContentCheck_ = new wxCheckBox(tab2, ID_COMPARE_CONTENT_CHECK, translation::translate("compare_content"));
-    copyWhenTargetNewerSizer->Add(compareContentCheck_, 1);
-
-    tab2Sizer->Add(copyWhenTargetNewerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* fatherSonPrincipleSizer = new wxBoxSizer(wxHORIZONTAL);
-    fatherSonPrincipleCheck_ = new wxCheckBox(tab2, ID_FATHER_SON_PRINCIPLE_CHECK, translation::translate("option_father_son_principle"));
-    fatherSonPrincipleSizer->Add(fatherSonPrincipleCheck_, 1);
-
-    tab2Sizer->Add(fatherSonPrincipleSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* deleteInTargetSizer = new wxBoxSizer(wxHORIZONTAL);
-    deleteInTargetCheck_ = new wxCheckBox(tab2, ID_DELETE_IN_TARGET_CHECK, translation::translate("option_delete_in_target"));
-    deleteInTargetSizer->Add(deleteInTargetCheck_, 1);
-
-    tab2Sizer->Add(deleteInTargetSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* backupProofSizer = new wxBoxSizer(wxHORIZONTAL);
-    backupProofCheck_ = new wxCheckBox(tab2, ID_BACKUP_PROOF_CHECK, translation::translate("option_backup_proof"));
-    backupProofSizer->Add(backupProofCheck_, 1);
-
-    tab2Sizer->Add(backupProofSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* syncEmptyFilesSizer = new wxBoxSizer(wxHORIZONTAL);
-    syncEmptyFilesCheck_ = new wxCheckBox(tab2, ID_SYNC_EMPTY_FILES_CHECK, translation::translate("option_sync_empty_files"));
-    syncEmptyFilesSizer->Add(syncEmptyFilesCheck_, 1);
-
-    tab2Sizer->Add(syncEmptyFilesSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    wxBoxSizer* syncCycleSizer = new wxBoxSizer(wxHORIZONTAL);
-    syncCycleSpin_ = new wxSpinCtrl(tab2, ID_SYNC_CYCLE_SPIN, wxEmptyString,
-        wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
-    syncCycleSizer->Add(new wxStaticText(tab2, wxID_STATIC, translation::translate("pause_seconds")), 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
-    syncCycleSizer->Add(syncCycleSpin_, wxSizerFlags().Border(wxRIGHT));
-    tab2Sizer->Add(syncCycleSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-
-    tab2->SetSizer(tab2Sizer);
-    notebook->AddPage(tab2, translation::translate("tab_options"));
+    notebook->AddPage(createOptionsPage(notebook), translation::translate("tab_options"));
 
     wxPanel* tab3 = new wxPanel(notebook);
     wxBoxSizer* tab3Sizer = new wxBoxSizer(wxVERTICAL);
@@ -209,12 +142,47 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     btnSshTarget->Bind(wxEVT_BUTTON, &SyncItemDialog::onSshTarget, this);
 
     SetSizer(mainSizer);
-    SetMinSize(wxSize(300, 100));
+    SetMinSize(FromDIP(wxSize(300, 100)));
     Fit();
     Centre();
     if (syncItem != nullptr)
         setData(*syncItem);
     eventBindings();
+}
+
+wxPanel* SyncItemDialog::createOptionsPage(wxNotebook* notebook)  // [SyncItemDialog.md#options-grouped]
+{
+    wxPanel* page = new wxPanel(notebook);
+    wxBoxSizer* pageSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* behaviourSizer = new wxBoxSizer(wxVERTICAL);
+    const auto addOption = [&](wxCheckBox*& check, wxWindowID id, const char* msgid) {
+        check = new wxCheckBox(page, id, translation::translate(msgid));
+        behaviourSizer->Add(check, 0, wxBOTTOM, 5);
+    };
+    addOption(enabledCheck_, ID_ENABLED_CHECK, "option_enabled");
+    addOption(delSourceAfterCheck_, ID_DEL_SOURCE_AFTER_CHECK, "option_delete_source_after_copy");
+    addOption(twoWaySyncCheck_, ID_TWO_WAY_SYNC_CHECK, "option_two_way_sync");
+    addOption(copyWhenTargetNewerCheck_, ID_CPY_WHEN_TARGET_NEWER_CHECK, "option_copy_when_target_newer");
+    addOption(fatherSonPrincipleCheck_, ID_FATHER_SON_PRINCIPLE_CHECK, "option_father_son_principle");
+    addOption(deleteInTargetCheck_, ID_DELETE_IN_TARGET_CHECK, "option_delete_in_target");
+    addOption(backupProofCheck_, ID_BACKUP_PROOF_CHECK, "option_backup_proof");
+    addOption(syncEmptyFilesCheck_, ID_SYNC_EMPTY_FILES_CHECK, "option_sync_empty_files");
+    wxBoxSizer* syncCycleSizer = new wxBoxSizer(wxHORIZONTAL);
+    syncCycleSizer->Add(new wxStaticText(page, wxID_STATIC, translation::translate("pause_seconds")), 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
+    syncCycleSpin_ = new wxSpinCtrl(page, ID_SYNC_CYCLE_SPIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
+    syncCycleSizer->Add(syncCycleSpin_);
+    behaviourSizer->Add(syncCycleSizer, 0, wxTOP, 5);
+    pageSizer->Add(behaviourSizer, 1, wxEXPAND | wxALL, 10);
+    wxStaticBoxSizer* compareSizer = new wxStaticBoxSizer(wxVERTICAL, page, translation::translate("compare_by"));
+    wxStaticBox* box = compareSizer->GetStaticBox();
+    compareDateCheck_ = new wxCheckBox(box, ID_COMPARE_DATE_CHECK, translation::translate("compare_time"));
+    compareSizeCheck_ = new wxCheckBox(box, ID_COMPARE_SIZE_CHECK, translation::translate("size"));
+    compareContentCheck_ = new wxCheckBox(box, ID_COMPARE_CONTENT_CHECK, translation::translate("compare_content"));
+    for (wxCheckBox* check : {compareDateCheck_, compareSizeCheck_, compareContentCheck_})
+        compareSizer->Add(check, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    pageSizer->Add(compareSizer, 0, wxTOP | wxRIGHT | wxBOTTOM, 10);
+    page->SetSizer(pageSizer);
+    return page;
 }
 
 void SyncItemDialog::updateDeleteInTargetState()

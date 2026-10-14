@@ -58,6 +58,7 @@ public:
 private:
     void eventBindings();
     void updateDeleteInTargetState();
+    wxPanel* createOptionsPage(wxNotebook* notebook);
 
     bool TransferDataToWindow() override;
     bool TransferDataFromWindow() override;

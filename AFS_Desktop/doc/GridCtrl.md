@@ -7,10 +7,6 @@ Module comment for GridCtrl.h / GridCtrl.cpp.
 Lower bound for the name column (the row label) so that short names do not leave it needlessly
 narrow; longer names widen it beyond this through wxGRID_AUTOSIZE in addDataItems().
 
-## CustomColumnHeadersProvider
-
-by default custom column renderer is not used, call UseCustomColHeaders() to enable it
-
 ## row-label-alignment
 
 wxGrid centres row labels by default; a name longer than the column then gets clipped on both

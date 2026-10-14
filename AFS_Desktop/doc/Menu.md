@@ -2,6 +2,13 @@
 
 Module comment for Menu.h / Menu.cpp.
 
+## structure
+
+No submenu for two entries and no menu for a single one: "Neue Synchronisation…" and
+"Neue SSH-Verbindung…" stand in the File menu, the assistant's chat in the Help menu, where
+help of every kind is looked for. Both are what the platform guidelines ask, and both save
+a click.
+
 ## shortcuts
 
 The keyboard shortcuts live here, not in the catalogues: they are the same in every language,
