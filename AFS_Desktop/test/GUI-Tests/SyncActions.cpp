@@ -27,6 +27,8 @@
 #include "TextResources.h"
 #include "id.h"
 #include "utilwx.h"
+#include <wx/gauge.h>
+#include <wx/stattext.h>
 
 using namespace AFS_Core;
 
@@ -66,6 +68,24 @@ ProgressDialog* progress_dialog()
     for (wxWindow* window : wxTopLevelWindows) {
         if (auto* dialog = dynamic_cast<ProgressDialog*>(window); dialog != nullptr && dialog->IsShown())
             return dialog;
+    }
+    return nullptr;
+}
+
+wxString current_file_shown(ProgressDialog& dialog)
+{
+    for (wxWindow* child : dialog.GetChildren()) {
+        if (auto* text = dynamic_cast<wxStaticText*>(child))
+            return text->GetLabelText();
+    }
+    return wxString();
+}
+
+wxGauge* gauge_of(ProgressDialog& dialog)
+{
+    for (wxWindow* child : dialog.GetChildren()) {
+        if (auto* gauge = dynamic_cast<wxGauge*>(child))
+            return gauge;
     }
     return nullptr;
 }

@@ -57,6 +57,7 @@ set(TEST_SOURCES
     SyncOnceTest.cpp
     ContinuousSyncTest.cpp
     ProgressDialogTest.cpp
+    HugeFileTest.cpp
     SyncOptionsTest.cpp
     SyncItemManagementTest.cpp
     SyncItemDialogRulesTest.cpp

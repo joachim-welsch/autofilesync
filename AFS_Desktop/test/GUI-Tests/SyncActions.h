@@ -22,6 +22,8 @@
 
 class MainWindow;
 class ProgressDialog;
+class wxGauge;
+class wxString;
 
 namespace guitest {  // [SyncActions.md#SyncActions]
 
@@ -32,5 +34,7 @@ bool wait_until_sync_finished(MainWindow& window, int timeout_milliseconds = SYN
 bool sync_once(MainWindow& window, int timeout_milliseconds = SYNC_TIMEOUT_MILLISECONDS);  // [SyncActions.md#sync_once]
 bool sync_menu_item_enabled(MainWindow& window, int menu_item_id);
 ProgressDialog* progress_dialog();  // [SyncActions.md#progress_dialog]
+wxString current_file_shown(ProgressDialog& dialog);  // [SyncActions.md#current_file_shown]
+wxGauge* gauge_of(ProgressDialog& dialog);
 
 }

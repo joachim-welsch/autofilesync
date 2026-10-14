@@ -27,7 +27,6 @@
 #include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
-#include <wx/stattext.h>
 
 using namespace AFS_Core;
 
@@ -51,15 +50,6 @@ SyncItemInput dir_sync(const SandboxTree& tree, const wxString& name)
     SyncItemInput input{name, tree.path("quelle").string(), tree.path("ziel").string()};
     input.type = SyncItemType::Dir;
     return input;
-}
-
-wxString current_file_shown(ProgressDialog& dialog)
-{
-    for (wxWindow* child : dialog.GetChildren()) {
-        if (auto* text = dynamic_cast<wxStaticText*>(child))
-            return text->GetLabelText();
-    }
-    return wxString();
 }
 
 std::size_t copied_files(const SandboxTree& tree)

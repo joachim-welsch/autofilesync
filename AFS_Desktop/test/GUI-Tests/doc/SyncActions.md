@@ -34,3 +34,9 @@ The progress dialog is modeless (Show(), not ShowModal()), so the modal hook nev
 it is found among the top-level windows instead. Only a shown one counts: SyncInterface
 destroys it with Destroy(), which defers the deletion, so a hidden one may linger for a
 moment after the run.
+
+## current_file_shown
+
+The dialog exposes no accessor for its file label, so the label is read through the dialog's
+only wxStaticText, and the bar through its only wxGauge: a user recognises the file by its
+name in that label, and the bar is what tells them how far the run is.

@@ -200,6 +200,7 @@
     <ClCompile Include="SyncOnceTest.cpp" />
     <ClCompile Include="ContinuousSyncTest.cpp" />
     <ClCompile Include="ProgressDialogTest.cpp" />
+    <ClCompile Include="HugeFileTest.cpp" />
     <ClCompile Include="SyncOptionsTest.cpp" />
     <ClCompile Include="SyncItemManagementTest.cpp" />
     <ClCompile Include="SyncItemDialogRulesTest.cpp" />
