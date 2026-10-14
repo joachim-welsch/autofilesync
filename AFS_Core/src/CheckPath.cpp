@@ -83,7 +83,7 @@ uint16_t next_check_interval(uint16_t previous_interval, bool repeats_previous_r
 
 bool CheckPath::path_exists(const wstring& pathname, bool must_exist) const
 {
-    log_debug(L"drivesExists()");
+    log_debug(L"CheckPath::path_exists()");
 #ifdef _UNIX
     (void)must_exist;
     std::error_code ec;

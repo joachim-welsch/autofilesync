@@ -23,16 +23,16 @@
 #endif
 
 ScopedEnv::ScopedEnv(std::string name, const char* value)   // value == nullptr -> unset the variable
-    : m_name(std::move(name))
+    : name_(std::move(name))
 {
-    if (const char* old = std::getenv(m_name.c_str()))
-        m_saved = old;                            // copied now: apply() below changes what getenv() returned
-    apply(m_name.c_str(), value);
+    if (const char* old = std::getenv(name_.c_str()))
+        saved_ = old;                            // copied now: apply() below changes what getenv() returned
+    apply(name_.c_str(), value);
 }
 
 ScopedEnv::~ScopedEnv()
 { 
-    apply(m_name.c_str(), m_saved ? m_saved->c_str() : nullptr); 
+    apply(name_.c_str(), saved_ ? saved_->c_str() : nullptr); 
 }
 
 void ScopedEnv::apply(const char* name, const char* value)

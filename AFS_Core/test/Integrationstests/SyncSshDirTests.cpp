@@ -173,7 +173,7 @@ TEST_F(SyncSshDirTest, SyncRemoteDirToLocal)
     std::string expected_file = SyncSshDirTestConfig::SRC_TEST_DIR + "/ssh_copy/sshd_config";
     EXPECT_TRUE(fs::exists(expected_file)) << "sshd_config wurde nicht kopiert";
 
-    EXPECT_GT(copy_count, 0u) << "copyCount wurde bei SSH-Quelle nicht hochgezaehlt (Fortschrittsanzeige haengt)";  // [SyncSshDirTests.md#copy-count-regression]
+    EXPECT_GT(copy_count, 0u) << "copy_count wurde bei SSH-Quelle nicht hochgezaehlt (Fortschrittsanzeige haengt)";  // [SyncSshDirTests.md#copy-count-regression]
 
     {  // [SyncSshDirTests.md#ssh-cleanup-needed]
         std::error_code ec;

@@ -252,7 +252,7 @@ TEST(SyncControlerTests, RequestStopReturnsImmediatelyUnlikeStopSync)
     const auto start = std::chrono::steady_clock::now();
     sc.request_stop();
     const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-    EXPECT_LT(elapsed_ms, 200) << "requestStop() must signal and return, not wait for the worker to finish";
+    EXPECT_LT(elapsed_ms, 200) << "request_stop() must signal and return, not wait for the worker to finish";
 
     sc.destroy_synchronize();  // [SynchronizeTests.md#cleanup-via-destroy]
     sc.reset_state();

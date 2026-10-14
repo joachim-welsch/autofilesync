@@ -524,17 +524,17 @@ void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree
     syncitem_node.push_back(make_pair(wstring(L"syncflags"), sync_flags_node));
     syncitem_node.put(wstring(L"name"), inode.name());
     syncitem_node.put(wstring(L"type"), sync_item_type_key(inode.sync_item_type()));  // [Config.md#untranslated-type-key]
-    
+
     if (inode.source_path()) {
         syncitem_node.put(wstring(L"source"), inode.source());
         syncitem_node.put(wstring(L"sourceType"), inode.source_path()->type() == SyncPathType::Filesystem ? L"filesystem" : L"ssh");
     }
-    
+
     if (inode.target_path()) {
         syncitem_node.put(wstring(L"target"), inode.target());
         syncitem_node.put(wstring(L"targetType"), inode.target_path()->type() == SyncPathType::Filesystem ? L"filesystem" : L"ssh");
     }
-    
+
     syncitem_node.put(wstring(L"wildcard"), inode.wildcard());
     syncitem_node.put(wstring(L"SyncCycle"), to_string(inode.sync_cycle()));
 }

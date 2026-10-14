@@ -151,7 +151,7 @@ TEST(SyncFileTests, CheckOnlyCountDoesNotCopy)  // [SyncFileTests.md#CheckOnlyCo
     tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
     tu::erase_test_file(TARGET_PATH_NAME);
     std::size_t copy_count = 0;
-    SyncFile test(si, copy_count, true, true); // onlyCount=true
+    SyncFile test(si, copy_count, true, true); // only_count=true
     test();
     EXPECT_EQ(copy_count, 1); // still counted as "needs sync" ...
     EXPECT_FALSE(fs::exists(TARGET_PATH_NAME)); // ... but nothing was actually copied

@@ -50,7 +50,7 @@ static std::string time_to_iso(time_t t)
     #else
         localtime_r(&t, &timeinfo);
     #endif
-    
+
     std::ostringstream oss;
     oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S");
     return oss.str();
@@ -102,24 +102,24 @@ static void init_winsock()
 SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspector.md#shared-message-ids]
     : account_(account)
 {
-    
+
     init_winsock();
     ensure_libssh2_initialized();
 
     struct addrinfo hints = {}, *result = nullptr;
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    
+
     if (getaddrinfo(account.host().c_str(), "22", &hints, &result) != 0) {
         throw SshUnreachable(translation::translate_utf8("host_name_not_resolvable") + account.host());
     }
-    
+
     sock_ = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (sock_ == INVALID_SOCKET) {
         freeaddrinfo(result);
         throw std::runtime_error(translation::translate_utf8("socket_create_error"));
     }
-    
+
     if (connect(sock_, result->ai_addr, (int)result->ai_addrlen) != 0) {
         freeaddrinfo(result);
         closesocket(sock_);
@@ -127,7 +127,7 @@ SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspec
         throw SshUnreachable(translation::translate_utf8("server_connect_failed"));
     }
     freeaddrinfo(result);
-    
+
     my_ssh_session_ = libssh2_session_init();
     if (!my_ssh_session_) {
         closesocket(sock_);
@@ -147,14 +147,14 @@ SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspec
         throw std::runtime_error(translation::translate_utf8("host_key_verification_failed"));
     }
 
-    rc = libssh2_userauth_password(my_ssh_session_, 
-                                   account.user().c_str(), 
+    rc = libssh2_userauth_password(my_ssh_session_,
+                                   account.user().c_str(),
                                    account.password().c_str());
     if (rc) {
         cleanup();
         throw std::runtime_error(translation::translate_utf8("ssh_auth_failed"));
     }
-    
+
     sftp_session_ptr_ = libssh2_sftp_init(my_ssh_session_);
     if (!sftp_session_ptr_) {
         cleanup();
@@ -191,7 +191,7 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
     info.size_bytes = 0;
     info.raw_mtime = 0;
     info.last_modified_iso = "N/A";
-    
+
     if (!sftp_session_ptr_) {
         return info;
     }
@@ -222,13 +222,13 @@ RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
     info.size_bytes = attrs.filesize;
     info.raw_mtime = static_cast<time_t>(attrs.mtime);
     info.last_modified_iso = time_to_iso(info.raw_mtime);
-    
+
     return info;
 }
 
 #else  // fallback for unsupported platforms
 
-SshFileInspector::SshFileInspector(const SshAccount& account) 
+SshFileInspector::SshFileInspector(const SshAccount& account)
     : account_(account)
 {
     throw std::runtime_error(translation::translate_utf8("ssh_unsupported_platform"));

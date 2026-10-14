@@ -66,7 +66,6 @@ FileDifference::FileDifference(const wstring& source, const wstring& dest, const
     }
 }
 
-
 static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
     const auto colon_pos = fname.find(L':');

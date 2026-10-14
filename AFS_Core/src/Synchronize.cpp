@@ -180,7 +180,7 @@ bool Synchronize::pause_elapsed(const SyncItem& si)
 {
     bool retval = std::chrono::steady_clock::now() >= (si.last_sync() + std::chrono::seconds(si.sync_cycle()));
     std::wstringstream sout;
-    sout << L"Synchronize::pauseElapsed() for " << si.name() << L": " << std::boolalpha  << retval;
+    sout << L"Synchronize::pause_elapsed() for " << si.name() << L": " << std::boolalpha  << retval;
     log_debug(sout.str());
     if (!retval) {
         log_debug("now: ", std::chrono::steady_clock::now());

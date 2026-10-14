@@ -128,7 +128,6 @@ template<class... Args> void log_warning(Args&&... args) { log_at(LogLevel::Warn
 template<class... Args> void log_error(Args&&... args) { log_at(LogLevel::Error, std::forward<Args>(args)...); }
 template<class... Args> void log_fatal(Args&&... args) { log_at(LogLevel::FatalError, std::forward<Args>(args)...); }
 
-
 inline
 std::unique_ptr<Logging> Logging::instance_;
 inline
@@ -136,7 +135,7 @@ std::once_flag Logging::init_instance_flag_;
 
 inline
 const LogEmail& Logging::email() const
-{ 
+{
 	return email_;
 }
 
