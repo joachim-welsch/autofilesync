@@ -36,7 +36,6 @@ void MyDaemon::start()
     running_.store(true);
     Config::instance().pathname(Config::get_root_pathname());  // the GUI's file, so both sync the same items
     load_config();
-    log_info(translation::translate("daemon_running"));
     worker_thread_ = std::thread(&MyDaemon::run, this);
 }
 
