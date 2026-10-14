@@ -1124,7 +1124,7 @@ msgstr "Bitte Postausgangsserver und Absender eintragen."
 
 #: AFS_Desktop/src/MainWindow.cpp:133
 msgid "started_minimized"
-msgstr ""
+msgstr "AutoFileSync läuft minimiert weiter."
 "AutoFileSync wurde minimiert gestartet.\n"
 " Siehe Ausgeblendete Symbole."
 
@@ -1255,7 +1255,7 @@ msgstr "Der Hintergrunddienst arbeitet mit der gespeicherten Konfiguration."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
-msgstr "Hilfedatei nicht gefunden: "
+msgstr "Hilfedatei nicht gefunden"
 
 #: AFS_Desktop/src/MainWindow.cpp:768
 msgid "help_file_add_failed"
@@ -1445,7 +1445,7 @@ msgstr "Start minimiert"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:57
 msgid "settings_minimize_instead_of_close"
-msgstr "Minimieren statt schließen?"
+msgstr "Minimieren statt schließen"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:122
 msgid "settings_language"
@@ -1523,7 +1523,7 @@ msgstr "Der Name darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthal
 #: AFS_Desktop/src/SshAccountsDialog.cpp:181
 #: AFS_Desktop/src/SshAccountsDialog.cpp:190
 msgid "validation_error"
-msgstr "Validierungsfehler"
+msgstr "Ungültige Eingabe"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:153
 #: AFS_Desktop/src/SshAccountsDialog.cpp:189
@@ -1625,7 +1625,7 @@ msgstr "Synchronisation kann nicht gestartet werden."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "no_sync_items"
-msgstr "Keine Dateien zum Synchronisieren angegeben!"
+msgstr "Es ist keine Synchronisation angelegt."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "attention"
@@ -1868,3 +1868,15 @@ msgstr "Copyright © 2026 Joachim Welsch"
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
 msgstr "Automatische Synchronisation von Dateien und Verzeichnisbäumen unter %1.\n\nhttps://welsch-software.com\n\nLizenz: GNU GPL v3 oder neuer, siehe Hilfe → Lizenzbedingungen."
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ":"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr "Auswählen…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr "Cmd+Eingabe sendet."

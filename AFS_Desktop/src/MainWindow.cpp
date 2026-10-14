@@ -38,7 +38,6 @@
 #include "AutoSave.h"
 #include "BackgroundService.h"
 #include "TaskBarIcon.h"
-#include "TimedMessageBox.h"
 #include "Logging.h"
 #include "LogCut.h"
 #include "App.h"
@@ -54,6 +53,7 @@
 #include <wx/stdpaths.h>
 #include <wx/filedlg.h>
 #include <wx/aboutdlg.h>
+#include <wx/notifmsg.h>
 #ifndef WIN32
     #include <wx/cmdline.h>
     #include <wx/filefn.h>
@@ -135,10 +135,8 @@ MainWindow::MainWindow(wxWindow *parent,
 	createHelp();
 	createTaskBar();
 	LogCut()();
-	if (Config::instance().settings().start_minimized()) {
-		TimedMessageBox dlg(this, translation::translate("started_minimized"), translation::translate("info"), 3000);
-		dlg.ShowModal(); // dlg is stack-allocated: its own destructor cleans it up, Destroy() is only for `new`-allocated windows
-	}
+	if (Config::instance().settings().start_minimized())
+		notify(translation::translate("info"), translation::translate("started_minimized"));
 	if (Config::sync_possible() && Config::instance().settings().start_sync_at_start()) {
 		syncInterface_.setActSyncType(SyncType::Continuous);
 		menu_.syncMenu()->Enable(tul(id::StartSync), false);
@@ -177,6 +175,11 @@ void MainWindow::setTitle()
     SetTitle(title);
     OSXSetModified(Config::instance().changed());  // [MainWindow.md#setTitle]
     SetRepresentedFilename(Config::instance().pathname());
+}
+
+void MainWindow::notify(const wxString& title, const wxString& message)  // [MainWindow.md#notify]
+{
+    wxNotificationMessage(title, message, this).Show();
 }
 
 void MainWindow::startSyncTimer()
@@ -467,7 +470,7 @@ void MainWindow::onFileSaveAs(wxCommandEvent& WXUNUSED(event))
     if (path != chosen && !confirmOverwrite(this, path))
         return;
     if (!cfg.write(path)) {
-        wxMessageBox(translation::translate("config_save_failed"), translation::translate("error"), wxOK | wxICON_ERROR);
+        wxMessageBox(translation::translate("config_save_failed"), translation::translate("error"), wxOK | wxICON_ERROR, this);
         return;
     }
     cfg.pathname(path);
@@ -555,7 +558,7 @@ void MainWindow::onEditSync(wxCommandEvent&)
 {
     auto found = findSyncItem();
     if (found == nullopt) {
-        wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"));
+        wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"), wxOK | wxICON_ERROR, this);
         return;
     }
     const std::wstring originalName = found->name();  // [MainWindow.md#copy-written-back]
@@ -673,7 +676,7 @@ void MainWindow::onDeleteSync(wxCommandEvent&)
 void MainWindow::deleteSyncItem(const std::optional<SyncItem>& found)
 {
     if (found == nullopt) {
-        wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"));
+        wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"), wxOK | wxICON_ERROR, this);
         return;
     }
     if (!utilwx::confirm(this, translation::translate("confirm_delete_sync", {found->name()}),
@@ -731,7 +734,7 @@ void MainWindow::onViewLog(wxCommandEvent&)
 {
     const wxString commandLine = Logging::instance().get_editor_path_name() + wxString(L" ") + Logging::instance().get_log_file_path_name();
     if (!startEditor(commandLine))
-        wxMessageBox(translation::translate("editor_start_failed"), translation::translate("error"));
+        wxMessageBox(translation::translate("editor_start_failed"), translation::translate("error"), wxOK | wxICON_ERROR, this);
 }
 
 void MainWindow::onViewBackground(wxCommandEvent&)
@@ -861,12 +864,10 @@ void MainWindow::createHelp()
     wxFileSystem::AddHandler(new wxZipFSHandler);
     htmlHelpController_ = new wxHtmlHelpController;
     const wxString helpFilePath = locateHelpBook();
-    if (helpFilePath.empty()) {
-        TimedMessageBox dlg(this, translation::translate("help_file_not_found"), helpBookIn(executableDir()), 3000);  // [MainWindow.md#help-path-in-message]
-        dlg.ShowModal(); // dlg is stack-allocated: its own destructor cleans it up, Destroy() is only for `new`-allocated windows
-    }
+    if (helpFilePath.empty())
+        notify(translation::translate("help_file_not_found"), helpBookIn(executableDir()));  // [MainWindow.md#help-path-in-message]
     else if (!htmlHelpController_->AddBook(helpFilePath))
-        wxMessageBox(translation::translate("help_file_add_failed") + helpFilePath, translation::translate("error"), wxOK | wxICON_ERROR);
+        wxMessageBox(translation::translate("help_file_add_failed") + helpFilePath, translation::translate("error"), wxOK | wxICON_ERROR, this);
     else
         log_debug("Hilfedatei erfolgreich hinzugefügt: ", std::string(helpFilePath.ToUTF8()));
     GetHelpController().SetViewer("internal");

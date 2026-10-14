@@ -48,7 +48,7 @@ private:
     void updateNotifyEnabling();
 
     wxTextCtrl* logPathBox_ = nullptr;
-    wxListBox*  logLevelListbox_ = nullptr;
+    wxChoice*   logLevelChoice_ = nullptr;
     wxSpinCtrl* retentionDaysCtrl_ = nullptr;
     wxTextCtrl* editPathBox_ = nullptr;
     wxTextCtrl* backupProofPathBox_ = nullptr;
@@ -65,7 +65,7 @@ DECLARE_EVENT_TABLE()
 
 enum {
     ID_LOG_PATH_BOX = wxID_HIGHEST + 1,
-    ID_LOG_LEVEL_LISTBOX,
+    ID_LOG_LEVEL_CHOICE,
     ID_RETENTIONDAYS_SPIN,
     ID_EDIT_PATH_BOX,
     ID_BACKUP_PROOF_PATH_BOX,

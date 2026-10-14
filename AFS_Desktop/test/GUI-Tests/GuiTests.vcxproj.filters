@@ -291,9 +291,6 @@
     <ClInclude Include="..\..\include\TextResources.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\TimedMessageBox.h">
-      <Filter>AFS_Desktop\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\Toolbar.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
@@ -621,9 +618,6 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\TaskBarIcon.cpp">
-      <Filter>AFS_Desktop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\TimedMessageBox.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\Toolbar.cpp">

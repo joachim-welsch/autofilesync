@@ -160,7 +160,7 @@ TEST_F(GuiTest, SynchronisationLoeschenAbbrechenBehaelt)  // [SyncItemManagement
 TEST_F(GuiTest, LeererNameWirdAbgelehnt)  // [SyncItemManagementTest.md#rejected-names]
 {
     ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(sandboxSync("")));
-    ModalDialogWatcher::instance().answer(translation::translate("error"), wxID_OK);
+    ModalDialogWatcher::instance().answer(translation::translate("validation_error"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
     pump();
@@ -175,7 +175,7 @@ TEST_F(GuiTest, DoppelterNameWirdAbgelehnt)  // [SyncItemManagementTest.md#rejec
     ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync()));
 
     ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(sandboxSync()));
-    ModalDialogWatcher::instance().answer(translation::translate("error"), wxID_OK);
+    ModalDialogWatcher::instance().answer(translation::translate("validation_error"), wxID_OK);
     activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
     pump();
 

@@ -99,12 +99,12 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     recycleBinPathBox_ = new wxTextCtrl(this, ID_RECYCLEBIN_PATH_BOX);
     recycleBinPathBox_->SetMinSize(wxSize(250, recycleBinPathBox_->GetMinSize().y));
     recycleBinSizer->Add(recycleBinPathBox_, 1);
-    recycleBinPathBtn_ = new wxButton(this, ID_RECYCLEBIN_PATH_BUTTON, "...", wxDefaultPosition, wxSize(40, -1));
+    recycleBinPathBtn_ = new wxButton(this, ID_RECYCLEBIN_PATH_BUTTON, translation::translate("button_choose"));
     recycleBinSizer->Add(recycleBinPathBtn_, wxSizerFlags().Border(wxLEFT, 2));
     recycleBinPathBtn_->Bind(wxEVT_BUTTON, &SettingsDialog::onPickRecycleBinPath, this);
     mainSizer->Add(recycleBinSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxSizer* buttonSizer = CreateButtonSizer(wxOK);
+    wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM, 5);
 
     SetSizer(mainSizer);

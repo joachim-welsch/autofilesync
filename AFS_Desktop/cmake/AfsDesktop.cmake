@@ -31,7 +31,6 @@ set(AFS_DESKTOP_SOURCES
     SyncItemDialog.cpp
     TargetCanvas.cpp
     TaskBarIcon.cpp
-    TimedMessageBox.cpp
     Toolbar.cpp
     Tree.cpp
     TreeCtrl.cpp

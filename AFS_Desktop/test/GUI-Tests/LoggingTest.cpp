@@ -173,7 +173,7 @@ TEST_F(GuiTest, EmailAktivOhneAdresseWirdAbgelehnt)  // [LoggingTest.md#email-va
     input.email.server = "mail.example.org";
     input.email.sender = "afs@example.org";
 
-    applyLogging(mainWindow(), input, translation::translate("tab_email"));
+    applyLogging(mainWindow(), input, translation::translate("validation_error"));
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die fehlende Adresse wurde ohne Meldung angenommen.";
     EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("email_address_required"));
@@ -189,7 +189,7 @@ TEST_F(GuiTest, EmailAktivOhneServerOderAbsenderWirdAbgelehnt)  // [LoggingTest.
     input.email.server = "";
     input.email.sender = "afs@example.org";
 
-    applyLogging(mainWindow(), input, translation::translate("tab_email"));
+    applyLogging(mainWindow(), input, translation::translate("validation_error"));
 
     ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der fehlende Server wurde ohne Meldung angenommen.";
     EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("smtp_server_required"));

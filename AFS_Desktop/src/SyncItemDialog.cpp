@@ -30,6 +30,7 @@
 #include "SshDirDialog.h"
 #include "TextResources.h"
 #include "Translation.h"
+#include "utilwx.h"
 
 using namespace AFS_Core;
 
@@ -59,7 +60,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->AddStretchSpacer()->SetMinSize(720, 10);
 
     wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* nameLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("name"));
+    wxStaticText* nameLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("name"));
     nameLable->SetMinSize(wxSize(60, nameLable->GetMinSize().y));
     nameSizer->Add(nameLable, 0, wxALIGN_CENTER_VERTICAL);
     nameBox_ = new wxTextCtrl(tab1, ID_NAME_BOX);
@@ -67,7 +68,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* typeSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* typeLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("type"));
+    wxStaticText* typeLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("type"));
     typeLable->SetMinSize(wxSize(60, typeLable->GetMinSize().y));
     typeSizer->Add(typeLable, 0, wxALIGN_CENTER_VERTICAL);
     wxArrayString types;
@@ -78,7 +79,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     typeChoice_ = new wxChoice(tab1, ID_TYPE_CHOICE, wxDefaultPosition, wxDefaultSize, types);
     typeSizer->Add(typeChoice_, 1);
 
-    wxStaticText* wildcardLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("wildcard"));
+    wxStaticText* wildcardLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("wildcard"));
     wildcardLable->SetMinSize(wxSize(75, wildcardLable->GetMinSize().y));
     typeSizer->Add(wildcardLable, wxSizerFlags().Border(wxLEFT).CenterVertical());
 
@@ -88,34 +89,30 @@ SyncItemDialog::SyncItemDialog(SyncItem* syncItem, wxWindow* parent, wxWindowID 
     tab1Sizer->Add(typeSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* sourceDirSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* sourceDirLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("source"));
+    wxStaticText* sourceDirLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("source"));
     sourceDirLable->SetMinSize(wxSize(60, sourceDirLable->GetMinSize().y));
     sourceDirSizer->Add(sourceDirLable, 0, wxALIGN_CENTER_VERTICAL);
 
     sourceDirBox_ = new wxTextCtrl(tab1, ID_SOURCE_DIR_BOX);
     sourceDirSizer->Add(sourceDirBox_, 1);
-    wxButton* btnPickSourceDirText = new wxButton(tab1, ID_BTN_PICK_SOURCE_DIR, "...", 
-        wxDefaultPosition, wxSize(40, -1));
+    wxButton* btnPickSourceDirText = new wxButton(tab1, ID_BTN_PICK_SOURCE_DIR, translation::translate("button_choose"));
     sourceDirSizer->Add(btnPickSourceDirText, wxSizerFlags().Border(wxLEFT, 2));
-    wxButton* btnSshSource = new wxButton(tab1, ID_BTN_SSH_SOURCE, "ssh",
-        wxDefaultPosition, wxSize(45, -1));
+    wxButton* btnSshSource = new wxButton(tab1, ID_BTN_SSH_SOURCE, L"SSH\u2026");
     sourceDirSizer->Add(btnSshSource, wxSizerFlags().Border(wxLEFT, 2));
 
     tab1Sizer->Add(sourceDirSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* targetDirSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* targetDirLable = new wxStaticText(tab1, wxID_STATIC, translation::translate("target"));
+    wxStaticText* targetDirLable = new wxStaticText(tab1, wxID_STATIC, utilwx::field_label("target"));
     targetDirLable->SetMinSize(wxSize(60, targetDirLable->GetMinSize().y));
     targetDirSizer->Add(targetDirLable, 0, wxALIGN_CENTER_VERTICAL);
 
     targetDirBox_ = new wxTextCtrl(tab1, ID_TARGET_DIR_BOX);
     targetDirSizer->Add(targetDirBox_, 1);
 
-    wxButton* btnPickTargetDirText = new wxButton(tab1, ID_BTN_PICK_TARGET_DIR, "...",
-        wxDefaultPosition, wxSize(40, -1));
+    wxButton* btnPickTargetDirText = new wxButton(tab1, ID_BTN_PICK_TARGET_DIR, translation::translate("button_choose"));
     targetDirSizer->Add(btnPickTargetDirText, wxSizerFlags().Border(wxLEFT, 2));
-    wxButton* btnSshTarget = new wxButton(tab1, ID_BTN_SSH_TARGET, "ssh",
-        wxDefaultPosition, wxSize(45, -1));
+    wxButton* btnSshTarget = new wxButton(tab1, ID_BTN_SSH_TARGET, L"SSH\u2026");
     targetDirSizer->Add(btnSshTarget, wxSizerFlags().Border(wxLEFT, 2));
 
     tab1Sizer->Add(targetDirSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
@@ -489,11 +486,11 @@ bool SyncItemDialog::Validate()
 {
     auto name = nameBox_->GetValue();
     if (name.IsEmpty()) {
-        wxMessageBox(translation::translate("name_empty"), translation::translate("error"));
+        wxMessageBox(translation::translate("name_empty"), translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         return false;
     }
     if (name != name_ && Config::instance().find_by_name(name.ToStdWstring()) != std::nullopt) {  // [SyncItemDialog.md#name-compared-against-original]
-        wxMessageBox(translation::translate("sync_exists", {name.ToStdWstring()}), translation::translate("error"));
+        wxMessageBox(translation::translate("sync_exists", {name.ToStdWstring()}), translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         return false;
     }
     return true;

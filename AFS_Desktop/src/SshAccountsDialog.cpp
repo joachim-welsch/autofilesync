@@ -65,11 +65,7 @@ SshAccountsDialog::SshAccountsDialog(wxWindow* parent, wxWindowID id,
     buttonSizer->Add(editButton_, 0, wxRIGHT, 5);
     buttonSizer->Add(deleteButton_, 0, wxRIGHT, 5);
     buttonSizer->AddStretchSpacer();
-    
-    wxButton* okButton = new wxButton(this, wxID_OK, translation::translate("button_ok"));
-    wxButton* cancelButton = new wxButton(this, wxID_CANCEL, translation::translate("button_cancel"));
-    buttonSizer->Add(okButton, 0, wxRIGHT, 5);
-    buttonSizer->Add(cancelButton, 0);
+    buttonSizer->Add(CreateStdDialogButtonSizer(wxOK | wxCANCEL), 0);  // [SshAccountsDialog.md#standard-buttons]
     
     mainSizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
 

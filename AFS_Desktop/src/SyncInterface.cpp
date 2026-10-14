@@ -163,7 +163,7 @@ void SyncInterface::countFilesFinished()
         startSync();
     }
     else {
-        wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"));
+        wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parentWindow_);
         actSyncType_ = SyncType::None;
         menu_.syncMenu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
         menu_.syncMenu()->Enable(tul(id::SyncOnce), true);
@@ -217,13 +217,13 @@ bool SyncInterface::startSync()
     }
     else if (actSyncType_ == SyncType::Single) {
         if (countFiles_ == 0) {
-            wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"));
+            wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parentWindow_);
             return false;
         }
         openProgressDialog(countFiles_);
     }
     if (!syncControler_.start_sync(actSyncType_)) {
-        wxMessageBox(translation::translate("sync_start_failed"), translation::translate("error"));
+        wxMessageBox(translation::translate("sync_start_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
         return false;
     }
     return true;
@@ -247,24 +247,24 @@ void SyncInterface::onSync()
 {
     if (Config::instance().syncitems().empty()) {
         if (!silentMode())
-            wxMessageBox(translation::translate("no_sync_items"), translation::translate("attention"));
+            wxMessageBox(translation::translate("no_sync_items"), translation::translate("attention"), wxOK | wxICON_WARNING, &parentWindow_);
         return;
     }
     try {
         if (Synchronize::has_instance()) {
-            wxMessageBox(translation::translate("sync_already_running"), translation::translate("error"));
+            wxMessageBox(translation::translate("sync_already_running"), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
             return;
         }
         startSync();
     }
     catch (std::exception& ex) {
         if (!silentMode())
-            wxMessageBox(wxString::FromUTF8(ex.what()), translation::translate("error"));
+            wxMessageBox(wxString::FromUTF8(ex.what()), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
         log_error(ex.what());
     }
     catch (...) {
         if (!silentMode())
-            wxMessageBox(translation::translate("sync_failed"), translation::translate("error"));
+            wxMessageBox(translation::translate("sync_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parentWindow_);
         log_error(translation::translate("sync_failed"));
     }
 }

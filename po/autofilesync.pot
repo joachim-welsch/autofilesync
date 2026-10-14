@@ -1851,3 +1851,15 @@ msgstr ""
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
 msgstr ""
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr ""
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr ""

@@ -128,6 +128,12 @@ every build (CMake post build step, Windows post build step); walking up to thre
 still finds a book placed at the root of a build tree. The macOS bundle keeps it among its
 resources, and the working directory stays a candidate for callers that rely on it.
 
+## notify
+
+For information that needs no answer - the program keeps running minimised, the help book is
+missing - a system notification, not a dialog: it does not interrupt, and it goes away by
+itself. The former auto-closing dialog did neither and stayed on top of everything.
+
 ## help-path-in-message
 
 Names where the book belongs, not the last place searched: that is where a broken installation

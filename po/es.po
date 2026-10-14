@@ -1109,7 +1109,7 @@ msgstr "Introduzca el servidor de correo saliente y el remitente."
 
 #: AFS_Desktop/src/MainWindow.cpp:133
 msgid "started_minimized"
-msgstr "AutoFileSync se inició minimizado.\n Consulte los iconos ocultos."
+msgstr "AutoFileSync sigue ejecutándose minimizado."
 
 #: AFS_Desktop/src/MainWindow.cpp:133 AFS_Desktop/src/SettingsDialog.cpp:70
 #: AFS_Desktop/src/SyncInterface.cpp:90 AFS_Desktop/src/SyncInterface.cpp:166
@@ -1227,7 +1227,7 @@ msgstr "El servicio en segundo plano trabaja con la configuración guardada."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
-msgstr "Archivo de ayuda no encontrado: "
+msgstr "Archivo de ayuda no encontrado"
 
 #: AFS_Desktop/src/MainWindow.cpp:768
 msgid "help_file_add_failed"
@@ -1415,7 +1415,7 @@ msgstr "Iniciar minimizado"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:57
 msgid "settings_minimize_instead_of_close"
-msgstr "¿Minimizar en lugar de cerrar?"
+msgstr "Minimizar en lugar de cerrar"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:122
 msgid "settings_language"
@@ -1493,7 +1493,7 @@ msgstr "El nombre solo puede contener letras, cifras, guion bajo y guion."
 #: AFS_Desktop/src/SshAccountsDialog.cpp:181
 #: AFS_Desktop/src/SshAccountsDialog.cpp:190
 msgid "validation_error"
-msgstr "Error de validación"
+msgstr "Entrada no válida"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:153
 #: AFS_Desktop/src/SshAccountsDialog.cpp:189
@@ -1595,7 +1595,7 @@ msgstr "No se puede iniciar la sincronización."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "no_sync_items"
-msgstr "¡No se han indicado archivos para sincronizar!"
+msgstr "No se ha creado ninguna sincronización."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "attention"
@@ -1836,3 +1836,15 @@ msgstr "Copyright © 2026 Joachim Welsch"
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
 msgstr "Sincronización automática de archivos y árboles de carpetas en %1.\n\nhttps://welsch-software.com\n\nLicencia: GNU GPL v3 o posterior, véase Ayuda → Lizenzbedingungen."
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ":"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr "Elegir…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr "Cmd+Intro envía."

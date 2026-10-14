@@ -63,6 +63,7 @@ public:
 
 	void startSyncTimer();
 	void setTitle();  // [MainWindow.md#setTitle]
+	void notify(const wxString& title, const wxString& message);  // [MainWindow.md#notify]
 	bool askAndSave(const char* question, long extra_style = 0);  // [MainWindow.md#askAndSave]
 	void setConsoleMode();
 	void registerAutomaticStart(bool);

@@ -11,3 +11,10 @@ the platform guidelines ask for, and it keeps the dialogs alike. The return code
 wxID_YES/wxID_NO, so the GUI tests answer the dialog as before. The cancel label comes from
 the program's own catalogue rather than the wx stock label: the program's language can
 differ from the system locale the wx catalogue follows.
+
+## field_label
+
+Field labels end with a colon, as the platform guidelines put it, and the colon comes from
+the catalogue ("label_colon") because French sets a space before it. The bare texts stay
+without it: the same keys ("name", "host", ...) are also column headers in the lists, where
+a colon would be wrong.

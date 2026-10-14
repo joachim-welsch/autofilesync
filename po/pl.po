@@ -1109,7 +1109,7 @@ msgstr "Podaj serwer poczty wychodzącej i nadawcę."
 
 #: AFS_Desktop/src/MainWindow.cpp:133
 msgid "started_minimized"
-msgstr "AutoFileSync uruchomiono zminimalizowany.\n Zobacz ukryte ikony."
+msgstr "AutoFileSync działa dalej zminimalizowany."
 
 #: AFS_Desktop/src/MainWindow.cpp:133 AFS_Desktop/src/SettingsDialog.cpp:70
 #: AFS_Desktop/src/SyncInterface.cpp:90 AFS_Desktop/src/SyncInterface.cpp:166
@@ -1227,7 +1227,7 @@ msgstr "Usługa w tle pracuje z zapisaną konfiguracją."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
-msgstr "Nie znaleziono pliku pomocy: "
+msgstr "Nie znaleziono pliku pomocy"
 
 #: AFS_Desktop/src/MainWindow.cpp:768
 msgid "help_file_add_failed"
@@ -1415,7 +1415,7 @@ msgstr "Uruchamiaj zminimalizowany"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:57
 msgid "settings_minimize_instead_of_close"
-msgstr "Minimalizować zamiast zamykać?"
+msgstr "Minimalizuj zamiast zamykać"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:122
 msgid "settings_language"
@@ -1493,7 +1493,7 @@ msgstr "Nazwa może zawierać tylko litery, cyfry, podkreślenie i łącznik."
 #: AFS_Desktop/src/SshAccountsDialog.cpp:181
 #: AFS_Desktop/src/SshAccountsDialog.cpp:190
 msgid "validation_error"
-msgstr "Błąd walidacji"
+msgstr "Nieprawidłowe dane"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:153
 #: AFS_Desktop/src/SshAccountsDialog.cpp:189
@@ -1595,7 +1595,7 @@ msgstr "Nie można rozpocząć synchronizacji."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "no_sync_items"
-msgstr "Nie podano plików do synchronizacji!"
+msgstr "Nie utworzono żadnej synchronizacji."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "attention"
@@ -1836,3 +1836,15 @@ msgstr "Copyright © 2026 Joachim Welsch"
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
 msgstr "Automatyczna synchronizacja plików i drzew folderów w systemie %1.\n\nhttps://welsch-software.com\n\nLicencja: GNU GPL v3 lub nowsza, zob. Pomoc → Lizenzbedingungen."
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ":"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr "Wybierz…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr "Cmd+Enter wysyła."

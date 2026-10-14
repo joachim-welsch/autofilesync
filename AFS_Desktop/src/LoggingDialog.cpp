@@ -35,7 +35,6 @@ BEGIN_EVENT_TABLE(LoggingDialog, wxDialog)
 END_EVENT_TABLE()
 
 const wxString choices[] = { "Debug", "Info", "Warning", "Error", "FatalError" };  // [LoggingDialog.md#choices]
-long styleLbox = wxLB_SINGLE;
 
 LoggingDialog::LoggingDialog(wxWindow* parent, wxWindowID id,
     const wxString& title,
@@ -81,8 +80,8 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     wxStaticText* levelLable = new wxStaticText(page, wxID_STATIC, translation::translate("log_level"));
     levelLable->SetMinSize(wxSize(labelWidth, levelLable->GetMinSize().y));
     doubleSizer->Add(levelLable, 0, wxEXPAND | wxLEFT, 0);
-    logLevelListbox_ =  new wxListBox(page, ID_LOG_LEVEL_LISTBOX, wxDefaultPosition, wxDefaultSize, WXSIZEOF(choices), choices,  styleLbox);
-    doubleSizer->Add(logLevelListbox_);
+    logLevelChoice_ = new wxChoice(page, ID_LOG_LEVEL_CHOICE, wxDefaultPosition, wxDefaultSize, WXSIZEOF(choices), choices);
+    doubleSizer->Add(logLevelChoice_);
 
     retentionDaysCtrl_ = new wxSpinCtrl(page, ID_RETENTIONDAYS_SPIN, wxEmptyString,
         wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
@@ -109,8 +108,7 @@ wxPanel* LoggingDialog::createLoggingPage(wxNotebook* notebook)
     backupProofPathBox_ = new wxTextCtrl(page, ID_BACKUP_PROOF_PATH_BOX);
     backupProofPathBox_->SetMinSize(wxSize(250, backupProofPathBox_->GetMinSize().y));
     backupProofPathSizer->Add(backupProofPathBox_);
-    backupProofPathSizer->Add(new wxButton(page, ID_BTN_PICK_BACKUP_PROOF_PATH, "...",
-        wxDefaultPosition, wxSize(40, -1)), wxSizerFlags().Border(wxLEFT, 2));
+    backupProofPathSizer->Add(new wxButton(page, ID_BTN_PICK_BACKUP_PROOF_PATH, translation::translate("button_choose")), wxSizerFlags().Border(wxLEFT, 2));
     pageSizer->Add(backupProofPathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
     page->SetSizer(pageSizer);
@@ -193,7 +191,7 @@ bool LoggingDialog::TransferDataToWindow()
 {
     logPathBox_->SetValue(Logging::instance().get_log_file_path_name());
     int sel = static_cast<int>(Logging::instance().get_log_level());
-    logLevelListbox_->SetSelection(sel);
+    logLevelChoice_->SetSelection(sel);
     retentionDaysCtrl_->SetValue(Logging::instance().retention_days());
     editPathBox_->SetValue(Logging::instance().get_editor_path_name());
     backupProofPathBox_->SetValue(Config::instance().settings().backup_proof_path());
@@ -217,8 +215,8 @@ bool LoggingDialog::TransferDataFromWindow()
 		li.set_log_file_path_name(logPathBox_->GetValue().ToStdWstring());
 		changed = true;
 	}
-	if (li.get_log_level() != static_cast<LogLevel>(logLevelListbox_->GetSelection())) {
-		li.set_log_level(static_cast<LogLevel>(logLevelListbox_->GetSelection()));
+	if (li.get_log_level() != static_cast<LogLevel>(logLevelChoice_->GetSelection())) {
+		li.set_log_level(static_cast<LogLevel>(logLevelChoice_->GetSelection()));
 		changed = true;
 	}
 	auto lastRD = li.retention_days();
@@ -265,12 +263,12 @@ bool LoggingDialog::TransferDataFromWindow()
 bool LoggingDialog::Validate()  // [LoggingDialog.md#Validate]
 {
     if (emailActiveCheck_->IsChecked() && emailBox_->GetValue().Trim().IsEmpty()) {
-        wxMessageBox(translation::translate("email_address_required"), translation::translate("tab_email"));
+        wxMessageBox(translation::translate("email_address_required"), translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         return false;
     }
     if (emailActiveCheck_->IsChecked()  // [LoggingDialog.md#server-required]
         && (smtpServerBox_->GetValue().Trim().IsEmpty() || smtpFromBox_->GetValue().Trim().IsEmpty())) {
-        wxMessageBox(translation::translate("smtp_server_required"), translation::translate("tab_email"));
+        wxMessageBox(translation::translate("smtp_server_required"), translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
         return false;
     }
     return true;

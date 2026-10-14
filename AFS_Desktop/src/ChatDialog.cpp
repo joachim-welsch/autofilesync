@@ -33,6 +33,11 @@ wxBEGIN_EVENT_TABLE(ChatDialog, wxDialog)
 wxEND_EVENT_TABLE()
 
 namespace {
+#ifdef __WXOSX__
+constexpr const char* SEND_HINT = "chat_cmd_enter";  // [ChatDialog.md#ctrl-enter-sends]
+#else
+constexpr const char* SEND_HINT = "chat_ctrl_enter";
+#endif
 constexpr std::size_t maxLogExcerptChars = 500;  // [ChatDialog.md#maxLogExcerptChars]
 
 wxString answerWithProposal(const std::wstring& answer, const sync_proposal::Proposal& proposal)  // [ChatDialog.md#proposal-described]
@@ -75,7 +80,7 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, A
         status_->SetLabel(translation::translate("chat_no_model"));
     }
     else
-        status_->SetLabel(translation::translate("chat_ctrl_enter"));
+        status_->SetLabel(translation::translate(SEND_HINT));
     input_->CallAfter(&wxTextCtrl::SetFocus);  // [ChatDialog.md#deferred-focus]
 }
 
@@ -132,7 +137,7 @@ void ChatDialog::setWaiting(bool waiting)
 {
     sendButton_->Enable(!waiting);
     input_->SetEditable(!waiting);
-    status_->SetLabel(waiting ? translation::translate("chat_answering") : translation::translate("chat_ctrl_enter"));
+    status_->SetLabel(waiting ? translation::translate("chat_answering") : translation::translate(SEND_HINT));
 }
 
 void ChatDialog::runAsync(std::function<ChatReply(const ChatPieceSink&)> call)

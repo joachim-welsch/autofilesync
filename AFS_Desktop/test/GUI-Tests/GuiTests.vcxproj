@@ -167,7 +167,6 @@
     <ClInclude Include="..\..\include\TargetCanvas.h" />
     <ClInclude Include="..\..\include\TaskBarIcon.h" />
     <ClInclude Include="..\..\include\TextResources.h" />
-    <ClInclude Include="..\..\include\TimedMessageBox.h" />
     <ClInclude Include="..\..\include\Toolbar.h" />
     <ClInclude Include="..\..\include\Tree.h" />
     <ClInclude Include="..\..\include\TreeCtrl.h" />
@@ -270,7 +269,6 @@
     <ClCompile Include="..\..\..\AFS_Core\src\SyncTree.cpp" />
     <ClCompile Include="..\..\src\TargetCanvas.cpp" />
     <ClCompile Include="..\..\src\TaskBarIcon.cpp" />
-    <ClCompile Include="..\..\src\TimedMessageBox.cpp" />
     <ClCompile Include="..\..\src\Tree.cpp" />
     <ClCompile Include="..\..\src\Toolbar.cpp" />
     <ClCompile Include="..\..\src\TreeCtrl.cpp" />

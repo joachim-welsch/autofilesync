@@ -47,7 +47,7 @@ bool enterNumber(wxDialog& dialog, wxWindowID id, const std::optional<int>& valu
 
 bool enterLoggingPage(wxDialog& dialog, const LoggingInput& input)  // [LoggingDialogDriver.md#enterValues]
 {
-    if (input.logLevel && !selectEntry(find(dialog, ID_LOG_LEVEL_LISTBOX), *input.logLevel)) {
+    if (input.logLevel && !selectEntry(find(dialog, ID_LOG_LEVEL_CHOICE), *input.logLevel)) {
         ADD_FAILURE() << "Der Log Level \"" << *input.logLevel << "\" konnte nicht ausgewählt werden.";
         return false;
     }

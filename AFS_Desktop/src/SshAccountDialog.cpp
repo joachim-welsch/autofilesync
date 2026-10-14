@@ -20,6 +20,7 @@
 #include "SshAccount.h"
 #include "Config.h"
 #include "Translation.h"
+#include "utilwx.h"
 
 using namespace AFS_Core;
 
@@ -39,7 +40,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->AddStretchSpacer()->SetMinSize(400, 10);
 
     wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* nameLabel = new wxStaticText(this, wxID_STATIC, translation::translate("name"));
+    wxStaticText* nameLabel = new wxStaticText(this, wxID_STATIC, utilwx::field_label("name"));
     nameLabel->SetMinSize(wxSize(80, nameLabel->GetMinSize().y));
     nameSizer->Add(nameLabel, 0, wxALIGN_CENTER_VERTICAL);
     nameBox_ = new wxTextCtrl(this, ID_SSH_NAME_BOX);
@@ -47,7 +48,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP | wxBOTTOM, 5);
 
     wxBoxSizer* hostSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* hostLabel = new wxStaticText(this, wxID_STATIC, translation::translate("host"));
+    wxStaticText* hostLabel = new wxStaticText(this, wxID_STATIC, utilwx::field_label("host"));
     hostLabel->SetMinSize(wxSize(80, hostLabel->GetMinSize().y));
     hostSizer->Add(hostLabel, 0, wxALIGN_CENTER_VERTICAL);
     hostBox_ = new wxTextCtrl(this, ID_SSH_HOST_BOX);
@@ -55,7 +56,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->Add(hostSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* userSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* userLabel = new wxStaticText(this, wxID_STATIC, translation::translate("user"));
+    wxStaticText* userLabel = new wxStaticText(this, wxID_STATIC, utilwx::field_label("user"));
     userLabel->SetMinSize(wxSize(80, userLabel->GetMinSize().y));
     userSizer->Add(userLabel, 0, wxALIGN_CENTER_VERTICAL);
     userBox_ = new wxTextCtrl(this, ID_SSH_USER_BOX);
@@ -63,7 +64,7 @@ SshAccountDialog::SshAccountDialog(SshAccount* sshAccount, wxWindow* parent, wxW
     mainSizer->Add(userSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* passwordSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* passwordLabel = new wxStaticText(this, wxID_STATIC, translation::translate("password"));
+    wxStaticText* passwordLabel = new wxStaticText(this, wxID_STATIC, utilwx::field_label("password"));
     passwordLabel->SetMinSize(wxSize(80, passwordLabel->GetMinSize().y));
     passwordSizer->Add(passwordLabel, 0, wxALIGN_CENTER_VERTICAL);
     passwordBox_ = new wxTextCtrl(this, ID_SSH_PASSWORD_BOX, wxEmptyString, 

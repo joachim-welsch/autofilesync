@@ -9,6 +9,12 @@
   Ja/Nein, und Abbrechen ist die Vorgabe. Unter macOS stehen „Einstellungen…“
   und „Info“ im Programm-Menü, das Fenster zeigt ungespeicherte Änderungen im
   Schließen-Knopf, und das Info-Fenster ist das native.
+- Dialoge nach den Plattformregeln: Feldbeschriftungen enden mit Doppelpunkt,
+  die Knöpfe „...“ und „ssh“ heißen „Auswählen…“ und „SSH…“, der Log-Level ist
+  ein Aufklappmenü, die globalen Einstellungen lassen sich abbrechen, und jede
+  Meldung trägt ihr Symbol und erscheint vor dem richtigen Fenster. Der Hinweis
+  auf den minimierten Start und auf ein fehlendes Hilfebuch kommt als
+  Systembenachrichtigung statt als Dialog, der sich von selbst schließt.
 - Konfiguration und Sicherungsnachweise stehen lesbar in der Datei: Zeichen wie
   kyrillische Buchstaben erscheinen als sie selbst statt als `\u0423…`, und
   Emoji in Namen gehen nicht mehr verloren.

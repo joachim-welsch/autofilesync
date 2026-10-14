@@ -114,6 +114,8 @@ transcript wraps it and lets the user copy the path.
 ## ctrl-enter-sends
 
 Plain Enter inserts a line break in the multi-line field, so sending needs a modifier.
+wxKeyEvent::ControlDown() is the Command key on macOS, so the hint names Cmd there and Ctrl
+elsewhere.
 
 ## focus-only-when-shown
 

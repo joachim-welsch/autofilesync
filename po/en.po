@@ -1124,7 +1124,7 @@ msgstr "Please enter the outgoing mail server and the sender."
 
 #: AFS_Desktop/src/MainWindow.cpp:133
 msgid "started_minimized"
-msgstr ""
+msgstr "AutoFileSync keeps running minimised."
 "AutoFileSync was started minimised.\n"
 " See the hidden icons."
 
@@ -1255,7 +1255,7 @@ msgstr "The background service works with the saved configuration."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
-msgstr "Help file not found: "
+msgstr "Help file not found"
 
 #: AFS_Desktop/src/MainWindow.cpp:768
 msgid "help_file_add_failed"
@@ -1445,7 +1445,7 @@ msgstr "Start minimised"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:57
 msgid "settings_minimize_instead_of_close"
-msgstr "Minimise instead of closing?"
+msgstr "Minimise instead of closing"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:122
 msgid "settings_language"
@@ -1523,7 +1523,7 @@ msgstr "The name may only contain letters, digits, underscore and hyphen."
 #: AFS_Desktop/src/SshAccountsDialog.cpp:181
 #: AFS_Desktop/src/SshAccountsDialog.cpp:190
 msgid "validation_error"
-msgstr "Validation error"
+msgstr "Invalid input"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:153
 #: AFS_Desktop/src/SshAccountsDialog.cpp:189
@@ -1625,7 +1625,7 @@ msgstr "The synchronisation cannot be started."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "no_sync_items"
-msgstr "No files to synchronise specified!"
+msgstr "No synchronisation has been set up."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "attention"
@@ -1868,3 +1868,15 @@ msgstr "Copyright © 2026 Joachim Welsch"
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
 msgstr "Automatic synchronisation of files and directory trees on %1.\n\nhttps://welsch-software.com\n\nLicence: GNU GPL v3 or later, see Help → Lizenzbedingungen."
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ":"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr "Choose…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr "Cmd+Enter sends."

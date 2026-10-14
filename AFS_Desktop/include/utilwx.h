@@ -31,6 +31,11 @@ inline bool confirm(wxWindow* parent, const wxString& question, const wxString& 
     return dialog.ShowModal() == wxID_YES;
 }
 
+inline wxString field_label(const char* msgid)  // [utilwx.md#field_label]
+{
+    return AFS_Core::translation::translate(msgid) + AFS_Core::translation::translate("label_colon");
+}
+
 template <typename E>
 constexpr auto tul(E e) noexcept
 {
