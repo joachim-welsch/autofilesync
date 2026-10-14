@@ -37,7 +37,16 @@
 #endif
 
 using utilwx::tul;
-using AFS_Core::translation::translate;
+
+namespace {
+wxString tooltip(const char* msgid)  // [Toolbar.md#tooltips-without-ellipsis]
+{
+    wxString label = AFS_Core::translation::translate(msgid);
+    if (label.EndsWith(L"\u2026"))
+        label.RemoveLast();
+    return label;
+}
+}
 
 enum
 {
@@ -77,14 +86,14 @@ void Toolbar::create(wxFrame* parent)
 	long style = 0;
 	style |= wxTB_TOP;
 	toolbar_->SetToolBitmapSize(wxSize(24, 24));
-	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), translate("edit_synchronisation"));
-	toolbar_->AddTool(tul(id::File_save), wxEmptyString, wxBITMAP(save), translate("toolbar_save"));
-	toolbar_->AddTool(tul(id::DeleteSync), wxEmptyString, wxBITMAP(delete), translate("delete_synchronisation"));
-	toolbar_->AddTool(tul(id::StartSync), wxEmptyString, wxBITMAP(start), translate("toolbar_start_sync"));
+	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), tooltip("edit_synchronisation"));
+	toolbar_->AddTool(tul(id::File_save), wxEmptyString, wxBITMAP(save), tooltip("toolbar_save"));
+	toolbar_->AddTool(tul(id::DeleteSync), wxEmptyString, wxBITMAP(delete), tooltip("delete_synchronisation"));
+	toolbar_->AddTool(tul(id::StartSync), wxEmptyString, wxBITMAP(start), tooltip("toolbar_start_sync"));
 
 	toolbar_->AddStretchableSpace();
-	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), translate("toolbar_help"));
-	toolbar_->AddTool(tul(id::EditSettings), wxEmptyString, wxBITMAP(settings), translate("menu_settings"));
+	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), tooltip("toolbar_help"));
+	toolbar_->AddTool(tul(id::EditSettings), wxEmptyString, wxBITMAP(settings), tooltip("menu_settings"));
 	toolbar_->Realize();
 }
 
@@ -102,9 +111,9 @@ void Toolbar::replaceTool(int oldToolId, int newToolId, const wxString& label, c
 void Toolbar::setStarted(bool started)
 {
     if (started) {
-        replaceTool(tul(id::StartSync), tul(id::StopSync), translate("toolbar_stop_sync"), wxBITMAP(stop), translate("toolbar_stop_sync"));
+        replaceTool(tul(id::StartSync), tul(id::StopSync), tooltip("toolbar_stop_sync"), wxBITMAP(stop), tooltip("toolbar_stop_sync"));
     }
     else {
-        replaceTool(tul(id::StopSync), tul(id::StartSync), translate("toolbar_start_sync"), wxBITMAP(start), translate("toolbar_start_sync"));
+        replaceTool(tul(id::StopSync), tul(id::StartSync), tooltip("toolbar_start_sync"), wxBITMAP(start), tooltip("toolbar_start_sync"));
     }
 }

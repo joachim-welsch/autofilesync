@@ -19,8 +19,17 @@
 #pragma once
 
 #include <type_traits>
+#include <wx/msgdlg.h>
+#include "Translation.h"
 
 namespace utilwx {
+
+inline bool confirm(wxWindow* parent, const wxString& question, const wxString& caption, const wxString& action)  // [utilwx.md#confirm]
+{
+    wxMessageDialog dialog(parent, question, caption, wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+    dialog.SetYesNoLabels(action, wxString(AFS_Core::translation::translate("button_cancel")));
+    return dialog.ShowModal() == wxID_YES;
+}
 
 template <typename E>
 constexpr auto tul(E e) noexcept

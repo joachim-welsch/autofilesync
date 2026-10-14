@@ -20,6 +20,7 @@
 
 #include <wx/wxprec.h>
 #include <wx/html/helpctrl.h>
+#include <wx/aboutdlg.h>
 
 #ifndef WX_PRECOMP
 	#include <wx/wx.h>
@@ -58,6 +59,7 @@ public:
 			long style = wxDEFAULT_FRAME_STYLE,
 			const wxString& name = wxASCII_STR(wxFrameNameStr));
 	~MainWindow();
+	static wxAboutDialogInfo aboutInfo();
 
 	void startSyncTimer();
 	void setTitle();  // [MainWindow.md#setTitle]

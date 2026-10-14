@@ -22,6 +22,7 @@
 #include "Config.h"
 #include "TextResources.h"
 #include "Translation.h"
+#include "utilwx.h"
 
 using namespace AFS_Core;
 
@@ -143,13 +144,11 @@ void SshAccountsDialog::onDelete(wxCommandEvent&)
     if (Config::instance().ssh_account_referenced_by_any_item(account->name()))  // [SshAccountsDialog.md#deletion-warns]
         message += L"\n\n" + translation::translate("ssh_account_in_use_warning");
 
-    int answer = wxMessageBox(message, translation::translate("confirm_delete_title"), wxYES_NO | wxICON_QUESTION, this);
-
-    if (answer == wxYES) {
-        Config::instance().remove_ssh_account(static_cast<size_t>(sel));
-        populateList();
-        updateButtons();
-    }
+    if (!utilwx::confirm(this, message, translation::translate("confirm_delete_title"), translation::translate("button_delete")))
+        return;
+    Config::instance().remove_ssh_account(static_cast<size_t>(sel));
+    populateList();
+    updateButtons();
 }
 
 void SshAccountsDialog::onListDClick(wxMouseEvent&)

@@ -53,6 +53,7 @@
 #include <wx/display.h>
 #include <wx/stdpaths.h>
 #include <wx/filedlg.h>
+#include <wx/aboutdlg.h>
 #ifndef WIN32
     #include <wx/cmdline.h>
     #include <wx/filefn.h>
@@ -171,8 +172,11 @@ void MainWindow::setTitle()
     wstring title = L"AutoFileSync - " + Config::instance().pathname();
     if (Config::instance().changed())
         title += L" " + translation::translate("title_unsaved");
-    if (GetTitle() != wxString(title))
-        SetTitle(title);
+    if (GetTitle() == wxString(title))
+        return;
+    SetTitle(title);
+    OSXSetModified(Config::instance().changed());  // [MainWindow.md#setTitle]
+    SetRepresentedFilename(Config::instance().pathname());
 }
 
 void MainWindow::startSyncTimer()
@@ -315,11 +319,25 @@ void MainWindow::onSize(wxSizeEvent& event)
     event.Skip();
 }
 
+wxAboutDialogInfo MainWindow::aboutInfo()  // [MainWindow.md#onAbout]
+{
+    wxAboutDialogInfo info;
+    info.SetName(afsNAME_STRING);
+    info.SetVersion(afsVERSION_STRING);
+    info.SetCopyright(translation::translate("about_copyright"));
+    info.SetDescription(translation::translate("about_description", {wxGetOsDescription().ToStdWstring()}));
+    return info;
+}
+
 void MainWindow::onAbout(wxCommandEvent& WXUNUSED(event))
 {
-    wxMessageBox(translation::translate("about_text",  // [MainWindow.md#onAbout]
+#ifdef __WXOSX__
+    wxAboutBox(aboutInfo(), this);  // [MainWindow.md#onAbout]
+#else
+    wxMessageBox(translation::translate("about_text",
                      {wxString(afsNAME_STRING).ToStdWstring(), wxString(afsVERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}),
                  translation::translate("about_title"), wxOK | wxICON_INFORMATION, this);
+#endif
 }
 
 void MainWindow::onAddSyncItem(wxCommandEvent& WXUNUSED(event))
@@ -432,8 +450,8 @@ static bool confirmOverwrite(wxWindow* parent, const wstring& path)  // [MainWin
 {
     if (!std::filesystem::exists(path))
         return true;
-    return wxMessageBox(translation::translate("overwrite_question", {path}),
-        translation::translate("overwrite_title"), wxYES_NO | wxICON_QUESTION, parent) == wxYES;
+    return utilwx::confirm(parent, translation::translate("overwrite_question", {path}),
+        translation::translate("overwrite_title"), translation::translate("button_overwrite"));
 }
 
 void MainWindow::onFileSaveAs(wxCommandEvent& WXUNUSED(event))
@@ -658,9 +676,8 @@ void MainWindow::deleteSyncItem(const std::optional<SyncItem>& found)
         wxMessageBox(translation::translate("sync_not_found"), translation::translate("error"));
         return;
     }
-    int answer = wxMessageBox(translation::translate("confirm_delete_sync", {found->name()}),
-        translation::translate("confirm_delete_title"), wxYES_NO | wxICON_QUESTION, this);
-    if (answer != wxYES)
+    if (!utilwx::confirm(this, translation::translate("confirm_delete_sync", {found->name()}),
+            translation::translate("confirm_delete_title"), translation::translate("button_delete")))
         return;
     Config& cfg(Config::instance());
     cfg.erase_by_name(found->name());
@@ -889,6 +906,8 @@ bool MainWindow::askAndSave(const char* question, long extra_style)
         return true;
     wxMessageDialog dlg(this, translation::translate(question), translation::translate("not_saved_title"),
         wxYES_NO | wxYES_DEFAULT | wxICON_QUESTION | extra_style);
+    dlg.SetYesNoCancelLabels(wxString(translation::translate("button_save")), wxString(translation::translate("button_dont_save")),  // [MainWindow.md#askAndSave]
+        wxString(translation::translate("button_cancel")));
     const int answer = dlg.ShowModal();
     if (answer == wxID_CANCEL)
         return false;

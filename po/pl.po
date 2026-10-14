@@ -966,7 +966,7 @@ msgstr "Usługa w tle nie jest obsługiwana na tej platformie."
 #: AFS_Desktop/src/Canvas.cpp:70 AFS_Desktop/src/GridWindow.cpp:63
 #: AFS_Desktop/src/ListWindow.cpp:61
 msgid "context_edit"
-msgstr "&Edytuj"
+msgstr "&Edytuj…"
 
 #: AFS_Desktop/src/Canvas.cpp:71 AFS_Desktop/src/GridWindow.cpp:64
 #: AFS_Desktop/src/ListWindow.cpp:62
@@ -1167,11 +1167,11 @@ msgstr "Konfiguracja zapisana"
 
 #: AFS_Desktop/src/MainWindow.cpp:421
 msgid "overwrite_question"
-msgstr "'%1' już istnieje. Zastąpić?"
+msgstr "'%1' już istnieje."
 
 #: AFS_Desktop/src/MainWindow.cpp:422
 msgid "overwrite_title"
-msgstr "Zastąp plik"
+msgstr "Zastąpić plik?"
 
 #: AFS_Desktop/src/MainWindow.cpp:429
 msgid "save_as_title"
@@ -1223,7 +1223,7 @@ msgstr "Usługa w tle"
 
 #: AFS_Desktop/src/MainWindow.cpp:676
 msgid "bs_save_question"
-msgstr "Usługa w tle pracuje z zapisaną konfiguracją. Zapisać teraz?"
+msgstr "Usługa w tle pracuje z zapisaną konfiguracją."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
@@ -1243,11 +1243,11 @@ msgstr "Nie udało się ustawić ikony w zasobniku."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "save_question"
-msgstr "Zapisać?"
+msgstr "Zmiany w konfiguracji nie zostały jeszcze zapisane."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
-msgstr "Dane nie zostały zapisane."
+msgstr "Zapisać zmiany?"
 
 #: AFS_Desktop/src/MainWindow.cpp:170
 msgid "title_unsaved"
@@ -1255,11 +1255,11 @@ msgstr "(niezapisane)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
-msgstr "Synchronizacja"
+msgstr "Synchronizacja…"
 
 #: AFS_Desktop/src/Menu.cpp:58
 msgid "menu_new_ssh_connection"
-msgstr "Połączenie SSH"
+msgstr "Połączenie SSH…"
 
 #: AFS_Desktop/src/Menu.cpp:59
 msgid "menu_new"
@@ -1267,7 +1267,7 @@ msgstr "&Nowy"
 
 #: AFS_Desktop/src/Menu.cpp:60
 msgid "menu_open"
-msgstr "&Otwórz"
+msgstr "&Otwórz…"
 
 #: AFS_Desktop/src/Menu.cpp:61
 msgid "menu_save"
@@ -1275,11 +1275,11 @@ msgstr "&Zapisz"
 
 #: AFS_Desktop/src/Menu.cpp:62
 msgid "menu_save_as"
-msgstr "Zapisz &jako"
+msgstr "Zapisz &jako…"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit"
-msgstr "Zakończ\tAlt-X"
+msgstr "Zakończ"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit_help"
@@ -1287,7 +1287,7 @@ msgstr "Zakończ ten program"
 
 #: AFS_Desktop/src/Menu.cpp:70
 msgid "menu_about"
-msgstr "O programie AutoFileSync\tF1"
+msgstr "O programie AutoFileSync"
 
 #: AFS_Desktop/src/Menu.cpp:71
 msgid "menu_help"
@@ -1295,23 +1295,23 @@ msgstr "Pokaż pomoc"
 
 #: AFS_Desktop/src/Menu.cpp:78 AFS_Desktop/src/Toolbar.cpp:77
 msgid "edit_synchronisation"
-msgstr "Edytuj synchronizację"
+msgstr "Edytuj synchronizację…"
 
 #: AFS_Desktop/src/Menu.cpp:79 AFS_Desktop/src/Toolbar.cpp:79
 msgid "delete_synchronisation"
-msgstr "Usuń synchronizację"
+msgstr "Usuń synchronizację…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "Połączenia SSH..."
+msgstr "Połączenia SSH…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
-msgstr "Ustawienia ogólne"
+msgstr "Ustawienia ogólne…"
 
 #: AFS_Desktop/src/Menu.cpp:83
 msgid "menu_logging_settings"
-msgstr "Ustawienia dziennika"
+msgstr "Ustawienia dziennika…"
 
 #: AFS_Desktop/src/Menu.cpp:90
 msgid "menu_view_list"
@@ -1367,7 +1367,7 @@ msgstr "Zatrzymaj usługę w tle"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Czat..."
+msgstr "&Czat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1816,3 +1816,23 @@ msgstr "backgroundsync działa w tym oknie konsoli, Ctrl+C go zatrzymuje."
 #: backgroundsync/WindowsService.cpp:113
 msgid "daemon_dispatcher_failed"
 msgstr "Połączenie z menedżerem usług Windows nie powiodło się, błąd %1"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr "Zapisz"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr "Nie zapisuj"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr "Zastąp"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr "Copyright © 2026 Joachim Welsch"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr "Automatyczna synchronizacja plików i drzew folderów w systemie %1.\n\nhttps://welsch-software.com\n\nLicencja: GNU GPL v3 lub nowsza, zob. Pomoc → Lizenzbedingungen."

@@ -172,6 +172,12 @@ CreateProcess fails in the caller. Found by GuiTest.LogDateiAnzeigenOhneEditorZe
 The About box names the copyright holder, the website and the licence: it is the one
 place a user of the installed program can find out whom the software belongs to and under
 which terms they hold it. The details are on the help page "Lizenzbedingungen".
+On macOS the standard About panel is used (wxAboutBox), fed from aboutInfo(); it is native
+only while the info holds nothing but name, version, copyright and description, so the
+website and the licence are part of the description text. The panel is not a wxDialog, so
+the GUI test for the message box skips there and checks aboutInfo() instead. Elsewhere the
+message box stays: wxAboutBox would also go native on GTK, outside the modal dialog hook
+the GUI tests rely on.
 
 ## setTitle
 
@@ -180,15 +186,20 @@ The title carries the configuration's path and, while Config::changed() is set, 
 write, and without the marker nothing told the user that the file - the one the background
 service reads - still holds the old state. The timer tick refreshes it, so changes made in the grid or in the
 dialogs show up without each of them having to call here; SetTitle is skipped while the text is
-unchanged so the tick does not repaint the title bar every second.
+unchanged so the tick does not repaint the title bar every second. On macOS the window also
+shows the state the platform way: the dot in the close button (OSXSetModified) and the file
+icon in the title bar (SetRepresentedFilename); both calls are no-ops elsewhere and belong
+with SetTitle because they change exactly when the title does.
 
 ## askAndSave
 
 Shared by every command that leaves the in-memory configuration behind - opening another file,
 closing, starting the background service - with the question as its argument. Since changes are
 saved as they happen, the question only comes up after a failed write. Returns false
-only when the user cancelled (extra_style wxCANCEL) or the save failed; "Nein" is a decision,
-not a failure.
+only when the user cancelled (extra_style wxCANCEL) or the save failed; "Nicht speichern" is a
+decision, not a failure. The buttons say what they do ("Speichern", "Nicht speichern",
+"Abbrechen") instead of Yes/No, so the question in the caption needs no re-reading; the
+return codes stay wxID_YES/NO/CANCEL, which the GUI tests answer with.
 
 ## service-reads-the-saved-file
 

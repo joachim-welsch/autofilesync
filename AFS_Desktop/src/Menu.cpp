@@ -24,6 +24,19 @@
 using utilwx::tul;
 using AFS_Core::translation::translate;
 
+namespace {
+wxString with_shortcut(const wxString& label, const char* shortcut)  // [Menu.md#shortcuts]
+{
+    return label + "\t" + shortcut;
+}
+
+#ifdef __WXOSX__
+constexpr const char* HELP_SHORTCUT = "Ctrl+?";
+#else
+constexpr const char* HELP_SHORTCUT = "F1";
+#endif
+}
+
 wxMenuBar*  Menu::menuBar()
 {
 	return menuBar_;
@@ -54,13 +67,13 @@ wxMenu* Menu::createFileMenu()
     wxMenu* fileMenu = new wxMenu;
     
     wxMenu* newSubMenu = new wxMenu;
-    newSubMenu->Append(tul(id::File_new_Synchronization), translate("menu_new_synchronisation"));
+    newSubMenu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
     newSubMenu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
     fileMenu->AppendSubMenu(newSubMenu, translate("menu_new"));
-    fileMenu->Append(tul(id::File_open), translate("menu_open"));
-    fileMenu->Append(tul(id::File_save), translate("menu_save"));
-    fileMenu->Append(tul(id::File_save_as), translate("menu_save_as"));
-    fileMenu->Append(tul(id::Quit), translate("menu_quit"), translate("menu_quit_help"));
+    fileMenu->Append(tul(id::File_open), with_shortcut(translate("menu_open"), "Ctrl+O"));
+    fileMenu->Append(tul(id::File_save), with_shortcut(translate("menu_save"), "Ctrl+S"));
+    fileMenu->Append(tul(id::File_save_as), with_shortcut(translate("menu_save_as"), "Ctrl+Shift+S"));
+    fileMenu->Append(tul(id::Quit), with_shortcut(translate("menu_quit"), "Ctrl+Q"), translate("menu_quit_help"));
     return fileMenu;
 }
 
@@ -68,7 +81,7 @@ wxMenu* Menu::createHelpMenu()
 {
     wxMenu* helpMenu = new wxMenu;
     helpMenu->Append(tul(id::About), translate("menu_about"), translate("menu_about"));
-    helpMenu->Append(tul(id::Help), translate("menu_help"), translate("menu_help"));
+    helpMenu->Append(tul(id::Help), with_shortcut(translate("menu_help"), HELP_SHORTCUT), translate("menu_help"));
     return helpMenu;
 }
 
@@ -78,7 +91,7 @@ wxMenu* Menu::createEditMenu()
     editMenu_->Append(tul(id::EditSync), translate("edit_synchronisation"));
     editMenu_->Append(tul(id::DeleteSync), translate("delete_synchronisation"));
     editMenu_->Append(tul(id::EditSshAccounts), translate("menu_ssh_connections"));
-    editMenu_->Append(tul(id::EditSettings), translate("menu_settings"));
+    editMenu_->Append(tul(id::EditSettings), with_shortcut(translate("menu_settings"), "Ctrl+,"));
     editMenu_->AppendSeparator();
     editMenu_->Append(tul(id::EditLogging), translate("menu_logging_settings"));
     return editMenu_;

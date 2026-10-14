@@ -966,7 +966,7 @@ msgstr "Le service en arrière-plan n'est pas pris en charge sur cette plateform
 #: AFS_Desktop/src/Canvas.cpp:70 AFS_Desktop/src/GridWindow.cpp:63
 #: AFS_Desktop/src/ListWindow.cpp:61
 msgid "context_edit"
-msgstr "&Modifier"
+msgstr "&Modifier…"
 
 #: AFS_Desktop/src/Canvas.cpp:71 AFS_Desktop/src/GridWindow.cpp:64
 #: AFS_Desktop/src/ListWindow.cpp:62
@@ -1167,11 +1167,11 @@ msgstr "Configuration enregistrée"
 
 #: AFS_Desktop/src/MainWindow.cpp:421
 msgid "overwrite_question"
-msgstr "'%1' existe déjà. Le remplacer ?"
+msgstr "'%1' existe déjà."
 
 #: AFS_Desktop/src/MainWindow.cpp:422
 msgid "overwrite_title"
-msgstr "Remplacer le fichier"
+msgstr "Remplacer le fichier ?"
 
 #: AFS_Desktop/src/MainWindow.cpp:429
 msgid "save_as_title"
@@ -1223,7 +1223,7 @@ msgstr "Service en arrière-plan"
 
 #: AFS_Desktop/src/MainWindow.cpp:676
 msgid "bs_save_question"
-msgstr "Le service en arrière-plan utilise la configuration enregistrée. Enregistrer maintenant ?"
+msgstr "Le service en arrière-plan utilise la configuration enregistrée."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
@@ -1243,11 +1243,11 @@ msgstr "L'icône de la zone de notification n'a pas pu être définie."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "save_question"
-msgstr "Enregistrer ?"
+msgstr "Les modifications de la configuration ne sont pas encore enregistrées."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
-msgstr "Les données n'ont pas été enregistrées."
+msgstr "Enregistrer les modifications ?"
 
 #: AFS_Desktop/src/MainWindow.cpp:170
 msgid "title_unsaved"
@@ -1255,11 +1255,11 @@ msgstr "(non enregistré)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
-msgstr "Synchronisation"
+msgstr "Synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:58
 msgid "menu_new_ssh_connection"
-msgstr "Connexion SSH"
+msgstr "Connexion SSH…"
 
 #: AFS_Desktop/src/Menu.cpp:59
 msgid "menu_new"
@@ -1267,7 +1267,7 @@ msgstr "&Nouveau"
 
 #: AFS_Desktop/src/Menu.cpp:60
 msgid "menu_open"
-msgstr "&Ouvrir"
+msgstr "&Ouvrir…"
 
 #: AFS_Desktop/src/Menu.cpp:61
 msgid "menu_save"
@@ -1275,11 +1275,11 @@ msgstr "&Enregistrer"
 
 #: AFS_Desktop/src/Menu.cpp:62
 msgid "menu_save_as"
-msgstr "Enregistrer &sous"
+msgstr "Enregistrer &sous…"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit"
-msgstr "Quitter\tAlt-X"
+msgstr "Quitter"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit_help"
@@ -1287,7 +1287,7 @@ msgstr "Quitter ce programme"
 
 #: AFS_Desktop/src/Menu.cpp:70
 msgid "menu_about"
-msgstr "À propos d'AutoFileSync\tF1"
+msgstr "À propos d'AutoFileSync"
 
 #: AFS_Desktop/src/Menu.cpp:71
 msgid "menu_help"
@@ -1295,23 +1295,23 @@ msgstr "Afficher l'aide"
 
 #: AFS_Desktop/src/Menu.cpp:78 AFS_Desktop/src/Toolbar.cpp:77
 msgid "edit_synchronisation"
-msgstr "Modifier la synchronisation"
+msgstr "Modifier la synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:79 AFS_Desktop/src/Toolbar.cpp:79
 msgid "delete_synchronisation"
-msgstr "Supprimer la synchronisation"
+msgstr "Supprimer la synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "Connexions SSH..."
+msgstr "Connexions SSH…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
-msgstr "Paramètres généraux"
+msgstr "Paramètres généraux…"
 
 #: AFS_Desktop/src/Menu.cpp:83
 msgid "menu_logging_settings"
-msgstr "Paramètres de journalisation"
+msgstr "Paramètres de journalisation…"
 
 #: AFS_Desktop/src/Menu.cpp:90
 msgid "menu_view_list"
@@ -1367,7 +1367,7 @@ msgstr "Arrêter le service en arrière-plan"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Discussion..."
+msgstr "&Discussion…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1816,3 +1816,23 @@ msgstr "backgroundsync s'exécute dans cette fenêtre de console, Ctrl+C l'arrê
 #: backgroundsync/WindowsService.cpp:113
 msgid "daemon_dispatcher_failed"
 msgstr "La connexion au gestionnaire de services Windows a échoué, erreur %1"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr "Enregistrer"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr "Ne pas enregistrer"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr "Remplacer"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr "Copyright © 2026 Joachim Welsch"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr "Synchronisation automatique de fichiers et d'arborescences de dossiers sous %1.\n\nhttps://welsch-software.com\n\nLicence : GNU GPL v3 ou ultérieure, voir Aide → Lizenzbedingungen."

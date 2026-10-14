@@ -2,6 +2,13 @@
 
 ## Unveröffentlicht
 
+- Die Oberfläche folgt den Plattformregeln enger: Tastenkürzel für Neu,
+  Öffnen, Speichern, Speichern als, Einstellungen, Beenden und Hilfe;
+  Menüpunkte, die einen Dialog öffnen, enden mit „…“; Bestätigungen fragen
+  mit „Löschen“, „Überschreiben“ bzw. „Speichern“/„Nicht speichern“ statt
+  Ja/Nein, und Abbrechen ist die Vorgabe. Unter macOS stehen „Einstellungen…“
+  und „Info“ im Programm-Menü, das Fenster zeigt ungespeicherte Änderungen im
+  Schließen-Knopf, und das Info-Fenster ist das native.
 - Konfiguration und Sicherungsnachweise stehen lesbar in der Datei: Zeichen wie
   kyrillische Buchstaben erscheinen als sie selbst statt als `\u0423…`, und
   Emoji in Namen gehen nicht mehr verloren.

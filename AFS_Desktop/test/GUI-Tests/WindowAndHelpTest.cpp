@@ -116,8 +116,20 @@ TEST_F(GuiTest, TaskbarDoppelklickZeigtFenster)
     EXPECT_TRUE(mainWindow().IsShown()) << "Der Doppelklick auf das Symbol im Infobereich zeigt das Fenster nicht.";
 }
 
-TEST_F(GuiTest, InfoDialogZeigtVersion)
+TEST_F(GuiTest, InfoDatenNennenVersionUndLizenz)  // [WindowAndHelpTest.md#about]
 {
+    const wxAboutDialogInfo info = MainWindow::aboutInfo();
+    EXPECT_EQ(info.GetVersion(), afsVERSION_STRING) << "Die Info-Daten nennen die Version nicht.";
+    EXPECT_TRUE(info.GetCopyright().Contains("Joachim Welsch")) << "Die Info-Daten nennen den Rechteinhaber nicht: " << info.GetCopyright();
+    EXPECT_TRUE(info.GetDescription().Contains("GPL")) << "Die Info-Daten nennen die Lizenz nicht: " << info.GetDescription();
+    EXPECT_TRUE(info.GetDescription().Contains("welsch-software.com")) << "Die Info-Daten nennen die Website nicht: " << info.GetDescription();
+}
+
+TEST_F(GuiTest, InfoDialogZeigtVersion)  // [WindowAndHelpTest.md#about]
+{
+#ifdef __WXOSX__
+    GTEST_SKIP() << "macOS zeigt das native Info-Fenster, das kein wxDialog ist.";
+#endif
     ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("about_title"), wxID_OK);
 
     activateMenuItem(mainWindow(), tul(id::About));

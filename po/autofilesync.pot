@@ -1831,3 +1831,23 @@ msgstr ""
 #: backgroundsync/WindowsService.cpp:113
 msgid "daemon_dispatcher_failed"
 msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr ""

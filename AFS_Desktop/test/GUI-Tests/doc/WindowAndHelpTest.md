@@ -19,6 +19,12 @@ a real pick ends up.
 The help book opens in its own frame that would stay on screen for the following tests, and a
 second DisplayContents() would only raise it; it is closed when the test leaves its scope.
 
+## about
+
+Two tests: the data the About box is built from (aboutInfo), which holds on every platform,
+and the message box itself, which macOS replaces by the native About panel - that panel is
+no wxDialog, so the modal dialog hook never sees it and the second test skips there.
+
 ## help
 
 Both routes to the help are tested, the menu and the toolbar button: the button used to open

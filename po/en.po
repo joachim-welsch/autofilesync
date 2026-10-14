@@ -981,7 +981,7 @@ msgstr "The background service is not supported on this platform."
 #: AFS_Desktop/src/Canvas.cpp:70 AFS_Desktop/src/GridWindow.cpp:63
 #: AFS_Desktop/src/ListWindow.cpp:61
 msgid "context_edit"
-msgstr "&Edit"
+msgstr "&Edit…"
 
 #: AFS_Desktop/src/Canvas.cpp:71 AFS_Desktop/src/GridWindow.cpp:64
 #: AFS_Desktop/src/ListWindow.cpp:62
@@ -1195,11 +1195,11 @@ msgstr "Configuration saved"
 
 #: AFS_Desktop/src/MainWindow.cpp:421
 msgid "overwrite_question"
-msgstr "'%1' already exists. Overwrite?"
+msgstr "'%1' already exists."
 
 #: AFS_Desktop/src/MainWindow.cpp:422
 msgid "overwrite_title"
-msgstr "Overwrite file"
+msgstr "Overwrite file?"
 
 #: AFS_Desktop/src/MainWindow.cpp:429
 msgid "save_as_title"
@@ -1251,7 +1251,7 @@ msgstr "Background service"
 
 #: AFS_Desktop/src/MainWindow.cpp:676
 msgid "bs_save_question"
-msgstr "The background service works with the saved configuration. Save now?"
+msgstr "The background service works with the saved configuration."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
@@ -1273,11 +1273,11 @@ msgstr "The tray icon could not be set."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "save_question"
-msgstr "Save?"
+msgstr "The changes to the configuration have not been saved yet."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
-msgstr "The data has not been saved."
+msgstr "Save changes?"
 
 #: AFS_Desktop/src/MainWindow.cpp:170
 msgid "title_unsaved"
@@ -1285,11 +1285,11 @@ msgstr "(unsaved)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
-msgstr "Synchronisation"
+msgstr "Synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:58
 msgid "menu_new_ssh_connection"
-msgstr "SSH connection"
+msgstr "SSH connection…"
 
 #: AFS_Desktop/src/Menu.cpp:59
 msgid "menu_new"
@@ -1297,7 +1297,7 @@ msgstr "&New"
 
 #: AFS_Desktop/src/Menu.cpp:60
 msgid "menu_open"
-msgstr "&Open"
+msgstr "&Open…"
 
 #: AFS_Desktop/src/Menu.cpp:61
 msgid "menu_save"
@@ -1305,11 +1305,11 @@ msgstr "&Save"
 
 #: AFS_Desktop/src/Menu.cpp:62
 msgid "menu_save_as"
-msgstr "Save &as"
+msgstr "Save &as…"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit"
-msgstr "Quit\tAlt-X"
+msgstr "Quit"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit_help"
@@ -1317,7 +1317,7 @@ msgstr "Quit this program"
 
 #: AFS_Desktop/src/Menu.cpp:70
 msgid "menu_about"
-msgstr "About AutoFileSync\tF1"
+msgstr "About AutoFileSync"
 
 #: AFS_Desktop/src/Menu.cpp:71
 msgid "menu_help"
@@ -1325,23 +1325,23 @@ msgstr "Show help"
 
 #: AFS_Desktop/src/Menu.cpp:78 AFS_Desktop/src/Toolbar.cpp:77
 msgid "edit_synchronisation"
-msgstr "Edit synchronisation"
+msgstr "Edit synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:79 AFS_Desktop/src/Toolbar.cpp:79
 msgid "delete_synchronisation"
-msgstr "Delete synchronisation"
+msgstr "Delete synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "SSH connections..."
+msgstr "SSH connections…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
-msgstr "Global settings"
+msgstr "Global settings…"
 
 #: AFS_Desktop/src/Menu.cpp:83
 msgid "menu_logging_settings"
-msgstr "Logging settings"
+msgstr "Logging settings…"
 
 #: AFS_Desktop/src/Menu.cpp:90
 msgid "menu_view_list"
@@ -1397,7 +1397,7 @@ msgstr "Stop the background service"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Chat..."
+msgstr "&Chat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1848,3 +1848,23 @@ msgstr "backgroundsync is running in this console window, Ctrl+C stops it."
 #: backgroundsync/WindowsService.cpp:113
 msgid "daemon_dispatcher_failed"
 msgstr "Connecting to the Windows service control manager failed, error %1"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr "Save"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr "Don't Save"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr "Overwrite"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr "Copyright © 2026 Joachim Welsch"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr "Automatic synchronisation of files and directory trees on %1.\n\nhttps://welsch-software.com\n\nLicence: GNU GPL v3 or later, see Help → Lizenzbedingungen."
