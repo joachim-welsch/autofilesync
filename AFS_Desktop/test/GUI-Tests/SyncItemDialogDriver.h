@@ -40,6 +40,7 @@ struct SyncItemOptions {  // [SyncItemDialogDriver.md#SyncItemOptions]
     std::optional<bool> compare_size;
     std::optional<bool> compare_content;
     std::optional<int> sync_cycle_seconds;
+    std::optional<int> time_tolerance_seconds;
 };
 
 struct SyncItemInput {

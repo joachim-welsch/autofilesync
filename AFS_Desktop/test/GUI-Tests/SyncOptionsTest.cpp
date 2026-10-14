@@ -27,6 +27,7 @@
 #include "Config.h"
 #include "RecycleBin.h"
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 
 using namespace AFS_Core;
@@ -65,6 +66,16 @@ SyncItemInput dir_sync(const SandboxTree& tree, const wxString& name)
 void same_write_time(const SandboxTree& tree, const char* first, const char* second)  // [SyncOptionsTest.md#same_write_time]
 {
     fs::last_write_time(tree.path(second), fs::last_write_time(tree.path(first)));
+}
+
+void write_time_apart(const SandboxTree& tree, const char* newer, const char* older, std::chrono::seconds gap)  // [SyncOptionsTest.md#write_time_apart]
+{
+    fs::last_write_time(tree.path(newer), fs::last_write_time(tree.path(older)) + gap);
+}
+
+void age_file(const SandboxTree& tree, const char* file)  // [SyncOptionsTest.md#GenerationenprinzipLegtBakDateiAn]
+{
+    fs::last_write_time(tree.path(file), fs::file_time_type::clock::now() - std::chrono::hours(1));
 }
 
 }
@@ -125,13 +136,14 @@ TEST_F(GuiTest, OhneOptionBleibtVerwaisteDateiImZiel)
 TEST_F(GuiTest, GenerationenprinzipLegtBakDateiAn)  // [SyncOptionsTest.md#GenerationenprinzipLegtBakDateiAn]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "generationen", {{"quelle/bericht.txt", "alt"}, {"ziel/", ""}});
+    age_file(tree, "quelle/bericht.txt");
     SyncItemInput input = dir_sync(tree, "guitest-generationen");
     input.options.father_son_principle = true;
     ASSERT_TRUE(add_sync_item(main_window(), input));
     ASSERT_TRUE(sync_once(main_window()));
     ASSERT_EQ(tree.read("ziel/bericht.txt"), "alt");
 
-    pump(1100);
+    pump(1100);  // [SyncOptionsTest.md#GenerationenprinzipLegtBakDateiAn]
     tree.write("quelle/bericht.txt", "neu");
     ASSERT_TRUE(sync_once(main_window()));
 
@@ -168,6 +180,24 @@ TEST_F(GuiTest, VergleichNachInhaltKopiertGeaenderteDateiGleicherGroesse)  // [S
     ASSERT_TRUE(sync_once(main_window()));
 
     EXPECT_EQ(tree.read("ziel/bericht.txt"), "AAAA") << "Der Inhaltsunterschied wurde nicht erkannt.";
+}
+
+TEST_F(GuiTest, ZeitToleranzUebergehtKleineZeitunterschiede)  // [SyncOptionsTest.md#write_time_apart]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "toleranz", {{"quelle/bericht.txt", "AAAA"}, {"ziel/bericht.txt", "BBBB"}});
+    write_time_apart(tree, "quelle/bericht.txt", "ziel/bericht.txt", std::chrono::seconds(1));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-toleranz")));
+    ASSERT_TRUE(sync_once(main_window()));
+    ASSERT_EQ(tree.read("ziel/bericht.txt"), "BBBB") << "Eine Sekunde Unterschied wurde trotz Toleranz als Änderung gewertet.";
+
+    const SandboxTree exact(GuiTestSandbox::root() / "toleranz-null", {{"quelle/bericht.txt", "AAAA"}, {"ziel/bericht.txt", "BBBB"}});
+    write_time_apart(exact, "quelle/bericht.txt", "ziel/bericht.txt", std::chrono::seconds(1));
+    SyncItemInput input = dir_sync(exact, "guitest-toleranz-null");
+    input.options.time_tolerance_seconds = 0;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_EQ(exact.read("ziel/bericht.txt"), "AAAA") << "Mit Toleranz 0 wurde die neuere Quelle nicht kopiert.";
 }
 
 TEST_F(GuiTest, VergleichNachDatumUebersiehtGeaenderteDateiGleicherGroesse)

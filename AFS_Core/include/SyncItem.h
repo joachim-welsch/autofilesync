@@ -61,7 +61,10 @@ public:
 };
 
 enum class CompareItem { size, time, content };
+constexpr uint16_t DEFAULT_TIME_TOLERANCE_SECONDS = 2;  // [SyncItem.md#time_tolerance_seconds_]
+
 class CompareItems: std::set<CompareItem>{
+    uint16_t time_tolerance_seconds_ = DEFAULT_TIME_TOLERANCE_SECONDS;  // [SyncItem.md#time_tolerance_seconds_]
 public:
     CompareItems();
     void set(const std::wstring& name, bool value);
@@ -71,6 +74,8 @@ public:
     void size(bool);
     void time(bool);
     void content(bool);
+    uint16_t time_tolerance_seconds() const { return time_tolerance_seconds_; }
+    void time_tolerance_seconds(uint16_t seconds) { time_tolerance_seconds_ = seconds; }
 };
 
 enum class SyncPathType { Filesystem, Ssh };

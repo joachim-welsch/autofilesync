@@ -40,7 +40,9 @@ empty key (i.first) and the pattern itself as the node's own data (i.second.data
 ## defaulted-flag-reads
 
 Default instead of the throwing get<>(): config files written before this flag existed must keep
-loading, and off is the documented default.
+loading, and off is the documented default. The time tolerance reads the same way, with
+DEFAULT_TIME_TOLERANCE_SECONDS, so that an existing backup to NTFS or FAT stops copying
+everything on every pass with the update that introduced it.
 
 ## delete-mode-default
 

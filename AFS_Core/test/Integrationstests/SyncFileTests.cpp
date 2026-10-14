@@ -96,7 +96,12 @@ TEST(SyncFileTests, CheckSyncChangedSizeFile)
     std::filesystem::remove(SOURCE_PATH_NAME);
 }
 
-TEST(SyncFileTests, CheckSyncChangedFileTime)
+static void age_by_an_hour(const std::wstring& file)  // [SyncFileTests.md#age_by_an_hour]
+{
+    fs::last_write_time(file, fs::file_time_type::clock::now() - hours(1));
+}
+
+TEST(SyncFileTests, CheckSyncChangedFileTime)  // [SyncFileTests.md#age_by_an_hour]
 {
     Synchronize::start();
     SyncItem si;
@@ -108,6 +113,7 @@ TEST(SyncFileTests, CheckSyncChangedFileTime)
     si.compare_items(ci);
     tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
     EXPECT_TRUE(tu::copy_source_to_dest(RESOURCE_PATH_NAME, TARGET_PATH_NAME));
+    age_by_an_hour(TARGET_PATH_NAME);
     EXPECT_TRUE(fsu::touch(SOURCE_PATH_NAME));
     std::size_t copy_count = 0;
     SyncFile test(si, copy_count, false, true);
@@ -130,6 +136,7 @@ TEST(SyncFileTests, CheckSyncDoNotChangeTargetDirWithFile)
     si.compare_items(ci);
     tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
     EXPECT_TRUE(tu::copy_source_to_dest(RESOURCE_PATH_NAME, TARGET_PATH_NAME));
+    age_by_an_hour(TARGET_PATH_NAME);
     EXPECT_TRUE(fsu::touch(SOURCE_PATH_NAME));
     std::size_t copy_count = 0;
     SyncFile test(si, copy_count, false, true);

@@ -84,6 +84,10 @@ bool enter_options(wxDialog& dialog, const SyncItemOptions& options)  // [SyncIt
         ADD_FAILURE() << "Der Zyklus konnte nicht auf " << *options.sync_cycle_seconds << " gesetzt werden.";
         return false;
     }
+    if (options.time_tolerance_seconds && !set_spin_value(find(dialog, ID_TIME_TOLERANCE_SPIN), *options.time_tolerance_seconds)) {
+        ADD_FAILURE() << "Die Zeittoleranz konnte nicht auf " << *options.time_tolerance_seconds << " gesetzt werden.";
+        return false;
+    }
     return true;
 }
 

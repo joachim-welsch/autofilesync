@@ -39,6 +39,8 @@ using util::wstring_to_string;
 using util::string_to_wstring;
 using std::wstring;
 
+constexpr int MAX_TIME_TOLERANCE_SECONDS = 3600;  // [SyncItemDialog.md#tolerance-beside-time]
+
 BEGIN_EVENT_TABLE(SyncItemDialog, wxDialog)
     EVT_UPDATE_UI(wxID_OK, SyncItemDialog::on_update_ok_button)
 END_EVENT_TABLE()
@@ -180,9 +182,19 @@ wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItem
     compare_content_check_ = new wxCheckBox(box, ID_COMPARE_CONTENT_CHECK, translation::translate("compare_content"));
     for (wxCheckBox* check : {compare_date_check_, compare_size_check_, compare_content_check_})
         compare_sizer->Add(check, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* tolerance_sizer = new wxBoxSizer(wxHORIZONTAL);  // [SyncItemDialog.md#tolerance-beside-time]
+    tolerance_sizer->Add(new wxStaticText(box, wxID_STATIC, translation::translate("time_tolerance_seconds")), 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
+    time_tolerance_spin_ = new wxSpinCtrl(box, ID_TIME_TOLERANCE_SPIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, MAX_TIME_TOLERANCE_SECONDS, DEFAULT_TIME_TOLERANCE_SECONDS);
+    tolerance_sizer->Add(time_tolerance_spin_);
+    compare_sizer->Add(tolerance_sizer, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
     page_sizer->Add(compare_sizer, 0, wxTOP | wxRIGHT | wxBOTTOM, 10);
     page->SetSizer(page_sizer);
     return page;
+}
+
+void SyncItemDialog::update_time_tolerance_state()
+{
+    time_tolerance_spin_->Enable(compare_date_check_->GetValue());
 }
 
 void SyncItemDialog::update_delete_in_target_state()
@@ -211,6 +223,9 @@ void SyncItemDialog::event_bindings()
     type_choice_->Bind(wxEVT_CHOICE, [this](wxCommandEvent&) {
         update_delete_in_target_state();
     });
+    compare_date_check_->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) {
+        update_time_tolerance_state();
+    });
 }
 
 SyncItemDialog::~SyncItemDialog()
@@ -232,6 +247,7 @@ void SyncItemDialog::set_data(const SyncItem& si)
     enabled_ = si.enabled();
     del_source_after_ = si.del_aftercopy();
     compare_date_ = si.compare_items().time();
+    time_tolerance_seconds_ = si.compare_items().time_tolerance_seconds();
     two_way_sync_ = si.two_way_sync();
     compare_size_ = si.compare_items().size();
     copy_when_target_newer_ = si.copy_when_target_newer();
@@ -269,6 +285,7 @@ void SyncItemDialog::save_data(SyncItem& si)
     si.del_aftercopy(del_source_after_);
     CompareItems compare_items;
     compare_items.time(compare_date_);
+    compare_items.time_tolerance_seconds(time_tolerance_seconds_);
     si.two_way_sync(two_way_sync_);
     compare_items.size(compare_size_);
     si.copy_when_target_newer(copy_when_target_newer_);
@@ -313,7 +330,9 @@ bool SyncItemDialog::TransferDataToWindow()
     backup_proof_check_->SetValue(backup_proof_);
     sync_empty_files_check_->SetValue(sync_empty_files_);
     sync_cycle_spin_->SetValue(sync_cycle_);
+    time_tolerance_spin_->SetValue(time_tolerance_seconds_);
     update_delete_in_target_state();
+    update_time_tolerance_state();
     return true;
 }
 
@@ -341,6 +360,7 @@ bool SyncItemDialog::TransferDataFromWindow()
     backup_proof_ = backup_proof_check_->GetValue();
     sync_empty_files_ = sync_empty_files_check_->GetValue();
     sync_cycle_ = sync_cycle_spin_->GetValue();
+    time_tolerance_seconds_ = static_cast<uint16_t>(time_tolerance_spin_->GetValue());
     return true;
 }
 

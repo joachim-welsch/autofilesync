@@ -1689,6 +1689,10 @@ msgstr "Synchroniser les fichiers vides"
 msgid "pause_seconds"
 msgstr "Secondes de pause :"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:186
+msgid "time_tolerance_seconds"
+msgstr "Tolérance en secondes :"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:193
 msgid "tab_options"
 msgstr "Options"

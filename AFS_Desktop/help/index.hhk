@@ -83,6 +83,10 @@
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Toleranz der &Auml;nderungszeit (NTFS, FAT, exFAT)">
+      <PARAM name="Local" value="options.html#timetolerance">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Typ (Datei, Verzeichnis, Verzeichnisbaum)">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>

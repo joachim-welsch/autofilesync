@@ -7,7 +7,8 @@ Module comment for SyncItemDialogDriver.h / SyncItemDialogDriver.cpp.
 Every option is optional: a test names only what it wants changed, everything else keeps the
 dialog's own default - the same as a user who opens the dialog and touches one box. The order
 in enter_options matters: two-way sync locks "Kopieren wenn Ziel neuer" and the type locks
-"Gelöschte Dateien im Ziel löschen", so those come after what decides about them.
+"Gelöschte Dateien im Ziel löschen", so those come after what decides about them. The time
+tolerance spin is enabled by the date criterion and therefore follows the check boxes.
 
 ## enter_values
 

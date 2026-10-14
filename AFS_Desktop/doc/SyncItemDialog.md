@@ -9,6 +9,14 @@ options are the synchronisation's behaviour and stand in one column. Before, the
 in a second column between unrelated options and could be read as belonging to the lines
 they shared.
 
+## tolerance-beside-time
+
+The tolerance of the time comparison stands inside the criteria group, right below the date
+criterion it qualifies, and is enabled only while that criterion is checked: it has no meaning
+without it, and greying it out says so without a hint text. The range reaches 3600 s because
+FAT stores local time and a DST change shifts every stored time by an hour; the default of two
+seconds is the coarsest step a common file system keeps (see FileDifference.md#time-tolerance).
+
 ## exclusions-one-per-line
 
 One wildcard pattern per line; blank/whitespace-only lines are ignored so trailing newlines or

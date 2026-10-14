@@ -1719,6 +1719,10 @@ msgstr "Synchronise empty files"
 msgid "pause_seconds"
 msgstr "Seconds of pause:"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:186
+msgid "time_tolerance_seconds"
+msgstr "Tolerance in seconds:"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:193
 msgid "tab_options"
 msgstr "Options"

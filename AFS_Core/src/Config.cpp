@@ -214,6 +214,7 @@ CompareItems get_compare_items(boost::property_tree::wptree& ci)
         const wstring value=i.second.data();
         retval.set(name, value == L"true");
     }
+    retval.time_tolerance_seconds(to_uint16_t(ci.get<wstring>(L"timeToleranceSeconds", std::to_wstring(DEFAULT_TIME_TOLERANCE_SECONDS))));  // [Config.md#defaulted-flag-reads]
     return retval;
 }
 
@@ -498,6 +499,9 @@ void write_compare_items(const SyncItem& inode, pt::wptree& compare_items_node)
     pt::wptree content_node;
     content_node.put(L"", to_string(ci.content()));
     compare_items_node.push_back(std::make_pair(L"content", content_node));
+    pt::wptree tolerance_node;
+    tolerance_node.put(L"", std::to_wstring(ci.time_tolerance_seconds()));
+    compare_items_node.push_back(std::make_pair(L"timeToleranceSeconds", tolerance_node));
 }
 
 void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree& syncitem_node)

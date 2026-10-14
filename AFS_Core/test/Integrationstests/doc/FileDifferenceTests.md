@@ -67,3 +67,12 @@ holds the newer edit, so neither SourceModified nor DestModified is acceptable.
 
 One-way sync has a defined direction; the same pair of files still means that
 the source goes to the target.
+
+## time-tolerance
+
+Write times that differ by no more than the configured tolerance count as equal, in both
+directions: the target file system may store the time more coarsely than the source (NTFS
+rounds to 100 ns, exFAT to 10 ms, FAT32 to 2 s), so a copy carries a time slightly before its
+original and was sent again on every pass. The tolerance is a value of the item, so a
+tolerance of 0 still gives the exact comparison, and a two-way sync does not read a difference
+inside the tolerance as "the other side is newer" either - that pair is a content conflict.

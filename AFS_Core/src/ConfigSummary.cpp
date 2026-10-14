@@ -63,6 +63,8 @@ wstring compared_by(const SyncItem& item)
     for (const auto& [chosen, msgid] : criteria)
         if (chosen)
             names.push_back(translate(msgid));
+    if (compare.time())
+        names.front() += L" (\u00b1" + std::to_wstring(compare.time_tolerance_seconds()) + L" s)";
     return joined(names, L", ");
 }
 

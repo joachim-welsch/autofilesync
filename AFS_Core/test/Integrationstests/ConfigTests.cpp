@@ -902,6 +902,61 @@ TEST_F(ConfigPathTest, SyncEmptyFilesStaysOffThroughSaveAndLoad)
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, TimeToleranceRoundTripsThroughSaveAndLoad)  // [ConfigTests.md#TimeToleranceRoundTripsThroughSaveAndLoad]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    CompareItems ci;
+    ci.time(true);
+    ci.time_tolerance_seconds(7);
+    SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(), SyncFlags(false, false, false, false, true), ci);
+    Config::instance().add(si);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].compare_items().time_tolerance_seconds(), 7);
+    EXPECT_TRUE(items[0].compare_items().time());
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, TimeToleranceDefaultsToTwoSecondsForOlderConfigFiles)  // [ConfigTests.md#TimeToleranceDefaultsToTwoSecondsForOlderConfigFiles]
+{
+    const fs::path config_path = test_home_ / "legacy_timetolerance.json";
+    write_file(config_path, R"({
+        "Syncitems": {
+            "Syncitem": {
+                "compareitems": { "size": "false", "time": "true", "content": "false" },
+                "syncflags": {
+                    "delAftercopy": "false",
+                    "twoWaySync": "false",
+                    "copyWhenTargetNewer": "false",
+                    "fatherSonPrinciple": "false",
+                    "enabled": "true"
+                },
+                "name": "item",
+                "type": "Datei",
+                "source": "/tmp/src",
+                "target": "/tmp/dst",
+                "wildcard": "*",
+                "SyncCycle": "5"
+            }
+        }
+    })");
+    Config::instance().reset();
+
+    ASSERT_TRUE(Config::instance().read(config_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].compare_items().time_tolerance_seconds(), DEFAULT_TIME_TOLERANCE_SECONDS);
+    EXPECT_TRUE(items[0].compare_items().time());
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, SyncEmptyFilesDefaultsToFalseForOlderConfigFiles)  // [ConfigTests.md#SyncEmptyFilesDefaultsToFalseForOlderConfigFiles]
 {
     const fs::path config_path = test_home_ / "legacy_syncemptyfiles.json";

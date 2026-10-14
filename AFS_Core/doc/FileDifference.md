@@ -34,11 +34,26 @@ reports produced a time roughly two centuries off. Every remote file therefore c
 than every local file, whatever its real age. util::to_file_time() converts through the clocks
 instead.
 
+## time-tolerance
+
+A copy carries the modification time of its original, but only as precisely as the target file
+system stores it. Compared to the nanoseconds of ext4, NTFS keeps 100 ns steps, exFAT 10 ms,
+FAT32 whole 2 s, and HFS+ whole seconds; a copy therefore sits up to that step before its
+original. Compared exactly, the original was newer on every pass and was sent again every time,
+a backup of a source tree to an NTFS disk sent thousands of unchanged files a minute. Two write
+times are therefore the same when they differ by no more than the item's tolerance - in both
+directions, so that a two-way sync does not read the rounding as an edit on the other side
+either. The default of two seconds covers every file system named above; a tolerance of 0 is
+the exact comparison again. The price is that an edit less than the tolerance after the
+previous write time goes unnoticed if a pass ran in between, which is why the size criterion
+is worth adding where files are edited in quick succession.
+
 ## second-resolution
 
 SFTP reports the modification time in whole seconds while a local file carries sub-second
 precision, so a file and its own copy differ by up to one second. Comparing the seconds is what
-keeps that difference from looking like a change and sending the file across on every pass.
+keeps that difference from looking like a change even with a tolerance of 0; the tolerance is
+then applied on top, in whole seconds.
 
 ## content-conflict
 

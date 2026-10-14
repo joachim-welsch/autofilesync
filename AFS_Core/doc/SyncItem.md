@@ -7,6 +7,14 @@ Module comment for SyncItem.h / SyncItem.cpp.
 Without this flag empty files are skipped: a file of size 0 is usually an aborted write, and
 copying it over an existing target would lose data.
 
+## time_tolerance_seconds_
+
+How far apart two write times may be and still count as the same, see
+FileDifference.md#time-tolerance. It lives with the comparison criteria because it qualifies
+the time criterion and travels with them into FileDifference. DEFAULT_TIME_TOLERANCE_SECONDS
+is the value an item gets when the configuration file predates the setting; two seconds is
+the coarsest timestamp a common file system (FAT32) stores.
+
 ## clone
 
 Deep copy for SyncItem's value semantics; the concrete type stays intact.

@@ -58,6 +58,7 @@ public:
 private:
     void event_bindings();
     void update_delete_in_target_state();
+    void update_time_tolerance_state();
     wxPanel* create_options_page(wxNotebook* notebook);
 
     bool TransferDataToWindow() override;
@@ -93,6 +94,7 @@ private:
     bool     compare_size_ = false;
     bool     compare_content_ = false;
     uint16_t sync_cycle_ = 1;
+    uint16_t time_tolerance_seconds_ = DEFAULT_TIME_TOLERANCE_SECONDS;
     
     wxTextCtrl* name_box_ = nullptr;
     wxChoice* type_choice_ = nullptr;
@@ -112,6 +114,7 @@ private:
     wxCheckBox* backup_proof_check_ = nullptr;
     wxCheckBox* sync_empty_files_check_ = nullptr;
     wxSpinCtrl* sync_cycle_spin_ = nullptr;
+    wxSpinCtrl* time_tolerance_spin_ = nullptr;
 
     DECLARE_EVENT_TABLE()
 };
@@ -138,5 +141,6 @@ enum {
     ID_DELETE_IN_TARGET_CHECK,
     ID_BACKUP_PROOF_CHECK,
     ID_SYNC_EMPTY_FILES_CHECK,
-    ID_SYNC_CYCLE_SPIN
+    ID_SYNC_CYCLE_SPIN,
+    ID_TIME_TOLERANCE_SPIN
 };

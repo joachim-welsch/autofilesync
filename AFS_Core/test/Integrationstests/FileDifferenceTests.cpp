@@ -249,3 +249,88 @@ TEST_F(TwoWaySyncContentComparisonTest, DestSizeIsReadEvenWhenSourceIsMissing)  
     EXPECT_EQ(fd.result(), FileDifference::Result::SourceNotExits);
     EXPECT_GT(fd.dest_size(), 0u);
 }
+
+namespace {
+
+CompareItems time_only(uint16_t tolerance_seconds)
+{
+    CompareItems ci;
+    ci.content(false);
+    ci.time(true);
+    ci.time_tolerance_seconds(tolerance_seconds);
+    return ci;
+}
+
+}
+
+TEST_F(TwoWaySyncContentComparisonTest, SourceNewerWithinTheToleranceCountsAsEqual)  // [FileDifferenceTests.md#time-tolerance]
+{
+    const auto now = std::chrono::system_clock::now();
+    write_file_with_time(dest_file_, "same", now);
+    write_file_with_time(source_file_, "same", now + std::chrono::seconds(1));
+
+    const std::wstring source = source_file_.wstring();
+    const std::wstring dest = dest_file_.wstring();
+    FileDifference fd(source, dest, time_only(DEFAULT_TIME_TOLERANCE_SECONDS));
+    fd();
+
+    EXPECT_EQ(fd.result(), FileDifference::Result::Equal) << "a difference inside the tolerance must not look like a change";
+}
+
+TEST_F(TwoWaySyncContentComparisonTest, SourceNewerBeyondTheToleranceIsSourceModified)
+{
+    const auto now = std::chrono::system_clock::now();
+    write_file_with_time(dest_file_, "same", now);
+    write_file_with_time(source_file_, "same", now + std::chrono::seconds(3));
+
+    const std::wstring source = source_file_.wstring();
+    const std::wstring dest = dest_file_.wstring();
+    FileDifference fd(source, dest, time_only(DEFAULT_TIME_TOLERANCE_SECONDS));
+    fd();
+
+    EXPECT_EQ(fd.result(), FileDifference::Result::SourceModified);
+}
+
+TEST_F(TwoWaySyncContentComparisonTest, DestNewerWithinTheToleranceCountsAsEqual)
+{
+    const auto now = std::chrono::system_clock::now();
+    write_file_with_time(source_file_, "same", now);
+    write_file_with_time(dest_file_, "same", now + std::chrono::seconds(1));
+
+    const std::wstring source = source_file_.wstring();
+    const std::wstring dest = dest_file_.wstring();
+    FileDifference fd(source, dest, time_only(DEFAULT_TIME_TOLERANCE_SECONDS));
+    fd();
+
+    EXPECT_EQ(fd.result(), FileDifference::Result::Equal);
+}
+
+TEST_F(TwoWaySyncContentComparisonTest, ZeroToleranceSeesASubSecondDifference)  // [FileDifferenceTests.md#time-tolerance]
+{
+    const auto now = std::chrono::system_clock::now();
+    write_file_with_time(dest_file_, "same", now);
+    write_file_with_time(source_file_, "same", now + std::chrono::milliseconds(100));
+
+    const std::wstring source = source_file_.wstring();
+    const std::wstring dest = dest_file_.wstring();
+    FileDifference fd(source, dest, time_only(0));
+    fd();
+
+    EXPECT_EQ(fd.result(), FileDifference::Result::SourceModified);
+}
+
+TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncTreatsTimesWithinTheToleranceAsAContentConflict)  // [FileDifferenceTests.md#time-tolerance]
+{
+    const auto now = std::chrono::system_clock::now();
+    write_file_with_time(source_file_, "AAAA", now);
+    write_file_with_time(dest_file_, "BBBB", now + std::chrono::seconds(1));
+
+    const std::wstring source = source_file_.wstring();
+    const std::wstring dest = dest_file_.wstring();
+    CompareItems ci;
+    FileDifference fd(source, dest, ci, SSHPATH::none, /*two_way_sync=*/true);
+    fd();
+
+    EXPECT_EQ(fd.result(), FileDifference::Result::ContentConflict)
+        << "a second between the write times is no evidence for either side being the newer one";
+}

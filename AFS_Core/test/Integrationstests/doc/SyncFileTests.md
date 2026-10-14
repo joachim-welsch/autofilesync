@@ -13,6 +13,12 @@ Source must be the larger file: FileDifference only maps a size difference to So
 (which copyToTarget acts on without extra flags) when the source is bigger - a bigger
 destination means DestModified instead, which needs copy_when_target_newer() to copy.
 
+## age_by_an_hour
+
+The comparison by time has a tolerance of two seconds, so a target that was written a moment
+before the source was touched is not older to it. Ageing the target by an hour puts the touch
+clearly outside the tolerance, independent of how fast the machine is.
+
 ## CheckOnlyCountDoesNotCopy
 
 Regression test: the "count files" pre-pass (onlyCount=true) must behave like

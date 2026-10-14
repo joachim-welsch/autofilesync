@@ -27,7 +27,41 @@ Sie lassen sich kombinieren.</p>
         Lesezeit für beide Seiten. Bei Zwei-Wege-Synchronisation entscheidet
         zusätzlich die Änderungszeit, welche Seite die neuere ist – ein reiner
         Inhaltsvergleich kann das nicht unterscheiden.</td></tr>
+<tr><td valign="top"><b>Toleranz in Sekunden</b></td>
+    <td>Zwei Änderungszeiten, die höchstens so viele Sekunden auseinanderliegen,
+        gelten als gleich. Das Feld ist nur bei eingeschaltetem Vergleich nach
+        <b>Datum</b> aktiv, die Vorgabe ist 2 Sekunden; siehe
+        <a href="#timetolerance">Toleranz und Dateisysteme</a>.</td></tr>
 </table>
+
+<h3><a name="timetolerance"></a>Toleranz und Dateisysteme</h3>
+
+<p>Beim Kopieren übernimmt AutoFileSync die Änderungszeit der Quelle, das Ziel
+speichert sie aber nur so genau, wie sein Dateisystem es erlaubt. Ohne Toleranz
+wäre die Quelle dann bei jedem Durchlauf um Bruchteile einer Sekunde neuer als
+ihre eigene Kopie und würde immer wieder kopiert. Die Toleranz muss mindestens
+so groß sein wie der gröbste Zeitschritt auf einer der beiden Seiten:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Dateisystem</th><th align="left">Genauigkeit der Änderungszeit</th><th align="left">Nötige Toleranz</th></tr>
+<tr><td>ext4, Btrfs, XFS, APFS</td><td>Nanosekunden</td><td>0 s</td></tr>
+<tr><td>NTFS</td><td>100 Nanosekunden</td><td>1 s</td></tr>
+<tr><td>exFAT</td><td>10 Millisekunden</td><td>1 s</td></tr>
+<tr><td>HFS+, SFTP-Server</td><td>ganze Sekunden</td><td>1 s</td></tr>
+<tr><td>FAT32, FAT16 (USB-Sticks, Speicherkarten)</td><td>2 Sekunden</td><td>2 s</td></tr>
+</table>
+
+<p>Die Vorgabe von 2 Sekunden deckt alle genannten Fälle ab. FAT speichert die
+Zeit außerdem als Ortszeit: Nach einer Umstellung zwischen Sommer- und
+Winterzeit erscheinen alle Dateien um eine Stunde verschoben. Wer das vermeiden
+will, kann die Toleranz vorübergehend auf 3600 Sekunden stellen oder zusätzlich
+nach <b>Größe</b> vergleichen.</p>
+
+<p>Die Kehrseite der Toleranz: Wird eine Datei innerhalb der Toleranz nach ihrer
+vorigen Änderung erneut gespeichert und lief dazwischen ein Durchlauf, fällt die
+zweite Änderung erst beim nächsten Speichern auf. Wer Dateien in schneller Folge
+bearbeitet, schaltet am besten zusätzlich <b>Größe</b> ein oder setzt die
+Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
 
 <h2>Optionen im Einzelnen</h2>
 

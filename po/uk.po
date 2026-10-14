@@ -1689,6 +1689,10 @@ msgstr "Синхронізувати порожні файли"
 msgid "pause_seconds"
 msgstr "Секунд паузи:"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:186
+msgid "time_tolerance_seconds"
+msgstr "Допуск у секундах:"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:193
 msgid "tab_options"
 msgstr "Параметри"

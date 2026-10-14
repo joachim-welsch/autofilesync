@@ -2,6 +2,11 @@
 
 ## Unveröffentlicht
 
+- Der Datumsvergleich hat eine einstellbare Toleranz (Reiter Optionen, Vorgabe
+  2 Sekunden). Bisher galt eine Datei auf einem NTFS-, exFAT- oder
+  FAT-Datenträger bei jedem Durchlauf als geändert, weil das Ziel die
+  Änderungszeit gröber speichert als die Quelle, und wurde immer wieder
+  kopiert.
 - Der Fortschrittsbalken bewegt sich auch innerhalb einer Datei: Er zeigt die
   fertigen Dateien plus den schon kopierten Anteil der laufenden Datei, auch
   über SSH. Abbrechen wirkt mitten in einer großen Datei und lässt keine halbe

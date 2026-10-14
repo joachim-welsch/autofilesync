@@ -158,6 +158,18 @@ the user never opted in for.
 same applies as for syncDeletions: if the flag is lost on save or load - or gained unasked - the
 behaviour towards the user's data changes.
 
+## TimeToleranceRoundTripsThroughSaveAndLoad
+
+The tolerance of the time comparison is persisted under the compareitems key
+"timeToleranceSeconds". A value that is lost on save or load silently changes which files
+count as modified.
+
+## TimeToleranceDefaultsToTwoSecondsForOlderConfigFiles
+
+A configuration file written before the tolerance existed does not know the key. It has to
+load with the default of two seconds: that is what stops a backup on NTFS, exFAT or FAT from
+copying every file on every pass, and the existing installations are the ones hit by it.
+
 ## SyncEmptyFilesDefaultsToFalseForOlderConfigFiles
 
 A configuration file written before the flag existed does not know the key. It has to load with
