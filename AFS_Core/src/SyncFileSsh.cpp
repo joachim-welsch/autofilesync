@@ -228,11 +228,13 @@ namespace {
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
         ssize_t bytes_read;
+        uint64_t copied = 0;
         while ((bytes_read = sftp_read(remote_file, buffer.data(), buffer.size())) > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!local_file.write(buffer.data(), bytes_read))
                 return copy_failed(translation::translate("local_file_write_error"));
+            Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
         }
         return bytes_read < 0 ? copy_failed(translation::translate("remote_file_read_error")) : CopyResult::OK;
     }
@@ -240,11 +242,13 @@ namespace {
     CopyResult upload(std::ifstream& local_file, sftp_file remote_file)
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
+        uint64_t copied = 0;
         while (local_file.read(buffer.data(), buffer.size()) || local_file.gcount() > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!sftp_write_all(remote_file, buffer.data(), static_cast<size_t>(local_file.gcount())))
                 return copy_failed(translation::translate("remote_file_write_error"));
+            Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(local_file.gcount()));
         }
         return local_file.bad() ? copy_failed(translation::translate("local_file_read_error")) : CopyResult::OK;
     }
@@ -253,11 +257,13 @@ namespace {
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
         ssize_t bytes_read;
+        uint64_t copied = 0;
         while ((bytes_read = sftp_read(src_file, buffer.data(), buffer.size())) > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!sftp_write_all(dest_file, buffer.data(), static_cast<size_t>(bytes_read)))
                 return copy_failed(translation::translate("target_file_write_error"));
+            Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
         }
         return bytes_read < 0 ? copy_failed(translation::translate("source_file_read_error")) : CopyResult::OK;
     }
@@ -547,6 +553,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
 
     std::vector<char> buffer(65536);
     ssize_t bytes_read;
+    uint64_t copied = 0;
     CopyResult result = CopyResult::OK;
 
     while ((bytes_read = libssh2_sftp_read(remote_file, buffer.data(), buffer.size())) > 0) {
@@ -561,6 +568,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
             result = CopyResult::Error;
             break;
         }
+        Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
     }
 
     if (bytes_read < 0) {
@@ -786,6 +794,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
 
     std::vector<char> buffer(65536);
     ssize_t bytes_read;
+    uint64_t copied = 0;
     CopyResult result = CopyResult::OK;
 
     while ((bytes_read = libssh2_sftp_read(src_file, buffer.data(), buffer.size())) > 0) {
@@ -799,6 +808,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
             result = CopyResult::Error;
             break;
         }
+        Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
     }
 
     if (bytes_read < 0) {
@@ -915,6 +925,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
     std::vector<char> buffer(65536);
+    uint64_t copied = 0;
     CopyResult result = CopyResult::OK;
 
     while (local_file.read(buffer.data(), buffer.size()) || local_file.gcount() > 0) {
@@ -929,6 +940,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
             result = CopyResult::Error;
             break;
         }
+        Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
     }
 
     if (result == CopyResult::OK && local_file.bad()) {

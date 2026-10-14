@@ -17,13 +17,11 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <optional>
 #include <atomic>
+#include <cstdint>
 #include <memory>
 #include "Global.h"
 #include "SyncMessage.h"
-
-class ProgressDialog;
 
 namespace AFS_Core {
 
@@ -35,7 +33,6 @@ class SyncControler {
 	using SyncCtrlPtr = std::unique_ptr<SyncControler>;
 
 	static SyncCtrlPtr  instance_;
-	std::atomic<ProgressDialog*> progress_dialog_ = nullptr;
 	Synchronize*		synchronize_ = nullptr;
 	std::atomic<SyncCtrlState>	state_ = SyncCtrlState::Waiting;
 	std::size_t			count_files_ = 0;
@@ -46,8 +43,6 @@ protected:
 public:
 	~SyncControler() = default;
 	static SyncControler& instance();
-	void register_progress_dialog(ProgressDialog*);
-	std::optional<ProgressDialog*> progress_dialog();
 	bool start_sync(SyncType sync_type);
 	void request_stop();
 	void stop_sync();
@@ -55,6 +50,7 @@ public:
 	void reset_state();
 	void destroy_synchronize();
 	SyncMessage get_message() const;
+	uint64_t copied_bytes() const;
 	void count_files(std::size_t);
 	std::size_t count_files() const;
 	friend class Synchronize;

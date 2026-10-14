@@ -2,6 +2,10 @@
 
 ## Unveröffentlicht
 
+- Der Fortschrittsbalken bewegt sich auch innerhalb einer Datei: Er zeigt die
+  fertigen Dateien plus den schon kopierten Anteil der laufenden Datei, auch
+  über SSH. Abbrechen wirkt mitten in einer großen Datei und lässt keine halbe
+  Datei im Ziel zurück.
 - Die Oberfläche folgt den Plattformregeln enger: Tastenkürzel für Neu,
   Öffnen, Speichern, Speichern als, Einstellungen, Beenden und Hilfe;
   Menüpunkte, die einen Dialog öffnen, enden mit „…“; Bestätigungen fragen

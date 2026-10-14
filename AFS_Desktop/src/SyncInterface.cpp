@@ -48,7 +48,6 @@ SyncInterface::~SyncInterface()
         progress_dialog_->can_be_closed(true);
         progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
         progress_dialog_ = nullptr;
-        sync_controler_.register_progress_dialog(nullptr);
     }
 }
 
@@ -68,7 +67,6 @@ void SyncInterface::open_progress_dialog(uint32_t n_files)
         return;
     progress_dialog_ = new ProgressDialog(&parent_window_, wxID_ANY, translation::translate("progress_title"), sync_controler_, n_files);
     progress_dialog_->Show();
-    sync_controler_.register_progress_dialog(progress_dialog_);
 }
 
 namespace {
@@ -138,7 +136,6 @@ void SyncInterface::sync_once_finished()
         progress_dialog_->can_be_closed(true);
         progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
         progress_dialog_ = nullptr;
-        sync_controler_.register_progress_dialog(nullptr);
     }
     menu_.sync_menu()->Enable(tul(id::StartSync), true);
     menu_.sync_menu()->Enable(tul(id::SyncOnce), true);
@@ -155,7 +152,6 @@ void SyncInterface::count_files_finished()
         progress_dialog_->can_be_closed(true);
         progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
         progress_dialog_ = nullptr;
-        sync_controler_.register_progress_dialog(nullptr);
     }
     count_files_ = sync_controler_.count_files();
     if (count_files_ > 0) {

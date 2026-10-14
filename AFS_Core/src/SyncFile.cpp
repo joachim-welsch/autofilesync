@@ -19,10 +19,12 @@
 #include "pch.h"
 #include "SyncFile.h"
 #include <filesystem>
+#include <fstream>
 #include <mutex>
 #include <set>
 #include <sstream>
 #include <thread>
+#include <vector>
 #include "Global.h"
 #include "Synchronize.h"
 #include "Util.h"
@@ -175,6 +177,33 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
     log_debug(L"endof wait_for_updated_filetime");
 }
 
+constexpr std::size_t COPY_BLOCK_BYTES = 1 << 20;
+
+static CopyResult copy_local_file(const wstring& src, const wstring& dest)  // [SyncFile.md#copy_local_file]
+{
+    std::ifstream in(fs::path(src), std::ios::binary);
+    std::ofstream out(fs::path(dest), std::ios::binary | std::ios::trunc);
+    if (!in || !out)
+        return CopyResult::Error;
+    std::vector<char> block(COPY_BLOCK_BYTES);
+    uint64_t copied = 0;
+    while (in.read(block.data(), static_cast<std::streamsize>(block.size())) || in.gcount() > 0) {
+        if (Synchronize::stopping())
+            return CopyResult::Stopped;
+        if (!out.write(block.data(), in.gcount()))
+            return CopyResult::Error;
+        Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(in.gcount()));
+    }
+    if (in.bad())
+        return CopyResult::Error;
+    out.close();
+    if (!out)
+        return CopyResult::Error;
+    std::error_code ec;
+    fs::permissions(dest, fs::status(src, ec).permissions(), ec);  // [SyncFile.md#copy_local_file]
+    return CopyResult::OK;
+}
+
 static CopyResult copy_normal_file(const wstring& src, const wstring& dest)  // [SyncFile.md#copy-direction-follows-the-paths]
 {
     const bool ssh_src = get_account_from_path(src).has_value();
@@ -185,7 +214,7 @@ static CopyResult copy_normal_file(const wstring& src, const wstring& dest)  // 
         return copy_ssh_to_fs(src, dest);
     if (ssh_dest)
         return copy_fs_to_ssh(src, dest);
-    return fs::copy_file(src, dest, fs::copy_options::update_existing) ? CopyResult::OK : CopyResult::Error;
+    return copy_local_file(src, dest);
 }
 
 CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)

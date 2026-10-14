@@ -24,13 +24,9 @@
 #include "wx/wx.h"
 #endif
 
-#include <utility>
-#include <string>
 #include <cstdint>
-#include <atomic>
 #include <mutex>
 
-class MainWindow;
 namespace AFS_Core { class SyncControler; }
 
 using namespace AFS_Core;
@@ -38,15 +34,14 @@ using namespace AFS_Core;
 class ProgressDialog: public wxDialog {
     bool closed_ = false;
     bool can_be_closed_ = false;
-	SyncControler& sync_controler_;
-	std::atomic_bool	waiting_{ false };
+    SyncControler& sync_controler_;
     mutable std::mutex mutex_;
 public:
     ProgressDialog(wxWindow* parent,
         wxWindowID id,
         const wxString& title,
-		SyncControler&,
-        uint32_t range,
+        SyncControler&,
+        uint32_t n_files,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxDEFAULT_DIALOG_STYLE,
@@ -54,19 +49,20 @@ public:
     virtual ~ProgressDialog();
 
     void OnCloseWindow(wxCloseEvent& event);
-    bool closed() const { return closed_;  }
+    bool closed() const { return closed_; }
     bool can_be_closed() const { return can_be_closed_; }
     void can_be_closed(bool);
-	void set_range(uint32_t range); // Switch to progress of single file
-	void set_progress(uint32_t value);
 private:
     void on_cancel(wxCommandEvent& event);
     void on_timer_update(wxTimerEvent&);
     void on_update_cancel_button(wxUpdateUIEvent& event);
+    uint32_t file_steps_done() const;  // [ProgressDialog.md#file-progress]
 
     wxGauge* gauge_ = nullptr;
     wxStaticText* current_file_ = nullptr;
     wxTimer timer_;
     uint32_t range_ = 0;
+    uint32_t files_done_ = 0;
+    uint64_t file_size_ = 0;
     DECLARE_EVENT_TABLE()
 };

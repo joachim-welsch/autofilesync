@@ -31,3 +31,10 @@ is nowhere to put a proof either.
 
 i is this pass's snapshot copy (see operator()()), not the item held by Config - update
 last_sync there so the next pass's snapshot sees it.
+
+## copied_bytes_
+
+Bytes of the file being copied, stored by the worker after every block and read by the
+progress dialog on its timer: one atomic in place of a message per block, which the message
+stack would have to keep and the dialog pop. set_progress_message() resets it, so the count
+always belongs to the file the latest message named.

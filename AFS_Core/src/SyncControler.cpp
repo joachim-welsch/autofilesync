@@ -32,21 +32,6 @@ SyncControler& SyncControler::instance()
 	return *instance_;
 }
 
-void SyncControler::register_progress_dialog(ProgressDialog* pdlg)
-{
-	log_debug(L"SyncControler::register_progress_dialog()");
-	progress_dialog_ = pdlg;
-}
-
-std::optional<ProgressDialog*> SyncControler::progress_dialog()
-{
-	log_debug(L"SyncControler::progress_dialog()");
-	ProgressDialog* pdlg = progress_dialog_.load();
-	if (pdlg == nullptr)
-		return std::nullopt;
-	return pdlg;
-}
-
 bool SyncControler::start_sync(SyncType sync_type)
 {
 	log_debug(L"SyncControler::start_sync()");
@@ -97,6 +82,11 @@ SyncMessage SyncControler::get_message() const
 	if (synchronize_ == nullptr)
 		return SyncMessage();
 	return synchronize_->get_message();
+}
+
+uint64_t SyncControler::copied_bytes() const
+{
+	return synchronize_ == nullptr ? 0 : synchronize_->copied_bytes();
 }
 
 } // namespace AFS_Core

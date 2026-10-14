@@ -156,8 +156,21 @@ void Synchronize::start()
 void Synchronize::set_progress_message(const std::wstring& m, const std::wstring& file, int64_t sourcesize)
 {
     Synchronize* this_ptr = this_.load();
-    if (this_ptr)
-        this_ptr->messages_.push(SyncMessage(m, file, this_ptr->count_files_, sourcesize));
+    if (this_ptr == nullptr)
+        return;
+    this_ptr->copied_bytes_ = 0;  // [Synchronize.md#copied_bytes_]
+    this_ptr->messages_.push(SyncMessage(m, file, this_ptr->count_files_, sourcesize));
+}
+
+void Synchronize::report_copied_bytes(uint64_t bytes)
+{
+    if (Synchronize* this_ptr = this_.load())
+        this_ptr->copied_bytes_ = bytes;
+}
+
+uint64_t Synchronize::copied_bytes() const
+{
+    return copied_bytes_;
 }
 
 SyncMessage Synchronize::get_message()

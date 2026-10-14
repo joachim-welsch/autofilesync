@@ -50,6 +50,7 @@ class Synchronize {
     std::thread             thread_;
     std::atomic_bool        stop_request_{false};
     MessageStack            messages_;
+    std::atomic<uint64_t>   copied_bytes_{0};  // [Synchronize.md#copied_bytes_]
     CheckPath               check_path_;
     std::mutex              cv_mutex_;
     std::condition_variable cv_;
@@ -100,7 +101,9 @@ public:
         int loop_iterations() const { return loop_iterations_; }
     #endif
     static void set_progress_message(const std::wstring&, const std::wstring& file, int64_t sourcesize);
+    static void report_copied_bytes(uint64_t bytes);  // [Synchronize.md#copied_bytes_]
     SyncMessage get_message();
+    uint64_t copied_bytes() const;
     SyncControler& sync_controler() const;
     static bool stopping();
     friend class SyncControler;

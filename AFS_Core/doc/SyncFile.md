@@ -32,6 +32,15 @@ picked the opposite direction for every copy back from the target - e.g. copy_fs
 the remote path as its local source, which can only fail. get_account_from_path() is the same
 classification SyncItem uses when it builds its paths.
 
+## copy_local_file
+
+fs::copy_file copied in one call: nothing for the progress bar until the file was through, and
+no way to stop inside a large file. The block loop reports the bytes after every block
+(Synchronize.md#copied_bytes_) and checks the stop flag, so Cancel ends inside the file and
+save_copy_file()'s Stopped path removes the partial target. The source's permission bits are
+set afterwards as fs::copy_file did; a failure there is no failed copy, and the file time
+follows separately in copy_source_to_dest().
+
 ## ssh-skips-verification-only
 
 SSH skips only the content verification below (TODO); Error/Stopped must still run the

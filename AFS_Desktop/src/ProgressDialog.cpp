@@ -20,8 +20,13 @@
 #include "Synchronize.h"
 #include "MainWindow.h"
 #include "SyncControler.h"
+#include <algorithm>
 
 using namespace AFS_Core;
+
+namespace {
+constexpr uint32_t FILE_STEPS = 100;  // [ProgressDialog.md#file-progress]
+}
 
 BEGIN_EVENT_TABLE(ProgressDialog, wxDialog)
     EVT_UPDATE_UI(wxID_CANCEL, ProgressDialog::on_update_cancel_button)
@@ -31,14 +36,14 @@ END_EVENT_TABLE()
 ProgressDialog::ProgressDialog(wxWindow* parent, wxWindowID id,
     const wxString& title,
     SyncControler& sc,
-    uint32_t range,
+    uint32_t n_files,
     const wxPoint& pos,
     const wxSize& size,
     long style,
     const wxString& name)
     : wxDialog(parent, id, title, pos, size, style, name)
-	, sync_controler_(sc)
-    , range_(range)
+    , sync_controler_(sc)
+    , range_(n_files * FILE_STEPS)
 {
     wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
     gauge_ = new wxGauge(this, wxID_ANY, range_, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL, wxDefaultValidator, wxASCII_STR(wxGaugeNameStr));
@@ -78,7 +83,6 @@ void ProgressDialog::on_cancel(wxCommandEvent& event)
         can_be_closed_ = true;
         timer_.Stop();
         gauge_->SetValue(range_);
-        waiting_ = true;
     }
     sync_controler_.request_stop();  // [ProgressDialog.md#cancel-waits-here]
     wxBusyCursor busy_cursor;
@@ -87,17 +91,27 @@ void ProgressDialog::on_cancel(wxCommandEvent& event)
         wxSafeYield(this);
         wxMilliSleep(50);
     }
-	event.Skip();
+    event.Skip();
 }
 
 void ProgressDialog::on_timer_update(wxTimerEvent&)
 {
     std::lock_guard<std::mutex> lock(mutex_);  // [ProgressDialog.md#no-yield-under-lock]
-    SyncMessage sm = sync_controler_.get_message();
-    if (!sm.msg().empty())
-        gauge_->SetValue(sm.filenumber());
+    const SyncMessage sm = sync_controler_.get_message();
+    if (!sm.msg().empty()) {
+        files_done_ = static_cast<uint32_t>(sm.filenumber());
+        file_size_ = sm.filesize();
+    }
     if (!sm.file().empty())
         current_file_->SetLabelText(sm.file());
+    gauge_->SetValue(static_cast<int>(files_done_ * FILE_STEPS + file_steps_done()));  // [ProgressDialog.md#file-progress]
+}
+
+uint32_t ProgressDialog::file_steps_done() const
+{
+    if (file_size_ == 0)
+        return 0;
+    return static_cast<uint32_t>(std::min<uint64_t>(FILE_STEPS, FILE_STEPS * sync_controler_.copied_bytes() / file_size_));
 }
 
 void ProgressDialog::can_be_closed(bool yes_no)
@@ -109,36 +123,8 @@ void ProgressDialog::can_be_closed(bool yes_no)
     std::lock_guard<std::mutex> lock(mutex_);
     can_be_closed_ = yes_no;
     if (can_be_closed_) {
-		if (timer_.IsRunning())
+        if (timer_.IsRunning())
             timer_.Stop();
         gauge_->SetValue(range_);
-    }
-}
-
-void ProgressDialog::set_range(uint32_t range)
-{
-    if (!wxThread::IsMain()) {
-        CallAfter(&ProgressDialog::set_range, range);
-        return;
-    }
-    std::lock_guard<std::mutex> lock(mutex_);
-    range_ = range;
-    timer_.Stop();
-    gauge_->SetRange(range);
-	gauge_->SetValue(0);
-}
-
-void ProgressDialog::set_progress(uint32_t value)
-{
-    if (!wxThread::IsMain()) {
-        CallAfter(&ProgressDialog::set_progress, value);
-        return;
-    }
-    std::lock_guard<std::mutex> lock(mutex_);
-	if (waiting_) {
-		return;
-	}
-    if (value <= range_) {
-        gauge_->SetValue(value);
     }
 }
