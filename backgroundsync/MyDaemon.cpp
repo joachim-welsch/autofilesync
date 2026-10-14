@@ -17,18 +17,12 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "MyDaemon.h"
-#include <ctime>
-#include <Synchronize.h>
-#include <Config.h>
+#include "Config.h"
 #include "Logging.h"
+#include "Synchronize.h"
 #include "Translation.h"
 
 using namespace AFS_Core;
-
-MyDaemon::MyDaemon()
-    : running_(false)
-{
-}
 
 MyDaemon::~MyDaemon()
 {
