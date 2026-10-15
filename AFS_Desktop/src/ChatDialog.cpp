@@ -27,6 +27,7 @@ using namespace AFS_Core;
 wxBEGIN_EVENT_TABLE(ChatDialog, wxDialog)
     EVT_BUTTON(ID_CHAT_SEND, ChatDialog::on_send)
     EVT_BUTTON(ID_CHAT_PROPOSAL, ChatDialog::on_proposal)
+    EVT_BUTTON(ID_CHAT_NEW, ChatDialog::on_new_conversation)
     EVT_THREAD(ID_CHAT_PIECE, ChatDialog::on_piece)
     EVT_THREAD(ID_CHAT_REPLY, ChatDialog::on_reply)
     EVT_CLOSE(ChatDialog::on_close)
@@ -65,6 +66,8 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, A
     wxBoxSizer* bottom_sizer = new wxBoxSizer(wxHORIZONTAL);
     status_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
     bottom_sizer->Add(status_, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+    new_button_ = new wxButton(this, ID_CHAT_NEW, translation::translate("chat_new_conversation"));
+    bottom_sizer->Add(new_button_, 0, wxALL, 5);
     proposal_button_ = new wxButton(this, ID_CHAT_PROPOSAL, translation::translate("chat_create_sync"));
     proposal_button_->Hide();  // [ChatDialog.md#proposal-button]
     bottom_sizer->Add(proposal_button_, 0, wxALL, 5);
@@ -75,13 +78,18 @@ ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, A
     SetSizer(main_sizer);
     Centre();
     input_->Bind(wxEVT_KEY_DOWN, &ChatDialog::on_input_key, this);  // [ChatDialog.md#key-handler-on-control]
+    show_start();
+    input_->CallAfter(&wxTextCtrl::SetFocus);  // [ChatDialog.md#deferred-focus]
+}
+
+void ChatDialog::show_start()
+{
     if (!LlamaClient::available()) {
         append_turn(translation::translate("chat_hint"), LlamaClient::missing_model_hint());  // [ChatDialog.md#hint-in-transcript]
         status_->SetLabel(translation::translate("chat_no_model"));
     }
     else
         status_->SetLabel(translation::translate(SEND_HINT));
-    input_->CallAfter(&wxTextCtrl::SetFocus);  // [ChatDialog.md#deferred-focus]
 }
 
 ChatDialog::~ChatDialog()
@@ -136,6 +144,7 @@ void ChatDialog::show_proposal(const std::optional<sync_proposal::Proposal>& pro
 void ChatDialog::set_waiting(bool waiting)
 {
     send_button_->Enable(!waiting);
+    new_button_->Enable(!waiting);  // [ChatDialog.md#on_new_conversation]
     input_->SetEditable(!waiting);
     status_->SetLabel(waiting ? translation::translate("chat_answering") : translation::translate(SEND_HINT));
 }
@@ -219,6 +228,15 @@ void ChatDialog::on_proposal(wxCommandEvent&)
     const sync_proposal::Proposal proposal = *proposal_;
     show_proposal(std::nullopt);
     apply_proposal_(proposal);
+}
+
+void ChatDialog::on_new_conversation(wxCommandEvent&)
+{
+    history_.clear();
+    transcript_->Clear();
+    show_proposal(std::nullopt);
+    show_start();
+    input_->SetFocus();
 }
 
 void ChatDialog::on_input_key(wxKeyEvent& event)

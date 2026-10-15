@@ -166,7 +166,19 @@ the sampling is constrained to it (see grammar-first).
 ## prompt-size-check
 
 Only the context window limits the prompt: decode_prompt() splits it into batches (see
-batch-size). A prompt that fills the window leaves no room for the answer either.
+batch-size). The prompt keeps MAX_NEW_TOKENS free, so that an answer is never cut off by a full
+window. A conversation that has outgrown it loses its oldest rounds instead of failing - before,
+every question after that point was answered with "conversation too long" until the program was
+restarted, since the chat window is only hidden. Only a single question too long for the window
+on its own still fails.
+
+## fitting
+
+Drops the oldest turns until fits() accepts the rest, and keeps the result starting with a
+question: chat templates expect the user to speak first, and an answer without its question
+misleads the model. The last turn is the question being asked, so it goes only when nothing
+fits at all - an empty result. Static and free of the model, so that it can be tested without
+one.
 
 ## token-budget
 

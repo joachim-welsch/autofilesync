@@ -127,3 +127,10 @@ by then - a modal dialog included.
 
 Hidden rather than destroyed: the conversation stays available when the user opens the chat
 again, and a request still running has a live window to deliver its answer to.
+
+## on_new_conversation
+
+Starts over: the model forgets the conversation and the transcript is empty again, apart from
+the hint shown at start. The window is only hidden when closed, so without this a conversation
+lasted until the program ended. Disabled while an answer is being generated - the answer would
+arrive in the new conversation and become its first turn.

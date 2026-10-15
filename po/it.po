@@ -1856,3 +1856,11 @@ msgstr "Cmd+Invio invia."
 #: AFS_Desktop/src/TreeCtrl.cpp
 msgid "tree_root"
 msgstr "Questo computer"
+
+#: AFS_Desktop/src/ChatDialog.cpp:69
+msgid "chat_new_conversation"
+msgstr "Nuova conversazione"
+
+#: AFS_Core/src/LogAnalysis.cpp:57
+msgid "log_question_words"
+msgstr "log,registro"

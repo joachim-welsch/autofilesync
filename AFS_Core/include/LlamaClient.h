@@ -56,6 +56,7 @@ class LlamaClient {  // [LlamaClient.md#LlamaClient]
 public:
     static bool available();  // [LlamaClient.md#available]
     static std::wstring missing_model_hint();  // [LlamaClient.md#missing_model_hint]
+    static ChatHistory fitting(const ChatHistory& history, const std::function<bool(const ChatHistory&)>& fits);  // [LlamaClient.md#fitting]
     LlamaClient() = default;
     ~LlamaClient();
     LlamaClient(const LlamaClient&) = delete;

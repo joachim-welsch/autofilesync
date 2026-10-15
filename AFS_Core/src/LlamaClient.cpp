@@ -42,6 +42,7 @@ using util::wstring_to_string;
 namespace {
 constexpr const char* SYSTEM_PROMPT = translation::msgid("assistant_system_prompt");  // [LlamaClient.md#SYSTEM_PROMPT]
 constexpr const char* LOG_ANALYSIS_INSTRUCTION = translation::msgid("assistant_log_analysis_instruction");  // [LlamaClient.md#LOG_ANALYSIS_INSTRUCTION]
+constexpr int MAX_NEW_TOKENS = 2048;  // [LlamaClient.md#token-budget]
 
 std::size_t complete_utf8_length(const string& text)  // [LlamaClient.md#complete_utf8_length]
 {
@@ -198,7 +199,6 @@ string LlamaClient::generate(const ChatPieceSink& on_piece, const string& gramma
 
     string answer;
     std::size_t passed_on = 0;
-    constexpr int MAX_NEW_TOKENS = 2048;  // [LlamaClient.md#token-budget]
     for (int i = 0; i < MAX_NEW_TOKENS; ++i) {
         llama_token token = llama_sampler_sample(sampler.get(), context_.get(), -1);  // [LlamaClient.md#sample-accepts]
         if (llama_vocab_is_eog(vocab_, token))
@@ -220,16 +220,32 @@ string LlamaClient::generate(const ChatPieceSink& on_piece, const string& gramma
     return answer;
 }
 
+ChatHistory LlamaClient::fitting(const ChatHistory& history, const std::function<bool(const ChatHistory&)>& fits)
+{
+    ChatHistory recent = history;
+    while (!recent.empty() && !fits(recent)) {
+        recent.erase(recent.begin());
+        while (!recent.empty() && !recent.front().from_user)  // [LlamaClient.md#fitting]
+            recent.erase(recent.begin());
+    }
+    return recent;
+}
+
 ChatReply LlamaClient::complete(const ChatHistory& history, const ChatPieceSink& on_piece, const string& grammar)
 {
-    const wstring prompt = build_prompt(history);
-    if (prompt.empty())
+    if (build_prompt(history).empty())
         return { false, translation::translate("assistant_unknown_chat_format") };
-    std::vector<llama_token> tokens = tokenize(prompt);
-    if (tokens.empty() || static_cast<uint32_t>(tokens.size()) >= llama_n_ctx(context_.get())) {  // [LlamaClient.md#prompt-size-check]
-        log_error(L"LlamaClient: Prompt zu lang, Tokens: ", std::to_wstring(tokens.size()));
+    std::vector<llama_token> tokens;
+    const ChatHistory recent = fitting(history, [this, &tokens](const ChatHistory& candidate) {  // [LlamaClient.md#prompt-size-check]
+        tokens = tokenize(build_prompt(candidate));
+        return !tokens.empty() && tokens.size() + MAX_NEW_TOKENS <= llama_n_ctx(context_.get());
+    });
+    if (recent.empty()) {
+        log_error(L"LlamaClient: Frage passt nicht ins Kontextfenster, Tokens: ", std::to_wstring(tokens.size()));
         return { false, translation::translate("assistant_conversation_too_long") };
     }
+    if (recent.size() < history.size())
+        log_info(L"LlamaClient: ältere Gesprächsrunden weggelassen: ", std::to_wstring(history.size() - recent.size()));
     if (!decode_prompt(tokens))
         return { false, translation::translate("assistant_prompt_failed") };
     const string answer = generate(on_piece, grammar);

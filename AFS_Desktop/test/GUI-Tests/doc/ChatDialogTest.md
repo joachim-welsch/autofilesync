@@ -88,3 +88,9 @@ before the test looks; either state means the question was sent.
 
 Regression test: following the platform guidelines, the chat once moved into the Help menu, and
 users took the assistant for removed. The menu of its own is what they look for.
+
+## ChatNeuesGespraechLeertDenVerlauf
+
+The chat window outlives each test, so the test makes its own round first. Without a model the
+assistant answers at once with an error, which is a round all the same; with a model the answer
+would take minutes, and the test skips. Afterwards only the hint shown at start may be left.

@@ -115,6 +115,25 @@ TEST_F(GuiTest, ChatLeereEingabeTutNichts)
     EXPECT_TRUE(chat.send->IsEnabled()) << "Eine leere Eingabe hat den Dialog ins Warten versetzt.";
 }
 
+TEST_F(GuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#ChatNeuesGespraechLeertDenVerlauf]
+{
+    ChatControls chat = open_chat(main_window());
+    ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
+    const HiddenChat hidden(chat);
+    if (LlamaClient::available())
+        GTEST_SKIP() << "Mit Sprachmodell dauert die Antwort zu lange für diesen Test.";
+    const wxString you = AFS_Core::translation::translate("chat_you") + ":";
+    ASSERT_TRUE(type_into(chat.input, "Hallo"));
+    ASSERT_TRUE(click_when_enabled(chat.send));
+    ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Die Antwort kam nicht.";
+    ASSERT_TRUE(value_of(chat.transcript).Contains(you)) << "Die Frage steht nicht im Verlauf.";
+
+    ASSERT_TRUE(click_when_enabled(wxWindow::FindWindowById(ID_CHAT_NEW))) << "Der Knopf Neues Gespräch fehlt.";
+
+    EXPECT_FALSE(value_of(chat.transcript).Contains(you)) << "Der Verlauf blieb stehen.";
+    EXPECT_TRUE(value_of(chat.transcript).Contains(LlamaClient::missing_model_hint())) << "Der Hinweis vom Start fehlt.";
+}
+
 TEST_F(GuiTest, ChatSchliessenVerstecktUndMenueZeigtWieder)  // [ChatDialogTest.md#hidden-not-destroyed]
 {
     ChatControls chat = open_chat(main_window());

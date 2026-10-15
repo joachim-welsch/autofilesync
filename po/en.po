@@ -1888,3 +1888,11 @@ msgstr "Cmd+Enter sends."
 #: AFS_Desktop/src/TreeCtrl.cpp
 msgid "tree_root"
 msgstr "This computer"
+
+#: AFS_Desktop/src/ChatDialog.cpp:69
+msgid "chat_new_conversation"
+msgstr "New conversation"
+
+#: AFS_Core/src/LogAnalysis.cpp:57
+msgid "log_question_words"
+msgstr "log,logfile"

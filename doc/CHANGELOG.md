@@ -2,6 +2,12 @@
 
 ## Unveröffentlicht
 
+- Assistent: Ein langes Gespräch lässt seine ältesten Runden weg, statt jede
+  weitere Frage mit „Unterhaltung zu lang“ abzulehnen, bis das Programm neu
+  gestartet wird. **Neues Gespräch** im Chatfenster beginnt von vorn.
+- Assistent: Fragen nach dem Protokoll werden in jeder Sprache erkannt
+  („journal“, „registro“, „dziennik“, „журнал“ …), nicht nur auf Deutsch und
+  Englisch; nur dann bekommt er den Auszug aus der Logdatei.
 - Der Datumsvergleich hat eine einstellbare Toleranz (Reiter Optionen, Vorgabe
   2 Sekunden). Bisher galt eine Datei auf einem NTFS-, exFAT- oder
   FAT-Datenträger bei jedem Durchlauf als geändert, weil das Ziel die

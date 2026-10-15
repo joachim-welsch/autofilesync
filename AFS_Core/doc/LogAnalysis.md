@@ -12,7 +12,19 @@ line, never mid-entry. Returns an empty string if the file is missing, unreadabl
 
 ## looks_like_log_question
 
-True if text plausibly asks about the log/log file - German uses both "Log" (loanword) and
-"Protokoll" (native term, as in LoggingDialog's "Protokolldatei-Pfad"). Case-insensitive
-substring match: a chat question isn't worth a real NLU pass just to decide whether to attach
-the log.
+True if text plausibly asks about the log/log file. Case-insensitive substring match against
+log_words(): a chat question isn't worth a real NLU pass just to decide whether to attach the
+log.
+
+## log_words
+
+"log" is understood everywhere as a loanword; the native words come from the catalogue of the
+current language ("Protokoll", "journal", "registro", "dziennik", "журнал"), comma-separated in
+log_question_words. With only "log" and "protokoll" built in, a question in five of the seven
+languages got no log excerpt, and the model guessed instead.
+
+## towlower
+
+towlower() lowers non-ASCII letters only in a UTF-8 locale - which the programs set in
+init_locale(); in the "C" locale an uppercase "Журнал" would not match. The catalogue words are
+lowercase.

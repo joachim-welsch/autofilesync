@@ -341,6 +341,9 @@
     <ClCompile Include="JsonTextTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="LlamaClientTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="TwoWaySyncTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

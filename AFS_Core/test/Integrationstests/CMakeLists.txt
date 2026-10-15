@@ -51,6 +51,7 @@ set(SOURCES
     StrUtilTests.cpp
     TranslationTests.cpp
     JsonTextTests.cpp
+    LlamaClientTests.cpp
     ScopedEnv.cpp
     UtilTests.cpp
     FilesystemUtilTests.cpp

@@ -43,6 +43,7 @@ private:
 
     void on_send(wxCommandEvent&);
     void on_proposal(wxCommandEvent&);
+    void on_new_conversation(wxCommandEvent&);  // [ChatDialog.md#on_new_conversation]
     void on_piece(wxThreadEvent&);
     void on_reply(wxThreadEvent&);
     void on_close(wxCloseEvent&);
@@ -53,11 +54,13 @@ private:
     void replace_streamed_turn(const wxString& text);
     void show_proposal(const std::optional<sync_proposal::Proposal>& proposal);
     void set_waiting(bool waiting);
+    void show_start();
     void run_async(std::function<ChatReply(const ChatPieceSink&)> call);  // [ChatDialog.md#run_async]
 
     wxTextCtrl*   transcript_ = nullptr;
     wxTextCtrl*   input_ = nullptr;
     wxButton*     send_button_ = nullptr;
+    wxButton*     new_button_ = nullptr;
     wxButton*     proposal_button_ = nullptr;  // [ChatDialog.md#proposal-button]
     wxStaticText* status_ = nullptr;
     ChatHistory   history_;
@@ -79,5 +82,6 @@ enum {
     ID_CHAT_REPLY,
     ID_CHAT_PIECE,
     ID_CHAT_PROPOSAL,
-    ID_CHAT_TRANSCRIPT  // [ChatDialog.md#ID_CHAT_TRANSCRIPT]
+    ID_CHAT_TRANSCRIPT,  // [ChatDialog.md#ID_CHAT_TRANSCRIPT]
+    ID_CHAT_NEW
 };
