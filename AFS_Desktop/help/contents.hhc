@@ -22,7 +22,7 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Synchronisation ausf&uuml;hren">
+      <PARAM name="Name" value="Synchronisation ausführen">
       <PARAM name="Local" value="runsync.html">
     </OBJECT>
     <UL>
@@ -34,7 +34,7 @@
     </UL>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="&Uuml;ber SSH synchronisieren">
+      <PARAM name="Name" value="Über SSH synchronisieren">
       <PARAM name="Local" value="ssh.html">
     </OBJECT>
     </LI>

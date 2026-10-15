@@ -12,7 +12,7 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Cr&eacute;er des synchronisations">
+      <PARAM name="Name" value="Créer des synchronisations">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT>
     </LI>
@@ -22,7 +22,7 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Ex&eacute;cuter une synchronisation">
+      <PARAM name="Name" value="Exécuter une synchronisation">
       <PARAM name="Local" value="runsync.html">
     </OBJECT>
     <UL>
@@ -39,7 +39,7 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Param&egrave;tres g&eacute;n&eacute;raux">
+      <PARAM name="Name" value="Paramètres généraux">
       <PARAM name="Local" value="settings.html">
     </OBJECT>
     </LI>
@@ -54,7 +54,7 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Service en arri&egrave;re-plan">
+      <PARAM name="Name" value="Service en arrière-plan">
       <PARAM name="Local" value="service.html">
     </OBJECT>
     </LI>
@@ -74,7 +74,7 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Quand quelque chose ne se passe pas comme pr&eacute;vu">
+      <PARAM name="Name" value="Quand quelque chose ne se passe pas comme prévu">
       <PARAM name="Local" value="troubleshooting.html">
     </OBJECT>
     </LI>

@@ -15,7 +15,7 @@
       <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Ausschl&uuml;sse">
+      <PARAM name="Name" value="Ausschlüsse">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -27,7 +27,7 @@
       <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Dateivergleich (Datum, Gr&ouml;&szlig;e, Inhalt)">
+      <PARAM name="Name" value="Dateivergleich (Datum, Größe, Inhalt)">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -43,7 +43,7 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Gel&ouml;schte Dateien im Ziel l&ouml;schen">
+      <PARAM name="Name" value="Gelöschte Dateien im Ziel löschen">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -63,7 +63,7 @@
       <PARAM name="Local" value="licensing.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="L&ouml;schmodus und Papierkorb">
+      <PARAM name="Name" value="Löschmodus und Papierkorb">
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -75,7 +75,7 @@
       <PARAM name="Local" value="logging.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Quelle nach dem Kopieren l&ouml;schen">
+      <PARAM name="Name" value="Quelle nach dem Kopieren löschen">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -95,7 +95,7 @@
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Toleranz der &Auml;nderungszeit (NTFS, FAT, exFAT)">
+      <PARAM name="Name" value="Toleranz der Änderungszeit (NTFS, FAT, exFAT)">
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">

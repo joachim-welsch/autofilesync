@@ -17,12 +17,12 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Opciones de una sincronizaci&oacute;n">
+      <PARAM name="Name" value="Opciones de una sincronización">
       <PARAM name="Local" value="options.html">
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Ejecutar una sincronizaci&oacute;n">
+      <PARAM name="Name" value="Ejecutar una sincronización">
       <PARAM name="Local" value="runsync.html">
     </OBJECT>
     <UL>
@@ -39,12 +39,12 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Configuraci&oacute;n general">
+      <PARAM name="Name" value="Configuración general">
       <PARAM name="Local" value="settings.html">
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Registro y notificaci&oacute;n">
+      <PARAM name="Name" value="Registro y notificación">
       <PARAM name="Local" value="logging.html">
     </OBJECT>
     </LI>
@@ -64,7 +64,7 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Archivo de configuraci&oacute;n">
+      <PARAM name="Name" value="Archivo de configuración">
       <PARAM name="Local" value="config.html">
     </OBJECT>
     </LI>

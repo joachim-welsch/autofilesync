@@ -66,6 +66,13 @@ function(afs_pack_help_book directory)
         endif()
     endforeach()
     list(APPEND files contents.hhc index.hhk help.hhp wxhelp.map)
+    foreach(toc IN ITEMS contents.hhc index.hhk)
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${directory}/${toc})
+        file(READ ${directory}/${toc} toc_text)
+        if(toc_text MATCHES "value=\"[^\"]*&[a-zA-Z]+;")  # wxHtmlHelp shows such a name as an empty entry
+            message(FATAL_ERROR "${directory}/${toc}: HTML entity in an entry name, write the character in UTF-8 instead")
+        endif()
+    endforeach()
     list(TRANSFORM files PREPEND ${directory}/ OUTPUT_VARIABLE depends)
     add_custom_command(OUTPUT ${directory}/help.htb
         COMMAND ${CMAKE_COMMAND} -E tar cf ${directory}/help.htb --format=zip -- ${files}

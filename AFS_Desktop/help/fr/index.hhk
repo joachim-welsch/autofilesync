@@ -11,7 +11,7 @@
       <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Caract&egrave;re g&eacute;n&eacute;rique">
+      <PARAM name="Name" value="Caractère générique">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -27,15 +27,15 @@
       <PARAM name="Local" value="ssh.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="D&eacute;marrage automatique">
+      <PARAM name="Name" value="Démarrage automatique">
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="D&eacute;marrer et arr&ecirc;ter une synchronisation">
+      <PARAM name="Name" value="Démarrer et arrêter une synchronisation">
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="D&eacute;pannage">
+      <PARAM name="Name" value="Dépannage">
       <PARAM name="Local" value="troubleshooting.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -63,7 +63,7 @@
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Mod&egrave;le de langage de l'assistant">
+      <PARAM name="Name" value="Modèle de langage de l'assistant">
       <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -75,19 +75,19 @@
       <PARAM name="Local" value="backupproof.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Principe des g&eacute;n&eacute;rations">
+      <PARAM name="Name" value="Principe des générations">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Service en arri&egrave;re-plan">
+      <PARAM name="Name" value="Service en arrière-plan">
       <PARAM name="Local" value="service.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Supprimer dans la cible les fichiers supprim&eacute;s">
+      <PARAM name="Name" value="Supprimer dans la cible les fichiers supprimés">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Supprimer la source apr&egrave;s la copie">
+      <PARAM name="Name" value="Supprimer la source après la copie">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -103,7 +103,7 @@
       <PARAM name="Local" value="synconce.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Tol&eacute;rance de la date de modification (NTFS, FAT, exFAT)">
+      <PARAM name="Name" value="Tolérance de la date de modification (NTFS, FAT, exFAT)">
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
