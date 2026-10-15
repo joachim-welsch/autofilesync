@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unità e connessioni non raggiungibili</title>
+</head>
+<body>
+<h1>Unità e connessioni non raggiungibili</h1>
+
+<p>Una sincronizzazione ha bisogno di entrambi i lati: l'origine, da cui si legge, e la
+destinazione, in cui si scrive. Se un lato manca – un disco esterno non collegato, una
+condivisione di rete non connessa, un server SSH che non risponde –, la sincronizzazione
+viene <b>saltata in questo passaggio</b>. Non viene copiato, spostato né cancellato nulla;
+le altre sincronizzazioni proseguono normalmente. Non appena il lato è di nuovo
+disponibile, la sincronizzazione riprende da sola.</p>
+
+<p>Questo <b>non è un errore</b>. Un disco di backup che si collega solo per il backup è
+assente la maggior parte del tempo – ed è voluto. Se volete comunque saperlo, lo decidete
+per ogni sincronizzazione.</p>
+
+<h2>L'opzione «Avvisa se manca l'unità o la connessione SSH»</h2>
+
+<p>Si trova nella finestra della sincronizzazione, scheda
+<a href="options.html">Opzioni</a>, ed è <b>attiva</b> per le nuove sincronizzazioni.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Opzione</th><th align="left">Cosa succede quando manca l'origine o la destinazione</th></tr>
+<tr><td valign="top"><b>Attiva</b><br>(predefinita)</td>
+    <td>Date per scontato che l'unità o il server debbano esserci. Se mancano, deve
+        notarsi:
+        <ul>
+        <li>Dopo <a href="synconce.html">Sincronizza una volta</a> compare un
+            <b>avviso</b> che nomina la sincronizzazione interessata con origine e
+            destinazione – indipendentemente dai messaggi attivati nelle
+            <a href="settings.html">impostazioni</a>.</li>
+        <li>Il <a href="logging.html">registro</a> contiene una riga di livello
+            <tt>Avviso</tt>.</li>
+        <li>Una <a href="backupproof.html">prova di backup</a>, se attiva, annota che il
+            passaggio non ha potuto avere luogo.</li>
+        </ul></td></tr>
+<tr><td valign="top"><b>Disattivata</b></td>
+    <td>L'assenza per voi è normale. Non compare alcun avviso, la prova di backup resta
+        vuota e il registro annota il salto solo a livello <tt>Info</tt>.</td></tr>
+</table>
+
+<h2>Quale impostazione è adatta</h2>
+
+<ul>
+<li><b>Lasciarla attiva</b> quando l'altro lato dovrebbe esserci sempre: il secondo disco
+    interno, il NAS della rete domestica, il server che ospita il backup. Se manca,
+    qualcosa non va e volete saperlo subito.</li>
+<li><b>Disattivarla</b> quando l'altro lato c'è solo ogni tanto: il disco di backup
+    esterno, la chiavetta USB, il portatile che vede la rete domestica solo a casa. La
+    sincronizzazione recupera tutto non appena il lato torna; un avviso a ogni passaggio
+    senza il disco non avrebbe alcun valore.</li>
+</ul>
+
+<p>Se più sincronizzazioni vanno sullo stesso disco, impostate l'opzione allo stesso modo
+per tutte – altrimenti una avvisa e l'altra tace, sebbene a entrambe manchi lo stesso
+disco.</p>
+
+<h2>Dove si nota l'assenza</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Punto</th><th align="left">Comportamento</th></tr>
+<tr><td valign="top"><b>Sincronizza una volta</b></td>
+    <td>Avviso solo con l'opzione attiva. Se a tutte le sincronizzazioni manca un lato,
+        prima compare la nota che non c'era nulla da fare, poi l'avviso.</td></tr>
+<tr><td valign="top"><b>Anteprima</b></td>
+    <td>L'<a href="preview.html">anteprima</a> nomina sempre le sincronizzazioni saltate,
+        perché risponde a cosa farebbe un passaggio adesso – e per queste è ignoto.
+        L'icona del messaggio è un avviso se una delle sincronizzazioni nominate ha
+        l'opzione attiva, altrimenti una nota.</td></tr>
+<tr><td valign="top"><b>Avvia (continuo)</b> e
+        <a href="service.html">servizio in background</a></td>
+    <td>Nessuna finestra di messaggio, solo il registro: avviso o info a seconda
+        dell'opzione. Un'unità mancante viene annotata una volta – non a ogni passaggio
+        – e di nuovo se sparisce dopo essere tornata.</td></tr>
+<tr><td valign="top"><b>Assistente</b></td>
+    <td>L'<a href="assistant.html">assistente</a> conosce l'opzione di ogni
+        sincronizzazione e sa se nell'ultimo passaggio mancava un lato. Può quindi
+        spiegare perché in un caso c'è stato un avviso e in un altro no.</td></tr>
+</table>
+
+<h2>Buono a sapersi</h2>
+
+<ul>
+<li>Cosa conta come «non raggiungibile»: l'origine deve esistere. Su Linux deve esistere
+    anche la destinazione; su Windows basta che l'unità ci sia – una cartella di
+    destinazione mancante viene creata. Via SSH il server deve rispondere e l'accesso
+    riuscire; l'origine deve esistere lì.</li>
+<li>La raggiungibilità viene verificata prima di ogni passaggio e il risultato è
+    conservato per un po'. Dopo un fallimento si riverifica dopo pochi secondi e, se
+    il fallimento persiste, al massimo ogni cinque minuti. Possono quindi volerci fino a
+    cinque minuti prima che un disco tornato venga notato.</li>
+<li>Poiché con l'origine mancante non viene cancellato nulla nella destinazione, un
+    disco di origine scollegato non può mai svuotare il backup.</li>
+</ul>
+
+</body>
+</html>

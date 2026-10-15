@@ -112,12 +112,23 @@ TEST(ConfigSummaryTests, LastSyncIsGivenInMinutes)  // [ConfigSummaryTests.md#La
     EXPECT_FALSE(contains(summary, translate("config_summary_never_synced"))) << summary;
 }
 
-TEST(ConfigSummaryTests, UnreachableLastRunIsNamed)
+TEST(ConfigSummaryTests, UnreachableLastRunExplainsTheWarning)  // [ConfigSummaryTests.md#UnreachableLastRunExplainsTheWarning]
 {
     SyncItem item = item_named(L"weg");
     item.last_run({false, 1, L"nicht erreichbar"});
     const wstring summary = config_summary::describe({item}, {});
-    EXPECT_TRUE(contains(summary, translate("config_summary_unreachable"))) << summary;
+    EXPECT_TRUE(contains(summary, translate("config_summary_unreachable_warned"))) << summary;
+    EXPECT_FALSE(contains(summary, translate("config_summary_no_unreachable_warning"))) << summary;
+}
+
+TEST(ConfigSummaryTests, UnreachableLastRunExplainsTheSilence)  // [ConfigSummaryTests.md#UnreachableLastRunExplainsTheWarning]
+{
+    SyncItem item = item_named(L"platte");
+    item.warn_if_unreachable(false);
+    item.last_run({false, 0, L""});
+    const wstring summary = config_summary::describe({item}, {});
+    EXPECT_TRUE(contains(summary, translate("config_summary_unreachable_silent"))) << summary;
+    EXPECT_TRUE(contains(summary, translate("config_summary_no_unreachable_warning"))) << summary;
 }
 
 TEST(ConfigSummaryTests, ErrorsOfTheLastRunAreNamedWithTheFirst)  // [ConfigSummaryTests.md#ErrorsOfTheLastRunAreNamedWithTheFirst]

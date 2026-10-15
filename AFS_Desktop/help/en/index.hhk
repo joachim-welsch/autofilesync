@@ -122,6 +122,10 @@
       <PARAM name="Name" value="Wildcard">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Unreachable drives and connections">
+      <PARAM name="Local" value="unreachable.html">
+    </OBJECT></LI>
   </UL>
 </BODY>
 </HTML>

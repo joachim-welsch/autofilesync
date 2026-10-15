@@ -221,7 +221,7 @@ msgstr "Errore sconosciuto"
 
 #: AFS_Core/src/LlamaClient.cpp:39
 msgid "assistant_system_prompt"
-msgstr "Sei l'assistente integrato di Autofilesync, un programma per la sincronizzazione automatica e intuitiva di file e alberi di cartelle su Windows e Linux. Rispondi in italiano, in modo breve e concreto in riferimento ad Autofilesync.\nConcetti fondamentali:\n- L'utente configura sincronizzazioni tra una cartella di origine e una di destinazione; Autofilesync allinea automaticamente il loro contenuto non appena qualcosa cambia.\n- Per configurare le sincronizzazioni si usa un programma con interfaccia grafica (wxWidgets).\n- Un servizio/daemon in background esegue la stessa configurazione senza che l'interfaccia utente sia aperta.\n- L'obiettivo principale è la robustezza, seguito da un uso così intuitivo che anche gli utenti inesperti lo comprendano senza documentazione.\nSe non puoi rispondere con certezza a una domanda in base a queste conoscenze, dillo apertamente invece di inventare funzioni che non esistono."
+msgstr "Sei l'assistente integrato di Autofilesync, un programma per la sincronizzazione automatica e intuitiva di file e alberi di cartelle su Windows e Linux. Rispondi in italiano, in modo breve e concreto in riferimento ad Autofilesync.\nConcetti fondamentali:\n- L'utente configura sincronizzazioni tra una cartella di origine e una di destinazione; Autofilesync allinea automaticamente il loro contenuto non appena qualcosa cambia.\n- Per configurare le sincronizzazioni si usa un programma con interfaccia grafica (wxWidgets).\n- Un servizio/daemon in background esegue la stessa configurazione senza che l'interfaccia utente sia aperta.\n- L'obiettivo principale è la robustezza, seguito da un uso così intuitivo che anche gli utenti inesperti lo comprendano senza documentazione.\n- Se l'origine o la destinazione non è raggiungibile (unità non collegata, server SSH che non risponde), non è un errore: la sincronizzazione viene saltata in questo passaggio, nulla viene copiato o cancellato. Se compare un avviso lo decide per ogni sincronizzazione l'opzione «Avvisa se manca l'unità o la connessione SSH» (predefinita: attiva). Attiva: avviso dopo «Sincronizza una volta» e avviso nel registro. Disattivata: solo una riga informativa nel registro, nessun avviso - pensata per dischi di backup collegati solo di tanto in tanto. L'anteprima nomina sempre le sincronizzazioni saltate. La configurazione qui sotto dice per ogni sincronizzazione se l'opzione è disattivata e se nell'ultimo passaggio mancava un lato.\nSe non puoi rispondere con certezza a una domanda in base a queste conoscenze, dillo apertamente invece di inventare funzioni che non esistono."
 
 #: AFS_Core/src/LlamaClient.cpp:40
 msgid "assistant_log_analysis_instruction"
@@ -1882,8 +1882,16 @@ msgid "config_summary_last_sync"
 msgstr "ultima sincronizzazione %1 min fa"
 
 #: AFS_Core/src/ConfigSummary.cpp:97
-msgid "config_summary_unreachable"
-msgstr "l'origine o la destinazione non era raggiungibile nell'ultima esecuzione"
+msgid "config_summary_unreachable_warned"
+msgstr "l'origine o la destinazione non era raggiungibile nell'ultimo passaggio; la sincronizzazione è stata saltata e un avviso mostrato perché l'opzione «Avvisa se manca l'unità o la connessione SSH» è attiva"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_silent"
+msgstr "l'origine o la destinazione non era raggiungibile nell'ultimo passaggio; la sincronizzazione è stata saltata senza avviso perché l'opzione «Avvisa se manca l'unità o la connessione SSH» è disattivata"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_no_unreachable_warning"
+msgstr "nessun avviso se manca l'unità o la connessione SSH"
 
 #: AFS_Core/src/ConfigSummary.cpp:99
 msgid "config_summary_last_errors"

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unidades y conexiones no accesibles</title>
+</head>
+<body>
+<h1>Unidades y conexiones no accesibles</h1>
+
+<p>Una sincronización necesita ambos lados: el origen, del que se lee, y el destino, en el
+que se escribe. Si falta un lado – un disco externo no conectado, un recurso compartido de
+red sin conexión, un servidor SSH que no responde –, la sincronización <b>se omite en esta
+pasada</b>. No se copia, no se mueve ni se borra nada; las demás sincronizaciones
+continúan con normalidad. En cuanto el lado vuelve a estar disponible, la sincronización
+sigue por sí sola.</p>
+
+<p>Esto <b>no es un error</b>. Un disco de copia de seguridad que solo se conecta para
+hacer la copia está ausente la mayor parte del tiempo – y así se pretende. Si quiere
+enterarse de todos modos, lo decide usted por cada sincronización.</p>
+
+<h2>La opción «Avisar si falta la unidad o la conexión SSH»</h2>
+
+<p>Está en el diálogo de la sincronización, en la pestaña
+<a href="options.html">Opciones</a>, y en las sincronizaciones nuevas viene
+<b>activada</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Opción</th><th align="left">Qué ocurre cuando falta el origen o el destino</th></tr>
+<tr><td valign="top"><b>Activada</b><br>(predeterminado)</td>
+    <td>Usted da por supuesto que la unidad o el servidor deben estar. Si faltan,
+        debe notarse:
+        <ul>
+        <li>Tras <a href="synconce.html">Sincronizar una vez</a> aparece un
+            <b>aviso</b> que nombra la sincronización afectada con origen y destino,
+            independientemente de los mensajes activados en la
+            <a href="settings.html">configuración</a>.</li>
+        <li>El <a href="logging.html">registro</a> contiene una línea de nivel
+            <tt>Aviso</tt>.</li>
+        <li>Un <a href="backupproof.html">comprobante de copia</a>, si está activado,
+            deja constancia de que la pasada no pudo realizarse.</li>
+        </ul></td></tr>
+<tr><td valign="top"><b>Desactivada</b></td>
+    <td>La ausencia es normal para usted. No aparece ningún aviso, el comprobante de
+        copia queda vacío y el registro anota la omisión solo en nivel
+        <tt>Info</tt>.</td></tr>
+</table>
+
+<h2>Qué ajuste conviene en cada caso</h2>
+
+<ul>
+<li><b>Dejarla activada</b> cuando el otro lado debería estar siempre: el segundo disco
+    interno, el NAS de la red doméstica, el servidor que guarda la copia. Si falta,
+    algo va mal y quiere saberlo de inmediato.</li>
+<li><b>Desactivarla</b> cuando el otro lado solo está a veces: el disco externo de
+    copia, la memoria USB, el portátil que solo ve la red doméstica en casa. La
+    sincronización se pone al día en cuanto el lado vuelve; un aviso en cada pasada
+    sin el disco no aportaría nada.</li>
+</ul>
+
+<p>Si varias sincronizaciones van al mismo disco, ponga la opción igual en todas; de lo
+contrario una avisa y la otra calla aunque a ambas les falte el mismo disco.</p>
+
+<h2>Dónde se nota la ausencia</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Lugar</th><th align="left">Comportamiento</th></tr>
+<tr><td valign="top"><b>Sincronizar una vez</b></td>
+    <td>Aviso solo con la opción activada. Si a todas las sincronizaciones les falta
+        un lado, primero aparece la indicación de que no había nada que hacer y
+        después el aviso.</td></tr>
+<tr><td valign="top"><b>Vista previa</b></td>
+    <td>La <a href="preview.html">vista previa</a> nombra siempre las sincronizaciones
+        omitidas, porque responde a qué haría una pasada ahora, y para ellas eso es
+        desconocido. El icono del mensaje es un aviso si alguna de las nombradas tiene
+        la opción activada; si no, una indicación.</td></tr>
+<tr><td valign="top"><b>Iniciar (continuo)</b> y
+        <a href="service.html">servicio en segundo plano</a></td>
+    <td>Sin ventanas de mensaje, solo el registro: aviso o info según la opción. Una
+        unidad que falta se anota una vez – no en cada pasada – y de nuevo si vuelve a
+        desaparecer tras haber regresado.</td></tr>
+<tr><td valign="top"><b>Asistente</b></td>
+    <td>El <a href="assistant.html">asistente</a> conoce la opción de cada
+        sincronización y sabe si en la última pasada faltó un lado. Por eso puede
+        explicar por qué en un caso hubo aviso y en otro no.</td></tr>
+</table>
+
+<h2>Conviene saber</h2>
+
+<ul>
+<li>Qué cuenta como «no accesible»: el origen debe existir. En Linux el destino también
+    debe existir; en Windows basta con que la unidad esté – una carpeta de destino que
+    falte se crea. Por SSH el servidor debe responder y el inicio de sesión tener
+    éxito; el origen debe existir allí.</li>
+<li>La accesibilidad se comprueba antes de cada pasada y el resultado se guarda un
+    tiempo. Tras un fallo se vuelve a comprobar al cabo de unos segundos y, si el fallo
+    persiste, como máximo cada cinco minutos. Puede tardar hasta cinco minutos en
+    notarse que un disco ha vuelto.</li>
+<li>Como no se borra nada en el destino cuando falta el origen, un disco de origen
+    desconectado nunca puede vaciar la copia de seguridad.</li>
+</ul>
+
+</body>
+</html>

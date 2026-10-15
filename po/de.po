@@ -228,6 +228,7 @@ msgstr ""
 "- Ein GUI-Programm (wxWidgets) dient der Konfiguration der Synchronisationen.\n"
 "- Ein Hintergrunddienst/Daemon fuehrt dieselbe Konfiguration ohne offene Bedienoberflaeche im Hintergrund aus.\n"
 "- Oberstes Ziel ist Robustheit, danach eine so intuitive Bedienung, dass unerfahrene Nutzer sie ohne Dokumentation verstehen.\n"
+"- Ist Quelle oder Ziel nicht erreichbar (Laufwerk nicht angeschlossen, SSH-Server antwortet nicht), ist das kein Fehler: Die Synchronisation wird in diesem Durchlauf uebersprungen, nichts wird kopiert oder geloescht. Ob dabei eine Warnung erscheint, entscheidet je Synchronisation die Option 'Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung' (Voreinstellung: an). An: Warnung nach 'Einmal synchronisieren' und Warnung im Protokoll. Aus: nur ein Info-Eintrag im Protokoll, keine Warnung - gedacht fuer Sicherungsplatten, die nur selten angeschlossen werden. Die Vorschau nennt uebersprungene Synchronisationen immer. Die Konfiguration unten sagt je Synchronisation, ob die Option aus ist und ob der letzte Durchlauf eine Seite vermisst hat.\n"
 "Wenn du eine Frage nicht sicher aus diesem Wissen beantworten kannst, sag das offen, statt Funktionen zu erfinden, die es nicht gibt."
 
 #: AFS_Core/src/LlamaClient.cpp:40
@@ -1914,8 +1915,16 @@ msgid "config_summary_last_sync"
 msgstr "zuletzt synchronisiert vor %1 min"
 
 #: AFS_Core/src/ConfigSummary.cpp:97
-msgid "config_summary_unreachable"
-msgstr "Quelle oder Ziel war beim letzten Durchlauf nicht erreichbar"
+msgid "config_summary_unreachable_warned"
+msgstr "Quelle oder Ziel war beim letzten Durchlauf nicht erreichbar, die Synchronisation wurde übersprungen und eine Warnung gezeigt, weil die Option „Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung“ eingeschaltet ist"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_silent"
+msgstr "Quelle oder Ziel war beim letzten Durchlauf nicht erreichbar, die Synchronisation wurde ohne Warnung übersprungen, weil die Option „Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung“ ausgeschaltet ist"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_no_unreachable_warning"
+msgstr "keine Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung"
 
 #: AFS_Core/src/ConfigSummary.cpp:99
 msgid "config_summary_last_errors"

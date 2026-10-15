@@ -118,6 +118,10 @@
       <PARAM name="Name" value="Шаблон">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Недоступні диски та з'єднання">
+      <PARAM name="Local" value="unreachable.html">
+    </OBJECT></LI>
   </UL>
 </BODY>
 </HTML>

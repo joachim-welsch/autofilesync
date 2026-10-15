@@ -49,7 +49,8 @@ wstring enabled_options(const SyncItem& item)
         {item.two_way_sync(), "option_two_way_sync"}, {item.father_son_principle(), "option_father_son_principle"},
         {item.delete_in_target(), "option_delete_in_target"}, {item.backup_proof(), "option_backup_proof"},
         {item.sync_empty_files(), "option_sync_empty_files"}, {item.del_aftercopy(), "option_delete_source_after_copy"},
-        {item.copy_when_target_newer(), "option_copy_when_target_newer"}};
+        {item.copy_when_target_newer(), "option_copy_when_target_newer"},
+        {!item.warn_if_unreachable(), "config_summary_no_unreachable_warning"}};  // [ConfigSummary.md#unreachable-explained]
     std::vector<wstring> names;
     for (const auto& [enabled, msgid] : options)
         if (enabled)
@@ -94,7 +95,7 @@ wstring describe_item(const SyncItem& item)  // [ConfigSummary.md#describe_item]
         parts.push_back(translate("tab_options") + L": " + options);
     parts.push_back(last_sync_text(item));
     if (const std::optional<LastRun>& run = item.last_run(); run && !run->reachable)
-        parts.push_back(translate("config_summary_unreachable"));
+        parts.push_back(translate(item.warn_if_unreachable() ? "config_summary_unreachable_warned" : "config_summary_unreachable_silent"));  // [ConfigSummary.md#unreachable-explained]
     else if (run && run->errors > 0)
         parts.push_back(translate("config_summary_last_errors", {std::to_wstring(run->errors), run->first_error.substr(0, MAX_ERROR_CHARS)}));
     return joined(parts, L"; ");

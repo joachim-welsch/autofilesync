@@ -20,6 +20,13 @@
       <PARAM name="Name" value="Opzioni di una sincronizzazione">
       <PARAM name="Local" value="options.html">
     </OBJECT>
+    <UL>
+      <LI> <OBJECT type="text/sitemap">
+        <PARAM name="Name" value="Unità e connessioni non raggiungibili">
+        <PARAM name="Local" value="unreachable.html">
+      </OBJECT>
+      </LI>
+    </UL>
     </LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Eseguire una sincronizzazione">

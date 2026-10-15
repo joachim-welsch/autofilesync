@@ -228,6 +228,7 @@ msgstr ""
 "- A GUI program (wxWidgets) is used to configure the synchronisations.\n"
 "- A background service/daemon runs the same configuration in the background without an open user interface.\n"
 "- The highest goal is robustness, then operation so intuitive that inexperienced users understand it without documentation.\n"
+"- If source or target is unreachable (drive not plugged in, SSH server not answering), that is not an error: the synchronisation is skipped for this pass, nothing is copied or deleted. Whether a warning appears is decided per synchronisation by the option 'Warn if the drive or SSH connection is missing' (default: on). On: a warning after 'Synchronise once' and a warning in the log. Off: only an info line in the log, no warning - meant for backup disks that are plugged in only now and then. The preview always names skipped synchronisations. The configuration below says per synchronisation whether the option is off and whether the last pass missed a side.\n"
 "If you cannot answer a question with confidence from this knowledge, say so openly instead of inventing features that do not exist."
 
 #: AFS_Core/src/LlamaClient.cpp:40
@@ -1914,8 +1915,16 @@ msgid "config_summary_last_sync"
 msgstr "last synchronised %1 min ago"
 
 #: AFS_Core/src/ConfigSummary.cpp:97
-msgid "config_summary_unreachable"
-msgstr "source or target was not reachable in the last run"
+msgid "config_summary_unreachable_warned"
+msgstr "source or target was unreachable in the last pass, the synchronisation was skipped and a warning shown because the option 'Warn if the drive or SSH connection is missing' is on"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_silent"
+msgstr "source or target was unreachable in the last pass, the synchronisation was skipped without a warning because the option 'Warn if the drive or SSH connection is missing' is off"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_no_unreachable_warning"
+msgstr "no warning if the drive or SSH connection is missing"
 
 #: AFS_Core/src/ConfigSummary.cpp:99
 msgid "config_summary_last_errors"

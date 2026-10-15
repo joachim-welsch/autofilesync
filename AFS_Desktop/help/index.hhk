@@ -118,6 +118,10 @@
       <PARAM name="Name" value="Fehlersuche">
       <PARAM name="Local" value="troubleshooting.html">
     </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Nicht erreichbare Laufwerke und Verbindungen">
+      <PARAM name="Local" value="unreachable.html">
+    </OBJECT></LI>
   </UL>
 </BODY>
 </HTML>

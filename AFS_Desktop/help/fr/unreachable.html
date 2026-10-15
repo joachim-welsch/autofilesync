@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Lecteurs et connexions inaccessibles</title>
+</head>
+<body>
+<h1>Lecteurs et connexions inaccessibles</h1>
+
+<p>Une synchronisation a besoin des deux côtés : la source, dans laquelle on lit, et la
+cible, dans laquelle on écrit. Si un côté manque – un disque externe débranché, un partage
+réseau non connecté, un serveur SSH qui ne répond pas –, la synchronisation est
+<b>ignorée pour ce passage</b>. Rien n'est copié, déplacé ni supprimé ; les autres
+synchronisations se poursuivent normalement. Dès que le côté est de retour, la
+synchronisation reprend d'elle-même.</p>
+
+<p>Ce n'est <b>pas une erreur</b>. Un disque de sauvegarde que l'on ne branche que pour
+sauvegarder est absent la plupart du temps – et c'est voulu. Vous décidez par
+synchronisation si vous souhaitez malgré tout en être informé.</p>
+
+<h2>L'option « Avertir si le lecteur ou la connexion SSH manque »</h2>
+
+<p>Elle se trouve dans le dialogue de la synchronisation, onglet
+<a href="options.html">Options</a>, et est <b>activée</b> pour les nouvelles
+synchronisations.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Option</th><th align="left">Ce qui se passe quand la source ou la cible manque</th></tr>
+<tr><td valign="top"><b>Activée</b><br>(par défaut)</td>
+    <td>Vous partez du principe que le lecteur ou le serveur doit être là. S'il manque,
+        cela doit se voir :
+        <ul>
+        <li>Après <a href="synconce.html">Synchroniser une fois</a>, un
+            <b>avertissement</b> nomme la synchronisation concernée avec sa source et
+            sa cible – quels que soient les messages activés dans les
+            <a href="settings.html">paramètres</a>.</li>
+        <li>Le <a href="logging.html">journal</a> contient une ligne de niveau
+            <tt>Avertissement</tt>.</li>
+        <li>Une <a href="backupproof.html">preuve de sauvegarde</a>, si elle est
+            activée, consigne que le passage n'a pas pu avoir lieu.</li>
+        </ul></td></tr>
+<tr><td valign="top"><b>Désactivée</b></td>
+    <td>L'absence est normale pour vous. Aucun avertissement n'apparaît, la preuve de
+        sauvegarde reste vide et le journal ne note l'omission qu'au niveau
+        <tt>Info</tt>.</td></tr>
+</table>
+
+<h2>Quel réglage pour quelle situation</h2>
+
+<ul>
+<li><b>Laisser activée</b> quand l'autre côté devrait toujours être là : le second
+    disque interne, le NAS du réseau domestique, le serveur qui héberge la sauvegarde.
+    S'il manque, quelque chose ne va pas et vous voulez le savoir tout de suite.</li>
+<li><b>Désactiver</b> quand l'autre côté n'est là que de temps en temps : le disque de
+    sauvegarde externe, la clé USB, l'ordinateur portable qui ne voit le réseau
+    domestique qu'à la maison. La synchronisation rattrape tout dès que le côté est de
+    retour ; un avertissement à chaque passage sans le disque n'aurait aucune
+    valeur.</li>
+</ul>
+
+<p>Si plusieurs synchronisations vont vers le même disque, réglez l'option de la même
+façon pour toutes – sinon l'une avertit et l'autre se tait, alors que le même disque
+manque aux deux.</p>
+
+<h2>Où l'absence se manifeste</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Endroit</th><th align="left">Comportement</th></tr>
+<tr><td valign="top"><b>Synchroniser une fois</b></td>
+    <td>Avertissement seulement si l'option est activée. Si toutes les synchronisations
+        manquent d'un côté, l'indication qu'il n'y avait rien à faire vient d'abord,
+        puis l'avertissement.</td></tr>
+<tr><td valign="top"><b>Aperçu</b></td>
+    <td>L'<a href="preview.html">aperçu</a> nomme toujours les synchronisations ignorées,
+        car il répond à ce qu'un passage ferait maintenant – et pour celles-ci, c'est
+        inconnu. L'icône du message est un avertissement si l'une des synchronisations
+        nommées a l'option activée, une information sinon.</td></tr>
+<tr><td valign="top"><b>Démarrer (continu)</b> et
+        <a href="service.html">service en arrière-plan</a></td>
+    <td>Pas de fenêtre de message, seulement le journal : avertissement ou info selon
+        l'option. Un lecteur manquant est noté une fois – pas à chaque passage – et de
+        nouveau s'il disparaît après être revenu.</td></tr>
+<tr><td valign="top"><b>Assistant</b></td>
+    <td>L'<a href="assistant.html">assistant</a> connaît l'option de chaque
+        synchronisation et sait si le dernier passage a manqué d'un côté. Il peut donc
+        expliquer pourquoi un avertissement est apparu dans un cas et pas dans
+        l'autre.</td></tr>
+</table>
+
+<h2>Bon à savoir</h2>
+
+<ul>
+<li>Ce qui compte comme « inaccessible » : la source doit exister. Sous Linux, la cible
+    doit exister aussi ; sous Windows, il suffit que le lecteur soit là – un dossier
+    cible manquant est créé. Par SSH, le serveur doit répondre et la connexion réussir ;
+    la source doit y exister.</li>
+<li>L'accessibilité est vérifiée avant chaque passage et le résultat est conservé un
+    moment. Après un échec, la vérification suivante a lieu après quelques secondes, et
+    tant que l'échec dure, au plus toutes les cinq minutes. Il peut donc s'écouler
+    jusqu'à cinq minutes avant qu'un disque revenu soit remarqué.</li>
+<li>Comme rien n'est supprimé dans la cible quand la source manque, un disque source
+    débranché ne peut jamais vider la sauvegarde.</li>
+</ul>
+
+</body>
+</html>

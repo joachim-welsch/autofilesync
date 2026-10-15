@@ -10,6 +10,14 @@ catalogue bound (the words of the current language) and without it (the bare mes
 An option that is off must not be named: the model would otherwise read "Generationenprinzip"
 in the line and report the option as set.
 
+## UnreachableLastRunExplainsTheWarning
+
+The pair of tests pins the two readings of an unreachable last run
+(ConfigSummary.md#unreachable-explained): with the option on, the line says a warning was
+shown and the option is not listed; with it off, the line says the skip was silent and the
+option appears among the item's options as the one thing that is off. The assistant needs
+both to answer "why here and not there".
+
 ## SameConfigurationRendersIdentically
 
 The summary is part of the prompt prefix the KV cache reuses; any nondeterminism (unordered

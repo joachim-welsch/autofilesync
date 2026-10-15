@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Nieosiągalne dyski i połączenia</title>
+</head>
+<body>
+<h1>Nieosiągalne dyski i połączenia</h1>
+
+<p>Synchronizacja potrzebuje obu stron: źródła, z którego czyta, i celu, do którego
+zapisuje. Gdy brakuje jednej strony – dysk zewnętrzny nie jest podłączony, udział sieciowy
+nie jest połączony, serwer SSH nie odpowiada – synchronizacja jest <b>pomijana w tym
+przebiegu</b>. Nic nie jest kopiowane, przenoszone ani usuwane; pozostałe synchronizacje
+działają normalnie. Gdy tylko strona wróci, synchronizacja sama podejmuje pracę.</p>
+
+<p>To <b>nie jest błąd</b>. Dysk kopii zapasowej, podłączany tylko na czas kopiowania, jest
+przez większość czasu nieobecny – i tak ma być. Czy mimo to chcesz o tym wiedzieć,
+decydujesz dla każdej synchronizacji osobno.</p>
+
+<h2>Opcja „Ostrzegaj, gdy brakuje dysku lub połączenia SSH”</h2>
+
+<p>Znajduje się w oknie synchronizacji na karcie <a href="options.html">Opcje</a> i dla
+nowych synchronizacji jest <b>włączona</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Opcja</th><th align="left">Co się dzieje, gdy brakuje źródła lub celu</th></tr>
+<tr><td valign="top"><b>Włączona</b><br>(domyślnie)</td>
+    <td>Zakładasz, że dysk lub serwer musi być dostępny. Jeśli go brakuje, ma to być
+        widoczne:
+        <ul>
+        <li>Po <a href="synconce.html">Synchronizuj raz</a> pojawia się
+            <b>ostrzeżenie</b>, które nazywa synchronizację wraz ze źródłem i celem –
+            niezależnie od tego, jakie komunikaty włączono w
+            <a href="settings.html">ustawieniach</a>.</li>
+        <li><a href="logging.html">Dziennik</a> zawiera wiersz na poziomie
+            <tt>Ostrzeżenie</tt>.</li>
+        <li><a href="backupproof.html">Dowód kopii zapasowej</a>, jeśli jest włączony,
+            odnotowuje, że przebieg nie mógł się odbyć.</li>
+        </ul></td></tr>
+<tr><td valign="top"><b>Wyłączona</b></td>
+    <td>Brak jest dla Ciebie normalny. Nie pojawia się ostrzeżenie, dowód kopii
+        zapasowej pozostaje pusty, a dziennik odnotowuje pominięcie tylko na poziomie
+        <tt>Info</tt>.</td></tr>
+</table>
+
+<h2>Które ustawienie kiedy pasuje</h2>
+
+<ul>
+<li><b>Zostaw włączone</b>, gdy druga strona powinna być zawsze dostępna: drugi dysk
+    wewnętrzny, NAS w sieci domowej, serwer z kopią zapasową. Jeśli go brakuje, coś jest
+    nie tak i chcesz wiedzieć od razu.</li>
+<li><b>Wyłącz</b>, gdy druga strona bywa dostępna tylko czasem: zewnętrzny dysk kopii
+    zapasowej, pendrive, laptop, który widzi sieć domową tylko w domu. Synchronizacja
+    nadrobi wszystko, gdy strona wróci; ostrzeżenie przy każdym przebiegu bez dysku nie
+    miałoby wartości.</li>
+</ul>
+
+<p>Jeśli kilka synchronizacji prowadzi na ten sam dysk, ustaw opcję tak samo we wszystkich
+– inaczej jedna ostrzega, a druga milczy, choć obu brakuje tego samego dysku.</p>
+
+<h2>Gdzie brak jest widoczny</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Miejsce</th><th align="left">Zachowanie</th></tr>
+<tr><td valign="top"><b>Synchronizuj raz</b></td>
+    <td>Ostrzeżenie tylko przy włączonej opcji. Gdy wszystkim synchronizacjom brakuje
+        strony, najpierw pojawia się informacja, że nie było nic do zrobienia, potem
+        ostrzeżenie.</td></tr>
+<tr><td valign="top"><b>Podgląd</b></td>
+    <td><a href="preview.html">Podgląd</a> zawsze wymienia pominięte synchronizacje, bo
+        odpowiada na pytanie, co zrobiłby teraz przebieg – a dla nich jest to nieznane.
+        Ikona komunikatu to ostrzeżenie, gdy któraś z wymienionych synchronizacji ma
+        opcję włączoną, w przeciwnym razie informacja.</td></tr>
+<tr><td valign="top"><b>Start (ciągły)</b> i
+        <a href="service.html">usługa w tle</a></td>
+    <td>Bez okien komunikatów, tylko dziennik: ostrzeżenie albo info zależnie od opcji.
+        Brakujący dysk jest odnotowywany raz – nie przy każdym przebiegu – i ponownie,
+        gdy zniknie po powrocie.</td></tr>
+<tr><td valign="top"><b>Asystent</b></td>
+    <td><a href="assistant.html">Asystent</a> zna opcję każdej synchronizacji i wie, czy
+        w ostatnim przebiegu brakowało strony. Może więc wyjaśnić, dlaczego w jednym
+        przypadku pojawiło się ostrzeżenie, a w innym nie.</td></tr>
+</table>
+
+<h2>Warto wiedzieć</h2>
+
+<ul>
+<li>Co liczy się jako „nieosiągalne”: źródło musi istnieć. W Linuksie cel również musi
+    istnieć; w Windows wystarczy, że dysk jest dostępny – brakujący katalog docelowy
+    zostanie utworzony. Przez SSH serwer musi odpowiadać, a logowanie się udać; źródło
+    musi tam istnieć.</li>
+<li>Osiągalność jest sprawdzana przed każdym przebiegiem, a wynik przechowywany przez
+    pewien czas. Po niepowodzeniu kolejne sprawdzenie następuje po kilku sekundach, a
+    przy trwającej awarii najwyżej co pięć minut. Zauważenie dysku, który wrócił, może
+    więc potrwać do pięciu minut.</li>
+<li>Ponieważ przy brakującym źródle nic nie jest usuwane w celu, odłączony dysk
+    źródłowy nigdy nie opróżni kopii zapasowej.</li>
+</ul>
+
+</body>
+</html>

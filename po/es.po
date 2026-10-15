@@ -221,7 +221,7 @@ msgstr "Error desconocido"
 
 #: AFS_Core/src/LlamaClient.cpp:39
 msgid "assistant_system_prompt"
-msgstr "Eres el asistente integrado de Autofilesync, un programa para la sincronización automática y sencilla de archivos y árboles de carpetas en Windows y Linux. Responde en español, de forma breve y concreta en relación con Autofilesync.\nConceptos clave:\n- El usuario configura sincronizaciones entre una carpeta de origen y una de destino; Autofilesync iguala su contenido automáticamente en cuanto algo cambia en ellas.\n- Para configurar las sincronizaciones se usa un programa con interfaz gráfica (wxWidgets).\n- Un servicio/daemon en segundo plano ejecuta la misma configuración sin que la interfaz de usuario esté abierta.\n- El objetivo principal es la robustez y, después, un manejo tan intuitivo que los usuarios sin experiencia lo entiendan sin documentación.\nSi no puedes responder una pregunta con seguridad a partir de estos conocimientos, dilo abiertamente en lugar de inventar funciones que no existen."
+msgstr "Eres el asistente integrado de Autofilesync, un programa para la sincronización automática y sencilla de archivos y árboles de carpetas en Windows y Linux. Responde en español, de forma breve y concreta en relación con Autofilesync.\nConceptos clave:\n- El usuario configura sincronizaciones entre una carpeta de origen y una de destino; Autofilesync iguala su contenido automáticamente en cuanto algo cambia en ellas.\n- Para configurar las sincronizaciones se usa un programa con interfaz gráfica (wxWidgets).\n- Un servicio/daemon en segundo plano ejecuta la misma configuración sin que la interfaz de usuario esté abierta.\n- El objetivo principal es la robustez y, después, un manejo tan intuitivo que los usuarios sin experiencia lo entiendan sin documentación.\n- Si el origen o el destino no es accesible (unidad no conectada, servidor SSH que no responde), no es un error: la sincronización se omite en esta pasada, no se copia ni se borra nada. Si aparece un aviso lo decide por cada sincronización la opción «Avisar si falta la unidad o la conexión SSH» (predeterminada: activada). Activada: aviso tras «Sincronizar una vez» y aviso en el registro. Desactivada: solo una línea de información en el registro, sin aviso; pensada para discos de copia que solo se conectan de vez en cuando. La vista previa siempre nombra las sincronizaciones omitidas. La configuración de abajo indica por cada sincronización si la opción está desactivada y si en la última pasada faltó un lado.\nSi no puedes responder una pregunta con seguridad a partir de estos conocimientos, dilo abiertamente en lugar de inventar funciones que no existen."
 
 #: AFS_Core/src/LlamaClient.cpp:40
 msgid "assistant_log_analysis_instruction"
@@ -1882,8 +1882,16 @@ msgid "config_summary_last_sync"
 msgstr "sincronizado por última vez hace %1 min"
 
 #: AFS_Core/src/ConfigSummary.cpp:97
-msgid "config_summary_unreachable"
-msgstr "el origen o el destino no estaba accesible en la última ejecución"
+msgid "config_summary_unreachable_warned"
+msgstr "el origen o el destino no estaba accesible en la última pasada; la sincronización se omitió y se mostró un aviso porque la opción «Avisar si falta la unidad o la conexión SSH» está activada"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_silent"
+msgstr "el origen o el destino no estaba accesible en la última pasada; la sincronización se omitió sin aviso porque la opción «Avisar si falta la unidad o la conexión SSH» está desactivada"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_no_unreachable_warning"
+msgstr "sin aviso si falta la unidad o la conexión SSH"
 
 #: AFS_Core/src/ConfigSummary.cpp:99
 msgid "config_summary_last_errors"

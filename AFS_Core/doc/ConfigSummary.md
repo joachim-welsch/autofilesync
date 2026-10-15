@@ -28,6 +28,17 @@ prefix the KV cache reuses (see LlamaClient.md#config-in-system-prompt), so the 
 configuration must always render to the same text. Only options that are switched on are
 listed; a list of everything that is off would double the token count for nothing.
 
+## unreachable-explained
+
+"Why did I get a warning here and none there?" is a question the model can only answer if
+the line carries both halves: the option (SyncItem.md#warn_if_unreachable_) and what the
+last pass found. The option is listed when it is off, the one deviation from the
+only-on rule above, because off is the non-default and the state that explains a missing
+warning. The unreachable line of the last run then spells the consequence out in full -
+skipped with a warning because the option is on, or skipped silently because it is off - so
+the model does not have to combine two facts to explain one box; the system prompt states
+the rule in general terms (po: assistant_system_prompt).
+
 ## MAX_ITEMS
 
 Bounds the prompt: the context window is 8192 tokens and an item line is 40 to 60 tokens, so

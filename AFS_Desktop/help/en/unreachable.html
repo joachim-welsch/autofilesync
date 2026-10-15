@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unreachable drives and connections</title>
+</head>
+<body>
+<h1>Unreachable drives and connections</h1>
+
+<p>A synchronisation needs both sides: the source it reads from and the target it writes
+to. When one side is not there – an external disk is not plugged in, a network share is
+not connected, an SSH server does not answer – the synchronisation is <b>skipped for this
+pass</b>. Nothing is copied, moved or deleted; the other synchronisations run as usual. As
+soon as the side is back, the synchronisation carries on by itself.</p>
+
+<p>This is <b>not an error</b>. A backup disk that is plugged in only to back up is absent
+most of the time – and meant to be. Whether you want to hear about it anyway is your choice
+per synchronisation.</p>
+
+<h2>The option "Warn if the drive or SSH connection is missing"</h2>
+
+<p>It sits in the synchronisation's dialog on the <a href="options.html">Options</a> tab
+and is <b>switched on</b> for new synchronisations.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Option</th><th align="left">What happens when source or target is missing</th></tr>
+<tr><td valign="top"><b>On</b><br>(default)</td>
+    <td>You assume the drive or server has to be there. If it is missing, that should
+        be noticed:
+        <ul>
+        <li>After <a href="synconce.html">Synchronise once</a> a <b>warning</b> appears
+            that names the synchronisation with source and target – whatever messages
+            you have switched on in the <a href="settings.html">settings</a>.</li>
+        <li>The <a href="logging.html">log</a> holds a line of level
+            <tt>Warning</tt>.</li>
+        <li>A <a href="backupproof.html">backup proof</a>, if switched on, records
+            that the pass could not take place.</li>
+        </ul></td></tr>
+<tr><td valign="top"><b>Off</b></td>
+    <td>The absence is normal for you. No warning appears, the backup proof stays
+        empty, and the log notes the skip at level <tt>Info</tt> only.</td></tr>
+</table>
+
+<h2>Which setting fits when</h2>
+
+<ul>
+<li><b>Leave it on</b> when the other side should always be there: the second internal
+    disk, the NAS on the home network, the server that holds the backup. If it is
+    missing, something is wrong and you want to know at once.</li>
+<li><b>Switch it off</b> when the other side is there only now and then: the external
+    backup disk, the USB stick, the laptop that sees the home network only at home.
+    The synchronisation catches up as soon as the side is back; a warning on every
+    pass without the disk would be worth nothing.</li>
+</ul>
+
+<p>If several synchronisations go to the same disk, set the option the same way on all
+of them – otherwise one warns and the other stays silent although both miss the same
+disk.</p>
+
+<h2>Where the absence shows</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Place</th><th align="left">Behaviour</th></tr>
+<tr><td valign="top"><b>Synchronise once</b></td>
+    <td>A warning only with the option on. If every synchronisation misses a side, the
+        notice that there was nothing to do comes first, then the warning.</td></tr>
+<tr><td valign="top"><b>Preview</b></td>
+    <td>The <a href="preview.html">preview</a> always names skipped synchronisations,
+        because it answers what a pass would do now – and for those synchronisations
+        that is unknown. The message's icon is a warning when one of the named
+        synchronisations has the option on, a notice otherwise.</td></tr>
+<tr><td valign="top"><b>Start (continuous)</b> and the
+        <a href="service.html">background service</a></td>
+    <td>No message boxes, only the log: warning or info depending on the option. A
+        missing drive is noted once – not on every pass – and again when it goes
+        missing after it has come back.</td></tr>
+<tr><td valign="top"><b>Assistant</b></td>
+    <td>The <a href="assistant.html">assistant</a> knows the option of every
+        synchronisation and whether the last pass missed a side. It can therefore
+        explain why a warning came in one case and not in another.</td></tr>
+</table>
+
+<h2>Good to know</h2>
+
+<ul>
+<li>What counts as "unreachable": the source has to exist. On Linux the target has to
+    exist as well; on Windows it is enough that the drive is there – a missing target
+    directory is created. Over SSH the server has to answer and the login succeed; the
+    source has to exist there.</li>
+<li>Reachability is checked before every pass and the result is cached for a while.
+    After a failure the next check comes after a few seconds, and while the failure
+    lasts at most every five minutes. So it can take up to five minutes until a disk
+    that has come back is noticed.</li>
+<li>Because nothing is deleted in the target when the source is missing, an unplugged
+    source disk can never cause the backup to be emptied.</li>
+</ul>
+
+</body>
+</html>
