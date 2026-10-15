@@ -231,3 +231,10 @@ in German.
 The status bar's synchronisation state and the background service state, the same texts the
 user sees in the window and in the service menu, so that the assistant describes what the user
 can check.
+
+## run_proposed_command
+
+Sends exactly the event the menu item sends, so a proposed command behaves like a click on the
+menu. The background service items are refreshed first, as when the menu opens. A disabled item
+is not run - a proposal must not do what the menu would refuse - but the user learns why: a sync
+that already runs, none to stop, or the service's state.

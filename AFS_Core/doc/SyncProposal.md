@@ -4,8 +4,9 @@ Module comment for SyncProposal.h / SyncProposal.cpp.
 
 ## sync_proposal
 
-The assistant never writes the configuration itself. It may propose a new synchronisation or
-the deletion of an existing one in a machine-readable block at the end of its answer; the chat
+The assistant never writes the configuration itself. It may propose a new synchronisation, the
+deletion of an existing one, or one of a few commands in a machine-readable block at the end of
+its answer; the chat
 shows the proposal as a button, and the user checks and confirms it the ordinary way: a new
 item in the SyncItemDialog, which validates it like any hand-entered item, a deletion in the
 same confirmation question the delete command asks. Robustness first: a 3B model confuses paths
@@ -101,3 +102,28 @@ often answer with the block alone; with the block removed the user would see an 
 and could easily miss the button, which happened in practice. The sentence is shown with every
 proposal, so the user also sees at a glance what the dialog will contain. The type is named the
 way the dialog shows it, so it reads the same in both places.
+
+## Command
+
+Commands the user could run from the menu anyway: synchronise once, start or stop the
+synchronisation, start or stop the background service, show the log file. None of them changes
+the configuration or deletes anything that a sync would not, so a button that runs them adds no
+risk. The JSON keys are fixed and untranslated; the model learns them, with their names in the
+current language, from command_list().
+
+## label
+
+The menu item's own text, without the mnemonic "&" and a trailing ellipsis, so the button names
+the command the way the user knows it from the menu.
+
+## command_list
+
+"sync_once (Einmal synchronisieren), ..." - the key the block must use next to the name the
+user and the model read, for the instruction and the extraction question alike.
+
+## names_command
+
+Triggers the grammar-bound extraction pass for a question that asks for a command. The words
+come from the catalogue, imperative stems such as "synchronisier", "starte", "öffne", since a
+3B model often answers such a request in prose and forgets the block. A false trigger costs one
+short pass that usually yields null.

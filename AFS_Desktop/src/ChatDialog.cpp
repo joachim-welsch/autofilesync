@@ -43,6 +43,13 @@ constexpr const char* SEND_HINT = "chat_ctrl_enter";
 constexpr std::size_t MAX_LOG_EXCERPT_CHARS = 500;  // [ChatDialog.md#MAX_LOG_EXCERPT_CHARS]
 constexpr std::size_t MAX_HELP_EXCERPT_CHARS = 2500;  // [ChatDialog.md#MAX_HELP_EXCERPT_CHARS]
 
+wxString button_label(const sync_proposal::Proposal& proposal)  // [ChatDialog.md#proposal-button]
+{
+    if (const auto* command = std::get_if<sync_proposal::Command>(&proposal))
+        return sync_proposal::label(*command);
+    return translation::translate(std::holds_alternative<sync_proposal::Deletion>(proposal) ? "chat_delete_sync" : "chat_create_sync");
+}
+
 wxString answer_with_proposal(const std::wstring& answer, const sync_proposal::Proposal& proposal)  // [ChatDialog.md#proposal-described]
 {
     const std::wstring prose = sync_proposal::without_block(answer);
@@ -140,8 +147,7 @@ void ChatDialog::replace_streamed_turn(const wxString& text)  // [ChatDialog.md#
 void ChatDialog::show_proposal(const std::optional<sync_proposal::Proposal>& proposal)
 {
     proposal_ = proposal;
-    const bool deletion = proposal_ && std::holds_alternative<sync_proposal::Deletion>(*proposal_);
-    proposal_button_->SetLabel(translation::translate(deletion ? "chat_delete_sync" : "chat_create_sync"));
+    proposal_button_->SetLabel(proposal_ ? button_label(*proposal_) : wxString());
     proposal_button_->Show(proposal_.has_value());
     Layout();
 }

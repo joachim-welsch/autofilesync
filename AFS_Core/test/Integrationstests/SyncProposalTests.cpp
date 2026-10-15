@@ -28,6 +28,21 @@ using namespace AFS_Core;
 using std::wstring;
 
 namespace {
+class GermanCatalogue {  // [SyncProposalTests.md#GermanCatalogue]
+public:
+    GermanCatalogue(): saved_locale_(std::setlocale(LC_ALL, nullptr)), language_("LANGUAGE", "de")
+    {
+        translation::init_locale(translation::DEFAULT_LOCALES);
+        translation::init(translation::locale_dir());
+    }
+    ~GermanCatalogue() { std::setlocale(LC_ALL, saved_locale_.c_str()); }
+    GermanCatalogue(const GermanCatalogue&) = delete;
+    GermanCatalogue& operator=(const GermanCatalogue&) = delete;
+private:
+    std::string saved_locale_;
+    ScopedEnv language_;
+};
+
 const wstring BLOCK = L"```sync\n{\"name\": \"Fotos\", \"source\": \"/home/jw/Fotos\", \"target\": \"/media/nas/Fotos\", \"type\": \"Verzeichnisbaum\"}\n```";
 const wstring PROSE = L"Gern, hier ist mein Vorschlag:";
 }
@@ -116,11 +131,13 @@ TEST(SyncProposalTests, TwoPathsInAQuestionTriggerTheExtraction)  // [SyncPropos
     EXPECT_FALSE(sync_proposal::names_two_paths(L"Was liegt in /tmp?"));
 }
 
-TEST(SyncProposalTests, GrammarAllowsOnlyObjectOrNull)
+TEST(SyncProposalTests, GrammarAllowsOnlyObjectCommandOrNull)
 {
     const std::string grammar = sync_proposal::grammar({});
     EXPECT_EQ(grammar.find("deletion"), std::string::npos) << grammar;
-    EXPECT_NE(grammar.find("root ::= object | \"null\""), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find("root ::= object | command | \"null\""), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find("sync_once"), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find("open_log"), std::string::npos) << grammar;
     EXPECT_NE(grammar.find("\\\"source\\\""), std::string::npos) << grammar;
     EXPECT_NE(grammar.find("\\\"target\\\""), std::string::npos) << grammar;
     EXPECT_NE(grammar.find(util::wstring_to_string(sync_item_type_to_str(SyncItemType::Tree))), std::string::npos) << grammar;
@@ -161,7 +178,7 @@ TEST(SyncProposalTests, GrammarRestrictsDeletionToConfiguredNames)  // [SyncProp
 {
     const SyncItems items = {SyncItem(L"Fotos", SyncItemType::Tree, L"/a", L"/b", L"*"), SyncItem(L"Say \"hi\"", SyncItemType::Dir, L"/c", L"/d", L"*")};
     const std::string grammar = sync_proposal::grammar(items);
-    EXPECT_NE(grammar.find("root ::= object | deletion | \"null\""), std::string::npos) << grammar;
+    EXPECT_NE(grammar.find("root ::= object | deletion | command | \"null\""), std::string::npos) << grammar;
     EXPECT_NE(grammar.find("configured ::= \"\\\"Fotos\\\"\" | \"\\\"Say \\\\\\\"hi\\\\\\\"\\\"\""), std::string::npos) << grammar;
 }
 
@@ -197,4 +214,58 @@ TEST(SyncProposalTests, DescriptionNamesItemAndButton)  // [SyncProposalTests.md
     for (const wstring& part : {wstring(L"Fotos"), wstring(L"/home/jw/Fotos"), wstring(L"/media/nas/Fotos"), tree, button})
         EXPECT_NE(description.find(part), wstring::npos) << description;
     EXPECT_EQ(description.find(L'%'), wstring::npos) << description;
+}
+
+TEST(SyncProposalTests, CommandBlockIsACommand)  // [SyncProposalTests.md#CommandBlockIsACommand]
+{
+    const wstring answer = PROSE + L"\n```sync\n{\"command\": \"start_service\"}\n```";
+
+    const auto proposal = sync_proposal::parse(answer);
+
+    ASSERT_TRUE(proposal.has_value());
+    ASSERT_TRUE(std::holds_alternative<sync_proposal::Command>(*proposal));
+    EXPECT_EQ(std::get<sync_proposal::Command>(*proposal), sync_proposal::Command::StartService);
+    EXPECT_EQ(sync_proposal::without_block(answer), PROSE);
+}
+
+TEST(SyncProposalTests, UnknownCommandIsNoProposal)
+{
+    EXPECT_FALSE(sync_proposal::parse(L"```sync\n{\"command\": \"format_disk\"}\n```").has_value());
+}
+
+TEST(SyncProposalTests, CommandIsNamedLikeItsMenuItem)  // [SyncProposalTests.md#CommandIsNamedLikeItsMenuItem]
+{
+    if (translation::locale_dir().empty())
+        GTEST_SKIP() << "no compiled catalogues beside the test binary";
+    const GermanCatalogue german;
+    const wstring label = sync_proposal::label(sync_proposal::Command::OpenLog);
+    const wstring description = sync_proposal::describe(sync_proposal::Command::SyncOnce);
+
+    EXPECT_EQ(label, L"Log-Datei anzeigen") << "Das Tastenkürzel blieb im Namen stehen.";
+    EXPECT_NE(description.find(sync_proposal::label(sync_proposal::Command::SyncOnce)), wstring::npos) << description;
+    EXPECT_EQ(description.find(L'%'), wstring::npos) << description;
+}
+
+TEST(SyncProposalTests, InstructionNamesTheCommands)
+{
+    if (translation::locale_dir().empty())
+        GTEST_SKIP() << "no compiled catalogues beside the test binary";
+    const GermanCatalogue german;
+    const wstring instruction = sync_proposal::instruction();
+    const wstring extraction = sync_proposal::extraction_question();
+
+    for (const wstring& part : {wstring(L"\"command\""), wstring(L"sync_once"), wstring(L"stop_service"), wstring(L"Einmal synchronisieren")})
+        EXPECT_NE(instruction.find(part), wstring::npos) << util::wstring_to_string(part);
+    EXPECT_NE(extraction.find(L"open_log"), wstring::npos) << util::wstring_to_string(extraction);
+}
+
+TEST(SyncProposalTests, CommandWordsTriggerTheExtraction)  // [SyncProposalTests.md#CommandWordsTriggerTheExtraction]
+{
+    if (translation::locale_dir().empty())
+        GTEST_SKIP() << "no compiled catalogues beside the test binary";
+    const GermanCatalogue german;
+
+    EXPECT_TRUE(sync_proposal::names_command(L"Synchronisiere bitte jetzt einmal."));
+    EXPECT_TRUE(sync_proposal::names_command(L"Starte den Hintergrunddienst."));
+    EXPECT_FALSE(sync_proposal::names_command(L"Was ist ein Sicherungsnachweis?"));
 }

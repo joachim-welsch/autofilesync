@@ -26,7 +26,10 @@ namespace AFS_Core {
 
 namespace sync_proposal {  // [SyncProposal.md#sync_proposal]
 struct Deletion { std::wstring name; };  // [SyncProposal.md#Deletion]
-using Proposal = std::variant<SyncItem, Deletion>;
+enum class Command { SyncOnce, StartSync, StopSync, StartService, StopService, OpenLog };  // [SyncProposal.md#Command]
+using Proposal = std::variant<SyncItem, Deletion, Command>;
+std::wstring label(Command command);  // [SyncProposal.md#label]
+bool names_command(const std::wstring& question);  // [SyncProposal.md#names_command]
 std::wstring instruction();  // [SyncProposal.md#instruction]
 std::optional<Proposal> parse(const std::wstring& answer);  // [SyncProposal.md#parse]
 std::wstring without_block(const std::wstring& answer);  // [SyncProposal.md#without_block]

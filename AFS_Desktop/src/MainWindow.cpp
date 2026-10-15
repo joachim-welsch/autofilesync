@@ -76,6 +76,25 @@ using std::nullopt;
 
 wxDECLARE_APP(App);
 
+namespace {
+wxString locate_help_book();
+wxString background_service_state_text(BackgroundService::State state);
+
+id menu_id_of(sync_proposal::Command command)
+{
+    using sync_proposal::Command;
+    switch (command) {
+        case Command::SyncOnce: return id::SyncOnce;
+        case Command::StartSync: return id::StartSync;
+        case Command::StopSync: return id::StopSync;
+        case Command::StartService: return id::BackgroundServiceStart;
+        case Command::StopService: return id::BackgroundServiceStop;
+        case Command::OpenLog: return id::View_Log;
+    }
+    return id::View_Log;
+}
+}
+
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
     EVT_SIZE(MainWindow::on_size)
     EVT_CLOSE(MainWindow::on_close)
@@ -357,8 +376,37 @@ void MainWindow::apply_proposal(const sync_proposal::Proposal& proposal)
 {
     if (const auto* item = std::get_if<SyncItem>(&proposal))
         add_sync_item_from(*item);
+    else if (const auto* command = std::get_if<sync_proposal::Command>(&proposal))
+        run_proposed_command(*command);
     else
         delete_sync_item(Config::instance().find_by_name(std::get<sync_proposal::Deletion>(proposal).name));
+}
+
+void MainWindow::run_proposed_command(sync_proposal::Command command)  // [MainWindow.md#run_proposed_command]
+{
+    const int menu_id = tul(menu_id_of(command));
+    update_background_service_menu();
+    if (!GetMenuBar()->IsEnabled(menu_id)) {
+        wxMessageBox(why_not_possible(command), translation::translate("info"), wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+    wxCommandEvent event(wxEVT_MENU, menu_id);
+    event.SetEventObject(this);
+    GetEventHandler()->ProcessEvent(event);
+}
+
+wxString MainWindow::why_not_possible(sync_proposal::Command command) const
+{
+    using sync_proposal::Command;
+    switch (command) {
+        case Command::SyncOnce:
+        case Command::StartSync: return translation::translate("sync_already_running");
+        case Command::StopSync: return translation::translate("no_sync_active");
+        case Command::StartService:
+        case Command::StopService:
+        case Command::OpenLog: break;
+    }
+    return background_service_state_text(BackgroundService::state());
 }
 
 void MainWindow::run_add_sync_item_dialog(SyncItem* preset)
@@ -660,10 +708,6 @@ void MainWindow::on_edit_logging(wxCommandEvent&)
     autosave::after_change(this);
 }
 
-namespace {
-wxString locate_help_book();
-wxString background_service_state_text(BackgroundService::State state);
-}
 
 wxString MainWindow::chat_situation() const  // [MainWindow.md#chat_situation]
 {

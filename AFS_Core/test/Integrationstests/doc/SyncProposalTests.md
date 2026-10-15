@@ -46,3 +46,23 @@ field - the dialog's validation would catch it, but the button promised a propos
 
 The fallback for a model that drops the fence. The fields "type" and "two_way" are optional,
 so this test also covers that they are taken when present.
+
+## GermanCatalogue
+
+Binds the German catalogue for one test and puts the locale back afterwards, so that the tests
+after it see the bare keys as before. LANGUAGE goes back with ScopedEnv.
+
+## CommandBlockIsACommand
+
+A command uses the same block as the other proposals, so it is found, parsed and removed from
+the shown answer the same way.
+
+## CommandIsNamedLikeItsMenuItem
+
+The button carries the menu item's text, so the user recognises the command; the mnemonic "&"
+and an ellipsis belong to the menu and are dropped.
+
+## CommandWordsTriggerTheExtraction
+
+The second, grammar-bound pass also runs when the question asks for a command, since a 3B model
+often forgets the block. A question about a topic must not trigger it.

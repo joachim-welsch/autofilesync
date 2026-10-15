@@ -1920,3 +1920,19 @@ msgstr "Fehler im letzten Durchlauf: %1, der erste: %2"
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr "Im Programm: %1. Hintergrunddienst – %2."
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr "Wenn der Nutzer einen dieser Befehle ausführen möchte, hänge stattdessen genau einen Block in dieser Form an:\n```sync\n{\"command\": \"sync_once\"}\n```\nErlaubte Befehle: %1. Der Nutzer führt den Befehl mit einem Knopf selbst aus."
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr "Wollte der Nutzer mit seiner letzten Frage einen dieser Befehle ausführen: %1? Dann antworte nur mit {\"command\": \"...\"}."
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr "Vorschlag: %1. Mit \"%1\" ausführen."
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr "synchronisier,starte,stoppe,beende,öffne,zeige"

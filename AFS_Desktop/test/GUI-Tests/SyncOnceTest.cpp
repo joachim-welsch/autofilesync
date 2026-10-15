@@ -26,6 +26,7 @@
 #include "UserActions.h"
 #include "Config.h"
 #include "Translation.h"
+#include "SyncProposal.h"
 #include <filesystem>
 #include "id.h"
 #include "utilwx.h"
@@ -152,6 +153,29 @@ TEST_F(GuiTest, StartOhneSynchronisationZeigtHinweis)  // [SyncOnceTest.md#start
     EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), translation::translate("no_sync_items"));
     EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::StartSync)));
     EXPECT_FALSE(sync_menu_item_enabled(main_window(), tul(id::StopSync)));
+}
+
+TEST_F(GuiTest, VorgeschlagenesEinmalSynchronisierenKopiertDateiInsZiel)  // [SyncOnceTest.md#proposed-command]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "befehl", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-befehl"))) << "Die Synchronisation wurde nicht angelegt.";
+
+    main_window().apply_proposal(AFS_Core::sync_proposal::Command::SyncOnce);
+    pump();
+
+    ASSERT_TRUE(wait_until_sync_finished(main_window())) << "Die Synchronisation ist nicht zu Ende gelaufen.";
+    EXPECT_EQ(tree.read("ziel/bericht.txt"), "Bericht") << "Der vorgeschlagene Befehl hat nicht synchronisiert.";
+}
+
+TEST_F(GuiTest, VorgeschlagenesStoppenOhneLaufMeldetDas)  // [SyncOnceTest.md#proposed-command]
+{
+    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("info"), wxID_OK);
+
+    main_window().apply_proposal(AFS_Core::sync_proposal::Command::StopSync);
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der gesperrte Befehl blieb ohne Hinweis.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), AFS_Core::translation::translate("no_sync_active"));
 }
 
 }

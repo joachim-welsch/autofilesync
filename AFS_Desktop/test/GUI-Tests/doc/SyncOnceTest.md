@@ -36,3 +36,10 @@ is a question for the plan's open points.
 Start with an empty configuration ends in the "Achtung" box on the first timer tick. The test
 stops the run right after and expects no second box: Stop has to leave the continuous mode
 even though no run was ever active (SyncInterface.md#stop-leaves-continuous-mode).
+
+## proposed-command
+
+A command the assistant proposes runs exactly the menu command, so "Einmal synchronisieren"
+must sync like the menu item does. A command whose menu item is disabled - stopping when
+nothing runs - must not run, but tell the user why, instead of doing nothing on a click.
+apply_proposal() stands in for the button of the chat, which only a model can make appear.

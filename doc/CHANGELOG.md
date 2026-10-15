@@ -2,6 +2,10 @@
 
 ## Unveröffentlicht
 
+- Assistent: Er kann auch Befehle vorschlagen – einmal synchronisieren,
+  Synchronisation starten oder stoppen, Hintergrunddienst starten oder stoppen,
+  Log-Datei anzeigen. Der Knopf trägt den Namen aus dem Menü und führt den
+  Menübefehl aus; ist er gerade nicht möglich, sagt das Programm warum.
 - Assistent: Er weiß, wann jede Synchronisation zuletzt lief, ob Quelle und
   Ziel dabei erreichbar waren und welcher Fehler zuerst auftrat, außerdem ob
   das Programm gerade synchronisiert und ob der Hintergrunddienst läuft. So

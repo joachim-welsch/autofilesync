@@ -1920,3 +1920,19 @@ msgstr "errors in the last run: %1, the first: %2"
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr "In the program: %1. Background service – %2."
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr "If the user wants to run one of these commands, append exactly one block of this form instead:\n```sync\n{\"command\": \"sync_once\"}\n```\nAllowed commands: %1. The user runs the command with a button."
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr "Did the user's last question ask to run one of these commands: %1? Then answer only with {\"command\": \"...\"}."
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr "Proposal: %1. Run it with \"%1\"."
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr "sync,start,stop,open,show"

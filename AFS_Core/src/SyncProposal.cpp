@@ -34,6 +34,17 @@ using std::wstring;
 constexpr wchar_t FENCE[] = L"```";
 constexpr wchar_t DEFAULT_WILDCARD[] = L"*.*";  // the SyncItemDialog default for a new item
 
+struct CommandName { Command command; const wchar_t* key; const char* label_msgid; };
+constexpr CommandName COMMANDS[] = {  // [SyncProposal.md#Command]
+    {Command::SyncOnce, L"sync_once", "menu_sync_once"}, {Command::StartSync, L"start_sync", "toolbar_start_sync"},
+    {Command::StopSync, L"stop_sync", "toolbar_stop_sync"}, {Command::StartService, L"start_service", "menu_bs_start_help"},
+    {Command::StopService, L"stop_service", "menu_bs_stop_help"}, {Command::OpenLog, L"open_log", "menu_view_log"}};
+
+const CommandName& name_of(Command command)
+{
+    return *std::ranges::find(COMMANDS, command, &CommandName::command);
+}
+
 struct Block { std::size_t begin = wstring::npos; std::size_t end = wstring::npos; wstring body; };
 
 Block fenced_block(const wstring& text, std::size_t from)  // [SyncProposal.md#fenced-or-bare]
@@ -88,6 +99,10 @@ std::optional<Proposal> proposal_from(const wstring& json)
     }
     if (const wstring name = pt.get(L"delete", L""); !name.empty())  // [SyncProposal.md#Deletion]
         return Deletion{name};
+    if (const wstring key = pt.get(L"command", L""); !key.empty()) {
+        const auto found = std::ranges::find_if(COMMANDS, [&key](const CommandName& c) { return key == c.key; });
+        return found == std::end(COMMANDS) ? std::nullopt : std::optional<Proposal>(found->command);
+    }
     if (const auto item = item_from(pt))
         return *item;
     return std::nullopt;
@@ -131,6 +146,24 @@ std::string alternatives(const std::vector<wstring>& texts)
         rule += (rule.empty() ? "" : " | ") + gbnf_literal(text);
     return rule;
 }
+
+wstring command_list()  // [SyncProposal.md#command_list]
+{
+    wstring list;
+    for (const CommandName& c : COMMANDS)
+        list += (list.empty() ? L"" : L", ") + wstring(c.key) + L" (" + label(c.command) + L")";
+    return list;
+}
+}
+
+wstring label(Command command)
+{
+    wstring text = translation::translate(name_of(command).label_msgid);
+    std::erase(text, L'&');
+    for (const wstring ellipsis : {L"…", L"..."})
+        if (text.ends_with(ellipsis))
+            text.erase(text.size() - ellipsis.size());
+    return text;
 }
 
 wstring instruction()
@@ -138,7 +171,8 @@ wstring instruction()
     wstring types;
     for (const SyncItemType type : {SyncItemType::File, SyncItemType::Dir, SyncItemType::Tree})
         types += (types.empty() ? L"" : L", ") + sync_item_type_to_str(type);
-    return translation::translate("assistant_sync_proposal_instruction", {types, sync_item_type_to_str(SyncItemType::Tree)});
+    return translation::translate("assistant_sync_proposal_instruction", {types, sync_item_type_to_str(SyncItemType::Tree)})
+        + L"\n" + translation::translate("assistant_command_instruction", {command_list()});
 }
 
 std::optional<Proposal> parse(const wstring& answer)
@@ -157,6 +191,8 @@ wstring without_block(const wstring& answer)
 
 wstring describe(const Proposal& proposal)
 {
+    if (const auto* command = std::get_if<Command>(&proposal))
+        return translation::translate("assistant_command_summary", {label(*command)});
     if (const auto* deletion = std::get_if<Deletion>(&proposal))
         return translation::translate("assistant_sync_deletion_summary", {deletion->name, translation::translate("chat_delete_sync")});
     const SyncItem& item = std::get<SyncItem>(proposal);
@@ -180,9 +216,19 @@ bool names_configured_item(const wstring& question, const SyncItems& items)
     return std::any_of(items.begin(), items.end(), [&text](const SyncItem& item) { return text.find(lower(item.name())) != wstring::npos; });
 }
 
+bool names_command(const wstring& question)
+{
+    const wstring text = lower(question);
+    std::wistringstream words(translation::translate("assistant_command_words"));
+    for (wstring word; std::getline(words, word, L',');)
+        if (!word.empty() && text.find(word) != wstring::npos)
+            return true;
+    return false;
+}
+
 wstring extraction_question()
 {
-    return translation::translate("assistant_sync_proposal_extraction");
+    return translation::translate("assistant_command_extraction", {command_list()}) + L" " + translation::translate("assistant_sync_proposal_extraction");
 }
 
 std::string grammar(const SyncItems& items)
@@ -192,7 +238,12 @@ std::string grammar(const SyncItems& items)
         types.push_back(sync_item_type_to_str(type));
     for (const SyncItem& item : items)
         names.push_back(item.name());
-    return std::string("root ::= object | ") + (names.empty() ? "" : "deletion | ") + "\"null\"\n"
+    std::vector<wstring> commands;
+    for (const CommandName& c : COMMANDS)
+        commands.push_back(c.key);
+    return std::string("root ::= object | ") + (names.empty() ? "" : "deletion | ") + "command | \"null\"\n"
+        "command ::= \"{\" ws \"\\\"command\\\"\" ws \":\" ws commandkey ws \"}\"\n"
+        "commandkey ::= " + alternatives(commands) + "\n"
         "object ::= \"{\" ws \"\\\"name\\\"\" ws \":\" ws string \",\" ws \"\\\"source\\\"\" ws \":\" ws string \",\" ws"
         " \"\\\"target\\\"\" ws \":\" ws string \",\" ws \"\\\"type\\\"\" ws \":\" ws type ws \"}\"\n"
         "type ::= " + alternatives(types) + "\n"

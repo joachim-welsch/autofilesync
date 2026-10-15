@@ -1888,3 +1888,19 @@ msgstr "errori nell'ultima esecuzione: %1, il primo: %2"
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr "Nel programma: %1. Servizio in background – %2."
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr "Se l'utente vuole eseguire uno di questi comandi, aggiungi invece esattamente un blocco di questa forma:\n```sync\n{\"command\": \"sync_once\"}\n```\nComandi consentiti: %1. L'utente esegue il comando con un pulsante."
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr "L'ultima domanda dell'utente chiedeva di eseguire uno di questi comandi: %1? Allora rispondi solo con {\"command\": \"...\"}."
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr "Proposta: %1. Eseguilo con \"%1\"."
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr "sincronizz,avvia,ferma,arresta,apri,mostra"

@@ -272,7 +272,8 @@ ChatReply LlamaClient::with_proposal(const ChatHistory& history, ChatReply reply
     const SyncItems items = Config::instance().syncitems();
     const wstring& question = history.back().text;
     if (!reply.ok || sync_proposal::parse(reply.text)
-        || !(sync_proposal::names_two_paths(question) || sync_proposal::names_configured_item(question, items)))  // [SyncProposal.md#names_two_paths]
+        || !(sync_proposal::names_two_paths(question) || sync_proposal::names_configured_item(question, items)
+             || sync_proposal::names_command(question)))  // [SyncProposal.md#names_two_paths]
         return reply;
     ChatHistory extraction = history;
     extraction.push_back({ false, reply.text });

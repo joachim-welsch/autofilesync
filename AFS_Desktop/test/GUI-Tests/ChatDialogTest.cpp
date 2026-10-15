@@ -25,6 +25,7 @@
 #include <wx/stdpaths.h>
 #include "Config.h"
 #include "GuiTestSandbox.h"
+#include "SandboxTree.h"
 #include "SyncActions.h"
 #include "SyncItemDialog.h"
 #include "TextResources.h"
@@ -226,6 +227,33 @@ TEST_F(SlowGuiTest, ChatBeantwortetHilfefrageMitDerHilfeseite)  // [ChatDialogTe
     const wxString transcript = value_of(chat.transcript);
     const wxString answer = transcript.Mid(transcript.rfind(speaker));  // [ChatDialogTest.md#last-answer-only]
     EXPECT_NE(answer.Find("Globale Einstellungen"), wxNOT_FOUND) << "Die Antwort nennt die Hilfeseite nicht: " << answer;
+}
+
+TEST_F(SlowGuiTest, ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus)  // [ChatDialogTest.md#ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus]
+{
+    if (!LlamaClient::available())
+        GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
+    const SandboxTree tree(GuiTestSandbox::root() / "chatbefehl", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
+    SyncItemInput input{"Chat-Befehl", tree.path("quelle").string(), tree.path("ziel").string()};
+    input.type = SyncItemType::Dir;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ChatControls chat = open_chat(main_window());
+    ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
+    const HiddenChat hidden(chat);
+    ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
+    ASSERT_TRUE(replace_text(chat.input, "Bitte synchronisiere jetzt einmal."));
+    wxWindow* button = wxWindow::FindWindowById(ID_CHAT_PROPOSAL);
+    ASSERT_NE(button, nullptr);
+
+    ASSERT_TRUE(press_control_enter(chat.input));
+    ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
+    ASSERT_TRUE(button->IsShown()) << "Die Antwort enthielt keinen Vorschlag: " << value_of(chat.transcript);
+    EXPECT_EQ(button->GetLabel(), wxString(sync_proposal::label(sync_proposal::Command::SyncOnce)));
+    ASSERT_TRUE(click_on(button));
+    pump();
+
+    ASSERT_TRUE(wait_until_sync_finished(main_window())) << "Die Synchronisation ist nicht zu Ende gelaufen.";
+    EXPECT_EQ(tree.read("ziel/bericht.txt"), "Bericht") << "Der Knopf hat nicht synchronisiert.";
 }
 
 TEST_F(SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDialogTest.md#ChatKenntDieAnzahlDerSynchronisationen]

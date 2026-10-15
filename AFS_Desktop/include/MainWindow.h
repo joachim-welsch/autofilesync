@@ -124,6 +124,8 @@ private:
     void on_stop_background_service(wxCommandEvent&);
     void on_chat(wxCommandEvent&);
     wxString chat_situation() const;
+    void run_proposed_command(AFS_Core::sync_proposal::Command command);
+    wxString why_not_possible(AFS_Core::sync_proposal::Command command) const;
     void on_menu_open(wxMenuEvent& event);
     void update_background_service_menu();
     void report_background_service(const std::wstring& error, const wxString& success);  // [MainWindow.md#report_background_service]

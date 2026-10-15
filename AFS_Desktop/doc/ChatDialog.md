@@ -34,8 +34,9 @@ free of the main window's interface.
 
 The button is the proposal: hidden until an answer carries a block parse() accepts, hidden
 again when the next question is sent or the button was used. A visible but disabled button
-would raise the question what it is for. Its label says what it will do, create or delete, so
-the user never confirms the wrong thing from habit.
+would raise the question what it is for. Its label says what it will do - create, delete, or
+the name of the proposed command as the menu shows it - so the user never confirms the wrong
+thing from habit.
 
 ## proposal-described
 

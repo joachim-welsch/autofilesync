@@ -107,3 +107,8 @@ The question uses the help's own words, so the "Globale Einstellungen – Sprach
 along, and the instruction asks the model to name the page. Without the help the model knows
 neither the dialog's name nor that a language choice exists. Runs in German: the help and the
 page name are German, and an answer in another language could translate the name.
+
+## ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus
+
+The request names no path and no item, so only the command word triggers the extraction pass;
+the button must carry the menu's name for the command and run it like the menu does.

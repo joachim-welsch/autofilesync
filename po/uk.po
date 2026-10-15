@@ -1888,3 +1888,19 @@ msgstr "помилок в останньому запуску: %1, перша: %
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr "У програмі: %1. Фонова служба – %2."
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr "Якщо користувач хоче виконати одну з цих команд, додай натомість рівно один блок у такій формі:\n```sync\n{\"command\": \"sync_once\"}\n```\nДозволені команди: %1. Користувач виконує команду кнопкою."
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr "Чи просив користувач в останньому запитанні виконати одну з цих команд: %1? Тоді відповідай лише {\"command\": \"...\"}."
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr "Пропозиція: %1. Виконати кнопкою \"%1\"."
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr "синхроніз,запусти,зупини,відкрий,покажи"
