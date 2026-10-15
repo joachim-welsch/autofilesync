@@ -2,6 +2,10 @@
 
 ## Unveröffentlicht
 
+- Die Hilfe gibt es auch auf Englisch. Sie erscheint in der Sprache, die das
+  Programm anzeigt – für jede Sprache ohne eigene Hilfe auf Englisch – und
+  wechselt mit, wenn die Sprache in den globalen Einstellungen umgestellt wird.
+  Auch der Assistent liest die Hilfe in dieser Sprache.
 - Assistent: Er kann auch Befehle vorschlagen – einmal synchronisieren,
   Synchronisation starten oder stoppen, Hintergrunddienst starten oder stoppen,
   Log-Datei anzeigen. Der Knopf trägt den Namen aus dem Menü und führt den

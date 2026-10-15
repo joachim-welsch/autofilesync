@@ -48,6 +48,7 @@
 #endif
 #include "wx/filesys.h"
 #include "wx/fs_zip.h"
+#include <wx/cshelp.h>
 #include <wx/config.h>
 #include <wx/display.h>
 #include <wx/stdpaths.h>
@@ -659,6 +660,16 @@ void MainWindow::switch_language()
     update_sync_state();
     set_title();
     set_task_bar_icon();
+    rebuild_help();
+}
+
+void MainWindow::rebuild_help()  // [MainWindow.md#rebuild_help]
+{
+    wxHtmlHelpController* old = html_help_controller_;
+    create_help();
+    if (auto* provider = dynamic_cast<wxHelpControllerHelpProvider*>(wxHelpProvider::Get()))
+        provider->SetHelpController(html_help_controller_);
+    delete old;
 }
 
 void MainWindow::rebuild_menu()  // [MainWindow.md#switch_language]
@@ -886,12 +897,22 @@ void MainWindow::OnHelp(wxCommandEvent&)
 }
 
 namespace {
-wxString help_book_in(const wxString& directory)
+wxString help_book_in(const wxString& directory, const wxString& language = wxEmptyString)
 {
     wxFileName book = wxFileName::DirName(directory);
     book.AppendDir("help");
+    if (!language.empty())
+        book.AppendDir(language);
     book.SetFullName("help.htb");
     return book.GetFullPath();
+}
+
+wxString help_language()  // [MainWindow.md#help_language]
+{
+    const std::string language = translation::catalogue_language();
+    if (language == "de")
+        return wxEmptyString;
+    return language.empty() ? wxString("en") : wxString(language);
 }
 
 wxString executable_dir()
@@ -901,16 +922,24 @@ wxString executable_dir()
     return exe.GetPath();
 }
 
-wxString locate_help_book()  // [MainWindow.md#locate_help_book]
+wxString locate_help_book_in(const wxString& language)  // [MainWindow.md#locate_help_book]
 {
     constexpr int MAX_BUILD_TREE_DEPTH = 3;
     wxFileName dir = wxFileName::DirName(executable_dir());
     for (int level = 0; level <= MAX_BUILD_TREE_DEPTH && dir.GetDirCount() > 0; ++level, dir.RemoveLastDir())
-        if (const wxString candidate = help_book_in(dir.GetPath()); wxFileExists(candidate))
+        if (const wxString candidate = help_book_in(dir.GetPath(), language); wxFileExists(candidate))
             return candidate;
     for (const wxString& directory : {wxStandardPaths::Get().GetResourcesDir(), wxGetCwd()})
-        if (const wxString candidate = help_book_in(directory); wxFileExists(candidate))
+        if (const wxString candidate = help_book_in(directory, language); wxFileExists(candidate))
             return candidate;
+    return wxEmptyString;
+}
+
+wxString locate_help_book()  // [MainWindow.md#help_language]
+{
+    for (const wxString& language : {help_language(), wxString("en"), wxString()})
+        if (const wxString book = locate_help_book_in(language); !book.empty())
+            return book;
     return wxEmptyString;
 }
 }

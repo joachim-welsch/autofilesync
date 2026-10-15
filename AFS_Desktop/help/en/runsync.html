@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Running a synchronisation</title>
+</head>
+<body>
+<h1>Running a synchronisation</h1>
+
+<p>The <b>Synchronisation</b> menu controls the run.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="25%">Command</th><th align="left">Effect</th></tr>
+<tr><td valign="top"><b>Start</b></td>
+    <td>Starts continuous operation. AutoFileSync works through all active
+        synchronisations one after another, waits the pause set for each task
+        and starts over.</td></tr>
+<tr><td valign="top"><b>Stop</b></td>
+    <td>Ends the operation. A copy in progress is still finished, then the
+        processing stops.</td></tr>
+<tr><td valign="top"><b>Synchronise once</b></td>
+    <td>A single run over all active synchronisations; afterwards the
+        processing stops by itself. See
+        <a href="synconce.html">Synchronise once</a>.</td></tr>
+</table>
+
+<p>Start and the single run are only available if the configuration holds at
+least one synchronisation that can be run. While a run is active they are
+disabled.</p>
+
+<h2>What you see meanwhile</h2>
+
+<p>The right-hand field of the status bar always shows what the synchronisation
+is doing: <em>Synchronisation stopped</em>, <em>Counting files …</em>,
+<em>Single synchronisation running …</em>, <em>Synchronisation running …</em>
+or <em>Paused – next run in N s</em> when all tasks are in their
+<a href="options.html">pause</a>. For longer transfers a progress dialog appears
+with source, target and amount. The toolbar switches between Start and Stop, so
+the state can be read at any time.</p>
+
+<p>When the window is minimised, the synchronisation keeps running in the
+notification area of the taskbar.</p>
+
+<h2>Automatically at program start</h2>
+
+<p>In the <a href="settings.html">global settings</a> you can have AutoFileSync
+begin the synchronisation right after starting – together with <b>Start the
+application automatically</b> and <b>Start minimised</b> this gives a run that
+goes along without any action. If you want the synchronisation without the
+program open at all, use the <a href="service.html">background service</a>.</p>
+
+<h2>Views</h2>
+
+<p>The <b>View</b> menu switches the overview:</p>
+
+<ul>
+<li><b>List</b> – one line per synchronisation</li>
+<li><b>Tree</b> – arranged by source and target</li>
+<li><b>Table</b> – all fields side by side, good for comparing several
+    tasks</li>
+<li><b>Show log file</b> – opens the log in the configured editor, see
+    <a href="logging.html">Log and notification</a></li>
+<li><b>Background</b> – shows the state of the
+    <a href="service.html">background service</a></li>
+</ul>
+
+</body>
+</html>

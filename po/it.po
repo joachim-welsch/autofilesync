@@ -1143,7 +1143,7 @@ msgstr "Errore nel determinare il percorso: "
 
 #: AFS_Desktop/src/MainWindow.cpp:319
 msgid "about_text"
-msgstr "%1\nVersione %2\n\nSincronizzazione automatica di file e alberi di cartelle\nsu %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nLicenza: GNU GPL v3 o successiva,\nvedi Aiuto → Lizenzbedingungen."
+msgstr "%1\nVersione %2\n\nSincronizzazione automatica di file e alberi di cartelle\nsu %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nLicenza: GNU GPL v3 o successiva,\nvedi Aiuto → Licence terms."
 
 #: AFS_Desktop/src/MainWindow.cpp:321
 msgid "about_title"
@@ -1839,7 +1839,7 @@ msgstr "Copyright © 2026 Joachim Welsch"
 
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
-msgstr "Sincronizzazione automatica di file e alberi di cartelle su %1.\n\nhttps://welsch-software.com\n\nLicenza: GNU GPL v3 o successiva, vedi Aiuto → Lizenzbedingungen."
+msgstr "Sincronizzazione automatica di file e alberi di cartelle su %1.\n\nhttps://welsch-software.com\n\nLicenza: GNU GPL v3 o successiva, vedi Aiuto → Licence terms."
 
 #: AFS_Desktop/include/utilwx.h
 msgid "label_colon"
@@ -1867,7 +1867,7 @@ msgstr "log,registro"
 
 #: AFS_Core/src/LlamaClient.cpp:45
 msgid "assistant_help_instruction"
-msgstr "Il seguente estratto proviene dalla guida di AutoFileSync; tra parentesi quadre è indicata la pagina della guida. Usalo per rispondere alla domanda che segue e indica alla fine la pagina della guida in cui l'utente trova maggiori informazioni. L'estratto è in tedesco; rispondi comunque in italiano. Se l'estratto non è pertinente alla domanda, ignoralo senza menzionarlo."
+msgstr "Il seguente estratto proviene dalla guida di AutoFileSync; tra parentesi quadre è indicata la pagina della guida. Usalo per rispondere alla domanda che segue e indica alla fine la pagina della guida in cui l'utente trova maggiori informazioni. Se l'estratto è in un'altra lingua, rispondi comunque in italiano. Se l'estratto non è pertinente alla domanda, ignoralo senza menzionarlo."
 
 #: AFS_Core/src/ConfigSummary.cpp:77
 msgid "config_summary_never_synced"

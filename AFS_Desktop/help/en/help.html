@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>AutoFileSync – Help</title>
+</head>
+<body>
+<h1>AutoFileSync</h1>
+
+<p>AutoFileSync keeps files in two places up to date with each other. A place can
+be a directory on this machine, a network drive, a USB drive or a computer that
+can be reached over SSH.</p>
+
+<p>Each task is set up as a <b>synchronisation</b>: source, target, what is
+compared and how special cases are handled. All synchronisations together form
+the configuration, which is saved as a file. They run either from within the
+program – once or continuously – or in a background service that uses the same
+configuration.</p>
+
+<h2>Quick start</h2>
+
+<ol>
+<li><b>File &rarr; New synchronisation…</b> opens the dialog for a new
+    task.</li>
+<li>Give it a <b>Name</b> and choose the <b>Type</b>: a single file, a
+    directory or a whole directory tree.</li>
+<li>Enter the <b>Source</b> and the <b>Target</b>, or choose them with the
+    buttons.</li>
+<li>On the <b>Options</b> tab, set what files are compared by and what should
+    happen with deletions, empty files and older versions.</li>
+<li>Confirm with <b>OK</b> – the configuration is saved at once – and get going
+    with <b>Synchronisation &rarr; Start</b>.</li>
+</ol>
+
+<h2>The main window</h2>
+
+<p>The synchronisations can be shown as a <b>List</b>, a <b>Tree</b> or a
+<b>Table</b>; the choice is in the <b>View</b> menu. The toolbar holds the most
+frequent commands: edit, save, delete, start and stop; at the far right are the
+help and the gear for the global settings. The status bar tells what is
+happening right now.</p>
+
+<p>When minimised, the program withdraws into the notification area of the
+taskbar and keeps working there.</p>
+
+<h2>All topics</h2>
+
+<ul>
+<li><a href="syncitems.html">Setting up synchronisations</a> – types, source
+    and target, wildcards, exclusions</li>
+<li><a href="options.html">Options of a synchronisation</a> – every switch in
+    detail</li>
+<li><a href="runsync.html">Running a synchronisation</a> – continuously, once,
+    stopping</li>
+<li><a href="synconce.html">Synchronise once</a></li>
+<li><a href="ssh.html">Synchronising over SSH</a></li>
+<li><a href="settings.html">Global settings</a></li>
+<li><a href="logging.html">Log and notification</a></li>
+<li><a href="backupproof.html">Backup proof</a></li>
+<li><a href="service.html">Background service</a></li>
+<li><a href="config.html">Configuration file</a></li>
+<li><a href="troubleshooting.html">When something does not happen as expected</a></li>
+</ul>
+
+</body>
+</html>

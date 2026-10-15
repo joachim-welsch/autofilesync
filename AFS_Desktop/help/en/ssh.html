@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronising over SSH</title>
+</head>
+<body>
+<h1>Synchronising over SSH</h1>
+
+<p>Source or target may be on another computer that can be reached over SSH –
+a NAS, a server or a small computer in the home network, for example. Both sides
+at once are possible as well.</p>
+
+<h2>Setting up a connection</h2>
+
+<p><b>File &rarr; New SSH connection…</b> or <b>Edit &rarr; SSH
+connections…</b> opens the management. A connection consists of:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Name</b></td>
+    <td>Free to choose. Paths later refer to the connection by this
+        name.</td></tr>
+<tr><td valign="top"><b>Host</b></td>
+    <td>Computer name or IP address.</td></tr>
+<tr><td valign="top"><b>User</b></td>
+    <td>Account on the remote computer.</td></tr>
+<tr><td valign="top"><b>Password</b></td>
+    <td>Stored encrypted in the configuration, not in plain text.</td></tr>
+</table>
+
+<p>In the overview, connections can be created, edited, renamed and deleted. If
+a connection is renamed, the synchronisations that use it follow
+automatically.</p>
+
+<h2>Writing remote paths</h2>
+
+<p>A remote path consists of the name of the connection, a colon and the path on
+the remote computer:</p>
+
+<blockquote><tt>nas:/home/anna/documents</tt></blockquote>
+
+<p>In the dialog of a synchronisation, the SSH button next to source and target
+first leads to the choice of the connection and then to a dialog that browses
+the directories on the remote computer – with size and modification date, so
+that the right place can be found without typing.</p>
+
+<h2>What is different</h2>
+
+<ul>
+<li><b>Symbolic links</b> on the remote computer are not followed. They are
+    skipped, so that a link to a parent directory cannot cause an endless
+    loop.</li>
+<li><b>Deleting is permanent.</b> The recycle bin is only available locally; a
+    remote file would first have to be downloaded to be moved there. This
+    concerns <b>Also delete deleted files in the target</b> as well as
+    <b>Delete the source after copying</b>, although the latter is not carried
+    out for remote sources anyway.</li>
+<li><b>File attributes</b> are not changed on the remote side.</li>
+<li><b>If the server cannot be reached</b>, AutoFileSync tells this apart from
+    “there is nothing there any more” and leaves the target alone. A failed
+    connection therefore never leads to deletions.</li>
+<li>On the first connection the server's key is stored. If it changes later,
+    AutoFileSync aborts the connection and reports a suspected man-in-the-middle
+    attack.</li>
+</ul>
+
+<h2>The check before every run</h2>
+
+<p>Before a synchronisation with a remote side starts at all, AutoFileSync makes
+sure that the other end is there: it connects, checks the server's key and logs
+in. This is the same question that “is the drive connected?” answers for a local
+path. If one of these steps fails, the synchronisation is skipped for this run –
+nothing is copied or deleted.</p>
+
+<p><b>Source</b> and <b>target</b> are held to different standards:</p>
+
+<ul>
+<li>The <b>source</b> must exist. If the server answers but reports “does not
+    exist”, the source has disappeared – and a synchronisation whose source has
+    disappeared keeps still instead of repeating the disappearance. Otherwise a
+    deleted source directory together with <b>Also delete deleted files in the
+    target</b> would empty the target.</li>
+<li>For the <b>target</b> it is enough that the connection succeeds. A target
+    directory that does not exist yet is created by AutoFileSync itself – it
+    must not block the synchronisation.</li>
+</ul>
+
+<p>The result is cached, so that not every run opens a new connection. A
+reachable remote side is checked again at most once an hour, an unreachable one
+at most every five minutes. After a fault it can therefore take a few minutes
+until the synchronisation starts again by itself.</p>
+
+</body>
+</html>

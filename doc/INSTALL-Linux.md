@@ -140,18 +140,20 @@ cd ~/Entwicklung/autofilesync
 
 sudo mkdir -p /opt/autofilesync/help
 sudo install -m 755 build/Release/autofilesync /opt/autofilesync/autofilesync
-sudo install -m 644 AFS_Desktop/help/* /opt/autofilesync/help/
+sudo cp -r AFS_Desktop/help/. /opt/autofilesync/help/
 ```
 
-Die Hilfe besteht aus dem kompilierten Hilfebuch `help.htb` (ein ZIP-Archiv mit
-allen Seiten) sowie den unkomprimierten Quelldateien. Das Programm liest zur
-Laufzeit ausschließlich `help/help.htb`; die übrigen Dateien werden mitkopiert,
-damit die Hilfe am Zielsystem nachvollziehbar und neu erzeugbar bleibt.
+Die Hilfe besteht aus den kompilierten Hilfebüchern (ZIP-Archive mit allen
+Seiten) sowie den unkomprimierten Quelldateien: `help/help.htb` auf Deutsch,
+`help/en/help.htb` auf Englisch. Das Programm liest zur Laufzeit nur das Buch in
+der angezeigten Sprache – Englisch für jede Sprache ohne eigenes Buch –; die
+übrigen Dateien werden mitkopiert, damit die Hilfe am Zielsystem nachvollziehbar
+und neu erzeugbar bleibt.
 
 Kontrolle:
 
 ```bash
-ls -l /opt/autofilesync/help/help.htb
+ls -l /opt/autofilesync/help/help.htb /opt/autofilesync/help/en/help.htb
 ```
 
 ### Hilfeseiten nach Änderungen neu erzeugen

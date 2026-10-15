@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="wxWidgets HTML Help">
+  <TITLE>Contents</TITLE>
+</HEAD>
+<BODY>
+  <UL>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="AutoFileSync">
+      <PARAM name="Local" value="help.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Setting up synchronisations">
+      <PARAM name="Local" value="syncitems.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Options of a synchronisation">
+      <PARAM name="Local" value="options.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Running a synchronisation">
+      <PARAM name="Local" value="runsync.html">
+    </OBJECT>
+    <UL>
+      <LI> <OBJECT type="text/sitemap">
+        <PARAM name="Name" value="Synchronise once">
+        <PARAM name="Local" value="synconce.html">
+      </OBJECT>
+      </LI>
+    </UL>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Synchronising over SSH">
+      <PARAM name="Local" value="ssh.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Global settings">
+      <PARAM name="Local" value="settings.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Log and notification">
+      <PARAM name="Local" value="logging.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Backup proof">
+      <PARAM name="Local" value="backupproof.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Background service">
+      <PARAM name="Local" value="service.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Configuration file">
+      <PARAM name="Local" value="config.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Licence terms">
+      <PARAM name="Local" value="licensing.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="When something does not happen as expected">
+      <PARAM name="Local" value="troubleshooting.html">
+    </OBJECT>
+    </LI>
+  </UL>
+</BODY>
+</HTML>

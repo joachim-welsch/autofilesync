@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Log and notification</title>
+</head>
+<body>
+<h1>Log and notification</h1>
+
+<p><b>Edit &rarr; Logging settings…</b> controls what is written down and how
+you learn about serious errors.</p>
+
+<h2>Log</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Log file path</b></td>
+    <td>Location of the log file. Without a path of your own, AutoFileSync
+        writes to <tt>%LOCALAPPDATA%\autofilesync\autofilesync.log</tt> on
+        Windows and to <tt>~/.cache/autofilesync/autofilesync.log</tt> on Linux.
+        The directory is created when needed.</td></tr>
+<tr><td valign="top"><b>Log level</b></td>
+    <td>From which level on entries are written: <tt>Debug</tt>, <tt>Info</tt>,
+        <tt>Warning</tt>, <tt>Error</tt> or <tt>FatalError</tt>. <tt>Debug</tt>
+        logs every step and makes the file grow fast – meant for tracking down
+        problems, not for continuous operation. <tt>Info</tt> records what was
+        copied and deleted.</td></tr>
+<tr><td valign="top"><b>History [days]</b></td>
+    <td>How long entries are kept. At program start older lines are removed,
+        newer ones stay.</td></tr>
+<tr><td valign="top"><b>Editor</b></td>
+    <td>Program with which <b>View &rarr; Show log file</b> opens the
+        log.</td></tr>
+<tr><td valign="top"><b>Path for backup proofs</b></td>
+    <td>Directory for the proof files, see
+        <a href="backupproof.html">Backup proof</a>.</td></tr>
+</table>
+
+<h2>Notification by e-mail</h2>
+
+<p>On the second tab you can set up a notification that sends an e-mail on a
+serious error – useful when AutoFileSync runs unattended or as the
+<a href="service.html">background service</a>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Active</b></td>
+    <td>Switches sending on. Without the tick everything else has no
+        effect.</td></tr>
+<tr><td valign="top"><b>E-mail address</b></td>
+    <td>Recipient of the notification.</td></tr>
+<tr><td valign="top"><b>Outgoing mail server</b>, <b>Port</b></td>
+    <td>SMTP server and port of the provider.</td></tr>
+<tr><td valign="top"><b>User</b>, <b>Password</b></td>
+    <td>Login data for the outgoing mail server.</td></tr>
+<tr><td valign="top"><b>Sender</b></td>
+    <td>Address entered as the sender. Many providers require it to belong to
+        the account.</td></tr>
+</table>
+
+<p>If recipient, server or sender are missing while the notification is active,
+the dialog points this out when you confirm it. The same error does not send a
+mail any number of times – after one message it stays quiet for a while, so that
+a target that cannot be reached for a long time does not flood the mailbox.</p>
+
+</body>
+</html>

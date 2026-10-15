@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronise once</title>
+</head>
+<body>
+<h1>Synchronise once</h1>
+
+<p><b>Synchronisation &rarr; Synchronise once</b> does exactly one run over all
+active synchronisations and stops afterwards. The pause set for the tasks plays
+no part in it – it applies to continuous operation only.</p>
+
+<p>This is the right command to</p>
+
+<ul>
+<li>try out a newly created synchronisation,</li>
+<li>reconcile everything once more before unplugging a drive,</li>
+<li>check the result after changing an option, without the program running on
+    afterwards.</li>
+</ul>
+
+<p>During the run <b>Start</b> and <b>Synchronise once</b> are disabled;
+afterwards they are available again. What happened is written to the
+<a href="logging.html">log</a>, and with the <a href="backupproof.html">backup
+proof</a> switched on also to the proof file.</p>
+
+<p>If nothing should be changed and you only want to find out how much there
+would be to do, look into the log at log level <tt>Info</tt>: the run counts the
+affected files before it copies.</p>
+
+</body>
+</html>

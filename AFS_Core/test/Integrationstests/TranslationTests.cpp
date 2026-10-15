@@ -115,3 +115,14 @@ TEST_F(TranslationTest, MissingTranslationIsLoggedOnce)  // [TranslationTests.md
     ASSERT_EQ(messages.size(), 1u);
     EXPECT_NE(messages[0].text.find(msgid), std::string::npos) << messages[0].text;
 }
+
+TEST_F(TranslationTest, CatalogueLanguageNamesTheCatalogueInUse)  // [TranslationTests.md#CatalogueLanguageNamesTheCatalogueInUse]
+{
+    ScopedEnv env("LANGUAGE", "de");
+    translation::init(translation::locale_dir());
+    EXPECT_EQ(translation::catalogue_language(), "de");
+    translation::set_language("uk");
+    EXPECT_EQ(translation::catalogue_language(), "uk");
+    translation::set_language("sv");
+    EXPECT_EQ(translation::catalogue_language(), "en") << "Without a Swedish catalogue the English one is in use.";
+}

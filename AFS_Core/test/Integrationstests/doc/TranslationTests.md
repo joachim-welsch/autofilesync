@@ -25,3 +25,8 @@ stamp computed from different files), which would make every installation report
 A message id unknown to the catalogue yields one warning naming it, not one per call. The id
 carries a clock value because the reported ids are remembered for the whole process - a fixed
 id would already be known in a repeated run.
+
+## CatalogueLanguageNamesTheCatalogueInUse
+
+The help book is chosen by this language, so it must name the catalogue gettext actually uses -
+after the English fallback that is "en", not the language that was asked for.

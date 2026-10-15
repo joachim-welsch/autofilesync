@@ -139,7 +139,7 @@ function Test-Payload {
         'intl-8.dll', 'iconv-2.dll', 'libssh2.dll', 'zlib1.dll',
         'libssl-3-x64.dll', 'libcrypto-3-x64.dll',
         'llama.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu.dll',
-        'help\help.htb', 'licenses\LICENSE', 'licenses\LICENSING.md', 'licenses\THIRD-PARTY-NOTICES.md'
+        'help\help.htb', 'help\en\help.htb', 'licenses\LICENSE', 'licenses\LICENSING.md', 'licenses\THIRD-PARTY-NOTICES.md'
     ) + $modelSetup
     foreach ($language in (Get-ChildItem (Join-Path $root 'po') -Filter '*.po')) {
         $required += "locale\$($language.BaseName)\LC_MESSAGES\autofilesync.mo"

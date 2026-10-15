@@ -91,7 +91,8 @@ adds the blank lines that separate it from the excerpt, so no translation can dr
 ## HELP_INSTRUCTION
 
 Sent in front of the help excerpt. It names the page in brackets so that the model can point the
-user to it, says in every language that the excerpt is German but the answer is not, and tells
+user to it, says that the answer keeps the language of the conversation even if the excerpt is
+in another one - the help exists in German and English only - and tells
 the model to pass over an excerpt that does not fit, since the keyword match is no guarantee.
 
 ## backend-init

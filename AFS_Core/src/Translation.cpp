@@ -27,6 +27,7 @@
 #include <cstring>
 #include <mutex>
 #include <optional>
+#include <string_view>
 #include <set>
 #include "Logging.h"
 #ifdef WIN32
@@ -187,6 +188,17 @@ std::string translate_utf8(const char* msgid)
     return text;
 }
 
+std::string catalogue_language()
+{
+    constexpr std::string_view KEY = "Language: ";
+    const std::string header = dgettext(TEXT_DOMAIN, "");  // the empty msgid yields the catalogue header
+    const std::size_t key = header.find(KEY);
+    if (key == std::string::npos)
+        return {};
+    const std::size_t start = key + KEY.size();
+    return header.substr(start, header.find('\n', start) - start);
+}
+
 std::optional<std::wstring> catalogue_mismatch()
 {
 #ifdef AFS_CATALOGUE_STAMP
@@ -204,6 +216,7 @@ std::optional<std::wstring> catalogue_mismatch()
 }
 #else
 std::optional<std::wstring> catalogue_mismatch() { return std::nullopt; }
+std::string catalogue_language() { return {}; }
 void init(const std::filesystem::path&) {}  // [Translation.md#no-libintl-fallback]
 void set_language(const std::string&) {}
 

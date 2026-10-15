@@ -223,8 +223,8 @@ synchronisation menu and the start/stop tool reflect a running sync, not the lan
 carried over. The view is created anew, which drops its selection.
 
 The chat window is created once and kept, with its conversation, so it stays in the old language
-until the next start; recreating it would throw the conversation away. The help book exists only
-in German.
+until the next start; recreating it would throw the conversation away. The help book is loaded
+again in the new language (rebuild_help).
 
 ## chat_situation
 
@@ -238,3 +238,17 @@ Sends exactly the event the menu item sends, so a proposed command behaves like 
 menu. The background service items are refreshed first, as when the menu opens. A disabled item
 is not run - a proposal must not do what the menu would refuse - but the user learns why: a sync
 that already runs, none to stop, or the service's state.
+
+## help_language
+
+The help book follows the catalogue gettext actually uses (translation::catalogue_language()),
+not the language that was asked for: where a language has no catalogue, the program speaks
+English and so does its help. German pages are in help/, every other language in
+help/<language>/; a language without a book of its own gets the English one, and the German
+book is the last resort, so that an installation without the English book still has help.
+
+## rebuild_help
+
+A help controller cannot drop the book it has; a new controller with the other book replaces it.
+The help provider, which the "?" buttons of dialogs ask, still points to the old controller and
+is handed the new one before the old is deleted.

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Background service</title>
+</head>
+<body>
+<h1>Background service</h1>
+
+<p>The background service synchronises without the program window having to be
+open – even when nobody is logged in. It uses the same
+<a href="config.html">configuration file</a> as the program, that is the same
+synchronisations with the same options.</p>
+
+<h2>Controlling it</h2>
+
+<p>The <b>Background service</b> menu holds <b>Start</b> and <b>Stop</b>. Under
+<b>View &rarr; Background</b> you can see whether the service is running at the
+moment.</p>
+
+<p>The installation package lets the user the service runs as start and stop it
+without an administrator password. Other users are asked for an administrator's
+password.</p>
+
+<h2>Working together with the program</h2>
+
+<p>Service and program stay out of each other's way: only one of the two
+synchronises at a time, so that two runs never touch the same files at once. If
+you choose <b>Start</b> in the program while the service is working, the service
+steps back.</p>
+
+<h2>When the service is worth it</h2>
+
+<ul>
+<li>Backups should run even with nobody logged in.</li>
+<li>The program window should not be open all the time.</li>
+<li>The computer runs day and night and should reconcile unattended – then the
+    <a href="logging.html">notification by e-mail</a> makes sense, because
+    nobody sees the messages on the screen.</li>
+</ul>
+
+<h2>Changes to the configuration</h2>
+<p>The service reads the configuration file. Since the program saves every
+change at once, a running service takes it over by itself: it aborts the run in
+progress and starts over with the new configuration. Only if saving failed does
+the window title show <b>(unsaved)</b>, and the service keeps working with the
+old state; when the service is started, the program then asks whether to save –
+<b>Cancel</b> does not start the service.</p>
+
+</body>
+</html>

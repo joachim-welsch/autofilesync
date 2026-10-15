@@ -82,6 +82,7 @@ private:
 	void delete_sync_item(const std::optional<SyncItem>& found);  // [MainWindow.md#delete_sync_item]
 	void create_tool_bar();
 	void create_help();
+	void rebuild_help();
     void update_menu();
     void update_sync_state();  // [MainWindow.md#update_sync_state]
     void create_splitter_window();

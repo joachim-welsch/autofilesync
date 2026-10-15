@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Options of a synchronisation</title>
+</head>
+<body>
+<h1>Options of a synchronisation</h1>
+
+<p>The <b>Options</b> tab in the dialog of a synchronisation sets what source
+and target are compared by and what happens in the special cases.</p>
+
+<h2>Compare files by</h2>
+
+<p>These three ticks decide how AutoFileSync recognises a difference. They can
+be combined.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Criterion</th><th align="left">Meaning</th></tr>
+<tr><td valign="top"><b>Time</b></td>
+    <td>The modification time decides. This is the usual case and by far the
+        fastest.</td></tr>
+<tr><td valign="top"><b>Size</b></td>
+    <td>Different file sizes count as a difference.</td></tr>
+<tr><td valign="top"><b>Content</b></td>
+    <td>The files are compared by their content. This is exact, but costs
+        reading time on both sides. With two-way synchronisation the
+        modification time additionally decides which side is the newer one – a
+        comparison by content alone cannot tell.</td></tr>
+<tr><td valign="top"><b>Tolerance in seconds</b></td>
+    <td>Two modification times at most this many seconds apart count as equal.
+        The field is only active while comparing by <b>Time</b> is switched on;
+        the default is 2 seconds, see
+        <a href="#timetolerance">Tolerance and file systems</a>.</td></tr>
+</table>
+
+<h3><a name="timetolerance"></a>Tolerance and file systems</h3>
+
+<p>When copying, AutoFileSync takes over the modification time of the source,
+but the target stores it only as precisely as its file system allows. Without a
+tolerance the source would then be fractions of a second newer than its own copy
+on every run and would be copied again and again. The tolerance must be at least
+as large as the coarsest time step on either side:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">File system</th><th align="left">Precision of the modification time</th><th align="left">Tolerance needed</th></tr>
+<tr><td>ext4, Btrfs, XFS, APFS</td><td>nanoseconds</td><td>0 s</td></tr>
+<tr><td>NTFS</td><td>100 nanoseconds</td><td>1 s</td></tr>
+<tr><td>exFAT</td><td>10 milliseconds</td><td>1 s</td></tr>
+<tr><td>HFS+, SFTP servers</td><td>whole seconds</td><td>1 s</td></tr>
+<tr><td>FAT32, FAT16 (USB sticks, memory cards)</td><td>2 seconds</td><td>2 s</td></tr>
+</table>
+
+<p>The default of 2 seconds covers all of these cases. FAT also stores the time
+as local time: after a change between summer and winter time all files appear
+shifted by one hour. To avoid that, set the tolerance to 3600 seconds for a while
+or also compare by <b>Size</b>.</p>
+
+<p>The other side of the tolerance: if a file is saved again within the
+tolerance after its previous change, and a run happened in between, the second
+change is noticed only with the next save. If you edit files in quick
+succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
+0 if both sides store the time equally precisely.</p>
+
+<h2>The options in detail</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Option</th><th align="left">Effect</th></tr>
+
+<tr><td valign="top"><b>Delete the source after copying</b></td>
+    <td>After a successful copy the <i>source file</i> is removed – into the
+        recycle bin or permanently, depending on the
+        <a href="settings.html">delete mode</a>. This turns a synchronisation
+        into a move. For sources reached over SSH the option has no
+        effect.</td></tr>
+
+<tr><td valign="top"><b>Two-way synchronisation</b></td>
+    <td>The opposite direction counts as well: what exists only in the target is
+        copied back into the source, and a newer target wins against an older
+        source. Together with <b>Also delete deleted files in the target</b>,
+        deleting wins – setting both at once rarely makes sense.</td></tr>
+
+<tr><td valign="top"><b>Copy even if the target file is newer</b></td>
+    <td>Normally AutoFileSync does not overwrite a target file that is newer
+        than the source. With this option it does. With two-way synchronisation
+        switched on the option is disabled, because it makes no sense
+        there.</td></tr>
+
+<tr><td valign="top"><b>Generation principle</b></td>
+    <td>Before an existing target file is overwritten, AutoFileSync renames it:
+        <tt>report.doc</tt> becomes <tt>report.doc.bak.1</tt>, the next time
+        <tt>.bak.2</tt> and so on. Older versions are kept this way. Note that
+        these backups stay in the target and take up space – they are not
+        cleaned up automatically.</td></tr>
+
+<tr><td valign="top"><b>Also delete deleted files in the target</b></td>
+    <td>A file that exists only in the target any more is deleted there – the
+        target becomes a mirror of the source. Details and limits are in the
+        <a href="#deleteintarget">section below</a>.</td></tr>
+
+<tr><td valign="top"><b>Backup proof</b></td>
+    <td>Every run that copied something or ran into an error writes an entry
+        into a proof file; see <a href="backupproof.html">Backup
+        proof</a>.</td></tr>
+
+<tr><td valign="top"><b>Synchronise empty files</b></td>
+    <td>Files of size 0 are normally skipped: an empty file is more often an
+        interrupted write than a file meant to be empty, and copying it over a
+        filled target file would lose data. With this option they are included
+        – meant for placeholders such as <tt>.gitkeep</tt> and for lock and
+        marker files. <b>Caution:</b> if the source file is empty and the target
+        file is not, the synchronisation then replaces the target's content with
+        the empty file.</td></tr>
+
+<tr><td valign="top"><b>Seconds of pause</b></td>
+    <td>Waiting time between two runs of a continuous synchronisation,
+        adjustable from 1 to 60 seconds. Short pauses notice changes sooner and
+        put more load on drives and network.</td></tr>
+</table>
+
+<h2><a name="deleteintarget"></a>Also delete deleted files in the target</h2>
+
+<p>This option deserves a closer description, because it is the only one that
+removes data in the target.</p>
+
+<ul>
+<li>It is available for <b>Directory</b> and <b>Directory tree</b>, not for the
+    type <b>File</b>.</li>
+<li>Files are deleted according to the <a href="settings.html">delete mode</a>,
+    so normally into the recycle bin. With a target over SSH the deletion is
+    permanent, because a remote file would first have to be downloaded for
+    that.</li>
+<li>Files that do not belong to this synchronisation anyway, because of the
+    <b>Wildcard</b> or the <b>Exclusions</b>, stay untouched.</li>
+<li>If the <b>source is not reachable</b> – drive unplugged, share not
+    connected, SSH server not reachable – nothing is deleted. A place that
+    cannot be reached is not an empty place.</li>
+<li><b>Files</b> are mirrored, not directories: a directory deleted in the
+    source stays in the target with its content.</li>
+</ul>
+
+<p>If the option does not take effect although it is set,
+<a href="troubleshooting.html">When something does not happen as expected</a>
+helps further.</p>
+
+</body>
+</html>

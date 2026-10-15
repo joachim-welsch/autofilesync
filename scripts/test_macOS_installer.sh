@@ -88,6 +88,7 @@ expect_equal "Mindestsystem" "13.3" "$(plist_value LSMinimumSystemVersion)"
 section "Inhalt des Programmbündels"
 expect_file "Programmsymbol" "${MOUNTED_APP}/Contents/Resources/afs.icns"
 expect_file "Hilfebuch neben dem Programm" "${MOUNTED_APP}/Contents/Resources/help/help.htb"
+expect_file "Englisches Hilfebuch neben dem Programm" "${MOUNTED_APP}/Contents/Resources/help/en/help.htb"
 expect_equal "Programmdatei ist ausführbar" "yes" \
     "$([ -x "${MOUNTED_APP}/Contents/MacOS/autofilesync" ] && echo yes || echo no)"
 expect_equal "Passend zur Architektur dieses Rechners" "yes" \

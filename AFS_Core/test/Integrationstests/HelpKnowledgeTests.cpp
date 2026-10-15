@@ -38,10 +38,10 @@ die Einstellungen.</p>
 <table><tr><td><b>Start minimiert</b></td><td>Das Fenster erscheint nicht.</td></tr></table>
 </body></html>)";
 
-std::vector<Section> real_help()  // [HelpKnowledgeTests.md#real_help]
+std::vector<Section> real_help(const fs::path& language = {})  // [HelpKnowledgeTests.md#real_help]
 {
     std::vector<Section> sections;
-    const fs::path help = fs::path(LIB_SOURCE_DIR) / ".." / "AFS_Desktop" / "help";
+    const fs::path help = fs::path(LIB_SOURCE_DIR) / ".." / "AFS_Desktop" / "help" / language;
     for (const auto& entry : fs::directory_iterator(help))
         if (entry.path().extension() == ".html") {
             const std::vector<Section> page = help_knowledge::sections_of(util::read_utf8_file(entry.path()));
@@ -94,6 +94,19 @@ TEST(HelpKnowledgeTests, TypicalQuestionsFindTheirHelpPage)  // [HelpKnowledgeTe
         {L"Wo liegt die Konfigurationsdatei?", L"[Konfigurationsdatei – Wo sie liegt]"},
         {L"Wie kann ich gelöschte Dateien zurückholen?", L"[Wenn etwas nicht wie erwartet passiert – Gelöschte Dateien zurückholen]"},
         {L"Was ist ein Sicherungsnachweis?", L"[Sicherungsnachweis"}};
+    for (const auto& [question, label] : cases) {
+        const std::wstring excerpt = help_knowledge::excerpt_for(question, help, 2500);
+        EXPECT_EQ(excerpt.rfind(label, 0), 0u) << util::wstring_to_string(question) << "\n" << util::wstring_to_string(excerpt.substr(0, 120));
+    }
+}
+
+TEST(HelpKnowledgeTests, EnglishQuestionsFindTheirEnglishHelpPage)
+{
+    const std::vector<Section> help = real_help("en");
+    const std::pair<const wchar_t*, const wchar_t*> cases[] = {
+        {L"How do I change the language?", L"[Global settings – Language]"},
+        {L"What does the background service do?", L"[Background service"},
+        {L"Where is the configuration file?", L"[Configuration file – Where it is]"}};
     for (const auto& [question, label] : cases) {
         const std::wstring excerpt = help_knowledge::excerpt_for(question, help, 2500);
         EXPECT_EQ(excerpt.rfind(label, 0), 0u) << util::wstring_to_string(question) << "\n" << util::wstring_to_string(excerpt.substr(0, 120));

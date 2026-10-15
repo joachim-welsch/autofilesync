@@ -15,5 +15,5 @@ about it. Short words such as "geht" once matched a rare section by chance.
 ## TypicalQuestionsFindTheirHelpPage
 
 Pins the ranking on the real help, so that a change to the weights or to the help shows up
-here. The questions are German because the help is; questions in other languages find nothing,
-see HelpKnowledge.md#help_knowledge.
+here. Each language's questions are tested against that language's book; questions in a
+language the book is not written in find nothing, see HelpKnowledge.md#help_knowledge.

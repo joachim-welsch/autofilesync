@@ -1171,7 +1171,7 @@ msgstr ""
 "https://welsch-software.com\n"
 "\n"
 "Licence: GNU GPL v3 or later,\n"
-"see Help → Lizenzbedingungen."
+"see Help → Licence terms."
 
 #: AFS_Desktop/src/MainWindow.cpp:321
 msgid "about_title"
@@ -1871,7 +1871,7 @@ msgstr "Copyright © 2026 Joachim Welsch"
 
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
-msgstr "Automatic synchronisation of files and directory trees on %1.\n\nhttps://welsch-software.com\n\nLicence: GNU GPL v3 or later, see Help → Lizenzbedingungen."
+msgstr "Automatic synchronisation of files and directory trees on %1.\n\nhttps://welsch-software.com\n\nLicence: GNU GPL v3 or later, see Help → Licence terms."
 
 #: AFS_Desktop/include/utilwx.h
 msgid "label_colon"
@@ -1899,7 +1899,7 @@ msgstr "log,logfile"
 
 #: AFS_Core/src/LlamaClient.cpp:45
 msgid "assistant_help_instruction"
-msgstr "The following excerpt comes from the AutoFileSync help; the help page is given in square brackets. Use it to answer the question that follows, and at the end name the help page where the user can read more. The excerpt is in German; answer in English all the same. If the excerpt does not fit the question, ignore it without mentioning it."
+msgstr "The following excerpt comes from the AutoFileSync help; the help page is given in square brackets. Use it to answer the question that follows, and at the end name the help page where the user can read more. If the excerpt is in another language, answer in English all the same. If the excerpt does not fit the question, ignore it without mentioning it."
 
 #: AFS_Core/src/ConfigSummary.cpp:77
 msgid "config_summary_never_synced"

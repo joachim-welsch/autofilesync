@@ -31,6 +31,7 @@
 #include "TextResources.h"
 #include "utilwx.h"
 #include <fstream>
+#include <wx/html/helpctrl.h>
 #include <sstream>
 #ifdef _WIN32
     #include <wx/msw/registry.h>
@@ -43,6 +44,12 @@ using utilwx::tul;
 
 namespace guitest {
 namespace {
+
+wxString help_book_title(MainWindow& window)
+{
+    const wxHtmlBookRecArray& books = dynamic_cast<wxHtmlHelpController&>(window.get_help_controller()).GetHelpData()->GetBookRecArray();
+    return books.empty() ? wxString() : books[0].GetTitle();
+}
 
 void apply_settings(MainWindow& window, const SettingsInput& input)
 {
@@ -114,6 +121,7 @@ TEST_F(GuiTest, SpracheSchaltetSofortUmUndKommtInDieKonfiguration)  // [Settings
 {
     const RestoredSettings restored;
     ASSERT_TRUE(Config::instance().settings().language().empty());
+    const wxString book_before = help_book_title(main_window());
     SettingsInput english;
     english.language = "English";
 
@@ -125,6 +133,7 @@ TEST_F(GuiTest, SpracheSchaltetSofortUmUndKommtInDieKonfiguration)  // [Settings
     std::ostringstream saved_file;
     saved_file << std::ifstream(GuiTestSandbox::config_file()).rdbuf();
     EXPECT_NE(saved_file.str().find("\"Language\": \"en\""), std::string::npos) << "Die Sprache steht nicht in der Datei.";
+    EXPECT_EQ(help_book_title(main_window()), "AutoFileSync Help") << "Die Hilfe blieb in der alten Sprache.";  // [SettingsTest.md#help-follows-language]
 
     SettingsInput system;
     system.language = translation::translate("language_system");
@@ -132,6 +141,7 @@ TEST_F(GuiTest, SpracheSchaltetSofortUmUndKommtInDieKonfiguration)  // [Settings
 
     EXPECT_TRUE(Config::instance().settings().language().empty());
     EXPECT_EQ(main_window().GetMenuBar()->GetMenuLabel(0), translation::translate("menu_file")) << "Die Sprache des Betriebssystems kam nicht zurück.";
+    EXPECT_EQ(help_book_title(main_window()), book_before) << "Die Hilfe kam nicht in die Sprache des Betriebssystems zurück.";
 }
 
 TEST_F(GuiTest, WerkzeugleisteZahnradOeffnetEinstellungen)  // [SettingsTest.md#WerkzeugleisteZahnradOeffnetEinstellungen]

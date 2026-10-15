@@ -14,6 +14,13 @@ English is chosen because its texts are fixed here whatever language the test se
 Choosing the operating system's language again through the same dialog restores the language
 the other tests expect, and checks the way back at the same time.
 
+## help-follows-language
+
+The help book's title comes from its project file, "AutoFileSync Help" for the English book, so
+it shows which book is loaded without opening the help window. Back in the operating system's
+language the book of the session is expected again - German in a German session, English in
+any other.
+
 ## WerkzeugleisteZahnradOeffnetEinstellungen
 
 The gear at the right end of the toolbar shares id::EditSettings with the menu item, so it
