@@ -7,8 +7,16 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Asystent (czat)">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Autostart">
       <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Czat z asystentem">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Dowód kopii zapasowej">
@@ -21,6 +29,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Język">
       <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Model językowy asystenta">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Plik konfiguracji">

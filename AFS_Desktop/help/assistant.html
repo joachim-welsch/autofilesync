@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Der Assistent</title>
+</head>
+<body>
+<h1>Der Assistent</h1>
+
+<p>Der Assistent beantwortet Fragen zu AutoFileSync in gewöhnlicher Sprache und
+kann Ihnen Arbeit abnehmen: Er schlägt neue Synchronisationen vor, findet
+heraus, warum etwas nicht geklappt hat, und führt auf Wunsch Befehle aus dem
+Menü aus. Er läuft vollständig auf diesem Rechner – es wird nichts ins Internet
+geschickt, und es ist kein Konto und kein Schlüssel nötig.</p>
+
+<h2>Den Assistenten benutzen</h2>
+
+<ol>
+<li><b>Assistent &rarr; Chat…</b> öffnet das Chatfenster.</li>
+<li>Die Frage oder den Wunsch in das untere Feld schreiben, so wie man es
+    einem Menschen sagen würde.</li>
+<li><b>Senden</b> klicken oder <b>Strg+Eingabe</b> drücken (auf dem Mac
+    <b>Cmd+Eingabe</b>). Die Eingabetaste allein beginnt eine neue Zeile.</li>
+<li>Die Antwort erscheint oben im Gesprächsverlauf, Wort für Wort, während sie
+    entsteht. Solange steht unten <b>Der Assistent antwortet…</b>.</li>
+</ol>
+
+<p>Eine Antwort dauert je nach Rechner einige Sekunden bis wenige Minuten; die
+allererste etwas länger, weil das Modell erst geladen wird. Das Programm bleibt
+währenddessen bedienbar, und das Chatfenster darf geschlossen werden: Die
+Antwort steht beim nächsten Öffnen im Verlauf.</p>
+
+<p>Der Assistent kennt das bisherige Gespräch, Rückfragen wie „und wie mache
+ich das rückgängig?“ versteht er also. Das Gespräch bleibt erhalten, bis
+AutoFileSync beendet wird. <b>Neues Gespräch</b> fängt von vorne an – sinnvoll,
+wenn das Thema wechselt, denn dann lenkt das alte Gespräch nicht mehr ab.</p>
+
+<p>Der Assistent antwortet in der Sprache, in der man ihn fragt.</p>
+
+<h2>Was der Assistent kann</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Fragen zur Bedienung beantworten</b></td>
+    <td>Er sucht den passenden Abschnitt dieser Hilfe heraus, antwortet
+        damit und nennt die Hilfeseite, auf der mehr steht.<br>
+        <i>„Wie synchronisiere ich über SSH?“</i></td></tr>
+<tr><td valign="top"><b>Über die eigenen Synchronisationen Auskunft geben</b></td>
+    <td>Er kennt alle angelegten Synchronisationen mit Quelle, Ziel, Typ und
+        eingeschalteten Optionen, die SSH-Verbindungen (ohne Passwörter), wann
+        zuletzt synchronisiert wurde, ob Quelle oder Ziel erreichbar war und
+        den ersten Fehler des letzten Durchlaufs.<br>
+        <i>„Wie viele Synchronisationen habe ich?“, „Warum ist mein
+        USB-Stick nicht aktuell?“</i></td></tr>
+<tr><td valign="top"><b>Den aktuellen Zustand nennen</b></td>
+    <td>Er weiß, ob das Programm gerade synchronisiert und ob der
+        <a href="service.html">Hintergrunddienst</a> läuft.<br>
+        <i>„Läuft die Synchronisation gerade?“</i></td></tr>
+<tr><td valign="top"><b>Das Protokoll auswerten</b></td>
+    <td>Kommt in der Frage das Wort <b>Protokoll</b> oder <b>Log</b> vor,
+        liest er die neuesten Einträge des
+        <a href="logging.html">Protokolls</a> und erklärt sie.<br>
+        <i>„Was steht im Protokoll?“, „Gibt es Fehler im Log?“</i></td></tr>
+<tr><td valign="top"><b>Eine neue Synchronisation vorschlagen</b></td>
+    <td>Nennt man Quelle und Ziel als Pfade, schlägt er eine fertige
+        Synchronisation vor.<br>
+        <i>„Synchronisiere /home/anna/Fotos nach /media/usb/Fotos“</i></td></tr>
+<tr><td valign="top"><b>Das Entfernen einer Synchronisation vorschlagen</b></td>
+    <td>Nennt man eine angelegte Synchronisation beim Namen, schlägt er vor,
+        sie zu entfernen.<br>
+        <i>„Entferne die Synchronisation Fotos“</i></td></tr>
+<tr><td valign="top"><b>Befehle aus dem Menü ausführen</b></td>
+    <td><b>Einmal synchronisieren</b>, <b>Synchronisation starten</b>,
+        <b>Synchronisation stoppen</b>, <b>Hintergrunddienst starten</b>,
+        <b>Hintergrunddienst stoppen</b> und <b>Log-Datei anzeigen</b>.<br>
+        <i>„Synchronisiere jetzt einmal“, „Zeige mir die Log-Datei“</i></td></tr>
+</table>
+
+<h2>Vorschläge bestätigen</h2>
+
+<p>Der Assistent ändert nie selbst etwas. Hat er einen Vorschlag, beschreibt er
+ihn in einem Satz, und unten im Chatfenster erscheint ein Knopf, der sagt, was
+er tut:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Synchronisation anlegen…</b></td>
+    <td>Öffnet den gewohnten Dialog für eine neue Synchronisation, bereits mit
+        Name, Typ, Quelle und Ziel ausgefüllt. Dort lässt sich alles prüfen und
+        ändern; angelegt wird erst mit <b>OK</b>.</td></tr>
+<tr><td valign="top"><b>Synchronisation löschen…</b></td>
+    <td>Stellt dieselbe Sicherheitsabfrage wie <b>Bearbeiten &rarr;
+        Synchronisation löschen</b>.</td></tr>
+<tr><td valign="top">Name eines Befehls, etwa <b>Einmal synchronisieren</b></td>
+    <td>Führt den Befehl aus, genau wie der gleichnamige Menüpunkt.</td></tr>
+</table>
+
+<p>Wer den Vorschlag nicht will, fragt einfach weiter: Mit der nächsten Frage
+verschwindet der Knopf.</p>
+
+<h2>Gut fragen</h2>
+
+<ul>
+<li>Pfade vollständig angeben, etwa <tt>C:\Users\Anna\Dokumente</tt>,
+    <tt>/home/anna/Dokumente</tt> oder für SSH
+    <tt>anna@server:/sicherung</tt>. Fehlt ein Pfad, fragt der Assistent
+    nach, statt einen zu erfinden.</li>
+<li>Die Wörter verwenden, die das Programm selbst benutzt – Quelle, Ziel,
+    Synchronisation, Papierkorb. Daran findet der Assistent den passenden
+    Abschnitt dieser Hilfe; am besten gelingt das in der Sprache, in der das
+    Programm angezeigt wird.</li>
+<li>Für Befehle eine Aufforderung wählen: „synchronisiere“, „starte“,
+    „stoppe“, „beende“, „öffne“, „zeige“.</li>
+<li>Eine Sache pro Frage. Mehrere Wünsche in einer Nachricht führen eher zu
+    unvollständigen Vorschlägen.</li>
+</ul>
+
+<h2>Grenzen</h2>
+
+<p>Der Assistent ist ein kleines Sprachmodell. Er kann sich irren, Pfade
+verwechseln oder etwas behaupten, das nicht stimmt. Deshalb führt jeder
+Vorschlag über einen Knopf und den gewohnten Dialog – vor <b>OK</b> lohnt
+ein Blick auf Quelle und Ziel. Im Zweifel gilt, was in dieser Hilfe steht.</p>
+
+<p>Vom Protokoll sieht er nur die neuesten Einträge. Bei sehr vielen
+Synchronisationen beschreibt er die ersten 30 im Einzelnen und zählt die
+übrigen nur mit. Einstellungen ändert er nicht, er erklärt nur, wo sie zu
+finden sind.</p>
+
+<h2>Das Modell einrichten</h2>
+
+<p>Der Assistent braucht ein Sprachmodell, eine Datei mit der Endung
+<tt>.gguf</tt>. Sie gehört nicht zu AutoFileSync, weil sie mehrere Gigabyte
+groß ist und eine eigene Lizenz hat (siehe
+<a href="licensing.html">Lizenzbedingungen</a>). Fehlt sie, zeigt das
+Chatfenster <b>Kein Modell gefunden.</b> und nennt den Ordner, in den sie
+gehört.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="20%"><b>Windows</b></td>
+    <td><tt>setup_llama_windows.cmd</tt> im Installationsverzeichnis lädt ein
+        passendes Modell nach
+        <tt>%LOCALAPPDATA%\autofilesync\models</tt>.</td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>setup_llama_macos.sh</tt> lädt ein passendes Modell nach
+        <tt>~/Library/Application Support/autofilesync/models</tt>.</td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td>Eine GGUF-Datei nach <tt>~/.local/share/autofilesync/models</tt>
+        kopieren.</td></tr>
+</table>
+
+<p>Die Skripte wählen die Größe nach dem Arbeitsspeicher: unter 16 GB das
+3B-Modell, ab 16 GB das 7B-Modell, ab 32 GB das 14B-Modell. Größere Modelle
+antworten genauer, aber langsamer. Liegen mehrere Dateien im Ordner, nimmt der
+Assistent die erste nach dem Dateinamen. Ein neu abgelegtes Modell wird ohne
+Neustart gefunden.</p>
+
+<p>Soll eine Datei an anderer Stelle benutzt werden, nennt die
+Umgebungsvariable <tt>AUTOFILESYNC_LLAMA_MODEL</tt> ihren vollständigen
+Pfad; sie hat Vorrang vor dem Ordner.</p>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>The assistant</title>
+</head>
+<body>
+<h1>The assistant</h1>
+
+<p>The assistant answers questions about AutoFileSync in plain words and can
+take work off your hands: it proposes new synchronisations, finds out why
+something did not work, and runs commands from the menu on request. It runs
+entirely on this computer – nothing is sent to the internet, and no account or
+key is needed.</p>
+
+<h2>Using the assistant</h2>
+
+<ol>
+<li><b>Assistant &rarr; Chat…</b> opens the chat window.</li>
+<li>Type the question or the request into the lower field, the way you would
+    say it to a person.</li>
+<li>Click <b>Send</b> or press <b>Ctrl+Enter</b> (on the Mac
+    <b>Cmd+Enter</b>). Enter on its own starts a new line.</li>
+<li>The answer appears in the conversation above, word by word, while it is
+    being written. Meanwhile the window shows <b>The assistant is
+    answering…</b>.</li>
+</ol>
+
+<p>Depending on the computer, an answer takes a few seconds to a few minutes;
+the very first one a little longer, because the model has to be loaded first.
+The program stays usable in the meantime, and the chat window may be closed:
+the answer is in the conversation the next time it is opened.</p>
+
+<p>The assistant knows the conversation so far, so it understands follow-up
+questions such as “and how do I undo that?”. The conversation is kept until
+AutoFileSync is closed. <b>New conversation</b> starts over – useful when the
+topic shifts, because then the old conversation no longer distracts it.</p>
+
+<p>The assistant answers in the language it is asked in.</p>
+
+<h2>What the assistant can do</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Answer questions about using the program</b></td>
+    <td>It picks the matching section of this help, answers from it and names
+        the help page that has more.<br>
+        <i>“How do I synchronise over SSH?”</i></td></tr>
+<tr><td valign="top"><b>Tell you about your own synchronisations</b></td>
+    <td>It knows every synchronisation set up, with source, target, type and
+        the options switched on, the SSH connections (without passwords), when
+        the last pass ran, whether source or target were reachable, and the
+        first error of the last run.<br>
+        <i>“How many synchronisations do I have?”, “Why is my USB stick not up
+        to date?”</i></td></tr>
+<tr><td valign="top"><b>Report the current state</b></td>
+    <td>It knows whether the program is synchronising right now and whether
+        the <a href="service.html">background service</a> is running.<br>
+        <i>“Is a synchronisation running at the moment?”</i></td></tr>
+<tr><td valign="top"><b>Evaluate the log</b></td>
+    <td>If the question contains the word <b>log</b> or <b>logfile</b>, it
+        reads the latest entries of the <a href="logging.html">log</a> and
+        explains them.<br>
+        <i>“What is in the log?”, “Are there errors in the logfile?”</i></td></tr>
+<tr><td valign="top"><b>Propose a new synchronisation</b></td>
+    <td>Name source and target as paths, and it proposes a ready
+        synchronisation.<br>
+        <i>“Sync /home/anna/Photos to /media/usb/Photos”</i></td></tr>
+<tr><td valign="top"><b>Propose removing a synchronisation</b></td>
+    <td>Name a synchronisation that is set up, and it proposes to remove
+        it.<br>
+        <i>“Remove the synchronisation Photos”</i></td></tr>
+<tr><td valign="top"><b>Run commands from the menu</b></td>
+    <td><b>Synchronise once</b>, <b>Start synchronisation</b>, <b>Stop
+        synchronisation</b>, <b>Start the background service</b>, <b>Stop the
+        background service</b> and <b>Show log file</b>.<br>
+        <i>“Sync everything once now”, “Show me the log file”</i></td></tr>
+</table>
+
+<h2>Confirming proposals</h2>
+
+<p>The assistant never changes anything by itself. When it has a proposal, it
+describes it in one sentence, and a button appears at the bottom of the chat
+window that says what it does:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Create synchronisation…</b></td>
+    <td>Opens the familiar dialog for a new synchronisation, already filled in
+        with name, type, source and target. Everything can be checked and
+        altered there; it is only created with <b>OK</b>.</td></tr>
+<tr><td valign="top"><b>Delete synchronisation…</b></td>
+    <td>Asks the same safety question as <b>Edit &rarr; Delete
+        synchronisation…</b>.</td></tr>
+<tr><td valign="top">Name of a command, for example <b>Synchronise once</b></td>
+    <td>Runs the command, exactly like the menu item of that name.</td></tr>
+</table>
+
+<p>If you do not want the proposal, simply go on asking: the button disappears
+with the next question.</p>
+
+<h2>Asking well</h2>
+
+<ul>
+<li>Give paths in full, for example <tt>C:\Users\Anna\Documents</tt>,
+    <tt>/home/anna/Documents</tt> or, for SSH,
+    <tt>anna@server:/backup</tt>. If a path is missing, the assistant asks for
+    it instead of making one up.</li>
+<li>Use the words the program itself uses – source, target, synchronisation,
+    recycle bin. They are how the assistant finds the matching section of this
+    help; this works best in the language the program is shown in.</li>
+<li>For commands, phrase a request: “sync”, “start”, “stop”, “open”,
+    “show”.</li>
+<li>One thing per question. Several requests in one message tend to lead to
+    incomplete proposals.</li>
+</ul>
+
+<h2>Limits</h2>
+
+<p>The assistant is a small language model. It can be wrong, mix up paths or
+claim something that is not true. That is why every proposal goes through a
+button and the familiar dialog – before <b>OK</b>, a look at source and target
+is worthwhile. When in doubt, what this help says applies.</p>
+
+<p>Of the log it only sees the latest entries. With very many synchronisations
+it describes the first 30 in detail and only counts the rest. It does not alter
+settings; it only explains where to find them.</p>
+
+<h2>Setting up the model</h2>
+
+<p>The assistant needs a language model, a file with the extension
+<tt>.gguf</tt>. It is not part of AutoFileSync, because it is several gigabytes
+in size and has a licence of its own (see
+<a href="licensing.html">Licence terms</a>). If it is missing, the chat window
+shows <b>No model found.</b> and names the folder it belongs in.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="20%"><b>Windows</b></td>
+    <td><tt>setup_llama_windows.cmd</tt> in the installation directory
+        downloads a suitable model to
+        <tt>%LOCALAPPDATA%\autofilesync\models</tt>.</td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>setup_llama_macos.sh</tt> downloads a suitable model to
+        <tt>~/Library/Application Support/autofilesync/models</tt>.</td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td>Copy a GGUF file to <tt>~/.local/share/autofilesync/models</tt>.</td></tr>
+</table>
+
+<p>The scripts pick the size by the memory: below 16 GB the 3B model, from
+16 GB the 7B model, from 32 GB the 14B model. Larger models answer more
+accurately, but more slowly. If there are several files in the folder, the
+assistant takes the first by file name. A model put there is found without a
+restart.</p>
+
+<p>To use a file somewhere else, the environment variable
+<tt>AUTOFILESYNC_LLAMA_MODEL</tt> names its full path; it takes precedence over
+the folder.</p>
+
+</body>
+</html>

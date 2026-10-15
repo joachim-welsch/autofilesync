@@ -11,12 +11,20 @@
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Assistent (Chat)">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Ausschl&uuml;sse">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Autostart">
       <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Chat mit dem Assistenten">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Dateivergleich (Datum, Gr&ouml;&szlig;e, Inhalt)">
@@ -77,6 +85,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="SSH-Verbindungen">
       <PARAM name="Local" value="ssh.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sprachmodell des Assistenten">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Synchronisation starten und stoppen">

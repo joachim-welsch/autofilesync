@@ -7,6 +7,10 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Assistant (chat)">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Autostart">
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
@@ -17,6 +21,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Backup proof">
       <PARAM name="Local" value="backupproof.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Chat with the assistant">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Comparing files (time, size, content)">
@@ -53,6 +61,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Language">
       <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Language model of the assistant">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Licence terms (GPL)">

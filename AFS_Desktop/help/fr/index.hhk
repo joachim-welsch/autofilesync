@@ -7,6 +7,10 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Assistant (discussion)">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Caract&egrave;re g&eacute;n&eacute;rique">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
@@ -35,6 +39,10 @@
       <PARAM name="Local" value="troubleshooting.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Discussion avec l'assistant">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Exclusions">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
@@ -53,6 +61,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Mode de suppression et corbeille">
       <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Mod&egrave;le de langage de l'assistant">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Notification par e-mail">

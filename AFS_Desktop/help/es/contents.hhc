@@ -59,6 +59,11 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="El asistente">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Archivo de configuraci&oacute;n">
       <PARAM name="Local" value="config.html">
     </OBJECT>

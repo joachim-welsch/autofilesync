@@ -7,6 +7,10 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Assistente (chat)">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Avviare e arrestare la sincronizzazione">
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
@@ -17,6 +21,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Carattere jolly">
       <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Chat con l'assistente">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Condizioni di licenza (GPL)">
@@ -57,6 +65,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Modalit&agrave; di eliminazione e cestino">
       <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Modello linguistico dell'assistente">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Notifica via e-mail">

@@ -11,6 +11,10 @@
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Асистент (чат)">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Видалення в призначенні видалених файлів">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
@@ -45,6 +49,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Мова">
       <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Мовна модель асистента">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Підтвердження резервного копіювання">
@@ -97,6 +105,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Фонова служба">
       <PARAM name="Local" value="service.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Чат з асистентом">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Шаблон">
