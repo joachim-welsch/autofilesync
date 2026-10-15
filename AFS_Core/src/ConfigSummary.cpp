@@ -18,6 +18,8 @@
  */
 #include "pch.h"
 #include "ConfigSummary.h"
+#include <chrono>
+#include <optional>
 #include <algorithm>
 #include <sstream>
 #include "Config.h"
@@ -29,6 +31,7 @@ namespace AFS_Core {
 namespace config_summary {
 
 namespace {
+constexpr std::size_t MAX_ERROR_CHARS = 200;  // [ConfigSummary.md#MAX_ERROR_CHARS]
 using std::wstring;
 using translation::translate;
 
@@ -68,6 +71,14 @@ wstring compared_by(const SyncItem& item)
     return joined(names, L", ");
 }
 
+wstring last_sync_text(const SyncItem& item)  // [ConfigSummary.md#last_sync_text]
+{
+    if (item.last_sync() == (std::chrono::steady_clock::time_point::min)())
+        return translate("config_summary_never_synced");
+    const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - item.last_sync()).count();
+    return translate("config_summary_last_sync", {std::to_wstring(minutes)});
+}
+
 wstring describe_item(const SyncItem& item)  // [ConfigSummary.md#describe_item]
 {
     std::vector<wstring> parts;
@@ -81,6 +92,11 @@ wstring describe_item(const SyncItem& item)  // [ConfigSummary.md#describe_item]
     parts.push_back(translate("compare_by") + L" " + compared_by(item));
     if (const wstring options = enabled_options(item); !options.empty())
         parts.push_back(translate("tab_options") + L": " + options);
+    parts.push_back(last_sync_text(item));
+    if (const std::optional<LastRun>& run = item.last_run(); run && !run->reachable)
+        parts.push_back(translate("config_summary_unreachable"));
+    else if (run && run->errors > 0)
+        parts.push_back(translate("config_summary_last_errors", {std::to_wstring(run->errors), run->first_error.substr(0, MAX_ERROR_CHARS)}));
     return joined(parts, L"; ");
 }
 

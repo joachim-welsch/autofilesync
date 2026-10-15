@@ -1883,3 +1883,23 @@ msgstr ""
 #: AFS_Core/src/LlamaClient.cpp:45
 msgid "assistant_help_instruction"
 msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr ""

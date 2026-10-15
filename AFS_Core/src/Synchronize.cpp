@@ -233,11 +233,10 @@ void Synchronize::sync_item(SyncItem& i)
     log_debug(L"Synchronize::operator()() Start of ", i.name());
     if (!pause_elapsed(i))
         return;
-    if (!i.backup_proof() || sync_type_ == SyncType::CountFiles  // [Synchronize.md#no-proof-for-counting-passes]
-        || Config::instance().settings().backup_proof_path().empty())
+    if (sync_type_ == SyncType::CountFiles)  // [Synchronize.md#no-proof-for-counting-passes]
         run_sync_item(i);
     else
-        prove_sync_item(i);
+        report_sync_item(i);
 }
 
 void Synchronize::report_unreachable(const SyncItem& i)
@@ -250,7 +249,14 @@ void Synchronize::report_unreachable(const SyncItem& i)
     report_sync_error(message);
 }
 
-void Synchronize::prove_sync_item(SyncItem& i)
+LastRun Synchronize::last_run_of(const SyncItem& i, const SyncReport& report) const
+{
+    const auto reachable = item_reachable_.find(i.name());
+    return {reachable == item_reachable_.end() || reachable->second, report.errors().size(),
+        report.errors().empty() ? wstring() : report.errors().front()};
+}
+
+void Synchronize::report_sync_item(SyncItem& i)
 {
     SyncReport report;
     const std::size_t files_before = count_files_;
@@ -259,7 +265,8 @@ void Synchronize::prove_sync_item(SyncItem& i)
         run_sync_item(i);
     }
     const std::size_t files = count_files_ - files_before;
-    if (files == 0 && report.empty())
+    Config::instance().record_last_run(i.name(), last_run_of(i, report));  // [Synchronize.md#record_last_run]
+    if (!i.backup_proof() || Config::instance().settings().backup_proof_path().empty() || (files == 0 && report.empty()))
         return;
     write_copy_log(Config::instance().settings().backup_proof_path(), i, files, report);
 }

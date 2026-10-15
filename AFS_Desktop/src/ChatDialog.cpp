@@ -50,11 +50,13 @@ wxString answer_with_proposal(const std::wstring& answer, const sync_proposal::P
 }
 }
 
-ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal, const wxString& help_book)
+ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal, const wxString& help_book,
+    Situation situation)
     : wxDialog(parent, id, title, wxDefaultPosition, FromDIP(wxSize(600, 500), parent),
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
     , help_(read_help_book(help_book))
     , apply_proposal_(std::move(apply_proposal))
+    , situation_(std::move(situation))
 {
     pending_->dialog = this;
     wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
@@ -186,6 +188,7 @@ void ChatDialog::on_send(wxCommandEvent&)
     append_turn(translation::translate("chat_you"), question);
     history_.push_back({ true, question.ToStdWstring() });
     const ChatHistory snapshot = history_;  // [ChatDialog.md#history-snapshot]
+    client_->situation(situation_().ToStdWstring());  // [ChatDialog.md#Situation]
     if (looks_like_log_question(question.ToStdWstring())) {  // [ChatDialog.md#log-excerpt-per-request]
         const std::wstring excerpt = read_recent_log_entries(MAX_LOG_EXCERPT_CHARS);
         run_async([client = client_, snapshot, excerpt](const ChatPieceSink& on_piece) {

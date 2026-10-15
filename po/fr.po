@@ -1868,3 +1868,23 @@ msgstr "log,journal"
 #: AFS_Core/src/LlamaClient.cpp:45
 msgid "assistant_help_instruction"
 msgstr "L'extrait suivant provient de l'aide d'AutoFileSync ; la page d'aide figure entre crochets. Utilise-le pour répondre à la question qui suit et indique à la fin la page d'aide où l'utilisateur en apprendra davantage. L'extrait est en allemand ; réponds tout de même en français. Si l'extrait ne correspond pas à la question, ignore-le sans le mentionner."
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr "pas encore synchronisé par ce programme"
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr "dernière synchronisation il y a %1 min"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable"
+msgstr "la source ou la cible n'était pas accessible lors de la dernière exécution"
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr "erreurs lors de la dernière exécution : %1, la première : %2"
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr "Dans le programme : %1. Service en arrière-plan – %2."

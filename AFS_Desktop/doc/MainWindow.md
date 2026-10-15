@@ -225,3 +225,9 @@ carried over. The view is created anew, which drops its selection.
 The chat window is created once and kept, with its conversation, so it stays in the old language
 until the next start; recreating it would throw the conversation away. The help book exists only
 in German.
+
+## chat_situation
+
+The status bar's synchronisation state and the background service state, the same texts the
+user sees in the window and in the service menu, so that the assistant describes what the user
+can check.

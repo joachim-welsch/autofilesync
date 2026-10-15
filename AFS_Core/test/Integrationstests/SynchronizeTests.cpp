@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
+#include <optional>
 
 using namespace AFS_Core;  // [SynchronizeTests.md#stop-flag-regression]
 
@@ -242,6 +243,47 @@ TEST(SynchronizeTests, ContentConflictIsLoggedExactlyOnceAcrossPasses)  // [Sync
 }
 
 #include "SyncControler.h"  // [SynchronizeTests.md#request-stop-must-not-block]
+namespace {
+std::optional<LastRun> last_run_after_one_pass(const std::wstring& source, const std::wstring& target)
+{
+    Config::instance().reset();
+    Config::instance().add(SyncItem(L"lauf", SyncItemType::Dir, source, target, L"*"));
+    Synchronize::create(SyncType::Single);
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    Synchronize::destroy();
+    const std::optional<LastRun> run = Config::instance().syncitems().at(0).last_run();
+    Config::instance().reset();
+    return run;
+}
+}
+
+TEST(SynchronizeTests, LastRunIsRecordedInTheConfiguration)  // [SynchronizeTests.md#LastRunIsRecordedInTheConfiguration]
+{
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(util::current_pid()));
+    std::filesystem::create_directories(root / "quelle");
+    std::filesystem::create_directories(root / "ziel");
+    std::ofstream(root / "quelle" / "a.txt") << "a";
+
+    const std::optional<LastRun> run = last_run_after_one_pass((root / "quelle").wstring(), (root / "ziel").wstring());
+
+    std::filesystem::remove_all(root);
+    ASSERT_TRUE(run.has_value()) << "Der Durchlauf hat nichts eingetragen.";
+    EXPECT_TRUE(run->reachable);
+    EXPECT_EQ(run->errors, 0u);
+}
+
+TEST(SynchronizeTests, UnreachableSourceIsRecordedAsSuch)
+{
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(util::current_pid()));
+    std::filesystem::create_directories(root / "ziel");
+
+    const std::optional<LastRun> run = last_run_after_one_pass((root / "gibt-es-nicht").wstring(), (root / "ziel").wstring());
+
+    std::filesystem::remove_all(root);
+    ASSERT_TRUE(run.has_value()) << "Der Durchlauf hat nichts eingetragen.";
+    EXPECT_FALSE(run->reachable);
+}
+
 TEST(SyncControlerTests, RequestStopReturnsImmediatelyUnlikeStopSync)
 {
     Config::instance().reset();

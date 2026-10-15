@@ -38,3 +38,14 @@ are only counted.
 
 An account is named with user and host, never with its password: the prompt goes to a local
 model only, but it is also what a log of the chat or a bug report would reproduce.
+
+## last_sync_text
+
+Minutes since the last pass, from the steady clock that drives the sync cycle; it has no date,
+and "how long ago" is what a question about a stale target needs. "Not yet" means not in this
+program: a background service syncs in a process of its own.
+
+## MAX_ERROR_CHARS
+
+The first error of a run often carries a long path. Two hundred characters keep its meaning
+and thirty items within the context window.

@@ -35,7 +35,9 @@ using namespace AFS_Core;  // [ChatDialog.md#ChatDialog]
 class ChatDialog: public wxDialog {
 public:
     using ApplyProposal = std::function<void(const sync_proposal::Proposal& proposal)>;  // [ChatDialog.md#ApplyProposal]
-    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal, const wxString& help_book);
+    using Situation = std::function<wxString()>;  // [ChatDialog.md#Situation]
+    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal, const wxString& help_book,
+        Situation situation);
     ~ChatDialog() override;
 private:
     struct Pending {  // [ChatDialog.md#Pending]
@@ -73,6 +75,7 @@ private:
     std::size_t   shown_ = 0;  // [ChatDialog.md#block-held-back]
     std::optional<sync_proposal::Proposal> proposal_;
     ApplyProposal apply_proposal_;
+    Situation     situation_;
     std::shared_ptr<LlamaClient> client_ = std::make_shared<LlamaClient>();  // [ChatDialog.md#client_]
     std::shared_ptr<Pending> pending_ = std::make_shared<Pending>();
 

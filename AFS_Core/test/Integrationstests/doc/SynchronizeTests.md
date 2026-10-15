@@ -77,3 +77,8 @@ test made SyncFile remember can suppress the message.
 Runs the real continuous loop over a two-way item whose files have the same time
 and size but different content. After at least three passes the log must hold
 the conflict exactly once, at level Error, and both files must be untouched.
+
+## LastRunIsRecordedInTheConfiguration
+
+The assistant reads the outcome of each item from the configuration, so a real pass of the
+engine must leave it there - on the live item, not on the snapshot the pass worked on.

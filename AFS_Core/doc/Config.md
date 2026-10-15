@@ -107,3 +107,8 @@ The configuration file is UTF-8, written and read through util::write_utf8_file(
 util::read_utf8_file(); a wide file stream could not save a name or path with an umlaut on Linux
 and macOS - see Util.md#utf8-files. json::to_text() writes every character as itself, so the
 file stays readable in a text editor whatever the language of its names and paths.
+
+## record_last_run
+
+Like refresh_last_sync(): the pass works on a snapshot of the items, so the outcome must go
+into the live item under the lock, where the next snapshot and the assistant find it.

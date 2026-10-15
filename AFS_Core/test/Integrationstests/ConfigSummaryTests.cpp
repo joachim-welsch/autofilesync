@@ -97,3 +97,34 @@ TEST(ConfigSummaryTests, NamesSshAccountsWithoutPassword)
     EXPECT_TRUE(contains(summary, L"nas (pi@192.168.1.2)")) << summary;
     EXPECT_FALSE(contains(summary, L"streng-geheim")) << summary;
 }
+
+TEST(ConfigSummaryTests, ItemNotYetSynchronisedSaysSo)
+{
+    EXPECT_TRUE(contains(config_summary::describe({item_named(L"neu")}, {}), translate("config_summary_never_synced")));
+}
+
+TEST(ConfigSummaryTests, LastSyncIsGivenInMinutes)  // [ConfigSummaryTests.md#LastSyncIsGivenInMinutes]
+{
+    SyncItem item = item_named(L"eben");
+    item.set_last_sync();
+    const wstring summary = config_summary::describe({item}, {});
+    EXPECT_TRUE(contains(summary, translate("config_summary_last_sync", {L"0"}))) << summary;
+    EXPECT_FALSE(contains(summary, translate("config_summary_never_synced"))) << summary;
+}
+
+TEST(ConfigSummaryTests, UnreachableLastRunIsNamed)
+{
+    SyncItem item = item_named(L"weg");
+    item.last_run({false, 1, L"nicht erreichbar"});
+    const wstring summary = config_summary::describe({item}, {});
+    EXPECT_TRUE(contains(summary, translate("config_summary_unreachable"))) << summary;
+}
+
+TEST(ConfigSummaryTests, ErrorsOfTheLastRunAreNamedWithTheFirst)  // [ConfigSummaryTests.md#ErrorsOfTheLastRunAreNamedWithTheFirst]
+{
+    SyncItem item = item_named(L"fehler");
+    item.last_run({true, 3, L"Zugriff verweigert: /ziel/a.txt" + wstring(500, L'x')});
+    const wstring summary = config_summary::describe({item}, {});
+    EXPECT_TRUE(contains(summary, translate("config_summary_last_errors", {L"3", L"Zugriff verweigert: /ziel/a.txt"}).substr(0, 20))) << summary;
+    EXPECT_FALSE(contains(summary, wstring(300, L'x'))) << "Der Fehlertext wurde nicht gekürzt.";
+}

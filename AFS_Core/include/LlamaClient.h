@@ -39,6 +39,8 @@ class LlamaClient {  // [LlamaClient.md#LlamaClient]
     struct ContextDeleter { void operator()(llama_context*) const; };
 
     std::mutex                                      mutex_;  // [LlamaClient.md#mutex_]
+    mutable std::mutex                              situation_mutex_;
+    std::wstring                                    situation_;  // [LlamaClient.md#situation_]
     std::unique_ptr<llama_model, ModelDeleter>      model_;
     std::unique_ptr<llama_context, ContextDeleter>  context_;
     const llama_vocab*                              vocab_ = nullptr;
@@ -61,6 +63,7 @@ public:
     ~LlamaClient();
     LlamaClient(const LlamaClient&) = delete;
     LlamaClient& operator=(const LlamaClient&) = delete;
+    void situation(const std::wstring& text);  // [LlamaClient.md#situation_]
     ChatReply send(const ChatHistory& history, const ChatPieceSink& on_piece = {});  // [LlamaClient.md#send]
     ChatReply analyze_log(const ChatHistory& history, const std::wstring& log_excerpt,
         const ChatPieceSink& on_piece = {});  // [LlamaClient.md#analyze_log]

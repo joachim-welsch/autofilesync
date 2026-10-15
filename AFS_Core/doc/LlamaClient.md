@@ -197,3 +197,11 @@ one.
 
 Thinking and answer share this budget - a fixed cap keeps one runaway reply from filling the
 whole context window.
+
+## situation_
+
+What the program and the background service are doing right now, set by the caller before
+each request and written into the system prompt after the configuration. The caller determines
+it on the main thread - the service state runs systemctl, which wxWidgets does not allow from
+the thread that generates the answer. A mutex of its own, so that setting it never waits for a
+generation that holds mutex_.

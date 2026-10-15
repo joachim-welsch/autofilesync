@@ -662,13 +662,20 @@ void MainWindow::on_edit_logging(wxCommandEvent&)
 
 namespace {
 wxString locate_help_book();
+wxString background_service_state_text(BackgroundService::State state);
+}
+
+wxString MainWindow::chat_situation() const  // [MainWindow.md#chat_situation]
+{
+    return translation::translate("assistant_situation",
+        {sync_interface_.state_text().ToStdWstring(), background_service_state_text(BackgroundService::state()).ToStdWstring()});
 }
 
 void MainWindow::on_chat(wxCommandEvent&)
 {
     if (chat_dialog_ == nullptr)
         chat_dialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const sync_proposal::Proposal& proposal) { apply_proposal(proposal); },
-            locate_help_book());
+            locate_help_book(), [this] { return chat_situation(); });
     chat_dialog_->Show();
     chat_dialog_->Raise();
 }

@@ -144,3 +144,8 @@ about the log looks for its section there (see HelpKnowledge.md#help_knowledge).
 
 About 800 tokens of German text: room for one or two sections next to the system prompt and a
 conversation of several rounds within the context window.
+
+## Situation
+
+Asked on the main thread when a question is sent, so that the answer knows whether the program
+is synchronising and whether the background service runs (see LlamaClient.md#situation_).

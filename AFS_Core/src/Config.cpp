@@ -734,6 +734,17 @@ void Config::refresh_last_sync(const std::wstring& name)
     }
 }
 
+void Config::record_last_run(const std::wstring& name, const LastRun& run)
+{
+    std::lock_guard<std::mutex> lock(syncitems_mutex_);
+    for (SyncItem& i : syncitems_) {
+        if (i.name() == name) {
+            i.last_run(run);
+            return;
+        }
+    }
+}
+
 std::optional<SyncItem> Config::find(const std::wstring& path, bool source) const
 {
     std::lock_guard<std::mutex> lock(syncitems_mutex_);

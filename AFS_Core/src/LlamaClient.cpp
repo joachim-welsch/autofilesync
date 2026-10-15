@@ -121,7 +121,13 @@ wstring LlamaClient::build_prompt(const ChatHistory& history) const
 {
     std::vector<string> contents;  // [LlamaClient.md#contents-lifetime]
     contents.reserve(history.size() + 1);
+    wstring situation;
+    {
+        std::lock_guard<std::mutex> lock(situation_mutex_);
+        situation = situation_;
+    }
     contents.push_back(translation::translate_utf8(SYSTEM_PROMPT) + "\n\n" + wstring_to_string(config_summary::current())  // [LlamaClient.md#config-in-system-prompt]
+        + (situation.empty() ? string() : "\n" + wstring_to_string(situation))
         + "\n\n" + wstring_to_string(sync_proposal::instruction()));  // [SyncProposal.md#instruction]
     for (const ChatTurn& turn : history)
         contents.push_back(wstring_to_string(turn.text));
@@ -219,6 +225,12 @@ string LlamaClient::generate(const ChatPieceSink& on_piece, const string& gramma
         cached_tokens_.push_back(token);
     }
     return answer;
+}
+
+void LlamaClient::situation(const wstring& text)
+{
+    std::lock_guard<std::mutex> lock(situation_mutex_);
+    situation_ = text;
 }
 
 ChatHistory LlamaClient::fitting(const ChatHistory& history, const std::function<bool(const ChatHistory&)>& fits)

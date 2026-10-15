@@ -1868,3 +1868,23 @@ msgstr "log,dziennik"
 #: AFS_Core/src/LlamaClient.cpp:45
 msgid "assistant_help_instruction"
 msgstr "Poniższy fragment pochodzi z pomocy AutoFileSync; w nawiasach kwadratowych podana jest strona pomocy. Wykorzystaj go, aby odpowiedzieć na następujące pytanie, i na końcu podaj stronę pomocy, na której użytkownik znajdzie więcej informacji. Fragment jest po niemiecku; mimo to odpowiedz po polsku. Jeśli fragment nie pasuje do pytania, pomiń go i nie wspominaj o nim."
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr "jeszcze nie synchronizowano w tym programie"
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr "ostatnia synchronizacja %1 min temu"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable"
+msgstr "źródło lub cel było nieosiągalne podczas ostatniego przebiegu"
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr "błędy w ostatnim przebiegu: %1, pierwszy: %2"
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr "W programie: %1. Usługa w tle – %2."

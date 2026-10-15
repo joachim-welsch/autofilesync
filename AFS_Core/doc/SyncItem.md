@@ -60,3 +60,9 @@ source_/target_ hold a *copy* of the SshAccount taken when the path was set (see
 source()/target() above), not a live lookup - so renaming or editing the account in Config
 leaves existing items pointing at a name that no longer resolves. Config calls this on every
 item after a successful account edit to keep them in sync.
+
+## LastRun
+
+The outcome of the item's last pass in this program: whether source and target were reachable,
+how many errors there were and the first of them. Kept on the item like last_sync_, not
+written to the configuration, so that the assistant can say why an item is not up to date.

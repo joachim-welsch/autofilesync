@@ -1900,3 +1900,23 @@ msgstr "log,logfile"
 #: AFS_Core/src/LlamaClient.cpp:45
 msgid "assistant_help_instruction"
 msgstr "The following excerpt comes from the AutoFileSync help; the help page is given in square brackets. Use it to answer the question that follows, and at the end name the help page where the user can read more. The excerpt is in German; answer in English all the same. If the excerpt does not fit the question, ignore it without mentioning it."
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr "not synchronised by this program yet"
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr "last synchronised %1 min ago"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable"
+msgstr "source or target was not reachable in the last run"
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr "errors in the last run: %1, the first: %2"
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr "In the program: %1. Background service – %2."

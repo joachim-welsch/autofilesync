@@ -36,6 +36,8 @@
 
 namespace AFS_Core {
 
+class SyncReport;
+
 class SyncControler;
 class SyncItem;
 
@@ -72,7 +74,8 @@ class Synchronize {
     void sync_item(SyncItem& i);
     void run_sync_item(SyncItem& i);
     void report_unreachable(const SyncItem& i);
-    void prove_sync_item(SyncItem& i);
+    void report_sync_item(SyncItem& i);  // [Synchronize.md#record_last_run]
+    LastRun last_run_of(const SyncItem& i, const SyncReport& report) const;
 #ifdef _TEST
 public:
 #endif

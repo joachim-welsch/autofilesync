@@ -24,8 +24,15 @@ stop_ is already false by the time the constructor returns; see there.
 
 ## no-proof-for-counting-passes
 
-Counting passes touch nothing and have nothing to prove; without a directory to write to there
-is nowhere to put a proof either.
+Counting passes touch nothing and have nothing to prove or report; without a directory to write
+to there is nowhere to put a proof either.
+
+## record_last_run
+
+Every real pass collects its report, with or without a proof: whether source and target were
+reachable, how many errors there were and the first of them go into the live item in Config,
+where the assistant reads them (ConfigSummary). Not persisted - it describes this program's
+runs. The proof is written as before, only for items that ask for one.
 
 ## snapshot-vs-config
 

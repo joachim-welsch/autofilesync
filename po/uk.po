@@ -1868,3 +1868,23 @@ msgstr "лог,журнал"
 #: AFS_Core/src/LlamaClient.cpp:45
 msgid "assistant_help_instruction"
 msgstr "Наступний уривок узято з довідки AutoFileSync; у квадратних дужках указано сторінку довідки. Використай його, щоб відповісти на наступне запитання, і наприкінці назви сторінку довідки, де користувач знайде більше. Уривок німецькою мовою; однак відповідай українською. Якщо уривок не стосується запитання, проігноруй його, не згадуючи про нього."
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr "ще не синхронізовано цією програмою"
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr "востаннє синхронізовано %1 хв тому"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable"
+msgstr "джерело або призначення було недоступне під час останнього запуску"
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr "помилок в останньому запуску: %1, перша: %2"
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr "У програмі: %1. Фонова служба – %2."

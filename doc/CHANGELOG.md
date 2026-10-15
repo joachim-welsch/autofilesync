@@ -2,6 +2,10 @@
 
 ## Unveröffentlicht
 
+- Assistent: Er weiß, wann jede Synchronisation zuletzt lief, ob Quelle und
+  Ziel dabei erreichbar waren und welcher Fehler zuerst auftrat, außerdem ob
+  das Programm gerade synchronisiert und ob der Hintergrunddienst läuft. So
+  kann er Fragen wie „Warum ist mein Ziel nicht aktuell?“ begründen.
 - Assistent: Fragen wie „Wie stelle ich die Sprache um?“ beantwortet er mit
   dem passenden Abschnitt der Hilfe und nennt die Hilfeseite. Da die Hilfe nur
   auf Deutsch vorliegt, greift das vor allem bei deutschen Fragen.

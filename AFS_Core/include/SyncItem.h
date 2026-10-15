@@ -23,6 +23,7 @@
 #include <vector>
 #include <chrono>
 #include <memory>
+#include <optional>
 #include "SshAccount.h"
 
 namespace AFS_Core {
@@ -131,6 +132,12 @@ std::wstring sync_item_type_to_str(SyncItemType);       // translated, for displ
 std::wstring sync_item_type_key(SyncItemType);        // untranslated, for the configuration file
 SyncItemType str_to_sync_item_type(const std::wstring&);
 
+struct LastRun {  // [SyncItem.md#LastRun]
+    bool         reachable = true;
+    std::size_t  errors = 0;
+    std::wstring first_error;
+};
+
 class SyncItem {
     using TimePoint = std::chrono::steady_clock::time_point;
     using SyncPathPtr = std::unique_ptr<SyncPath>;
@@ -144,6 +151,7 @@ class SyncItem {
     Exclusions      exclusions_;
     uint16_t        sync_cycle_ = 60;
     TimePoint       last_sync_ = (TimePoint::min)(); // not persisted; min makes the first sync run immediately
+    std::optional<LastRun> last_run_;  // not persisted
     SshPath* ssh_path(const std::unique_ptr<SyncPath>& path) const;
 public:
     SyncItem() = default;
@@ -201,6 +209,8 @@ public:
     uint16_t sync_cycle() const;
     void set_last_sync();
     TimePoint last_sync() const;
+    void last_run(const LastRun& run) { last_run_ = run; }
+    const std::optional<LastRun>& last_run() const { return last_run_; }
     SSHPATH ssh_path_type() const;
     bool rename_ssh_account_reference(const std::string& old_name, const SshAccount& new_account);  // [SyncItem.md#rename_ssh_account_reference]
     bool references_ssh_account(const std::string& name) const;

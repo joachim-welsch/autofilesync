@@ -288,6 +288,7 @@ SyncItem::SyncItem(const SyncItem& other)
     , exclusions_(other.exclusions_)
     , sync_cycle_(other.sync_cycle_)
     , last_sync_(other.last_sync_)
+    , last_run_(other.last_run_)
 {}
 
 SyncItem& SyncItem::operator=(const SyncItem& other)
