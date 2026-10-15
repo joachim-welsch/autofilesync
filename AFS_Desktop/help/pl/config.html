@@ -52,6 +52,15 @@ plikach po prostu brakuje – AutoFileSync używa wtedy udokumentowanej wartośc
 domyślnej i mimo to wczytuje plik. Pojedynczy uszkodzony wpis również nie
 powoduje utraty całej konfiguracji; zostaje pominięty.</p>
 
+<p>Przykładem jest klucz <tt>warnIfUnreachable</tt> wśród opcji synchronizacji
+(<tt>syncflags</tt>). Odpowiada opcji <b>Ostrzegaj, gdy brakuje dysku lub
+połączenia SSH</b>: <tt>true</tt> oznacza, że brakujący dysk jest zgłaszany jako
+ostrzeżenie, <tt>false</tt> – że jest tylko odnotowywany w dzienniku. Jeśli klucza
+brakuje, bo plik pochodzi ze starszej wersji, obowiązuje <tt>true</tt>. Pozostałe
+opcje mają obok własne klucze i w starych plikach, gdy ich brakuje, przyjmują
+<tt>false</tt>. Działanie opcji opisano w rozdziale
+<a href="unreachable.html">Nieosiągalne dyski i połączenia</a>.</p>
+
 <p>Przy zapisie istniejący plik nie zostaje zniszczony, jeśli zapis się nie
 powiedzie – w razie wątpliwości zachowany zostaje poprzedni stan.</p>
 

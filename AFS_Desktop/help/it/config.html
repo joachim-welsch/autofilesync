@@ -51,6 +51,15 @@ semplicemente nei file vecchi – AutoFileSync usa allora il valore predefinito
 documentato e carica comunque il file. Nemmeno una singola voce danneggiata fa
 perdere l'intera configurazione; viene saltata.</p>
 
+<p>Un esempio è la chiave <tt>warnIfUnreachable</tt> tra le opzioni di una
+sincronizzazione (<tt>syncflags</tt>). Contiene l'opzione <b>Avvisa se manca
+l'unità o la connessione SSH</b>: <tt>true</tt> significa che un'unità mancante
+viene segnalata come avviso, <tt>false</tt> che viene solo annotata nel registro.
+Se la chiave manca perché il file proviene da una versione precedente, vale
+<tt>true</tt>. Le altre opzioni stanno sotto le proprie chiavi accanto e, se
+mancano nei file vecchi, valgono <tt>false</tt>. Cosa fa l'opzione è descritto in
+<a href="unreachable.html">Unità e connessioni non raggiungibili</a>.</p>
+
 <p>Durante la scrittura il file esistente non viene distrutto se il salvataggio
 non riesce – nel dubbio resta lo stato precedente.</p>
 

@@ -51,6 +51,15 @@ old files – AutoFileSync then uses the documented default and loads the file
 anyway. A single damaged entry does not lose the whole configuration either; it
 is skipped.</p>
 
+<p>An example is the key <tt>warnIfUnreachable</tt> among the options of a
+synchronisation (<tt>syncflags</tt>). It carries the option <b>Warn if the drive or
+SSH connection is missing</b>: <tt>true</tt> means a missing drive is reported as
+a warning, <tt>false</tt> that it is only noted in the log. If the key is missing
+because the file comes from an older version, <tt>true</tt> applies. The other
+options sit under their own keys next to it and default to <tt>false</tt> when
+missing from old files. What the option does is described under
+<a href="unreachable.html">Unreachable drives and connections</a>.</p>
+
 <p>When writing, the existing file is not destroyed if saving fails – when in
 doubt, the old state is kept.</p>
 

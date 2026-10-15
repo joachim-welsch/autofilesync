@@ -51,6 +51,15 @@ simplemente falta en los archivos antiguos – AutoFileSync usa entonces el valo
 predeterminado documentado y carga el archivo igualmente. Una sola entrada dañada
 tampoco hace que se pierda toda la configuración; se omite.</p>
 
+<p>Un ejemplo es la clave <tt>warnIfUnreachable</tt> entre las opciones de una
+sincronización (<tt>syncflags</tt>). Contiene la opción <b>Avisar si falta la unidad
+o la conexión SSH</b>: <tt>true</tt> significa que una unidad ausente se notifica
+como aviso, <tt>false</tt> que solo se anota en el registro. Si la clave falta
+porque el archivo procede de una versión anterior, se aplica <tt>true</tt>. Las
+demás opciones están bajo sus propias claves al lado y, si faltan en archivos
+antiguos, valen <tt>false</tt>. Lo que hace la opción se explica en
+<a href="unreachable.html">Unidades y conexiones no accesibles</a>.</p>
+
 <p>Al escribir, el archivo existente no se destruye si falla el guardado – en
 caso de duda se conserva el estado anterior.</p>
 

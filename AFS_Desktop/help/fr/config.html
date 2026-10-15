@@ -54,6 +54,16 @@ utilise alors la valeur par défaut documentée et charge le fichier malgré tou
 Une seule entrée endommagée ne fait pas non plus perdre toute la configuration ;
 elle est ignorée.</p>
 
+<p>Un exemple est la clé <tt>warnIfUnreachable</tt> parmi les options d'une
+synchronisation (<tt>syncflags</tt>). Elle porte l'option <b>Avertir si le lecteur
+ou la connexion SSH manque</b> : <tt>true</tt> signifie qu'un lecteur absent est
+signalé par un avertissement, <tt>false</tt> qu'il est seulement noté dans le
+journal. Si la clé manque parce que le fichier vient d'une ancienne version,
+<tt>true</tt> s'applique. Les autres options se trouvent sous leurs propres clés à
+côté et valent <tt>false</tt> quand elles manquent dans d'anciens fichiers. Ce que
+fait l'option est décrit sous
+<a href="unreachable.html">Lecteurs et connexions inaccessibles</a>.</p>
+
 <p>Lors de l'écriture, le fichier existant n'est pas détruit si l'enregistrement
 échoue – en cas de doute, l'ancien état est conservé.</p>
 
