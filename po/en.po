@@ -1397,7 +1397,7 @@ msgstr "Stop the background service"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Assistant…"
+msgstr "&Chat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"

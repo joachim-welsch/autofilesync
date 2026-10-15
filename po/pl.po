@@ -1367,7 +1367,7 @@ msgstr "Zatrzymaj usługę w tle"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Asystent…"
+msgstr "&Czat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"

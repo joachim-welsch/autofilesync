@@ -26,11 +26,11 @@
   auf den minimierten Start und auf ein fehlendes Hilfebuch kommt als
   Systembenachrichtigung statt als Dialog, der sich von selbst schließt.
 - Die Werkzeugleiste beginnt mit „Neue Synchronisation“. Im Menü Datei stehen
-  „Neue Synchronisation…“ und „Neue SSH-Verbindung…“ direkt, der Assistent
-  steht unter Hilfe. Im Dialog einer Synchronisation bilden die
-  Vergleichskriterien eine eigene Gruppe. Dialoge und Tabelle skalieren mit
-  der Bildschirmauflösung, die Tabellenköpfe nutzen die Systemschrift, und die
-  Wurzel der Baumansicht heißt „Dieser Computer“ statt „PC“.
+  „Neue Synchronisation…“ und „Neue SSH-Verbindung…“ direkt. Im Dialog einer
+  Synchronisation bilden die Vergleichskriterien eine eigene Gruppe. Dialoge
+  und Tabelle skalieren mit der Bildschirmauflösung, die Tabellenköpfe nutzen
+  die Systemschrift, und die Wurzel der Baumansicht heißt „Dieser Computer“
+  statt „PC“.
 - Konfiguration und Sicherungsnachweise stehen lesbar in der Datei: Zeichen wie
   kyrillische Buchstaben erscheinen als sie selbst statt als `\u0423…`, und
   Emoji in Namen gehen nicht mehr verloren.

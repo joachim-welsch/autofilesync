@@ -1397,7 +1397,7 @@ msgstr "Hintergrunddienst stoppen"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Assistent…"
+msgstr "&Chat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1425,7 +1425,7 @@ msgstr "&Ansicht"
 
 #: AFS_Desktop/src/Menu.cpp:135
 msgid "menu_assistant"
-msgstr "&Assistent"
+msgstr "Assis&tent"
 
 #: AFS_Desktop/src/Menu.cpp:136
 msgid "menu_help_menu"

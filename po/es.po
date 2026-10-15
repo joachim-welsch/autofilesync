@@ -1367,7 +1367,7 @@ msgstr "Detener el servicio en segundo plano"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Asistente…"
+msgstr "&Chat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"

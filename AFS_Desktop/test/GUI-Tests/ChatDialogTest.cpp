@@ -93,6 +93,14 @@ bool press_control_enter(wxWindow* input)
 
 }
 
+TEST_F(GuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHatEinEigenesMenue]
+{
+    wxMenuBar* menu_bar = main_window().GetMenuBar();
+    const int assistant = menu_bar->FindMenu(AFS_Core::translation::translate("menu_assistant"));
+    ASSERT_NE(assistant, wxNOT_FOUND) << "Die Menüleiste hat kein Menü Assistent.";
+    EXPECT_NE(menu_bar->GetMenu(static_cast<size_t>(assistant))->FindItem(tul(id::Chat)), nullptr) << "Der Chat steht nicht im Menü Assistent.";
+}
+
 TEST_F(GuiTest, ChatLeereEingabeTutNichts)
 {
     ChatControls chat = open_chat(main_window());

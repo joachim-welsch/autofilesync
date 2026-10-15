@@ -34,6 +34,7 @@ class Menu {
 	wxMenu* create_view_menu();
 	wxMenu* create_sync_menu();
 	wxMenu* create_background_service_menu();
+	wxMenu* create_assistant_menu();
 	wxMenu* create_help_menu();
 public:
 	void create();

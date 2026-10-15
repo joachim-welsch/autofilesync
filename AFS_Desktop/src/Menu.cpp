@@ -80,10 +80,16 @@ wxMenu* Menu::create_help_menu()
 {
     wxMenu* help_menu = new wxMenu;  // [Menu.md#structure]
     help_menu->Append(tul(id::Help), with_shortcut(translate("menu_help"), HELP_SHORTCUT), translate("menu_help"));
-    help_menu->Append(tul(id::Chat), translate("menu_chat"), translate("menu_chat_help"));
     help_menu->AppendSeparator();
     help_menu->Append(tul(id::About), translate("menu_about"), translate("menu_about"));
     return help_menu;
+}
+
+wxMenu* Menu::create_assistant_menu()
+{
+    wxMenu* assistant_menu = new wxMenu;  // [Menu.md#structure]
+    assistant_menu->Append(tul(id::Chat), translate("menu_chat"), translate("menu_chat_help"));
+    return assistant_menu;
 }
 
 wxMenu* Menu::create_edit_menu()
@@ -139,6 +145,7 @@ void Menu::create()
     menu_bar_->Append(create_sync_menu(), translate("menu_synchronisation"));
     menu_bar_->Append(create_background_service_menu(), translate("menu_background_service"));
     menu_bar_->Append(create_view_menu(), translate("menu_view"));
+    menu_bar_->Append(create_assistant_menu(), translate("menu_assistant"));
     menu_bar_->Append(create_help_menu(), translate("menu_help_menu"));
 }
 

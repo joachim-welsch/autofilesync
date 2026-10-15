@@ -83,3 +83,8 @@ digit. Only the text after the last speaker line is this test's answer.
 
 Without a model the reply is an immediate "Fehler:" turn and the controls are enabled again
 before the test looks; either state means the question was sent.
+
+## AssistentHatEinEigenesMenue
+
+Regression test: following the platform guidelines, the chat once moved into the Help menu, and
+users took the assistant for removed. The menu of its own is what they look for.

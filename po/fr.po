@@ -1367,7 +1367,7 @@ msgstr "Arrêter le service en arrière-plan"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Assistant…"
+msgstr "&Discussion…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"

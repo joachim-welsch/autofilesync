@@ -4,10 +4,12 @@ Module comment for Menu.h / Menu.cpp.
 
 ## structure
 
-No submenu for two entries and no menu for a single one: "Neue Synchronisation…" and
-"Neue SSH-Verbindung…" stand in the File menu, the assistant's chat in the Help menu, where
-help of every kind is looked for. Both are what the platform guidelines ask, and both save
-a click.
+No submenu for two entries: "Neue Synchronisation…" and "Neue SSH-Verbindung…" stand in the
+File menu, as the platform guidelines ask, which saves a click.
+
+The assistant keeps a menu of its own although it has a single entry, against the same
+guidelines: tucked into the Help menu it was not found at all - users took it for removed. A
+feature nobody finds is worth less than the rule, see the priority of intuitive use.
 
 ## shortcuts
 

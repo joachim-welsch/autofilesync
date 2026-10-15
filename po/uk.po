@@ -1367,7 +1367,7 @@ msgstr "Зупинити фонову службу"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Помічник…"
+msgstr "&Чат…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
