@@ -105,9 +105,9 @@ if [ "$(uname)" == "Darwin" ]; then
     DAEMON_INSTALL_HINT="part of the bundle - start it from the menu Hintergrunddienst"
 else
     EXECUTABLE="${BUILD_DIR}/autofilesync"
-    INSTALL_HINT="sudo cp ${EXECUTABLE} /usr/local/bin/"
+    INSTALL_HINT="${SOURCE_DIR}/scripts/makeDebianPackage.sh, then sudo apt install the .deb it names"  # a copied binary has no catalogues beside it and reads those of whatever package is installed
     RUN_HINT="${EXECUTABLE}"
-    DAEMON_INSTALL_HINT="sudo install -m 755 ${DAEMON} /usr/sbin/backgroundsync"
+    DAEMON_INSTALL_HINT="backgroundsync, catalogues and help are part of the package"
 fi
 
 # Check if build was successful
