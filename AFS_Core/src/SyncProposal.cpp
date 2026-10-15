@@ -36,7 +36,8 @@ constexpr wchar_t DEFAULT_WILDCARD[] = L"*.*";  // the SyncItemDialog default fo
 
 struct CommandName { Command command; const wchar_t* key; const char* label_msgid; };
 constexpr CommandName COMMANDS[] = {  // [SyncProposal.md#Command]
-    {Command::SyncOnce, L"sync_once", "menu_sync_once"}, {Command::StartSync, L"start_sync", "toolbar_start_sync"},
+    {Command::SyncOnce, L"sync_once", "menu_sync_once"}, {Command::Preview, L"preview", "menu_preview"},
+    {Command::StartSync, L"start_sync", "toolbar_start_sync"},
     {Command::StopSync, L"stop_sync", "toolbar_stop_sync"}, {Command::StartService, L"start_service", "menu_bs_start_help"},
     {Command::StopService, L"stop_service", "menu_bs_stop_help"}, {Command::OpenLog, L"open_log", "menu_view_log"}};
 

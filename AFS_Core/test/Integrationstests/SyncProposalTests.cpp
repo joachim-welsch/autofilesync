@@ -242,6 +242,7 @@ TEST(SyncProposalTests, CommandIsNamedLikeItsMenuItem)  // [SyncProposalTests.md
     const wstring description = sync_proposal::describe(sync_proposal::Command::SyncOnce);
 
     EXPECT_EQ(label, L"Log-Datei anzeigen") << "Das Tastenkürzel blieb im Namen stehen.";
+    EXPECT_EQ(sync_proposal::label(sync_proposal::Command::Preview), L"Vorschau") << "Die Auslassungspunkte blieben im Namen stehen.";
     EXPECT_NE(description.find(sync_proposal::label(sync_proposal::Command::SyncOnce)), wstring::npos) << description;
     EXPECT_EQ(description.find(L'%'), wstring::npos) << description;
 }
@@ -254,7 +255,7 @@ TEST(SyncProposalTests, InstructionNamesTheCommands)
     const wstring instruction = sync_proposal::instruction();
     const wstring extraction = sync_proposal::extraction_question();
 
-    for (const wstring& part : {wstring(L"\"command\""), wstring(L"sync_once"), wstring(L"stop_service"), wstring(L"Einmal synchronisieren")})
+    for (const wstring& part : {wstring(L"\"command\""), wstring(L"sync_once"), wstring(L"preview"), wstring(L"stop_service"), wstring(L"Einmal synchronisieren"), wstring(L"Vorschau")})
         EXPECT_NE(instruction.find(part), wstring::npos) << util::wstring_to_string(part);
     EXPECT_NE(extraction.find(L"open_log"), wstring::npos) << util::wstring_to_string(extraction);
 }
@@ -267,5 +268,6 @@ TEST(SyncProposalTests, CommandWordsTriggerTheExtraction)  // [SyncProposalTests
 
     EXPECT_TRUE(sync_proposal::names_command(L"Synchronisiere bitte jetzt einmal."));
     EXPECT_TRUE(sync_proposal::names_command(L"Starte den Hintergrunddienst."));
+    EXPECT_TRUE(sync_proposal::names_command(L"Was würde eine Vorschau jetzt zeigen?"));
     EXPECT_FALSE(sync_proposal::names_command(L"Was ist ein Sicherungsnachweis?"));
 }

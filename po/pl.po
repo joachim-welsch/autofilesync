@@ -1903,7 +1903,7 @@ msgstr "Propozycja: %1. Wykonaj przyciskiem \"%1\"."
 
 #: AFS_Core/src/SyncProposal.cpp:222
 msgid "assistant_command_words"
-msgstr "synchroniz,uruchom,zatrzymaj,otwórz,pokaż"
+msgstr "synchroniz,uruchom,zatrzymaj,otwórz,pokaż,podgląd"
 
 #: AFS_Desktop/src/Menu.cpp:126
 msgid "menu_preview"

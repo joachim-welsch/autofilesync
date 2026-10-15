@@ -1903,7 +1903,7 @@ msgstr "Пропозиція: %1. Виконати кнопкою \"%1\"."
 
 #: AFS_Core/src/SyncProposal.cpp:222
 msgid "assistant_command_words"
-msgstr "синхроніз,запусти,зупини,заверши,відкрий,покажи"
+msgstr "синхроніз,запусти,зупини,заверши,відкрий,покажи,попередн"
 
 #: AFS_Desktop/src/Menu.cpp:126
 msgid "menu_preview"

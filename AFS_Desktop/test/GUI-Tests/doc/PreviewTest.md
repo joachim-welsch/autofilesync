@@ -25,6 +25,13 @@ The run's own "nothing to do" box cannot appear here because the preview just fo
 and the item's pause (1 s by default) is not consulted by the preview but has long elapsed
 for a fresh item.
 
+## VorgeschlageneVorschauZeigtDenDialog
+
+The assistant may propose the preview like any other menu command
+(SyncProposal.md#Command); apply_proposal() stands in for the chat's button, as in
+SyncOnceTest.md#proposed-command. The file must still be missing in the target afterwards:
+the proposal shows, it does not run.
+
 ## VorschauOhneUnterschiedMeldetNichtsZuTun
 
 After a run the sides match, and the preview must say so in a box rather than show an empty

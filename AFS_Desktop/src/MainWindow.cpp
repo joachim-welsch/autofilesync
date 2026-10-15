@@ -86,6 +86,7 @@ id menu_id_of(sync_proposal::Command command)
     using sync_proposal::Command;
     switch (command) {
         case Command::SyncOnce: return id::SyncOnce;
+        case Command::Preview: return id::Preview;
         case Command::StartSync: return id::StartSync;
         case Command::StopSync: return id::StopSync;
         case Command::StartService: return id::BackgroundServiceStart;
@@ -401,6 +402,7 @@ wxString MainWindow::why_not_possible(sync_proposal::Command command) const
     using sync_proposal::Command;
     switch (command) {
         case Command::SyncOnce:
+        case Command::Preview:
         case Command::StartSync: return translation::translate("sync_already_running");
         case Command::StopSync: return translation::translate("no_sync_active");
         case Command::StartService:

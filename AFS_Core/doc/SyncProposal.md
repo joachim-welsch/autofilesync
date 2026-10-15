@@ -105,10 +105,11 @@ way the dialog shows it, so it reads the same in both places.
 
 ## Command
 
-Commands the user could run from the menu anyway: synchronise once, start or stop the
-synchronisation, start or stop the background service, show the log file. None of them changes
-the configuration or deletes anything that a sync would not, so a button that runs them adds no
-risk. The JSON keys are fixed and untranslated; the model learns them, with their names in the
+Commands the user could run from the menu anyway: synchronise once, show the preview, start
+or stop the synchronisation, start or stop the background service, show the log file. None of
+them changes the configuration or deletes anything that a sync would not, so a button that runs
+them adds no risk; the preview changes nothing at all, so the assistant can offer it whenever
+the user wonders what a run would do. The JSON keys are fixed and untranslated; the model learns them, with their names in the
 current language, from command_list().
 
 ## label

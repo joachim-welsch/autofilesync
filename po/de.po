@@ -1935,7 +1935,7 @@ msgstr "Vorschlag: %1. Mit \"%1\" ausführen."
 
 #: AFS_Core/src/SyncProposal.cpp:222
 msgid "assistant_command_words"
-msgstr "synchronisier,starte,stoppe,beende,öffne,zeige"
+msgstr "synchronisier,starte,stoppe,beende,öffne,zeige,vorschau"
 
 #: AFS_Desktop/src/Menu.cpp:126
 msgid "menu_preview"

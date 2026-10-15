@@ -1903,7 +1903,7 @@ msgstr "Proposition : %1. L'exécuter avec \"%1\"."
 
 #: AFS_Core/src/SyncProposal.cpp:222
 msgid "assistant_command_words"
-msgstr "synchronis,démarre,lance,arrête,ouvre,affiche"
+msgstr "synchronis,démarre,lance,arrête,ouvre,affiche,aperçu"
 
 #: AFS_Desktop/src/Menu.cpp:126
 msgid "menu_preview"

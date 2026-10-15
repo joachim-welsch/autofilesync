@@ -25,6 +25,7 @@
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
 #include "PreviewDialog.h"
+#include "SyncProposal.h"
 #include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
@@ -111,6 +112,26 @@ TEST_F(GuiTest, JetztSynchronisierenInDerVorschauFuehrtDenLaufAus)  // [PreviewT
     EXPECT_EQ(tree.read("ziel/bericht.txt"), "Bericht") << "\"Jetzt synchronisieren\" hat nicht kopiert.";
     EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::Preview)));
     EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::SyncOnce)));
+}
+
+TEST_F(GuiTest, VorgeschlageneVorschauZeigtDenDialog)  // [PreviewTest.md#VorgeschlageneVorschauZeigtDenDialog]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "vorschau-befehl", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-vorschau-befehl")));
+    std::vector<ShownStep> steps;
+    ModalDialogWatcher::instance().expect(translation::translate("preview_title"), [&steps](wxDialog& dialog) {
+        steps = shown_steps(dialog);
+        click_on(find(dialog, wxID_CANCEL));
+    });
+
+    main_window().apply_proposal(sync_proposal::Command::Preview);
+    pump();
+
+    ASSERT_TRUE(wait_until_sync_finished(main_window())) << "Die vorgeschlagene Vorschau kam nicht zur Ruhe.";
+    EXPECT_FALSE(ModalDialogWatcher::instance().has_pending_expectations()) << "Der Vorschau-Dialog erschien nicht.";
+    ASSERT_EQ(steps.size(), 1u);
+    EXPECT_EQ(steps[0].file, "bericht.txt");
+    EXPECT_FALSE(tree.exists("ziel/bericht.txt")) << "Der vorgeschlagene Befehl hat kopiert statt nur gezeigt.";
 }
 
 TEST_F(GuiTest, VorschauOhneUnterschiedMeldetNichtsZuTun)  // [PreviewTest.md#VorschauOhneUnterschiedMeldetNichtsZuTun]

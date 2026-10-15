@@ -59,6 +59,8 @@ the shown answer the same way.
 
 ## CommandIsNamedLikeItsMenuItem
 
+The preview's menu item ends in an ellipsis, which the button must not carry either.
+
 The button carries the menu item's text, so the user recognises the command; the mnemonic "&"
 and an ellipsis belong to the menu and are dropped.
 
