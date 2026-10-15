@@ -55,6 +55,12 @@ public:
     bool empty() const { return count() == 0; }
 };
 
+struct UnreachableItem {  // [SyncPlan.md#UnreachableItem]
+    std::wstring name;
+    std::wstring message;
+    bool warn;
+};
+
 class SyncPlanGuard {  // [SyncPlan.md#SyncPlanGuard]
     SyncPlan* previous_;
 public:

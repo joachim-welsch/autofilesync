@@ -43,10 +43,6 @@ wxString no_files()  // translated at the call, once the catalogue is bound
 {
     return translation::translate("info");
 }
-wxString errors_box()
-{
-    return translation::translate("synchronisation") + L": " + translation::translate("error");
-}
 wxString warnings_box()
 {
     return translation::translate("synchronisation") + L": " + translation::translate("warning");
@@ -81,27 +77,45 @@ const std::vector<wxString>& answered()
 
 }
 
-TEST_F(GuiTest, FehlerDesEinzelsyncsErscheintAlsMeldung)  // [SyncMessagesTest.md#unreachable-source]
+TEST_F(GuiTest, UnerreichbareQuelleWarntTrotzMeldungsfilter)  // [SyncMessagesTest.md#unreachable-source]
 {
     const RestoredSettings restored;
-    filter_messages(main_window(), true, false, false);
+    filter_messages(main_window(), false, false, false);
     const std::filesystem::path missing = GuiTestSandbox::root() / "gibt-es-nicht";
-    ASSERT_TRUE(add_sync_item(main_window(), dir_sync("guitest-fehler", missing, GuiTestSandbox::target_dir())));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync("guitest-warnung", missing, GuiTestSandbox::target_dir())));
     ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
-    ModalDialogWatcher::instance().answer(errors_box(), wxID_OK);
+    ModalDialogWatcher::instance().answer(warnings_box(), wxID_OK);
 
     ASSERT_TRUE(sync_once(main_window()));
 
-    ASSERT_EQ(answered().size(), 2u) << "Die Fehlerbox nach dem Lauf fehlt.";
-    EXPECT_TRUE(answered()[1].StartsWith(translation::translate("error") + L": ")) << answered()[1];
-    EXPECT_TRUE(answered()[1].Contains(missing.string())) << "Die Fehlerbox nennt die unerreichbare Quelle nicht: " << answered()[1];
+    ASSERT_EQ(answered().size(), 2u) << "Die Warnbox nach dem Lauf fehlt.";
+    EXPECT_TRUE(answered()[1].StartsWith(translation::translate("warning") + L": ")) << answered()[1];
+    EXPECT_TRUE(answered()[1].Contains(missing.string())) << "Die Warnbox nennt die unerreichbare Quelle nicht: " << answered()[1];
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
+}
+
+TEST_F(GuiTest, AbgewaehlteWarnungSchweigtBeiUnerreichbarerQuelle)  // [SyncMessagesTest.md#unreachable-source]
+{
+    const RestoredSettings restored;
+    filter_messages(main_window(), true, true, false);
+    SyncItemInput input = dir_sync("guitest-still", GuiTestSandbox::root() / "gibt-es-nicht", GuiTestSandbox::target_dir());
+    input.options.warn_if_unreachable = false;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
+
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_EQ(answered().size(), 1u) << "Trotz abgewählter Warnung erschien eine Meldungsbox.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
 }
 
 TEST_F(GuiTest, MeldungsfilterAusUnterdruecktDieFehlerbox)
 {
     const RestoredSettings restored;
     filter_messages(main_window(), false, false, false);
-    ASSERT_TRUE(add_sync_item(main_window(), dir_sync("guitest-still", GuiTestSandbox::root() / "gibt-es-nicht", GuiTestSandbox::target_dir())));
+    SyncItemInput input = dir_sync("guitest-still", GuiTestSandbox::root() / "gibt-es-nicht", GuiTestSandbox::target_dir());
+    input.options.warn_if_unreachable = false;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
     ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
 
     ASSERT_TRUE(sync_once(main_window()));

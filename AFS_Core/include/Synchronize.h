@@ -60,6 +60,7 @@ class Synchronize {
     SyncRole                role_ = SyncRole::Foreground;  // [Synchronize.md#role_]
     SyncArbiter             arbiter_{SyncRole::Foreground};
     SyncPlan                plan_;  // [Synchronize.md#preview]
+    std::vector<UnreachableItem> unreachable_;  // [Synchronize.md#unreachable_]
 #ifdef _TEST
     std::atomic<int>        loop_iterations_{0}; // counts do-while passes of operator()(), for race regression tests
 #endif
@@ -106,6 +107,7 @@ public:
     #ifdef _TEST
         void start_logging(LogLevel, const std::wstring& lfname);
         int loop_iterations() const { return loop_iterations_; }
+        const std::vector<UnreachableItem>& unreachable() const { return unreachable_; }  // the hand-off to the controller is wx-only, tests read it here
     #endif
     static void set_progress_message(const std::wstring&, const std::wstring& file, int64_t sourcesize);
     static void report_copied_bytes(uint64_t bytes);  // [Synchronize.md#copied_bytes_]

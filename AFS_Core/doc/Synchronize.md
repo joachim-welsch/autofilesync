@@ -14,9 +14,19 @@ Only touched by the worker thread (sync_item), so no lock is needed.
 ## item_reachable_
 
 Last known reachability per item name, so an item that stays unreachable is reported once
-instead of once per pass - to the log as an error and to the backup proof. The log line is what
-the GUI's summary box after a single run picks up; CheckPath's own lines are Info. Same thread
-as above.
+instead of once per pass. CheckPath's own lines are Info. Same thread as above.
+
+## unreachable_
+
+The items this pass skipped as unreachable, handed to the controller at the end next to the
+plan (SyncPlan.md#UnreachableItem). An unreachable side is not an error in itself - a backup
+disk is often not plugged in on purpose - so the item decides
+(SyncItem.md#warn_if_unreachable_): with the warning on, the log line is a warning and the
+backup proof records the run that could not happen, because the user declared the drive must
+be there; with it off, an info line is all that remains and the proof stays silent. The
+daemon has only the log, so the level is decided here. The list is filled where the
+once-per-instance guard above lets the line through, so a continuous run does not grow it
+pass after pass.
 
 ## constructor-clears-stop
 

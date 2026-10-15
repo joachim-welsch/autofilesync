@@ -118,6 +118,15 @@ ambos lados guardan la hora con la misma precisión.</p>
         la sincronización sustituye entonces el contenido del destino por el
         archivo vacío.</td></tr>
 
+<tr><td valign="top"><b>Avisar si falta la unidad o la conexión SSH</b></td>
+    <td>Si no se puede acceder al origen o al destino – una unidad desconectada,
+        un recurso compartido sin conexión, un servidor SSH que no responde –,
+        la sincronización se omite; no se copia ni se borra nada. Eso no es un
+        error. Con esta opción (predeterminada: activada) «Sincronizar una vez»
+        informa de la omisión como aviso, y el registro contiene un aviso. Para
+        un disco de copia de seguridad que solo se conecta de vez en cuando,
+        desactive la opción: la ausencia solo se anota en el registro.</td></tr>
+
 <tr><td valign="top"><b>Segundos de pausa</b></td>
     <td>Tiempo de espera entre dos ejecuciones de una sincronización continua,
         ajustable de 1 a 60 segundos. Las pausas cortas detectan antes los

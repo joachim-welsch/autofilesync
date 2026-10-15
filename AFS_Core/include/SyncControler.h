@@ -39,6 +39,7 @@ class SyncControler {
 	std::atomic<SyncCtrlState>	state_ = SyncCtrlState::Waiting;
 	std::size_t			count_files_ = 0;
 	SyncPlan			plan_;  // [SyncControler.md#plan_]
+	std::vector<UnreachableItem> unreachable_;
 
 protected:
 	void set_sync_finished();
@@ -58,6 +59,8 @@ public:
 	std::size_t count_files() const;
 	void plan(SyncPlan plan) { plan_ = std::move(plan); }
 	SyncPlan take_plan() { return std::exchange(plan_, SyncPlan()); }
+	void unreachable(std::vector<UnreachableItem> items) { unreachable_ = std::move(items); }
+	std::vector<UnreachableItem> take_unreachable() { return std::exchange(unreachable_, {}); }
 	friend class Synchronize;
 };
 

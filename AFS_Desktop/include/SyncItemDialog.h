@@ -52,6 +52,7 @@ public:
     bool father_son_principle() const { return father_son_principle_; }
     bool backup_proof() const { return backup_proof_; }
     bool sync_empty_files() const { return sync_empty_files_; }
+    bool warn_if_unreachable() const { return warn_if_unreachable_; }
     bool enabled() const { return enabled_; }
     void save_data(SyncItem& si);
 
@@ -90,6 +91,7 @@ private:
     bool     delete_in_target_ = false;
     bool     backup_proof_ = false;
     bool     sync_empty_files_ = false;
+    bool     warn_if_unreachable_ = true;
     bool     compare_date_ = true;
     bool     compare_size_ = false;
     bool     compare_content_ = false;
@@ -113,6 +115,7 @@ private:
     wxCheckBox* delete_in_target_check_ = nullptr;
     wxCheckBox* backup_proof_check_ = nullptr;
     wxCheckBox* sync_empty_files_check_ = nullptr;
+    wxCheckBox* warn_if_unreachable_check_ = nullptr;
     wxSpinCtrl* sync_cycle_spin_ = nullptr;
     wxSpinCtrl* time_tolerance_spin_ = nullptr;
 
@@ -141,6 +144,7 @@ enum {
     ID_DELETE_IN_TARGET_CHECK,
     ID_BACKUP_PROOF_CHECK,
     ID_SYNC_EMPTY_FILES_CHECK,
+    ID_WARN_IF_UNREACHABLE_CHECK,
     ID_SYNC_CYCLE_SPIN,
     ID_TIME_TOLERANCE_SPIN
 };

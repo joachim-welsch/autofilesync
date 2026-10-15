@@ -134,6 +134,24 @@ TEST_F(GuiTest, VorgeschlageneVorschauZeigtDenDialog)  // [PreviewTest.md#Vorges
     EXPECT_FALSE(tree.exists("ziel/bericht.txt")) << "Der vorgeschlagene Befehl hat kopiert statt nur gezeigt.";
 }
 
+TEST_F(GuiTest, VorschauMitNichtErreichbaremZielWarntStattNichtsZuTun)  // [PreviewTest.md#VorschauMitNichtErreichbaremZielWarntStattNichtsZuTun]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "vorschau-weg", {{"quelle/bericht.txt", "Bericht"}});
+    SyncItemInput input{"guitest-vorschau-weg", tree.path("quelle").string(), tree.path("nicht-angeschlossen").string()};
+    input.type = SyncItemType::Dir;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+
+    ModalDialogWatcher::instance().answer(translation::translate("preview_title"), wxID_OK);
+    ASSERT_TRUE(preview(main_window()));
+
+    const std::vector<wxString>& answered = ModalDialogWatcher::instance().answered_messages();
+    ASSERT_EQ(answered.size(), 1u) << "Die Vorschau zeigte nicht genau eine Meldung.";
+    const wxString expected = translation::translate("preview_unreachable", {L"\nguitest-vorschau-weg"});
+    EXPECT_TRUE(answered.front().StartsWith(expected)) << answered.front();
+    EXPECT_FALSE(answered.front().Contains(translation::translate("preview_nothing_to_do"))) << "Ein fehlendes Ziel darf nicht als Übereinstimmung gelten.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
+}
+
 TEST_F(GuiTest, VorschauOhneUnterschiedMeldetNichtsZuTun)  // [PreviewTest.md#VorschauOhneUnterschiedMeldetNichtsZuTun]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "vorschau-leer", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});

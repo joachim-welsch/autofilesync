@@ -119,6 +119,16 @@ precisione.</p>
         destinazione no, la sincronizzazione sostituisce allora il contenuto
         della destinazione con il file vuoto.</td></tr>
 
+<tr><td valign="top"><b>Avvisa se manca l'unità o la connessione SSH</b></td>
+    <td>Se l'origine o la destinazione non è raggiungibile – un'unità scollegata,
+        una condivisione non connessa, un server SSH che non risponde –, la
+        sincronizzazione viene saltata; non viene copiato né cancellato nulla.
+        Non è un errore. Con questa opzione (predefinita: attiva) «Sincronizza
+        una volta» segnala il salto come avviso, e il registro contiene un
+        avviso. Per un disco di backup collegato solo di tanto in tanto,
+        disattivare l'opzione: l'assenza viene allora annotata solo nel
+        registro.</td></tr>
+
 <tr><td valign="top"><b>Secondi di pausa</b></td>
     <td>Tempo di attesa tra due esecuzioni della sincronizzazione continua,
         regolabile da 1 a 60 secondi. Pause brevi notano prima le modifiche e

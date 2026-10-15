@@ -85,8 +85,28 @@ synchronisieren" runs its counting pass: busy cursor, start commands disabled, m
 collected, finished on a timer tick. preview_finished() then takes the plan from the
 controller and shows the PreviewDialog; "Jetzt synchronisieren" starts the ordinary single
 run from there, so what follows a preview is exactly what the menu item would do. An empty
-plan ends in a box instead of an empty dialog, and the messages of the pass - an unreachable
-source is the usual one - follow in a second box, as they would after a single run.
+plan ends in a box instead of an empty dialog; the messages of the pass go into the same box
+below the outcome, and below the steps of the dialog when there was work.
+
+## preview-unreachable
+
+An item whose source or target was not reachable (SyncPlan.md#UnreachableItem) was never
+compared, so an empty plan must not claim that source and target match - an external disk
+that is not plugged in produced exactly that wrong box once. The box names the items that
+could not be compared, with the warning icon when one of them asks for a warning and the
+information icon otherwise; the dialog lists them in its notes when other items had work.
+The names stand on their own regardless of the message filter in the settings, which may
+hide the log line that names the paths.
+
+## unreachable-warnings
+
+The user who ticks "warn if the drive or SSH connection is missing" on a synchronisation
+expects a box after a single run without having to know about the message filter in the
+settings, so the warning goes into the box past that filter: the skipped items come from the
+controller, not from the collected log lines, and those that ask for a warning are put in
+front of the messages as warnings. The text is the log line itself, so when the warning
+filter is on and the line was collected anyway it is not shown twice. Items with the option
+off are not mentioned at all - that is what the option is for.
 
 ## enable_start_commands
 

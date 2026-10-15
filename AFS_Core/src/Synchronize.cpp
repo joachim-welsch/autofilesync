@@ -255,8 +255,13 @@ void Synchronize::report_unreachable(const SyncItem& i)
     if (!std::exchange(reachable, false))
         return;
     const wstring message = translation::translate("source_or_target_not_reachable") + i.source() + L" -> " + i.target();
-    log_error(message);  // [Synchronize.md#item_reachable_]
-    report_sync_error(message);
+    if (i.warn_if_unreachable()) {  // [Synchronize.md#unreachable_]
+        log_warning(message);
+        report_sync_error(message);
+    }
+    else
+        log_info(message);
+    unreachable_.push_back({i.name(), message, i.warn_if_unreachable()});
 }
 
 LastRun Synchronize::last_run_of(const SyncItem& i, const SyncReport& report) const
@@ -355,6 +360,7 @@ void Synchronize::operator()()
     if (sync_controler_ != nullptr && !sync_controler_->sync_finished()) {
         sync_controler_->count_files(count_files_);
         sync_controler_->plan(std::move(plan_));  // [Synchronize.md#preview]
+        sync_controler_->unreachable(std::move(unreachable_));  // [Synchronize.md#unreachable_]
         sync_controler_->set_sync_finished();
     }
 #endif

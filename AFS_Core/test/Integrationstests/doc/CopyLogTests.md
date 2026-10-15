@@ -41,7 +41,8 @@ entry for it anyway would bury the passes that did something under thousands tha
 ## SyncFailureEndsUpInTheProof
 
 An unreadable source is a failure the proof has to state, not one it may leave out - otherwise
-the file only ever documents what went well.
+the file only ever documents what went well. This holds for the default; an item that waives
+the warning (SyncItem.md#warn_if_unreachable_) leaves no entry, see Synchronize.md#unreachable_.
 
 ## UnreachableSourceIsProvenOnceNotOncePerPass
 

@@ -1685,6 +1685,10 @@ msgstr "Dowód kopii zapasowej"
 msgid "option_sync_empty_files"
 msgstr "Synchronizuj puste pliki"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:172
+msgid "option_warn_if_unreachable"
+msgstr "Ostrzegaj, gdy brakuje dysku lub połączenia SSH"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Sekundy przerwy:"
@@ -1960,6 +1964,10 @@ msgstr "Zamknij"
 #: AFS_Desktop/src/SyncInterface.cpp:186
 msgid "preview_nothing_to_do"
 msgstr "Źródło i cel są zgodne – synchronizacja nie zrobiłaby teraz nic."
+
+#: AFS_Desktop/src/SyncInterface.cpp:125
+msgid "preview_unreachable"
+msgstr "Źródło lub cel nieosiągalne – tych synchronizacji nie można było porównać:%1"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:34
 msgid "preview_no_bytes"

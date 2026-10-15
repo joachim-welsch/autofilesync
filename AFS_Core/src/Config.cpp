@@ -239,6 +239,7 @@ SyncFlags get_sync_flags(boost::property_tree::wptree& sf)
     retval.delete_in_target(sf.get<wstring>(L"syncDeletions", L"false") == L"true");
     retval.backup_proof(sf.get<wstring>(L"backupProof", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.sync_empty_files(sf.get<wstring>(L"syncEmptyFiles", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
+    retval.warn_if_unreachable(sf.get<wstring>(L"warnIfUnreachable", L"true") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.enabled(sf.get<wstring>(L"enabled") == L"true");
     return retval;
 }
@@ -514,6 +515,7 @@ void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree
     sync_flags_node.put(wstring(L"syncDeletions"), to_string(inode.delete_in_target()));
     sync_flags_node.put(wstring(L"backupProof"), to_string(inode.backup_proof()));
     sync_flags_node.put(wstring(L"syncEmptyFiles"), to_string(inode.sync_empty_files()));
+    sync_flags_node.put(wstring(L"warnIfUnreachable"), to_string(inode.warn_if_unreachable()));
     sync_flags_node.put(wstring(L"enabled"), to_string(inode.enabled()));
     pt::wptree compare_items_node;
     write_compare_items(inode, compare_items_node);

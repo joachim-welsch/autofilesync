@@ -32,6 +32,15 @@ The assistant may propose the preview like any other menu command
 SyncOnceTest.md#proposed-command. The file must still be missing in the target afterwards:
 the proposal shows, it does not run.
 
+## VorschauMitNichtErreichbaremZielWarntStattNichtsZuTun
+
+The screenshot that started this: two synchronisations onto an external disk that was not
+plugged in, and the preview announced that source and target match. The target directory
+simply does not exist here, which is unreachable for a local path (CheckPath.md#reachability-rules).
+The one box must name the item (SyncInterface.md#preview-unreachable) and not contain the
+"nothing to do" sentence; the error line with the paths may follow in the same box, which is
+why the test checks the start of the message rather than all of it.
+
 ## VorschauOhneUnterschiedMeldetNichtsZuTun
 
 After a run the sides match, and the preview must say so in a box rather than show an empty

@@ -95,6 +95,10 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Warn if the drive or SSH connection is missing">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Tolerance of the modification time (NTFS, FAT, exFAT)">
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>

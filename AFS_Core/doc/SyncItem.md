@@ -7,6 +7,15 @@ Module comment for SyncItem.h / SyncItem.cpp.
 Without this flag empty files are skipped: a file of size 0 is usually an aborted write, and
 copying it over an existing target would lose data.
 
+## warn_if_unreachable_
+
+A source or target that is not there is not an error: a backup disk is plugged in now and
+then, a laptop is not always on its home network. Whether the user wants to hear about it is
+their call per synchronisation. On, the default, a pass that finds the item unreachable logs
+a warning and the GUI shows it after a single run (SyncInterface.md#unreachable-warnings);
+off, the pass notes it at info level and moves on. Either way the item is skipped and
+nothing is deleted.
+
 ## time_tolerance_seconds_
 
 How far apart two write times may be and still count as the same, see

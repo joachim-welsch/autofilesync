@@ -1715,6 +1715,10 @@ msgstr "Sicherungsnachweis"
 msgid "option_sync_empty_files"
 msgstr "Leere Dateien synchronisieren"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:172
+msgid "option_warn_if_unreachable"
+msgstr "Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Sekunden Pause:"
@@ -1992,6 +1996,10 @@ msgstr "Schließen"
 #: AFS_Desktop/src/SyncInterface.cpp:186
 msgid "preview_nothing_to_do"
 msgstr "Quelle und Ziel stimmen überein – eine Synchronisation würde jetzt nichts tun."
+
+#: AFS_Desktop/src/SyncInterface.cpp:125
+msgid "preview_unreachable"
+msgstr "Quelle oder Ziel nicht erreichbar – diese Synchronisationen konnten nicht verglichen werden:%1"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:34
 msgid "preview_no_bytes"

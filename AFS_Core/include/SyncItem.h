@@ -38,6 +38,7 @@ class SyncFlags {
     bool    delete_in_target_ = false;
     bool    backup_proof_ = false;
     bool    sync_empty_files_ = false;  // [SyncItem.md#sync_empty_files_]
+    bool    warn_if_unreachable_ = true;  // [SyncItem.md#warn_if_unreachable_]
     bool    enabled_ = true;
     uint16_t sync_cycle_ = 60;
 public:
@@ -57,6 +58,8 @@ public:
     void backup_proof(bool v);
     bool sync_empty_files() const;
     void sync_empty_files(bool v);
+    bool warn_if_unreachable() const;
+    void warn_if_unreachable(bool v);
     bool enabled() const;
     void enabled(bool v);
 };
@@ -193,6 +196,8 @@ public:
     void backup_proof(bool b);
     bool sync_empty_files() const;
     void sync_empty_files(bool s);
+    bool warn_if_unreachable() const;
+    void warn_if_unreachable(bool w);
     bool enabled() const;
     void enabled(bool e);
     SyncItemType sync_item_type() const;
@@ -232,6 +237,8 @@ inline bool SyncFlags::backup_proof() const { return backup_proof_; }
 inline void SyncFlags::backup_proof(bool v) { backup_proof_ = v; }
 inline bool SyncFlags::sync_empty_files() const { return sync_empty_files_; }
 inline void SyncFlags::sync_empty_files(bool v) { sync_empty_files_ = v; }
+inline bool SyncFlags::warn_if_unreachable() const { return warn_if_unreachable_; }
+inline void SyncFlags::warn_if_unreachable(bool v) { warn_if_unreachable_ = v; }
 inline bool SyncFlags::enabled() const { return enabled_; }
 inline void SyncFlags::enabled(bool v) { enabled_ = v; }
 
@@ -262,6 +269,8 @@ inline bool SyncItem::backup_proof() const { return flags_.backup_proof(); }
 inline void SyncItem::backup_proof(bool b) { flags_.backup_proof(b); }
 inline bool SyncItem::sync_empty_files() const { return flags_.sync_empty_files(); }
 inline void SyncItem::sync_empty_files(bool s) { flags_.sync_empty_files(s); }
+inline bool SyncItem::warn_if_unreachable() const { return flags_.warn_if_unreachable(); }
+inline void SyncItem::warn_if_unreachable(bool w) { flags_.warn_if_unreachable(w); }
 inline bool SyncItem::enabled() const { return flags_.enabled(); }
 inline void SyncItem::enabled(bool e) { flags_.enabled(e); }
 inline std::wstring SyncItem::item_type_str() const { return sync_item_type_to_str(type_); }

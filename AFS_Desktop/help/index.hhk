@@ -59,6 +59,10 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Lizenzbedingungen (GPL)">
       <PARAM name="Local" value="licensing.html">
     </OBJECT></LI>

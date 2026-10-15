@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "SyncInterface.h"
+#include "Util.h"
 #include "SyncControler.h"
 #include "SyncItem.h"
 #include "ProgressDialog.h"
@@ -114,6 +115,42 @@ LogLevel highest_level(const std::vector<LogMessage>& messages)
     return highest;
 }
 
+wxString unreachable_text(const std::vector<UnreachableItem>& unreachable)  // [SyncInterface.md#preview-unreachable]
+{
+    if (unreachable.empty())
+        return {};
+    std::wstring names;
+    for (const UnreachableItem& item : unreachable)
+        names += L"\n" + item.name;
+    return translation::translate("preview_unreachable", {names});
+}
+
+bool any_warns(const std::vector<UnreachableItem>& unreachable)
+{
+    return std::ranges::any_of(unreachable, [](const UnreachableItem& item) { return item.warn; });
+}
+
+void add_unreachable_warnings(std::vector<LogMessage>& messages, const std::vector<UnreachableItem>& unreachable)  // [SyncInterface.md#unreachable-warnings]
+{
+    for (const UnreachableItem& item : unreachable) {
+        const std::string text = util::wstring_to_string(item.message);
+        const bool shown = std::ranges::any_of(messages, [&text](const LogMessage& message) { return message.text == text; });
+        if (item.warn && !shown)
+            messages.insert(messages.begin(), {LogLevel::Warning, text});
+    }
+}
+
+wxString joined(const wxString& first, const wxString& second)
+{
+    return first.empty() || second.empty() ? first + second : first + "\n\n" + second;
+}
+
+wxString empty_preview_text(const std::vector<UnreachableItem>& unreachable, const std::vector<LogMessage>& messages)  // [SyncInterface.md#preview-unreachable]
+{
+    const wxString outcome = unreachable.empty() ? wxString(translation::translate("preview_nothing_to_do")) : unreachable_text(unreachable);
+    return joined(outcome, run_messages_text(messages));
+}
+
 }
 
 std::vector<LogMessage> SyncInterface::take_run_messages()
@@ -127,7 +164,8 @@ std::vector<LogMessage> SyncInterface::take_run_messages()
 
 void SyncInterface::show_run_messages()
 {
-    const std::vector<LogMessage> messages = take_run_messages();
+    std::vector<LogMessage> messages = take_run_messages();
+    add_unreachable_warnings(messages, sync_controler_.take_unreachable());  // [SyncInterface.md#unreachable-warnings]
     if (messages.empty() || silent_mode())
         return;
     show_state();  // [SyncInterface.md#show_state]
@@ -190,14 +228,14 @@ void SyncInterface::preview_finished()  // [SyncInterface.md#preview]
     enable_start_commands(true);
     show_state();  // [SyncInterface.md#show_state]
     const SyncPlan plan = sync_controler_.take_plan();
+    const std::vector<UnreachableItem> unreachable = sync_controler_.take_unreachable();
     const std::vector<LogMessage> messages = take_run_messages();
     if (plan.empty()) {
-        wxMessageBox(translation::translate("preview_nothing_to_do"), translation::translate("preview_title"), wxOK | wxICON_INFORMATION, &parent_window_);
-        if (!messages.empty())
-            wxMessageBox(run_messages_text(messages), translation::translate("preview_title"), wxOK | wxICON_INFORMATION, &parent_window_);
+        const long icon = any_warns(unreachable) ? wxICON_WARNING : wxICON_INFORMATION;
+        wxMessageBox(empty_preview_text(unreachable, messages), translation::translate("preview_title"), wxOK | icon, &parent_window_);
         return;
     }
-    PreviewDialog dialog(&parent_window_, plan, run_messages_text(messages));
+    PreviewDialog dialog(&parent_window_, plan, joined(unreachable_text(unreachable), run_messages_text(messages)));
     if (dialog.ShowModal() == wxID_OK && single_sync())
         enable_start_commands(false);
 }

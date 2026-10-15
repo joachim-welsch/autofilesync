@@ -18,6 +18,16 @@ target, a move (copy, then the source is deleted - del_aftercopy), a copy back i
 source (two_way_sync) and a deletion in the target (delete_in_target). The deletion is the
 one that loses data, so it is a kind of its own rather than a flag.
 
+## UnreachableItem
+
+An item a pass skipped because its source or target was not reachable - an external disk that
+is not plugged in is the usual case - as every pass hands it to the controller next to the
+plan (Synchronize.md#unreachable_). The preview needs the name: without it an empty plan would
+read as "source and target match", which is the opposite of the truth. The run needs the log
+line and whether the item asks for a warning (SyncItem.md#warn_if_unreachable_), so the box
+after a single run can show the warning in the same words as the log, whatever the message
+filter in the settings says.
+
 ## MAX_STEPS
 
 A preview over a fresh target lists every file of the tree. A list control with hundreds of

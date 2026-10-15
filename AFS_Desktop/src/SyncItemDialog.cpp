@@ -169,6 +169,7 @@ wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItem
     add_option(delete_in_target_check_, ID_DELETE_IN_TARGET_CHECK, "option_delete_in_target");
     add_option(backup_proof_check_, ID_BACKUP_PROOF_CHECK, "option_backup_proof");
     add_option(sync_empty_files_check_, ID_SYNC_EMPTY_FILES_CHECK, "option_sync_empty_files");
+    add_option(warn_if_unreachable_check_, ID_WARN_IF_UNREACHABLE_CHECK, "option_warn_if_unreachable");
     wxBoxSizer* sync_cycle_sizer = new wxBoxSizer(wxHORIZONTAL);
     sync_cycle_sizer->Add(new wxStaticText(page, wxID_STATIC, translation::translate("pause_seconds")), 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
     sync_cycle_spin_ = new wxSpinCtrl(page, ID_SYNC_CYCLE_SPIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
@@ -256,6 +257,7 @@ void SyncItemDialog::set_data(const SyncItem& si)
     delete_in_target_ = si.delete_in_target();
     backup_proof_ = si.backup_proof();
     sync_empty_files_ = si.sync_empty_files();
+    warn_if_unreachable_ = si.warn_if_unreachable();
     sync_cycle_ = si.sync_cycle();
     
 }
@@ -295,6 +297,7 @@ void SyncItemDialog::save_data(SyncItem& si)
     si.delete_in_target(delete_in_target_);
     si.backup_proof(backup_proof_);
     si.sync_empty_files(sync_empty_files_);
+    si.warn_if_unreachable(warn_if_unreachable_);
     si.sync_cycle(sync_cycle_);
 }
 
@@ -329,6 +332,7 @@ bool SyncItemDialog::TransferDataToWindow()
     delete_in_target_check_->SetValue(delete_in_target_);
     backup_proof_check_->SetValue(backup_proof_);
     sync_empty_files_check_->SetValue(sync_empty_files_);
+    warn_if_unreachable_check_->SetValue(warn_if_unreachable_);
     sync_cycle_spin_->SetValue(sync_cycle_);
     time_tolerance_spin_->SetValue(time_tolerance_seconds_);
     update_delete_in_target_state();
@@ -359,6 +363,7 @@ bool SyncItemDialog::TransferDataFromWindow()
     delete_in_target_ = delete_in_target_check_->GetValue();
     backup_proof_ = backup_proof_check_->GetValue();
     sync_empty_files_ = sync_empty_files_check_->GetValue();
+    warn_if_unreachable_ = warn_if_unreachable_check_->GetValue();
     sync_cycle_ = sync_cycle_spin_->GetValue();
     time_tolerance_seconds_ = static_cast<uint16_t>(time_tolerance_spin_->GetValue());
     return true;

@@ -114,6 +114,16 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
         <b>Achtung:</b> Ist die Quelldatei leer und die Zieldatei nicht, ersetzt
         die Synchronisation den Zielinhalt dann durch die leere Datei.</td></tr>
 
+<tr><td valign="top"><b>Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung</b></td>
+    <td>Ist Quelle oder Ziel nicht erreichbar – ein abgezogenes Laufwerk, eine nicht
+        verbundene Freigabe, ein SSH-Server, der nicht antwortet –, wird die
+        Synchronisation übersprungen; es wird nichts kopiert und nichts gelöscht.
+        Das ist kein Fehler. Mit dieser Option (Voreinstellung: an) meldet
+        „Einmal synchronisieren“ das Überspringen als Warnung, und das Protokoll
+        enthält eine Warnung. Für eine Sicherungsplatte, die nur selten
+        angeschlossen wird, schaltet man die Option ab: Dann wird das Fehlen
+        nur im Protokoll vermerkt.</td></tr>
+
 <tr><td valign="top"><b>Sekunden Pause</b></td>
     <td>Wartezeit zwischen zwei Durchläufen bei fortlaufender Synchronisation,
         einstellbar von 1 bis 60 Sekunden. Kurze Pausen erkennen Änderungen

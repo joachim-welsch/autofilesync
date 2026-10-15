@@ -1685,6 +1685,10 @@ msgstr "Підтвердження резервного копіювання"
 msgid "option_sync_empty_files"
 msgstr "Синхронізувати порожні файли"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:172
+msgid "option_warn_if_unreachable"
+msgstr "Попереджати, якщо немає диска або з'єднання SSH"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Секунд паузи:"
@@ -1960,6 +1964,10 @@ msgstr "Закрити"
 #: AFS_Desktop/src/SyncInterface.cpp:186
 msgid "preview_nothing_to_do"
 msgstr "Джерело й призначення збігаються – синхронізація зараз нічого б не зробила."
+
+#: AFS_Desktop/src/SyncInterface.cpp:125
+msgid "preview_unreachable"
+msgstr "Джерело або ціль недоступні – ці синхронізації не вдалося порівняти:%1"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:34
 msgid "preview_no_bytes"

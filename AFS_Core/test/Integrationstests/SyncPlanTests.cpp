@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pch.h"
+#include "Config.h"
 #include "FileUtil.h"
 #include "SyncDir.h"
 #include "SyncFile.h"
@@ -26,8 +27,10 @@
 #include "TestPaths.h"
 #include <chrono>
 #include <filesystem>
+#include <optional>
 #include <set>
 #include <string>
+#include <thread>
 
 using namespace AFS_Core;
 
@@ -209,6 +212,48 @@ TEST_F(SyncPlanTest, CountingWithoutAPlanStillCountsEveryFile)  // [SyncPlanTest
     dir();
 
     EXPECT_EQ(count, 1u);
+}
+
+TEST_F(SyncPlanTest, PreviewPassNamesTheUnreachableItems)  // [SyncPlanTests.md#PreviewPassNamesTheUnreachableItems]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "a");
+    Config::instance().reset();
+    Config::instance().add(SyncItem(L"unplugged", SyncItemType::Dir, source_dir_.wstring(), (root_ / "not-mounted").wstring(), L"*"));
+    Config::instance().add(SyncItem(L"same", SyncItemType::Dir, source_dir_.wstring(), target_dir_.wstring(), L"*"));
+    tu::write_text_file(target_dir_ / "a.txt", "a");
+    fs::last_write_time(target_dir_ / "a.txt", fs::last_write_time(source_dir_ / "a.txt"));
+    Synchronize* sync = Synchronize::create(SyncType::Preview);
+    ASSERT_NE(sync, nullptr);
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    const std::vector<UnreachableItem> unreachable = sync->unreachable();
+    Synchronize::destroy();
+    Config::instance().reset();
+
+    ASSERT_EQ(unreachable.size(), 1u) << "the item without a target must be named, the comparable one not";
+    EXPECT_EQ(unreachable.front().name, L"unplugged");
+    EXPECT_TRUE(unreachable.front().warn) << "the warning is on unless the item switches it off";
+    EXPECT_NE(unreachable.front().message.find(L"not-mounted"), std::wstring::npos) << "the message must carry the path";
+}
+
+TEST_F(SyncPlanTest, UnreachableItemCarriesItsWarningChoice)
+{
+    Config::instance().reset();
+    SyncItem backup(L"backup", SyncItemType::Dir, source_dir_.wstring(), (root_ / "not-mounted").wstring(), L"*");
+    backup.warn_if_unreachable(false);
+    Config::instance().add(backup);
+    Synchronize* sync = Synchronize::create(SyncType::Single);
+    ASSERT_NE(sync, nullptr);
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    const std::vector<UnreachableItem> unreachable = sync->unreachable();
+    const std::optional<LastRun> run = Config::instance().syncitems().at(0).last_run();
+    Synchronize::destroy();
+    Config::instance().reset();
+
+    ASSERT_EQ(unreachable.size(), 1u);
+    EXPECT_FALSE(unreachable.front().warn);
+    ASSERT_TRUE(run.has_value());
+    EXPECT_FALSE(run->reachable);
+    EXPECT_EQ(run->errors, 0u) << "an unreachable side is not an error";
 }
 
 TEST(SyncPlan, ListStopsAtMaxStepsWhileTheCountsGoOn)  // [SyncPlanTests.md#ListStopsAtMaxStepsWhileTheCountsGoOn]

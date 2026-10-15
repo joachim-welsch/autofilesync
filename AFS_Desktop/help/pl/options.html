@@ -110,6 +110,15 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
         znaczników. <b>Uwaga:</b> jeśli plik źródłowy jest pusty, a docelowy nie,
         synchronizacja zastąpi wtedy zawartość celu pustym plikiem.</td></tr>
 
+<tr><td valign="top"><b>Ostrzegaj, gdy brakuje dysku lub połączenia SSH</b></td>
+    <td>Gdy źródło lub cel są nieosiągalne – odłączony dysk, niepodłączony udział
+        sieciowy, serwer SSH, który nie odpowiada – synchronizacja jest
+        pomijana; nic nie jest kopiowane ani usuwane. To nie jest błąd. Z tą
+        opcją (domyślnie: włączona) „Synchronizuj raz” zgłasza pominięcie jako
+        ostrzeżenie, a dziennik zawiera ostrzeżenie. Dla dysku kopii zapasowej,
+        który podłącza się tylko od czasu do czasu, opcję należy wyłączyć:
+        brak jest wtedy odnotowywany tylko w dzienniku.</td></tr>
+
 <tr><td valign="top"><b>Sekundy przerwy</b></td>
     <td>Czas oczekiwania między dwoma przebiegami synchronizacji ciągłej,
         ustawiany od 1 do 60 sekund. Krótkie przerwy szybciej wykrywają zmiany,

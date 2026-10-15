@@ -1715,6 +1715,10 @@ msgstr "Backup proof"
 msgid "option_sync_empty_files"
 msgstr "Synchronise empty files"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:172
+msgid "option_warn_if_unreachable"
+msgstr "Warn if the drive or SSH connection is missing"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Seconds of pause:"
@@ -1992,6 +1996,10 @@ msgstr "Close"
 #: AFS_Desktop/src/SyncInterface.cpp:186
 msgid "preview_nothing_to_do"
 msgstr "Source and target match – a synchronisation would do nothing now."
+
+#: AFS_Desktop/src/SyncInterface.cpp:125
+msgid "preview_unreachable"
+msgstr "Source or target not reachable – these synchronisations could not be compared:%1"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:34
 msgid "preview_no_bytes"

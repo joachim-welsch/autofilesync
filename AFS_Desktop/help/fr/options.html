@@ -118,6 +118,16 @@ enregistrent l'heure avec la même précision.</p>
         l'est pas, la synchronisation remplace alors le contenu de la cible par
         le fichier vide.</td></tr>
 
+<tr><td valign="top"><b>Avertir si le lecteur ou la connexion SSH manque</b></td>
+    <td>Si la source ou la cible est inaccessible – un lecteur débranché, un
+        partage non connecté, un serveur SSH qui ne répond pas –, la
+        synchronisation est ignorée ; rien n'est copié ni supprimé. Ce n'est pas
+        une erreur. Avec cette option (par défaut : activée), « Synchroniser une
+        fois » signale l'omission par un avertissement, et le journal contient
+        un avertissement. Pour un disque de sauvegarde branché seulement de temps
+        en temps, désactivez l'option : l'absence n'est alors notée que dans le
+        journal.</td></tr>
+
 <tr><td valign="top"><b>Secondes de pause</b></td>
     <td>Temps d'attente entre deux passages en synchronisation continue,
         réglable de 1 à 60 secondes. Des pauses courtes détectent les

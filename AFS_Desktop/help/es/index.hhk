@@ -95,6 +95,10 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Avisar si falta la unidad o la conexión SSH">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Sincronizar una vez">
       <PARAM name="Local" value="synconce.html">
     </OBJECT></LI>

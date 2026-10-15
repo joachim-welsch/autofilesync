@@ -32,3 +32,14 @@ comparison. Pinned down so a change there is a conscious one.
 
 The cap of SyncPlan.md#MAX_STEPS is tested on the plan alone: filling ten thousand files on
 disk would slow the suite for nothing.
+
+## PreviewPassNamesTheUnreachableItems
+
+The one case the fixture's preview() cannot reach, because the reachability check sits in
+Synchronize::run_sync_item: a whole Synchronize pass with one item whose target does not
+exist and one whose sides match, read through the test-only unreachable() accessor because
+the hand-off to the controller is compiled for the GUI only. The list names the item that was
+never compared (SyncPlan.md#UnreachableItem), and only that one, with the warning on by
+default and the log line that carries the path. The second test turns the warning off and
+checks that the run records the item as unreachable but without an error
+(SyncItem.md#warn_if_unreachable_).

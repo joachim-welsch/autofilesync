@@ -209,3 +209,10 @@ The configuration is meant to be readable and editable by hand. write_json() esc
 character above U+00FF and clamped those above U+FFFF, so a Ukrainian path read as \u041E... and
 an emoji in a name came back as U+FFFF. The name must stand in the file as UTF-8 and survive the
 round trip unchanged.
+
+## WarnIfUnreachableIsOnByDefaultAndRoundTripsOff
+
+The flag is the first one whose default is on (SyncItem.md#warn_if_unreachable_), so the
+round trip is tested with the non-default value: a fresh item has it on, and off survives
+save and load. A config file without the key reads as on, the same way the other flags read
+their defaults (Config.md#defaulted-flag-reads).

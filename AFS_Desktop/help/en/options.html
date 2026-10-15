@@ -112,6 +112,15 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
         file is not, the synchronisation then replaces the target's content with
         the empty file.</td></tr>
 
+<tr><td valign="top"><b>Warn if the drive or SSH connection is missing</b></td>
+    <td>When the source or the target cannot be reached – an unplugged drive, a
+        share that is not connected, an SSH server that does not answer – the
+        synchronisation is skipped; nothing is copied and nothing is deleted.
+        That is not an error. With this option (default: on) "Synchronise once"
+        reports the skip as a warning, and the log holds a warning. For a backup
+        disk that is plugged in only now and then, switch the option off: the
+        absence is then only noted in the log.</td></tr>
+
 <tr><td valign="top"><b>Seconds of pause</b></td>
     <td>Waiting time between two runs of a continuous synchronisation,
         adjustable from 1 to 60 seconds. Short pauses notice changes sooner and
