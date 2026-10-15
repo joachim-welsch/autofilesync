@@ -16,6 +16,11 @@ pack_book()
     for name in $files; do
         [ -f "$help_dir/$name" ] || { echo "Hilfeseite fehlt: $help_dir/$name" >&2; exit 1; }
     done
+    for toc in contents.hhc index.hhk; do  # wxHtmlHelp shows an entry name with an HTML entity as an empty entry
+        if grep -qE 'value="[^"]*&[a-zA-Z]+;' "$help_dir/$toc"; then
+            echo "$help_dir/$toc: HTML-Entity in einem Eintragsnamen, das Zeichen bitte in UTF-8 schreiben" >&2; exit 1
+        fi
+    done
     book="$help_dir/help.htb"
     rm -f "$book.tmp"
     if command -v zip >/dev/null 2>&1; then

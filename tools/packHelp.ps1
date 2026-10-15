@@ -26,6 +26,12 @@ function Pack-HelpBook([string]$helpDir) {
         if ($inFiles -and $line.Trim() -ne '') { $files += $line.Trim() }
     }
     $files += 'contents.hhc', 'index.hhk', 'help.hhp', 'wxhelp.map'
+    foreach ($toc in 'contents.hhc', 'index.hhk') {
+        $tocPath = Join-Path $helpDir $toc
+        if ((Get-Content -Raw -Encoding UTF8 $tocPath) -match 'value="[^"]*&[a-zA-Z]+;') {  # wxHtmlHelp shows an entry name with an HTML entity as an empty entry
+            throw "${tocPath}: HTML-Entity in einem Eintragsnamen, das Zeichen bitte in UTF-8 schreiben"
+        }
+    }
     $book = Join-Path $helpDir 'help.htb'
     $tmp = "$book.tmp"
     if (Test-Path $tmp) { Remove-Item $tmp }
