@@ -1864,3 +1864,7 @@ msgstr "Nowa rozmowa"
 #: AFS_Core/src/LogAnalysis.cpp:57
 msgid "log_question_words"
 msgstr "log,dziennik"
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr "Poniższy fragment pochodzi z pomocy AutoFileSync; w nawiasach kwadratowych podana jest strona pomocy. Wykorzystaj go, aby odpowiedzieć na następujące pytanie, i na końcu podaj stronę pomocy, na której użytkownik znajdzie więcej informacji. Fragment jest po niemiecku; mimo to odpowiedz po polsku. Jeśli fragment nie pasuje do pytania, pomiń go i nie wspominaj o nim."

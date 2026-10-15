@@ -94,3 +94,16 @@ users took the assistant for removed. The menu of its own is what they look for.
 The chat window outlives each test, so the test makes its own round first. Without a model the
 assistant answers at once with an error, which is a round all the same; with a model the answer
 would take minutes, and the test skips. Afterwards only the hint shown at start may be left.
+
+## HilfebuchLiefertDemAssistentenSeineAbschnitte
+
+The assistant reads the help from the packed help book, the same file the help window shows.
+The Hintergrunddienst page proves that the zip entries were found and their UTF-8 title came
+through; a missing book must leave the assistant without help, not fail.
+
+## ChatBeantwortetHilfefrageMitDerHilfeseite
+
+The question uses the help's own words, so the "Globale Einstellungen – Sprache" section goes
+along, and the instruction asks the model to name the page. Without the help the model knows
+neither the dialog's name nor that a language choice exists. Runs in German: the help and the
+page name are German, and an answer in another language could translate the name.

@@ -134,3 +134,13 @@ Starts over: the model forgets the conversation and the transcript is empty agai
 the hint shown at start. The window is only hidden when closed, so without this a conversation
 lasted until the program ended. Disabled while an answer is being generated - the answer would
 arrive in the new conversation and become its first turn.
+
+## help_
+
+The sections of the help book, read once when the window is created; each question that is not
+about the log looks for its section there (see HelpKnowledge.md#help_knowledge).
+
+## MAX_HELP_EXCERPT_CHARS
+
+About 800 tokens of German text: room for one or two sections next to the system prompt and a
+conversation of several rounds within the context window.

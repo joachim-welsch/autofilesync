@@ -30,6 +30,9 @@
     <ClInclude Include="..\AFS_Core\include\CopyLog.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\AFS_Core\include\HelpKnowledge.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\AFS_Core\include\JsonText.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -171,6 +174,9 @@
     <ClInclude Include="include\ChatDialog.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\HelpBook.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
     <ClInclude Include="include\GridCtrl.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
@@ -267,6 +273,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\JsonText.cpp">
@@ -399,6 +408,9 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\ChatDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HelpBook.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\GridCtrl.cpp">

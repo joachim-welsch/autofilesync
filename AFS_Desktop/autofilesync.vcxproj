@@ -97,6 +97,7 @@
     <ClInclude Include="..\AFS_Core\include\CheckPath.h" />
     <ClInclude Include="..\AFS_Core\include\Config.h" />
     <ClInclude Include="..\AFS_Core\include\CopyLog.h" />
+    <ClInclude Include="..\AFS_Core\include\HelpKnowledge.h" />
     <ClInclude Include="..\AFS_Core\include\JsonText.h" />
     <ClInclude Include="..\AFS_Core\include\FileDelete.h" />
     <ClInclude Include="..\AFS_Core\include\FileDifference.h" />
@@ -144,6 +145,7 @@
     <ClInclude Include="include\BackgroundService.h" />
     <ClInclude Include="include\Canvas.h" />
     <ClInclude Include="include\ChatDialog.h" />
+    <ClInclude Include="include\HelpBook.h" />
     <ClInclude Include="include\GridCtrl.h" />
     <ClInclude Include="include\GridWindow.h" />
     <ClInclude Include="include\id.h" />
@@ -192,6 +194,7 @@
     <ClCompile Include="src\BackgroundService.cpp" />
     <ClCompile Include="src\Canvas.cpp" />
     <ClCompile Include="src\ChatDialog.cpp" />
+    <ClCompile Include="src\HelpBook.cpp" />
     <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\AFS_Core\src\Libssh2Init.cpp" />
     <ClCompile Include="..\AFS_Core\src\LlamaClient.cpp" />
@@ -202,6 +205,7 @@
     <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
     <ClCompile Include="..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp" />
     <ClCompile Include="..\AFS_Core\src\JsonText.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />
     <ClCompile Include="..\AFS_Core\src\Global.cpp" />

@@ -64,6 +64,8 @@ public:
     ChatReply send(const ChatHistory& history, const ChatPieceSink& on_piece = {});  // [LlamaClient.md#send]
     ChatReply analyze_log(const ChatHistory& history, const std::wstring& log_excerpt,
         const ChatPieceSink& on_piece = {});  // [LlamaClient.md#analyze_log]
+    ChatReply answer_from_help(const ChatHistory& history, const std::wstring& help_excerpt,
+        const ChatPieceSink& on_piece = {});  // [LlamaClient.md#answer_from_help]
 };
 
 } // namespace AFS_Core

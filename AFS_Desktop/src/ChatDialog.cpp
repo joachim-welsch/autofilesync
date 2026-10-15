@@ -18,6 +18,7 @@
  */
 #include "ChatDialog.h"
 #include <thread>
+#include "HelpBook.h"
 #include "LogAnalysis.h"
 #include "SyncProposal.h"
 #include "Translation.h"
@@ -40,6 +41,7 @@ constexpr const char* SEND_HINT = "chat_cmd_enter";  // [ChatDialog.md#ctrl-ente
 constexpr const char* SEND_HINT = "chat_ctrl_enter";
 #endif
 constexpr std::size_t MAX_LOG_EXCERPT_CHARS = 500;  // [ChatDialog.md#MAX_LOG_EXCERPT_CHARS]
+constexpr std::size_t MAX_HELP_EXCERPT_CHARS = 2500;  // [ChatDialog.md#MAX_HELP_EXCERPT_CHARS]
 
 wxString answer_with_proposal(const std::wstring& answer, const sync_proposal::Proposal& proposal)  // [ChatDialog.md#proposal-described]
 {
@@ -48,9 +50,10 @@ wxString answer_with_proposal(const std::wstring& answer, const sync_proposal::P
 }
 }
 
-ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal)
+ChatDialog::ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal, const wxString& help_book)
     : wxDialog(parent, id, title, wxDefaultPosition, FromDIP(wxSize(600, 500), parent),
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+    , help_(read_help_book(help_book))
     , apply_proposal_(std::move(apply_proposal))
 {
     pending_->dialog = this;
@@ -189,6 +192,8 @@ void ChatDialog::on_send(wxCommandEvent&)
             return client->analyze_log(snapshot, excerpt, on_piece);
         });
     }
+    else if (const std::wstring help = help_knowledge::excerpt_for(question.ToStdWstring(), help_, MAX_HELP_EXCERPT_CHARS); !help.empty())
+        run_async([client = client_, snapshot, help](const ChatPieceSink& on_piece) { return client->answer_from_help(snapshot, help, on_piece); });
     else
         run_async([client = client_, snapshot](const ChatPieceSink& on_piece) { return client->send(snapshot, on_piece); });
 }

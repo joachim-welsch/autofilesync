@@ -87,6 +87,9 @@
     <ClInclude Include="$(LibDir)\include\CopyLog.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\HelpKnowledge.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\JsonText.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -344,6 +347,9 @@
     <ClCompile Include="LlamaClientTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="HelpKnowledgeTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="TwoWaySyncTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -357,6 +363,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\JsonText.cpp">

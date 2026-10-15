@@ -2,6 +2,9 @@
 
 ## Unveröffentlicht
 
+- Assistent: Fragen wie „Wie stelle ich die Sprache um?“ beantwortet er mit
+  dem passenden Abschnitt der Hilfe und nennt die Hilfeseite. Da die Hilfe nur
+  auf Deutsch vorliegt, greift das vor allem bei deutschen Fragen.
 - Assistent: Ein langes Gespräch lässt seine ältesten Runden weg, statt jede
   weitere Frage mit „Unterhaltung zu lang“ abzulehnen, bis das Programm neu
   gestartet wird. **Neues Gespräch** im Chatfenster beginnt von vorn.

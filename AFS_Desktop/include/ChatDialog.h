@@ -25,7 +25,9 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <vector>
 #include "LlamaClient.h"
+#include "HelpKnowledge.h"
 #include "SyncProposal.h"
 
 using namespace AFS_Core;  // [ChatDialog.md#ChatDialog]
@@ -33,7 +35,7 @@ using namespace AFS_Core;  // [ChatDialog.md#ChatDialog]
 class ChatDialog: public wxDialog {
 public:
     using ApplyProposal = std::function<void(const sync_proposal::Proposal& proposal)>;  // [ChatDialog.md#ApplyProposal]
-    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal);
+    ChatDialog(wxWindow* parent, wxWindowID id, const wxString& title, ApplyProposal apply_proposal, const wxString& help_book);
     ~ChatDialog() override;
 private:
     struct Pending {  // [ChatDialog.md#Pending]
@@ -64,6 +66,7 @@ private:
     wxButton*     proposal_button_ = nullptr;  // [ChatDialog.md#proposal-button]
     wxStaticText* status_ = nullptr;
     ChatHistory   history_;
+    std::vector<help_knowledge::Section> help_;  // [ChatDialog.md#help_]
     bool          answer_streaming_ = false;  // [ChatDialog.md#answer_streaming_]
     long          turn_start_ = 0;
     wxString      streamed_;

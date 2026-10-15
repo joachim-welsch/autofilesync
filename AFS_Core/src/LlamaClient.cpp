@@ -42,6 +42,7 @@ using util::wstring_to_string;
 namespace {
 constexpr const char* SYSTEM_PROMPT = translation::msgid("assistant_system_prompt");  // [LlamaClient.md#SYSTEM_PROMPT]
 constexpr const char* LOG_ANALYSIS_INSTRUCTION = translation::msgid("assistant_log_analysis_instruction");  // [LlamaClient.md#LOG_ANALYSIS_INSTRUCTION]
+constexpr const char* HELP_INSTRUCTION = translation::msgid("assistant_help_instruction");  // [LlamaClient.md#HELP_INSTRUCTION]
 constexpr int MAX_NEW_TOKENS = 2048;  // [LlamaClient.md#token-budget]
 
 std::size_t complete_utf8_length(const string& text)  // [LlamaClient.md#complete_utf8_length]
@@ -297,6 +298,17 @@ ChatReply LlamaClient::analyze_log(const ChatHistory& history, const wstring& lo
         L"\n\n" + translation::translate("assistant_question_label") + with_excerpt.back().text;
     std::lock_guard<std::mutex> lock(mutex_);
     return reply_to(with_excerpt, on_piece);  // [LlamaClient.md#no-proposal-from-log]
+}
+
+ChatReply LlamaClient::answer_from_help(const ChatHistory& history, const wstring& help_excerpt, const ChatPieceSink& on_piece)
+{
+    if (history.empty())
+        return { false, translation::translate("assistant_nothing_to_send") };
+    ChatHistory with_excerpt = history;
+    with_excerpt.back().text = translation::translate(HELP_INSTRUCTION) + L"\n\n" + help_excerpt +
+        L"\n\n" + translation::translate("assistant_question_label") + with_excerpt.back().text;
+    std::lock_guard<std::mutex> lock(mutex_);
+    return with_proposal(history, reply_to(with_excerpt, on_piece));  // [LlamaClient.md#answer_from_help]
 }
 
 } // namespace AFS_Core

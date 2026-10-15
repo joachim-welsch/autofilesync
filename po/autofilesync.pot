@@ -1879,3 +1879,7 @@ msgstr ""
 #: AFS_Core/src/LogAnalysis.cpp:57
 msgid "log_question_words"
 msgstr ""
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr ""

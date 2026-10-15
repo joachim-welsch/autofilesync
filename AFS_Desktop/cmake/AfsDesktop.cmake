@@ -12,6 +12,7 @@ set(AFS_DESKTOP_SOURCES
     BackgroundService.cpp
     Canvas.cpp
     ChatDialog.cpp
+    HelpBook.cpp
     GridCtrl.cpp
     GridWindow.cpp
     ListCtrl.cpp

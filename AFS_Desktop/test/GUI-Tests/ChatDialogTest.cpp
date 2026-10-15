@@ -20,6 +20,9 @@
 #include "EventPump.h"
 #include "UserActions.h"
 #include "ChatDialog.h"
+#include "HelpBook.h"
+#include <wx/filename.h>
+#include <wx/stdpaths.h>
 #include "Config.h"
 #include "GuiTestSandbox.h"
 #include "SyncActions.h"
@@ -99,6 +102,21 @@ TEST_F(GuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHat
     const int assistant = menu_bar->FindMenu(AFS_Core::translation::translate("menu_assistant"));
     ASSERT_NE(assistant, wxNOT_FOUND) << "Die Menüleiste hat kein Menü Assistent.";
     EXPECT_NE(menu_bar->GetMenu(static_cast<size_t>(assistant))->FindItem(tul(id::Chat)), nullptr) << "Der Chat steht nicht im Menü Assistent.";
+}
+
+TEST_F(GuiTest, HilfebuchLiefertDemAssistentenSeineAbschnitte)  // [ChatDialogTest.md#HilfebuchLiefertDemAssistentenSeineAbschnitte]
+{
+    wxFileName book(wxStandardPaths::Get().GetExecutablePath());
+    book.AppendDir("help");
+    book.SetFullName("help.htb");
+    ASSERT_TRUE(book.FileExists()) << "Kein Hilfebuch neben dem Testprogramm: " << book.GetFullPath();
+
+    const std::vector<AFS_Core::help_knowledge::Section> sections = read_help_book(book.GetFullPath());
+
+    EXPECT_GE(sections.size(), 20u) << "Das Hilfebuch lieferte zu wenige Abschnitte.";
+    EXPECT_TRUE(std::ranges::any_of(sections, [](const auto& section) { return section.page == L"Hintergrunddienst"; }))
+        << "Die Seite Hintergrunddienst fehlt oder ihr Titel kam falsch an.";
+    EXPECT_TRUE(read_help_book(book.GetPath() + "/fehlt.htb").empty()) << "Ein fehlendes Hilfebuch lieferte Abschnitte.";
 }
 
 TEST_F(GuiTest, ChatLeereEingabeTutNichts)
@@ -189,6 +207,25 @@ TEST_F(SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
     EXPECT_GT(value_of(chat.transcript).length(), early.length()) << "Die Antwort wuchs nach dem ersten Stück nicht weiter.";
     EXPECT_EQ(count_of(value_of(chat.transcript), speaker), answers_before + 1) << "Die fertige Antwort wurde ein zweites Mal angehängt.";
+}
+
+TEST_F(SlowGuiTest, ChatBeantwortetHilfefrageMitDerHilfeseite)  // [ChatDialogTest.md#ChatBeantwortetHilfefrageMitDerHilfeseite]
+{
+    if (!LlamaClient::available())
+        GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
+    ChatControls chat = open_chat(main_window());
+    ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
+    const HiddenChat hidden(chat);
+    ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
+    ASSERT_TRUE(replace_text(chat.input, "Wie stelle ich die Sprache um?"));
+    const wxString speaker = AFS_Core::translation::translate("chat_assistant") + L":";
+
+    ASSERT_TRUE(press_control_enter(chat.input));
+
+    ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
+    const wxString transcript = value_of(chat.transcript);
+    const wxString answer = transcript.Mid(transcript.rfind(speaker));  // [ChatDialogTest.md#last-answer-only]
+    EXPECT_NE(answer.Find("Globale Einstellungen"), wxNOT_FOUND) << "Die Antwort nennt die Hilfeseite nicht: " << answer;
 }
 
 TEST_F(SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDialogTest.md#ChatKenntDieAnzahlDerSynchronisationen]

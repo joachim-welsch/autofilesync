@@ -1864,3 +1864,7 @@ msgstr "Nuova conversazione"
 #: AFS_Core/src/LogAnalysis.cpp:57
 msgid "log_question_words"
 msgstr "log,registro"
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr "Il seguente estratto proviene dalla guida di AutoFileSync; tra parentesi quadre è indicata la pagina della guida. Usalo per rispondere alla domanda che segue e indica alla fine la pagina della guida in cui l'utente trova maggiori informazioni. L'estratto è in tedesco; rispondi comunque in italiano. Se l'estratto non è pertinente alla domanda, ignoralo senza menzionarlo."

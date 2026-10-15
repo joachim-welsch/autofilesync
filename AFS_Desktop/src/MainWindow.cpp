@@ -660,10 +660,15 @@ void MainWindow::on_edit_logging(wxCommandEvent&)
     autosave::after_change(this);
 }
 
+namespace {
+wxString locate_help_book();
+}
+
 void MainWindow::on_chat(wxCommandEvent&)
 {
     if (chat_dialog_ == nullptr)
-        chat_dialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const sync_proposal::Proposal& proposal) { apply_proposal(proposal); });
+        chat_dialog_ = new ChatDialog(this, wxID_ANY, txt::assistant(), [this](const sync_proposal::Proposal& proposal) { apply_proposal(proposal); },
+            locate_help_book());
     chat_dialog_->Show();
     chat_dialog_->Raise();
 }

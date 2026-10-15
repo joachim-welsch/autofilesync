@@ -1896,3 +1896,7 @@ msgstr "Neues Gespräch"
 #: AFS_Core/src/LogAnalysis.cpp:57
 msgid "log_question_words"
 msgstr "log,protokoll"
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr "Der folgende Auszug stammt aus der Hilfe von AutoFileSync; in eckigen Klammern steht die Hilfeseite. Beantworte damit die anschließende Frage und nenne am Ende die Hilfeseite, auf der der Benutzer mehr findet. Passt der Auszug nicht zur Frage, übergehe ihn, ohne ihn zu erwähnen."

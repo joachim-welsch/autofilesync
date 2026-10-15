@@ -49,6 +49,13 @@ Answers the latest turn of history with a log excerpt (see read_recent_log_entri
 into it. Only this one request sees the excerpt - the caller's own copy of history is untouched,
 so a persisted ChatHistory never carries it forward into every later send() call.
 
+## answer_from_help
+
+Answers the latest turn with a section of the help folded into it, like analyze_log(). Unlike
+there, a proposal is still possible: a help question such as "how do I sync my photos?" is
+where a ready proposal helps most, and with_proposal() looks only at the original question, not
+at the paths the help mentions as examples.
+
 ## build_prompt
 
 Renders the history through the model's own chat template; empty if the model carries no
@@ -80,6 +87,12 @@ reused from the KV cache (see kv-cache-reuse) until the configuration changes.
 Sent in front of the excerpt for analyze_log(): a plain log dump without an instruction leaves
 the model guessing what kind of answer is wanted. A message id like SYSTEM_PROMPT; analyze_log()
 adds the blank lines that separate it from the excerpt, so no translation can drop them.
+
+## HELP_INSTRUCTION
+
+Sent in front of the help excerpt. It names the page in brackets so that the model can point the
+user to it, says in every language that the excerpt is German but the answer is not, and tells
+the model to pass over an excerpt that does not fit, since the keyword match is no guarantee.
 
 ## backend-init
 
