@@ -39,7 +39,7 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-constexpr int REPLY_TIMEOUT_MILLISECONDS = 600000;  // [ChatDialogTest.md#REPLY_TIMEOUT_MILLISECONDS]
+constexpr int REPLY_TIMEOUT_MILLISECONDS = 900000;  // [ChatDialogTest.md#REPLY_TIMEOUT_MILLISECONDS]
 
 struct ChatControls {
     wxDialog* dialog = nullptr;

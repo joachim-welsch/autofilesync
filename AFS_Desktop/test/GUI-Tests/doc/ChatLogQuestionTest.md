@@ -37,7 +37,7 @@ screen position lands on the right spot.
 ## wait-for-the-answer
 
 The assistant answers on a worker thread; waiting for the button to re-enable avoids guessing
-how long a real model needs to reply. Capped at 10 minutes: the 7B model runs on the CPU only
+how long a real model needs to reply. Capped at 15 minutes (see ChatDialogTest.md#REPLY_TIMEOUT_MILLISECONDS): the 7B model runs on the CPU only
 (see LlamaClient::ensure_loaded()) and needs about four minutes for the log question on an
 Apple M4 - the previous cap of four minutes failed right at that edge - so the cap fires only
 on a genuine hang (regression test for exactly that - see LlamaClient::ensure_loaded()/send()

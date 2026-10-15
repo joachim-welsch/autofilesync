@@ -4,11 +4,12 @@ Module comment for ChatDialogTest.cpp.
 
 ## REPLY_TIMEOUT_MILLISECONDS
 
-Ten minutes, like ChatLogQuestionTest: the chat dialog is hidden between tests, not destroyed,
+Fifteen minutes, like ChatLogQuestionTest: the chat dialog is hidden between tests, not destroyed,
 so every later test's question carries the whole history of the earlier ones, and a changed
 configuration makes the model decode that prefix again. On a laptop CPU that throttles under
-sustained load (measured 96 °C after an hour of tests) one answer took over three minutes; a
-tighter limit fails the test for the hardware, not for the code.
+sustained load (measured 96 °C after an hour of tests) one answer took close to ten minutes once
+the prompt carried help sections, state and commands, and the former ten-minute limit failed the
+last two tests of a full run; a tighter limit fails the test for the hardware, not for the code.
 
 ## open_chat
 

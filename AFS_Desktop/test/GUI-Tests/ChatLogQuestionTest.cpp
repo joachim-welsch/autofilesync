@@ -36,7 +36,7 @@ using util::wstring_to_string;
 
 namespace guitest {
 namespace {
-constexpr int REPLY_TIMEOUT_MILLISECONDS = 600000;  // [ChatLogQuestionTest.md#wait-for-the-answer]
+constexpr int REPLY_TIMEOUT_MILLISECONDS = 900000;  // [ChatLogQuestionTest.md#wait-for-the-answer]
 const wxString LOG_QUESTION = "Gibt es Warnings im Log?";
 
 void write_sample_log_entries(const std::string& path)  // [ChatLogQuestionTest.md#write_sample_log_entries]
