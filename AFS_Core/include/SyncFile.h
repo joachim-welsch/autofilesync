@@ -19,6 +19,8 @@
 #pragma once
 #include "SyncBase.h"
 #include "FileDifference.h"
+#include "SyncPlan.h"
+#include <optional>
 #ifdef _TEST
 #include <atomic>
 #endif
@@ -33,7 +35,10 @@ class SyncFile: public SyncBase {
     bool save_copy_file(const std::wstring& src, const std::wstring& dest);
     CopyResult core_copy_function(const std::wstring& src, const std::wstring& dest);
     void pre_copy(const std::wstring& src, const std::wstring& dest);
+    std::optional<PlannedAction> decide(const FileDifference& fd) const;  // [SyncFile.md#decide]
+    bool empty_file_skipped(const FileDifference& fd, PlannedAction action) const;  // [SyncFile.md#empty-source-file]
     void sync_difference(const FileDifference& fd, const std::wstring& source, const std::wstring& destination, uint64_t filesize);
+    void carry_out(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination, uint64_t filesize);
     void delete_target_file(const std::wstring& source, const std::wstring& destination);
     void set_ssh();
     bool ssh_source() const;

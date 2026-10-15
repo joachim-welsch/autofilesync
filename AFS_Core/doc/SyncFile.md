@@ -47,15 +47,24 @@ SSH skips only the content verification below (TODO); Error/Stopped must still r
 cleanup/restore paths, or a failed transfer is reported as success - the caller would then e.g.
 delete the source (del_aftercopy).
 
+## decide
+
+One place for the decision what to do with a file - delete it in the target, copy or move it
+there, copy it back, or leave it alone - so the counting pass, the preview and the real run
+cannot drift apart. The real run carries the decision out, the counting pass counts it, the
+preview records it (SyncPlan.md#SyncPlan).
+
 ## only-count-touches-nothing
 
 only_count_ means "count only" - it must not touch the filesystem, the way
-SyncBase::sync_dir_entry() already handles it for Dir/Tree items.
+SyncBase::sync_dir_entry() already handles it for Dir/Tree items. A file the run would skip
+as empty is neither counted nor planned, so the preview shows what the run does.
 
 ## empty-source-file
 
 An empty file is more often an aborted write than an intentionally empty file; copying it over
-an existing one would lose data. Placeholders like .gitkeep need sync_empty_files.
+an existing one would lose data. Placeholders like .gitkeep need sync_empty_files. A deletion
+has no file to be empty; a copy back looks at the target's size, the file it would copy.
 
 ## volume-is-target-size
 

@@ -28,6 +28,7 @@ enum class id {  // [id.md#id]
 	EditSettings = wxID_PREFERENCES,  // [id.md#stock-ids]
 	MAINWINDOW = wxID_HIGHEST + 1,
 	SyncOnce,
+	Preview,
 	StartSync,
 	StopSync,
 	EditSync,

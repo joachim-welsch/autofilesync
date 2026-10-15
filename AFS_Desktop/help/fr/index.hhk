@@ -7,6 +7,10 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Aperçu (simulation)">
+      <PARAM name="Local" value="preview.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Assistant (discussion)">
       <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>

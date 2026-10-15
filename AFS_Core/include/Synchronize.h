@@ -32,6 +32,7 @@
 #include "SyncMessage.h"
 #include "CheckPath.h"
 #include "SyncArbiter.h"
+#include "SyncPlan.h"
 #include <Logging.h>
 
 namespace AFS_Core {
@@ -58,6 +59,7 @@ class Synchronize {
     std::condition_variable cv_;
     SyncRole                role_ = SyncRole::Foreground;  // [Synchronize.md#role_]
     SyncArbiter             arbiter_{SyncRole::Foreground};
+    SyncPlan                plan_;  // [Synchronize.md#preview]
 #ifdef _TEST
     std::atomic<int>        loop_iterations_{0}; // counts do-while passes of operator()(), for race regression tests
 #endif
@@ -71,6 +73,8 @@ class Synchronize {
 
     bool has_controler() const;
     bool is_ssh_target_dir(const std::wstring& target);
+    bool touches_nothing() const { return sync_type_ == SyncType::CountFiles || sync_type_ == SyncType::Preview; }
+    void sync_items();
     void sync_item(SyncItem& i);
     void run_sync_item(SyncItem& i);
     void report_unreachable(const SyncItem& i);

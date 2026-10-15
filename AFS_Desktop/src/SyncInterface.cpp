@@ -20,6 +20,7 @@
 #include "SyncControler.h"
 #include "SyncItem.h"
 #include "ProgressDialog.h"
+#include "PreviewDialog.h"
 #include "Synchronize.h"
 #include "Menu.h"
 #include "Config.h"
@@ -115,14 +116,21 @@ LogLevel highest_level(const std::vector<LogMessage>& messages)
 
 }
 
-void SyncInterface::show_run_messages()
+std::vector<LogMessage> SyncInterface::take_run_messages()
 {
     Logging::instance().collect_messages(false);
     std::vector<LogMessage> messages = Logging::instance().take_collected_messages();
     const Settings& settings = Config::instance().settings();
     std::erase_if(messages, [&settings](const LogMessage& message) { return !wanted(message, settings); });
+    return messages;
+}
+
+void SyncInterface::show_run_messages()
+{
+    const std::vector<LogMessage> messages = take_run_messages();
     if (messages.empty() || silent_mode())
         return;
+    show_state();  // [SyncInterface.md#show_state]
     const LogLevel highest = highest_level(messages);
     const long icon = highest == LogLevel::Info ? wxICON_INFORMATION : highest == LogLevel::Warning ? wxICON_WARNING : wxICON_ERROR;
     wxMessageBox(run_messages_text(messages), translation::translate("synchronisation") + L": " + level_label(highest).ToStdWstring(), wxOK | icon, &parent_window_);
@@ -137,10 +145,15 @@ void SyncInterface::sync_once_finished()
         progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
         progress_dialog_ = nullptr;
     }
-    menu_.sync_menu()->Enable(tul(id::StartSync), true);
-    menu_.sync_menu()->Enable(tul(id::SyncOnce), true);
+    enable_start_commands(true);
     act_sync_type_ = SyncType::None;
     show_run_messages();
+}
+
+void SyncInterface::enable_start_commands(bool enabled)  // [SyncInterface.md#enable_start_commands]
+{
+    for (const id command : {id::StartSync, id::SyncOnce, id::Preview})
+        menu_.sync_menu()->Enable(tul(command), enabled);
 }
 
 void SyncInterface::count_files_finished()
@@ -160,12 +173,33 @@ void SyncInterface::count_files_finished()
         start_sync();
     }
     else {
-        wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parent_window_);
         act_sync_type_ = SyncType::None;
-        menu_.sync_menu()->Enable(tul(id::StartSync), true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
-        menu_.sync_menu()->Enable(tul(id::SyncOnce), true);
+        enable_start_commands(true);  // [SyncInterface.md#terminal-outcome-reenables-menu]
+        show_state();  // [SyncInterface.md#show_state]
+        wxMessageBox(translation::translate("no_files_to_sync"), translation::translate("info"), wxOK | wxICON_INFORMATION, &parent_window_);
         show_run_messages();
     }
+}
+
+void SyncInterface::preview_finished()  // [SyncInterface.md#preview]
+{
+    log_debug(L"SyncInterface::preview_finished()");
+    counting_cursor_.reset();
+    sync_controler_.destroy_synchronize();
+    act_sync_type_ = SyncType::None;
+    enable_start_commands(true);
+    show_state();  // [SyncInterface.md#show_state]
+    const SyncPlan plan = sync_controler_.take_plan();
+    const std::vector<LogMessage> messages = take_run_messages();
+    if (plan.empty()) {
+        wxMessageBox(translation::translate("preview_nothing_to_do"), translation::translate("preview_title"), wxOK | wxICON_INFORMATION, &parent_window_);
+        if (!messages.empty())
+            wxMessageBox(run_messages_text(messages), translation::translate("preview_title"), wxOK | wxICON_INFORMATION, &parent_window_);
+        return;
+    }
+    PreviewDialog dialog(&parent_window_, plan, run_messages_text(messages));
+    if (dialog.ShowModal() == wxID_OK && single_sync())
+        enable_start_commands(false);
 }
 
 void SyncInterface::continuous_sync_finished()
@@ -183,6 +217,8 @@ void SyncInterface::on_timer()
         sync_controler_.reset_state();  // [SyncInterface.md#reset-before-the-next-run]
         if (act_sync_type_ == SyncType::CountFiles)
             count_files_finished();
+        else if (act_sync_type_ == SyncType::Preview)
+            preview_finished();
         else if (act_sync_type_ == SyncType::Single)
             sync_once_finished();
         else if (act_sync_type_ == SyncType::Continuous)
@@ -192,23 +228,30 @@ void SyncInterface::on_timer()
         on_sync();
 }
 
+bool SyncInterface::start_pass(SyncType pass)
+{
+    const bool can_sync = Config::instance().ready() && !Config::instance().syncitems().empty() && !Synchronize::has_instance();
+    if (!can_sync)
+        return false;
+    Logging::instance().collect_messages(true);  // [SyncInterface.md#show_run_messages]
+    act_sync_type_ = pass;
+    return start_sync();
+}
+
 bool SyncInterface::single_sync()
 {
-    auto can_sync = []() {
-        return Config::instance().ready() && !Config::instance().syncitems().empty() && !Synchronize::has_instance();
-    };
-    if (can_sync()) {
-        Logging::instance().collect_messages(true);  // [SyncInterface.md#show_run_messages]
-        act_sync_type_ = SyncType::CountFiles;
-        return start_sync();
-    }
-    return false;
+    return start_pass(SyncType::CountFiles);
+}
+
+bool SyncInterface::preview()  // [SyncInterface.md#preview]
+{
+    return start_pass(SyncType::Preview);
 }
 
 bool SyncInterface::start_sync()
 {
     log_debug(L"SyncInterface::start_sync()");
-    if (act_sync_type_ == SyncType::CountFiles)
+    if (act_sync_type_ == SyncType::CountFiles || act_sync_type_ == SyncType::Preview)
         counting_cursor_ = std::make_unique<wxBusyCursor>();  // [SyncInterface.md#counting_cursor_]
     else if (act_sync_type_ == SyncType::Single) {
         if (count_files_ == 0) {
@@ -269,16 +312,14 @@ void SyncInterface::start_continuous_sync()
 {
     log_debug(L"SyncInterface::start_continuous_sync()");
     act_sync_type_ = SyncType::Continuous;
-    menu_.sync_menu()->Enable(tul(id::StartSync), false);
-    menu_.sync_menu()->Enable(tul(id::SyncOnce), false);
+    enable_start_commands(false);
     menu_.sync_menu()->Enable(tul(id::StopSync), true);
 }
 
 void SyncInterface::stop_continuous_sync()
 {
     log_debug(L"SyncInterface::stop_continuous_sync()");
-    menu_.sync_menu()->Enable(tul(id::StartSync), true);
-    menu_.sync_menu()->Enable(tul(id::SyncOnce), true);
+    enable_start_commands(true);
     menu_.sync_menu()->Enable(tul(id::StopSync), false);
     sync_controler_.stop_sync();
     continuous_sync_finished();  // [SyncInterface.md#stop-leaves-continuous-mode]
@@ -311,12 +352,19 @@ wxString SyncInterface::state_text() const
     switch (act_sync_type_) {
     case SyncType::None: return translation::translate("state_stopped");
     case SyncType::CountFiles: return translation::translate("state_counting");
+    case SyncType::Preview: return translation::translate("state_preview");
     case SyncType::Single: return translation::translate("state_single_running");
     case SyncType::Continuous: break;
     }
     if (const auto pause = remaining_pause())
         return translation::translate("state_paused", {std::to_wstring(pause->count())});
     return translation::translate("state_running");
+}
+
+void SyncInterface::show_state()  // [SyncInterface.md#show_state]
+{
+    if (wxFrame* frame = parent_frame())
+        frame->SetStatusText(state_text(), 1);
 }
 
 void SyncInterface::stop_sync()

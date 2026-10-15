@@ -27,7 +27,9 @@
 #include <cstdint>
 #include <chrono>
 #include <memory>
+#include <vector>
 #include "Global.h"
+#include "Logging.h"
 
 namespace AFS_Core { class SyncControler; }
 class ProgressDialog;
@@ -46,7 +48,10 @@ class SyncInterface {
     std::size_t     count_files_ = 0;
     std::chrono::high_resolution_clock::time_point start_time_;
     bool silent_mode() const;
-    void show_run_messages();  // [SyncInterface.md#show_run_messages]
+    std::vector<LogMessage> take_run_messages();  // [SyncInterface.md#show_run_messages]
+    void show_run_messages();
+    void preview_finished();  // [SyncInterface.md#preview]
+    bool start_pass(SyncType pass);
     wxFrame* parent_frame() { return dynamic_cast<wxFrame*>(&parent_window_); }
 public:
     explicit SyncInterface(wxWindow& parent_window, Menu& menu);
@@ -55,6 +60,8 @@ public:
     void run_console_sync();
     bool start_sync();
     bool single_sync();
+    bool preview();  // [SyncInterface.md#preview]
+    void enable_start_commands(bool enabled);  // [SyncInterface.md#enable_start_commands]
     void set_console_mode();
     void open_progress_dialog(uint32_t n_files);
     void stop_sync();
@@ -65,6 +72,7 @@ public:
     void start_continuous_sync();
     void stop_continuous_sync();
     wxString state_text() const;  // [SyncInterface.md#state_text]
+    void show_state();  // [SyncInterface.md#show_state]
     SyncControler& sync_controler() { return sync_controler_; }
     SyncType act_sync_type() const { return act_sync_type_; }
     void set_act_sync_type(SyncType type) { act_sync_type_ = type; }

@@ -231,12 +231,22 @@ void Synchronize::sync_item(SyncItem& i)
     if (!i.enabled())
         return;
     log_debug(L"Synchronize::operator()() Start of ", i.name());
-    if (!pause_elapsed(i))
+    if (sync_type_ != SyncType::Preview && !pause_elapsed(i))  // [Synchronize.md#preview-ignores-the-pause]
         return;
-    if (sync_type_ == SyncType::CountFiles)  // [Synchronize.md#no-proof-for-counting-passes]
+    if (touches_nothing())  // [Synchronize.md#no-proof-for-counting-passes]
         run_sync_item(i);
     else
         report_sync_item(i);
+}
+
+void Synchronize::sync_items()
+{
+    SyncPlanGuard guard(sync_type_ == SyncType::Preview ? &plan_ : nullptr);  // [Synchronize.md#preview]
+    for (auto& i: Config::instance().syncitems()) {
+        if (stop_request_.load())
+            break;
+        sync_item(i);
+    }
 }
 
 void Synchronize::report_unreachable(const SyncItem& i)
@@ -280,16 +290,16 @@ void Synchronize::run_sync_item(SyncItem& i)
         }
         item_reachable_[i.name()] = true;
         if (i.sync_item_type() == SyncItemType::Dir) {
-            SyncDir sd(i, count_files_, sync_type_==SyncType::CountFiles);
+            SyncDir sd(i, count_files_, touches_nothing());
             sd();
         }
         else if (i.sync_item_type() == SyncItemType::File) {
             std::error_code ec;
             const bool is_target_dir = i.ssh_target() ? is_ssh_target_dir(i.target()) : fs::is_directory(without_volume_spec(i.target()), ec);
-            SyncFile(i, count_files_, sync_type_ == SyncType::CountFiles, is_target_dir)();
+            SyncFile(i, count_files_, touches_nothing(), is_target_dir)();
         }
         else if (i.sync_item_type() == SyncItemType::Tree) {
-            SyncTree sync(i, count_files_, sync_type_ == SyncType::CountFiles);
+            SyncTree sync(i, count_files_, touches_nothing());
             sync();
         }
     }
@@ -309,7 +319,7 @@ void Synchronize::run_sync_item(SyncItem& i)
         report_sync_error(translation::translate("unknown_error"));
         return;
     }
-    if (sync_type_ != SyncType::CountFiles)
+    if (!touches_nothing())
         Config::instance().refresh_last_sync(i.name());  // [Synchronize.md#snapshot-vs-config]
 }
 
@@ -324,11 +334,7 @@ void Synchronize::operator()()
 #endif
             if (!arbiter_.acquire(stop_request_))
                 break;
-            for (auto& i: Config::instance().syncitems()) {
-                if (stop_request_.load())
-                    break;
-                sync_item(i);
-            }
+            sync_items();
             if (role_ == SyncRole::Background)
                 arbiter_.release();
             if (sync_type_ == SyncType::Continuous && !stop_) {
@@ -348,6 +354,7 @@ void Synchronize::operator()()
 #ifdef _WXWIDGETS
     if (sync_controler_ != nullptr && !sync_controler_->sync_finished()) {
         sync_controler_->count_files(count_files_);
+        sync_controler_->plan(std::move(plan_));  // [Synchronize.md#preview]
         sync_controler_->set_sync_finished();
     }
 #endif

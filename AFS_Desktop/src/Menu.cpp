@@ -123,6 +123,7 @@ wxMenu* Menu::create_sync_menu()
     sync_menu_->Append(tul(id::StartSync), translate("menu_start"));
     sync_menu_->Append(tul(id::StopSync), translate("menu_stop"));
     sync_menu_->Append(tul(id::SyncOnce), translate("menu_sync_once"));
+    sync_menu_->Append(tul(id::Preview), translate("menu_preview"), translate("menu_preview_help"));
     return sync_menu_;
 }
 

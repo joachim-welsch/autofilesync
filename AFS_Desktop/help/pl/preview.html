@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Podgląd</title>
+</head>
+<body>
+<h1>Podgląd</h1>
+
+<p><b>Synchronizacja &rarr; Podgląd…</b> pokazuje, co przebieg zrobiłby teraz,
+niczego nie zmieniając: nic nie jest kopiowane, przenoszone ani usuwane. Dopiero
+gdy w oknie wybierzesz <b>Synchronizuj teraz</b>, synchronizacja zostanie
+wykonana – dokładnie tak, jakbyś wybrał
+<a href="synconce.html">Synchronizuj jednorazowo</a>.</p>
+
+<p>Podgląd opłaca się przede wszystkim</p>
+<ul>
+<li>po założeniu nowej synchronizacji, aby sprawdzić, czy źródło i cel nie są
+    zamienione,</li>
+<li>zanim po raz pierwszy włączysz <b>Usuwaj w celu pliki usunięte w źródle</b>
+    lub <b>Usuń źródło po skopiowaniu</b>,</li>
+<li>gdy chcesz wiedzieć, ile przebieg by przesłał.</li>
+</ul>
+
+<h2>Okno</h2>
+
+<p>Każdy wiersz to krok, który przebieg by wykonał:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Działanie</th><th align="left">Znaczenie</th></tr>
+<tr><td valign="top"><b>Skopiuj do celu</b></td>
+    <td>Plik jest nowy lub w źródle nowszy niż w celu.</td></tr>
+<tr><td valign="top"><b>Przenieś do celu</b></td>
+    <td>Jak kopiowanie; potem plik źródłowy zostaje usunięty, bo włączono
+        <b>Usuń źródło po skopiowaniu</b>.</td></tr>
+<tr><td valign="top"><b>Skopiuj z powrotem do źródła</b></td>
+    <td>Przy <b>synchronizacji dwukierunkowej</b>: plik istnieje tylko w celu
+        albo jest tam nowszy.</td></tr>
+<tr><td valign="top"><b>Usuń w celu</b></td>
+    <td>Pliku nie ma już w źródle, a włączono <b>Usuwaj w celu pliki usunięte w
+        źródle</b>. Te wiersze są czerwone, bo jako jedyne usuwają dane.</td></tr>
+</table>
+
+<p>Pod listą stoi podsumowanie: ile kroków, ile z nich to usunięcia i ile danych
+zostałoby przesłanych. Komunikaty sprawdzenia – na przykład niedostępne źródło –
+pojawiają się pod listą. Jeśli zaplanowano bardzo wiele kroków, lista pokazuje
+pierwsze dziesięć tysięcy i podaje liczbę pozostałych.</p>
+
+<p>Jeśli źródło i cel są zgodne, zamiast okna pojawia się tylko informacja, że
+przebieg nic by nie zrobił.</p>
+
+<h2>Czego podgląd nie uwzględnia</h2>
+<ul>
+<li><b>Przerwa</b> synchronizacji nie ma znaczenia: podgląd pokazuje różnicę
+    między źródłem a celem, także zaraz po przebiegu.</li>
+<li>To, co zmieni się między podglądem a przebiegiem, zobaczy dopiero
+    przebieg.</li>
+<li>Błędy przy samym kopiowaniu – na przykład pełny cel – ujawniają się dopiero
+    w przebiegu i trafiają wtedy do <a href="logging.html">dziennika</a>.</li>
+</ul>
+
+</body>
+</html>

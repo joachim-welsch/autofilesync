@@ -156,7 +156,7 @@ close" setting.
 The second status field belongs to the synchronisation's state (SyncInterface::state_text);
 the first keeps the transient messages with their own timer, so a "Konfiguration gespeichert"
 never hides what the synchronisation is doing. Refreshed on the timer tick and right after
-Start, Stopp and Einmal, so the user does not wait a second for the answer to a click.
+Start, Stopp, Einmal and Vorschau, so the user does not wait a second for the answer to a click.
 
 ## on_view_log
 

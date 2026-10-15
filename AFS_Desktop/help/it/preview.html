@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Anteprima</title>
+</head>
+<body>
+<h1>Anteprima</h1>
+
+<p><b>Sincronizzazione &rarr; Anteprima…</b> mostra che cosa farebbe ora
+un'esecuzione senza cambiare nulla: non viene copiato, spostato né eliminato
+niente. Solo quando nella finestra scegliete <b>Sincronizza ora</b> la
+sincronizzazione viene eseguita – esattamente come se aveste scelto
+<a href="synconce.html">Sincronizza una volta</a>.</p>
+
+<p>L'anteprima conviene soprattutto</p>
+<ul>
+<li>dopo aver creato una nuova sincronizzazione, per controllare che origine e
+    destinazione non siano invertite,</li>
+<li>prima di attivare per la prima volta <b>Elimina nella destinazione i file
+    eliminati</b> o <b>Elimina l'origine dopo la copia</b>,</li>
+<li>quando volete sapere quanto trasferirebbe un'esecuzione.</li>
+</ul>
+
+<h2>La finestra</h2>
+
+<p>Ogni riga è un passaggio che l'esecuzione compirebbe:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Azione</th><th align="left">Significato</th></tr>
+<tr><td valign="top"><b>Copia nella destinazione</b></td>
+    <td>Il file è nuovo o nell'origine è più recente che nella destinazione.</td></tr>
+<tr><td valign="top"><b>Sposta nella destinazione</b></td>
+    <td>Come la copia; poi il file di origine viene rimosso, perché è attivo
+        <b>Elimina l'origine dopo la copia</b>.</td></tr>
+<tr><td valign="top"><b>Copia indietro nell'origine</b></td>
+    <td>Con la <b>sincronizzazione bidirezionale</b>: il file esiste solo nella
+        destinazione o lì è più recente.</td></tr>
+<tr><td valign="top"><b>Elimina nella destinazione</b></td>
+    <td>Il file non esiste più nell'origine ed è attivo <b>Elimina nella
+        destinazione i file eliminati</b>. Queste righe sono rosse perché sono le
+        uniche a rimuovere dati.</td></tr>
+</table>
+
+<p>Sotto l'elenco c'è il riepilogo: quanti passaggi, quanti di essi sono
+eliminazioni e quanti dati verrebbero trasferiti. I messaggi del controllo – per
+esempio un'origine non raggiungibile – compaiono sotto l'elenco. Se sono previsti
+moltissimi passaggi, l'elenco mostra i primi diecimila e indica il numero dei
+restanti.</p>
+
+<p>Se origine e destinazione coincidono, al posto della finestra compare solo
+l'avviso che un'esecuzione non farebbe nulla.</p>
+
+<h2>Che cosa l'anteprima non considera</h2>
+<ul>
+<li>La <b>pausa</b> di una sincronizzazione non conta: l'anteprima mostra la
+    differenza tra origine e destinazione, anche subito dopo un'esecuzione.</li>
+<li>Ciò che cambia tra l'anteprima e l'esecuzione lo vede solo
+    l'esecuzione.</li>
+<li>Gli errori durante la copia stessa – per esempio una destinazione piena – si
+    manifestano solo durante l'esecuzione e si trovano poi nel
+    <a href="logging.html">log</a>.</li>
+</ul>
+
+</body>
+</html>

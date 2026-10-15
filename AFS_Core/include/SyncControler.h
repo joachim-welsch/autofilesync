@@ -20,8 +20,10 @@
 #include <atomic>
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include "Global.h"
 #include "SyncMessage.h"
+#include "SyncPlan.h"
 
 namespace AFS_Core {
 
@@ -36,6 +38,7 @@ class SyncControler {
 	Synchronize*		synchronize_ = nullptr;
 	std::atomic<SyncCtrlState>	state_ = SyncCtrlState::Waiting;
 	std::size_t			count_files_ = 0;
+	SyncPlan			plan_;  // [SyncControler.md#plan_]
 
 protected:
 	void set_sync_finished();
@@ -53,6 +56,8 @@ public:
 	uint64_t copied_bytes() const;
 	void count_files(std::size_t);
 	std::size_t count_files() const;
+	void plan(SyncPlan plan) { plan_ = std::move(plan); }
+	SyncPlan take_plan() { return std::exchange(plan_, SyncPlan()); }
 	friend class Synchronize;
 };
 

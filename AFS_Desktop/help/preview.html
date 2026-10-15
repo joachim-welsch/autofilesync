@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Vorschau</title>
+</head>
+<body>
+<h1>Vorschau</h1>
+
+<p><b>Synchronisation &rarr; Vorschau…</b> zeigt, was ein Durchlauf jetzt tun würde,
+ohne etwas zu verändern: Es wird nichts kopiert, nichts verschoben und nichts
+gelöscht. Erst wenn Sie im Dialog <b>Jetzt synchronisieren</b> wählen, läuft die
+Synchronisation – genau so, als hätten Sie
+<a href="synconce.html">Einmal synchronisieren</a> gewählt.</p>
+
+<p>Die Vorschau lohnt sich vor allem</p>
+<ul>
+<li>nach dem Anlegen einer neuen Synchronisation, um zu prüfen, ob Quelle und
+    Ziel richtig herum sind,</li>
+<li>bevor Sie <b>Gelöschte Dateien im Ziel ebenfalls löschen</b> oder
+    <b>Quelle nach dem Kopieren löschen</b> zum ersten Mal einschalten,</li>
+<li>wenn Sie wissen möchten, wie viel ein Durchlauf übertragen würde.</li>
+</ul>
+
+<h2>Der Dialog</h2>
+
+<p>Jede Zeile ist ein Schritt, den der Durchlauf ausführen würde:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Aktion</th><th align="left">Bedeutung</th></tr>
+<tr><td valign="top"><b>Ins Ziel kopieren</b></td>
+    <td>Die Datei ist neu oder in der Quelle neuer als im Ziel.</td></tr>
+<tr><td valign="top"><b>Ins Ziel verschieben</b></td>
+    <td>Wie Kopieren; anschließend wird die Quelldatei entfernt, weil
+        <b>Quelle nach dem Kopieren löschen</b> gesetzt ist.</td></tr>
+<tr><td valign="top"><b>In die Quelle zurückkopieren</b></td>
+    <td>Bei <b>Zwei-Wege-Synchronisation</b>: Die Datei gibt es nur im Ziel
+        oder sie ist dort neuer.</td></tr>
+<tr><td valign="top"><b>Im Ziel löschen</b></td>
+    <td>Die Datei gibt es in der Quelle nicht mehr, und <b>Gelöschte Dateien im
+        Ziel ebenfalls löschen</b> ist gesetzt. Diese Zeilen sind rot, weil sie
+        als einzige Daten entfernen.</td></tr>
+</table>
+
+<p>Darunter steht die Zusammenfassung: wie viele Schritte, wie viele davon
+Löschungen und wie viel Datenvolumen übertragen würde. Meldungen des Prüflaufs –
+etwa eine nicht erreichbare Quelle – stehen unter der Liste. Sind sehr viele
+Schritte geplant, zeigt die Liste die ersten zehntausend und nennt die Zahl der
+übrigen.</p>
+
+<p>Stimmen Quelle und Ziel überein, erscheint statt des Dialogs nur der
+Hinweis, dass ein Durchlauf nichts tun würde.</p>
+
+<h2>Was die Vorschau nicht berücksichtigt</h2>
+<ul>
+<li>Die <b>Pause</b> einer Synchronisation spielt keine Rolle: Die Vorschau zeigt
+    den Unterschied zwischen Quelle und Ziel, auch direkt nach einem Durchlauf.</li>
+<li>Was sich zwischen Vorschau und Durchlauf noch ändert, sieht erst der
+    Durchlauf.</li>
+<li>Fehler beim Kopieren selbst – etwa ein volles Ziel – zeigen sich erst im
+    Durchlauf und stehen dann im <a href="logging.html">Protokoll</a>.</li>
+</ul>
+
+</body>
+</html>

@@ -21,6 +21,7 @@ set(AFS_DESKTOP_SOURCES
     MainWindow.cpp
     Menu.cpp
     ProgressDialog.cpp
+    PreviewDialog.cpp
     SettingsDialog.cpp
     SourceCanvas.cpp
     SplitterWindow.cpp

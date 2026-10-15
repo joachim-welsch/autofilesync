@@ -111,6 +111,10 @@
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Vista previa (simulación)">
+      <PARAM name="Local" value="preview.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Vistas (lista, árbol, tabla)">
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>

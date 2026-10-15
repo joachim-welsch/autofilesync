@@ -31,6 +31,11 @@
         <PARAM name="Local" value="synconce.html">
       </OBJECT>
       </LI>
+      <LI> <OBJECT type="text/sitemap">
+        <PARAM name="Name" value="Попередній перегляд">
+        <PARAM name="Local" value="preview.html">
+      </OBJECT>
+      </LI>
     </UL>
     </LI>
     <LI> <OBJECT type="text/sitemap">

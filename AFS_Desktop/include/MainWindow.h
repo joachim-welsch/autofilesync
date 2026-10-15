@@ -131,6 +131,7 @@ private:
     void update_background_service_menu();
     void report_background_service(const std::wstring& error, const wxString& success);  // [MainWindow.md#report_background_service]
     void on_start_single_sync(wxCommandEvent& event);
+    void on_preview(wxCommandEvent& event);
     void on_start_continuous_sync(wxCommandEvent& event);
     void on_stop_continuous_sync(wxCommandEvent& event);
     void on_status_timer(wxTimerEvent& event);

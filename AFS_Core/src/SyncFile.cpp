@@ -285,33 +285,56 @@ void SyncFile::pre_copy(const wstring& src, const wstring& dest)
         move_file_to_backup(dest);
 }
 
-void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, const wstring& destination, uint64_t filesize)
+std::optional<PlannedAction> SyncFile::decide(const FileDifference& fd) const  // [SyncFile.md#decide]
 {
     const FDResult fdiff = fd.result();
-    const bool delete_target = fdiff == FDResult::SourceNotExits && sync_item_.delete_in_target();
+    if (fdiff == FDResult::SourceNotExits && sync_item_.delete_in_target())
+        return PlannedAction::DeleteInTarget;
     const bool copy_to_target = fdiff == FDResult::DestNotExists || fdiff == FDResult::SourceModified
         || (fdiff == FDResult::DestModified && sync_item_.copy_when_target_newer());
-    const bool copy_to_source = !copy_to_target && sync_item_.two_way_sync()
-        && (fdiff == FDResult::SourceNotExits || fdiff == FDResult::DestModified);
-    if (!delete_target && !copy_to_target && !copy_to_source) {
-        report_newer_target(source, destination, fdiff == FDResult::DestModified);
-        report_content_conflict(source, destination, fdiff == FDResult::ContentConflict);
+    if (copy_to_target)
+        return sync_item_.del_aftercopy() && !ssh_source() ? PlannedAction::MoveToTarget : PlannedAction::CopyToTarget;
+    if (sync_item_.two_way_sync() && (fdiff == FDResult::SourceNotExits || fdiff == FDResult::DestModified))
+        return PlannedAction::CopyToSource;
+    return std::nullopt;
+}
+
+bool SyncFile::empty_file_skipped(const FileDifference& fd, PlannedAction action) const  // [SyncFile.md#empty-source-file]
+{
+    if (sync_item_.sync_empty_files() || action == PlannedAction::DeleteInTarget)
+        return false;
+    return (action == PlannedAction::CopyToSource ? fd.dest_size() : fd.source_size()) == 0;
+}
+
+void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, const wstring& destination, uint64_t filesize)
+{
+    const std::optional<PlannedAction> action = decide(fd);
+    if (!action) {
+        report_newer_target(source, destination, fd.result() == FDResult::DestModified);
+        report_content_conflict(source, destination, fd.result() == FDResult::ContentConflict);
         return;
     }
     if (only_count_) {  // [SyncFile.md#only-count-touches-nothing]
+        if (empty_file_skipped(fd, *action))
+            return;
         ++copy_count_;
+        plan_step({sync_item_.name(), *action, source, destination, file_in_target(*action) ? fd.dest_size() : fd.source_size()});
         return;
     }
-    if (delete_target)  // [SyncFile.md#empty-source-file]
+    carry_out(*action, fd, source, destination, filesize);
+}
+
+void SyncFile::carry_out(PlannedAction action, const FileDifference& fd, const wstring& source, const wstring& destination, uint64_t filesize)
+{
+    if (action == PlannedAction::DeleteInTarget)
         delete_target_file(source, destination);
-    else if (copy_to_target && (fd.source_size() > 0 || sync_item_.sync_empty_files()))
-        copy_source_to_dest(source, destination, filesize);
-    else if (copy_to_target)
-        log_warning(translation::translate("empty_source_not_copied"), source);
-    else if (fd.dest_size() > 0 || sync_item_.sync_empty_files())  // [SyncFile.md#volume-is-target-size]
+    else if (empty_file_skipped(fd, action))
+        log_warning(translation::translate(action == PlannedAction::CopyToSource ? "empty_target_not_copied" : "empty_source_not_copied"),
+            action == PlannedAction::CopyToSource ? destination : source);
+    else if (action == PlannedAction::CopyToSource)  // [SyncFile.md#volume-is-target-size]
         copy_dest_to_source(destination, source, fd.dest_size());
     else
-        log_warning(translation::translate("empty_target_not_copied"), destination);
+        copy_source_to_dest(source, destination, filesize);
 }
 
 void SyncFile::delete_target_file(const wstring& source, const wstring& destination)

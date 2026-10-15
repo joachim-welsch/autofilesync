@@ -45,3 +45,18 @@ Bytes of the file being copied, stored by the worker after every block and read 
 progress dialog on its timer: one atomic in place of a message per block, which the message
 stack would have to keep and the dialog pop. set_progress_message() resets it, so the count
 always belongs to the file the latest message named.
+
+## preview
+
+A SyncType::Preview pass is a counting pass that records what it would have done: it
+touches nothing, writes no proof and leaves last_sync alone (touches_nothing()), and
+sync_items() installs plan_ for its duration so SyncFile reports its decisions into it (see
+SyncPlan.md#SyncPlanGuard). The pass hands the plan to the controller next to the file count
+when it ends; the GUI takes it from there on its timer, the same way it takes the count.
+
+## preview-ignores-the-pause
+
+A preview answers "what would a run do now", so it must not skip the items whose pause
+since the last run has not elapsed: right after a run the user would see "nothing to do"
+for an item that has plenty to do as soon as the pause is over. Only the real runs honour
+the pause.

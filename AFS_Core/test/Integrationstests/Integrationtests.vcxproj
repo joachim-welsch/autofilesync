@@ -197,6 +197,7 @@
     <ClCompile Include="ModelLocationTests.cpp" />
     <ClCompile Include="CpuTopologyTests.cpp" />
     <ClCompile Include="SyncProposalTests.cpp" />
+    <ClCompile Include="SyncPlanTests.cpp" />
     <ClCompile Include="ConfigSummaryTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
     <ClCompile Include="SyncSshDirTests.cpp" />
@@ -247,6 +248,7 @@
     <ClCompile Include="$(LibDir)\src\Translation.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncItem.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncMessage.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncPlan.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncTree.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -313,6 +315,7 @@
     <ClInclude Include="$(LibDir)\include\Synchronize.h" />
     <ClInclude Include="$(LibDir)\include\SyncItem.h" />
     <ClInclude Include="$(LibDir)\include\SyncMessage.h" />
+    <ClInclude Include="$(LibDir)\include\SyncPlan.h" />
     <ClInclude Include="$(LibDir)\include\SyncTree.h" />
     <ClInclude Include="$(LibDir)\include\ThreadSaveStack.h" />
     <ClInclude Include="$(LibDir)\include\Translation.h" />

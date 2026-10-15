@@ -136,6 +136,7 @@
     <ClInclude Include="..\AFS_Core\include\Synchronize.h" />
     <ClInclude Include="..\AFS_Core\include\SyncItem.h" />
     <ClInclude Include="..\AFS_Core\include\SyncMessage.h" />
+    <ClInclude Include="..\AFS_Core\include\SyncPlan.h" />
     <ClInclude Include="..\AFS_Core\include\SyncTree.h" />
     <ClInclude Include="..\AFS_Core\include\ThreadSaveStack.h" />
     <ClInclude Include="..\AFS_Core\include\Translation.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="include\MainWindow.h" />
     <ClInclude Include="include\Menu.h" />
     <ClInclude Include="include\ProgressDialog.h" />
+    <ClInclude Include="include\PreviewDialog.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\SettingsDialog.h" />
     <ClInclude Include="include\SourceCanvas.h" />
@@ -218,6 +220,7 @@
     <ClCompile Include="src\Menu.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="src\ProgressDialog.cpp" />
+    <ClCompile Include="src\PreviewDialog.cpp" />
     <ClCompile Include="..\AFS_Core\src\Settings.cpp" />
     <ClCompile Include="src\SettingsDialog.cpp" />
     <ClCompile Include="src\SourceCanvas.cpp" />
@@ -245,6 +248,7 @@
     <ClCompile Include="..\AFS_Core\src\SyncItem.cpp" />
     <ClCompile Include="src\SyncItemDialog.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncPlan.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
     <ClCompile Include="src\TargetCanvas.cpp" />
     <ClCompile Include="src\TaskBarIcon.cpp" />

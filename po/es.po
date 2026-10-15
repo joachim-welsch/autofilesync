@@ -1904,3 +1904,71 @@ msgstr "Propuesta: %1. Ejecútalo con \"%1\"."
 #: AFS_Core/src/SyncProposal.cpp:222
 msgid "assistant_command_words"
 msgstr "sincroniz,inicia,arranca,detén,deten,abre,muestra"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview"
+msgstr "&Vista previa…"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview_help"
+msgstr "Muestra lo que haría ahora una sincronización, sin cambiar nada"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:39 AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_title"
+msgstr "Vista previa"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:42
+msgid "preview_intro"
+msgstr "Una sincronización ejecutaría ahora estos pasos. Todavía no se ha cambiado nada."
+
+#: AFS_Desktop/src/PreviewDialog.cpp:44
+msgid "preview_column_action"
+msgstr "Acción"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:88
+msgid "preview_copy_to_target"
+msgstr "Copiar al destino"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:89
+msgid "preview_move_to_target"
+msgstr "Mover al destino"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:90
+msgid "preview_copy_to_source"
+msgstr "Copiar de vuelta al origen"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:93
+msgid "preview_delete_in_target"
+msgstr "Eliminar en el destino"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:98
+msgid "preview_summary"
+msgstr "%1 pasos, de ellos %2 eliminaciones en el destino; por transferir: %3"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:70
+msgid "preview_more"
+msgstr "… y %1 pasos más"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:56
+msgid "preview_run_now"
+msgstr "Sincronizar ahora"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:57
+msgid "button_close"
+msgstr "Cerrar"
+
+#: AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_nothing_to_do"
+msgstr "El origen y el destino coinciden – una sincronización no haría nada ahora."
+
+#: AFS_Desktop/src/PreviewDialog.cpp:34
+msgid "preview_no_bytes"
+msgstr "0 bytes"
+
+#: AFS_Desktop/src/SyncInterface.cpp:342
+msgid "state_preview"
+msgstr "Calculando la vista previa …"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:66
+msgid "preview_column_file"
+msgstr "Archivo"

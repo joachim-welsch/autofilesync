@@ -10,8 +10,10 @@ add()/remove()/erase().
 
 ## sync_file
 
-Synchronises one file of the item; only counts it when only_count_ is set. Every failure is
-logged and reported here, so one bad file never stops the directory it lives in.
+Synchronises one file of the item; only counts it when only_count_ is set, without comparing,
+unless a preview collects a plan (SyncPlan.md#planning) - then SyncFile compares and records
+the decision. Every failure is logged and reported here, so one bad file never stops the
+directory it lives in.
 
 ## sync_target_only_entries
 

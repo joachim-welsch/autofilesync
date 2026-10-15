@@ -198,6 +198,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\SyncMessage.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncPlan.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\SyncTree.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -256,6 +259,9 @@
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\ProgressDialog.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\PreviewDialog.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\resource.h">
@@ -410,6 +416,9 @@
     <ClCompile Include="SyncOnceTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
+    <ClCompile Include="PreviewTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
     <ClCompile Include="SyncOptionsTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
@@ -551,6 +560,9 @@
     <ClCompile Include="..\..\..\AFS_Core\src\SyncMessage.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncPlan.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\SyncTree.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
@@ -600,6 +612,9 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ProgressDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\PreviewDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SettingsDialog.cpp">

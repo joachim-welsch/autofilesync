@@ -32,6 +32,7 @@ using WStringVector = std::vector<std::wstring>;
 enum class SyncType {
     None,
     CountFiles,
+    Preview,  // [SyncPlan.md#SyncPlan]
     Single,
     Continuous
 };

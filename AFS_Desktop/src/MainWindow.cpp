@@ -102,6 +102,7 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
     EVT_MENU(tul(id::Quit),  MainWindow::on_quit)
     EVT_MENU(tul(id::About), MainWindow::on_about)
     EVT_MENU(tul(id::SyncOnce), MainWindow::on_start_single_sync)
+    EVT_MENU(tul(id::Preview), MainWindow::on_preview)
     EVT_MENU(tul(id::StartSync), MainWindow::on_start_continuous_sync)
     EVT_MENU(tul(id::StopSync), MainWindow::on_stop_continuous_sync)
     EVT_MENU(tul(id::EditSync), MainWindow::on_edit_sync)
@@ -159,8 +160,7 @@ MainWindow::MainWindow(wxWindow *parent,
 		notify(translation::translate("info"), translation::translate("started_minimized"));
 	if (Config::sync_possible() && Config::instance().settings().start_sync_at_start()) {
 		sync_interface_.set_act_sync_type(SyncType::Continuous);
-		menu_.sync_menu()->Enable(tul(id::StartSync), false);
-		menu_.sync_menu()->Enable(tul(id::SyncOnce), false);
+		sync_interface_.enable_start_commands(false);
 		toolbar_.set_started(true);  // [MainWindow.md#autostart-toolbar-state]
 	}
 	else {
@@ -182,7 +182,7 @@ void MainWindow::on_status_timer(wxTimerEvent&)
 
 void MainWindow::update_sync_state()
 {
-    SetStatusText(sync_interface_.state_text(), 1);
+    sync_interface_.show_state();
 }
 
 void MainWindow::set_title()
@@ -530,10 +530,16 @@ void MainWindow::on_file_save_as(wxCommandEvent& WXUNUSED(event))
 void MainWindow::on_start_single_sync(wxCommandEvent& WXUNUSED(event))
 {
 	log_debug(L"MainWindow::on_start_single_sync()");
-	if (sync_interface_.single_sync()) {
-		menu_.sync_menu()->Enable(tul(id::StartSync), false);
-		menu_.sync_menu()->Enable(tul(id::SyncOnce), false);
-	}
+	if (sync_interface_.single_sync())
+		sync_interface_.enable_start_commands(false);
+	update_sync_state();
+}
+
+void MainWindow::on_preview(wxCommandEvent& WXUNUSED(event))
+{
+	log_debug(L"MainWindow::on_preview()");
+	if (sync_interface_.preview())
+		sync_interface_.enable_start_commands(false);
 	update_sync_state();
 }
 
@@ -676,13 +682,11 @@ void MainWindow::rebuild_menu()  // [MainWindow.md#switch_language]
 {
     wxMenu* sync = menu_.sync_menu();
     const bool start_enabled = sync->IsEnabled(tul(id::StartSync));
-    const bool once_enabled = sync->IsEnabled(tul(id::SyncOnce));
     const bool stop_enabled = sync->IsEnabled(tul(id::StopSync));
     wxMenuBar* old = GetMenuBar();
     create_menu();
     delete old;
-    menu_.sync_menu()->Enable(tul(id::StartSync), start_enabled);
-    menu_.sync_menu()->Enable(tul(id::SyncOnce), once_enabled);
+    sync_interface_.enable_start_commands(start_enabled);
     menu_.sync_menu()->Enable(tul(id::StopSync), stop_enabled);
 }
 

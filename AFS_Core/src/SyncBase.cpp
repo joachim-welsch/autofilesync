@@ -24,6 +24,7 @@
 #include "MountedDrives.h"
 #include "SyncFile.h"
 #include "SyncFileSsh.h"
+#include "SyncPlan.h"
 #include "Synchronize.h"
 #include "Translation.h"
 #include "Util.h"
@@ -73,14 +74,14 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)
 
 void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstring& wildcard)
 {
-    if (only_count_) {
+    if (only_count_ && !planning()) {  // [SyncPlan.md#planning]
         ++copy_count_;
         return;
     }
     try {
         SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard, Exclusions(),
                           sync_item_.flags(), sync_item_.compare_items()),
-                 copy_count_)();
+                 copy_count_, only_count_)();
     } catch (const std::exception& e) {
         log_error(source, dest, string_to_wstring(e.what()));
         report_sync_error(source + L": " + string_to_wstring(e.what()));

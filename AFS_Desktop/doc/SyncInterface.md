@@ -77,3 +77,29 @@ follows the "nothing found" case, because an unreachable source ends there.
 Each line carries its level, because the box mixes levels when several filters are on, and the
 box is capped at MAX_LINES_IN_BOX lines: a message box is not a log viewer, and the log has the
 rest.
+
+## preview
+
+"Vorschau…" runs a SyncType::Preview pass (Synchronize.md#preview) the way "Einmal
+synchronisieren" runs its counting pass: busy cursor, start commands disabled, messages
+collected, finished on a timer tick. preview_finished() then takes the plan from the
+controller and shows the PreviewDialog; "Jetzt synchronisieren" starts the ordinary single
+run from there, so what follows a preview is exactly what the menu item would do. An empty
+plan ends in a box instead of an empty dialog, and the messages of the pass - an unreachable
+source is the usual one - follow in a second box, as they would after a single run.
+
+## enable_start_commands
+
+Start, "Einmal synchronisieren" and "Vorschau…" are enabled and disabled together: all
+three start a pass, and none of them may start while one runs. One function instead of three
+Enable() calls at every place that toggles them, because the preview was forgotten at one
+such place during its introduction and found by the tests.
+
+## show_state
+
+Writes state_text() into the status bar's second field, the one MainWindow reserves for the
+synchronisation (MainWindow.md#update_sync_state). The main window refreshes it on its timer
+tick, but a box or dialog shown from a finished handler runs its own event loop before that
+tick comes, so the bar kept saying "Vorschau wird ermittelt …" or "Zähle Dateien …" the whole
+time the result was on screen; found with the first screenshot of the preview. The handlers
+therefore show the new state themselves before they open anything.

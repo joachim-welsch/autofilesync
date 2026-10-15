@@ -125,6 +125,7 @@
     <ClCompile Include="..\AFS_Core\src\Synchronize.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncItem.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncPlan.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
     <ClCompile Include="..\AFS_Core\src\Translation.cpp" />
     <ClCompile Include="..\AFS_Core\src\Util.cpp" />

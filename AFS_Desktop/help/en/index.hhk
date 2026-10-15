@@ -75,6 +75,10 @@
       <PARAM name="Local" value="logging.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Preview (dry run)">
+      <PARAM name="Local" value="preview.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="SSH connections">
       <PARAM name="Local" value="ssh.html">
     </OBJECT></LI>
