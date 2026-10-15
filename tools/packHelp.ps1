@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Packt die Hilfebuecher AFS_Desktop\help\help.htb (Deutsch) und
-    AFS_Desktop\help\en\help.htb (Englisch) aus den Seiten neu.
+    AFS_Desktop\help\<Sprache>\help.htb (jede andere Sprache) aus den Seiten neu.
 .DESCRIPTION
     help.htb ist ein ZIP mit den Seiten aus dem [FILES]-Abschnitt von help.hhp
     sowie Inhaltsverzeichnis, Index, Projektdatei und Kontext-Zuordnung. Das
@@ -43,6 +43,7 @@ function Pack-HelpBook([string]$helpDir) {
     Write-Host "Hilfebuch gepackt: $book ($($files.Count) Dateien)"
 }
 
-foreach ($helpDir in @($helpRoot, (Join-Path $helpRoot 'en'))) {
-    Pack-HelpBook $helpDir
+Pack-HelpBook $helpRoot
+foreach ($languageDir in Get-ChildItem $helpRoot -Directory) {
+    if (Test-Path (Join-Path $languageDir.FullName 'help.hhp')) { Pack-HelpBook $languageDir.FullName }
 }

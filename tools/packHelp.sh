@@ -1,6 +1,6 @@
 #!/bin/bash
 # Packs the help books AFS_Desktop/help/help.htb (German) and
-# AFS_Desktop/help/en/help.htb (English) from their pages: the pages listed in
+# AFS_Desktop/help/<language>/help.htb (every other language) from their pages: the pages listed in
 # the [FILES] section of help.hhp plus contents, index, project file and context
 # map. The program loads only the book, so a changed page shows up only after
 # packing. The CMake build packs the book itself (AFS_Desktop/CMakeLists.txt);
@@ -39,4 +39,6 @@ EOF
 }
 
 pack_book "$help_root"
-pack_book "$help_root/en"
+for language_dir in "$help_root"/*/; do
+    [ -f "$language_dir/help.hhp" ] && pack_book "${language_dir%/}"
+done

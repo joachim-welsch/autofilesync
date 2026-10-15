@@ -20,6 +20,9 @@
 #include "HelpKnowledge.h"
 #include "Util.h"
 #include <filesystem>
+#include <regex>
+#include <set>
+#include "Translation.h"
 
 using namespace AFS_Core;
 namespace fs = std::filesystem;
@@ -110,5 +113,47 @@ TEST(HelpKnowledgeTests, EnglishQuestionsFindTheirEnglishHelpPage)
     for (const auto& [question, label] : cases) {
         const std::wstring excerpt = help_knowledge::excerpt_for(question, help, 2500);
         EXPECT_EQ(excerpt.rfind(label, 0), 0u) << util::wstring_to_string(question) << "\n" << util::wstring_to_string(excerpt.substr(0, 120));
+    }
+}
+
+namespace {
+
+std::set<std::string> files_of(const fs::path& directory)
+{
+    std::set<std::string> names;
+    for (const auto& entry : fs::directory_iterator(directory))
+        if (entry.is_regular_file() && entry.path().extension() != ".htb")
+            names.insert(entry.path().filename().string());
+    return names;
+}
+
+std::multiset<std::string> links_of(const fs::path& directory)
+{
+    std::multiset<std::string> links;
+    const std::regex href(R"re(href="([^"]+)")re");
+    for (const auto& entry : fs::directory_iterator(directory)) {
+        if (entry.path().extension() != ".html")
+            continue;
+        const std::string page = util::wstring_to_string(util::read_utf8_file(entry.path()));
+        for (std::sregex_iterator link(page.begin(), page.end(), href); link != std::sregex_iterator(); ++link)
+            links.insert((*link)[1]);
+    }
+    return links;
+}
+
+}
+
+TEST(HelpKnowledgeTests, EveryOfferedLanguageHasACompleteHelpBook)  // [HelpKnowledgeTests.md#EveryOfferedLanguageHasACompleteHelpBook]
+{
+    const fs::path help = fs::path(LIB_SOURCE_DIR) / ".." / "AFS_Desktop" / "help";
+    const std::set<std::string> german_files = files_of(help);
+    const std::multiset<std::string> german_links = links_of(help);
+    for (const translation::Language& language : translation::LANGUAGES) {
+        if (std::string_view(language.code) == "de")
+            continue;
+        const fs::path directory = help / language.code;
+        ASSERT_TRUE(fs::exists(directory / "help.hhp")) << "Keine Hilfe in " << language.code;
+        EXPECT_EQ(files_of(directory), german_files) << "Die Hilfe in " << language.code << " hat andere Dateien als die deutsche.";
+        EXPECT_EQ(links_of(directory), german_links) << "Die Hilfe in " << language.code << " verweist anders als die deutsche.";
     }
 }

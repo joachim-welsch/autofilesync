@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronizacja przez SSH</title>
+</head>
+<body>
+<h1>Synchronizacja przez SSH</h1>
+
+<p>Źródło lub cel mogą leżeć na innym komputerze dostępnym przez SSH – na
+przykład na serwerze NAS, serwerze albo małym komputerze w sieci domowej.
+Możliwe są też obie strony jednocześnie.</p>
+
+<h2>Zakładanie połączenia</h2>
+
+<p><b>Plik &rarr; Nowe połączenie SSH…</b> albo <b>Edycja &rarr; Połączenia
+SSH…</b> otwiera zarządzanie połączeniami. Połączenie składa się z:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Nazwa</b></td>
+    <td>Dowolna. Pod tą nazwą połączenie jest później podawane w
+        ścieżkach.</td></tr>
+<tr><td valign="top"><b>Host</b></td>
+    <td>Nazwa komputera lub adres IP.</td></tr>
+<tr><td valign="top"><b>Użytkownik</b></td>
+    <td>Konto na komputerze zdalnym.</td></tr>
+<tr><td valign="top"><b>Hasło</b></td>
+    <td>Zapisywane w konfiguracji w postaci zaszyfrowanej, nie jawnym
+        tekstem.</td></tr>
+</table>
+
+<p>W przeglądzie można zakładać, edytować, zmieniać nazwy i usuwać połączenia.
+Gdy zmienisz nazwę połączenia, korzystające z niego synchronizacje zostaną
+automatycznie dostosowane.</p>
+
+<h2>Zapisywanie ścieżek zdalnych</h2>
+
+<p>Ścieżka zdalna składa się z nazwy połączenia, dwukropka i ścieżki na
+komputerze zdalnym:</p>
+
+<blockquote><tt>nas:/home/anna/dokumenty</tt></blockquote>
+
+<p>W oknie synchronizacji przycisk SSH obok źródła i celu prowadzi najpierw do
+wyboru połączenia, a potem do okna, które przegląda foldery na komputerze
+zdalnym – z rozmiarem i datą modyfikacji, tak że właściwe miejsce można znaleźć
+bez wpisywania.</p>
+
+<h2>Co działa inaczej</h2>
+
+<ul>
+<li><b>Dowiązania symboliczne</b> na komputerze zdalnym nie są śledzone. Są
+    pomijane, aby odwołanie do folderu nadrzędnego nie wywołało nieskończonej
+    pętli.</li>
+<li><b>Usuwanie jest trwałe.</b> Kosz jest dostępny tylko lokalnie; zdalny plik
+    trzeba by do przeniesienia najpierw pobrać. Dotyczy to opcji <b>Usuwaj
+    także w celu usunięte pliki</b> oraz <b>Usuń źródło po skopiowaniu</b>,
+    przy czym ta druga i tak nie jest wykonywana dla źródeł zdalnych.</li>
+<li><b>Atrybuty plików</b> po stronie zdalnej nie są zmieniane.</li>
+<li><b>Gdy serwer jest nieosiągalny</b>, AutoFileSync odróżnia to od sytuacji
+    „nic już tam nie ma” i nie dotyka celu. Awaria połączenia nie prowadzi więc
+    do usuwania.</li>
+<li>Przy pierwszym połączeniu zapisywany jest klucz serwera. Jeśli później się
+    zmieni, AutoFileSync przerywa połączenie i zgłasza podejrzenie ataku typu
+    man-in-the-middle.</li>
+</ul>
+
+<h2>Sprawdzenie przed każdym przebiegiem</h2>
+
+<p>Zanim synchronizacja ze stroną zdalną w ogóle się rozpocznie, AutoFileSync
+upewnia się, że druga strona jest dostępna: nawiązuje połączenie, sprawdza klucz
+serwera i się loguje. To samo, co dla ścieżki lokalnej odpowiada na pytanie
+„czy dysk jest podłączony?”. Jeśli któryś z tych kroków się nie powiedzie,
+synchronizacja zostaje pominięta w tym przebiegu – nic nie jest kopiowane ani
+usuwane.</p>
+
+<p>Dla <b>źródła</b> i <b>celu</b> obowiązują przy tym różne zasady:</p>
+
+<ul>
+<li><b>Źródło</b> musi istnieć. Jeśli serwer odpowiada, ale zgłasza „nie
+    istnieje”, źródło zniknęło – a synchronizacja, której źródło zniknęło,
+    zatrzymuje się, zamiast powtarzać to zniknięcie. Inaczej usunięty folder
+    źródłowy razem z <b>Usuwaj także w celu usunięte pliki</b> opróżniłby
+    cel.</li>
+<li>Dla <b>celu</b> wystarczy, że połączenie się uda. Folder docelowy, którego
+    jeszcze nie ma, AutoFileSync tworzy sam – nie może on blokować
+    synchronizacji.</li>
+</ul>
+
+<p>Wynik jest zapamiętywany, aby nie każdy przebieg nawiązywał nowe połączenie.
+Osiągalna druga strona jest ponownie sprawdzana najwyżej raz na godzinę,
+nieosiągalna najwyżej co pięć minut. Po awarii może więc minąć kilka minut,
+zanim synchronizacja sama ruszy ponownie.</p>
+
+</body>
+</html>

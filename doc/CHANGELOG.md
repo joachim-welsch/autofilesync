@@ -2,10 +2,11 @@
 
 ## Unveröffentlicht
 
-- Die Hilfe gibt es auch auf Englisch. Sie erscheint in der Sprache, die das
-  Programm anzeigt – für jede Sprache ohne eigene Hilfe auf Englisch – und
-  wechselt mit, wenn die Sprache in den globalen Einstellungen umgestellt wird.
-  Auch der Assistent liest die Hilfe in dieser Sprache.
+- Die Hilfe gibt es in allen Sprachen der Oberfläche: Deutsch, Englisch,
+  Spanisch, Französisch, Italienisch, Polnisch und Ukrainisch. Sie erscheint in
+  der Sprache, die das Programm anzeigt, und wechselt mit, wenn die Sprache in
+  den globalen Einstellungen umgestellt wird. Auch der Assistent liest die Hilfe
+  in dieser Sprache.
 - Assistent: Er kann auch Befehle vorschlagen – einmal synchronisieren,
   Synchronisation starten oder stoppen, Hintergrunddienst starten oder stoppen,
   Log-Datei anzeigen. Der Knopf trägt den Namen aus dem Menü und führt den
@@ -15,8 +16,7 @@
   das Programm gerade synchronisiert und ob der Hintergrunddienst läuft. So
   kann er Fragen wie „Warum ist mein Ziel nicht aktuell?“ begründen.
 - Assistent: Fragen wie „Wie stelle ich die Sprache um?“ beantwortet er mit
-  dem passenden Abschnitt der Hilfe und nennt die Hilfeseite. Da die Hilfe nur
-  auf Deutsch vorliegt, greift das vor allem bei deutschen Fragen.
+  dem passenden Abschnitt der Hilfe und nennt die Hilfeseite.
 - Assistent: Ein langes Gespräch lässt seine ältesten Runden weg, statt jede
   weitere Frage mit „Unterhaltung zu lang“ abzulehnen, bis das Programm neu
   gestartet wird. **Neues Gespräch** im Chatfenster beginnt von vorn.

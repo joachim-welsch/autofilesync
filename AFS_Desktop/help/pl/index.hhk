@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="wxWidgets HTML Help">
+  <TITLE>Indeks</TITLE>
+</HEAD>
+<BODY>
+  <UL>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Autostart">
+      <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Dowód kopii zapasowej">
+      <PARAM name="Local" value="backupproof.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Dziennik (plik dziennika)">
+      <PARAM name="Local" value="logging.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Język">
+      <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Plik konfiguracji">
+      <PARAM name="Local" value="config.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Połączenia SSH">
+      <PARAM name="Local" value="ssh.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Porównywanie plików (czas, rozmiar, zawartość)">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Powiadomienie e-mailem">
+      <PARAM name="Local" value="logging.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Rozwiązywanie problemów">
+      <PARAM name="Local" value="troubleshooting.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Symbol wieloznaczny">
+      <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Synchronizacja dwukierunkowa">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Synchronizowanie pustych plików">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Synchronizuj jednorazowo">
+      <PARAM name="Local" value="synconce.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Tolerancja czasu modyfikacji (NTFS, FAT, exFAT)">
+      <PARAM name="Local" value="options.html#timetolerance">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Tryb usuwania i kosz">
+      <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Typ (plik, folder, drzewo folderów)">
+      <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Uruchamianie i zatrzymywanie synchronizacji">
+      <PARAM name="Local" value="runsync.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Usługa w tle">
+      <PARAM name="Local" value="service.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Usuwanie w celu usuniętych plików">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Usuwanie źródła po skopiowaniu">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Warunki licencji (GPL)">
+      <PARAM name="Local" value="licensing.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Widoki (lista, drzewo, tabela)">
+      <PARAM name="Local" value="runsync.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Wykluczenia">
+      <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Zasada pokoleniowa">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+  </UL>
+</BODY>
+</HTML>

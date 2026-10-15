@@ -47,7 +47,7 @@ endif()
 # packs it from the pages listed in help.hhp (plus contents, index, project file
 # and context map) - the same thing tools/packHelp.* does for the MSBuild build.
 # One book per language: the German pages in help/, every other language in
-# help/<language>/. Each book lands next to its pages, where every packaging
+# help/<language>/ - every subdirectory with a help.hhp is one. Each book lands next to its pages, where every packaging
 # script expects it.
 set(HELP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/help)
 function(afs_pack_help_book directory)
@@ -75,7 +75,12 @@ function(afs_pack_help_book directory)
     set_property(GLOBAL APPEND PROPERTY AFS_HELP_BOOKS ${directory}/help.htb)
 endfunction()
 afs_pack_help_book(${HELP_SOURCE_DIR})
-afs_pack_help_book(${HELP_SOURCE_DIR}/en)
+file(GLOB HELP_LANGUAGE_DIRS LIST_DIRECTORIES true CONFIGURE_DEPENDS ${HELP_SOURCE_DIR}/*)
+foreach(directory IN LISTS HELP_LANGUAGE_DIRS)
+    if(IS_DIRECTORY ${directory} AND EXISTS ${directory}/help.hhp)
+        afs_pack_help_book(${directory})
+    endif()
+endforeach()
 get_property(HELP_BOOKS GLOBAL PROPERTY AFS_HELP_BOOKS)
 add_custom_target(help_book DEPENDS ${HELP_BOOKS})
 add_dependencies(autofilesync help_book)
@@ -91,6 +96,15 @@ endif()
 add_custom_command(TARGET autofilesync POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/help ${HELP_DESTINATION}
     COMMENT "Copying the help book next to autofilesync")
+# A changed page repacks the books without relinking the program, so the books
+# are copied after packing as well; otherwise the build tree showed the old help.
+# Only where the program's directory is known without asking the target, which
+# would make help_book depend on autofilesync and close a cycle.
+if(NOT APPLE AND NOT CMAKE_CONFIGURATION_TYPES)
+    add_custom_command(TARGET help_book POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/help ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/help
+        COMMENT "Copying the help books next to autofilesync")
+endif()
 
 # Every package carries the licence texts; the Windows and Debian packages add
 # them themselves, the macOS bundle takes them among its resources.

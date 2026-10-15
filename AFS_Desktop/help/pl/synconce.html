@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronizuj jednorazowo</title>
+</head>
+<body>
+<h1>Synchronizuj jednorazowo</h1>
+
+<p><b>Synchronizacja &rarr; Synchronizuj jednorazowo</b> wykonuje dokładnie
+jeden przebieg przez wszystkie aktywne synchronizacje, a potem się zatrzymuje.
+Przerwa ustawiona dla zadań nie ma przy tym znaczenia – dotyczy tylko pracy
+ciągłej.</p>
+
+<p>To właściwe polecenie, aby</p>
+
+<ul>
+<li>wypróbować nowo założoną synchronizację,</li>
+<li>przed odłączeniem nośnika jeszcze raz wszystko uzgodnić,</li>
+<li>po zmianie opcji sprawdzić wynik, bez dalszego działania programu.</li>
+</ul>
+
+<p>Podczas przebiegu polecenia <b>Uruchom</b> i <b>Synchronizuj
+jednorazowo</b> są zablokowane; potem znów są dostępne. Co się przy tym
+wydarzyło, zapisano w <a href="logging.html">dzienniku</a>, a przy włączonym
+<a href="backupproof.html">dowodzie kopii zapasowej</a> dodatkowo w pliku
+dowodu.</p>
+
+<p>Jeśli nic nie ma zostać zmienione, a chcesz tylko sprawdzić, ile byłoby do
+zrobienia, zajrzyj do dziennika na poziomie <tt>Info</tt>: przebieg liczy
+dotknięte pliki, zanim zacznie kopiować.</p>
+
+</body>
+</html>

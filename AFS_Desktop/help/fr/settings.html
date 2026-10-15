@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Paramètres généraux</title>
+</head>
+<body>
+<h1>Paramètres généraux</h1>
+
+<p><b>Édition &rarr; Paramètres généraux…</b> ou la roue dentée à droite de la
+barre d'outils ouvre les paramètres qui valent pour tout le programme – et non
+pour une seule synchronisation.</p>
+
+<h2>Langue</h2>
+
+<p>Le choix <b>Langue</b> détermine dans quelle langue AutoFileSync affiche les
+menus, boîtes de dialogue et messages. Après <b>OK</b>, la langue change
+aussitôt, sans redémarrage ; elle est enregistrée dans la configuration et
+s'applique à chaque démarrage suivant, y compris pour le service en
+arrière-plan.</p>
+
+<p>Avec <b>Langue du système d'exploitation</b>, AutoFileSync suit de nouveau la
+langue du système d'exploitation. S'il n'existe pas de traduction pour celle-ci,
+tout s'affiche en anglais. Cette aide existe en allemand, anglais, espagnol,
+français, italien, polonais et ukrainien – dans toutes les langues que propose le
+programme.</p>
+
+<h2>Démarrage et fenêtre</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Démarrer l'application automatiquement</b></td>
+    <td>AutoFileSync démarre en même temps que votre session.</td></tr>
+<tr><td valign="top"><b>Lancer la synchronisation au démarrage du programme</b></td>
+    <td>Le fonctionnement continu commence dès le démarrage, sans qu'il soit
+        nécessaire de passer par <b>Synchronisation &rarr; Démarrer</b>.</td></tr>
+<tr><td valign="top"><b>Démarrer réduit</b></td>
+    <td>La fenêtre n'apparaît pas au démarrage ; le programme se place
+        directement dans la zone de notification de la barre des tâches.</td></tr>
+<tr><td valign="top"><b>Réduire au lieu de fermer</b></td>
+    <td>Fermer la fenêtre ne quitte pas le programme, mais le réduit dans la
+        zone de notification. Il se quitte alors par <b>Fichier &rarr;
+        Quitter</b> ou par le menu contextuel de la zone de notification.</td></tr>
+</table>
+
+<p>Une seule instance tourne à la fois : un second démarrage signale
+qu'AutoFileSync est déjà en cours d'exécution et se termine.</p>
+
+<h2>Afficher les messages dans une boîte de dialogue</h2>
+
+<p>Les trois cases <b>Erreur</b>, <b>Avertissement</b> et <b>Information</b>
+déterminent quels messages apparaissent en plus dans une fenêtre après
+<a href="synconce.html">Synchroniser une fois</a> : tous les messages du passage
+réunis dans une seule fenêtre, chacun avec son niveau, au plus 15 lignes – le
+reste figure dans le <a href="logging.html">journal</a>. Seules les erreurs sont
+cochées par défaut. Sans case cochée, la synchronisation se déroule en silence.
+Le fonctionnement continu (<b>Démarrer</b>) n'affiche jamais de fenêtre, car
+sinon chaque message ramènerait la fenêtre au premier plan ; il en va de même
+pour un démarrage réduit.</p>
+
+<h2>Mode de suppression</h2>
+
+<p>Le mode de suppression vaut pour toutes les suppressions effectuées par
+AutoFileSync : la source avec <b>Supprimer la source après la copie</b> et la
+cible avec <b>Supprimer aussi dans la cible les fichiers supprimés</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Déplacer vers la corbeille</b></td>
+    <td>Par défaut. Les fichiers supprimés arrivent dans le dossier de corbeille
+        indiqué ci-dessous et peuvent être récupérés de là. La structure
+        d'origine est conservée, et des fichiers de même nom ne s'écrasent pas
+        entre eux.</td></tr>
+<tr><td valign="top"><b>Supprimer définitivement</b></td>
+    <td>Les fichiers sont supprimés immédiatement.</td></tr>
+</table>
+
+<p>Le champ <b>Corbeille</b> contient le dossier prévu à cet effet. Il devrait se
+trouver sur un support disposant de suffisamment de place ; AutoFileSync ne le
+vide pas de lui-même.</p>
+
+<p>Pour les cibles SSH, la suppression est définitive quel que soit ce réglage,
+voir <a href="ssh.html">Synchroniser par SSH</a>.</p>
+
+</body>
+</html>

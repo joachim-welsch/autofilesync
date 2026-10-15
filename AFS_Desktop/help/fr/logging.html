@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Journal et notification</title>
+</head>
+<body>
+<h1>Journal et notification</h1>
+
+<p><b>Édition &rarr; Paramètres de journalisation…</b> détermine ce qui est
+consigné et comment vous êtes informé des erreurs graves.</p>
+
+<h2>Journal</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Chemin du fichier journal</b></td>
+    <td>Emplacement du fichier journal. Sans indication de votre part,
+        AutoFileSync écrit sous Windows dans
+        <tt>%LOCALAPPDATA%\autofilesync\autofilesync.log</tt>, sous Linux dans
+        <tt>~/.cache/autofilesync/autofilesync.log</tt>. Le dossier est créé si
+        nécessaire.</td></tr>
+<tr><td valign="top"><b>Niveau de journalisation</b></td>
+    <td>À partir de quel niveau les entrées sont écrites : <tt>Debug</tt>,
+        <tt>Info</tt>, <tt>Warning</tt>, <tt>Error</tt> ou <tt>FatalError</tt>.
+        <tt>Debug</tt> consigne chaque étape et fait grossir le fichier
+        rapidement – prévu pour rechercher une panne, pas pour le fonctionnement
+        permanent. <tt>Info</tt> note ce qui a été copié et supprimé.</td></tr>
+<tr><td valign="top"><b>Historique [jours]</b></td>
+    <td>Durée de conservation des entrées. Au démarrage du programme, les lignes
+        plus anciennes sont supprimées, les plus récentes restent.</td></tr>
+<tr><td valign="top"><b>Éditeur</b></td>
+    <td>Programme avec lequel <b>Affichage &rarr; Afficher le fichier
+        journal</b> ouvre le journal.</td></tr>
+<tr><td valign="top"><b>Chemin des preuves de sauvegarde</b></td>
+    <td>Dossier des fichiers de preuve, voir
+        <a href="backupproof.html">Preuve de sauvegarde</a>.</td></tr>
+</table>
+
+<h2>Notification par e-mail</h2>
+
+<p>Le second onglet permet de configurer une notification qui envoie un e-mail en
+cas d'erreur grave – utile quand AutoFileSync fonctionne sans surveillance ou en
+tant que <a href="service.html">service en arrière-plan</a>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Active</b></td>
+    <td>Active l'envoi. Sans cette case, tout le reste reste sans
+        effet.</td></tr>
+<tr><td valign="top"><b>Adresse e-mail</b></td>
+    <td>Destinataire de la notification.</td></tr>
+<tr><td valign="top"><b>Serveur de courrier sortant</b>, <b>Port</b></td>
+    <td>Serveur SMTP et port du fournisseur.</td></tr>
+<tr><td valign="top"><b>Utilisateur</b>, <b>Mot de passe</b></td>
+    <td>Identifiants du serveur de courrier sortant.</td></tr>
+<tr><td valign="top"><b>Expéditeur</b></td>
+    <td>Adresse indiquée comme expéditeur. Beaucoup de fournisseurs exigent
+        qu'elle appartienne au compte.</td></tr>
+</table>
+
+<p>S'il manque le destinataire, le serveur ou l'expéditeur alors que la
+notification est active, la boîte de dialogue le signale à la validation. La même
+erreur ne déclenche pas un e-mail indéfiniment – après un message, elle reste
+silencieuse un moment, pour qu'une cible durablement inaccessible n'inonde pas la
+boîte aux lettres.</p>
+
+</body>
+</html>

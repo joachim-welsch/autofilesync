@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchroniser par SSH</title>
+</head>
+<body>
+<h1>Synchroniser par SSH</h1>
+
+<p>La source ou la cible peut se trouver sur un autre ordinateur accessible par
+SSH – par exemple un NAS, un serveur ou un petit ordinateur du réseau domestique.
+Les deux côtés à la fois sont aussi possibles.</p>
+
+<h2>Créer une connexion</h2>
+
+<p><b>Fichier &rarr; Nouvelle connexion SSH…</b> ou <b>Édition &rarr;
+Connexions SSH…</b> ouvre la gestion. Une connexion se compose de :</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Nom</b></td>
+    <td>Au choix. Les chemins désignent ensuite la connexion par ce
+        nom.</td></tr>
+<tr><td valign="top"><b>Hôte</b></td>
+    <td>Nom de l'ordinateur ou adresse IP.</td></tr>
+<tr><td valign="top"><b>Utilisateur</b></td>
+    <td>Compte sur l'ordinateur distant.</td></tr>
+<tr><td valign="top"><b>Mot de passe</b></td>
+    <td>Enregistré chiffré dans la configuration, pas en clair.</td></tr>
+</table>
+
+<p>Dans la vue d'ensemble, les connexions peuvent être créées, modifiées,
+renommées et supprimées. Si une connexion est renommée, les synchronisations qui
+l'utilisent suivent automatiquement.</p>
+
+<h2>Écrire des chemins distants</h2>
+
+<p>Un chemin distant se compose du nom de la connexion, de deux-points et du
+chemin sur l'ordinateur distant :</p>
+
+<blockquote><tt>nas:/home/anna/documents</tt></blockquote>
+
+<p>Dans la boîte de dialogue d'une synchronisation, le bouton SSH à côté de la
+source et de la cible mène d'abord au choix de la connexion, puis à une boîte de
+dialogue qui parcourt les dossiers de l'ordinateur distant – avec taille et date
+de modification, pour trouver le bon endroit sans rien taper.</p>
+
+<h2>Ce qui est différent</h2>
+
+<ul>
+<li>Les <b>liens symboliques</b> de l'ordinateur distant ne sont pas suivis. Ils
+    sont ignorés, pour qu'un lien vers un dossier parent ne crée pas de boucle
+    sans fin.</li>
+<li><b>La suppression est définitive.</b> La corbeille n'existe qu'en local ;
+    pour y déplacer un fichier distant, il faudrait d'abord le télécharger. Cela
+    concerne <b>Supprimer aussi dans la cible les fichiers supprimés</b> ainsi
+    que <b>Supprimer la source après la copie</b>, cette dernière n'étant de
+    toute façon pas exécutée pour des sources distantes.</li>
+<li>Les <b>attributs de fichier</b> ne sont pas modifiés du côté distant.</li>
+<li><b>Si le serveur est injoignable</b>, AutoFileSync le distingue de « il n'y
+    a plus rien là-bas » et ne touche pas à la cible. Une panne de connexion ne
+    provoque donc jamais de suppressions.</li>
+<li>Lors de la première connexion, la clé du serveur est enregistrée. Si elle
+    change plus tard, AutoFileSync interrompt la connexion et signale une
+    possible attaque de l'homme du milieu.</li>
+</ul>
+
+<h2>La vérification avant chaque passage</h2>
+
+<p>Avant même qu'une synchronisation avec un côté distant démarre, AutoFileSync
+s'assure que l'autre côté est là : il se connecte, vérifie la clé du serveur et
+s'authentifie. C'est la même question que « le lecteur est-il connecté ? » pour
+un chemin local. Si l'une de ces étapes échoue, la synchronisation est sautée
+pour ce passage – rien n'est copié ni supprimé.</p>
+
+<p>La <b>source</b> et la <b>cible</b> ne sont pas jugées de la même façon :</p>
+
+<ul>
+<li>La <b>source</b> doit exister. Si le serveur répond mais indique « n'existe
+    pas », la source a disparu – et une synchronisation dont la source a disparu
+    reste immobile au lieu de reproduire cette disparition. Sinon, un dossier
+    source supprimé, avec <b>Supprimer aussi dans la cible les fichiers
+    supprimés</b>, viderait la cible.</li>
+<li>Pour la <b>cible</b>, il suffit que la connexion aboutisse. AutoFileSync
+    crée lui-même un dossier cible qui n'existe pas encore – il ne doit pas
+    bloquer la synchronisation.</li>
+</ul>
+
+<p>Le résultat est mis en cache, pour que chaque passage n'ouvre pas une
+nouvelle connexion. Un côté distant joignable est revérifié au plus une fois par
+heure, un côté injoignable au plus toutes les cinq minutes. Après une panne, il
+peut donc s'écouler quelques minutes avant que la synchronisation reprenne
+d'elle-même.</p>
+
+</body>
+</html>

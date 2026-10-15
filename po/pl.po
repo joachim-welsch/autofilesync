@@ -1143,7 +1143,7 @@ msgstr "Błąd ustalania ścieżki: "
 
 #: AFS_Desktop/src/MainWindow.cpp:319
 msgid "about_text"
-msgstr "%1\nWersja %2\n\nAutomatyczna synchronizacja plików i drzew folderów\nw systemie %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nLicencja: GNU GPL v3 lub nowsza,\nzob. Pomoc → Licence terms."
+msgstr "%1\nWersja %2\n\nAutomatyczna synchronizacja plików i drzew folderów\nw systemie %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nLicencja: GNU GPL v3 lub nowsza,\nzob. Pomoc → Warunki licencji."
 
 #: AFS_Desktop/src/MainWindow.cpp:321
 msgid "about_title"
@@ -1839,7 +1839,7 @@ msgstr "Copyright © 2026 Joachim Welsch"
 
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
-msgstr "Automatyczna synchronizacja plików i drzew folderów w systemie %1.\n\nhttps://welsch-software.com\n\nLicencja: GNU GPL v3 lub nowsza, zob. Pomoc → Licence terms."
+msgstr "Automatyczna synchronizacja plików i drzew folderów w systemie %1.\n\nhttps://welsch-software.com\n\nLicencja: GNU GPL v3 lub nowsza, zob. Pomoc → Warunki licencji."
 
 #: AFS_Desktop/include/utilwx.h
 msgid "label_colon"

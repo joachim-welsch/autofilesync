@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Log e notifiche</title>
+</head>
+<body>
+<h1>Log e notifiche</h1>
+
+<p><b>Modifica &rarr; Impostazioni di registrazione…</b> stabilisce che cosa
+viene registrato e come si viene informati degli errori gravi.</p>
+
+<h2>Log</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Percorso del file di log</b></td>
+    <td>Posizione del file di log. Senza un percorso proprio AutoFileSync scrive
+        su Windows in <tt>%LOCALAPPDATA%\autofilesync\autofilesync.log</tt>, su
+        Linux in <tt>~/.cache/autofilesync/autofilesync.log</tt>. La cartella
+        viene creata quando serve.</td></tr>
+<tr><td valign="top"><b>Livello di log</b></td>
+    <td>Da quale livello in poi si scrive: <tt>Debug</tt>, <tt>Info</tt>,
+        <tt>Warning</tt>, <tt>Error</tt> o <tt>FatalError</tt>. <tt>Debug</tt>
+        registra ogni passo e fa crescere il file rapidamente – serve per cercare
+        problemi, non per l'uso continuo. <tt>Info</tt> registra che cosa è
+        stato copiato ed eliminato.</td></tr>
+<tr><td valign="top"><b>Cronologia [giorni]</b></td>
+    <td>Per quanto tempo vengono conservate le voci. All'avvio del programma le
+        righe più vecchie vengono rimosse, quelle più recenti restano.</td></tr>
+<tr><td valign="top"><b>Editor</b></td>
+    <td>Programma con cui <b>Visualizza &rarr; Mostra file di log</b> apre il
+        log.</td></tr>
+<tr><td valign="top"><b>Percorso per le prove di backup</b></td>
+    <td>Cartella per i file di prova, vedere
+        <a href="backupproof.html">Prova di backup</a>.</td></tr>
+</table>
+
+<h2>Notifica via e-mail</h2>
+
+<p>Nella seconda scheda si può impostare una notifica che, in caso di errore
+grave, invia un'e-mail – utile quando AutoFileSync lavora senza sorveglianza o
+come <a href="service.html">servizio in background</a>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Attiva</b></td>
+    <td>Attiva l'invio. Senza spunta tutto il resto non ha effetto.</td></tr>
+<tr><td valign="top"><b>Indirizzo e-mail</b></td>
+    <td>Destinatario della notifica.</td></tr>
+<tr><td valign="top"><b>Server di posta in uscita</b>, <b>Porta</b></td>
+    <td>Server SMTP e porta del fornitore.</td></tr>
+<tr><td valign="top"><b>Utente</b>, <b>Password</b></td>
+    <td>Dati di accesso per il server di posta in uscita.</td></tr>
+<tr><td valign="top"><b>Mittente</b></td>
+    <td>Indirizzo inserito come mittente. Molti fornitori richiedono che
+        appartenga all'account.</td></tr>
+</table>
+
+<p>Se con la notifica attiva mancano destinatario, server o mittente, la finestra
+lo segnala alla conferma. Lo stesso errore non invia e-mail all'infinito – dopo
+una segnalazione resta in silenzio per un po', così una destinazione
+irraggiungibile a lungo non riempie la casella di posta.</p>
+
+</body>
+</html>

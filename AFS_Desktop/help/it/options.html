@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Opzioni di una sincronizzazione</title>
+</head>
+<body>
+<h1>Opzioni di una sincronizzazione</h1>
+
+<p>La scheda <b>Opzioni</b> nella finestra di una sincronizzazione stabilisce in
+base a che cosa vengono confrontate origine e destinazione e che cosa succede nei
+casi particolari.</p>
+
+<h2>Confronta i file per</h2>
+
+<p>Queste tre spunte decidono come AutoFileSync riconosce una differenza. Si
+possono combinare.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Criterio</th><th align="left">Significato</th></tr>
+<tr><td valign="top"><b>Data</b></td>
+    <td>Decide la data di modifica. È il caso più comune e di gran lunga il più
+        veloce.</td></tr>
+<tr><td valign="top"><b>Dimensione</b></td>
+    <td>Dimensioni diverse contano come differenza.</td></tr>
+<tr><td valign="top"><b>Contenuto</b></td>
+    <td>I file vengono confrontati in base al contenuto. È preciso, ma richiede
+        tempo per leggere entrambi i lati. Con la sincronizzazione bidirezionale
+        è inoltre la data di modifica a decidere quale lato è il più recente – un
+        semplice confronto del contenuto non può stabilirlo.</td></tr>
+<tr><td valign="top"><b>Tolleranza in secondi</b></td>
+    <td>Due date di modifica che distano al massimo questi secondi contano come
+        uguali. Il campo è attivo solo se il confronto per <b>Data</b> è
+        attivato; il valore predefinito è 2 secondi, vedere
+        <a href="#timetolerance">Tolleranza e file system</a>.</td></tr>
+</table>
+
+<h3><a name="timetolerance"></a>Tolleranza e file system</h3>
+
+<p>Durante la copia AutoFileSync riprende la data di modifica dell'origine, ma la
+destinazione la memorizza solo con la precisione consentita dal suo file
+system. Senza tolleranza, a ogni esecuzione l'origine risulterebbe più recente
+della propria copia di una frazione di secondo e verrebbe copiata di nuovo ogni
+volta. La tolleranza deve essere almeno pari al passo di tempo più grossolano tra
+i due lati:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">File system</th><th align="left">Precisione della data di modifica</th><th align="left">Tolleranza necessaria</th></tr>
+<tr><td>ext4, Btrfs, XFS, APFS</td><td>nanosecondi</td><td>0 s</td></tr>
+<tr><td>NTFS</td><td>100 nanosecondi</td><td>1 s</td></tr>
+<tr><td>exFAT</td><td>10 millisecondi</td><td>1 s</td></tr>
+<tr><td>HFS+, server SFTP</td><td>secondi interi</td><td>1 s</td></tr>
+<tr><td>FAT32, FAT16 (chiavette USB, schede di memoria)</td><td>2 secondi</td><td>2 s</td></tr>
+</table>
+
+<p>Il valore predefinito di 2 secondi copre tutti questi casi. FAT inoltre
+memorizza l'ora come ora locale: dopo il passaggio tra ora legale e ora solare
+tutti i file risultano spostati di un'ora. Per evitarlo si può impostare per un
+po' la tolleranza a 3600 secondi oppure confrontare anche per
+<b>Dimensione</b>.</p>
+
+<p>Il rovescio della medaglia: se un file viene salvato di nuovo entro la
+tolleranza dalla modifica precedente, e nel frattempo c'è stata un'esecuzione, la
+seconda modifica viene notata solo al salvataggio successivo. Chi modifica file
+in rapida successione fa bene ad attivare anche <b>Dimensione</b> oppure a
+impostare la tolleranza a 0, se entrambi i lati memorizzano l'ora con la stessa
+precisione.</p>
+
+<h2>Le opzioni nel dettaglio</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Opzione</th><th align="left">Effetto</th></tr>
+
+<tr><td valign="top"><b>Elimina l'origine dopo la copia</b></td>
+    <td>Dopo una copia riuscita il <i>file di origine</i> viene rimosso – nel
+        cestino o definitivamente, a seconda della
+        <a href="settings.html">modalità di eliminazione</a>. La sincronizzazione
+        diventa così uno spostamento. Per origini raggiunte tramite SSH l'opzione
+        non ha effetto.</td></tr>
+
+<tr><td valign="top"><b>Sincronizzazione bidirezionale</b></td>
+    <td>Conta anche la direzione opposta: ciò che esiste solo nella destinazione
+        viene copiato nell'origine, e una destinazione più recente prevale su
+        un'origine più vecchia. Insieme a <b>Elimina anche nella destinazione i
+        file eliminati</b> prevale l'eliminazione – attivarle entrambe raramente
+        ha senso.</td></tr>
+
+<tr><td valign="top"><b>Copia anche se il file di destinazione è più recente</b></td>
+    <td>Normalmente AutoFileSync non sovrascrive un file di destinazione più
+        recente dell'origine. Con questa opzione lo fa. Con la sincronizzazione
+        bidirezionale attivata l'opzione è bloccata, perché lì non ha
+        senso.</td></tr>
+
+<tr><td valign="top"><b>Principio generazionale</b></td>
+    <td>Prima di sovrascrivere un file di destinazione esistente, AutoFileSync
+        lo rinomina: <tt>relazione.doc</tt> diventa
+        <tt>relazione.doc.bak.1</tt>, la volta successiva <tt>.bak.2</tt> e così
+        via. Le versioni precedenti vengono così conservate. Tenere presente che
+        queste copie restano nella destinazione e occupano spazio – non vengono
+        eliminate automaticamente.</td></tr>
+
+<tr><td valign="top"><b>Elimina anche nella destinazione i file eliminati</b></td>
+    <td>Un file che esiste ormai solo nella destinazione viene eliminato lì – la
+        destinazione diventa quindi uno specchio dell'origine. Dettagli e limiti
+        sono nella <a href="#deleteintarget">sezione qui sotto</a>.</td></tr>
+
+<tr><td valign="top"><b>Prova di backup</b></td>
+    <td>Ogni esecuzione che ha copiato qualcosa o ha incontrato un errore scrive
+        una voce in un file di prova; vedere <a href="backupproof.html">Prova di
+        backup</a>.</td></tr>
+
+<tr><td valign="top"><b>Sincronizza file vuoti</b></td>
+    <td>I file di dimensione 0 vengono normalmente saltati: un file vuoto è più
+        spesso una scrittura interrotta che un file voluto vuoto, e copiarlo
+        sopra un file di destinazione pieno significherebbe perdere dati. Con
+        questa opzione vengono inclusi – pensata per segnaposto come
+        <tt>.gitkeep</tt> e per file di blocco e di contrassegno.
+        <b>Attenzione:</b> se il file di origine è vuoto e quello di
+        destinazione no, la sincronizzazione sostituisce allora il contenuto
+        della destinazione con il file vuoto.</td></tr>
+
+<tr><td valign="top"><b>Secondi di pausa</b></td>
+    <td>Tempo di attesa tra due esecuzioni della sincronizzazione continua,
+        regolabile da 1 a 60 secondi. Pause brevi notano prima le modifiche e
+        caricano di più unità e rete.</td></tr>
+</table>
+
+<h2><a name="deleteintarget"></a>Elimina anche nella destinazione i file eliminati</h2>
+
+<p>Questa opzione merita una descrizione più precisa, perché è l'unica che
+rimuove dati nella destinazione.</p>
+
+<ul>
+<li>È disponibile per <b>Cartella</b> e <b>Albero di cartelle</b>, non per il
+    tipo <b>File</b>.</li>
+<li>L'eliminazione segue la <a href="settings.html">modalità di
+    eliminazione</a>, quindi normalmente finisce nel cestino. Con una
+    destinazione tramite SSH l'eliminazione è definitiva, perché un file remoto
+    dovrebbe prima essere scaricato.</li>
+<li>I file che comunque non appartengono a questa sincronizzazione, a causa del
+    <b>Carattere jolly</b> o delle <b>Esclusioni</b>, restano intatti.</li>
+<li>Se l'<b>origine non è raggiungibile</b> – unità scollegata, condivisione non
+    connessa, server SSH non raggiungibile – non viene eliminato nulla. Un posto
+    irraggiungibile non è un posto vuoto.</li>
+<li>Vengono rispecchiati i <b>file</b>, non le cartelle: una cartella eliminata
+    nell'origine resta nella destinazione con il suo contenuto.</li>
+</ul>
+
+<p>Se l'opzione non ha effetto pur essendo attivata, è utile
+<a href="troubleshooting.html">Quando qualcosa non va come previsto</a>.</p>
+
+</body>
+</html>

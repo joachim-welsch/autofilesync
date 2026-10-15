@@ -10,9 +10,10 @@ question is sent along with it, the same way as the log excerpt. Plain text proc
 wxWidgets; the desktop program reads the pages out of the help book (HelpBook).
 
 A keyword match, not a search engine: it finds a section only where the question uses the
-help's own words. The chat reads the help book of the language shown (German or English, see
-MainWindow.md#help_language), so questions in Spanish, French, Italian, Polish or Ukrainian,
-which get the English book, mostly find nothing and are answered as before. A wrong section costs little - the instruction tells the model to pass
+help's own words. The chat reads the help book of the language shown (see
+MainWindow.md#help_language), so a question finds its section when it is asked in the language
+the program shows; a question in another language mostly finds nothing and is answered as
+before. A wrong section costs little - the instruction tells the model to pass
 over an excerpt that does not fit.
 
 ## sections_of

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Plik konfiguracji</title>
+</head>
+<body>
+<h1>Plik konfiguracji</h1>
+
+<p>Wszystkie synchronizacje, połączenia SSH i ustawienia znajdują się w jednym
+pliku w formacie JSON. To z niego wspólnie korzystają program i
+<a href="service.html">usługa w tle</a>.</p>
+
+<h2>Gdzie się znajduje</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="25%"><b>Windows</b></td>
+    <td><tt>%APPDATA%\autofilesync\autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td><tt>$XDG_CONFIG_HOME/autofilesync/autofilesync.json</tt>, w przeciwnym
+        razie <tt>~/.config/autofilesync/autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>~/Library/Application Support/autofilesync/autofilesync.json</tt></td></tr>
+</table>
+
+<h2>Otwieranie i zapisywanie</h2>
+
+<ul>
+<li><b>Plik &rarr; Otwórz…</b> wczytuje inną konfigurację, na przykład zestaw
+    synchronizacji do określonego celu.</li>
+<li>Każda zmiana jest <b>od razu zapisywana</b> – zaznaczenie w tabeli tak samo
+    jak okno zamknięte przyciskiem OK. Osobny krok zapisu nie jest
+    potrzebny.</li>
+<li><b>Plik &rarr; Zapisz</b> można wybrać tylko wtedy, gdy automatyczny zapis
+    się nie powiódł, na przykład przy pełnym dysku. Do tego czasu tytuł okna
+    pokazuje <b>(niezapisane)</b>, a program pyta przy zamykaniu i przed
+    uruchomieniem usługi w tle.</li>
+<li><b>Plik &rarr; Zapisz jako…</b> tworzy kopię. Jeśli plik już istnieje,
+    program pyta przed nadpisaniem.</li>
+</ul>
+
+<h2>Co zawiera</h2>
+
+<p>Dla każdej synchronizacji nazwę, typ, źródło, cel, symbol wieloznaczny,
+wykluczenia, opcje i przerwę; do tego połączenia SSH i ustawienia ogólne. Hasła
+do połączeń SSH i do serwera poczty wychodzącej są zapisywane
+<b>zaszyfrowane</b>, nie jawnym tekstem.</p>
+
+<p>Plik jest w kodowaniu UTF-8 i w razie potrzeby można go obejrzeć w edytorze
+tekstu. Klucza, którego starsza wersja programu jeszcze nie znała, w starych
+plikach po prostu brakuje – AutoFileSync używa wtedy udokumentowanej wartości
+domyślnej i mimo to wczytuje plik. Pojedynczy uszkodzony wpis również nie
+powoduje utraty całej konfiguracji; zostaje pominięty.</p>
+
+<p>Przy zapisie istniejący plik nie zostaje zniszczony, jeśli zapis się nie
+powiedzie – w razie wątpliwości zachowany zostaje poprzedni stan.</p>
+
+</body>
+</html>

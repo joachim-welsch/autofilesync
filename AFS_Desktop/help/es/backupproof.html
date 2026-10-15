@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Comprobante de copia</title>
+</head>
+<body>
+<h1>Comprobante de copia</h1>
+
+<p>Si tiene que demostrar que se hizo una copia de seguridad, puede marcar una
+sincronización para un <b>Comprobante de copia</b> – la marca está en la pestaña
+<a href="options.html">Opciones</a>. A diferencia del registro, cuyo alcance
+depende del nivel configurado y que se recorta al cabo de unos días, el
+comprobante está pensado para conservarse.</p>
+
+<h2>Dónde se escribe</h2>
+
+<p>La carpeta se indica en la <a href="logging.html">configuración del
+registro</a>, en <b>Ruta de los comprobantes de copia</b>. En ella AutoFileSync
+crea un archivo por sincronización, con su nombre, en formato JSON:</p>
+
+<blockquote><tt>&lt;carpeta de comprobantes&gt;\&lt;nombre de la sincronización&gt;.json</tt></blockquote>
+
+<h2>Qué contiene una entrada</h2>
+
+<ul>
+<li>fecha y hora de la ejecución</li>
+<li>origen y destino</li>
+<li>número de archivos transferidos</li>
+<li>volumen transferido</li>
+<li>mensajes de error que se produjeron</li>
+<li>estado <tt>Correcto</tt> o <tt>Fallido</tt></li>
+</ul>
+
+<p>Los nombres de los campos se escriben en el idioma que muestra el programa en
+el momento de la ejecución; un archivo empezado en un idioma se continúa con el
+nombre de su lista.</p>
+
+<h2>Qué no se escribe</h2>
+
+<p>Una ejecución que no tuvo nada que hacer no escribe ninguna entrada. Con una
+pausa de pocos segundos habría si no cientos de líneas sin contenido por hora,
+entre las que ya no se encontrarían las ejecuciones con contenido real.</p>
+
+<p>Los mensajes de error del comprobante proceden directamente de la
+sincronización, no del registro. Por eso el nivel de registro configurado no
+influye en lo que contiene el comprobante.</p>
+
+<p>Si un archivo de comprobante existente no se puede leer, no se sustituye, sino
+que se deja como está: es una prueba, y el contenido que ya tiene pesa más que la
+entrada que no se puede añadir en ese momento.</p>
+
+</body>
+</html>

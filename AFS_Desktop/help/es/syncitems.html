@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Crear sincronizaciones</title>
+</head>
+<body>
+<h1>Crear sincronizaciones</h1>
+
+<p>Una sincronización describe una tarea: qué se iguala, desde dónde y hacia
+dónde. Se crea con <b>Archivo &rarr; Nueva sincronización…</b> y se modifica con
+<b>Edición &rarr; Editar sincronización…</b> o con un doble clic en la
+entrada.</p>
+
+<h2>Nombre</h2>
+
+<p>El nombre identifica la sincronización y debe ser único. Aparece en la vista
+general, en el registro y – si está activado – como nombre de archivo del
+<a href="backupproof.html">comprobante de copia</a>.</p>
+
+<h2>Tipo</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Tipo</th><th align="left">Qué se iguala</th></tr>
+<tr>
+  <td valign="top"><b>Archivo</b></td>
+  <td>Exactamente un archivo. Origen y destino son nombres de archivo
+      completos.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Carpeta</b></td>
+  <td>Todos los archivos de una carpeta, <i>sin</i> sus subcarpetas.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Árbol de carpetas</b></td>
+  <td>Una carpeta con todas sus subcarpetas. Las carpetas de destino que falten
+      se crean.</td>
+</tr>
+</table>
+
+<h2>Origen y destino</h2>
+
+<p>Ambos campos admiten una ruta. El botón de al lado abre un selector; para un
+equipo al otro lado de una conexión SSH hay un botón propio, consulte
+<a href="ssh.html">Sincronizar por SSH</a>.</p>
+
+<p>Un destino que todavía no existe se crea en la primera ejecución. Si el origen
+está en una unidad extraíble o en una unidad de red que no está conectada en ese
+momento, AutoFileSync omite la sincronización y no toca el destino – esto es
+importante para que una unidad desconectada nunca se confunda con «se ha borrado
+todo».</p>
+
+<h2>Comodín</h2>
+
+<p>En los tipos Carpeta y Árbol de carpetas, el campo <b>Comodín</b> limita qué
+archivos se tienen en cuenta, por ejemplo <tt>*.txt</tt> para archivos de texto o
+<tt>*.*</tt> para todos. Los archivos que no coinciden son invisibles para esta
+sincronización: no se copian ni se eliminan, ni siquiera cuando
+<a href="options.html">los archivos eliminados también deben eliminarse en el
+destino</a>.</p>
+
+<h2>Exclusiones</h2>
+
+<p>La pestaña <b>Exclusiones</b> contiene un patrón por línea, por ejemplo:</p>
+
+<blockquote><tt>*.tmp<br>
+node_modules<br>
+Thumbs.db</tt></blockquote>
+
+<p>Las exclusiones valen tanto al copiar como al eliminar. En un árbol de
+carpetas, en una carpeta excluida ni siquiera se entra – esto ahorra tiempo y
+evita tener que comprobar uno por uno los archivos que contiene.</p>
+
+<h2>Activa</h2>
+
+<p>Una sincronización sin la marca <b>Sincronización activa</b> se queda en la
+lista, pero no se ejecuta. Así se puede dejar una tarea en pausa un tiempo sin
+perderla.</p>
+
+<p>Siga con las <a href="options.html">opciones</a>.</p>
+
+</body>
+</html>

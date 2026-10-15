@@ -251,7 +251,7 @@ Alle benutzersichtbaren Texte von `AFS_Core` und `AFS_Desktop` laufen über das 
 `Translation` von AFS_Core; die GUI-Tests holen die Texte, an denen sie einen Dialog
 erkennen, aus demselben Katalog und laufen so in jeder Sprache.
 Die msgids sind technische Schlüssel (`source_dir_not_reachable`), kein Anzeigetext:
-Deutsch und Englisch sind gleichberechtigte Kataloge, und ein Build ohne Katalog hat
+alle Sprachen sind gleichberechtigte Kataloge, und ein Build ohne Katalog hat
 keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
 
 - Kataloge: `po/de.po`, `po/en.po`, `po/es.po`, `po/fr.po`, `po/it.po`, `po/pl.po`
@@ -397,9 +397,9 @@ liegen in `AFS_Desktop/installer/macos_bundle.sh`.
 Das Verzeichnis `AFS_Desktop/help/` gehört neben die installierte
 Programmdatei – dort sucht das Programm sein Hilfebuch: `help/help.htb` auf
 Deutsch, `help/<sprache>/help.htb` für jede andere Sprache, ersatzweise
-`help/en/help.htb`. Eine weitere Sprache braucht nur ihre Seiten in
-`AFS_Desktop/help/<sprache>/` und einen Aufruf `afs_pack_help_book` in
-`AFS_Desktop/CMakeLists.txt` (sowie in `tools/packHelp.*`). Die Bücher sind
+`help/en/help.htb`. Eine weitere Sprache braucht nur ihre Seiten samt `help.hhp`
+in `AFS_Desktop/help/<sprache>/`: Build, `tools/packHelp.*` und die
+Paketskripte nehmen jedes solche Verzeichnis selbst auf. Die Bücher sind
 nicht versioniert: der CMake-Build packt es aus den Seiten (Ziel `help_book`),
 der MSBuild-Build über `build.cmd` mit `tools/packHelp.ps1`. Der Build kopiert
 das Verzeichnis nach jedem Linken neben die Programmdatei (`build/help/`), ein

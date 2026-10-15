@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchroniser une fois</title>
+</head>
+<body>
+<h1>Synchroniser une fois</h1>
+
+<p><b>Synchronisation &rarr; Synchroniser une fois</b> effectue exactement un
+passage sur toutes les synchronisations actives puis s'arrête. La pause réglée
+pour les tâches ne joue ici aucun rôle – elle ne vaut que pour le fonctionnement
+continu.</p>
+
+<p>C'est la bonne commande pour</p>
+
+<ul>
+<li>essayer une synchronisation nouvellement créée,</li>
+<li>tout mettre en concordance une dernière fois avant de débrancher un
+    support,</li>
+<li>vérifier le résultat après avoir modifié une option, sans que le programme
+    continue ensuite.</li>
+</ul>
+
+<p>Pendant le passage, <b>Démarrer</b> et <b>Synchroniser une fois</b> sont
+désactivés ; ensuite, ils sont de nouveau disponibles. Ce qui s'est passé figure
+dans le <a href="logging.html">journal</a> et, si la
+<a href="backupproof.html">preuve de sauvegarde</a> est activée, aussi dans le
+fichier de preuve.</p>
+
+<p>Si rien ne doit être modifié et que vous voulez seulement savoir combien il y
+aurait à faire, consultez le journal au niveau <tt>Info</tt> : le passage compte
+les fichiers concernés avant de copier.</p>
+
+</body>
+</html>

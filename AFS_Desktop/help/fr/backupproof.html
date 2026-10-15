@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Preuve de sauvegarde</title>
+</head>
+<body>
+<h1>Preuve de sauvegarde</h1>
+
+<p>Si vous devez prouver qu'une sauvegarde a été faite, vous pouvez marquer une
+synchronisation pour une <b>Preuve de sauvegarde</b> – la case se trouve dans
+l'onglet <a href="options.html">Options</a>. Contrairement au journal, dont
+l'étendue dépend du niveau choisi et qui est raccourci après quelques jours, la
+preuve est faite pour être conservée.</p>
+
+<h2>Où elle est écrite</h2>
+
+<p>Le dossier se règle dans les <a href="logging.html">paramètres de
+journalisation</a> sous <b>Chemin des preuves de sauvegarde</b>. AutoFileSync y
+crée un fichier par synchronisation, portant son nom, au format JSON :</p>
+
+<blockquote><tt>&lt;dossier des preuves&gt;\&lt;nom de la synchronisation&gt;.json</tt></blockquote>
+
+<h2>Ce que contient une entrée</h2>
+
+<ul>
+<li>horodatage du passage</li>
+<li>source et cible</li>
+<li>nombre de fichiers transférés</li>
+<li>volume transféré</li>
+<li>messages d'erreur survenus</li>
+<li>statut <tt>Réussi</tt> ou <tt>Échoué</tt></li>
+</ul>
+
+<p>Les noms des champs sont écrits dans la langue qu'affiche le programme au
+moment du passage ; un fichier commencé dans une langue est poursuivi sous le nom
+de sa liste.</p>
+
+<h2>Ce qui n'est pas écrit</h2>
+
+<p>Un passage qui n'avait rien à faire n'écrit pas d'entrée. Avec une pause de
+quelques secondes, il y aurait sinon des centaines de lignes sans intérêt par
+heure, parmi lesquelles on ne retrouverait plus les passages ayant un vrai
+contenu.</p>
+
+<p>Les messages d'erreur de la preuve proviennent directement de la
+synchronisation et non du journal. Le niveau de journalisation choisi n'a donc
+aucune influence sur le contenu de la preuve.</p>
+
+<p>Si un fichier de preuve existant ne peut pas être lu, il n'est pas remplacé
+mais laissé tel quel : c'est un justificatif, et son contenu existant pèse plus
+lourd que l'entrée qui ne peut pas être ajoutée pour l'instant.</p>
+
+</body>
+</html>

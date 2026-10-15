@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="wxWidgets HTML Help">
+  <TITLE>Index</TITLE>
+</HEAD>
+<BODY>
+  <UL>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Avviare e arrestare la sincronizzazione">
+      <PARAM name="Local" value="runsync.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Avvio automatico">
+      <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Carattere jolly">
+      <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Condizioni di licenza (GPL)">
+      <PARAM name="Local" value="licensing.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Confronto dei file (data, dimensione, contenuto)">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Connessioni SSH">
+      <PARAM name="Local" value="ssh.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Eliminare l'origine dopo la copia">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Eliminare nella destinazione i file eliminati">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Esclusioni">
+      <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="File di configurazione">
+      <PARAM name="Local" value="config.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Lingua">
+      <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Log (file di log)">
+      <PARAM name="Local" value="logging.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Modalit&agrave; di eliminazione e cestino">
+      <PARAM name="Local" value="settings.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Notifica via e-mail">
+      <PARAM name="Local" value="logging.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Principio generazionale">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Prova di backup">
+      <PARAM name="Local" value="backupproof.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Risoluzione dei problemi">
+      <PARAM name="Local" value="troubleshooting.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Servizio in background">
+      <PARAM name="Local" value="service.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sincronizza una volta">
+      <PARAM name="Local" value="synconce.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sincronizzare file vuoti">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sincronizzazione bidirezionale">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Tipo (file, cartella, albero di cartelle)">
+      <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Tolleranza della data di modifica (NTFS, FAT, exFAT)">
+      <PARAM name="Local" value="options.html#timetolerance">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Visualizzazioni (elenco, albero, tabella)">
+      <PARAM name="Local" value="runsync.html">
+    </OBJECT></LI>
+  </UL>
+</BODY>
+</HTML>

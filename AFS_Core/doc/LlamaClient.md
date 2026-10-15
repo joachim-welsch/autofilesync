@@ -92,7 +92,7 @@ adds the blank lines that separate it from the excerpt, so no translation can dr
 
 Sent in front of the help excerpt. It names the page in brackets so that the model can point the
 user to it, says that the answer keeps the language of the conversation even if the excerpt is
-in another one - the help exists in German and English only - and tells
+in another one - a language without a help book of its own gets the English one - and tells
 the model to pass over an excerpt that does not fit, since the keyword match is no guarantee.
 
 ## backend-init

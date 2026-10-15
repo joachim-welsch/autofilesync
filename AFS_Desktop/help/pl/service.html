@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Usługa w tle</title>
+</head>
+<body>
+<h1>Usługa w tle</h1>
+
+<p>Usługa w tle synchronizuje bez potrzeby otwierania okna programu – także
+wtedy, gdy nikt nie jest zalogowany. Korzysta z tego samego
+<a href="config.html">pliku konfiguracji</a> co program, czyli z tych samych
+synchronizacji z tymi samymi opcjami.</p>
+
+<h2>Sterowanie</h2>
+
+<p>Menu <b>Usługa w tle</b> zawiera polecenia <b>Uruchom</b> i
+<b>Zatrzymaj</b>. W <b>Widok &rarr; Usługa w tle</b> można sprawdzić, czy usługa
+akurat działa.</p>
+
+<p>Pakiet instalacyjny pozwala użytkownikowi, na którego koncie działa usługa,
+uruchamiać ją i zatrzymywać bez hasła administratora. Inni użytkownicy są
+pytani o hasło administratora.</p>
+
+<h2>Współpraca z programem</h2>
+
+<p>Usługa i program nie wchodzą sobie w drogę: synchronizuje zawsze tylko jedna
+ze stron, aby dwa przebiegi nie dotykały jednocześnie tych samych plików. Jeśli w
+programie wybierzesz <b>Uruchom</b>, gdy usługa pracuje, usługa ustępuje.</p>
+
+<h2>Kiedy usługa się opłaca</h2>
+
+<ul>
+<li>Kopie zapasowe mają być wykonywane także bez zalogowanego użytkownika.</li>
+<li>Okno programu nie ma być stale otwarte.</li>
+<li>Komputer pracuje bez przerwy i ma uzgadniać dane bez nadzoru – wtedy ma sens
+    <a href="logging.html">powiadomienie e-mailem</a>, bo nikt nie widzi
+    komunikatów na ekranie.</li>
+</ul>
+
+<h2>Zmiany w konfiguracji</h2>
+<p>Usługa odczytuje plik konfiguracji. Ponieważ program zapisuje każdą zmianę od
+razu, działająca usługa przejmuje ją sama: przerywa bieżący przebieg i zaczyna od
+nowa z nową konfiguracją. Tylko gdy zapis się nie powiódł, tytuł okna pokazuje
+<b>(niezapisane)</b>, a usługa pracuje dalej ze starym stanem; przy uruchamianiu
+usługi program pyta wtedy, czy zapisać – <b>Anuluj</b> nie uruchamia
+usługi.</p>
+
+</body>
+</html>

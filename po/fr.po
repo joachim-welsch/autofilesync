@@ -1143,7 +1143,7 @@ msgstr "Erreur lors de la détermination du chemin : "
 
 #: AFS_Desktop/src/MainWindow.cpp:319
 msgid "about_text"
-msgstr "%1\nVersion %2\n\nSynchronisation automatique de fichiers et d'arborescences de dossiers\nsous %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nLicence : GNU GPL v3 ou ultérieure,\nvoir Aide → Licence terms."
+msgstr "%1\nVersion %2\n\nSynchronisation automatique de fichiers et d'arborescences de dossiers\nsous %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nLicence : GNU GPL v3 ou ultérieure,\nvoir Aide → Conditions de licence."
 
 #: AFS_Desktop/src/MainWindow.cpp:321
 msgid "about_title"
@@ -1839,7 +1839,7 @@ msgstr "Copyright © 2026 Joachim Welsch"
 
 #: AFS_Desktop/src/MainWindow.cpp
 msgid "about_description"
-msgstr "Synchronisation automatique de fichiers et d'arborescences de dossiers sous %1.\n\nhttps://welsch-software.com\n\nLicence : GNU GPL v3 ou ultérieure, voir Aide → Licence terms."
+msgstr "Synchronisation automatique de fichiers et d'arborescences de dossiers sous %1.\n\nhttps://welsch-software.com\n\nLicence : GNU GPL v3 ou ultérieure, voir Aide → Conditions de licence."
 
 #: AFS_Desktop/include/utilwx.h
 msgid "label_colon"

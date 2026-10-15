@@ -145,8 +145,9 @@ sudo cp -r AFS_Desktop/help/. /opt/autofilesync/help/
 
 Die Hilfe besteht aus den kompilierten Hilfebüchern (ZIP-Archive mit allen
 Seiten) sowie den unkomprimierten Quelldateien: `help/help.htb` auf Deutsch,
-`help/en/help.htb` auf Englisch. Das Programm liest zur Laufzeit nur das Buch in
-der angezeigten Sprache – Englisch für jede Sprache ohne eigenes Buch –; die
+`help/<sprache>/help.htb` für jede weitere Sprache. Das Programm liest zur
+Laufzeit nur das Buch in der angezeigten Sprache – Englisch für eine Sprache
+ohne eigenes Buch –; die
 übrigen Dateien werden mitkopiert, damit die Hilfe am Zielsystem nachvollziehbar
 und neu erzeugbar bleibt.
 

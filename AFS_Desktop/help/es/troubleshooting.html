@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Cuando algo no ocurre como se espera</title>
+</head>
+<body>
+<h1>Cuando algo no ocurre como se espera</h1>
+
+<p>El primer lugar donde mirar es siempre el <a href="logging.html">registro</a>.
+Con el nivel <tt>Info</tt> indica qué se copió y qué se eliminó; con
+<tt>Debug</tt>, además, qué archivo se omitió y por qué.</p>
+
+<h2>Un archivo no se copia</h2>
+
+<ul>
+<li><b>Está vacío.</b> Los archivos de tamaño 0 se omiten mientras
+    <a href="options.html">Sincronizar archivos vacíos</a> no esté activada. El
+    registro anota «El archivo de origen vacío no se copió».</li>
+<li><b>El comodín no coincide</b> o se aplica una <b>exclusión</b>; consulte
+    <a href="syncitems.html">Crear sincronizaciones</a>.</li>
+<li><b>El destino es más reciente que el origen.</b> Sin <b>Copiar aunque el
+    archivo de destino sea más reciente</b> no se toca.</li>
+<li><b>Origen y destino se consideran iguales.</b> Si solo se compara por
+    <b>Fecha</b>, un cambio de contenido sin nueva fecha de modificación pasa
+    desapercibido. En ese caso active también <b>Tamaño</b> o
+    <b>Contenido</b>.</li>
+<li><b>La sincronización no está activa</b> – falta la marca
+    <b>Sincronización activa</b>.</li>
+<li><b>Se trata de una subcarpeta</b>, pero la sincronización es del tipo
+    <b>Carpeta</b>. Para las subcarpetas hace falta el tipo <b>Árbol de
+    carpetas</b>.</li>
+</ul>
+
+<h2>Los archivos se vuelven a copiar en cada ejecución aunque no han cambiado</h2>
+
+<p>El destino guarda la fecha de modificación con menos precisión que el origen,
+por ejemplo un disco NTFS o FAT como destino de un disco Linux. La copia queda
+entonces unas fracciones de segundo por delante de su original y, al comparar por
+<b>Fecha</b>, el origen se considera más reciente. La
+<a href="options.html#timetolerance">Tolerancia en segundos</a> de la pestaña
+Opciones lo evita; está en 0 si alguien la desactivó. Un salto de exactamente una
+hora en todos los archivos indica FAT tras un cambio de hora; consulte allí.</p>
+
+<h2>No se elimina nada en el destino aunque la opción está activada</h2>
+
+<ul>
+<li><b>El origen no es accesible.</b> Una unidad desconectada, un recurso
+    compartido no conectado o un servidor SSH inaccesible hacen que no se
+    elimine nada. Es intencionado.</li>
+<li><b>El tipo es Archivo.</b> La opción solo vale para Carpeta y Árbol de
+    carpetas.</li>
+<li><b>El comodín o una exclusión</b> dejan el archivo fuera de la
+    sincronización – entonces tampoco se elimina.</li>
+<li><b>Se trata de una carpeta.</b> Se reflejan archivos; una carpeta eliminada
+    en el origen permanece en el destino.</li>
+</ul>
+
+<h2>No se sincroniza nada</h2>
+
+<ul>
+<li>¿Se está ejecutando el <a href="service.html">servicio en segundo
+    plano</a>? El servicio y el programa no sincronizan a la vez.</li>
+<li>Si <b>Iniciar</b> y <b>Sincronizar una vez</b> aparecen en gris, la
+    configuración no contiene ninguna sincronización ejecutable – por ejemplo
+    porque todas están inactivas o faltan el origen y el destino.</li>
+<li>¿Se <a href="config.html">guardó</a> la configuración tras el último
+    cambio?</li>
+<li>Con origen o destino por SSH: ¿responde el otro extremo? AutoFileSync lo
+    comprueba antes de cada ejecución y omite la sincronización mientras el
+    servidor no sea accesible o falle el inicio de sesión. El registro indica
+    entonces «Ruta SSH no accesible» con el motivo.</li>
+<li><b>El servidor vuelve a estar disponible, pero sigue sin ocurrir nada.</b>
+    El resultado de la comprobación de accesibilidad se guarda temporalmente para
+    que no cada ejecución abra una conexión nueva. Tras un intento fallido se
+    vuelve a comprobar como pronto al cabo de unos segundos y, durante un fallo
+    prolongado, como mucho cada cinco minutos. Por tanto, pueden pasar hasta
+    cinco minutos hasta que se detecte una conexión restablecida.</li>
+</ul>
+
+<h2>Falla una conexión SSH</h2>
+
+<ul>
+<li><b>Error de autenticación</b> – el nombre de usuario o la contraseña no son
+    correctos, o el servidor no permite iniciar sesión con contraseña.</li>
+<li><b>Error de conexión</b> – no se puede acceder al host o al puerto.</li>
+<li><b>La clave del host ha cambiado</b> – el servidor se identifica con una clave
+    distinta de la primera vez. AutoFileSync interrumpe entonces la conexión. Si
+    el cambio tiene explicación, por ejemplo tras reinstalar el servidor, hay que
+    eliminar la entrada antigua del archivo <tt>known_hosts</tt> de su perfil de
+    usuario.</li>
+<li><b>Cuenta SSH no encontrada</b> – el nombre antes de los dos puntos en la
+    ruta no pertenece a ninguna conexión creada. Ocurre, por ejemplo, cuando se
+    ha renombrado una conexión; las sincronizaciones afectadas siguen apuntando
+    al nombre antiguo.</li>
+</ul>
+
+<p>En todos estos casos, la sincronización afectada se omite en esta ejecución:
+no se copia ni se elimina nada. Las demás sincronizaciones siguen con
+normalidad.</p>
+
+<h2>Recuperar archivos eliminados</h2>
+
+<p>Si el <a href="settings.html">modo de eliminación</a> es <b>Mover a la
+papelera</b>, los archivos están en la carpeta de papelera configurada, con la
+estructura de su lugar de procedencia. Con <b>Eliminar definitivamente</b> y con
+destinos por SSH no existe tal copia.</p>
+
+<p>Si se sobrescribió un archivo de destino, ayuda el
+<a href="options.html">Principio generacional</a> – siempre que estuviera
+activado antes: la versión anterior está entonces junto al archivo como
+<tt>.bak.1</tt>.</p>
+
+</body>
+</html>

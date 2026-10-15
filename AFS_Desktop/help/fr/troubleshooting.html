@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Quand quelque chose ne se passe pas comme prévu</title>
+</head>
+<body>
+<h1>Quand quelque chose ne se passe pas comme prévu</h1>
+
+<p>Le premier endroit où regarder est toujours le <a href="logging.html">journal</a>.
+Au niveau <tt>Info</tt>, il indique ce qui a été copié et supprimé ; au niveau
+<tt>Debug</tt>, aussi quel fichier a été ignoré et pour quelle raison.</p>
+
+<h2>Un fichier n'est pas copié</h2>
+
+<ul>
+<li><b>Il est vide.</b> Les fichiers de taille 0 sont ignorés tant que
+    <a href="options.html">Synchroniser les fichiers vides</a> n'est pas coché.
+    Le journal indique « Le fichier source vide n'a pas été copié ».</li>
+<li><b>Le caractère générique ne correspond pas</b>, ou une <b>exclusion</b>
+    s'applique, voir <a href="syncitems.html">Créer des synchronisations</a>.</li>
+<li><b>La cible est plus récente que la source.</b> Sans <b>Copier même si le
+    fichier cible est plus récent</b>, elle reste intacte.</li>
+<li><b>Source et cible sont considérées comme identiques.</b> Si la comparaison
+    se fait uniquement par <b>Date</b>, une modification du contenu sans nouvelle
+    date de modification passe inaperçue. Dans ce cas, cochez aussi
+    <b>Taille</b> ou <b>Contenu</b>.</li>
+<li><b>La synchronisation n'est pas active</b> – la case <b>Synchronisation
+    active</b> n'est pas cochée.</li>
+<li><b>Il s'agit d'un sous-dossier</b>, mais la synchronisation est de type
+    <b>Dossier</b>. Les sous-dossiers nécessitent le type
+    <b>Arborescence</b>.</li>
+</ul>
+
+<h2>Des fichiers sont recopiés à chaque passage alors qu'ils n'ont pas changé</h2>
+
+<p>La cible enregistre la date de modification moins précisément que la source,
+par exemple un disque NTFS ou FAT servant de cible à un disque Linux. La copie a
+alors quelques fractions de seconde d'avance sur son original, et lors de la
+comparaison par <b>Date</b>, la source est considérée comme plus récente. La
+<a href="options.html#timetolerance">Tolérance en secondes</a> de l'onglet
+Options règle ce problème ; elle est à 0 si quelqu'un l'a désactivée. Un décalage
+d'exactement une heure sur tous les fichiers indique FAT après un changement
+d'heure, voir là-bas.</p>
+
+<h2>Rien n'est supprimé dans la cible alors que l'option est cochée</h2>
+
+<ul>
+<li><b>La source est inaccessible.</b> Un lecteur débranché, un partage non
+    connecté ou un serveur SSH injoignable font que rien n'est supprimé. C'est
+    voulu.</li>
+<li><b>Le type est Fichier.</b> L'option ne vaut que pour Dossier et
+    Arborescence.</li>
+<li><b>Le caractère générique ou une exclusion</b> retire le fichier de la
+    synchronisation – il n'est alors pas supprimé non plus.</li>
+<li><b>Il s'agit d'un dossier.</b> Ce sont les fichiers qui sont reproduits ; un
+    dossier supprimé dans la source reste dans la cible.</li>
+</ul>
+
+<h2>Rien n'est synchronisé du tout</h2>
+
+<ul>
+<li>Le <a href="service.html">service en arrière-plan</a> tourne-t-il ? Le
+    service et le programme ne synchronisent pas en même temps.</li>
+<li>Si <b>Démarrer</b> et <b>Synchroniser une fois</b> sont grisés, la
+    configuration ne contient aucune synchronisation exécutable – par exemple
+    parce que toutes sont inactives, ou parce que la source et la cible
+    manquent.</li>
+<li>La configuration a-t-elle été <a href="config.html">enregistrée</a> après la
+    dernière modification ?</li>
+<li>Avec une source ou une cible SSH : l'autre côté répond-il ? AutoFileSync le
+    vérifie avant chaque passage et laisse la synchronisation de côté tant que le
+    serveur est injoignable ou que l'authentification échoue. Le journal indique
+    alors « Chemin SSH inaccessible » avec la raison.</li>
+<li><b>Le serveur est de retour, mais il ne se passe toujours rien.</b> Le
+    résultat de la vérification d'accessibilité est mis en cache, pour que chaque
+    passage n'ouvre pas une nouvelle connexion. Après une tentative échouée, une
+    nouvelle vérification a lieu au plus tôt après quelques secondes, et en cas de
+    panne durable au plus toutes les cinq minutes. Il peut donc s'écouler jusqu'à
+    cinq minutes avant qu'une connexion rétablie soit remarquée.</li>
+</ul>
+
+<h2>Une connexion SSH échoue</h2>
+
+<ul>
+<li><b>Erreur d'authentification</b> – le nom d'utilisateur ou le mot de passe
+    est incorrect, ou le serveur n'autorise pas la connexion par mot de
+    passe.</li>
+<li><b>Erreur de connexion</b> – l'hôte ou le port est injoignable.</li>
+<li><b>La clé d'hôte a changé</b> – le serveur s'identifie avec une autre clé
+    que la première fois. AutoFileSync interrompt alors la connexion. Si le
+    changement s'explique, par exemple après une réinstallation du serveur,
+    l'ancienne entrée doit être supprimée du fichier <tt>known_hosts</tt> de
+    votre profil utilisateur.</li>
+<li><b>Compte SSH introuvable</b> – le nom avant les deux-points dans le chemin
+    n'appartient à aucune connexion créée. Cela arrive par exemple quand une
+    connexion a été renommée ; les synchronisations concernées pointent alors
+    toujours vers l'ancien nom.</li>
+</ul>
+
+<p>Dans tous ces cas, la synchronisation concernée est sautée pour ce passage :
+rien n'est copié ni supprimé. Les autres synchronisations continuent
+normalement.</p>
+
+<h2>Récupérer des fichiers supprimés</h2>
+
+<p>Si le <a href="settings.html">mode de suppression</a> est réglé sur
+<b>Déplacer vers la corbeille</b>, les fichiers se trouvent dans le dossier de
+corbeille configuré, dans la structure de leur emplacement d'origine. Avec
+<b>Supprimer définitivement</b> et avec des cibles SSH, il n'existe pas de telle
+copie.</p>
+
+<p>Si un fichier cible a été écrasé, le <a href="options.html">Principe des
+générations</a> peut aider – à condition qu'il ait été activé auparavant : la
+version précédente se trouve alors à côté du fichier sous le nom
+<tt>.bak.1</tt>.</p>
+
+</body>
+</html>

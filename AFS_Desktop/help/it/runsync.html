@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Eseguire una sincronizzazione</title>
+</head>
+<body>
+<h1>Eseguire una sincronizzazione</h1>
+
+<p>Il menu <b>Sincronizzazione</b> controlla l'esecuzione.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="25%">Comando</th><th align="left">Effetto</th></tr>
+<tr><td valign="top"><b>Avvia</b></td>
+    <td>Avvia il funzionamento continuo. AutoFileSync esegue una dopo l'altra
+        tutte le sincronizzazioni attive, attende la pausa impostata per ciascun
+        compito e ricomincia da capo.</td></tr>
+<tr><td valign="top"><b>Arresta</b></td>
+    <td>Termina il funzionamento. Una copia in corso viene ancora portata a
+        termine, poi l'elaborazione si ferma.</td></tr>
+<tr><td valign="top"><b>Sincronizza una volta</b></td>
+    <td>Una singola esecuzione su tutte le sincronizzazioni attive; poi
+        l'elaborazione si ferma da sola. Vedere
+        <a href="synconce.html">Sincronizza una volta</a>.</td></tr>
+</table>
+
+<p>Avvia e l'esecuzione singola sono disponibili solo se la configurazione
+contiene almeno una sincronizzazione eseguibile. Mentre un'esecuzione è attiva
+sono bloccati.</p>
+
+<h2>Che cosa si vede nel frattempo</h2>
+
+<p>Il campo destro della barra di stato mostra sempre che cosa sta facendo la
+sincronizzazione: <em>Sincronizzazione arrestata</em>, <em>Conteggio dei file
+…</em>, <em>Sincronizzazione singola in corso …</em>, <em>Sincronizzazione in
+corso …</em> oppure <em>In pausa – prossima esecuzione tra N s</em> quando tutti
+i compiti sono nella loro <a href="options.html">pausa</a>. Per i trasferimenti
+più lunghi compare una finestra di avanzamento con origine, destinazione e
+quantità. La barra degli strumenti passa da Avvia ad Arresta, così lo stato si
+può leggere in qualsiasi momento.</p>
+
+<p>Quando la finestra è ridotta a icona, la sincronizzazione continua nell'area di
+notifica della barra delle applicazioni.</p>
+
+<h2>Automaticamente all'avvio del programma</h2>
+
+<p>Nelle <a href="settings.html">impostazioni generali</a> si può fare in modo
+che AutoFileSync inizi la sincronizzazione subito dopo l'avvio – insieme ad
+<b>Avvia l'applicazione automaticamente</b> e <b>Avvia ridotto a icona</b> si
+ottiene un funzionamento che procede senza interventi. Chi vuole la
+sincronizzazione senza tenere aperto il programma usa il
+<a href="service.html">servizio in background</a>.</p>
+
+<h2>Visualizzazioni</h2>
+
+<p>Il menu <b>Visualizza</b> cambia la panoramica:</p>
+
+<ul>
+<li><b>Elenco</b> – una riga per sincronizzazione</li>
+<li><b>Albero</b> – ordinato per origine e destinazione</li>
+<li><b>Tabella</b> – tutti i campi affiancati, utile per confrontare più
+    compiti</li>
+<li><b>Mostra file di log</b> – apre il log nell'editor impostato, vedere
+    <a href="logging.html">Log e notifiche</a></li>
+<li><b>Background</b> – mostra lo stato del
+    <a href="service.html">servizio in background</a></li>
+</ul>
+
+</body>
+</html>

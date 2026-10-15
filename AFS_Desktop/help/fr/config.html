@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Fichier de configuration</title>
+</head>
+<body>
+<h1>Fichier de configuration</h1>
+
+<p>Toutes les synchronisations, connexions SSH et tous les paramètres se trouvent
+dans un fichier au format JSON. C'est ce fichier que se partagent le programme et
+le <a href="service.html">service en arrière-plan</a>.</p>
+
+<h2>Où il se trouve</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="25%"><b>Windows</b></td>
+    <td><tt>%APPDATA%\autofilesync\autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td><tt>$XDG_CONFIG_HOME/autofilesync/autofilesync.json</tt>, à défaut
+        <tt>~/.config/autofilesync/autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>~/Library/Application Support/autofilesync/autofilesync.json</tt></td></tr>
+</table>
+
+<h2>Ouvrir et enregistrer</h2>
+
+<ul>
+<li><b>Fichier &rarr; Ouvrir…</b> charge une autre configuration, par exemple un
+    ensemble de synchronisations pour un usage précis.</li>
+<li>Chaque modification est <b>enregistrée aussitôt</b> – une case cochée dans
+    le tableau comme une boîte de dialogue quittée avec OK. Une étape
+    d'enregistrement séparée n'est pas nécessaire.</li>
+<li><b>Fichier &rarr; Enregistrer</b> n'est disponible que si l'écriture
+    automatique a échoué, par exemple sur un disque plein. Pendant ce temps, le
+    titre de la fenêtre affiche <b>(non enregistré)</b>, et le programme pose la
+    question avant de quitter et avant de démarrer le service en
+    arrière-plan.</li>
+<li><b>Fichier &rarr; Enregistrer sous…</b> crée une copie. Si le fichier existe
+    déjà, une confirmation est demandée avant de l'écraser.</li>
+</ul>
+
+<h2>Ce qu'il contient</h2>
+
+<p>Pour chaque synchronisation : nom, type, source, cible, caractère générique,
+exclusions, options et pause ; en plus les connexions SSH et les paramètres
+généraux. Les mots de passe des connexions SSH et du serveur de courrier sortant
+sont enregistrés <b>chiffrés</b>, pas en clair.</p>
+
+<p>Le fichier est en UTF-8 et peut, en cas d'urgence, être consulté avec un
+éditeur de texte. Une clé qu'une ancienne version du programme ne connaissait
+pas encore manque tout simplement dans les anciens fichiers – AutoFileSync
+utilise alors la valeur par défaut documentée et charge le fichier malgré tout.
+Une seule entrée endommagée ne fait pas non plus perdre toute la configuration ;
+elle est ignorée.</p>
+
+<p>Lors de l'écriture, le fichier existant n'est pas détruit si l'enregistrement
+échoue – en cas de doute, l'ancien état est conservé.</p>
+
+</body>
+</html>

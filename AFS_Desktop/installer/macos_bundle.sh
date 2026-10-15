@@ -64,8 +64,9 @@ afs_add_resources() {
     afs_info "=== Hilfe und Symbole einbetten ==="
     rm -rf "${app}/Contents/Resources/help"
     cp -R "${AFS_DESKTOP_DIR}/help" "${app}/Contents/Resources/help"
-    for book in help/help.htb help/en/help.htb; do
-        [ -f "${app}/Contents/Resources/${book}" ] || afs_fail "${book} fehlt in ${app}."
+    [ -f "${app}/Contents/Resources/help/help.htb" ] || afs_fail "help.htb fehlt in ${app}."
+    for language_dir in "${app}/Contents/Resources/help"/*/; do
+        [ -f "${language_dir}help.htb" ] || afs_fail "${language_dir}help.htb fehlt in ${app}."
     done
     cp -f "${AFS_DESKTOP_DIR}/icons/afs.icns" "${app}/Contents/Resources/afs.icns"
     afs_add_licenses "${app}"
@@ -165,7 +166,9 @@ afs_verify_bundle() {
     local duplicates; duplicates="$(shasum "${libraries[@]}" 2>/dev/null | awk '{print $1}' | sort | uniq -d)"
     [ -z "$duplicates" ] || { afs_warn "  Bibliothek doppelt eingebettet"; failures=1; }
     [ -f "${app}/Contents/Resources/help/help.htb" ] || { afs_warn "  help.htb fehlt"; failures=1; }
-    [ -f "${app}/Contents/Resources/help/en/help.htb" ] || { afs_warn "  help/en/help.htb fehlt"; failures=1; }
+    for language_dir in "${app}/Contents/Resources/help"/*/; do
+        [ -f "${language_dir}help.htb" ] || { afs_warn "  ${language_dir##*/help/}help.htb fehlt"; failures=1; }
+    done
     [ -f "${app}/Contents/Resources/afs.icns" ] || { afs_warn "  afs.icns fehlt"; failures=1; }
     [ -f "${app}/Contents/Resources/licenses/LICENSE" ] || { afs_warn "  Lizenztexte fehlen"; failures=1; }
     codesign --verify --deep --strict "${app}" 2>/dev/null || { afs_warn "  Signatur ungültig"; failures=1; }

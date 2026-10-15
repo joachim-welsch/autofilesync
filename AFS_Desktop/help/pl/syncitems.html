@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Zakładanie synchronizacji</title>
+</head>
+<body>
+<h1>Zakładanie synchronizacji</h1>
+
+<p>Synchronizacja opisuje zadanie: co jest uzgadniane, skąd i dokąd. Zakłada się
+ją przez <b>Plik &rarr; Nowa synchronizacja…</b>, a zmienia przez <b>Edycja
+&rarr; Edytuj synchronizację…</b> albo dwukrotne kliknięcie wpisu.</p>
+
+<h2>Nazwa</h2>
+
+<p>Nazwa identyfikuje synchronizację i musi być jednoznaczna. Pojawia się w
+przeglądzie, w dzienniku i – jeśli włączono – jako nazwa pliku
+<a href="backupproof.html">dowodu kopii zapasowej</a>.</p>
+
+<h2>Typ</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Typ</th><th align="left">Co jest uzgadniane</th></tr>
+<tr>
+  <td valign="top"><b>Plik</b></td>
+  <td>Dokładnie jeden plik. Źródło i cel to pełne nazwy plików.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Folder</b></td>
+  <td>Wszystkie pliki w jednym folderze, <i>bez</i> jego podfolderów.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Drzewo folderów</b></td>
+  <td>Folder wraz ze wszystkimi podfolderami. Brakujące foldery docelowe są
+      tworzone.</td>
+</tr>
+</table>
+
+<h2>Źródło i cel</h2>
+
+<p>Oba pola przyjmują ścieżkę. Przycisk obok otwiera okno wyboru; dla komputera
+po drugiej stronie połączenia SSH jest osobny przycisk, zobacz
+<a href="ssh.html">Synchronizacja przez SSH</a>.</p>
+
+<p>Cel, który jeszcze nie istnieje, zostaje utworzony przy pierwszym
+przebiegu. Jeśli źródło leży na nośniku wymiennym albo dysku sieciowym, który
+akurat nie jest podłączony, AutoFileSync pomija synchronizację i nie dotyka
+celu – to ważne, aby odłączony dysk nigdy nie został potraktowany jak
+„wszystko usunięto”.</p>
+
+<h2>Symbol wieloznaczny</h2>
+
+<p>Pole <b>Symbol wieloznaczny</b> ogranicza przy typach Folder i Drzewo
+folderów, które pliki są w ogóle brane pod uwagę, na przykład <tt>*.txt</tt> dla
+plików tekstowych albo <tt>*.*</tt> dla wszystkich. Pliki, które nie pasują, są
+dla tej synchronizacji niewidoczne: nie są ani kopiowane, ani usuwane, nawet
+wtedy, gdy <a href="options.html">usunięte pliki mają być usuwane także w
+celu</a>.</p>
+
+<h2>Wykluczenia</h2>
+
+<p>Na karcie <b>Wykluczenia</b> wpisuje się jeden wzorzec na wiersz, na
+przykład:</p>
+
+<blockquote><tt>*.tmp<br>
+node_modules<br>
+Thumbs.db</tt></blockquote>
+
+<p>Wykluczenia działają zarówno przy kopiowaniu, jak i przy usuwaniu. W drzewie
+folderów do wykluczonego folderu program w ogóle nie wchodzi – oszczędza to
+czas i nie trzeba sprawdzać po kolei leżących w nim plików.</p>
+
+<h2>Aktywna</h2>
+
+<p>Synchronizacja bez zaznaczenia <b>Synchronizacja aktywna</b> pozostaje na
+liście, ale nie jest wykonywana. Tak można czasowo wstrzymać zadanie, nie
+tracąc go.</p>
+
+<p>Dalej do <a href="options.html">opcji</a>.</p>
+
+</body>
+</html>
