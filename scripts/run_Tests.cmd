@@ -78,6 +78,8 @@ call :locate_msbuild
 if not defined MSBUILD exit /b 1
 "%MSBUILD%" "%IT_SOLUTION%" /nologo /m /v:minimal /p:Configuration=%BUILD_TYPE% /p:Platform=x64
 if errorlevel 1 exit /b 1
+call :compile_catalogues "%IT_DIR%\build\x64\%BUILD_TYPE%"
+if errorlevel 1 exit /b 1
 :integration_run
 set "IT_EXE=%IT_DIR%\build\x64\%BUILD_TYPE%\Integrationtests.exe"
 if exist "%IT_EXE%" goto integration_exec
@@ -92,6 +94,38 @@ pushd "%IT_DIR%"
 set "RESULT=%ERRORLEVEL%"
 popd
 exit /b %RESULT%
+
+rem The translation tests read the catalogues from locale\ beside the test binary and
+rem are skipped without them; the project file has no msgfmt step (see build.cmd).
+:compile_catalogues
+call :locate_msgfmt
+if not defined MSGFMT (
+    echo Warning: msgfmt not found - the translation tests will be skipped.
+    exit /b 0
+)
+for %%p in ("%ROOT%po\*.po") do (
+    call :compile_catalogue "%%~fp" "%~1\locale\%%~np\LC_MESSAGES"
+    if errorlevel 1 exit /b 1
+)
+exit /b 0
+
+:compile_catalogue
+if not exist "%~2" md "%~2"
+"%MSGFMT%" -o "%~2\autofilesync.mo" "%~1"
+exit /b %ERRORLEVEL%
+
+rem Same lookup as build.cmd: gettext keeps msgfmt inside the vcpkg tree, not on the PATH.
+:locate_msgfmt
+set "MSGFMT="
+for /f "delims=" %%i in ('where msgfmt 2^>nul') do if not defined MSGFMT set "MSGFMT=%%i"
+if defined MSGFMT exit /b 0
+set "VCPKG_DIR=%VCPKG_ROOT%"
+set "VCPKG_PATH_FILE=%LOCALAPPDATA%\vcpkg\vcpkg.path.txt"
+if not defined VCPKG_DIR if exist "%VCPKG_PATH_FILE%" set /p VCPKG_DIR=<"%VCPKG_PATH_FILE%"
+if not defined VCPKG_DIR exit /b 0
+set "CANDIDATE=%VCPKG_DIR%\installed\x64-windows\tools\gettext\bin\msgfmt.exe"
+if exist "%CANDIDATE%" set "MSGFMT=%CANDIDATE%"
+exit /b 0
 
 rem run_GUI_Tests.ps1 compiles with cl.exe instead of MSBuild (see there), so it keeps the build.
 :gui_tests

@@ -29,3 +29,10 @@ removes a file or a whole directory tree through SFTP as the test user. It talks
 to the server with the fixed test account instead of one from Config, because it
 runs after the test, when Config may already be reset. Errors are ignored: it is
 clean-up, and the leftover check of TestMain.cpp reports what stayed behind.
+
+## remove_remote_tree-windows
+
+On Windows the SSH test user writes into a directory of the local disk whose ACL the new
+files inherit, so the user running the tests can remove them with std::filesystem and the
+fixture's own clean-up suffices. The SFTP walk above uses libssh, which the Windows build does
+not link (it uses libssh2).

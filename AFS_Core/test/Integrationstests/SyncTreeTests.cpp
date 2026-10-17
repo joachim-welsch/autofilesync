@@ -509,6 +509,7 @@ TEST(SyncTreeTests, TwoWaySyncCopiesTargetOnlyFileBackToSourceAtNestedLevel)
     ASSERT_TRUE(std::filesystem::exists(wstring_to_string(SOURCE_PATH) + "subdir/newintarget.txt"));
     std::ifstream in(wstring_to_string(SOURCE_PATH) + "subdir/newintarget.txt");
     std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    in.close();  // Windows refuses to remove an open file
     EXPECT_EQ(content, "bring me back");
 
     tu::erase_test_dir(SOURCE_PATH, true);

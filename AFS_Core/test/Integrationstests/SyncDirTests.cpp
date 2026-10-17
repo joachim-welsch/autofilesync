@@ -252,6 +252,7 @@ TEST(SyncDirTests, TwoWaySyncCopiesTargetOnlyFileBackToSource)  // [SyncDirTests
     ASSERT_TRUE(std::filesystem::exists(SOURCE_PATH + L"newintarget.txt"));
     std::ifstream in(wstring_to_string(SOURCE_PATH) + "newintarget.txt");
     std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    in.close();  // Windows refuses to remove an open file
     EXPECT_EQ(content, "bring me back");
 
     tu::erase_test_dir(SOURCE_PATH, true);

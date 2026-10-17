@@ -1275,7 +1275,7 @@ TEST_F(ConfigPathTest, LoggingSectionWithoutNotificationKeysLoadsWithDefaults)  
 
     Logging& log = Logging::instance();
     EXPECT_EQ(log.get_log_level(), LogLevel::Info);
-    EXPECT_EQ(log.get_log_file_path_name(), log_file.wstring());
+    EXPECT_EQ(log.get_log_file_path_name(), log_file.generic_wstring());  // the JSON holds the generic form
     EXPECT_EQ(log.retention_days(), 7);
     EXPECT_FALSE(log.email().notify_active()) << "ohne Schluessel ist die Benachrichtigung aus";
     EXPECT_TRUE(log.email().notify_address().empty());

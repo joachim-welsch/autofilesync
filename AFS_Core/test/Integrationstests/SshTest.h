@@ -39,9 +39,7 @@ namespace SSHTest {
 #endif
 
 	bool ssh_available();  // [SshTest.md#ssh_available-contract]
-#ifdef _UNIX
 	void remove_remote_tree(const std::string& path);  // [SshTest.md#remove_remote_tree]
-#endif
 
 } // namespace SSHTest
 

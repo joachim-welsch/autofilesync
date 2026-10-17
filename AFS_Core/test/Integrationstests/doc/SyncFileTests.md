@@ -134,6 +134,11 @@ ends as Stopped with most of the file still pending. The file has to be large en
 watcher to win the race - with a small file the copy is complete before the thread wakes up,
 which the copy_count assertion then names as the reason instead of failing mysteriously.
 
+## stopper-running
+
+The copy only starts once the watcher thread runs. On a loaded Windows machine a new thread
+was seen to start only 100-270 ms later, after the whole 64 MiB copy had finished.
+
 ## StopDuringTheCopyLeavesNoHalfFileInTheTarget
 
 New target: the half-written file must be gone, nothing counted, the source untouched.

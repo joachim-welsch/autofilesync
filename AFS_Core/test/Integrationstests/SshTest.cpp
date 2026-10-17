@@ -110,6 +110,10 @@ void remove_remote_tree(const std::string& path)
 	catch (const std::exception&) {  // no server, nothing of it to remove
 	}
 }
+#else
+void remove_remote_tree(const std::string&)  // [SshTest.md#remove_remote_tree-windows]
+{
+}
 #endif
 
 } // namespace SSHTest

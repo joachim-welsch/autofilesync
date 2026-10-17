@@ -47,11 +47,23 @@ std::set<std::string> entries_below(const fs::path& dir)
     return entries;
 }
 
+fs::path unmounted_dir(const fs::path& root)  // [SyncPlanTests.md#unmounted_dir]
+{
+#ifdef _WIN32
+    std::error_code ec;
+    for (wchar_t letter = L'Z'; letter > L'C'; --letter)
+        if (const fs::path drive = std::wstring{letter, L':', L'\\'}; !fs::exists(drive, ec))
+            return drive / "not-mounted";
+#endif
+    return root / "not-mounted";
+}
+
 class SyncPlanTest: public ::testing::Test {
 protected:
     const fs::path root_{TestPaths::scratch_dir() + L"/plan"};
     const fs::path source_dir_ = root_ / "source";
     const fs::path target_dir_ = root_ / "target";
+    const fs::path unmounted_dir_ = unmounted_dir(root_);
 
     void SetUp() override
     {
@@ -218,7 +230,7 @@ TEST_F(SyncPlanTest, PreviewPassNamesTheUnreachableItems)  // [SyncPlanTests.md#
 {
     tu::write_text_file(source_dir_ / "a.txt", "a");
     Config::instance().reset();
-    Config::instance().add(SyncItem(L"unplugged", SyncItemType::Dir, source_dir_.wstring(), (root_ / "not-mounted").wstring(), L"*"));
+    Config::instance().add(SyncItem(L"unplugged", SyncItemType::Dir, source_dir_.wstring(), unmounted_dir_.wstring(), L"*"));
     Config::instance().add(SyncItem(L"same", SyncItemType::Dir, source_dir_.wstring(), target_dir_.wstring(), L"*"));
     tu::write_text_file(target_dir_ / "a.txt", "a");
     fs::last_write_time(target_dir_ / "a.txt", fs::last_write_time(source_dir_ / "a.txt"));
@@ -238,7 +250,7 @@ TEST_F(SyncPlanTest, PreviewPassNamesTheUnreachableItems)  // [SyncPlanTests.md#
 TEST_F(SyncPlanTest, UnreachableItemCarriesItsWarningChoice)
 {
     Config::instance().reset();
-    SyncItem backup(L"backup", SyncItemType::Dir, source_dir_.wstring(), (root_ / "not-mounted").wstring(), L"*");
+    SyncItem backup(L"backup", SyncItemType::Dir, source_dir_.wstring(), unmounted_dir_.wstring(), L"*");
     backup.warn_if_unreachable(false);
     Config::instance().add(backup);
     Synchronize* sync = Synchronize::create(SyncType::Single);

@@ -26,6 +26,7 @@
 #include "Util.h"
 #include <fstream>
 #include <functional>
+#include <latch>
 #include <thread>
 #ifndef _WIN32
 #include <unistd.h>
@@ -458,11 +459,14 @@ protected:
 
     std::size_t sync_and_stop_when(const SyncItem& si, const std::function<bool()>& copy_has_begun) const  // [SyncFileTests.md#sync_and_stop_when]
     {
+        std::latch stopper_running(1);
         std::thread stopper([&] {
+            stopper_running.count_down();
             while (!copy_has_begun())
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             Synchronize::stop();
         });
+        stopper_running.wait();  // [SyncFileTests.md#stopper-running]
         std::size_t copy_count = 0;
         SyncFile(si, copy_count)();
         stopper.join();

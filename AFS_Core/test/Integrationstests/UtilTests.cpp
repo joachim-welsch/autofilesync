@@ -256,6 +256,7 @@ TEST(UtilTests, WriteUtf8FileWritesTheBytesAndThrowsWhereItCannotWrite)  // [Uti
 
     std::ifstream in(file, std::ios::binary);
     const std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    in.close();  // Windows refuses to remove an open file
     EXPECT_EQ(bytes, "Gr\xC3\xBC\xC3\x9F" "e");
     fs::remove(file);
     EXPECT_THROW(util::write_utf8_file(file / "unter" / "x.txt", L"x"), std::exception);
