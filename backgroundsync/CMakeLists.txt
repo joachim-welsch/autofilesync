@@ -24,3 +24,14 @@ add_executable(${PROJECT_NAME}
     MyDaemon.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE afs_core_headless)
+
+# The macOS GUI looks for the daemon beside its own executable (BackgroundService),
+# so the bundle carries it; macos_bundle.sh then embeds its libraries as well.
+# POST_BUILD commands may only be attached in the directory that defines the
+# target, which is why this step lives here and not in the top-level file.
+if(APPLE AND TARGET autofilesync)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_BUNDLE_CONTENT_DIR:autofilesync>/MacOS
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_BUNDLE_CONTENT_DIR:autofilesync>/MacOS/backgroundsync
+        COMMENT "Copying backgroundsync into the bundle")
+endif()
