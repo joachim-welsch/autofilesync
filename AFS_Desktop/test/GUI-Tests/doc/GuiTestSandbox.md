@@ -58,3 +58,9 @@ look at a file the application never writes.
 Throw-away HOME/XDG_CONFIG_HOME for the whole test run, so a GUI test can never read or damage
 the developer's real configuration. create() must run before wxWidgets starts: Config and
 wxStandardPaths resolve their paths from the environment as soon as the application initialises.
+
+## use_private_scope
+
+Keeps the sync arbiter of the application under test away from a backgroundsync daemon of the
+developer: with the shared lock names a GUI test's synchronisation waits until the daemon's pass
+ends, which can take longer than the tests wait for a copy. See SyncArbiter.md#use_private_scope.

@@ -33,3 +33,11 @@ of the arbiter itself would arbitrate against that daemon instead of against eac
 The test build also keeps its lock files in the temp directory of the process, which the test
 run owns and removes, while the programs need the fixed /tmp: daemon and GUI may run with
 different TMPDIR values and would otherwise never meet.
+
+## use_private_scope
+
+Switches a process to the TEST_SCOPE names at run time. The GUI tests need this because they link
+the shipped library, which is compiled without _TEST: otherwise every synchronisation in a GUI
+test waits for the passes of the user's running daemon - for example a 15 s SSH connect timeout,
+longer than a test waits for a copy - and the daemon in turn pauses while a GUI test synchronises.
+Must be called before the first synchronisation starts.

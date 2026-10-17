@@ -44,19 +44,20 @@ constexpr bool TEST_SCOPE = true;  // [SyncArbiter.md#TEST_SCOPE]
 #else
 constexpr bool TEST_SCOPE = false;
 #endif
+std::atomic_bool private_scope = TEST_SCOPE;
 
 #ifdef WIN32
 std::wstring event_name(SyncRole role)
 {
     const std::wstring name = role == SyncRole::Foreground ? L"Global\\AutoFileSyncForegroundSync" : L"Global\\AutoFileSyncBackgroundSync";
-    return TEST_SCOPE ? name + L"Test" : name;
+    return private_scope ? name + L"Test" : name;
 }
 #else
 std::string lock_path(SyncRole role)
 {
     const std::string suffix = role == SyncRole::Foreground ? "foreground" : "background";
-    const std::string dir = TEST_SCOPE ? std::filesystem::temp_directory_path().string() : "/tmp";  // [SyncArbiter.md#TEST_SCOPE]
-    return dir + "/autofilesync-" + std::to_string(getuid()) + (TEST_SCOPE ? "-test-" : "-") + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
+    const std::string dir = private_scope ? std::filesystem::temp_directory_path().string() : "/tmp";  // [SyncArbiter.md#TEST_SCOPE]
+    return dir + "/autofilesync-" + std::to_string(getuid()) + (private_scope ? "-test-" : "-") + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
 }
 #endif
 
@@ -118,6 +119,11 @@ bool SyncArbiter::other_side_active() const
     close(other);
     return !free;
 #endif
+}
+
+void SyncArbiter::use_private_scope()
+{
+    private_scope = true;
 }
 
 bool SyncArbiter::acquire(const std::atomic_bool& abort)

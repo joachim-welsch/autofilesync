@@ -33,6 +33,7 @@ public:
     ~SyncArbiter();
     bool acquire(const std::atomic_bool& abort);  // [SyncArbiter.md#acquire]
     void release();
+    static void use_private_scope();  // [SyncArbiter.md#use_private_scope]
 private:
     bool other_side_active() const;
     void publish_active();

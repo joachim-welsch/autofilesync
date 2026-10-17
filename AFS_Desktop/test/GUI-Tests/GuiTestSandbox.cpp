@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "GuiTestSandbox.h"
+#include "SyncArbiter.h"
 #include <wx/config.h>
 #include <wx/fileconf.h>
 #include <cstdlib>
@@ -105,6 +106,7 @@ void GuiTestSandbox::create()
     fs::create_directories(sandbox_root);
     redirect_user_directories();
     isolate_input_method();
+    AFS_Core::SyncArbiter::use_private_scope();  // [GuiTestSandbox.md#use_private_scope]
     write_file(config_file(), minimal_config());
     write_file(source_dir() / "beispiel.txt", "Inhalt der Quelldatei\n");
     fs::create_directories(target_dir());
