@@ -97,6 +97,13 @@ target_include_directories(Integrationtests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(Integrationtests PRIVATE afs_core_test GTest::GTest)
 # Root of AFS_Core: the fixtures find test/resources and test/tree below it.
 target_compile_definitions(Integrationtests PRIVATE LIB_SOURCE_DIR="${AFS_CORE_DIR}")
+# The translation tests read the catalogues beside the test binary, so a build
+# of the test binary alone must compile them too - an empty locale directory
+# makes the tests fail instead of skipping. The target exists only when the
+# top-level project with msgfmt configures the build.
+if(TARGET translations)
+    add_dependencies(Integrationtests translations)
+endif()
 
 # Register each TEST() case individually with CTest instead of the binary as a
 # whole. DISCOVERY_MODE PRE_TEST: the default POST_BUILD runs the binary from a
