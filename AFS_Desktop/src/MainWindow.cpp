@@ -545,9 +545,13 @@ void MainWindow::on_preview(wxCommandEvent& WXUNUSED(event))
 	update_sync_state();
 }
 
-void MainWindow::on_start_continuous_sync(wxCommandEvent& WXUNUSED(event))
+void MainWindow::on_start_continuous_sync(wxCommandEvent& event)
 {
-	log_debug(L"MainWindow::on_start_continuous_sync()");  
+	log_debug(L"MainWindow::on_start_continuous_sync()");
+	if (sync_interface_.is_continuously_syncing()) {  // the single toolbar tool toggles: it reads as stop while running [Toolbar.md#single-toggle-tool]
+		on_stop_continuous_sync(event);
+		return;
+	}
 	sync_interface_.start_continuous_sync();
 	toolbar_.set_started(true);
 	update_sync_state();
@@ -694,12 +698,7 @@ void MainWindow::rebuild_menu()  // [MainWindow.md#switch_language]
 
 void MainWindow::rebuild_tool_bar()
 {
-    wxToolBar* old = GetToolBar();
-    const bool started = old->FindById(tul(id::StopSync)) != nullptr;
-    SetToolBar(nullptr);
-    old->Destroy();
-    create_tool_bar();
-    toolbar_.set_started(started);
+    toolbar_.retranslate();  // update tooltips in place; recreating the toolbar corrupts NSToolbar over a session [Toolbar.md#retranslate-in-place]
 }
 
 void MainWindow::rebuild_view()  // [MainWindow.md#switch_language]

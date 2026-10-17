@@ -52,6 +52,7 @@ public:
     bool closed() const { return closed_; }
     bool can_be_closed() const { return can_be_closed_; }
     void can_be_closed(bool);
+    void reset(uint32_t n_files);  // [ProgressDialog.md#reuse]
 private:
     void on_cancel(wxCommandEvent& event);
     void on_timer_update(wxTimerEvent&);

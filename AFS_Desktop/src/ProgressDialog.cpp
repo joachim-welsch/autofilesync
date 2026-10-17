@@ -114,6 +114,21 @@ uint32_t ProgressDialog::file_steps_done() const
     return static_cast<uint32_t>(std::min<uint64_t>(FILE_STEPS, FILE_STEPS * sync_controler_.copied_bytes() / file_size_));
 }
 
+void ProgressDialog::reset(uint32_t n_files)  // [ProgressDialog.md#reuse]
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    range_ = n_files * FILE_STEPS;
+    files_done_ = 0;
+    file_size_ = 0;
+    can_be_closed_ = false;
+    closed_ = false;
+    gauge_->SetRange(range_);
+    gauge_->SetValue(0);
+    current_file_->SetLabelText(wxEmptyString);
+    if (!timer_.IsRunning())
+        timer_.Start(100);
+}
+
 void ProgressDialog::can_be_closed(bool yes_no)
 {
     if (!wxThread::IsMain()) {  // [ProgressDialog.md#gui-thread-only]

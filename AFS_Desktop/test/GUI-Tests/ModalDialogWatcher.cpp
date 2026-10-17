@@ -24,6 +24,8 @@
 
 namespace guitest {
 
+constexpr int CLOSE_TIMEOUT_MILLISECONDS = 10000;  // [ModalDialogWatcher.md#left-open]
+
 ModalDialogWatcher& ModalDialogWatcher::instance()
 {
     static ModalDialogWatcher* watcher = [] {  // [ModalDialogWatcher.md#never-destroyed]
@@ -87,6 +89,15 @@ void ModalDialogWatcher::reset()
     expected_.clear();
     unexpected_.clear();
     answered_.clear();
+    left_open_.clear();
+}
+
+void ModalDialogWatcher::end_if_left_open(wxDialog& dialog)  // [ModalDialogWatcher.md#left-open]
+{
+    if (wait_until([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS))
+        return;
+    left_open_.push_back(name_of(dialog));
+    dialog.EndModal(wxID_CANCEL);
 }
 
 int ModalDialogWatcher::Enter(wxDialog* dialog)
@@ -109,7 +120,10 @@ int ModalDialogWatcher::Enter(wxDialog* dialog)
         answered_.push_back(message_dialog != nullptr ? message_dialog->GetMessage() : name);
         return expectation.answer;
     }
-    dialog->CallAfter([dialog, action = expectation.action] { action(*dialog); });  // [ModalDialogWatcher.md#queued-not-called]
+    dialog->CallAfter([this, dialog, action = expectation.action] {  // [ModalDialogWatcher.md#queued-not-called]
+        action(*dialog);
+        end_if_left_open(*dialog);
+    });
     return wxID_NONE;
 }
 

@@ -266,3 +266,24 @@ here. A click on the label is what opens the edit dialog in the grid view.
 In-place editing differs per platform and cell editor (the bool editor toggles on a click,
 the text editor needs Enter to end), so the value is set and the "cell changed" event sent -
 the same handler that ends a real edit, GridCtrl::on_cell_value_changed.
+
+## click-must-reach-us
+
+On macOS the simulated click goes to whatever window the window server finds at the pointer,
+and that is not always the dialog the control belongs to: AppKit re-orders the application's
+windows a moment after a modal dialog has ended (settle-after-dialog), and a dialog opened
+right then - the progress dialog that "synchronise once" shows straight after the item dialog -
+comes up behind the main window. A click aimed at it hit the main window instead, which left
+every dialog of the rest of the run behind the main window, so that each typed text and each
+OK went astray; a terminal the user clicks into covers a dialog the same way. Before the click,
+the window at the target point therefore has to be the control's own top-level window. Any
+other window gets one attempt at activating and raising the target; then the click is refused
+with a failure that names the target and what lies in front of it, so the test fails for the
+visible reason, and no text is typed into another application's window. Under Xvfb no window
+covers another, and on Windows the check is not implemented.
+
+## window-number-not-pointer
+
+Everything the check needs from the dialog - its window number and its title - is read before
+the first wait, and after a wait only the number is used: the dialog may be gone by then
+(ForegroundApp.md#window-number), and the failure then says so instead of crashing.

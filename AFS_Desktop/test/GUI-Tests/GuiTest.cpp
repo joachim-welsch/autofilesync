@@ -19,6 +19,9 @@
 #include "GuiTest.h"
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
+#ifdef _MACOS
+#include "ForegroundApp.h"
+#endif
 #include "UserActions.h"
 #include "ViewActions.h"
 #include "Config.h"
@@ -56,6 +59,11 @@ std::vector<std::string> entries_of(const fs::path& directory)  // [GuiTest.md#e
     return entries;
 }
 
+wxString first_of(const std::vector<wxString>& names)  // [GuiTest.md#both-branches-wxstring]
+{
+    return names.empty() ? wxString() : names.front();
+}
+
 ApplicationState capture_state()
 {
     ApplicationState state;
@@ -91,11 +99,14 @@ void GuiTest::TearDown()
     EXPECT_EQ(before_.source_entries, after.source_entries) << "Das Quellverzeichnis wurde verändert.";
     EXPECT_EQ(before_.target_entries, after.target_entries) << "Das Zielverzeichnis wurde verändert.";
     ModalDialogWatcher& watcher = ModalDialogWatcher::instance();
-    const std::vector<wxString>& unexpected = watcher.unexpected_dialogs();  // [GuiTest.md#both-branches-wxstring]
-    EXPECT_TRUE(unexpected.empty())
-        << "Unerwarteter Dialog: " << (unexpected.empty() ? wxString() : unexpected.front());
+    EXPECT_TRUE(watcher.unexpected_dialogs().empty()) << "Unerwarteter Dialog: " << first_of(watcher.unexpected_dialogs());
+    EXPECT_TRUE(watcher.dialogs_left_open().empty())  // [GuiTest.md#left-open-reported]
+        << "Der Dialog wurde nicht geschlossen und nach Ablauf der Frist abgebrochen: " << first_of(watcher.dialogs_left_open());
     EXPECT_FALSE(watcher.has_pending_expectations()) << "Ein erwarteter Dialog wurde nie geöffnet.";
     watcher.reset();
+#ifdef _MACOS
+    settle_window_server();  // [GuiTest.md#settle-between-tests]
+#endif
 }
 
 MainWindow& GuiTest::main_window() const

@@ -22,7 +22,9 @@ broken feature - both end as "the value was not taken over".
 ## cancel-instead-of-hanging
 
 Leaving the dialog open would hang the test in its modal loop; the cancel result tells the test
-that the interaction, not the feature, is what failed.
+that the interaction, not the feature, is what failed. The watcher's timeout
+(ModalDialogWatcher.md#left-open) would cancel the dialog as well, but only seconds later and
+without saying which step failed.
 
 ## fill_settings_dialog
 

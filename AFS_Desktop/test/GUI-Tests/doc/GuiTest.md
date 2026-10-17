@@ -45,3 +45,18 @@ taken in SetUp().
 Same fixture, different name: a test that waits for the local language model takes a minute
 or two, and the name lets a quick run leave them out (`--gtest_filter=-SlowGuiTest.*`) without
 losing them from the full run.
+
+## left-open-reported
+
+A dialog the watcher had to cancel after its timeout (ModalDialogWatcher.md#left-open) has
+usually already failed the test with the message of the action that went wrong; this report
+adds the dialog's name and says that the dialog was abandoned, which the earlier message does
+not tell.
+
+## settle-between-tests
+
+TearDown settles the window server (ForegroundApp.md#settle_window_server) before it restores the
+state, so the create-and-destroy of modal dialogs in one test does not leave the next test's dialog
+stuck off screen on macOS. The progress dialog is handled separately, by reuse in the application
+(SyncInterface.md#reuse-progress-dialog), because it is destroyed through wx's deferred deletion,
+which a native cycle here does not flush.

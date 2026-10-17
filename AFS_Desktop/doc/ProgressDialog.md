@@ -34,3 +34,12 @@ of the current file already copied (SyncControler::copied_bytes() against the si
 carried). One bar thus moves inside a huge file and across many small ones without switching
 scales. A file that produces no message, because it is unchanged and skipped, leaves the bar
 where it was until the next copy, and the end of the run fills it (can_be_closed).
+
+## reuse
+
+reset() returns the dialog to its freshly-opened state - full range, empty bar and label, timer
+running, not yet closable - so one instance serves every run. The dialog is kept alive and reused
+instead of destroyed and recreated because on macOS destroying a top-level window and showing the
+next one right after leaves that next window off the screen: AppKit holds it as visible and key,
+but the window server never lists it, and from then on every later window stays off screen too.
+See SyncInterface.md#reuse-progress-dialog.

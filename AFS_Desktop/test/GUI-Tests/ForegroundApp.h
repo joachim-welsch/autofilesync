@@ -18,8 +18,15 @@
  */
 #pragma once
 
+#include <string>
+
 namespace guitest {
 
 void bring_to_foreground();  // [ForegroundApp.md#bring_to_foreground]
+void settle_window_server();  // [ForegroundApp.md#settle_window_server]
+long window_number(void* ns_window);  // [ForegroundApp.md#window-number]
+bool window_exists(long number);
+bool window_at_point_is(int x, int y, long number);  // [ForegroundApp.md#window_at_point]
+std::string window_at_point(int x, int y);  // [ForegroundApp.md#window_at_point]
 
 }

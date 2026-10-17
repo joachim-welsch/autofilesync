@@ -20,9 +20,11 @@
 #include "EventPump.h"
 #include "ForegroundApp.h"
 #include "ModalDialogWatcher.h"
+#include <gtest/gtest.h>
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/listbox.h>
+#include <wx/toplevel.h>
 #include <wx/notebook.h>
 #include <wx/radiobox.h>
 #include <wx/spinctrl.h>
@@ -295,18 +297,60 @@ wxString value_of(wxWindow* control)
     return text_ctrl != nullptr ? text_ctrl->GetValue() : wxString();
 }
 
+namespace {
+
+#ifdef _MACOS
+constexpr int RAISE_TIMEOUT_MILLISECONDS = 500;
+
+bool reaches(wxWindow& target, const wxPoint& screen_point)  // [UserActions.md#click-must-reach-us]
+{
+    auto* top = dynamic_cast<wxTopLevelWindow*>(wxGetTopLevelParent(&target));
+    if (top == nullptr)
+        return true;
+    const long number = window_number(top->GetWXWindow());  // [UserActions.md#window-number-not-pointer]
+    const wxString title = top->GetTitle();
+    const auto in_front = [number, screen_point] { return window_at_point_is(screen_point.x, screen_point.y, number); };
+    if (in_front())
+        return true;
+    bring_to_foreground();
+    top->Raise();
+    if (wait_until(in_front, RAISE_TIMEOUT_MILLISECONDS))
+        return true;
+    if (!window_exists(number))
+        ADD_FAILURE() << "\"" << title << "\" verschwand, bevor der Klick ankam.";
+    else
+        ADD_FAILURE() << "Der Klickpunkt " << screen_point.x << "," << screen_point.y << " gehört nicht zu \"" << title
+                      << "\", davor liegt: " << window_at_point(screen_point.x, screen_point.y);
+    return false;
+}
+#else
+bool reaches(wxWindow&, const wxPoint&)  // [UserActions.md#click-must-reach-us]
+{
+    return true;
+}
+#endif
+
+bool click_at(wxWindow& target, const wxPoint& screen_point, bool double_click = false)
+{
+    wxUIActionSimulator simulator;
+    if (!move_to(simulator, screen_point) || !reaches(target, screen_point))  // [UserActions.md#pointer-move-settles-focus]
+        return false;
+    if (!(double_click ? simulator.MouseDblClick() : simulator.MouseClick()))
+        return false;
+    pump(20);
+    return true;
+}
+
+}
+
 bool click_on(wxWindow& control, const wxPoint& client_point)
 {
     if (!control.IsShownOnScreen())
         return false;
     wait_until_settled(control);
-    wxUIActionSimulator simulator;
-    if (!move_to(simulator, control.ClientToScreen(client_point)))  // [UserActions.md#pointer-move-settles-focus]
-        return false;
     const int dialogs_before = ModalDialogWatcher::instance().dialogs_entered();
-    if (!simulator.MouseClick())
+    if (!click_at(control, control.ClientToScreen(client_point)))
         return false;
-    pump(20);
     if (ModalDialogWatcher::instance().dialogs_entered() != dialogs_before)
         pump(SETTLE_AFTER_DIALOG_MILLISECONDS);  // [UserActions.md#settle-after-dialog]
     return true;
@@ -328,29 +372,7 @@ bool click_on(wxTreeCtrl& tree, wxTreeItemId item)
     if (!tree.GetBoundingRect(item, rect, true))  // [UserActions.md#caller-ensures-visibility]
         return false;
     wait_until_settled(tree);
-    wxUIActionSimulator simulator;
-    const wxPoint screen_point = tree.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2));
-    if (!move_to(simulator, screen_point))
-        return false;
-    if (!simulator.MouseClick())
-        return false;
-    pump(20);
-    return true;
-}
-
-namespace {
-
-bool click_at(const wxPoint& screen_point, bool double_click)
-{
-    wxUIActionSimulator simulator;
-    if (!move_to(simulator, screen_point))
-        return false;
-    if (!(double_click ? simulator.MouseDblClick() : simulator.MouseClick()))
-        return false;
-    pump(20);
-    return true;
-}
-
+    return click_at(tree, tree.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2)));
 }
 
 bool click_on(wxListCtrl& list, long item, bool double_click)  // [UserActions.md#click_on-list-item]
@@ -359,7 +381,7 @@ bool click_on(wxListCtrl& list, long item, bool double_click)  // [UserActions.m
     if (!list.IsShownOnScreen() || !list.GetItemRect(item, rect))
         return false;
     wait_until_settled(list);
-    return click_at(list.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2)), double_click);
+    return click_at(list, list.ClientToScreen(rect.GetPosition() + wxPoint(rect.width / 2, rect.height / 2)), double_click);
 }
 
 bool click_on_row_label(wxGrid& grid, int row)  // [UserActions.md#click_on_row_label]
@@ -371,7 +393,7 @@ bool click_on_row_label(wxGrid& grid, int row)  // [UserActions.md#click_on_row_
     int x = 0, y = 0;
     grid.CalcScrolledPosition(0, cell.y, &x, &y);
     wxWindow* labels = grid.GetGridRowLabelWindow();
-    return click_at(labels->ClientToScreen(wxPoint(grid.GetRowLabelSize() / 2, y + cell.height / 2)), false);
+    return click_at(grid, labels->ClientToScreen(wxPoint(grid.GetRowLabelSize() / 2, y + cell.height / 2)));
 }
 
 bool change_grid_cell(wxGrid& grid, int row, int col, const wxString& value)  // [UserActions.md#change_grid_cell]

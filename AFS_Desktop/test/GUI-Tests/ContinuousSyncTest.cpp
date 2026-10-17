@@ -135,18 +135,20 @@ TEST_F(GuiTest, ToolbarStartUndStoppSchaltenUm)  // [ContinuousSyncTest.md#Toolb
     const RunningSync running(main_window());
     wxToolBar* toolbar = main_window().GetToolBar();
     ASSERT_NE(toolbar, nullptr);
-    ASSERT_NE(toolbar->FindById(tul(id::StartSync)), nullptr) << "Die Werkzeugleiste hat vor dem Start keinen Start-Knopf.";
-    ASSERT_EQ(toolbar->FindById(tul(id::StopSync)), nullptr);
+    const int toggle = tul(id::StartSync);  // one persistent tool toggles between start and stop [Toolbar.md#single-toggle-tool]
+    ASSERT_NE(toolbar->FindById(toggle), nullptr) << "Die Werkzeugleiste hat keinen Start-Stopp-Knopf.";
+    ASSERT_EQ(toolbar->FindById(tul(id::StopSync)), nullptr) << "Die Werkzeugleiste legt keinen zweiten Knopf an.";
+    const wxString start_help = toolbar->GetToolShortHelp(toggle);
 
-    ASSERT_TRUE(activate_toolbar_tool(main_window(), tul(id::StartSync)));
+    ASSERT_TRUE(activate_toolbar_tool(main_window(), toggle));
     ASSERT_TRUE(copied(tree, "ziel/erste.txt")) << "Der Start-Knopf der Werkzeugleiste hat nichts gestartet.";
-    EXPECT_EQ(toolbar->FindById(tul(id::StartSync)), nullptr) << "Der Start-Knopf blieb während des Laufs stehen.";
-    ASSERT_NE(toolbar->FindById(tul(id::StopSync)), nullptr) << "Die Werkzeugleiste zeigt während des Laufs keinen Stopp-Knopf.";
+    const wxString stop_help = toolbar->GetToolShortHelp(toggle);
+    EXPECT_NE(stop_help, start_help) << "Der Knopf wechselte während des Laufs nicht auf Stopp.";
+    EXPECT_EQ(toolbar->FindById(tul(id::StopSync)), nullptr) << "Der Knopf wurde ausgetauscht statt umgeschaltet.";
 
-    ASSERT_TRUE(activate_toolbar_tool(main_window(), tul(id::StopSync)));
+    ASSERT_TRUE(activate_toolbar_tool(main_window(), toggle));
     ASSERT_TRUE(wait_until_sync_finished(main_window()));
-    EXPECT_NE(toolbar->FindById(tul(id::StartSync)), nullptr) << "Nach Stopp kam der Start-Knopf nicht zurück.";
-    EXPECT_EQ(toolbar->FindById(tul(id::StopSync)), nullptr);
+    EXPECT_EQ(toolbar->GetToolShortHelp(toggle), start_help) << "Nach Stopp wechselte der Knopf nicht auf Start zurück.";
 }
 
 }

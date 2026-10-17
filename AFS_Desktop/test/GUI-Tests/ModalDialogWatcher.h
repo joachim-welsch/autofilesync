@@ -37,16 +37,19 @@ public:
     bool has_pending_expectations() const { return !expected_.empty(); }
     const std::vector<wxString>& unexpected_dialogs() const { return unexpected_; }
     const std::vector<wxString>& answered_messages() const { return answered_; }
+    const std::vector<wxString>& dialogs_left_open() const { return left_open_; }  // [ModalDialogWatcher.md#left-open]
     void reset();
     int dialogs_entered() const { return entered_; }  // [ModalDialogWatcher.md#dialogs_entered]
 protected:
     int Enter(wxDialog* dialog) override;
 private:
+    void end_if_left_open(wxDialog& dialog);
     int entered_ = 0;
     struct Expectation { wxString title; DialogAction action; int answer = wxID_NONE; wxString path; };
     std::deque<Expectation> expected_;
     std::vector<wxString> unexpected_;
     std::vector<wxString> answered_;
+    std::vector<wxString> left_open_;
 };
 
 }

@@ -70,22 +70,20 @@ void Toolbar::create(wxFrame* parent)
 }
 
 
-void Toolbar::replace_tool(int old_tool_id, int new_tool_id, const wxString& label, const wxBitmap& new_bitmap, const wxString& short_help)
+void Toolbar::set_started(bool started)  // [Toolbar.md#single-toggle-tool]
 {
-    size_t pos = toolbar_->GetToolPos(old_tool_id);
-    if (pos != wxNOT_FOUND) {
-        toolbar_->DeleteTool(old_tool_id);
-        toolbar_->InsertTool(pos, new_tool_id, label, new_bitmap, wxBitmapBundle(), wxITEM_NORMAL, short_help);
-        toolbar_->Realize();
-    }
+    started_ = started;
+    toolbar_->SetToolNormalBitmap(tul(id::StartSync), started ? wxBITMAP(stop) : wxBITMAP(start));
+    toolbar_->SetToolShortHelp(tul(id::StartSync), tooltip(started ? "toolbar_stop_sync" : "toolbar_start_sync"));
 }
 
-void Toolbar::set_started(bool started)
+void Toolbar::retranslate()  // [Toolbar.md#retranslate-in-place]
 {
-    if (started) {
-        replace_tool(tul(id::StartSync), tul(id::StopSync), tooltip("toolbar_stop_sync"), wxBITMAP(stop), tooltip("toolbar_stop_sync"));
-    }
-    else {
-        replace_tool(tul(id::StopSync), tul(id::StartSync), tooltip("toolbar_start_sync"), wxBITMAP(start), tooltip("toolbar_start_sync"));
-    }
+    toolbar_->SetToolShortHelp(tul(id::File_new_Synchronization), tooltip("menu_new_synchronisation"));
+    toolbar_->SetToolShortHelp(tul(id::EditSync), tooltip("edit_synchronisation"));
+    toolbar_->SetToolShortHelp(tul(id::File_save), tooltip("toolbar_save"));
+    toolbar_->SetToolShortHelp(tul(id::DeleteSync), tooltip("delete_synchronisation"));
+    toolbar_->SetToolShortHelp(tul(id::StartSync), tooltip(started_ ? "toolbar_stop_sync" : "toolbar_start_sync"));
+    toolbar_->SetToolShortHelp(tul(id::Help), tooltip("toolbar_help"));
+    toolbar_->SetToolShortHelp(tul(id::EditSettings), tooltip("menu_settings"));
 }

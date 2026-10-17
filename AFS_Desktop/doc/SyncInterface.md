@@ -123,3 +123,12 @@ tick, but a box or dialog shown from a finished handler runs its own event loop 
 tick comes, so the bar kept saying "Vorschau wird ermittelt …" or "Zähle Dateien …" the whole
 time the result was on screen; found with the first screenshot of the preview. The handlers
 therefore show the new state themselves before they open anything.
+
+## reuse-progress-dialog
+
+The single progress dialog is created once and then hidden and reshown, never destroyed between
+runs. On macOS a top-level window shown shortly after another was destroyed does not reach the
+window server - it counts as visible and can become key, yet never appears and no later window of
+the process appears either - and the dialog cannot be recovered once it is in that state. A hidden
+dialog that reset() refills avoids the destroy-then-create sequence that triggers it. The destructor
+still destroys the one instance at shutdown.

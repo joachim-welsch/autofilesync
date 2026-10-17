@@ -24,10 +24,12 @@
 
 class Toolbar {
 	wxToolBar* toolbar_ = nullptr;
-	void replace_tool(int old_tool_id, int new_tool_id, const wxString& label, const wxBitmap& new_bitmap, const wxString& short_help);
+	bool started_ = false;
 public:
 	void create(wxFrame* parent);
 	wxToolBar* toolbar();
-	void set_started(bool started);
+	void set_started(bool started);  // [Toolbar.md#single-toggle-tool]
+	bool is_started() const { return started_; }
+	void retranslate();  // [Toolbar.md#retranslate-in-place]
 };
 

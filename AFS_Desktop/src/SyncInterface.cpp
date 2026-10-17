@@ -48,9 +48,17 @@ SyncInterface::~SyncInterface()
 {
     if (progress_dialog_ != nullptr) {
         progress_dialog_->can_be_closed(true);
-        progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
+        progress_dialog_->Destroy();
         progress_dialog_ = nullptr;
     }
+}
+
+void SyncInterface::hide_progress_dialog()  // [SyncInterface.md#reuse-progress-dialog]
+{
+    if (progress_dialog_ == nullptr)
+        return;
+    progress_dialog_->can_be_closed(true);
+    progress_dialog_->Hide();  // kept alive and reused: destroying and recreating a top-level window makes the next one fail to reach the screen on macOS
 }
 
 bool SyncInterface::silent_mode() const
@@ -65,9 +73,12 @@ void SyncInterface::set_console_mode()
 
 void SyncInterface::open_progress_dialog(uint32_t n_files)
 {
-    if (progress_dialog_ != nullptr || silent_mode())
+    if (silent_mode())
         return;
-    progress_dialog_ = new ProgressDialog(&parent_window_, wxID_ANY, translation::translate("progress_title"), sync_controler_, n_files);
+    if (progress_dialog_ == nullptr)
+        progress_dialog_ = new ProgressDialog(&parent_window_, wxID_ANY, translation::translate("progress_title"), sync_controler_, n_files);
+    else
+        progress_dialog_->reset(n_files);
     progress_dialog_->Show();
 }
 
@@ -178,11 +189,7 @@ void SyncInterface::sync_once_finished()
 {
     log_debug(L"SyncInterface::sync_once_finished()");
     sync_controler_.destroy_synchronize();
-    if (progress_dialog_ != nullptr) {
-        progress_dialog_->can_be_closed(true);
-        progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
-        progress_dialog_ = nullptr;
-    }
+    hide_progress_dialog();
     enable_start_commands(true);
     act_sync_type_ = SyncType::None;
     show_run_messages();
@@ -200,11 +207,7 @@ void SyncInterface::count_files_finished()
     counting_cursor_.reset();  // [SyncInterface.md#counting_cursor_]
     sync_controler_.destroy_synchronize();
     count_files_ = 0;
-    if (progress_dialog_ != nullptr) {
-        progress_dialog_->can_be_closed(true);
-        progress_dialog_->Destroy(); // not delete: lets wx flush any events still targeting the window first
-        progress_dialog_ = nullptr;
-    }
+    hide_progress_dialog();
     count_files_ = sync_controler_.count_files();
     if (count_files_ > 0) {
         act_sync_type_ = SyncType::Single;

@@ -51,3 +51,15 @@ pumps until the chooser reports the path before it answers. wxDirDialog::GetPath
 m_path of wxDirDialogBase, but wxGTK's SetPath override only tells the chooser and skips the
 base, so the base implementation is called explicitly. On Windows and macOS both dialogs
 store the path in the base class and return it right away.
+
+## left-open
+
+A dialog the action leaves open would block the test run forever in its modal loop: the test
+code after the menu activation only runs once ShowModal has returned. Actions end up like that
+when a click they do not verify goes astray, or when an ASSERT inside the action returns from
+it before the closing click. After the action the hook therefore waits for the dialog to be
+hidden - EndModal hides it on every platform, IsModal() stays true on Windows until the modal
+loop has unwound - and cancels it when the timeout has passed, recording the dialog's name so
+that TearDown reports why the test failed. The timeout is longer than any wait inside an action:
+a dialog that an OK click closes a few seconds later, after the work its handler does, is not
+cancelled.

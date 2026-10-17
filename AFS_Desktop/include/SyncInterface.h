@@ -52,6 +52,7 @@ class SyncInterface {
     void show_run_messages();
     void preview_finished();  // [SyncInterface.md#preview]
     bool start_pass(SyncType pass);
+    void hide_progress_dialog();  // [SyncInterface.md#reuse-progress-dialog]
     wxFrame* parent_frame() { return dynamic_cast<wxFrame*>(&parent_window_); }
 public:
     explicit SyncInterface(wxWindow& parent_window, Menu& menu);
