@@ -89,6 +89,17 @@ function Compile-MessageCatalogues {
     }
 }
 
+# Die Anwendung sucht die Hilfebuecher unter help\ neben der Programmdatei, wie
+# build.cmd sie fuer autofilesync.exe ablegt; packHelp.ps1 packt zuvor jedes
+# Buch aus seinen Seiten.
+function Copy-HelpBooks {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools\packHelp.ps1')
+    if ($LASTEXITCODE -ne 0) { throw 'packHelp.ps1 fehlgeschlagen' }
+    $helpDir = Join-Path $buildDir 'help'
+    New-Item -ItemType Directory -Force $helpDir | Out-Null
+    Copy-Item -Path (Join-Path $root 'AFS_Desktop\help\*') -Destination $helpDir -Recurse -Force
+}
+
 function Get-ProjectSources {
     $projectFile = Join-Path $guiDir 'GuiTests.vcxproj'
     $xml = [xml](Get-Content $projectFile)
@@ -170,6 +181,7 @@ if (-not $NoBuild) {
     Write-Host "Linke $exe..."
     Invoke-InVcEnv "link /nologo @`"$linkRsp`""
     Compile-MessageCatalogues
+    Copy-HelpBooks
 }
 
 if (-not (Test-Path $exe)) { throw "Testprogramm nicht gefunden: $exe" }

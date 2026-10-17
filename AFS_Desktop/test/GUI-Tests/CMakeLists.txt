@@ -97,6 +97,17 @@ endif()
 if(TARGET translations)
     add_dependencies(GuiTests translations)
 endif()
+# The application looks for the help books next to the executable, one per
+# language (MainWindow.cpp, locate_help_book). help_book (AFS_Desktop/CMakeLists.txt)
+# packs them; copied here, next to GuiTests, because help_book copies them only
+# next to autofilesync, which on macOS is a bundle and on multi-config
+# generators another directory.
+if(TARGET help_book)
+    add_dependencies(GuiTests help_book)
+    add_custom_command(TARGET GuiTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../../help $<TARGET_FILE_DIR:GuiTests>/help
+        COMMENT "Copying the help books next to GuiTests")
+endif()
 
 # Always through the wrapper: it provides the virtual X display the tests need
 # and keeps them off the developer's own screen. CROSSCOMPILING_EMULATOR makes
