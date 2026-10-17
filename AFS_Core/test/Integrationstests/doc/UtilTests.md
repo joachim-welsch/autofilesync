@@ -40,5 +40,7 @@ reports the failure (ConfigPathTest.WriteFailureDoesNotCorruptExistingConfig rel
 
 ## VolumeExistsLooksForTheVolumeInTheMountTable
 
-On Unix the volume name is searched in /proc/mounts as a substring and the drive name is
-ignored; /proc is mounted on every Linux system, the made-up name on none.
+On Unix the volume name is searched in the mount table as a substring of a device or mount
+point and the drive name is ignored. Linux reads /proc/mounts, macOS asks getmntinfo() because
+it has no /proc; /proc is mounted on every Linux system, devfs on /dev on every macOS system,
+the made-up name on none.

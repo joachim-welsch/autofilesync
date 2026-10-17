@@ -264,7 +264,11 @@ TEST(UtilTests, WriteUtf8FileWritesTheBytesAndThrowsWhereItCannotWrite)  // [Uti
 #ifdef _UNIX
 TEST(UtilTests, VolumeExistsLooksForTheVolumeInTheMountTable)  // [UtilTests.md#VolumeExistsLooksForTheVolumeInTheMountTable]
 {
+#ifdef _MACOS
+    EXPECT_TRUE(util::volume_exists(L"", L"/dev"));
+#else
     EXPECT_TRUE(util::volume_exists(L"", L"/proc"));
+#endif
     EXPECT_FALSE(util::volume_exists(L"", L"afx-no-such-volume"));
 }
 #endif

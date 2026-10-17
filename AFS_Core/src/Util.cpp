@@ -35,6 +35,10 @@
 #else
 #  include <unistd.h>    // getpid
 #endif
+#ifdef _MACOS
+#  include <sys/param.h>
+#  include <sys/mount.h>  // getmntinfo
+#endif
 #ifdef _WXWIDGETS
     #include "wx/msgdlg.h"
     #include "wx/string.h"
@@ -124,7 +128,16 @@ bool drive_exists(const wstring& drive_name)
 bool volume_exists(const wstring& drive_name, const wstring& volume_name)
 {
     log_debug(L"volume_exists() " + drive_name + L" " + volume_name);
-#ifdef _UNIX
+#ifdef _MACOS
+    const string volume = wstring_to_string(volume_name);
+    struct statfs* mounts = nullptr;
+    const int count = getmntinfo(&mounts, MNT_NOWAIT);
+    const auto names_volume = [&](const char* name) { return string(name).find(volume) != string::npos; };
+    for (int i = 0; i < count; ++i)
+        if (names_volume(mounts[i].f_mntfromname) || names_volume(mounts[i].f_mntonname))
+            return true;
+    return false;
+#elif defined(_UNIX)
     std::ifstream mounts("/proc/mounts");
     if (!mounts.is_open()) {
         log_error(translation::translate("proc_mounts_not_openable"));
