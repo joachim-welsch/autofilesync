@@ -228,6 +228,7 @@ msgstr ""
 "- A GUI program (wxWidgets) is used to configure the synchronisations.\n"
 "- A background service/daemon runs the same configuration in the background without an open user interface.\n"
 "- The highest goal is robustness, then operation so intuitive that inexperienced users understand it without documentation.\n"
+"- If source or target is unreachable (drive not plugged in, SSH server not answering), that is not an error: the synchronisation is skipped for this pass, nothing is copied or deleted. Whether a warning appears is decided per synchronisation by the option 'Warn if the drive or SSH connection is missing' (default: on). On: a warning after 'Synchronise once' and a warning in the log. Off: only an info line in the log, no warning - meant for backup disks that are plugged in only now and then. The preview always names skipped synchronisations. The configuration below says per synchronisation whether the option is off and whether the last pass missed a side.\n"
 "If you cannot answer a question with confidence from this knowledge, say so openly instead of inventing features that do not exist."
 
 #: AFS_Core/src/LlamaClient.cpp:40
@@ -273,6 +274,58 @@ msgstr "The log file is empty or could not be read."
 #: AFS_Core/src/LlamaClient.cpp:189
 msgid "assistant_question_label"
 msgstr "Question: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "The user's current configuration:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Configured synchronisations: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "every %1 seconds"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... and %1 more"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "SSH accounts: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Inactive"
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "If the user wants to set up a new synchronisation and has named source and target, append exactly one block of this form to your answer:\n```sync\n{\"name\": \"Short name\", \"source\": \"/path/to/source\", \"target\": \"/path/to/target\", \"type\": \"%2\"}\n```\nAllowed types: %1. Do not add a block while source or target is missing; ask for them instead. If the user wants to delete an existing synchronisation, append exactly one block of this form instead:\n```sync\n{\"delete\": \"name of the synchronisation\"}\n```\nUse the name exactly as it appears in the configuration. The user then checks and confirms the proposal."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_summary"
+msgstr "Proposal: synchronisation \"%1\" (%2) from %3 to %4. Check and create it with \"%5\"."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_deletion_summary"
+msgstr "Proposal: delete synchronisation \"%1\". Confirm it with \"%2\"."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_extraction"
+msgstr "Did the user want to create a new synchronisation with the last question and name source and target? Then answer only with the JSON object {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} using the paths from the question. Did the user want to delete an existing synchronisation? Then answer only with {\"delete\": \"name\"}. Otherwise answer only with null."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Create synchronisation…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_delete_sync"
+msgstr "Delete synchronisation…"
+
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr "The message catalogue in %1 does not belong to this version of Autofilesync; install the locale files of this build. Until then texts are missing, in the assistant too."
 
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
@@ -929,7 +982,7 @@ msgstr "The background service is not supported on this platform."
 #: AFS_Desktop/src/Canvas.cpp:70 AFS_Desktop/src/GridWindow.cpp:63
 #: AFS_Desktop/src/ListWindow.cpp:61
 msgid "context_edit"
-msgstr "&Edit"
+msgstr "&Edit…"
 
 #: AFS_Desktop/src/Canvas.cpp:71 AFS_Desktop/src/GridWindow.cpp:64
 #: AFS_Desktop/src/ListWindow.cpp:62
@@ -1072,7 +1125,7 @@ msgstr "Please enter the outgoing mail server and the sender."
 
 #: AFS_Desktop/src/MainWindow.cpp:133
 msgid "started_minimized"
-msgstr ""
+msgstr "AutoFileSync keeps running minimised."
 "AutoFileSync was started minimised.\n"
 " See the hidden icons."
 
@@ -1119,7 +1172,7 @@ msgstr ""
 "https://welsch-software.com\n"
 "\n"
 "Licence: GNU GPL v3 or later,\n"
-"see Help → Lizenzbedingungen."
+"see Help → Licence terms."
 
 #: AFS_Desktop/src/MainWindow.cpp:321
 msgid "about_title"
@@ -1143,11 +1196,11 @@ msgstr "Configuration saved"
 
 #: AFS_Desktop/src/MainWindow.cpp:421
 msgid "overwrite_question"
-msgstr "'%1' already exists. Overwrite?"
+msgstr "'%1' already exists."
 
 #: AFS_Desktop/src/MainWindow.cpp:422
 msgid "overwrite_title"
-msgstr "Overwrite file"
+msgstr "Overwrite file?"
 
 #: AFS_Desktop/src/MainWindow.cpp:429
 msgid "save_as_title"
@@ -1199,11 +1252,11 @@ msgstr "Background service"
 
 #: AFS_Desktop/src/MainWindow.cpp:676
 msgid "bs_save_question"
-msgstr "The background service works with the saved configuration. Save now?"
+msgstr "The background service works with the saved configuration."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
-msgstr "Help file not found: "
+msgstr "Help file not found"
 
 #: AFS_Desktop/src/MainWindow.cpp:768
 msgid "help_file_add_failed"
@@ -1221,11 +1274,11 @@ msgstr "The tray icon could not be set."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "save_question"
-msgstr "Save?"
+msgstr "The changes to the configuration have not been saved yet."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
-msgstr "The data has not been saved."
+msgstr "Save changes?"
 
 #: AFS_Desktop/src/MainWindow.cpp:170
 msgid "title_unsaved"
@@ -1233,11 +1286,11 @@ msgstr "(unsaved)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
-msgstr "Synchronisation"
+msgstr "New synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:58
 msgid "menu_new_ssh_connection"
-msgstr "SSH connection"
+msgstr "New SSH connection…"
 
 #: AFS_Desktop/src/Menu.cpp:59
 msgid "menu_new"
@@ -1245,7 +1298,7 @@ msgstr "&New"
 
 #: AFS_Desktop/src/Menu.cpp:60
 msgid "menu_open"
-msgstr "&Open"
+msgstr "&Open…"
 
 #: AFS_Desktop/src/Menu.cpp:61
 msgid "menu_save"
@@ -1253,11 +1306,11 @@ msgstr "&Save"
 
 #: AFS_Desktop/src/Menu.cpp:62
 msgid "menu_save_as"
-msgstr "Save &as"
+msgstr "Save &as…"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit"
-msgstr "Quit\tAlt-X"
+msgstr "Quit"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit_help"
@@ -1265,7 +1318,7 @@ msgstr "Quit this program"
 
 #: AFS_Desktop/src/Menu.cpp:70
 msgid "menu_about"
-msgstr "About AutoFileSync\tF1"
+msgstr "About AutoFileSync"
 
 #: AFS_Desktop/src/Menu.cpp:71
 msgid "menu_help"
@@ -1273,23 +1326,23 @@ msgstr "Show help"
 
 #: AFS_Desktop/src/Menu.cpp:78 AFS_Desktop/src/Toolbar.cpp:77
 msgid "edit_synchronisation"
-msgstr "Edit synchronisation"
+msgstr "Edit synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:79 AFS_Desktop/src/Toolbar.cpp:79
 msgid "delete_synchronisation"
-msgstr "Delete synchronisation"
+msgstr "Delete synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "SSH connections..."
+msgstr "SSH connections…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
-msgstr "Global settings"
+msgstr "Global settings…"
 
 #: AFS_Desktop/src/Menu.cpp:83
 msgid "menu_logging_settings"
-msgstr "Logging settings"
+msgstr "Logging settings…"
 
 #: AFS_Desktop/src/Menu.cpp:90
 msgid "menu_view_list"
@@ -1345,7 +1398,7 @@ msgstr "Stop the background service"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Chat..."
+msgstr "&Chat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1393,7 +1446,15 @@ msgstr "Start minimised"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:57
 msgid "settings_minimize_instead_of_close"
-msgstr "Minimise instead of closing?"
+msgstr "Minimise instead of closing"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Language:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Operating system language"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
@@ -1463,7 +1524,7 @@ msgstr "The name may only contain letters, digits, underscore and hyphen."
 #: AFS_Desktop/src/SshAccountsDialog.cpp:181
 #: AFS_Desktop/src/SshAccountsDialog.cpp:190
 msgid "validation_error"
-msgstr "Validation error"
+msgstr "Invalid input"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:153
 #: AFS_Desktop/src/SshAccountsDialog.cpp:189
@@ -1565,7 +1626,7 @@ msgstr "The synchronisation cannot be started."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "no_sync_items"
-msgstr "No files to synchronise specified!"
+msgstr "No synchronisation has been set up."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "attention"
@@ -1617,7 +1678,7 @@ msgstr "Synchronisation active"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:133
 msgid "compare_by"
-msgstr "Compare files by:"
+msgstr "Compare files by"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:138
 msgid "option_delete_source_after_copy"
@@ -1655,9 +1716,17 @@ msgstr "Backup proof"
 msgid "option_sync_empty_files"
 msgstr "Synchronise empty files"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:172
+msgid "option_warn_if_unreachable"
+msgstr "Warn if the drive or SSH connection is missing"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Seconds of pause:"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:186
+msgid "time_tolerance_seconds"
+msgstr "Tolerance in seconds:"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:193
 msgid "tab_options"
@@ -1788,3 +1857,167 @@ msgstr "backgroundsync is running in this console window, Ctrl+C stops it."
 #: backgroundsync/WindowsService.cpp:113
 msgid "daemon_dispatcher_failed"
 msgstr "Connecting to the Windows service control manager failed, error %1"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr "Save"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr "Don't Save"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr "Overwrite"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr "Copyright © 2026 Joachim Welsch"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr "Automatic synchronisation of files and directory trees on %1.\n\nhttps://welsch-software.com\n\nLicence: GNU GPL v3 or later, see Help → Licence terms."
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ":"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr "Choose…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr "Cmd+Enter sends."
+
+#: AFS_Desktop/src/TreeCtrl.cpp
+msgid "tree_root"
+msgstr "This computer"
+
+#: AFS_Desktop/src/ChatDialog.cpp:69
+msgid "chat_new_conversation"
+msgstr "New conversation"
+
+#: AFS_Core/src/LogAnalysis.cpp:57
+msgid "log_question_words"
+msgstr "log,logfile"
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr "The following excerpt comes from the AutoFileSync help; the help page is given in square brackets. Use it to answer the question that follows, and at the end name the help page where the user can read more. If the excerpt is in another language, answer in English all the same. If the excerpt does not fit the question, ignore it without mentioning it."
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr "not synchronised by this program yet"
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr "last synchronised %1 min ago"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_warned"
+msgstr "source or target was unreachable in the last pass, the synchronisation was skipped and a warning shown because the option 'Warn if the drive or SSH connection is missing' is on"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_silent"
+msgstr "source or target was unreachable in the last pass, the synchronisation was skipped without a warning because the option 'Warn if the drive or SSH connection is missing' is off"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_no_unreachable_warning"
+msgstr "no warning if the drive or SSH connection is missing"
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr "errors in the last run: %1, the first: %2"
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr "In the program: %1. Background service – %2."
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr "If the user wants to run one of these commands, append exactly one block of this form instead:\n```sync\n{\"command\": \"sync_once\"}\n```\nAllowed commands: %1. The user runs the command with a button."
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr "Did the user's last question ask to run one of these commands: %1? Then answer only with {\"command\": \"...\"}."
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr "Proposal: %1. Run it with \"%1\"."
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr "sync,start,stop,open,show,preview"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview"
+msgstr "&Preview…"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview_help"
+msgstr "Shows what a synchronisation would do now, without changing anything"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:39 AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_title"
+msgstr "Preview"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:42
+msgid "preview_intro"
+msgstr "A synchronisation would carry out these steps now. Nothing has been changed yet."
+
+#: AFS_Desktop/src/PreviewDialog.cpp:44
+msgid "preview_column_action"
+msgstr "Action"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:88
+msgid "preview_copy_to_target"
+msgstr "Copy to target"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:89
+msgid "preview_move_to_target"
+msgstr "Move to target"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:90
+msgid "preview_copy_to_source"
+msgstr "Copy back to source"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:93
+msgid "preview_delete_in_target"
+msgstr "Delete in target"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:98
+msgid "preview_summary"
+msgstr "%1 steps, %2 of them deletions in the target; to transfer: %3"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:70
+msgid "preview_more"
+msgstr "… and %1 more steps"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:56
+msgid "preview_run_now"
+msgstr "Synchronise now"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:57
+msgid "button_close"
+msgstr "Close"
+
+#: AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_nothing_to_do"
+msgstr "Source and target match – a synchronisation would do nothing now."
+
+#: AFS_Desktop/src/SyncInterface.cpp:125
+msgid "preview_unreachable"
+msgstr "Source or target not reachable – these synchronisations could not be compared:%1"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:34
+msgid "preview_no_bytes"
+msgstr "0 bytes"
+
+#: AFS_Desktop/src/SyncInterface.cpp:342
+msgid "state_preview"
+msgstr "Working out the preview …"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:66
+msgid "preview_column_file"
+msgstr "File"

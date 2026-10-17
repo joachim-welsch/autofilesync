@@ -2,7 +2,7 @@
 
 Module comment for LoggingTest.cpp.
 
-## applyLogging
+## apply_logging
 
 A message box the dialog raises on OK has to be queued after the dialog's own expectation
 and before the menu command: the watcher answers in order of appearance.
@@ -13,7 +13,7 @@ Logging is a process-wide singleton with the log file open; GuiTest::TearDown re
 configuration but the test must not leave the log pointing into a SandboxTree that is about
 to disappear, so every value the dialog can change is restored explicitly.
 
-## logLineDaysAgo
+## log_line_days_ago
 
 LogCut reads the timestamp at the start of every line in the format Logging writes it
 ("%Y-%m-%d %H:%M:%S.mmm"); a line written with a date ten days back is what a shorter
@@ -36,3 +36,9 @@ address and server are examples.
 The proof path is set through the logging dialog, the option through the synchronisation's
 dialog, and the run through the menu - the full path a user takes. The file name is asked
 from copy_log_file_path so a renaming of the file stays a single change.
+
+## proven_status
+
+Reads the status the way any JSON reader does instead of searching the text, so the test holds
+whether a character stands in the file as itself or as a \uXXXX escape - proofs written before
+json::to_text() escaped everything above U+00FF.

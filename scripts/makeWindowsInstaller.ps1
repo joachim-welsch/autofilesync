@@ -141,6 +141,9 @@ function Test-Payload {
         'llama.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu.dll',
         'help\help.htb', 'licenses\LICENSE', 'licenses\LICENSING.md', 'licenses\THIRD-PARTY-NOTICES.md'
     ) + $modelSetup
+    foreach ($languageDir in (Get-ChildItem (Join-Path $root 'AFS_Desktop\help') -Directory)) {
+        if (Test-Path (Join-Path $languageDir.FullName 'help.hhp')) { $required += "help\$($languageDir.Name)\help.htb" }
+    }
     foreach ($language in (Get-ChildItem (Join-Path $root 'po') -Filter '*.po')) {
         $required += "locale\$($language.BaseName)\LC_MESSAGES\autofilesync.mo"
     }

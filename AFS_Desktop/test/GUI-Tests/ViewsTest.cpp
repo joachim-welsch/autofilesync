@@ -43,25 +43,25 @@ namespace {
 const wxString FIRST = "guitest-erste";
 const wxString SECOND = "guitest-zweite";
 
-SyncItemInput sandboxSync(const wxString& name, SyncItemType type = SyncItemType::File)
+SyncItemInput sandbox_sync(const wxString& name, SyncItemType type = SyncItemType::File)
 {
-    SyncItemInput input{name, GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
+    SyncItemInput input{name, GuiTestSandbox::source_dir().string(), GuiTestSandbox::target_dir().string()};
     input.type = type;
     return input;
 }
 
-bool editAndDeleteEnabledFor(wxWindow& invokingWindow)  // [ViewsTest.md#editAndDeleteEnabledFor]
+bool edit_and_delete_enabled_for(wxWindow& invoking_window)  // [ViewsTest.md#edit_and_delete_enabled_for]
 {
     wxMenu menu;
     menu.Append(tul(id::EditSync), "&Editiere");
     menu.Append(tul(id::DeleteSync), L"&Lösche");
-    menu.SetInvokingWindow(&invokingWindow);
+    menu.SetInvokingWindow(&invoking_window);
     menu.UpdateUI();
     menu.SetInvokingWindow(nullptr);
     return menu.IsEnabled(tul(id::EditSync)) && menu.IsEnabled(tul(id::DeleteSync));
 }
 
-std::vector<wxString> rowLabels(const GridCtrl& grid)
+std::vector<wxString> row_labels(const GridCtrl& grid)
 {
     std::vector<wxString> labels;
     for (int row = 0; row < grid.GetNumberRows(); ++row)
@@ -73,65 +73,65 @@ std::vector<wxString> rowLabels(const GridCtrl& grid)
 
 TEST_F(GuiTest, AnsichtWechselZeigtGleicheSynchronisationen)  // [ViewsTest.md#AnsichtWechselZeigtGleicheSynchronisationen]
 {
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(SECOND, SyncItemType::Dir)));
+    ASSERT_TRUE(add_sync_item(main_window(), sandbox_sync(FIRST)));
+    ASSERT_TRUE(add_sync_item(main_window(), sandbox_sync(SECOND, SyncItemType::Dir)));
 
-    showView(mainWindow(), id::View_Tree);
-    ASSERT_NE(sourceTree(mainWindow()), nullptr) << "Die Baumansicht erschien nicht.";
-    EXPECT_EQ(syncItemList(), nullptr) << "Die Liste blieb neben dem Baum bestehen.";
-    EXPECT_TRUE(findTreeItemForPath(*sourceTree(mainWindow()), GuiTestSandbox::sourceDir()).IsOk()) << "Die Quelle fehlt im Baum.";
-    EXPECT_TRUE(findTreeItemForPath(*targetTree(mainWindow()), GuiTestSandbox::targetDir()).IsOk()) << "Das Ziel fehlt im Baum.";
+    show_view(main_window(), id::View_Tree);
+    ASSERT_NE(source_tree(main_window()), nullptr) << "Die Baumansicht erschien nicht.";
+    EXPECT_EQ(sync_item_list(), nullptr) << "Die Liste blieb neben dem Baum bestehen.";
+    EXPECT_TRUE(find_tree_item_for_path(*source_tree(main_window()), GuiTestSandbox::source_dir()).IsOk()) << "Die Quelle fehlt im Baum.";
+    EXPECT_TRUE(find_tree_item_for_path(*target_tree(main_window()), GuiTestSandbox::target_dir()).IsOk()) << "Das Ziel fehlt im Baum.";
 
-    showView(mainWindow(), id::View_Grid);
-    ASSERT_NE(gridView(mainWindow()), nullptr) << "Die Tabellenansicht erschien nicht.";
-    EXPECT_EQ(sourceTree(mainWindow()), nullptr) << "Der Baum blieb neben der Tabelle bestehen.";
-    EXPECT_EQ(rowLabels(*gridView(mainWindow())), (std::vector<wxString>{FIRST, SECOND}));
-    EXPECT_EQ(gridView(mainWindow())->GetCellValue(0, 1), GuiTestSandbox::sourceDir().string());
+    show_view(main_window(), id::View_Grid);
+    ASSERT_NE(grid_view(main_window()), nullptr) << "Die Tabellenansicht erschien nicht.";
+    EXPECT_EQ(source_tree(main_window()), nullptr) << "Der Baum blieb neben der Tabelle bestehen.";
+    EXPECT_EQ(row_labels(*grid_view(main_window())), (std::vector<wxString>{FIRST, SECOND}));
+    EXPECT_EQ(grid_view(main_window())->GetCellValue(0, 1), GuiTestSandbox::source_dir().string());
 
-    showView(mainWindow(), id::View_List);
-    ASSERT_NE(syncItemList(), nullptr) << "Die Listenansicht erschien nicht.";
-    EXPECT_EQ(gridView(mainWindow()), nullptr) << "Die Tabelle blieb neben der Liste bestehen.";
-    EXPECT_TRUE(listShows(FIRST.ToStdWstring()));
-    EXPECT_TRUE(listShows(SECOND.ToStdWstring()));
+    show_view(main_window(), id::View_List);
+    ASSERT_NE(sync_item_list(), nullptr) << "Die Listenansicht erschien nicht.";
+    EXPECT_EQ(grid_view(main_window()), nullptr) << "Die Tabelle blieb neben der Liste bestehen.";
+    EXPECT_TRUE(list_shows(FIRST.ToStdWstring()));
+    EXPECT_TRUE(list_shows(SECOND.ToStdWstring()));
 }
 
 TEST_F(GuiTest, KontextmenueInListeAktivWennZeileAusgewaehlt)  // [ViewsTest.md#context-menus]
 {
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    ListCtrl* list = syncItemList();
+    ASSERT_TRUE(add_sync_item(main_window(), sandbox_sync(FIRST)));
+    ListCtrl* list = sync_item_list();
     ASSERT_NE(list, nullptr);
-    wxWindow* listWindow = list->GetParent();
+    wxWindow* list_window = list->GetParent();
     list->SetItemState(0, 0, wxLIST_STATE_SELECTED);
     pump();
-    EXPECT_FALSE(editAndDeleteEnabledFor(*listWindow)) << "Das Kontextmenü ist ohne ausgewählte Zeile bedienbar.";
+    EXPECT_FALSE(edit_and_delete_enabled_for(*list_window)) << "Das Kontextmenü ist ohne ausgewählte Zeile bedienbar.";
 
-    ASSERT_TRUE(clickOn(*list, 0));
+    ASSERT_TRUE(click_on(*list, 0));
 
-    EXPECT_TRUE(editAndDeleteEnabledFor(*listWindow)) << "Das Kontextmenü bleibt mit ausgewählter Zeile gesperrt.";
+    EXPECT_TRUE(edit_and_delete_enabled_for(*list_window)) << "Das Kontextmenü bleibt mit ausgewählter Zeile gesperrt.";
 }
 
 TEST_F(GuiTest, KontextmenueInTabelleAktivWennZeileAusgewaehlt)  // [ViewsTest.md#context-menus]
 {
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    showView(mainWindow(), id::View_Grid);
-    GridCtrl* grid = gridView(mainWindow());
+    ASSERT_TRUE(add_sync_item(main_window(), sandbox_sync(FIRST)));
+    show_view(main_window(), id::View_Grid);
+    GridCtrl* grid = grid_view(main_window());
     ASSERT_NE(grid, nullptr);
-    wxWindow* gridWindow = grid->GetParent();
+    wxWindow* grid_window = grid->GetParent();
 
     grid->SetGridCursor(0, 1);
     pump();
-    EXPECT_TRUE(editAndDeleteEnabledFor(*gridWindow)) << "Das Kontextmenü bleibt mit Cursor auf einer Zeile gesperrt.";
+    EXPECT_TRUE(edit_and_delete_enabled_for(*grid_window)) << "Das Kontextmenü bleibt mit Cursor auf einer Zeile gesperrt.";
 }
 
 TEST_F(GuiTest, AktivPerKlickInTabelleAendertKonfiguration)  // [ViewsTest.md#grid-editing]
 {
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    showView(mainWindow(), id::View_Grid);
-    GridCtrl* grid = gridView(mainWindow());
+    ASSERT_TRUE(add_sync_item(main_window(), sandbox_sync(FIRST)));
+    show_view(main_window(), id::View_Grid);
+    GridCtrl* grid = grid_view(main_window());
     ASSERT_NE(grid, nullptr);
     ASSERT_EQ(grid->GetCellValue(0, 0), "1") << "Eine neue Synchronisation ist in der Tabelle nicht aktiv.";
 
-    ASSERT_TRUE(changeGridCell(*grid, 0, 0, ""));
+    ASSERT_TRUE(change_grid_cell(*grid, 0, 0, ""));
 
     const auto item = Config::instance().find_by_name(FIRST.ToStdWstring());
     ASSERT_TRUE(item.has_value());
@@ -140,34 +140,34 @@ TEST_F(GuiTest, AktivPerKlickInTabelleAendertKonfiguration)  // [ViewsTest.md#gr
 
 TEST_F(GuiTest, LeereQuelleInTabelleWirdAbgelehntUndZurueckgesetzt)  // [ViewsTest.md#grid-editing]
 {
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(FIRST)));
-    showView(mainWindow(), id::View_Grid);
-    GridCtrl* grid = gridView(mainWindow());
+    ASSERT_TRUE(add_sync_item(main_window(), sandbox_sync(FIRST)));
+    show_view(main_window(), id::View_Grid);
+    GridCtrl* grid = grid_view(main_window());
     ASSERT_NE(grid, nullptr);
     ModalDialogWatcher::instance().answer(translation::translate("error"), wxID_OK);
 
-    ASSERT_TRUE(changeGridCell(*grid, 0, 1, ""));
+    ASSERT_TRUE(change_grid_cell(*grid, 0, 1, ""));
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die leere Quelle wurde ohne Meldung angenommen.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("source_target_required"));
-    EXPECT_EQ(grid->GetCellValue(0, 1), GuiTestSandbox::sourceDir().string()) << "Die Tabelle zeigt die leere Quelle weiter an.";
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Die leere Quelle wurde ohne Meldung angenommen.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), translation::translate("source_target_required"));
+    EXPECT_EQ(grid->GetCellValue(0, 1), GuiTestSandbox::source_dir().string()) << "Die Tabelle zeigt die leere Quelle weiter an.";
     const auto item = Config::instance().find_by_name(FIRST.ToStdWstring());
     ASSERT_TRUE(item.has_value());
-    EXPECT_EQ(item->source(), GuiTestSandbox::sourceDir().wstring()) << "Die leere Quelle kam in die Konfiguration.";
+    EXPECT_EQ(item->source(), GuiTestSandbox::source_dir().wstring()) << "Die leere Quelle kam in die Konfiguration.";
 }
 
 TEST_F(GuiTest, BaumZeigtDateiUndOrdnerSymbole)  // [ViewsTest.md#BaumZeigtDateiUndOrdnerSymbole]
 {
-    SyncItemInput fileSync = sandboxSync(FIRST);
-    fileSync.source = (GuiTestSandbox::sourceDir() / "beispiel.txt").string();
-    ASSERT_TRUE(addSyncItem(mainWindow(), fileSync));
-    ASSERT_TRUE(addSyncItem(mainWindow(), sandboxSync(SECOND, SyncItemType::Dir)));
-    showView(mainWindow(), id::View_Tree);
-    wxTreeCtrl* tree = sourceTree(mainWindow());
+    SyncItemInput file_sync = sandbox_sync(FIRST);
+    file_sync.source = (GuiTestSandbox::source_dir() / "beispiel.txt").string();
+    ASSERT_TRUE(add_sync_item(main_window(), file_sync));
+    ASSERT_TRUE(add_sync_item(main_window(), sandbox_sync(SECOND, SyncItemType::Dir)));
+    show_view(main_window(), id::View_Tree);
+    wxTreeCtrl* tree = source_tree(main_window());
     ASSERT_NE(tree, nullptr);
 
-    const wxTreeItemId file = findTreeItemForPath(*tree, GuiTestSandbox::sourceDir() / "beispiel.txt");
-    const wxTreeItemId folder = findTreeItemForPath(*tree, GuiTestSandbox::sourceDir());
+    const wxTreeItemId file = find_tree_item_for_path(*tree, GuiTestSandbox::source_dir() / "beispiel.txt");
+    const wxTreeItemId folder = find_tree_item_for_path(*tree, GuiTestSandbox::source_dir());
     ASSERT_TRUE(file.IsOk()) << "Die Datei fehlt im Baum.";
     ASSERT_TRUE(folder.IsOk()) << "Der Ordner fehlt im Baum.";
     EXPECT_EQ(tree->GetItemImage(file), static_cast<int>(TreeCtrlIcon::File));

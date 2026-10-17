@@ -228,6 +228,7 @@ msgstr ""
 "- Ein GUI-Programm (wxWidgets) dient der Konfiguration der Synchronisationen.\n"
 "- Ein Hintergrunddienst/Daemon fuehrt dieselbe Konfiguration ohne offene Bedienoberflaeche im Hintergrund aus.\n"
 "- Oberstes Ziel ist Robustheit, danach eine so intuitive Bedienung, dass unerfahrene Nutzer sie ohne Dokumentation verstehen.\n"
+"- Ist Quelle oder Ziel nicht erreichbar (Laufwerk nicht angeschlossen, SSH-Server antwortet nicht), ist das kein Fehler: Die Synchronisation wird in diesem Durchlauf uebersprungen, nichts wird kopiert oder geloescht. Ob dabei eine Warnung erscheint, entscheidet je Synchronisation die Option 'Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung' (Voreinstellung: an). An: Warnung nach 'Einmal synchronisieren' und Warnung im Protokoll. Aus: nur ein Info-Eintrag im Protokoll, keine Warnung - gedacht fuer Sicherungsplatten, die nur selten angeschlossen werden. Die Vorschau nennt uebersprungene Synchronisationen immer. Die Konfiguration unten sagt je Synchronisation, ob die Option aus ist und ob der letzte Durchlauf eine Seite vermisst hat.\n"
 "Wenn du eine Frage nicht sicher aus diesem Wissen beantworten kannst, sag das offen, statt Funktionen zu erfinden, die es nicht gibt."
 
 #: AFS_Core/src/LlamaClient.cpp:40
@@ -273,6 +274,58 @@ msgstr "Die Logdatei ist leer oder konnte nicht gelesen werden."
 #: AFS_Core/src/LlamaClient.cpp:189
 msgid "assistant_question_label"
 msgstr "Frage: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Aktuelle Konfiguration des Nutzers:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Konfigurierte Synchronisationen: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "alle %1 Sekunden"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... und %1 weitere"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "SSH-Konten: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Inaktiv"
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "Wenn der Nutzer eine neue Synchronisation anlegen möchte und Quelle und Ziel genannt hat, hänge an deine Antwort genau einen Block in dieser Form an:\n```sync\n{\"name\": \"Kurzer Name\", \"source\": \"/pfad/zur/quelle\", \"target\": \"/pfad/zum/ziel\", \"type\": \"%2\"}\n```\nErlaubte Typen: %1. Füge keinen Block an, solange Quelle oder Ziel fehlen; frage stattdessen danach. Wenn der Nutzer eine vorhandene Synchronisation löschen möchte, hänge stattdessen genau einen Block in dieser Form an:\n```sync\n{\"delete\": \"Name der Synchronisation\"}\n```\nVerwende den Namen genau so, wie er in der Konfiguration steht. Der Nutzer prüft und bestätigt den Vorschlag anschließend."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_summary"
+msgstr "Vorschlag: Synchronisation \"%1\" (%2) von %3 nach %4. Mit \"%5\" prüfen und anlegen."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_deletion_summary"
+msgstr "Vorschlag: Synchronisation \"%1\" löschen. Mit \"%2\" bestätigen."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_extraction"
+msgstr "Wollte der Nutzer mit seiner letzten Frage eine neue Synchronisation anlegen und hat dabei Quelle und Ziel genannt? Dann antworte nur mit dem JSON-Objekt {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} mit den Pfaden aus der Frage. Wollte er eine vorhandene Synchronisation löschen? Dann antworte nur mit {\"delete\": \"Name\"}. Sonst antworte nur mit null."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Synchronisation anlegen…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_delete_sync"
+msgstr "Synchronisation löschen…"
+
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr "Die Übersetzungen in %1 passen nicht zu dieser Programmversion; bitte die locale-Dateien dieses Builds installieren. Bis dahin fehlen Texte, auch im Assistenten."
 
 #: AFS_Core/src/LogCut.cpp:67
 msgid "log_file_not_shortenable"
@@ -929,12 +982,12 @@ msgstr "Der Hintergrunddienst wird auf dieser Plattform nicht unterstützt."
 #: AFS_Desktop/src/Canvas.cpp:70 AFS_Desktop/src/GridWindow.cpp:63
 #: AFS_Desktop/src/ListWindow.cpp:61
 msgid "context_edit"
-msgstr "&Editiere"
+msgstr "&Bearbeiten…"
 
 #: AFS_Desktop/src/Canvas.cpp:71 AFS_Desktop/src/GridWindow.cpp:64
 #: AFS_Desktop/src/ListWindow.cpp:62
 msgid "context_delete"
-msgstr "&Lösche"
+msgstr "&Löschen"
 
 #: AFS_Desktop/src/ChatDialog.cpp:53
 msgid "button_send"
@@ -1072,7 +1125,7 @@ msgstr "Bitte Postausgangsserver und Absender eintragen."
 
 #: AFS_Desktop/src/MainWindow.cpp:133
 msgid "started_minimized"
-msgstr ""
+msgstr "AutoFileSync läuft minimiert weiter."
 "AutoFileSync wurde minimiert gestartet.\n"
 " Siehe Ausgeblendete Symbole."
 
@@ -1143,11 +1196,11 @@ msgstr "Konfiguration gespeichert"
 
 #: AFS_Desktop/src/MainWindow.cpp:421
 msgid "overwrite_question"
-msgstr "'%1' existiert bereits. Überschreiben?"
+msgstr "'%1' existiert bereits."
 
 #: AFS_Desktop/src/MainWindow.cpp:422
 msgid "overwrite_title"
-msgstr "Datei überschreiben"
+msgstr "Datei überschreiben?"
 
 #: AFS_Desktop/src/MainWindow.cpp:429
 msgid "save_as_title"
@@ -1199,11 +1252,11 @@ msgstr "Hintergrunddienst"
 
 #: AFS_Desktop/src/MainWindow.cpp:676
 msgid "bs_save_question"
-msgstr "Der Hintergrunddienst arbeitet mit der gespeicherten Konfiguration. Jetzt speichern?"
+msgstr "Der Hintergrunddienst arbeitet mit der gespeicherten Konfiguration."
 
 #: AFS_Desktop/src/MainWindow.cpp:764
 msgid "help_file_not_found"
-msgstr "Hilfedatei nicht gefunden: "
+msgstr "Hilfedatei nicht gefunden"
 
 #: AFS_Desktop/src/MainWindow.cpp:768
 msgid "help_file_add_failed"
@@ -1221,11 +1274,11 @@ msgstr "Das Symbol im Infobereich konnte nicht gesetzt werden."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "save_question"
-msgstr "Speichern?"
+msgstr "Die Änderungen an der Konfiguration sind noch nicht gespeichert."
 
 #: AFS_Desktop/src/MainWindow.cpp:801
 msgid "not_saved_title"
-msgstr "Die Daten wurden nicht gespeichert."
+msgstr "Änderungen speichern?"
 
 #: AFS_Desktop/src/MainWindow.cpp:170
 msgid "title_unsaved"
@@ -1233,11 +1286,11 @@ msgstr "(nicht gespeichert)"
 
 #: AFS_Desktop/src/Menu.cpp:57
 msgid "menu_new_synchronisation"
-msgstr "Synchronisation"
+msgstr "Neue Synchronisation…"
 
 #: AFS_Desktop/src/Menu.cpp:58
 msgid "menu_new_ssh_connection"
-msgstr "SSH-Verbindung"
+msgstr "Neue SSH-Verbindung…"
 
 #: AFS_Desktop/src/Menu.cpp:59
 msgid "menu_new"
@@ -1245,7 +1298,7 @@ msgstr "&Neu"
 
 #: AFS_Desktop/src/Menu.cpp:60
 msgid "menu_open"
-msgstr "&Öffnen"
+msgstr "&Öffnen…"
 
 #: AFS_Desktop/src/Menu.cpp:61
 msgid "menu_save"
@@ -1253,11 +1306,11 @@ msgstr "&Speichern"
 
 #: AFS_Desktop/src/Menu.cpp:62
 msgid "menu_save_as"
-msgstr "Speichern &als"
+msgstr "Speichern &als…"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit"
-msgstr "Beenden\tAlt-X"
+msgstr "Beenden"
 
 #: AFS_Desktop/src/Menu.cpp:63
 msgid "menu_quit_help"
@@ -1265,7 +1318,7 @@ msgstr "Dieses Programm beenden"
 
 #: AFS_Desktop/src/Menu.cpp:70
 msgid "menu_about"
-msgstr "Info über AutoFileSync\tF1"
+msgstr "Info über AutoFileSync"
 
 #: AFS_Desktop/src/Menu.cpp:71
 msgid "menu_help"
@@ -1273,23 +1326,23 @@ msgstr "Hilfe anzeigen"
 
 #: AFS_Desktop/src/Menu.cpp:78 AFS_Desktop/src/Toolbar.cpp:77
 msgid "edit_synchronisation"
-msgstr "Synchronisation editieren"
+msgstr "Synchronisation bearbeiten…"
 
 #: AFS_Desktop/src/Menu.cpp:79 AFS_Desktop/src/Toolbar.cpp:79
 msgid "delete_synchronisation"
-msgstr "Synchronisation löschen"
+msgstr "Synchronisation löschen…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "SSH-Verbindungen..."
+msgstr "SSH-Verbindungen…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
-msgstr "Globale Einstellungen"
+msgstr "Globale Einstellungen…"
 
 #: AFS_Desktop/src/Menu.cpp:83
 msgid "menu_logging_settings"
-msgstr "Logging Einstellungen"
+msgstr "Logging-Einstellungen…"
 
 #: AFS_Desktop/src/Menu.cpp:90
 msgid "menu_view_list"
@@ -1345,7 +1398,7 @@ msgstr "Hintergrunddienst stoppen"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat"
-msgstr "&Chat..."
+msgstr "&Chat…"
 
 #: AFS_Desktop/src/Menu.cpp:123
 msgid "menu_chat_help"
@@ -1373,7 +1426,7 @@ msgstr "&Ansicht"
 
 #: AFS_Desktop/src/Menu.cpp:135
 msgid "menu_assistant"
-msgstr "&Assistent"
+msgstr "Assis&tent"
 
 #: AFS_Desktop/src/Menu.cpp:136
 msgid "menu_help_menu"
@@ -1393,7 +1446,15 @@ msgstr "Start minimiert"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:57
 msgid "settings_minimize_instead_of_close"
-msgstr "Minimieren statt schließen?"
+msgstr "Minimieren statt schließen"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Sprache:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Sprache des Betriebssystems"
 
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
@@ -1463,7 +1524,7 @@ msgstr "Der Name darf nur Buchstaben, Zahlen, Unterstrich und Bindestrich enthal
 #: AFS_Desktop/src/SshAccountsDialog.cpp:181
 #: AFS_Desktop/src/SshAccountsDialog.cpp:190
 msgid "validation_error"
-msgstr "Validierungsfehler"
+msgstr "Ungültige Eingabe"
 
 #: AFS_Desktop/src/SshAccountDialog.cpp:153
 #: AFS_Desktop/src/SshAccountsDialog.cpp:189
@@ -1565,7 +1626,7 @@ msgstr "Synchronisation kann nicht gestartet werden."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "no_sync_items"
-msgstr "Keine Dateien zum Synchronisieren angegeben!"
+msgstr "Es ist keine Synchronisation angelegt."
 
 #: AFS_Desktop/src/SyncInterface.cpp:250
 msgid "attention"
@@ -1617,7 +1678,7 @@ msgstr "Synchronisation aktiv"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:133
 msgid "compare_by"
-msgstr "Dateivergleich nach:"
+msgstr "Dateivergleich nach"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:138
 msgid "option_delete_source_after_copy"
@@ -1655,9 +1716,17 @@ msgstr "Sicherungsnachweis"
 msgid "option_sync_empty_files"
 msgstr "Leere Dateien synchronisieren"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:172
+msgid "option_warn_if_unreachable"
+msgstr "Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung"
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Sekunden Pause:"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:186
+msgid "time_tolerance_seconds"
+msgstr "Toleranz in Sekunden:"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:193
 msgid "tab_options"
@@ -1788,3 +1857,167 @@ msgstr "backgroundsync läuft im Konsolenfenster, Strg+C beendet es."
 #: backgroundsync/WindowsService.cpp:113
 msgid "daemon_dispatcher_failed"
 msgstr "Verbindung zur Dienststeuerung von Windows fehlgeschlagen, Fehler %1"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr "Speichern"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr "Nicht speichern"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr "Überschreiben"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr "Copyright © 2026 Joachim Welsch"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr "Automatische Synchronisation von Dateien und Verzeichnisbäumen unter %1.\n\nhttps://welsch-software.com\n\nLizenz: GNU GPL v3 oder neuer, siehe Hilfe → Lizenzbedingungen."
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ":"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr "Auswählen…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr "Cmd+Eingabe sendet."
+
+#: AFS_Desktop/src/TreeCtrl.cpp
+msgid "tree_root"
+msgstr "Dieser Computer"
+
+#: AFS_Desktop/src/ChatDialog.cpp:69
+msgid "chat_new_conversation"
+msgstr "Neues Gespräch"
+
+#: AFS_Core/src/LogAnalysis.cpp:57
+msgid "log_question_words"
+msgstr "log,protokoll"
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr "Der folgende Auszug stammt aus der Hilfe von AutoFileSync; in eckigen Klammern steht die Hilfeseite. Beantworte damit die anschließende Frage und nenne am Ende die Hilfeseite, auf der der Benutzer mehr findet. Passt der Auszug nicht zur Frage, übergehe ihn, ohne ihn zu erwähnen."
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr "in diesem Programm noch nicht synchronisiert"
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr "zuletzt synchronisiert vor %1 min"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_warned"
+msgstr "Quelle oder Ziel war beim letzten Durchlauf nicht erreichbar, die Synchronisation wurde übersprungen und eine Warnung gezeigt, weil die Option „Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung“ eingeschaltet ist"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_silent"
+msgstr "Quelle oder Ziel war beim letzten Durchlauf nicht erreichbar, die Synchronisation wurde ohne Warnung übersprungen, weil die Option „Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung“ ausgeschaltet ist"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_no_unreachable_warning"
+msgstr "keine Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung"
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr "Fehler im letzten Durchlauf: %1, der erste: %2"
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr "Im Programm: %1. Hintergrunddienst – %2."
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr "Wenn der Nutzer einen dieser Befehle ausführen möchte, hänge stattdessen genau einen Block in dieser Form an:\n```sync\n{\"command\": \"sync_once\"}\n```\nErlaubte Befehle: %1. Der Nutzer führt den Befehl mit einem Knopf selbst aus."
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr "Wollte der Nutzer mit seiner letzten Frage einen dieser Befehle ausführen: %1? Dann antworte nur mit {\"command\": \"...\"}."
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr "Vorschlag: %1. Mit \"%1\" ausführen."
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr "synchronisier,starte,stoppe,beende,öffne,zeige,vorschau"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview"
+msgstr "&Vorschau…"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview_help"
+msgstr "Zeigt, was eine Synchronisation jetzt tun würde, ohne etwas zu verändern"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:39 AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_title"
+msgstr "Vorschau"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:42
+msgid "preview_intro"
+msgstr "Diese Schritte würde eine Synchronisation jetzt ausführen. Noch ist nichts verändert."
+
+#: AFS_Desktop/src/PreviewDialog.cpp:44
+msgid "preview_column_action"
+msgstr "Aktion"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:88
+msgid "preview_copy_to_target"
+msgstr "Ins Ziel kopieren"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:89
+msgid "preview_move_to_target"
+msgstr "Ins Ziel verschieben"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:90
+msgid "preview_copy_to_source"
+msgstr "In die Quelle zurückkopieren"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:93
+msgid "preview_delete_in_target"
+msgstr "Im Ziel löschen"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:98
+msgid "preview_summary"
+msgstr "%1 Schritte, davon %2 Löschungen im Ziel; zu übertragen: %3"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:70
+msgid "preview_more"
+msgstr "… und %1 weitere Schritte"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:56
+msgid "preview_run_now"
+msgstr "Jetzt synchronisieren"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:57
+msgid "button_close"
+msgstr "Schließen"
+
+#: AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_nothing_to_do"
+msgstr "Quelle und Ziel stimmen überein – eine Synchronisation würde jetzt nichts tun."
+
+#: AFS_Desktop/src/SyncInterface.cpp:125
+msgid "preview_unreachable"
+msgstr "Quelle oder Ziel nicht erreichbar – diese Synchronisationen konnten nicht verglichen werden:%1"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:34
+msgid "preview_no_bytes"
+msgstr "0 Bytes"
+
+#: AFS_Desktop/src/SyncInterface.cpp:342
+msgid "state_preview"
+msgstr "Vorschau wird ermittelt …"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:66
+msgid "preview_column_file"
+msgstr "Datei"

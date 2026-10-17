@@ -32,18 +32,18 @@ public:
 	virtual ~TreeItem();
 	wxTreeItemId id() const { return id_; }
 	virtual void add(std::shared_ptr<TreeItem> item) {}
-	virtual bool isLeaf() const = 0;
+	virtual bool is_leaf() const = 0;
 };
 
 using PTreeItem = std::shared_ptr<TreeItem>;
 
 class TreeNode: public TreeItem {
 	using SubNodes = std::vector<std::shared_ptr<TreeItem>>;
-	SubNodes     subNodes_;
+	SubNodes     sub_nodes_;
 public:
 	using TreeItem::TreeItem;
 	void add(std::shared_ptr<TreeItem> item) override;
-	bool isLeaf() const override { return false;  }
+	bool is_leaf() const override { return false;  }
 	friend class Tree;
 };
 
@@ -51,20 +51,20 @@ class Leaf: public TreeItem {
 	wxTreeItemId reference_; // Source or target
 public:
 	Leaf(wxTreeItemId id, wxTreeItemId reference);
-	bool isLeaf() const override { return true; }
+	bool is_leaf() const override { return true; }
 };
 
 class Tree: public TreeNode {
 	using IdMap = std::map<wxTreeItemId, std::shared_ptr<TreeItem>>;
 	using PathMap = std::multimap<std::wstring, std::shared_ptr<TreeItem>>;
 	using IdPathMap = std::map<wxTreeItemId, std::wstring>;
-	IdMap	idMap_;
-	PathMap pathMap_;
-	IdPathMap idPathMap_;
+	IdMap	id_map_;
+	PathMap path_map_;
+	IdPathMap id_path_map_;
 public:
 	Tree(): TreeNode(nullptr) {}
-	void addNode(wxTreeItemId parent, wxTreeItemId id, const std::wstring& path);
-	void addLeaf(wxTreeItemId parent, wxTreeItemId id, const std::wstring& path, wxTreeItemId reference);
+	void add_node(wxTreeItemId parent, wxTreeItemId id, const std::wstring& path);
+	void add_leaf(wxTreeItemId parent, wxTreeItemId id, const std::wstring& path, wxTreeItemId reference);
 	std::optional<PTreeItem> find(wxTreeItemId id) const;
 	std::wstring path(wxTreeItemId id) const;
 	std::optional<wxTreeItemId> id(const std::wstring& path) const;

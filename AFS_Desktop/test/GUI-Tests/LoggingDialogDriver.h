@@ -35,14 +35,14 @@ struct EmailInput {
 };
 
 struct LoggingInput {  // [LoggingDialogDriver.md#LoggingInput]
-    std::optional<wxString> logPath;
-    std::optional<wxString> logLevel;
-    std::optional<int> retentionDays;
+    std::optional<wxString> log_path;
+    std::optional<wxString> log_level;
+    std::optional<int> retention_days;
     std::optional<wxString> editor;
-    std::optional<wxString> backupProofPath;
+    std::optional<wxString> backup_proof_path;
     EmailInput email;
 };
 
-DialogAction fillLoggingDialog(const LoggingInput& input);  // [LoggingDialogDriver.md#fillLoggingDialog]
+DialogAction fill_logging_dialog(const LoggingInput& input);  // [LoggingDialogDriver.md#fill_logging_dialog]
 
 }

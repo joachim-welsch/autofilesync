@@ -39,41 +39,41 @@ void ModalDialogWatcher::expect(const wxString& title, DialogAction action)
     expected_.push_back({title, std::move(action)});
 }
 
-void ModalDialogWatcher::answer(const wxString& title, int buttonId)
+void ModalDialogWatcher::answer(const wxString& title, int button_id)
 {
-    expected_.push_back({title, DialogAction(), buttonId});
+    expected_.push_back({title, DialogAction(), button_id});
 }
 
-void ModalDialogWatcher::choosePath(const wxString& title, const wxString& path)
+void ModalDialogWatcher::choose_path(const wxString& title, const wxString& path)
 {
     expected_.push_back({title, DialogAction(), wxID_OK, path});
 }
 
 namespace {
 
-wxString nameOf(wxDialog& dialog)  // [ModalDialogWatcher.md#nameOf]
+wxString name_of(wxDialog& dialog)  // [ModalDialogWatcher.md#name_of]
 {
-    if (auto* fileDialog = dynamic_cast<wxFileDialog*>(&dialog))
-        return fileDialog->GetMessage();
-    if (auto* dirDialog = dynamic_cast<wxDirDialog*>(&dialog))
-        return dirDialog->GetMessage();
+    if (auto* file_dialog = dynamic_cast<wxFileDialog*>(&dialog))
+        return file_dialog->GetMessage();
+    if (auto* dir_dialog = dynamic_cast<wxDirDialog*>(&dialog))
+        return dir_dialog->GetMessage();
     return dialog.GetTitle();
 }
 
-bool setChosenPath(wxDialog& dialog, const wxString& path)  // [ModalDialogWatcher.md#choosePath]
+bool set_chosen_path(wxDialog& dialog, const wxString& path)  // [ModalDialogWatcher.md#choose_path]
 {
-    if (auto* fileDialog = dynamic_cast<wxFileDialog*>(&dialog)) {
-        fileDialog->SetPath(path);
+    if (auto* file_dialog = dynamic_cast<wxFileDialog*>(&dialog)) {
+        file_dialog->SetPath(path);
 #ifdef __WXGTK__
-        waitUntil([fileDialog] { return !fileDialog->GetPath().empty(); });  // [ModalDialogWatcher.md#gtk-chooser-is-asynchronous]
+        wait_until([file_dialog] { return !file_dialog->GetPath().empty(); });  // [ModalDialogWatcher.md#gtk-chooser-is-asynchronous]
 #endif
         return true;
     }
-    if (auto* dirDialog = dynamic_cast<wxDirDialog*>(&dialog)) {
+    if (auto* dir_dialog = dynamic_cast<wxDirDialog*>(&dialog)) {
 #ifdef __WXGTK__
-        dirDialog->wxDirDialogBase::SetPath(path);  // [ModalDialogWatcher.md#gtk-chooser-is-asynchronous]
+        dir_dialog->wxDirDialogBase::SetPath(path);  // [ModalDialogWatcher.md#gtk-chooser-is-asynchronous]
 #else
-        dirDialog->SetPath(path);
+        dir_dialog->SetPath(path);
 #endif
         return true;
     }
@@ -92,7 +92,7 @@ void ModalDialogWatcher::reset()
 int ModalDialogWatcher::Enter(wxDialog* dialog)
 {
     ++entered_;
-    const wxString name = nameOf(*dialog);
+    const wxString name = name_of(*dialog);
     if (expected_.empty() || expected_.front().title != name) {
         unexpected_.push_back(name);
         return wxID_CANCEL;
@@ -100,13 +100,13 @@ int ModalDialogWatcher::Enter(wxDialog* dialog)
     const Expectation expectation = expected_.front();
     expected_.pop_front();
     if (!expectation.path.empty()) {
-        if (!setChosenPath(*dialog, expectation.path))
+        if (!set_chosen_path(*dialog, expectation.path))
             unexpected_.push_back(name + " (kein Datei- oder Verzeichnisdialog)");
         return expectation.answer;
     }
     if (expectation.answer != wxID_NONE) {  // [ModalDialogWatcher.md#answer]
-        auto* messageDialog = dynamic_cast<wxMessageDialog*>(dialog);
-        answered_.push_back(messageDialog != nullptr ? messageDialog->GetMessage() : name);
+        auto* message_dialog = dynamic_cast<wxMessageDialog*>(dialog);
+        answered_.push_back(message_dialog != nullptr ? message_dialog->GetMessage() : name);
         return expectation.answer;
     }
     dialog->CallAfter([dialog, action = expectation.action] { action(*dialog); });  // [ModalDialogWatcher.md#queued-not-called]

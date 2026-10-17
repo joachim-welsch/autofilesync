@@ -7,12 +7,12 @@ Module comment for App.h / App.cpp.
 The GUI test binary brings its own main() (Google Test); apart from the entry point the
 application under test is built exactly like the shipped one.
 
-## messageCatalogueDir
+## message_catalogue_dir
 
 Same two places as the help book: next to the executable in a build tree or an installation,
 among the resources inside the macOS bundle.
 
-## initLocale
+## init_locale
 
 The language comes from the environment, not from a hardcoded one: setlocale(LC_ALL,
 "de_DE.UTF-8") used to pin German here, which silently did nothing on a system where that locale
@@ -25,6 +25,14 @@ locale.
 
 gettext takes the language from LANGUAGE/LC_MESSAGES, so a translated run needs no rebuild:
 LANGUAGE=en autofilesync.
+
+## catalogue-check
+
+Catalogues of another version (Translation.md#catalogue_mismatch) show bare ids in the GUI and
+hand them to the assistant as its instructions, which then looks like a bad model. Checked
+once the main window has read the configuration: the log file is opened by the configured
+path, and a line logged before that is dropped. wxLogWarning queues the message until the
+event loop runs, so startup goes on; the log line is for a headless (console mode) start.
 
 ## log-single-instance
 

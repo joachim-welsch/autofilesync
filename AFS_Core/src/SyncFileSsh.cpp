@@ -25,6 +25,7 @@
 #include "SftpConnection.h"
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <cstring>
 #include <memory>
 #include <vector>
@@ -228,11 +229,13 @@ namespace {
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
         ssize_t bytes_read;
+        uint64_t copied = 0;
         while ((bytes_read = sftp_read(remote_file, buffer.data(), buffer.size())) > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!local_file.write(buffer.data(), bytes_read))
                 return copy_failed(translation::translate("local_file_write_error"));
+            Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
         }
         return bytes_read < 0 ? copy_failed(translation::translate("remote_file_read_error")) : CopyResult::OK;
     }
@@ -240,11 +243,13 @@ namespace {
     CopyResult upload(std::ifstream& local_file, sftp_file remote_file)
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
+        uint64_t copied = 0;
         while (local_file.read(buffer.data(), buffer.size()) || local_file.gcount() > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!sftp_write_all(remote_file, buffer.data(), static_cast<size_t>(local_file.gcount())))
                 return copy_failed(translation::translate("remote_file_write_error"));
+            Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(local_file.gcount()));
         }
         return local_file.bad() ? copy_failed(translation::translate("local_file_read_error")) : CopyResult::OK;
     }
@@ -253,11 +258,13 @@ namespace {
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
         ssize_t bytes_read;
+        uint64_t copied = 0;
         while ((bytes_read = sftp_read(src_file, buffer.data(), buffer.size())) > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!sftp_write_all(dest_file, buffer.data(), static_cast<size_t>(bytes_read)))
                 return copy_failed(translation::translate("target_file_write_error"));
+            Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
         }
         return bytes_read < 0 ? copy_failed(translation::translate("source_file_read_error")) : CopyResult::OK;
     }
@@ -270,6 +277,15 @@ namespace {
         std::filesystem::permissions(local_path, static_cast<std::filesystem::perms>(permissions & PERMISSION_BITS), ec);
         if (ec)
             log_error(translation::translate("file_attributes_change"), local_path, string_to_wstring(ec.message()));
+    }
+
+    std::optional<uint32_t> local_permissions_of(const wstring& path)  // [SyncFileSsh.md#upload-keeps-the-permissions]
+    {
+        std::error_code ec;
+        const auto status = std::filesystem::status(path, ec);
+        if (ec)
+            return std::nullopt;
+        return static_cast<uint32_t>(status.permissions()) & PERMISSION_BITS;
     }
 
     void keep_remote_permissions(const SftpConnection& connection, const std::string& remote_path, uint32_t permissions)  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
@@ -378,8 +394,11 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
             return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(*remote_path));
         result = upload(local_file, remote_file.get());
     }
-    if (result == CopyResult::OK)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    if (result == CopyResult::OK) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        if (const auto permissions = local_permissions_of(src))  // [SyncFileSsh.md#upload-keeps-the-permissions]
+            keep_remote_permissions(connection, *remote_path, *permissions);
         keep_remote_time(connection, *remote_path, local_time_of(src));
+    }
     return result;
 }
 
@@ -454,7 +473,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
 {
     log_debug(L"copy_ssh_to_fs: " + src + L" -> " + dest);
-    
+
     auto account_opt = get_account_from_path(src);
     if (!account_opt.has_value()) {
         log_error(translation::translate("ssh_account_not_found_for") + src);
@@ -490,7 +509,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
     apply_ssh_connect_timeout(session);
-    
+
     if (libssh2_session_handshake(session, sock) != 0) {
         log_error(translation::translate("ssh_handshake_failed"));
         libssh2_session_free(session);
@@ -532,7 +551,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         closesocket(sock);
         return CopyResult::Error;
     }
-    
+
     std::string dest_path = wstring_to_string(dest);
     std::ofstream local_file(dest_path, std::ios::binary);
     if (!local_file.is_open()) {
@@ -544,11 +563,12 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         closesocket(sock);
         return CopyResult::Error;
     }
-    
+
     std::vector<char> buffer(65536);
     ssize_t bytes_read;
+    uint64_t copied = 0;
     CopyResult result = CopyResult::OK;
-    
+
     while ((bytes_read = libssh2_sftp_read(remote_file, buffer.data(), buffer.size())) > 0) {
         if (Synchronize::stopping()) {
             log_debug(L"Stopped");
@@ -561,8 +581,9 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
             result = CopyResult::Error;
             break;
         }
+        Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
     }
-    
+
     if (bytes_read < 0) {
         log_error(translation::translate("remote_file_read_error"));
         result = CopyResult::Error;
@@ -579,14 +600,14 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
     closesocket(sock);
-    
+
     return result;
 }
 
 CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
 {
     log_debug(L"copy_ssh_to_ssh: " + src + L" -> " + dest);
-    
+
     auto src_account_opt = get_account_from_path(src);
     if (!src_account_opt.has_value()) {
         log_error(translation::translate("ssh_account_not_found_source") + src);
@@ -594,7 +615,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     }
     const SshAccount& src_account = src_account_opt.value();
     std::string src_remote_path = get_remote_path(src);
-    
+
     auto dest_account_opt = get_account_from_path(dest);
     if (!dest_account_opt.has_value()) {
         log_error(translation::translate("ssh_account_not_found_target") + dest);
@@ -630,7 +651,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
     apply_ssh_connect_timeout(src_session);
-    
+
     if (libssh2_session_handshake(src_session, src_sock) != 0) {
         log_error(translation::translate("ssh_handshake_error_source"));
         libssh2_session_free(src_session);
@@ -652,7 +673,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         closesocket(src_sock);
         return CopyResult::Error;
     }
-    
+
     LIBSSH2_SFTP* src_sftp_session = libssh2_sftp_init(src_session);
     if (!src_sftp_session) {
         log_error(translation::translate("source_sftp_session_create_error"));
@@ -661,7 +682,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         closesocket(src_sock);
         return CopyResult::Error;
     }
-    
+
     SOCKET dest_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (dest_sock == INVALID_SOCKET) {
         log_error(translation::translate("target_socket_create_error"));
@@ -671,7 +692,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         closesocket(src_sock);
         return CopyResult::Error;
     }
-    
+
     sockaddr_in dest_sin{};
     if (!resolve_host(dest_account.host(), dest_sin)) {
         log_warning(translation::translate("target_host_name_resolve_error") + string_to_wstring(dest_account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
@@ -704,7 +725,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
     apply_ssh_connect_timeout(dest_session);
-    
+
     if (libssh2_session_handshake(dest_session, dest_sock) != 0) {
         log_error(translation::translate("ssh_handshake_error_target"));
         libssh2_session_free(dest_session);
@@ -738,7 +759,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         closesocket(src_sock);
         return CopyResult::Error;
     }
-    
+
     LIBSSH2_SFTP* dest_sftp_session = libssh2_sftp_init(dest_session);
     if (!dest_sftp_session) {
         log_error(translation::translate("target_sftp_session_create_error"));
@@ -751,7 +772,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         closesocket(src_sock);
         return CopyResult::Error;
     }
-    
+
     LIBSSH2_SFTP_HANDLE* src_file = libssh2_sftp_open(src_sftp_session, src_remote_path.c_str(),
         LIBSSH2_FXF_READ, 0);
     if (!src_file) {
@@ -766,7 +787,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         closesocket(src_sock);
         return CopyResult::Error;
     }
-    
+
     LIBSSH2_SFTP_HANDLE* dest_file = libssh2_sftp_open(dest_sftp_session, dest_remote_path.c_str(),
         LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC,
         LIBSSH2_SFTP_S_IRUSR | LIBSSH2_SFTP_S_IWUSR | LIBSSH2_SFTP_S_IRGRP | LIBSSH2_SFTP_S_IROTH);
@@ -783,11 +804,12 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         closesocket(src_sock);
         return CopyResult::Error;
     }
-    
+
     std::vector<char> buffer(65536);
     ssize_t bytes_read;
+    uint64_t copied = 0;
     CopyResult result = CopyResult::OK;
-    
+
     while ((bytes_read = libssh2_sftp_read(src_file, buffer.data(), buffer.size())) > 0) {
         if (Synchronize::stopping()) {
             log_debug(L"Stopped");
@@ -799,8 +821,9 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
             result = CopyResult::Error;
             break;
         }
+        Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
     }
-    
+
     if (bytes_read < 0) {
         log_error(translation::translate("source_file_read_error"));
         result = CopyResult::Error;
@@ -821,14 +844,14 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     libssh2_session_disconnect(src_session, "Normal Shutdown");
     libssh2_session_free(src_session);
     closesocket(src_sock);
-    
+
     return result;
 }
 
 CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
 {
     log_debug(L"copy_fs_to_ssh: " + src + L" -> " + dest);
-    
+
     auto account_opt = get_account_from_path(dest);
     if (!account_opt.has_value()) {
         log_error(translation::translate("ssh_account_not_found_for") + dest);
@@ -836,7 +859,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     }
     const SshAccount& account = account_opt.value();
     std::string remote_path = get_remote_path(dest);
-    
+
     std::string src_path = wstring_to_string(src);
     std::ifstream local_file(src_path, std::ios::binary);
     if (!local_file.is_open()) {
@@ -915,8 +938,9 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
     std::vector<char> buffer(65536);
+    uint64_t copied = 0;
     CopyResult result = CopyResult::OK;
-    
+
     while (local_file.read(buffer.data(), buffer.size()) || local_file.gcount() > 0) {
         if (Synchronize::stopping()) {
             log_debug(L"Stopped");
@@ -929,13 +953,14 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
             result = CopyResult::Error;
             break;
         }
+        Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
     }
-    
+
     if (result == CopyResult::OK && local_file.bad()) {
         log_error(translation::translate("local_file_read_error"));
         result = CopyResult::Error;
     }
-    
+
     local_file.close();
     libssh2_sftp_close(remote_file);
     if (result == CopyResult::OK)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
@@ -944,7 +969,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
     closesocket(sock);
-    
+
     return result;
 }
 
@@ -1192,7 +1217,7 @@ bool ssh_mkdir(const std::wstring& path)
     bool success = (rc == 0);
     if (!success)
         log_error(translation::translate("remote_dir_create_error") + string_to_wstring(remote_path));
-    
+
     libssh2_sftp_shutdown(sftp_session);
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
@@ -1289,7 +1314,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 {
     log_debug(L"ssh_list_dir: " + path);
     std::vector<SshDirEntry> entries;
-    
+
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
         log_error(translation::translate("ssh_account_not_found_for") + path);
@@ -1356,7 +1381,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         closesocket(sock);
         return entries;
     }
-    
+
     LIBSSH2_SFTP_HANDLE* dir = libssh2_sftp_opendir(sftp_session, remote_path.c_str());
     if (!dir) {
         log_error(translation::translate("remote_dir_open_error") + string_to_wstring(remote_path));
@@ -1366,7 +1391,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         closesocket(sock);
         return entries;
     }
-    
+
     char buffer[512];
     LIBSSH2_SFTP_ATTRIBUTES attrs;
     int rc = 0;
@@ -1390,7 +1415,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
     closesocket(sock);
-    
+
     return entries;
 }
 

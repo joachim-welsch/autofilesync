@@ -27,6 +27,8 @@
 #include "TextResources.h"
 #include "id.h"
 #include "utilwx.h"
+#include <wx/gauge.h>
+#include <wx/stattext.h>
 
 using namespace AFS_Core;
 
@@ -34,40 +36,76 @@ using utilwx::tul;
 
 namespace guitest {
 
-bool addSyncItem(MainWindow& window, const SyncItemInput& input)
+bool add_sync_item(MainWindow& window, const SyncItemInput& input)
 {
-    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(input));
-    activateMenuItem(window, tul(id::File_new_Synchronization));
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fill_sync_item_dialog(input));
+    activate_menu_item(window, tul(id::File_new_Synchronization));
     pump();
     return Config::instance().find_by_name(input.name.ToStdWstring()).has_value();
 }
 
-bool waitUntilSyncFinished(MainWindow& window, int timeoutMilliseconds)
+bool wait_until_sync_finished(MainWindow& window, int timeout_milliseconds)
 {
-    return waitUntil([&window] {  // [SyncActions.md#waitUntilSyncFinished]
-        return window.syncInterface().actSyncType() == SyncType::None && !Synchronize::has_instance();
-    }, timeoutMilliseconds);
+    return wait_until([&window] {  // [SyncActions.md#wait_until_sync_finished]
+        return window.sync_interface().act_sync_type() == SyncType::None && !Synchronize::has_instance();
+    }, timeout_milliseconds);
 }
 
-bool syncOnce(MainWindow& window, int timeoutMilliseconds)
+bool sync_once(MainWindow& window, int timeout_milliseconds)
 {
-    activateMenuItem(window, tul(id::SyncOnce));
+    activate_menu_item(window, tul(id::SyncOnce));
     pump();
-    return waitUntilSyncFinished(window, timeoutMilliseconds);
+    return wait_until_sync_finished(window, timeout_milliseconds);
 }
 
-bool syncMenuItemEnabled(MainWindow& window, int menuItemId)
+bool sync_menu_item_enabled(MainWindow& window, int menu_item_id)
 {
-    return window.menu().syncMenu()->IsEnabled(menuItemId);
+    return window.menu().sync_menu()->IsEnabled(menu_item_id);
 }
 
-ProgressDialog* progressDialog()
+ProgressDialog* progress_dialog()
 {
     for (wxWindow* window : wxTopLevelWindows) {
         if (auto* dialog = dynamic_cast<ProgressDialog*>(window); dialog != nullptr && dialog->IsShown())
             return dialog;
     }
     return nullptr;
+}
+
+wxString current_file_shown(ProgressDialog& dialog)
+{
+    for (wxWindow* child : dialog.GetChildren()) {
+        if (auto* text = dynamic_cast<wxStaticText*>(child))
+            return text->GetLabelText();
+    }
+    return wxString();
+}
+
+wxGauge* gauge_of(ProgressDialog& dialog)
+{
+    for (wxWindow* child : dialog.GetChildren()) {
+        if (auto* gauge = dynamic_cast<wxGauge*>(child))
+            return gauge;
+    }
+    return nullptr;
+}
+
+std::optional<ProgressWatch> watch_progress_dialog(int timeout_milliseconds)  // [SyncActions.md#watch_progress_dialog]
+{
+    ProgressWatch watch;
+    const bool closed = wait_until([&watch] {
+        ProgressDialog* dialog = progress_dialog();
+        if (dialog == nullptr)
+            return true;
+        watch.bar_values.push_back(gauge_of(*dialog)->GetValue());
+        const wxString file = current_file_shown(*dialog);
+        if (!file.empty() && (watch.files.empty() || watch.files.back() != file))
+            watch.files.push_back(file);
+        return false;
+    }, timeout_milliseconds);
+    if (!closed)
+        return std::nullopt;
+    return watch;
 }
 
 }

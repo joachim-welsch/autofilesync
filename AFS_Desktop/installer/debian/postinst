@@ -3,6 +3,7 @@ set -e
 UNIT=backgroundsync.service
 DROPIN_DIR=/etc/systemd/system/${UNIT}.d
 DROPIN=${DROPIN_DIR}/user.conf
+POLKIT_RULE=/etc/polkit-1/rules.d/50-backgroundsync.rules
 
 installing_user()
 {
@@ -17,6 +18,30 @@ write_service_user()
 {
     mkdir -p "${DROPIN_DIR}"
     printf '[Service]\nUser=%s\nGroup=%s\n' "$1" "$(id -gn "$1")" > "${DROPIN}"
+}
+
+service_user()
+{
+    sed -n 's/^User=//p' "${DROPIN}" | head -n 1
+}
+
+# The service user may start and stop the service from the program without an
+# administrator password - only this unit, only these verbs.
+write_polkit_rule()
+{
+    [ -d /etc/polkit-1/rules.d ] || return 0
+    cat > "${POLKIT_RULE}" <<EOF
+// Written by the autofilesync package: the user the service runs as may start
+// and stop it from the program without an administrator password.
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        action.lookup("unit") == "${UNIT}" &&
+        subject.user == "$1" &&
+        ["start", "stop", "restart"].indexOf(action.lookup("verb")) >= 0)
+        return polkit.Result.YES;
+});
+EOF
+    chmod 644 "${POLKIT_RULE}"
 }
 
 update_service()
@@ -36,6 +61,7 @@ if [ "$1" = configure ]; then
         user="$(installing_user)"
         [ -n "${user}" ] && write_service_user "${user}"
     fi
+    [ -f "${DROPIN}" ] && write_polkit_rule "$(service_user)"
     update_service "$2"
     if [ ! -f "${DROPIN}" ]; then
         echo "backgroundsync: kein Benutzer fuer den Hintergrunddienst bekannt. Einrichten mit:"

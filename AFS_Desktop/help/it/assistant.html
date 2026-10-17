@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>L'assistente</title>
+</head>
+<body>
+<h1>L'assistente</h1>
+
+<p>L'assistente risponde a domande su AutoFileSync in linguaggio comune e può
+risparmiarvi lavoro: propone nuove sincronizzazioni, scopre perché qualcosa non
+ha funzionato ed esegue su richiesta i comandi del menu. Funziona interamente su
+questo computer – non viene inviato nulla in Internet e non servono né un
+account né una chiave.</p>
+
+<h2>Usare l'assistente</h2>
+
+<ol>
+<li><b>Assistente &rarr; Chat…</b> apre la finestra della chat.</li>
+<li>Scrivere la domanda o la richiesta nel campo in basso, come la si
+    direbbe a una persona.</li>
+<li>Fare clic su <b>Invia</b> oppure premere <b>Ctrl+Invio</b> (sul Mac
+    <b>Cmd+Invio</b>). Il solo tasto Invio va a capo.</li>
+<li>La risposta compare in alto nella conversazione, parola per parola, mentre
+    viene scritta. Nel frattempo in basso si legge <b>L'assistente sta
+    rispondendo…</b>.</li>
+</ol>
+
+<p>A seconda del computer una risposta richiede da alcuni secondi a pochi
+minuti; la primissima un po' di più, perché prima va caricato il modello. Nel
+frattempo il programma resta utilizzabile e la finestra della chat può essere
+chiusa: alla riapertura la risposta si trova nella conversazione.</p>
+
+<p>L'assistente conosce la conversazione fin lì, quindi capisce domande di
+seguito come «e come lo annullo?». La conversazione resta finché AutoFileSync
+non viene chiuso. <b>Nuova conversazione</b> ricomincia da capo – utile quando
+si passa a un altro argomento, perché così la conversazione precedente non
+distrae più.</p>
+
+<p>L'assistente risponde nella lingua in cui gli si scrive.</p>
+
+<h2>Che cosa sa fare l'assistente</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Rispondere a domande sull'uso</b></td>
+    <td>Cerca la sezione adatta di questa guida, risponde in base a essa e
+        indica la pagina della guida dove trovare altro.<br>
+        <i>«Come sincronizzo tramite SSH?»</i></td></tr>
+<tr><td valign="top"><b>Informare sulle proprie sincronizzazioni</b></td>
+    <td>Conosce tutte le sincronizzazioni create con origine, destinazione,
+        tipo e opzioni attive, le connessioni SSH (senza password), quando è
+        avvenuta l'ultima sincronizzazione, se origine o destinazione erano
+        raggiungibili – e se in tal caso la sincronizzazione deve
+        <a href="unreachable.html">avvisare</a> – e il primo errore dell'ultima
+        esecuzione.<br>
+        <i>«Quante sincronizzazioni ho?», «Perché la mia chiavetta USB non è
+        aggiornata?»</i></td></tr>
+<tr><td valign="top"><b>Indicare lo stato attuale</b></td>
+    <td>Sa se il programma sta sincronizzando e se il
+        <a href="service.html">servizio in background</a> è in esecuzione.<br>
+        <i>«La sincronizzazione è in corso?»</i></td></tr>
+<tr><td valign="top"><b>Analizzare il log</b></td>
+    <td>Se nella domanda compare la parola <b>log</b> o <b>registro</b>,
+        legge le voci più recenti del <a href="logging.html">log</a> e le
+        spiega.<br>
+        <i>«Che cosa c'è nel log?», «Ci sono errori nel registro?»</i></td></tr>
+<tr><td valign="top"><b>Proporre una nuova sincronizzazione</b></td>
+    <td>Se si indicano origine e destinazione come percorsi, propone una
+        sincronizzazione già pronta.<br>
+        <i>«Sincronizza /home/anna/Foto in /media/usb/Foto»</i></td></tr>
+<tr><td valign="top"><b>Proporre di eliminare una sincronizzazione</b></td>
+    <td>Se si nomina una sincronizzazione esistente, propone di
+        eliminarla.<br>
+        <i>«Elimina la sincronizzazione Foto»</i></td></tr>
+<tr><td valign="top"><b>Eseguire comandi del menu</b></td>
+    <td><b>Sincronizza una volta</b>, <b>Anteprima</b>,
+        <b>Avvia sincronizzazione</b>,
+        <b>Arresta sincronizzazione</b>, <b>Avvia il servizio in
+        background</b>, <b>Arresta il servizio in background</b> e
+        <b>Mostra file di log</b>.<br>
+        <i>«Sincronizza adesso una volta», «Mostrami il file di
+        log»</i></td></tr>
+</table>
+
+<h2>Confermare le proposte</h2>
+
+<p>L'assistente non modifica mai nulla da solo. Quando ha una proposta, la
+descrive in una frase e in basso nella finestra della chat compare un pulsante
+che dice che cosa fa:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Crea sincronizzazione…</b></td>
+    <td>Apre la consueta finestra per una nuova sincronizzazione, già compilata
+        con nome, tipo, origine e destinazione. Lì si può controllare e
+        modificare tutto; la sincronizzazione viene creata solo con
+        <b>OK</b>.</td></tr>
+<tr><td valign="top"><b>Elimina sincronizzazione…</b></td>
+    <td>Pone la stessa domanda di sicurezza di <b>Modifica &rarr; Elimina
+        sincronizzazione…</b>.</td></tr>
+<tr><td valign="top">Nome di un comando, ad esempio <b>Sincronizza una
+    volta</b></td>
+    <td>Esegue il comando, esattamente come la voce di menu con lo stesso
+        nome.</td></tr>
+</table>
+
+<p>Chi non vuole la proposta continua semplicemente a scrivere: con la domanda
+successiva il pulsante scompare.</p>
+
+<h2>Domande efficaci</h2>
+
+<ul>
+<li>Indicare i percorsi completi, ad esempio <tt>C:\Users\Anna\Documenti</tt>,
+    <tt>/home/anna/Documenti</tt> oppure per SSH
+    <tt>anna@server:/backup</tt>. Se manca un percorso, l'assistente lo chiede
+    invece di inventarlo.</li>
+<li>Usare le parole che usa il programma stesso – origine, destinazione,
+    sincronizzazione, cestino. Grazie a esse l'assistente trova la sezione
+    adatta di questa guida; funziona meglio nella lingua in cui il programma è
+    visualizzato.</li>
+<li>Per i comandi formulare una richiesta: «sincronizza», «avvia», «ferma»,
+    «arresta», «apri», «mostra».</li>
+<li>Una cosa per domanda. Più richieste in un solo messaggio portano più
+    facilmente a proposte incomplete.</li>
+</ul>
+
+<h2>Limiti</h2>
+
+<p>L'assistente è un piccolo modello linguistico. Può sbagliare, confondere i
+percorsi o affermare qualcosa che non è vero. Per questo ogni proposta passa per
+un pulsante e la consueta finestra – prima di <b>OK</b> conviene dare
+un'occhiata a origine e destinazione. Nel dubbio vale ciò che è scritto in
+questa guida.</p>
+
+<p>Del log vede solo le voci più recenti. Con moltissime sincronizzazioni
+descrive nel dettaglio le prime 30 e delle altre indica solo il numero. Non
+modifica le impostazioni, spiega soltanto dove trovarle.</p>
+
+<h2>Installare il modello</h2>
+
+<p>L'assistente ha bisogno di un modello linguistico, un file con estensione
+<tt>.gguf</tt>. Non fa parte di AutoFileSync, perché è grande diversi gigabyte e
+ha una propria licenza (vedi <a href="licensing.html">Condizioni di
+licenza</a>). Se manca, la finestra della chat mostra <b>Nessun modello
+trovato.</b> e indica la cartella in cui va messo.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="20%"><b>Windows</b></td>
+    <td><tt>setup_llama_windows.cmd</tt> nella cartella di installazione
+        scarica un modello adatto in
+        <tt>%LOCALAPPDATA%\autofilesync\models</tt>.</td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>setup_llama_macos.sh</tt> scarica un modello adatto in
+        <tt>~/Library/Application Support/autofilesync/models</tt>.</td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td>Copiare un file GGUF in
+        <tt>~/.local/share/autofilesync/models</tt>.</td></tr>
+</table>
+
+<p>Gli script scelgono la dimensione in base alla memoria: sotto i 16 GB il
+modello 3B, da 16 GB il modello 7B, da 32 GB il modello 14B. I modelli più
+grandi rispondono in modo più preciso, ma più lentamente. Se nella cartella ci
+sono più file, l'assistente prende il primo in ordine di nome. Un modello appena
+aggiunto viene trovato senza riavviare.</p>
+
+<p>Per usare un file in un'altra posizione, la variabile d'ambiente
+<tt>AUTOFILESYNC_LLAMA_MODEL</tt> ne indica il percorso completo; ha la
+precedenza sulla cartella.</p>
+
+</body>
+</html>

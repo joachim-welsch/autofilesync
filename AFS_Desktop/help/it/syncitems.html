@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Creare sincronizzazioni</title>
+</head>
+<body>
+<h1>Creare sincronizzazioni</h1>
+
+<p>Una sincronizzazione descrive un compito: che cosa viene allineato, da dove e
+verso dove. Si crea con <b>File &rarr; Nuova sincronizzazione…</b> e si modifica
+con <b>Modifica &rarr; Modifica sincronizzazione…</b> oppure con un doppio clic
+sulla voce.</p>
+
+<h2>Nome</h2>
+
+<p>Il nome identifica la sincronizzazione e deve essere univoco. Compare
+nell'elenco, nel log e – se attivata – come nome del file della
+<a href="backupproof.html">prova di backup</a>.</p>
+
+<h2>Tipo</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Tipo</th><th align="left">Che cosa viene allineato</th></tr>
+<tr>
+  <td valign="top"><b>File</b></td>
+  <td>Esattamente un file. Origine e destinazione sono nomi di file completi.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Cartella</b></td>
+  <td>Tutti i file di una cartella, <i>senza</i> le sue sottocartelle.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Albero di cartelle</b></td>
+  <td>Una cartella con tutte le sottocartelle. Le cartelle di destinazione
+      mancanti vengono create.</td>
+</tr>
+</table>
+
+<h2>Origine e destinazione</h2>
+
+<p>Entrambi i campi accettano un percorso. Il pulsante accanto apre la scelta;
+per un computer all'altro capo di una connessione SSH c'è un pulsante apposito,
+vedere <a href="ssh.html">Sincronizzare tramite SSH</a>.</p>
+
+<p>Una destinazione che non esiste ancora viene creata alla prima esecuzione. Se
+l'origine si trova su un'unità rimovibile o su un'unità di rete al momento non
+collegata, AutoFileSync salta la sincronizzazione e non tocca la destinazione –
+è importante, perché un'unità scollegata non venga scambiata per «è stato
+eliminato tutto».</p>
+
+<h2>Carattere jolly</h2>
+
+<p>Per i tipi Cartella e Albero di cartelle, il campo <b>Carattere jolly</b>
+limita quali file vengono presi in considerazione, per esempio <tt>*.txt</tt>
+per i file di testo o <tt>*.*</tt> per tutti. I file che non corrispondono sono
+invisibili per questa sincronizzazione: non vengono né copiati né eliminati,
+nemmeno quando <a href="options.html">i file eliminati vanno eliminati anche
+nella destinazione</a>.</p>
+
+<h2>Esclusioni</h2>
+
+<p>Nella scheda <b>Esclusioni</b> si scrive un modello per riga, per
+esempio:</p>
+
+<blockquote><tt>*.tmp<br>
+node_modules<br>
+Thumbs.db</tt></blockquote>
+
+<p>Le esclusioni valgono sia per la copia sia per l'eliminazione. In un albero
+di cartelle, una cartella esclusa non viene nemmeno aperta – si risparmia tempo
+e non serve controllare uno per uno i file che contiene.</p>
+
+<h2>Attiva</h2>
+
+<p>Una sincronizzazione senza la spunta <b>Sincronizzazione attiva</b> resta
+nell'elenco, ma non viene eseguita. Così si può mettere da parte un compito per
+un po' senza perderlo.</p>
+
+<p>Continua con le <a href="options.html">opzioni</a>.</p>
+
+</body>
+</html>

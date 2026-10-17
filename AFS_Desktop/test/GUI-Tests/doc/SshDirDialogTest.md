@@ -7,7 +7,7 @@ Module comment for SshDirDialogTest.cpp.
 Drives the Home and Sort-by-name buttons SshDirDialog got alongside Up and Refresh: Home should
 jump to the account's login directory, and Sort should reorder the currently shown entries
 ascending, then descending, without a new server round trip. The three unsorted files live in
-the probe directory SshGuiTest provides (SshTestServer.md#probeDir) and are removed before the
+the probe directory SshGuiTest provides (SshTestServer.md#probe_dir) and are removed before the
 directory is; the fixture skips itself when the test server is not reachable.
 
 ## home-start-dir

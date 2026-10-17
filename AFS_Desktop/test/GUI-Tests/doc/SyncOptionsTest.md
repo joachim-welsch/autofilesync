@@ -19,10 +19,18 @@ the recycle bin, i.e. removed according to the delete mode, not lost.
 
 ## GenerationenprinzipLegtBakDateiAn
 
-The second run has to see a newer source, and the comparison is by date: the pause before
-the rewrite keeps the two write times apart on a file system with coarse timestamps.
+The second run has to see a newer source, and the comparison is by date with a tolerance of
+two seconds: ageing the source by an hour before the first run puts the rewrite far outside
+that tolerance, whatever the file system's timestamp resolution. The pause is for the item's
+cycle of one second - a single run skips an item that was synchronised less than a cycle ago.
 
-## sameWriteTime
+## write_time_apart
+
+Puts the source one second ahead of the target: within the default tolerance, so the pair is
+equal to the date comparison and the different content stays where it is. The second sandbox
+sets the tolerance to 0 in the dialog and proves that the same second then counts as a change.
+
+## same_write_time
 
 Same size, same write time, different content: the case only a content comparison can tell
 apart. The pair of tests shows both sides - the content comparison copies, the date

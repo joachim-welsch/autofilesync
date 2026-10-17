@@ -35,21 +35,21 @@ SourceCanvas::SourceCanvas(wxWindow* parent)
 void SourceCanvas::update()
 {
     tree_.clear();
-	treeCtrl_->update();
-    addDataItems();
+	tree_ctrl_->update();
+    add_data_items();
 }
 
-void SourceCanvas::onSelectRoot()
+void SourceCanvas::on_select_root()
 {
-    if (!treeCtrl_->HasFlag(wxTR_HIDE_ROOT))
-        treeCtrl_->SelectItem(treeCtrl_->GetRootItem());
+    if (!tree_ctrl_->HasFlag(wxTR_HIDE_ROOT))
+        tree_ctrl_->SelectItem(tree_ctrl_->GetRootItem());
 }
 
-void SourceCanvas::addDataItems()
+void SourceCanvas::add_data_items()
 {
     Config& cfg = Config::instance();
     for (const auto& i : cfg.syncitems()) {
-        treeCtrl_->addBranch(i.source(), tree_, i.sync_item_type());
+        tree_ctrl_->add_branch(i.source(), tree_, i.sync_item_type());
     }
-    treeCtrl_->ExpandNode(treeCtrl_->rootId());
+    tree_ctrl_->expand_node(tree_ctrl_->root_id());
 }

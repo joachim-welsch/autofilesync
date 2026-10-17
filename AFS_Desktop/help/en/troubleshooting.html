@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>When something does not happen as expected</title>
+</head>
+<body>
+<h1>When something does not happen as expected</h1>
+
+<p>The first place to look is always the <a href="logging.html">log</a>. At
+level <tt>Info</tt> it records what was copied and deleted; at <tt>Debug</tt>
+also which file was skipped for what reason.</p>
+
+<h2>A file is not copied</h2>
+
+<ul>
+<li><b>It is empty.</b> Files of size 0 are skipped as long as
+    <a href="options.html">Synchronise empty files</a> is not set. The log notes
+    “The empty source file was not copied”.</li>
+<li><b>The wildcard does not match</b>, or an <b>exclusion</b> applies, see
+    <a href="syncitems.html">Setting up synchronisations</a>.</li>
+<li><b>The target is newer than the source.</b> Without <b>Copy even if the
+    target file is newer</b> it stays untouched.</li>
+<li><b>Source and target count as equal.</b> If files are compared by
+    <b>Time</b> only, a change of content without a new modification time goes
+    unnoticed. In that case also switch on <b>Size</b> or
+    <b>Content</b>.</li>
+<li><b>The synchronisation is not active</b> – the <b>Synchronisation
+    active</b> tick is missing.</li>
+<li><b>It is a subdirectory</b>, but the synchronisation is of the type
+    <b>Directory</b>. Subdirectories need the type <b>Directory
+    tree</b>.</li>
+</ul>
+
+<h2>Files are copied again on every run although they are unchanged</h2>
+
+<p>The target stores the modification time more coarsely than the source, an
+NTFS or FAT disk as the target of a Linux disk, for example. The copy is then
+fractions of a second ahead of its original, and when comparing by <b>Time</b>
+the source counts as newer. The <a href="options.html#timetolerance">Tolerance
+in seconds</a> on the Options tab catches this; it is at 0 if someone switched it
+off. A jump of exactly one hour on all files points to FAT after a change of
+summer or winter time, see there.</p>
+
+<h2>Nothing is deleted in the target although the option is set</h2>
+
+<ul>
+<li><b>The source cannot be reached.</b> An unplugged drive, a share that is not
+    connected or an SSH server that cannot be reached mean that nothing at all
+    is deleted. This is intended.</li>
+<li><b>The type is File.</b> The option applies to Directory and Directory tree
+    only.</li>
+<li><b>Wildcard or exclusion</b> take the file out of the synchronisation – then
+    it is not deleted either.</li>
+<li><b>It is about a directory.</b> Files are mirrored; a directory deleted in
+    the source stays in the target.</li>
+</ul>
+
+<h2>Nothing is synchronised at all</h2>
+
+<ul>
+<li>Is the <a href="service.html">background service</a> running? Service and
+    program do not synchronise at the same time.</li>
+<li>If <b>Start</b> and <b>Synchronise once</b> are greyed out, the
+    configuration holds no synchronisation that can be run – because all are
+    inactive, or source and target are missing, for example.</li>
+<li>Was the configuration <a href="config.html">saved</a> after the last
+    change?</li>
+<li>With source or target over SSH: does the other end answer? AutoFileSync
+    checks this before every run and leaves the synchronisation out as long as
+    the server cannot be reached or the login fails. The log then says “SSH path
+    not reachable” with the reason.</li>
+<li><b>The server is back, but still nothing happens.</b> The result of the
+    reachability check is cached, so that not every run opens a new connection.
+    After a failed attempt it is checked again after a few seconds at the
+    earliest, during a lasting failure at most every five minutes. It can
+    therefore take up to five minutes until a restored connection is
+    noticed.</li>
+</ul>
+
+<h2>An SSH connection fails</h2>
+
+<ul>
+<li><b>Authentication error</b> – user name or password are wrong, or the server
+    does not allow logging in with a password.</li>
+<li><b>Connection error</b> – host or port cannot be reached.</li>
+<li><b>The host key has changed</b> – the server identifies itself with a
+    different key than the first time. AutoFileSync then aborts. If the change
+    can be explained, after reinstalling the server for example, the old entry
+    must be removed from the file <tt>known_hosts</tt> in your user
+    profile.</li>
+<li><b>SSH account not found</b> – the name before the colon in the path belongs
+    to no connection that has been set up. This happens when a connection was
+    renamed, for example; the synchronisations concerned then still point to the
+    old name.</li>
+</ul>
+
+<p>In all these cases the synchronisation concerned is skipped for this run:
+nothing is copied or deleted. The other synchronisations go on as usual.</p>
+
+<h2>A warning about a missing drive appears – or stays away</h2>
+
+<p>Whether an unreachable source or target is reported is decided per synchronisation by
+the option <b>Warn if the drive or SSH connection is missing</b>: switched on, there is a
+warning after <b>Synchronise once</b> and a warning line in the log, switched off only an
+info line. So if one synchronisation warns and another does not although both miss the
+same disk, the option is set differently on them. Everything else is under
+<a href="unreachable.html">Unreachable drives and connections</a>.</p>
+
+<h2>Bringing back deleted files</h2>
+
+<p>If the <a href="settings.html">delete mode</a> is set to <b>Move to recycle
+bin</b>, the files are in the recycle bin directory set there, in the structure
+of the place they came from. With <b>Delete permanently</b> and with targets over
+SSH there is no such copy.</p>
+
+<p>If a target file was overwritten, the <a href="options.html">Generation
+principle</a> helps – provided it was switched on beforehand: the previous
+version is then next to the file as <tt>.bak.1</tt>.</p>
+
+</body>
+</html>

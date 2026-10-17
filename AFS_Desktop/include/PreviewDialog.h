@@ -16,23 +16,30 @@
  * You should have received a copy of the GNU General Public License along with
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
-#include "TimedMessageBox.h"
+#pragma once
 
-TimedMessageBox::TimedMessageBox(wxWindow* parent, const wxString& message, const wxString& caption, int timeoutMs)
-    : wxDialog(parent, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP) {
-    auto* sizer = new wxBoxSizer(wxVERTICAL);
-    auto* text = new wxStaticText(this, wxID_ANY, message, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL | wxST_NO_AUTORESIZE);
-    sizer->Add(text, 1, wxALL | wxEXPAND, 15);
-    SetSizer(sizer);
-    Fit();
+#include <wx/wxprec.h>
 
-    Centre();
+#ifndef WX_PRECOMP
+#include "wx/wx.h"
+#endif
 
-    timer_.Bind(wxEVT_TIMER, &TimedMessageBox::OnTimer, this);
-    timer_.Start(timeoutMs, wxTIMER_ONE_SHOT); // Auto-close after timeoutMs milliseconds
-}
+#include <wx/listctrl.h>
+#include "SyncPlan.h"
 
-void TimedMessageBox::OnTimer(wxTimerEvent&)
-{
-    Close();
-}
+using namespace AFS_Core;
+
+class PreviewDialog: public wxDialog {  // [PreviewDialog.md#PreviewDialog]
+    wxListCtrl* list_ = nullptr;
+    void fill(const SyncPlan& plan);
+    void add_step(const PlannedStep& step);
+public:
+    PreviewDialog(wxWindow* parent, const SyncPlan& plan, const wxString& notes);  // [PreviewDialog.md#notes]
+    static wxString action_label(PlannedAction action);
+    static wxString summary(const SyncPlan& plan);  // [PreviewDialog.md#summary]
+    wxListCtrl& list() { return *list_; }
+};
+
+enum {
+    ID_PREVIEW_LIST = wxID_HIGHEST + 400
+};

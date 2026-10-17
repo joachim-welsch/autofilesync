@@ -16,44 +16,40 @@
  * You should have received a copy of the GNU General Public License along with
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
-#include <string>
 #include <chrono>
+#include <csignal>
+#include <memory>
+#include <syslog.h>
 #include <thread>
 #include "Logging.h"
-#include "Translation.h"
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <cstdlib>
-#include <syslog.h>
 #include "MyDaemon.h"
-#include <csignal>
+#include "Translation.h"
 
-std::unique_ptr<MyDaemon> myDaemon;
-volatile std::sig_atomic_t stopRequested = 0;
+namespace {
+std::unique_ptr<MyDaemon> my_daemon;
+volatile std::sig_atomic_t stop_requested = 0;
 
-void signalHandler(int /*signal*/) {
-    stopRequested = 1;
+void signal_handler(int)
+{
+    stop_requested = 1;
+}
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     AFS_Core::translation::init_locale(AFS_Core::translation::DEFAULT_LOCALES);  // a unit file usually names no language at all
     AFS_Core::translation::init(AFS_Core::translation::locale_dir());  // before the first message; installed to /usr/sbin there is no locale dir beside it, so gettext searches the system path
     AFS_Core::Logging::instance().origin(AFS_Core::LogOrigin::Daemon);  // the GUI writes to the same file
-    myDaemon = std::make_unique<MyDaemon>();
-    std::signal(SIGINT, signalHandler);
-    std::signal(SIGTERM, signalHandler);
-    myDaemon->start();
+    my_daemon = std::make_unique<MyDaemon>();
+    std::signal(SIGINT, signal_handler);
+    std::signal(SIGTERM, signal_handler);
+    my_daemon->start();
     syslog(LOG_INFO, "%s", AFS_Core::translation::translate_utf8("daemon_running").c_str());
     AFS_Core::log_info(AFS_Core::translation::translate("daemon_started"), L"");
-    while (!stopRequested) {
+    while (!stop_requested)
         std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    myDaemon->stop();
+    my_daemon->stop();
     syslog(LOG_INFO, "%s", AFS_Core::translation::translate_utf8("daemon_stopped").c_str());
     AFS_Core::log_info(AFS_Core::translation::translate("daemon_stopped"), L"");  // after stop(), so it is the daemon's last entry
     return 0;
 }
-

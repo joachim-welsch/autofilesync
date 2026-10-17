@@ -30,7 +30,7 @@ public:
 private:
     static void apply(const char* name, const char* value);
 
-    std::string                m_name;
-    std::optional<std::string> m_saved;
+    std::string                name_;
+    std::optional<std::string> saved_;
 };
 

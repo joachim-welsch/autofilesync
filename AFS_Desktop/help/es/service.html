@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Servicio en segundo plano</title>
+</head>
+<body>
+<h1>Servicio en segundo plano</h1>
+
+<p>El servicio en segundo plano sincroniza sin que la ventana del programa tenga
+que estar abierta – incluso cuando no hay nadie con la sesión iniciada. Usa el
+mismo <a href="config.html">archivo de configuración</a> que el programa, es
+decir, las mismas sincronizaciones con las mismas opciones.</p>
+
+<h2>Controlarlo</h2>
+
+<p>El menú <b>Servicio en segundo plano</b> contiene <b>Iniciar</b> y
+<b>Detener</b>. En <b>Ver &rarr; Segundo plano</b> puede ver si el servicio se
+está ejecutando en ese momento.</p>
+
+<p>El paquete de instalación permite al usuario con el que se ejecuta el servicio
+iniciarlo y detenerlo sin contraseña de administrador. A los demás usuarios se
+les pide la contraseña de un administrador.</p>
+
+<h2>Cómo convive con el programa</h2>
+
+<p>El servicio y el programa no se estorban: solo sincroniza uno de los dos a la
+vez, para que nunca haya dos ejecuciones tocando los mismos archivos al mismo
+tiempo. Si elige <b>Iniciar</b> en el programa mientras el servicio trabaja, el
+servicio se retira.</p>
+
+<h2>Cuándo merece la pena el servicio</h2>
+
+<ul>
+<li>Las copias de seguridad deben ejecutarse aunque nadie haya iniciado
+    sesión.</li>
+<li>La ventana del programa no debe estar abierta todo el tiempo.</li>
+<li>El equipo está encendido día y noche y debe sincronizar sin supervisión –
+    entonces conviene la <a href="logging.html">notificación por correo
+    electrónico</a>, porque nadie ve los mensajes en la pantalla.</li>
+</ul>
+
+<h2>Cambios en la configuración</h2>
+<p>El servicio lee el archivo de configuración. Como el programa guarda cada
+cambio al instante, un servicio en ejecución lo adopta por sí solo: interrumpe la
+ejecución en curso y vuelve a empezar con la nueva configuración. Solo si falló
+el guardado, el título de la ventana muestra <b>(sin guardar)</b> y el servicio
+sigue trabajando con el estado anterior; al iniciar el servicio, el programa
+pregunta entonces si debe guardar – <b>Cancelar</b> no inicia el servicio.</p>
+
+</body>
+</html>

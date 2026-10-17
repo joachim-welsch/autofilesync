@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "CopyLog.h"
+#include "JsonText.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <chrono>
@@ -103,8 +104,8 @@ namespace {
         if (!fs::exists(file, ec))
             return root;
         try {
-            std::wifstream in(file);
-            pt::read_json(in, root);
+            std::wistringstream text(util::read_utf8_file(file));  // [CopyLog.md#utf8-file]
+            pt::read_json(text, root);
         }
         catch (const std::exception& ex) {
             log_error(translation::translate("backup_proof_not_readable"), file.wstring(),
@@ -125,9 +126,7 @@ namespace {
     {
         const fs::path tmp_file = file.wstring() + L".tmp";
         try {
-            std::wofstream os(tmp_file, std::ios_base::out | std::ios_base::trunc);
-            os.exceptions(std::ios::failbit | std::ios::badbit);
-            pt::write_json(os, root);
+            util::write_utf8_file(tmp_file, json::to_text(root));  // [CopyLog.md#utf8-file]
         }
         catch (const std::exception& ex) {
             log_error(translation::translate("backup_proof_not_writable"), file.wstring(),

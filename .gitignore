@@ -23,6 +23,7 @@ vcpkg_installed
 /#!#
 Directory.Build.props
 /AFS_Desktop/help/help.htb
+/AFS_Desktop/help/*/help.htb
 /AFS_Desktop/bitmaps/delete-old.bmp
 /AFS_Core/test/Integrationstests/*.bak
 /AFS_Core/test/Integrationstests/Integrationstests_backup.vcxproj

@@ -26,7 +26,8 @@ Website, Quelltext und Fehlermeldungen: <https://welsch-software.com>
   angemeldeten Benutzer.
 - Protokoll mit wählbarer Stufe, E-Mail-Benachrichtigung bei schweren Fehlern
   und ein Sicherungsnachweis im JSON-Format.
-- Oberfläche und Hilfe auf Deutsch und Englisch.
+- Oberfläche und Hilfe auf Deutsch, Englisch, Spanisch, Französisch, Italienisch,
+  Polnisch und Ukrainisch; die Sprache lässt sich in den Einstellungen wählen.
 
 ## Installation
 

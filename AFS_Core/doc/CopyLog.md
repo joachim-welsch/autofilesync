@@ -27,6 +27,13 @@ name it has, because a second list under the name of the current language would 
 in two. push_back() instead of put_child(): the latter reads a '.' in the name as a path
 separator, and the name comes out of a catalogue.
 
+## utf8-file
+
+The file is UTF-8, written and read through util::write_utf8_file() and util::read_utf8_file() -
+see Util.md#utf8-files for why not through a wide stream. Before, a German umlaut in a name or
+path, or the field names of French and Polish, meant that no proof was written at all.
+json::to_text() writes every character as itself, so a Ukrainian proof reads as Ukrainian.
+
 ## add_field
 
 push_back() instead of put() for the same reason as in entries_of: a translated field name may

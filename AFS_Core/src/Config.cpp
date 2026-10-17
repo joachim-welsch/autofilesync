@@ -18,9 +18,11 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include "JsonText.h"
 #include "Util.h"
 #include "PasswordCrypto.h"
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <mutex>
@@ -57,7 +59,7 @@ boost::property_tree::wptree parse_json_file(wchar_t const* filename)
             return pt;
     }
     try {
-        auto in = std::wifstream(util::wstring_to_string(filename));
+        std::wistringstream in(util::read_utf8_file(filename));  // [Config.md#utf8-file]
         boost::property_tree::read_json(in, pt);
     }
     catch (std::exception& ex) {
@@ -212,6 +214,7 @@ CompareItems get_compare_items(boost::property_tree::wptree& ci)
         const wstring value=i.second.data();
         retval.set(name, value == L"true");
     }
+    retval.time_tolerance_seconds(to_uint16_t(ci.get<wstring>(L"timeToleranceSeconds", std::to_wstring(DEFAULT_TIME_TOLERANCE_SECONDS))));  // [Config.md#defaulted-flag-reads]
     return retval;
 }
 
@@ -236,6 +239,7 @@ SyncFlags get_sync_flags(boost::property_tree::wptree& sf)
     retval.delete_in_target(sf.get<wstring>(L"syncDeletions", L"false") == L"true");
     retval.backup_proof(sf.get<wstring>(L"backupProof", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.sync_empty_files(sf.get<wstring>(L"syncEmptyFiles", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
+    retval.warn_if_unreachable(sf.get<wstring>(L"warnIfUnreachable", L"true") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.enabled(sf.get<wstring>(L"enabled") == L"true");
     return retval;
 }
@@ -252,6 +256,7 @@ Settings get_settings(boost::property_tree::wptree& sf)
     retval.show_infos(sf.get<wstring>(L"ShowInfos", L"false") == L"true");
     retval.delete_mode(sf.get<wstring>(L"DeleteMode", L"") == L"Permanent" ? DeleteMode::Permanent : DeleteMode::RecycleBin);  // [Config.md#delete-mode-default]
     retval.backup_proof_path(sf.get<wstring>(L"BackupProofPath", L""));  // [Config.md#delete-mode-default]
+    retval.language(util::wstring_to_string(sf.get<wstring>(L"Language", L"")));
     return retval;
 }
 
@@ -268,6 +273,7 @@ void Config::write_settings(boost::property_tree::wptree& root)
     settings.put(wstring(L"DeleteMode"), wstring(settings_.delete_mode() == DeleteMode::Permanent ? L"Permanent" : L"RecycleBin"));
     settings.put(wstring(L"RecycleBinPath"), RecycleBin::instance().bin_path().wstring());
     settings.put(wstring(L"BackupProofPath"), settings_.backup_proof_path());
+    settings.put(wstring(L"Language"), util::string_to_wstring(settings_.language()));
     root.push_back(make_pair(wstring(L"Settings"), settings));
 }
 
@@ -494,6 +500,9 @@ void write_compare_items(const SyncItem& inode, pt::wptree& compare_items_node)
     pt::wptree content_node;
     content_node.put(L"", to_string(ci.content()));
     compare_items_node.push_back(std::make_pair(L"content", content_node));
+    pt::wptree tolerance_node;
+    tolerance_node.put(L"", std::to_wstring(ci.time_tolerance_seconds()));
+    compare_items_node.push_back(std::make_pair(L"timeToleranceSeconds", tolerance_node));
 }
 
 void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree& syncitem_node)
@@ -506,6 +515,7 @@ void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree
     sync_flags_node.put(wstring(L"syncDeletions"), to_string(inode.delete_in_target()));
     sync_flags_node.put(wstring(L"backupProof"), to_string(inode.backup_proof()));
     sync_flags_node.put(wstring(L"syncEmptyFiles"), to_string(inode.sync_empty_files()));
+    sync_flags_node.put(wstring(L"warnIfUnreachable"), to_string(inode.warn_if_unreachable()));
     sync_flags_node.put(wstring(L"enabled"), to_string(inode.enabled()));
     pt::wptree compare_items_node;
     write_compare_items(inode, compare_items_node);
@@ -520,17 +530,17 @@ void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree
     syncitem_node.push_back(make_pair(wstring(L"syncflags"), sync_flags_node));
     syncitem_node.put(wstring(L"name"), inode.name());
     syncitem_node.put(wstring(L"type"), sync_item_type_key(inode.sync_item_type()));  // [Config.md#untranslated-type-key]
-    
+
     if (inode.source_path()) {
         syncitem_node.put(wstring(L"source"), inode.source());
         syncitem_node.put(wstring(L"sourceType"), inode.source_path()->type() == SyncPathType::Filesystem ? L"filesystem" : L"ssh");
     }
-    
+
     if (inode.target_path()) {
         syncitem_node.put(wstring(L"target"), inode.target());
         syncitem_node.put(wstring(L"targetType"), inode.target_path()->type() == SyncPathType::Filesystem ? L"filesystem" : L"ssh");
     }
-    
+
     syncitem_node.put(wstring(L"wildcard"), inode.wildcard());
     syncitem_node.put(wstring(L"SyncCycle"), to_string(inode.sync_cycle()));
 }
@@ -568,20 +578,16 @@ bool Config::write(const std::wstring& pathname)
     std::error_code ec;
     std::filesystem::create_directories(std::filesystem::path(pathname).parent_path(), ec);
     const wstring tmp_pathname = pathname + L".tmp";
-    {
-        std::wfstream os(util::wstring_to_string(tmp_pathname), std::ios_base::out);
-        try {
-            os.exceptions(std::ios::failbit | std::ios::badbit);
-            pt::write_json(os, root);
-        }
-        catch (std::exception& ex) {
+    try {
+        util::write_utf8_file(tmp_pathname, json::to_text(root));  // [Config.md#utf8-file]
+    }
+    catch (std::exception& ex) {
 #ifdef _WXWIDGETS
-            wxMessageBox(wxString(translation::translate("config_write_error")) + ex.what());
+        wxMessageBox(wxString(translation::translate("config_write_error")) + ex.what());
 #endif
-            log_fatal(translation::translate_utf8("config_write_error"), ex.what());
-            util::remove_file(tmp_pathname);
-            return false;
-        }
+        log_fatal(translation::translate_utf8("config_write_error"), ex.what());
+        util::remove_file(tmp_pathname);
+        return false;
     }
     if (!util::rename_file(tmp_pathname, pathname))
         return false;
@@ -725,6 +731,17 @@ void Config::refresh_last_sync(const std::wstring& name)
     for (SyncItem& i : syncitems_) {
         if (i.name() == name) {
             i.set_last_sync();
+            return;
+        }
+    }
+}
+
+void Config::record_last_run(const std::wstring& name, const LastRun& run)
+{
+    std::lock_guard<std::mutex> lock(syncitems_mutex_);
+    for (SyncItem& i : syncitems_) {
+        if (i.name() == name) {
+            i.last_run(run);
             return;
         }
     }

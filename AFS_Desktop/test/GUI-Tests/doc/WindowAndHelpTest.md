@@ -7,7 +7,7 @@ Module comment for WindowAndHelpTest.cpp.
 Every test here hides the main window at some point; the next test needs it on screen, so it
 is shown again when the test leaves its scope, whether it passed or failed.
 
-## activateTaskBarMenuItem
+## activate_task_bar_menu_item
 
 The popup menu of the tray icon is a native menu the simulator cannot open, so the menu is
 built the way the icon builds it for a click (CreatePopupMenu) and the entry is found by the
@@ -19,6 +19,12 @@ a real pick ends up.
 The help book opens in its own frame that would stay on screen for the following tests, and a
 second DisplayContents() would only raise it; it is closed when the test leaves its scope.
 
+## about
+
+Two tests: the data the About box is built from (about_info), which holds on every platform,
+and the message box itself, which macOS replaces by the native About panel - that panel is
+no wxDialog, so the modal dialog hook never sees it and the second test skips there.
+
 ## help
 
 Both routes to the help are tested, the menu and the toolbar button: the button used to open
@@ -26,7 +32,7 @@ the About box although its icon and tooltip promised the help.
 
 ## background-service
 
-Start and Stopp go through the service manager, which needs elevation when the service is
-installed - a UAC prompt a test cannot answer - so only the "not installed" case, which ends in
-the "Hintergrunddienst" error box, runs; on a machine with the service the test skips itself.
+Only the "not installed" case, which ends in the "Hintergrunddienst" error box; on a machine with
+the service the test skips itself. Start and stop of an installed service are tested in
+BackgroundServiceMenuTest.
 

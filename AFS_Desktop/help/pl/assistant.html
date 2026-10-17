@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Asystent</title>
+</head>
+<body>
+<h1>Asystent</h1>
+
+<p>Asystent odpowiada na pytania o AutoFileSync zadawane zwykłym językiem i
+może wyręczyć Cię w pracy: proponuje nowe synchronizacje, ustala, dlaczego coś
+się nie udało, i na życzenie wykonuje polecenia z menu. Działa w całości na tym
+komputerze – nic nie jest wysyłane do internetu i nie są potrzebne ani konto,
+ani klucz.</p>
+
+<h2>Korzystanie z asystenta</h2>
+
+<ol>
+<li><b>Asystent &rarr; Czat…</b> otwiera okno czatu.</li>
+<li>Wpisz pytanie lub prośbę w dolnym polu, tak jak powiedział(a)byś to
+    człowiekowi.</li>
+<li>Kliknij <b>Wyślij</b> albo naciśnij <b>Ctrl+Enter</b> (na Macu
+    <b>Cmd+Enter</b>). Sam Enter zaczyna nowy wiersz.</li>
+<li>Odpowiedź pojawia się u góry w przebiegu rozmowy, słowo po słowie, w miarę
+    jak powstaje. W tym czasie na dole widnieje <b>Asystent odpowiada…</b>.</li>
+</ol>
+
+<p>Odpowiedź trwa, zależnie od komputera, od kilku sekund do kilku minut;
+pierwsza nieco dłużej, bo najpierw trzeba wczytać model. Program pozostaje w
+tym czasie w pełni obsługiwalny, a okno czatu można zamknąć: odpowiedź będzie
+w przebiegu rozmowy przy następnym otwarciu.</p>
+
+<p>Asystent zna dotychczasową rozmowę, więc rozumie pytania uzupełniające w
+rodzaju „a jak to cofnąć?”. Rozmowa jest zachowana do zamknięcia AutoFileSync.
+<b>Nowa rozmowa</b> zaczyna od początku – warto, gdy zmienia się temat, bo
+wtedy stara rozmowa już nie rozprasza.</p>
+
+<p>Asystent odpowiada w języku, w którym zadano pytanie.</p>
+
+<h2>Co potrafi asystent</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Odpowiadać na pytania o obsługę</b></td>
+    <td>Wyszukuje pasujący fragment tej pomocy, odpowiada na jego podstawie i
+        podaje stronę pomocy, na której jest więcej informacji.<br>
+        <i>„Jak synchronizować przez SSH?”</i></td></tr>
+<tr><td valign="top"><b>Informować o Twoich synchronizacjach</b></td>
+    <td>Zna wszystkie założone synchronizacje ze źródłem, celem, typem i
+        włączonymi opcjami, połączenia SSH (bez haseł), czas ostatniej
+        synchronizacji, to, czy źródło lub cel były osiągalne – i czy
+        synchronizacja ma wtedy <a href="unreachable.html">ostrzegać</a> – oraz
+        pierwszy błąd ostatniego przebiegu.<br>
+        <i>„Ile mam synchronizacji?”, „Dlaczego mój pendrive nie jest
+        aktualny?”</i></td></tr>
+<tr><td valign="top"><b>Podawać bieżący stan</b></td>
+    <td>Wie, czy program właśnie synchronizuje i czy działa
+        <a href="service.html">usługa w tle</a>.<br>
+        <i>„Czy synchronizacja właśnie trwa?”</i></td></tr>
+<tr><td valign="top"><b>Analizować dziennik</b></td>
+    <td>Jeśli w pytaniu pojawi się słowo <b>dziennik</b> albo <b>log</b>,
+        czyta najnowsze wpisy <a href="logging.html">dziennika</a> i je
+        objaśnia.<br>
+        <i>„Co jest w dzienniku?”, „Czy w logu są błędy?”</i></td></tr>
+<tr><td valign="top"><b>Proponować nową synchronizację</b></td>
+    <td>Gdy podasz źródło i cel jako ścieżki, proponuje gotową
+        synchronizację.<br>
+        <i>„Synchronizuj /home/anna/Zdjecia do /media/usb/Zdjecia”</i></td></tr>
+<tr><td valign="top"><b>Proponować usunięcie synchronizacji</b></td>
+    <td>Gdy wymienisz założoną synchronizację z nazwy, proponuje jej
+        usunięcie.<br>
+        <i>„Usuń synchronizację Zdjęcia”</i></td></tr>
+<tr><td valign="top"><b>Wykonywać polecenia z menu</b></td>
+    <td><b>Synchronizuj jednorazowo</b>, <b>Podgląd</b>,
+        <b>Rozpocznij synchronizację</b>,
+        <b>Zatrzymaj synchronizację</b>, <b>Uruchom usługę w tle</b>,
+        <b>Zatrzymaj usługę w tle</b> i <b>Pokaż plik dziennika</b>.<br>
+        <i>„Synchronizuj teraz jednorazowo”, „Pokaż mi plik
+        dziennika”</i></td></tr>
+</table>
+
+<h2>Potwierdzanie propozycji</h2>
+
+<p>Asystent nigdy sam niczego nie zmienia. Gdy ma propozycję, opisuje ją
+jednym zdaniem, a na dole okna czatu pojawia się przycisk, który mówi, co
+zrobi:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Utwórz synchronizację…</b></td>
+    <td>Otwiera znane okno dialogowe nowej synchronizacji, z wypełnionymi już
+        nazwą, typem, źródłem i celem. Można tam wszystko sprawdzić i zmienić;
+        synchronizacja powstaje dopiero po kliknięciu <b>OK</b>.</td></tr>
+<tr><td valign="top"><b>Usuń synchronizację…</b></td>
+    <td>Zadaje to samo pytanie zabezpieczające co <b>Edycja &rarr; Usuń
+        synchronizację</b>.</td></tr>
+<tr><td valign="top">Nazwa polecenia, np. <b>Synchronizuj jednorazowo</b></td>
+    <td>Wykonuje polecenie dokładnie tak jak pozycja menu o tej samej
+        nazwie.</td></tr>
+</table>
+
+<p>Jeśli propozycja nie jest potrzebna, wystarczy pytać dalej: przy
+następnym pytaniu przycisk znika.</p>
+
+<h2>Jak dobrze pytać</h2>
+
+<ul>
+<li>Podawaj pełne ścieżki, np. <tt>C:\Users\Anna\Dokumenty</tt>,
+    <tt>/home/anna/Dokumenty</tt> albo dla SSH
+    <tt>anna@serwer:/kopia</tt>. Gdy brakuje ścieżki, asystent dopytuje,
+    zamiast ją wymyślać.</li>
+<li>Używaj słów, których używa sam program – źródło, cel, synchronizacja,
+    kosz. Po nich asystent znajduje pasujący fragment tej pomocy; najlepiej
+    działa to w języku, w którym wyświetlany jest program.</li>
+<li>Polecenia formułuj jako prośbę: „synchronizuj”, „uruchom”, „zatrzymaj”,
+    „otwórz”, „pokaż”.</li>
+<li>Jedna sprawa na pytanie. Kilka życzeń w jednej wiadomości częściej
+    prowadzi do niekompletnych propozycji.</li>
+</ul>
+
+<h2>Ograniczenia</h2>
+
+<p>Asystent to mały model językowy. Może się pomylić, pomieszać ścieżki albo
+twierdzić coś, co nie jest prawdą. Dlatego każda propozycja prowadzi przez
+przycisk i znane okno dialogowe – przed <b>OK</b> warto rzucić okiem na
+źródło i cel. W razie wątpliwości obowiązuje to, co jest w tej pomocy.</p>
+
+<p>Z dziennika widzi tylko najnowsze wpisy. Przy bardzo wielu
+synchronizacjach opisuje szczegółowo pierwsze 30, a pozostałe tylko
+zlicza. Ustawień nie zmienia, wyjaśnia jedynie, gdzie je znaleźć.</p>
+
+<h2>Przygotowanie modelu</h2>
+
+<p>Asystent potrzebuje modelu językowego – pliku z rozszerzeniem
+<tt>.gguf</tt>. Nie należy on do AutoFileSync, ponieważ ma kilka gigabajtów i
+własną licencję (zob. <a href="licensing.html">Warunki licencji</a>). Jeśli go
+brakuje, okno czatu pokazuje <b>Nie znaleziono modelu.</b> i podaje folder, do
+którego należy go umieścić.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="20%"><b>Windows</b></td>
+    <td><tt>setup_llama_windows.cmd</tt> w folderze instalacyjnym pobiera
+        odpowiedni model do
+        <tt>%LOCALAPPDATA%\autofilesync\models</tt>.</td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>setup_llama_macos.sh</tt> pobiera odpowiedni model do
+        <tt>~/Library/Application Support/autofilesync/models</tt>.</td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td>Skopiuj plik GGUF do <tt>~/.local/share/autofilesync/models</tt>.</td></tr>
+</table>
+
+<p>Skrypty dobierają rozmiar do pamięci operacyjnej: poniżej 16 GB model 3B,
+od 16 GB model 7B, od 32 GB model 14B. Większe modele odpowiadają trafniej,
+ale wolniej. Jeśli w folderze jest kilka plików, asystent bierze pierwszy
+według nazwy. Nowo dodany model zostaje znaleziony bez ponownego
+uruchamiania.</p>
+
+<p>Aby użyć pliku z innego miejsca, podaj jego pełną ścieżkę w zmiennej
+środowiskowej <tt>AUTOFILESYNC_LLAMA_MODEL</tt>; ma ona pierwszeństwo przed
+folderem.</p>
+
+</body>
+</html>

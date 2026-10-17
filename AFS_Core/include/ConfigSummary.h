@@ -2,7 +2,7 @@
  * Copyright (C) 2026 Joachim Welsch <https://welsch-software.com>
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * This file is part of AFS_Desktop, the desktop program of AutoFileSync.
+ * This file is part of AFS_Core, the synchronisation engine of AutoFileSync.
  *
  * AutoFileSync is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,14 +17,17 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <wx/wx.h>
-#include <wx/timer.h>
+#include <string>
+#include <vector>
+#include "SshAccount.h"
+#include "SyncItem.h"
 
-class TimedMessageBox: public wxDialog {
-	wxTimer timer_;
+namespace AFS_Core {
 
-	void OnTimer(wxTimerEvent&);
-public:
-	TimedMessageBox(wxWindow* parent, const wxString& message, const wxString& caption, int timeoutMs);
-};
+namespace config_summary {  // [ConfigSummary.md#config_summary]
+constexpr std::size_t MAX_ITEMS = 30;  // [ConfigSummary.md#MAX_ITEMS]
+std::wstring describe(const SyncItems& items, const std::vector<SshAccount>& accounts);  // [ConfigSummary.md#describe]
+std::wstring current();  // [ConfigSummary.md#current]
+}
 
+} // namespace AFS_Core

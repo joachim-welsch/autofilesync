@@ -1,23 +1,23 @@
 # LoggingDialog
 
-## choices
+## CHOICES
 
 Index maps directly onto LogLevel (see the static_cast in TransferDataFromWindow), so the order
 must stay the one of the enum.
 
-## labelWidth
+## label_width
 
 One label column for the whole page, measured from the longest label: a fixed pixel width clips
 as soon as the font or the DPI differs, and a label only as wide as itself starts every field at
 a different place.
 
-## onPickBackupProofPath
+## on_pick_backup_proof_path
 
 Offers directories, not files: the setting names the directory the proofs go into, one file per
 sync item. A directory that does not exist yet is allowed - writeCopyLog() creates it, and the
 dialog can create it here as well.
 
-## updateNotifyEnabling
+## update_notify_enabling
 
 The address stays readable while switched off - greying it out says "not in use" without hiding
 what was configured.

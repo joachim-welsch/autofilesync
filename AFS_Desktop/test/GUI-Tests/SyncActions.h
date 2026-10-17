@@ -19,18 +19,30 @@
 #pragma once
 
 #include "SyncItemDialogDriver.h"
+#include <optional>
+#include <vector>
 
 class MainWindow;
 class ProgressDialog;
+class wxGauge;
+class wxString;
 
 namespace guitest {  // [SyncActions.md#SyncActions]
 
 constexpr int SYNC_TIMEOUT_MILLISECONDS = 30000;
 
-bool addSyncItem(MainWindow& window, const SyncItemInput& input);  // [SyncActions.md#addSyncItem]
-bool waitUntilSyncFinished(MainWindow& window, int timeoutMilliseconds = SYNC_TIMEOUT_MILLISECONDS);  // [SyncActions.md#waitUntilSyncFinished]
-bool syncOnce(MainWindow& window, int timeoutMilliseconds = SYNC_TIMEOUT_MILLISECONDS);  // [SyncActions.md#syncOnce]
-bool syncMenuItemEnabled(MainWindow& window, int menuItemId);
-ProgressDialog* progressDialog();  // [SyncActions.md#progressDialog]
+bool add_sync_item(MainWindow& window, const SyncItemInput& input);  // [SyncActions.md#add_sync_item]
+bool wait_until_sync_finished(MainWindow& window, int timeout_milliseconds = SYNC_TIMEOUT_MILLISECONDS);  // [SyncActions.md#wait_until_sync_finished]
+bool sync_once(MainWindow& window, int timeout_milliseconds = SYNC_TIMEOUT_MILLISECONDS);  // [SyncActions.md#sync_once]
+bool sync_menu_item_enabled(MainWindow& window, int menu_item_id);
+ProgressDialog* progress_dialog();  // [SyncActions.md#progress_dialog]
+wxString current_file_shown(ProgressDialog& dialog);  // [SyncActions.md#current_file_shown]
+wxGauge* gauge_of(ProgressDialog& dialog);
+
+struct ProgressWatch {  // [SyncActions.md#watch_progress_dialog]
+    std::vector<int> bar_values;
+    std::vector<wxString> files;
+};
+std::optional<ProgressWatch> watch_progress_dialog(int timeout_milliseconds = SYNC_TIMEOUT_MILLISECONDS);
 
 }

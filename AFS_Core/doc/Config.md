@@ -40,7 +40,10 @@ empty key (i.first) and the pattern itself as the node's own data (i.second.data
 ## defaulted-flag-reads
 
 Default instead of the throwing get<>(): config files written before this flag existed must keep
-loading, and off is the documented default.
+loading, and off is the documented default - except warnIfUnreachable, whose default is on
+(SyncItem.md#warn_if_unreachable_). The time tolerance reads the same way, with
+DEFAULT_TIME_TOLERANCE_SECONDS, so that an existing backup to NTFS or FAT stops copying
+everything on every pass with the update that introduced it.
 
 ## delete-mode-default
 
@@ -98,3 +101,15 @@ change on the next poll, and a defective file is not re-read once a second.
 True once the file at pathname() carries another modification time than the last read() or
 write() recorded. A GUI save goes through a temporary file and a rename, so a poll never sees a
 half-written file.
+
+## utf8-file
+
+The configuration file is UTF-8, written and read through util::write_utf8_file() and
+util::read_utf8_file(); a wide file stream could not save a name or path with an umlaut on Linux
+and macOS - see Util.md#utf8-files. json::to_text() writes every character as itself, so the
+file stays readable in a text editor whatever the language of its names and paths.
+
+## record_last_run
+
+Like refresh_last_sync(): the pass works on a snapshot of the items, so the outcome must go
+into the live item under the lock, where the next snapshot and the assistant find it.

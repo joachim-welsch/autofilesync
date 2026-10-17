@@ -32,14 +32,14 @@ class ListWindow: public wxScrolledWindow {
 public:
 	ListWindow(wxWindow* parent);
     ListWindow() {}
-    std::wstring getSelected() const;
+    std::wstring get_selected() const;
     void update();
     
-    void OnContextMenu(wxContextMenuEvent& event);
+    void on_context_menu(wxContextMenuEvent& event);
 private:
-    void ShowContextMenu(const wxPoint& pos);
+    void show_context_menu(const wxPoint& pos);
 
-    ListCtrl* listCtrl_ = nullptr;
+    ListCtrl* list_ctrl_ = nullptr;
     wxDECLARE_NO_COPY_CLASS(ListWindow);
     wxDECLARE_EVENT_TABLE();
 };

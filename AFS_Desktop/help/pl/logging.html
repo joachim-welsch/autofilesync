@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Dziennik i powiadomienia</title>
+</head>
+<body>
+<h1>Dziennik i powiadomienia</h1>
+
+<p><b>Edycja &rarr; Ustawienia dziennika…</b> określa, co jest zapisywane i jak
+dowiadujesz się o poważnych błędach.</p>
+
+<h2>Dziennik</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Ścieżka pliku dziennika</b></td>
+    <td>Położenie pliku dziennika. Bez własnej ścieżki AutoFileSync zapisuje w
+        systemie Windows do <tt>%LOCALAPPDATA%\autofilesync\autofilesync.log</tt>,
+        a w systemie Linux do <tt>~/.cache/autofilesync/autofilesync.log</tt>.
+        Folder jest tworzony w razie potrzeby.</td></tr>
+<tr><td valign="top"><b>Poziom dziennika</b></td>
+    <td>Od którego poziomu wpisy są zapisywane: <tt>Debug</tt>, <tt>Info</tt>,
+        <tt>Warning</tt>, <tt>Error</tt> lub <tt>FatalError</tt>. <tt>Debug</tt>
+        zapisuje każdy krok i sprawia, że plik szybko rośnie – przeznaczony do
+        szukania błędów, nie do pracy ciągłej. <tt>Info</tt> odnotowuje, co
+        zostało skopiowane i usunięte.</td></tr>
+<tr><td valign="top"><b>Historia [dni]</b></td>
+    <td>Jak długo wpisy są przechowywane. Przy starcie programu starsze wiersze
+        są usuwane, nowsze pozostają.</td></tr>
+<tr><td valign="top"><b>Edytor</b></td>
+    <td>Program, którym <b>Widok &rarr; Pokaż plik dziennika</b> otwiera
+        dziennik.</td></tr>
+<tr><td valign="top"><b>Ścieżka dowodów kopii zapasowej</b></td>
+    <td>Folder plików dowodów, zobacz
+        <a href="backupproof.html">Dowód kopii zapasowej</a>.</td></tr>
+</table>
+
+<h2>Powiadomienie e-mailem</h2>
+
+<p>Na drugiej karcie można skonfigurować powiadomienie, które przy poważnym
+błędzie wysyła e-mail – przydatne, gdy AutoFileSync działa bez nadzoru albo jako
+<a href="service.html">usługa w tle</a>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Aktywna</b></td>
+    <td>Włącza wysyłanie. Bez zaznaczenia pozostałe ustawienia nie
+        działają.</td></tr>
+<tr><td valign="top"><b>Adres e-mail</b></td>
+    <td>Odbiorca powiadomienia.</td></tr>
+<tr><td valign="top"><b>Serwer poczty wychodzącej</b>, <b>Port</b></td>
+    <td>Serwer SMTP i port dostawcy.</td></tr>
+<tr><td valign="top"><b>Użytkownik</b>, <b>Hasło</b></td>
+    <td>Dane logowania do serwera poczty wychodzącej.</td></tr>
+<tr><td valign="top"><b>Nadawca</b></td>
+    <td>Adres wpisywany jako nadawca. Wielu dostawców wymaga, aby należał do
+        konta.</td></tr>
+</table>
+
+<p>Jeśli przy aktywnym powiadomieniu brakuje odbiorcy, serwera lub nadawcy, okno
+zwraca na to uwagę przy zatwierdzaniu. Ten sam błąd nie wysyła wiadomości
+dowolnie wiele razy – po jednym zgłoszeniu milknie na pewien czas, aby
+długotrwale nieosiągalny cel nie zasypał skrzynki pocztowej.</p>
+
+</body>
+</html>

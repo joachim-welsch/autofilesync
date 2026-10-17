@@ -24,10 +24,10 @@
 
 class Toolbar {
 	wxToolBar* toolbar_ = nullptr;
-	void replaceTool(int oldToolId, int newToolId, const wxString& label, const wxBitmap& newBitmap, const wxString& shortHelp);
+	void replace_tool(int old_tool_id, int new_tool_id, const wxString& label, const wxBitmap& new_bitmap, const wxString& short_help);
 public:
 	void create(wxFrame* parent);
 	wxToolBar* toolbar();
-	void setStarted(bool started);
+	void set_started(bool started);
 };
 

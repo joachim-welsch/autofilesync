@@ -28,11 +28,11 @@
 #endif
     
 class App: public wxApp {
-    bool consoleMode_ = false;
+    bool console_mode_ = false;
     wxLocale locale_;  // [App.md#wx-locale]
-    wxSingleInstanceChecker singleInstanceChecker_;
-    wxHtmlHelpController    embeddedHtmlHelp_;
-    wxHtmlHelpWindow*       embeddedHelpWindow_;
+    wxSingleInstanceChecker single_instance_checker_;
+    wxHtmlHelpController    embedded_html_help_;
+    wxHtmlHelpWindow*       embedded_help_window_;
 
 public:
 	virtual bool OnInit() wxOVERRIDE;

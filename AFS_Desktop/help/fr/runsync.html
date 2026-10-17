@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Exécuter une synchronisation</title>
+</head>
+<body>
+<h1>Exécuter une synchronisation</h1>
+
+<p>Le menu <b>Synchronisation</b> pilote l'exécution.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="25%">Commande</th><th align="left">Effet</th></tr>
+<tr><td valign="top"><b>Démarrer</b></td>
+    <td>Lance le fonctionnement continu. AutoFileSync traite toutes les
+        synchronisations actives l'une après l'autre, attend la pause réglée pour
+        chaque tâche et recommence.</td></tr>
+<tr><td valign="top"><b>Arrêter</b></td>
+    <td>Met fin au fonctionnement. Une copie en cours est encore menée à son
+        terme, puis le traitement s'arrête.</td></tr>
+<tr><td valign="top"><b>Synchroniser une fois</b></td>
+    <td>Un seul passage sur toutes les synchronisations actives ; ensuite, le
+        traitement s'arrête de lui-même. Voir
+        <a href="synconce.html">Synchroniser une fois</a>.</td></tr>
+<tr><td valign="top"><b>Aperçu…</b></td>
+    <td>Montre ce qu'un passage ferait maintenant sans rien modifier ; le
+        passage peut être lancé de là. Voir <a href="preview.html">Aperçu</a>.</td></tr>
+</table>
+
+<p>Démarrer et le passage unique ne sont disponibles que si la configuration
+contient au moins une synchronisation exécutable. Pendant qu'un passage est en
+cours, ils sont désactivés.</p>
+
+<h2>Ce que vous voyez pendant ce temps</h2>
+
+<p>Le champ de droite de la barre d'état montre en permanence ce que fait la
+synchronisation : <em>Synchronisation arrêtée</em>, <em>Comptage des fichiers
+…</em>, <em>Synchronisation unique en cours …</em>, <em>Synchronisation en cours
+…</em> ou <em>En pause – prochaine exécution dans N s</em> lorsque toutes les
+tâches sont dans leur <a href="options.html">pause</a>. Pour les transferts plus
+longs, une boîte de dialogue de progression apparaît avec la source, la cible et
+le volume. La barre d'outils bascule entre Démarrer et Arrêter, ce qui permet de
+connaître l'état à tout moment.</p>
+
+<p>Si la fenêtre est réduite, la synchronisation continue dans la zone de
+notification de la barre des tâches.</p>
+
+<h2>Automatiquement au démarrage du programme</h2>
+
+<p>Dans les <a href="settings.html">paramètres généraux</a>, vous pouvez faire
+en sorte qu'AutoFileSync commence la synchronisation dès son démarrage – avec
+<b>Démarrer l'application automatiquement</b> et <b>Démarrer réduit</b>, cela
+donne un fonctionnement qui tourne sans intervention. Si vous voulez la
+synchronisation sans que le programme soit ouvert du tout, utilisez le
+<a href="service.html">service en arrière-plan</a>.</p>
+
+<h2>Vues</h2>
+
+<p>Le menu <b>Affichage</b> change la vue d'ensemble :</p>
+
+<ul>
+<li><b>Liste</b> – une ligne par synchronisation</li>
+<li><b>Arborescence</b> – organisée par source et cible</li>
+<li><b>Tableau</b> – tous les champs côte à côte, pratique pour comparer
+    plusieurs tâches</li>
+<li><b>Afficher le fichier journal</b> – ouvre le journal dans l'éditeur
+    configuré, voir <a href="logging.html">Journal et notification</a></li>
+<li><b>Arrière-plan</b> – affiche l'état du
+    <a href="service.html">service en arrière-plan</a></li>
+</ul>
+
+</body>
+</html>

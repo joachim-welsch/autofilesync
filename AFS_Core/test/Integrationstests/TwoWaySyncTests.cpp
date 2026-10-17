@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include "ScopedDeleteMode.h"
 #include "FileUtil.h"
 #include "SyncRunner.h"
 #include "Synchronize.h"
@@ -32,15 +33,6 @@ namespace {
 
 namespace fs = std::filesystem;
 using std::chrono::seconds;
-
-class ScopedDeleteMode {  // [TwoWaySyncTests.md#ScopedDeleteMode]
-    const DeleteMode previous_ = Config::instance().settings().delete_mode();
-public:
-    explicit ScopedDeleteMode(DeleteMode mode) { Config::instance().settings().delete_mode(mode); }
-    ~ScopedDeleteMode() { Config::instance().settings().delete_mode(previous_); }
-    ScopedDeleteMode(const ScopedDeleteMode&) = delete;
-    ScopedDeleteMode& operator=(const ScopedDeleteMode&) = delete;
-};
 
 class TwoWaySyncTest: public ::testing::Test {
 protected:
@@ -134,7 +126,7 @@ TEST_F(TwoWaySyncTest, FileDeletedInTheSourceIsRestoredFromTheTarget)
 
 TEST_F(TwoWaySyncTest, DeleteInTargetWinsOverTwoWaySyncWhenTheSourceFileIsGone)  // [TwoWaySyncTests.md#DeleteInTargetWinsOverTwoWaySyncWhenTheSourceFileIsGone]
 {
-    const ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
     tu::write_text_file(target_dir_ / "orphan.txt", "only on the target");
 
     SyncItem si = two_way_file_item(L"orphan.txt");

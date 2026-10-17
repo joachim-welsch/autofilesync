@@ -6,8 +6,8 @@ Module comment for SyncItemManagementTest.cpp.
 
 The edit dialog opens from three places - the Bearbeiten menu with a selected row, a double
 click on the row, and a click on the row label of the grid - and each route is a test of
-its own, because each has its own code path to the dialog (MainWindow::onEditSync,
-ListCtrl::OnDClick, GridCtrl::OnModifyEntry). The proof is the same: the source typed into
+its own, because each has its own code path to the dialog (MainWindow::on_edit_sync,
+ListCtrl::on_double_click, GridCtrl::on_modify_entry). The proof is the same: the source typed into
 the dialog is in the configuration afterwards, and the view shows it.
 
 ## delete

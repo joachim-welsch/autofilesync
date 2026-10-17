@@ -14,7 +14,7 @@ The dialog gives its check boxes no ids, so they are found by the label the user
 from the same catalogue as the dialog so the driver works in every language. A renamed label
 fails the driver with that label in the message, not silently.
 
-## enterValues
+## enter_values
 
 Each step reports itself: without that, a failed interaction is indistinguishable from a
 broken feature - both end as "the value was not taken over".
@@ -24,7 +24,7 @@ broken feature - both end as "the value was not taken over".
 Leaving the dialog open would hang the test in its modal loop; the cancel result tells the test
 that the interaction, not the feature, is what failed.
 
-## fillSettingsDialog
+## fill_settings_dialog
 
 Enters the given settings in the "Globale Einstellungen" dialog the way a user would and
 confirms it with OK. Pass the result to ModalDialogWatcher::expect(). The two-argument form

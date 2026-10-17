@@ -2,6 +2,41 @@
 
 Module comment for SyncItemDialog.h / SyncItemDialog.cpp.
 
+## options-grouped
+
+The three comparison criteria form a group of their own with a frame and a title; the other
+options are the synchronisation's behaviour and stand in one column. Before, the criteria sat
+in a second column between unrelated options and could be read as belonging to the lines
+they shared.
+
+## tolerance-beside-time
+
+The tolerance of the time comparison stands inside the criteria group, right below the date
+criterion it qualifies, and is enabled only while that criterion is checked: it has no meaning
+without it, and greying it out says so without a hint text. The range reaches 3600 s because
+FAT stores local time and a DST change shifts every stored time by an hour; the default of two
+seconds is the coarsest step a common file system keeps (see FileDifference.md#time-tolerance).
+
+## option-locks
+
+Options that make no sense together lock each other, and the whole set is re-evaluated from
+the current state after every click, so no click can leave a stale lock behind:
+
+- "Quelle nach dem Kopieren löschen" turns the sync into a move. Two-way sync would copy the
+  moved files straight back, and "Gelöschte Dateien im Ziel ebenfalls löschen" would delete
+  them in the target on the next pass because the source no longer has them - both are locked.
+- Two-way sync and "Kopieren wenn Ziel neuer" contradict each other (the newer side wins
+  versus the source always wins), so each locks the other.
+- "Kopieren wenn Ziel neuer" needs a criterion that can find a newer target at all: only the
+  time and the size comparison report DestModified in a one-way sync.
+- The type Datei has no target-only files, so "Gelöschte Dateien im Ziel" is locked there.
+
+A locked option is cleared as well, so the configuration never stores a forbidden pair - that
+also resolves an old file that has both options set: the option earlier in the list wins. The
+reverse direction (B is checked, so A is disabled) only disables, because A cannot be checked
+at that point. The tolerance field follows the time criterion for the same reason
+(#tolerance-beside-time).
+
 ## exclusions-one-per-line
 
 One wildcard pattern per line; blank/whitespace-only lines are ignored so trailing newlines or
@@ -22,7 +57,7 @@ form) understands it.
 
 ## name-compared-against-original
 
-name_ is the original name (set in setData(), still unchanged here since
+name_ is the original name (set in set_data(), still unchanged here since
 TransferDataFromWindow() only runs after Validate() succeeds). Comparing against it - not just
 checking name_.empty() - also catches renaming an existing item onto another item's name, not
 just brand-new items.

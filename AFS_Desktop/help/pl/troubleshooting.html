@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Gdy coś nie działa zgodnie z oczekiwaniami</title>
+</head>
+<body>
+<h1>Gdy coś nie działa zgodnie z oczekiwaniami</h1>
+
+<p>Pierwszym miejscem, do którego warto zajrzeć, jest zawsze
+<a href="logging.html">dziennik</a>. Na poziomie <tt>Info</tt> zapisuje on, co
+zostało skopiowane i usunięte; na poziomie <tt>Debug</tt> także, który plik
+został pominięty i z jakiego powodu.</p>
+
+<h2>Plik nie jest kopiowany</h2>
+
+<ul>
+<li><b>Jest pusty.</b> Pliki o rozmiarze 0 są pomijane, dopóki nie zaznaczono
+    <a href="options.html">Synchronizuj puste pliki</a>. Dziennik odnotowuje
+    „Pusty plik źródłowy nie został skopiowany”.</li>
+<li><b>Symbol wieloznaczny nie pasuje</b> albo działa <b>wykluczenie</b>,
+    zobacz <a href="syncitems.html">Zakładanie synchronizacji</a>.</li>
+<li><b>Cel jest nowszy niż źródło.</b> Bez <b>Kopiuj, nawet jeśli plik docelowy
+    jest nowszy</b> pozostaje nietknięty.</li>
+<li><b>Źródło i cel uchodzą za równe.</b> Jeśli porównuje się tylko według
+    <b>Czasu</b>, zmiana zawartości bez nowego czasu modyfikacji pozostaje
+    niezauważona. W takim przypadku włącz dodatkowo <b>Rozmiar</b> lub
+    <b>Zawartości</b>.</li>
+<li><b>Synchronizacja nie jest aktywna</b> – brakuje zaznaczenia
+    <b>Synchronizacja aktywna</b>.</li>
+<li><b>Chodzi o podfolder</b>, a synchronizacja jest typu <b>Folder</b>.
+    Podfoldery wymagają typu <b>Drzewo folderów</b>.</li>
+</ul>
+
+<h2>Pliki są kopiowane przy każdym przebiegu, choć się nie zmieniły</h2>
+
+<p>Cel zapisuje czas modyfikacji mniej dokładnie niż źródło, na przykład dysk
+NTFS lub FAT jako cel dysku z systemem Linux. Kopia wyprzedza wtedy oryginał o
+ułamki sekundy, a przy porównywaniu według <b>Czasu</b> źródło uchodzi za
+nowsze. <a href="options.html#timetolerance">Tolerancja w sekundach</a> na
+karcie Opcje temu zapobiega; jest ustawiona na 0, jeśli ktoś ją wyłączył.
+Przesunięcie wszystkich plików o dokładnie jedną godzinę wskazuje na FAT po
+zmianie czasu letniego lub zimowego, zobacz tam.</p>
+
+<h2>W celu nic nie jest usuwane, choć opcja jest ustawiona</h2>
+
+<ul>
+<li><b>Źródło jest nieosiągalne.</b> Odłączony dysk, niepodłączony udział
+    sieciowy albo nieosiągalny serwer SSH sprawiają, że nic nie zostaje
+    usunięte. Tak ma być.</li>
+<li><b>Typ to Plik.</b> Opcja dotyczy tylko typów Folder i Drzewo
+    folderów.</li>
+<li><b>Symbol wieloznaczny lub wykluczenie</b> wyłączają plik z synchronizacji
+    – wtedy nie jest on też usuwany.</li>
+<li><b>Chodzi o folder.</b> Odzwierciedlane są pliki; folder usunięty w źródle
+    pozostaje w celu.</li>
+</ul>
+
+<h2>W ogóle nic nie jest synchronizowane</h2>
+
+<ul>
+<li>Czy działa <a href="service.html">usługa w tle</a>? Usługa i program nie
+    synchronizują jednocześnie.</li>
+<li>Jeśli <b>Uruchom</b> i <b>Synchronizuj jednorazowo</b> są wyszarzone,
+    konfiguracja nie zawiera synchronizacji, którą da się wykonać – na przykład
+    dlatego, że wszystkie są nieaktywne albo brakuje źródła i celu.</li>
+<li>Czy konfiguracja została <a href="config.html">zapisana</a> po ostatniej
+    zmianie?</li>
+<li>Przy źródle lub celu przez SSH: czy druga strona odpowiada? AutoFileSync
+    sprawdza to przed każdym przebiegiem i pomija synchronizację, dopóki serwer
+    jest nieosiągalny albo logowanie się nie udaje. Dziennik zawiera wtedy
+    „Ścieżka SSH jest nieosiągalna” wraz z przyczyną.</li>
+<li><b>Serwer znów działa, a mimo to nic się nie dzieje.</b> Wynik sprawdzenia
+    osiągalności jest zapamiętywany, aby nie każdy przebieg nawiązywał nowe
+    połączenie. Po nieudanej próbie sprawdzenie następuje najwcześniej po kilku
+    sekundach, przy dłuższej awarii najwyżej co pięć minut. Może więc minąć do
+    pięciu minut, zanim przywrócone połączenie zostanie zauważone.</li>
+</ul>
+
+<h2>Połączenie SSH się nie udaje</h2>
+
+<ul>
+<li><b>Błąd uwierzytelniania</b> – nazwa użytkownika lub hasło są
+    nieprawidłowe albo serwer nie pozwala logować się hasłem.</li>
+<li><b>Błąd połączenia</b> – host lub port są nieosiągalne.</li>
+<li><b>Klucz hosta zmienił się</b> – serwer przedstawia się innym kluczem niż
+    za pierwszym razem. AutoFileSync przerywa wtedy działanie. Jeśli zmianę da
+    się wyjaśnić, na przykład ponowną instalacją serwera, trzeba usunąć stary
+    wpis z pliku <tt>known_hosts</tt> w swoim profilu użytkownika.</li>
+<li><b>Nie znaleziono konta SSH</b> – nazwa przed dwukropkiem w ścieżce nie
+    należy do żadnego założonego połączenia. Zdarza się to na przykład po
+    zmianie nazwy połączenia; dotknięte synchronizacje wskazują wtedy nadal na
+    starą nazwę.</li>
+</ul>
+
+<p>We wszystkich tych przypadkach dana synchronizacja jest pomijana w tym
+przebiegu: nic nie jest kopiowane ani usuwane. Pozostałe synchronizacje działają
+normalnie dalej.</p>
+
+<h2>Pojawia się ostrzeżenie o brakującym dysku – albo nie</h2>
+
+<p>O tym, czy nieosiągalne źródło lub cel jest zgłaszane, decyduje dla każdej
+synchronizacji opcja <b>Ostrzegaj, gdy brakuje dysku lub połączenia SSH</b>: włączona –
+po <b>Synchronizuj raz</b> pojawia się ostrzeżenie i wiersz ostrzeżenia w dzienniku;
+wyłączona – tylko wiersz informacyjny. Jeśli więc jedna synchronizacja ostrzega, a druga
+nie, choć obu brakuje tego samego dysku, opcja jest w nich ustawiona różnie. Reszta w
+<a href="unreachable.html">Nieosiągalne dyski i połączenia</a>.</p>
+
+<h2>Odzyskiwanie usuniętych plików</h2>
+
+<p>Jeśli <a href="settings.html">tryb usuwania</a> jest ustawiony na
+<b>Przenieś do kosza</b>, pliki leżą w ustawionym folderze kosza, w strukturze
+miejsca, z którego pochodzą. Przy <b>Usuń trwale</b> i przy celach przez SSH
+takiej kopii nie ma.</p>
+
+<p>Jeśli plik docelowy został nadpisany, pomaga
+<a href="options.html">Zasada pokoleniowa</a> – o ile była wcześniej włączona:
+poprzednia wersja leży wtedy obok pliku jako <tt>.bak.1</tt>.</p>
+
+</body>
+</html>

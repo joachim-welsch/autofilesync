@@ -28,11 +28,11 @@ using std::wstring;
 using std::nullopt;
 
 wxBEGIN_EVENT_TABLE(ListCtrl, wxListCtrl)
-EVT_LEFT_DCLICK(ListCtrl::OnDClick)
+EVT_LEFT_DCLICK(ListCtrl::on_double_click)
 wxEND_EVENT_TABLE()
 
 
-void ListCtrl::addDataItems()
+void ListCtrl::add_data_items()
 {
     Config& cfg = Config::instance();
     long index = 0;
@@ -43,7 +43,7 @@ void ListCtrl::addDataItems()
 
 }
 
-wstring ListCtrl::getSelected() const
+wstring ListCtrl::get_selected() const
 {
 	const long sel = GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 	if (sel != wxNOT_FOUND) {
@@ -55,12 +55,12 @@ wstring ListCtrl::getSelected() const
 
 void ListCtrl::update()
 {
-	const wstring selectedName = getSelected();  // [ListCtrl.md#selection-restored]
+	const wstring selected_name = get_selected();  // [ListCtrl.md#selection-restored]
 	ClearAll();
-	addDataItems();
-	if (!selectedName.empty()) {
+	add_data_items();
+	if (!selected_name.empty()) {
 		for (long i = 0; i < GetItemCount(); ++i) {
-			if (GetItemText(i).ToStdWstring() == selectedName) {
+			if (GetItemText(i).ToStdWstring() == selected_name) {
 				SetItemState(i, wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED, wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
 				EnsureVisible(i);
 				break;
@@ -69,19 +69,19 @@ void ListCtrl::update()
 	}
 }
 
-void ListCtrl::OnDClick(wxMouseEvent&)
+void ListCtrl::on_double_click(wxMouseEvent&)
 {
-	const wstring syncName = getSelected();
+	const wstring sync_name = get_selected();
 	std::optional<SyncItem> found = nullopt;
-	if (!syncName.empty())
-		found = Config::instance().find_by_name(syncName);
+	if (!sync_name.empty())
+		found = Config::instance().find_by_name(sync_name);
 	if (!found.has_value()) // double-click on empty list area, or item no longer exists
 		return;
-	const std::wstring originalName = found->name();  // [ListCtrl.md#copy-written-back]
+	const std::wstring original_name = found->name();  // [ListCtrl.md#copy-written-back]
 	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::edit_synchronisation());
 	if (dlg.ShowModal() == wxID_OK) {
-		dlg.saveData(*found);
-		Config::instance().update_by_name(originalName, *found);
+		dlg.save_data(*found);
+		Config::instance().update_by_name(original_name, *found);
 		autosave::after_change(this);  // [AutoSave.md#after_change]
 		update();
 	}

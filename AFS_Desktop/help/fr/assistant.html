@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>L'assistant</title>
+</head>
+<body>
+<h1>L'assistant</h1>
+
+<p>L'assistant répond en langage courant aux questions sur AutoFileSync et peut
+vous épargner du travail : il propose de nouvelles synchronisations, trouve
+pourquoi quelque chose n'a pas fonctionné et exécute sur demande des commandes
+du menu. Il tourne entièrement sur cet ordinateur – rien n'est envoyé sur
+Internet, et aucun compte ni aucune clé ne sont nécessaires.</p>
+
+<h2>Utiliser l'assistant</h2>
+
+<ol>
+<li><b>Assistant &rarr; Discussion…</b> ouvre la fenêtre de discussion.</li>
+<li>Écrivez la question ou la demande dans le champ du bas, comme vous la
+    formuleriez à une personne.</li>
+<li>Cliquez sur <b>Envoyer</b> ou appuyez sur <b>Ctrl+Entrée</b> (sur Mac
+    <b>Cmd+Entrée</b>). La touche Entrée seule commence une nouvelle
+    ligne.</li>
+<li>La réponse apparaît en haut dans l'historique de la conversation, mot après
+    mot, au fur et à mesure qu'elle se forme. Pendant ce temps, le bas de la
+    fenêtre indique <b>L'assistant répond…</b>.</li>
+</ol>
+
+<p>Selon l'ordinateur, une réponse prend de quelques secondes à quelques
+minutes ; la toute première un peu plus, car le modèle doit d'abord être
+chargé. Le programme reste utilisable pendant ce temps, et la fenêtre de
+discussion peut être fermée : la réponse figure dans l'historique à la
+prochaine ouverture.</p>
+
+<p>L'assistant connaît la conversation en cours ; il comprend donc des
+questions de suite comme « et comment j'annule cela ? ». La conversation est
+conservée jusqu'à la fermeture d'AutoFileSync. <b>Nouvelle conversation</b>
+repart de zéro – utile quand le sujet change, car l'ancienne conversation ne
+détourne alors plus son attention.</p>
+
+<p>L'assistant répond dans la langue dans laquelle on l'interroge.</p>
+
+<h2>Ce que sait faire l'assistant</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Répondre aux questions d'utilisation</b></td>
+    <td>Il cherche la section de cette aide qui convient, s'en sert pour
+        répondre et indique la page d'aide où en savoir plus.<br>
+        <i>« Comment synchroniser par SSH ? »</i></td></tr>
+<tr><td valign="top"><b>Renseigner sur vos synchronisations</b></td>
+    <td>Il connaît toutes les synchronisations créées avec leur source, leur
+        cible, leur type et les options activées, les connexions SSH (sans les
+        mots de passe), le moment de la dernière synchronisation, si la source
+        ou la cible était accessible – et si la synchronisation doit
+        <a href="unreachable.html">avertir</a> dans ce cas – et la première
+        erreur du dernier passage.<br>
+        <i>« Combien de synchronisations ai-je ? », « Pourquoi ma clé USB
+        n'est-elle pas à jour ? »</i></td></tr>
+<tr><td valign="top"><b>Indiquer l'état actuel</b></td>
+    <td>Il sait si le programme est en train de synchroniser et si le
+        <a href="service.html">service en arrière-plan</a> tourne.<br>
+        <i>« La synchronisation est-elle en cours ? »</i></td></tr>
+<tr><td valign="top"><b>Analyser le journal</b></td>
+    <td>Si la question contient le mot <b>journal</b> ou <b>log</b>, il lit
+        les entrées les plus récentes du <a href="logging.html">journal</a> et
+        les explique.<br>
+        <i>« Que dit le journal ? », « Y a-t-il des erreurs dans le
+        log ? »</i></td></tr>
+<tr><td valign="top"><b>Proposer une nouvelle synchronisation</b></td>
+    <td>Si l'on indique la source et la cible sous forme de chemins, il propose
+        une synchronisation toute prête.<br>
+        <i>« Synchronise /home/anne/Photos vers /media/usb/Photos »</i></td></tr>
+<tr><td valign="top"><b>Proposer de retirer une synchronisation</b></td>
+    <td>Si l'on nomme une synchronisation existante, il propose de la
+        retirer.<br>
+        <i>« Retire la synchronisation Photos »</i></td></tr>
+<tr><td valign="top"><b>Exécuter des commandes du menu</b></td>
+    <td><b>Synchroniser une fois</b>, <b>Aperçu</b>,
+        <b>Démarrer la synchronisation</b>,
+        <b>Arrêter la synchronisation</b>, <b>Démarrer le service en
+        arrière-plan</b>, <b>Arrêter le service en arrière-plan</b> et
+        <b>Afficher le fichier journal</b>.<br>
+        <i>« Synchronise maintenant une fois », « Affiche le fichier
+        journal »</i></td></tr>
+</table>
+
+<h2>Confirmer les propositions</h2>
+
+<p>L'assistant ne modifie jamais rien lui-même. Lorsqu'il a une proposition, il
+la décrit en une phrase, et un bouton apparaît en bas de la fenêtre de
+discussion, qui dit ce qu'il fait :</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Créer la synchronisation…</b></td>
+    <td>Ouvre la boîte de dialogue habituelle d'une nouvelle synchronisation,
+        déjà remplie avec le nom, le type, la source et la cible. Tout peut y
+        être vérifié et modifié ; la création n'a lieu qu'avec
+        <b>OK</b>.</td></tr>
+<tr><td valign="top"><b>Supprimer la synchronisation…</b></td>
+    <td>Pose la même question de sécurité que <b>Édition &rarr; Supprimer la
+        synchronisation…</b>.</td></tr>
+<tr><td valign="top">Nom d'une commande, par exemple <b>Synchroniser une
+        fois</b></td>
+    <td>Exécute la commande, exactement comme l'élément de menu du même
+        nom.</td></tr>
+</table>
+
+<p>Si vous ne voulez pas de la proposition, continuez simplement à poser vos
+questions : le bouton disparaît avec la question suivante.</p>
+
+<h2>Bien poser ses questions</h2>
+
+<ul>
+<li>Indiquer les chemins en entier, par exemple
+    <tt>C:\Users\Anne\Documents</tt>, <tt>/home/anne/Documents</tt> ou, pour
+    SSH, <tt>anne@serveur:/sauvegarde</tt>. S'il manque un chemin, l'assistant
+    le demande au lieu d'en inventer un.</li>
+<li>Employer les mots qu'utilise le programme lui-même – source, cible,
+    synchronisation, corbeille. C'est grâce à eux que l'assistant trouve la
+    section qui convient dans cette aide ; cela fonctionne le mieux dans la
+    langue dans laquelle le programme est affiché.</li>
+<li>Pour les commandes, formuler une demande : « synchronise », « démarre »,
+    « lance », « arrête », « ouvre », « affiche ».</li>
+<li>Une seule chose par question. Plusieurs souhaits dans un même message
+    mènent plus facilement à des propositions incomplètes.</li>
+</ul>
+
+<h2>Limites</h2>
+
+<p>L'assistant est un petit modèle de langage. Il peut se tromper, confondre
+des chemins ou affirmer quelque chose d'inexact. C'est pourquoi chaque
+proposition passe par un bouton et la boîte de dialogue habituelle – avant
+<b>OK</b>, un coup d'œil sur la source et la cible s'impose. En cas de doute,
+c'est ce qui figure dans cette aide qui fait foi.</p>
+
+<p>Du journal, il ne voit que les entrées les plus récentes. S'il y a un très
+grand nombre de synchronisations, il décrit les 30 premières en détail et se
+contente de compter les autres. Il ne modifie pas les paramètres, il explique
+seulement où les trouver.</p>
+
+<h2>Installer le modèle</h2>
+
+<p>L'assistant a besoin d'un modèle de langage, un fichier portant l'extension
+<tt>.gguf</tt>. Il ne fait pas partie d'AutoFileSync, car il pèse plusieurs
+gigaoctets et possède sa propre licence (voir les
+<a href="licensing.html">Conditions de licence</a>). S'il manque, la fenêtre
+de discussion affiche <b>Aucun modèle trouvé.</b> et indique le dossier où il
+doit se trouver.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="20%"><b>Windows</b></td>
+    <td><tt>setup_llama_windows.cmd</tt> dans le dossier d'installation
+        télécharge un modèle adapté dans
+        <tt>%LOCALAPPDATA%\autofilesync\models</tt>.</td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>setup_llama_macos.sh</tt> télécharge un modèle adapté dans
+        <tt>~/Library/Application Support/autofilesync/models</tt>.</td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td>Copier un fichier GGUF dans
+        <tt>~/.local/share/autofilesync/models</tt>.</td></tr>
+</table>
+
+<p>Les scripts choisissent la taille selon la mémoire vive : moins de 16 Go,
+le modèle 3B ; à partir de 16 Go, le modèle 7B ; à partir de 32 Go, le modèle
+14B. Les modèles plus grands répondent plus précisément, mais plus lentement.
+Si le dossier contient plusieurs fichiers, l'assistant prend le premier dans
+l'ordre des noms de fichier. Un modèle nouvellement déposé est trouvé sans
+redémarrage.</p>
+
+<p>Pour utiliser un fichier situé ailleurs, la variable d'environnement
+<tt>AUTOFILESYNC_LLAMA_MODEL</tt> indique son chemin complet ; elle a priorité
+sur le dossier.</p>
+
+</body>
+</html>

@@ -29,7 +29,7 @@ namespace {
 
 constexpr int CLOSE_TIMEOUT_MILLISECONDS = 2000;  // a dialog that OK does not close is being kept open by a message box, not by slowness
 
-bool enterValues(wxDialog& dialog, const SshAccountInput& input)  // [SshAccountDialogDriver.md#enterValues]
+bool enter_values(wxDialog& dialog, const SshAccountInput& input)  // [SshAccountDialogDriver.md#enter_values]
 {
     const struct { wxWindowID id; wxString text; const char* label; } fields[] = {
         { ID_SSH_NAME_BOX, input.name, "Name" },
@@ -38,9 +38,9 @@ bool enterValues(wxDialog& dialog, const SshAccountInput& input)  // [SshAccount
         { ID_SSH_PASSWORD_BOX, input.password, "Passwort" },
     };
     for (const auto& field : fields) {
-        if (!replaceText(find(dialog, field.id), field.text)) {
+        if (!replace_text(find(dialog, field.id), field.text)) {
             ADD_FAILURE() << field.label << " konnte nicht eingegeben werden.\n  erwartet: "
-                          << field.text << "\n  im Feld:  " << valueOf(find(dialog, field.id));
+                          << field.text << "\n  im Feld:  " << value_of(find(dialog, field.id));
             return false;
         }
     }
@@ -49,13 +49,13 @@ bool enterValues(wxDialog& dialog, const SshAccountInput& input)  // [SshAccount
 
 }
 
-DialogAction fillSshAccountDialog(const SshAccountInput& input)
+DialogAction fill_ssh_account_dialog(const SshAccountInput& input)
 {
     return [input](wxDialog& dialog) {
-        const bool confirmed = waitUntil([&dialog] { return dialog.IsShownOnScreen(); })
-            && enterValues(dialog, input)
-            && clickWhenEnabled(find(dialog, wxID_OK))
-            && waitUntil([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS);  // [SshAccountDialogDriver.md#rejected-input-keeps-the-dialog-open]
+        const bool confirmed = wait_until([&dialog] { return dialog.IsShownOnScreen(); })
+            && enter_values(dialog, input)
+            && click_when_enabled(find(dialog, wxID_OK))
+            && wait_until([&dialog] { return !dialog.IsShown(); }, CLOSE_TIMEOUT_MILLISECONDS);  // [SshAccountDialogDriver.md#rejected-input-keeps-the-dialog-open]
         if (!confirmed)  // [SshAccountDialogDriver.md#cancel-instead-of-hanging]
             dialog.EndModal(wxID_CANCEL);
     };
@@ -63,23 +63,23 @@ DialogAction fillSshAccountDialog(const SshAccountInput& input)
 
 namespace {
 
-long rowOf(wxDialog& dialog, const wxString& accountName)
+long row_of(wxDialog& dialog, const wxString& account_name)
 {
     auto* list = dynamic_cast<wxListCtrl*>(find(dialog, ID_SSHACCOUNTS_LIST));
     if (list == nullptr)
         return -1;
     for (long row = 0; row < list->GetItemCount(); ++row)
-        if (list->GetItemText(row) == accountName)
+        if (list->GetItemText(row) == account_name)
             return row;
     return -1;
 }
 
-bool selectRow(wxDialog& dialog, const wxString& accountName)
+bool select_row(wxDialog& dialog, const wxString& account_name)
 {
     auto* list = dynamic_cast<wxListCtrl*>(find(dialog, ID_SSHACCOUNTS_LIST));
-    const long row = rowOf(dialog, accountName);
-    if (row < 0 || !clickOn(*list, row)) {
-        ADD_FAILURE() << "Die SSH-Verbindung \"" << accountName << "\" steht nicht in der Liste oder ließ sich nicht auswählen.";
+    const long row = row_of(dialog, account_name);
+    if (row < 0 || !click_on(*list, row)) {
+        ADD_FAILURE() << "Die SSH-Verbindung \"" << account_name << "\" steht nicht in der Liste oder ließ sich nicht auswählen.";
         return false;
     }
     return true;
@@ -87,32 +87,32 @@ bool selectRow(wxDialog& dialog, const wxString& accountName)
 
 }
 
-DialogAction editSshAccountAndClose(const wxString& accountName)
+DialogAction edit_ssh_account_and_close(const wxString& account_name)
 {
-    return [accountName](wxDialog& dialog) {
-        if (waitUntil([&dialog] { return dialog.IsShownOnScreen(); }) && selectRow(dialog, accountName))
-            clickWhenEnabled(find(dialog, ID_SSHACCOUNTS_EDIT));  // [SshAccountDialogDriver.md#nested-dialog-already-closed]
+    return [account_name](wxDialog& dialog) {
+        if (wait_until([&dialog] { return dialog.IsShownOnScreen(); }) && select_row(dialog, account_name))
+            click_when_enabled(find(dialog, ID_SSHACCOUNTS_EDIT));  // [SshAccountDialogDriver.md#nested-dialog-already-closed]
         dialog.EndModal(wxID_OK);
     };
 }
 
-DialogAction deleteSshAccountAndClose(const wxString& accountName)
+DialogAction delete_ssh_account_and_close(const wxString& account_name)
 {
-    return [accountName](wxDialog& dialog) {
-        if (waitUntil([&dialog] { return dialog.IsShownOnScreen(); }) && selectRow(dialog, accountName))
-            clickWhenEnabled(find(dialog, ID_SSHACCOUNTS_DELETE));
+    return [account_name](wxDialog& dialog) {
+        if (wait_until([&dialog] { return dialog.IsShownOnScreen(); }) && select_row(dialog, account_name))
+            click_when_enabled(find(dialog, ID_SSHACCOUNTS_DELETE));
         dialog.EndModal(wxID_OK);
     };
 }
 
-DialogAction renameSshAccountAndClose(const wxString& accountName, const wxString& newName)  // [SshAccountDialogDriver.md#renameSshAccountAndClose]
+DialogAction rename_ssh_account_and_close(const wxString& account_name, const wxString& new_name)  // [SshAccountDialogDriver.md#rename_ssh_account_and_close]
 {
-    return [accountName, newName](wxDialog& dialog) {
+    return [account_name, new_name](wxDialog& dialog) {
         auto* list = dynamic_cast<wxListCtrl*>(find(dialog, ID_SSHACCOUNTS_LIST));
-        if (waitUntil([&dialog] { return dialog.IsShownOnScreen(); }) && selectRow(dialog, accountName)) {
-            wxTextCtrl* editor = list->EditLabel(rowOf(dialog, accountName));
+        if (wait_until([&dialog] { return dialog.IsShownOnScreen(); }) && select_row(dialog, account_name)) {
+            wxTextCtrl* editor = list->EditLabel(row_of(dialog, account_name));
             pump();
-            if (editor == nullptr || !replaceText(editor, newName) || !pressReturn())
+            if (editor == nullptr || !replace_text(editor, new_name) || !press_return())
                 ADD_FAILURE() << "Der Name ließ sich nicht in der Liste bearbeiten.";
             pump();
         }
@@ -120,11 +120,11 @@ DialogAction renameSshAccountAndClose(const wxString& accountName, const wxStrin
     };
 }
 
-DialogAction addSshAccountAndClose()
+DialogAction add_ssh_account_and_close()
 {
     return [](wxDialog& dialog) {
-        if (waitUntil([&dialog] { return dialog.IsShownOnScreen(); }))  // [SshAccountDialogDriver.md#nested-dialog-already-closed]
-            clickOn(find(dialog, ID_SSHACCOUNTS_ADD));
+        if (wait_until([&dialog] { return dialog.IsShownOnScreen(); }))  // [SshAccountDialogDriver.md#nested-dialog-already-closed]
+            click_on(find(dialog, ID_SSHACCOUNTS_ADD));
         dialog.EndModal(wxID_OK);
     };
 }

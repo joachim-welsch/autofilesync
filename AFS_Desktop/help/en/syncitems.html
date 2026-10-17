@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Setting up synchronisations</title>
+</head>
+<body>
+<h1>Setting up synchronisations</h1>
+
+<p>A synchronisation describes a task: what is reconciled from where to where.
+It is created with <b>File &rarr; New synchronisation…</b> and changed with
+<b>Edit &rarr; Edit synchronisation…</b> or a double click on the entry.</p>
+
+<h2>Name</h2>
+
+<p>The name identifies the synchronisation and must be unique. It appears in the
+overview, in the log and – if switched on – as the file name of the
+<a href="backupproof.html">backup proof</a>.</p>
+
+<h2>Type</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Type</th><th align="left">What is reconciled</th></tr>
+<tr>
+  <td valign="top"><b>File</b></td>
+  <td>Exactly one file. Source and target are complete file names.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Directory</b></td>
+  <td>All files in one directory, <i>without</i> its subdirectories.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Directory tree</b></td>
+  <td>A directory with all its subdirectories. Missing target directories are
+      created.</td>
+</tr>
+</table>
+
+<h2>Source and target</h2>
+
+<p>Both fields take a path. The button next to each opens a chooser; for a
+computer at the other end of an SSH connection there is a button of its own, see
+<a href="ssh.html">Synchronising over SSH</a>.</p>
+
+<p>A target that does not exist yet is created on the first run. If the source
+is on a removable drive or a network drive that is not connected at the moment,
+AutoFileSync skips the synchronisation and leaves the target alone – this
+matters, so that an unplugged drive is never mistaken for “everything was
+deleted”.</p>
+
+<h2>Wildcard</h2>
+
+<p>For the types Directory and Directory tree, the <b>Wildcard</b> field limits
+which files are looked at at all, for example <tt>*.txt</tt> for text files or
+<tt>*.*</tt> for all of them. Files that do not match are invisible to this
+synchronisation: they are neither copied nor deleted, not even when
+<a href="options.html">deleted files are also deleted in the target</a>.</p>
+
+<h2>Exclusions</h2>
+
+<p>The <b>Exclusions</b> tab holds one pattern per line, for example:</p>
+
+<blockquote><tt>*.tmp<br>
+node_modules<br>
+Thumbs.db</tt></blockquote>
+
+<p>Exclusions apply to copying as well as to deleting. In a directory tree, an
+excluded directory is not even entered – this saves time and spares checking the
+files inside it one by one.</p>
+
+<h2>Active</h2>
+
+<p>A synchronisation without the <b>Synchronisation active</b> tick stays in the
+list but is not run. This way a task can be put aside for a while without
+losing it.</p>
+
+<p>On to the <a href="options.html">options</a>.</p>
+
+</body>
+</html>

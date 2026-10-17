@@ -62,3 +62,19 @@ the path names now.
 
 The failing source and target of one item alternate in the log, so remembering only the last
 message would hold nothing back.
+
+## LevelNamesRoundTripAndUnknownNamesFallBackToError
+
+The level in the configuration file is text; every name the logger writes must read back as
+the same level, and a hand-edited unknown name falls back to Error - loud rather than silent.
+
+## ShouldLogFiltersBelowTheLevel
+
+The plain filter without the collect mode that LoggingCollectTests exercise: everything below
+the level is out, the level itself and above are in.
+
+## EraseFileStartsOverAndForgetsTheRepetitions
+
+"Delete log" in the GUI: the file is gone and immediately reopened, and the repetition
+memory goes with it (Logging.md#repetitions-follow-the-file) - a warning that was suppressed as
+a repeat before is new again in the new file. close_file() flushes before each read.

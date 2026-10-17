@@ -39,33 +39,33 @@ private:
     bool TransferDataFromWindow() override;
     bool Validate() override;
 
-    wxPanel* createLoggingPage(wxNotebook* notebook);
-    wxPanel* createEmailPage(wxNotebook* notebook);
-    void addField(wxPanel* page, wxSizer* pageSizer, const wxString& label,
+    wxPanel* create_logging_page(wxNotebook* notebook);
+    wxPanel* create_email_page(wxNotebook* notebook);
+    void add_field(wxPanel* page, wxSizer* page_sizer, const wxString& label,
         wxWindowID id, wxTextCtrl*& box, long style = 0);
-    void onNotifyActiveChanged(wxCommandEvent&);
-    void onPickBackupProofPath(wxCommandEvent&);
-    void updateNotifyEnabling();
+    void on_notify_active_changed(wxCommandEvent&);
+    void on_pick_backup_proof_path(wxCommandEvent&);
+    void update_notify_enabling();
 
-    wxTextCtrl* logPathBox_ = nullptr;
-    wxListBox*  logLevelListbox_ = nullptr;
-    wxSpinCtrl* retentionDaysCtrl_ = nullptr;
-    wxTextCtrl* editPathBox_ = nullptr;
-    wxTextCtrl* backupProofPathBox_ = nullptr;
-    wxCheckBox* emailActiveCheck_ = nullptr;
-    wxTextCtrl* emailBox_ = nullptr;
-    wxTextCtrl* smtpServerBox_ = nullptr;  // the server the notification is sent through
-    wxSpinCtrl* smtpPortCtrl_ = nullptr;
-    wxTextCtrl* smtpUserBox_ = nullptr;
-    wxTextCtrl* smtpPasswordBox_ = nullptr;
-    wxTextCtrl* smtpFromBox_ = nullptr;
+    wxTextCtrl* log_path_box_ = nullptr;
+    wxChoice*   log_level_choice_ = nullptr;
+    wxSpinCtrl* retention_days_ctrl_ = nullptr;
+    wxTextCtrl* edit_path_box_ = nullptr;
+    wxTextCtrl* backup_proof_path_box_ = nullptr;
+    wxCheckBox* email_active_check_ = nullptr;
+    wxTextCtrl* email_box_ = nullptr;
+    wxTextCtrl* smtp_server_box_ = nullptr;  // the server the notification is sent through
+    wxSpinCtrl* smtp_port_ctrl_ = nullptr;
+    wxTextCtrl* smtp_user_box_ = nullptr;
+    wxTextCtrl* smtp_password_box_ = nullptr;
+    wxTextCtrl* smtp_from_box_ = nullptr;
 
 DECLARE_EVENT_TABLE()
 };
 
 enum {
     ID_LOG_PATH_BOX = wxID_HIGHEST + 1,
-    ID_LOG_LEVEL_LISTBOX,
+    ID_LOG_LEVEL_CHOICE,
     ID_RETENTIONDAYS_SPIN,
     ID_EDIT_PATH_BOX,
     ID_BACKUP_PROOF_PATH_BOX,

@@ -11,7 +11,11 @@
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Ausschl&uuml;sse">
+      <PARAM name="Name" value="Assistent (Chat)">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Ausschlüsse">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -19,7 +23,11 @@
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Dateivergleich (Datum, Gr&ouml;&szlig;e, Inhalt)">
+      <PARAM name="Name" value="Chat mit dem Assistenten">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Dateivergleich (Datum, Größe, Inhalt)">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -35,7 +43,7 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Gel&ouml;schte Dateien im Ziel l&ouml;schen">
+      <PARAM name="Name" value="Gelöschte Dateien im Ziel löschen">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -51,11 +59,15 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung">
+      <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Lizenzbedingungen (GPL)">
       <PARAM name="Local" value="licensing.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="L&ouml;schmodus und Papierkorb">
+      <PARAM name="Name" value="Löschmodus und Papierkorb">
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -67,7 +79,7 @@
       <PARAM name="Local" value="logging.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Quelle nach dem Kopieren l&ouml;schen">
+      <PARAM name="Name" value="Quelle nach dem Kopieren löschen">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
@@ -79,12 +91,24 @@
       <PARAM name="Local" value="ssh.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sprachmodell des Assistenten">
+      <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Synchronisation starten und stoppen">
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Toleranz der Änderungszeit (NTFS, FAT, exFAT)">
+      <PARAM name="Local" value="options.html#timetolerance">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Typ (Datei, Verzeichnis, Verzeichnisbaum)">
       <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Vorschau (Probelauf)">
+      <PARAM name="Local" value="preview.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Zwei-Wege-Synchronisation">
@@ -93,6 +117,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Fehlersuche">
       <PARAM name="Local" value="troubleshooting.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Nicht erreichbare Laufwerke und Verbindungen">
+      <PARAM name="Local" value="unreachable.html">
     </OBJECT></LI>
   </UL>
 </BODY>

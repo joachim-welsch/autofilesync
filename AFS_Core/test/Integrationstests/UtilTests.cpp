@@ -247,3 +247,24 @@ TEST_F(UtilTest, DriveExistsFollowsTheDirectory)
 }
 
 } // namespace
+
+TEST(UtilTests, WriteUtf8FileWritesTheBytesAndThrowsWhereItCannotWrite)  // [UtilTests.md#WriteUtf8FileWritesTheBytesAndThrowsWhereItCannotWrite]
+{
+    const fs::path file = fs::temp_directory_path() / ("afx_utf8_" + std::to_string(util::current_pid()) + ".txt");
+
+    util::write_utf8_file(file, L"Grüße");
+
+    std::ifstream in(file, std::ios::binary);
+    const std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    EXPECT_EQ(bytes, "Gr\xC3\xBC\xC3\x9F" "e");
+    fs::remove(file);
+    EXPECT_THROW(util::write_utf8_file(file / "unter" / "x.txt", L"x"), std::exception);
+}
+
+#ifdef _UNIX
+TEST(UtilTests, VolumeExistsLooksForTheVolumeInTheMountTable)  // [UtilTests.md#VolumeExistsLooksForTheVolumeInTheMountTable]
+{
+    EXPECT_TRUE(util::volume_exists(L"", L"/proc"));
+    EXPECT_FALSE(util::volume_exists(L"", L"afx-no-such-volume"));
+}
+#endif

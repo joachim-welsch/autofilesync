@@ -18,5 +18,5 @@
  */
 #pragma once
 #ifdef _MACOS
-void macTransformToForegroundApp();
+void mac_transform_to_foreground_app();
 #endif

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Ustawienia ogólne</title>
+</head>
+<body>
+<h1>Ustawienia ogólne</h1>
+
+<p><b>Edycja &rarr; Ustawienia ogólne…</b> albo koło zębate po prawej stronie
+paska narzędzi otwiera ustawienia, które dotyczą całego programu – a nie
+pojedynczej synchronizacji.</p>
+
+<h2>Język</h2>
+
+<p>Wybór <b>Język</b> określa, w jakim języku AutoFileSync wyświetla menu, okna
+dialogowe i komunikaty. Po kliknięciu <b>OK</b> język zmienia się od razu, bez
+ponownego uruchamiania; jest zapisywany w konfiguracji i obowiązuje przy każdym
+kolejnym starcie, także dla usługi w tle.</p>
+
+<p>Z ustawieniem <b>Język systemu operacyjnego</b> AutoFileSync znów kieruje
+się językiem systemu operacyjnego. Jeśli nie ma dla niego tłumaczenia, wszystko
+wyświetla się po angielsku. Ta pomoc jest dostępna po niemiecku, angielsku,
+hiszpańsku, francusku, włosku, polsku i ukraińsku.</p>
+
+<h2>Uruchamianie i okno</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Uruchamiaj aplikację automatycznie</b></td>
+    <td>AutoFileSync uruchamia się razem z zalogowaniem.</td></tr>
+<tr><td valign="top"><b>Rozpocznij synchronizację przy starcie programu</b></td>
+    <td>Praca ciągła zaczyna się zaraz po starcie, bez potrzeby wybierania
+        <b>Synchronizacja &rarr; Uruchom</b>.</td></tr>
+<tr><td valign="top"><b>Uruchamiaj zminimalizowany</b></td>
+    <td>Okno nie pojawia się przy starcie; program trafia od razu do obszaru
+        powiadomień paska zadań.</td></tr>
+<tr><td valign="top"><b>Minimalizuj zamiast zamykać</b></td>
+    <td>Zamknięcie okna nie kończy programu, tylko minimalizuje go do obszaru
+        powiadomień. Program kończy się wtedy przez <b>Plik &rarr; Zakończ</b>
+        albo menu kontekstowe w obszarze powiadomień.</td></tr>
+</table>
+
+<p>Zawsze działa tylko jedna instancja: drugie uruchomienie zgłasza, że
+AutoFileSync już działa, i się kończy.</p>
+
+<h2>Pokazywanie komunikatów w oknie</h2>
+
+<p>Trzy pola wyboru <b>Błąd</b>, <b>Ostrzeżenie</b> i <b>Informacja</b>
+określają, które komunikaty pojawiają się po
+<a href="synconce.html">Synchronizuj jednorazowo</a> dodatkowo w oknie
+dialogowym: wszystkie komunikaty przebiegu zebrane w jednym oknie, każdy z
+poziomem, najwyżej 15 wierszy – resztę zawiera <a href="logging.html">dziennik</a>.
+Domyślnie zaznaczone są tylko błędy. Bez zaznaczeń synchronizacja przebiega po
+cichu. Praca ciągła (<b>Uruchom</b>) nigdy nie pokazuje okna, bo każdy
+komunikat wyciągałby wtedy okno na wierzch; tak samo start w stanie
+zminimalizowanym.</p>
+
+<h2>Tryb usuwania</h2>
+
+<p>Tryb usuwania dotyczy wszystkich usunięć wykonywanych przez AutoFileSync:
+źródła przy <b>Usuń źródło po skopiowaniu</b> i celu przy <b>Usuwaj także w celu
+usunięte pliki</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Przenieś do kosza</b></td>
+    <td>Ustawienie domyślne. Usunięte pliki trafiają do podanego niżej folderu
+        kosza i można je stamtąd odzyskać. Pierwotna struktura zostaje
+        zachowana, a pliki o tej samej nazwie się nie nadpisują.</td></tr>
+<tr><td valign="top"><b>Usuń trwale</b></td>
+    <td>Pliki są usuwane od razu.</td></tr>
+</table>
+
+<p>W polu <b>Kosz</b> podaje się folder kosza. Powinien leżeć na nośniku z
+wystarczającą ilością miejsca; AutoFileSync nie opróżnia go samodzielnie.</p>
+
+<p>Przy celach dostępnych przez SSH pliki są usuwane trwale niezależnie od tego
+ustawienia, zobacz <a href="ssh.html">Synchronizacja przez SSH</a>.</p>
+
+</body>
+</html>

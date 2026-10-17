@@ -32,9 +32,12 @@
 #include "SyncMessage.h"
 #include "CheckPath.h"
 #include "SyncArbiter.h"
+#include "SyncPlan.h"
 #include <Logging.h>
 
 namespace AFS_Core {
+
+class SyncReport;
 
 class SyncControler;
 class SyncItem;
@@ -50,11 +53,14 @@ class Synchronize {
     std::thread             thread_;
     std::atomic_bool        stop_request_{false};
     MessageStack            messages_;
+    std::atomic<uint64_t>   copied_bytes_{0};  // [Synchronize.md#copied_bytes_]
     CheckPath               check_path_;
     std::mutex              cv_mutex_;
     std::condition_variable cv_;
     SyncRole                role_ = SyncRole::Foreground;  // [Synchronize.md#role_]
     SyncArbiter             arbiter_{SyncRole::Foreground};
+    SyncPlan                plan_;  // [Synchronize.md#preview]
+    std::vector<UnreachableItem> unreachable_;  // [Synchronize.md#unreachable_]
 #ifdef _TEST
     std::atomic<int>        loop_iterations_{0}; // counts do-while passes of operator()(), for race regression tests
 #endif
@@ -68,10 +74,13 @@ class Synchronize {
 
     bool has_controler() const;
     bool is_ssh_target_dir(const std::wstring& target);
+    bool touches_nothing() const { return sync_type_ == SyncType::CountFiles || sync_type_ == SyncType::Preview; }
+    void sync_items();
     void sync_item(SyncItem& i);
     void run_sync_item(SyncItem& i);
     void report_unreachable(const SyncItem& i);
-    void prove_sync_item(SyncItem& i);
+    void report_sync_item(SyncItem& i);  // [Synchronize.md#record_last_run]
+    LastRun last_run_of(const SyncItem& i, const SyncReport& report) const;
 #ifdef _TEST
 public:
 #endif
@@ -80,8 +89,8 @@ public:
     Synchronize() = default;
     Synchronize(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground);
     bool stop_requested() const;
+    static void stop();  // [Synchronize.md#stop]
 protected:
-    static void stop();
     std::size_t count_files() const;
 #ifdef _TEST
 public:
@@ -98,9 +107,13 @@ public:
     #ifdef _TEST
         void start_logging(LogLevel, const std::wstring& lfname);
         int loop_iterations() const { return loop_iterations_; }
+        const std::vector<UnreachableItem>& unreachable() const { return unreachable_; }  // the hand-off to the controller is wx-only, tests read it here
+        const SyncPlan& plan() const { return plan_; }  // same reason
     #endif
     static void set_progress_message(const std::wstring&, const std::wstring& file, int64_t sourcesize);
+    static void report_copied_bytes(uint64_t bytes);  // [Synchronize.md#copied_bytes_]
     SyncMessage get_message();
+    uint64_t copied_bytes() const;
     SyncControler& sync_controler() const;
     static bool stopping();
     friend class SyncControler;

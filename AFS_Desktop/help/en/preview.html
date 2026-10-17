@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Preview</title>
+</head>
+<body>
+<h1>Preview</h1>
+
+<p><b>Synchronisation &rarr; Preview…</b> shows what a run would do now without
+changing anything: nothing is copied, moved or deleted. Only when you choose
+<b>Synchronise now</b> in the dialog does the synchronisation run – exactly as if
+you had chosen <a href="synconce.html">Synchronise once</a>.</p>
+
+<p>The preview pays off above all</p>
+<ul>
+<li>after creating a new synchronisation, to check that source and target are
+    the right way round,</li>
+<li>before you switch on <b>Delete files in the target that were deleted</b> or
+    <b>Delete source after copying</b> for the first time,</li>
+<li>when you want to know how much a run would transfer.</li>
+</ul>
+
+<h2>The dialog</h2>
+
+<p>Each row is a step the run would carry out:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Action</th><th align="left">Meaning</th></tr>
+<tr><td valign="top"><b>Copy to target</b></td>
+    <td>The file is new or newer in the source than in the target.</td></tr>
+<tr><td valign="top"><b>Move to target</b></td>
+    <td>Like copying; afterwards the source file is removed because
+        <b>Delete source after copying</b> is set.</td></tr>
+<tr><td valign="top"><b>Copy back to source</b></td>
+    <td>With <b>two-way synchronisation</b>: the file exists only in the target
+        or is newer there.</td></tr>
+<tr><td valign="top"><b>Delete in target</b></td>
+    <td>The file no longer exists in the source and <b>Delete files in the
+        target that were deleted</b> is set. These rows are red because they
+        are the only ones that remove data.</td></tr>
+</table>
+
+<p>Below the list is the summary: how many steps, how many of them deletions
+and how much data would be transferred. Messages of the check – an unreachable
+source, for instance – appear below the list. If a great many steps are planned,
+the list shows the first ten thousand and names the number of the rest.</p>
+
+<p>If source and target match, only a note that a run would do nothing appears
+instead of the dialog.</p>
+
+<h2>What the preview does not take into account</h2>
+<ul>
+<li>The <b>pause</b> of a synchronisation plays no part: the preview shows the
+    difference between source and target, even right after a run.</li>
+<li>Whatever changes between the preview and the run is only seen by the
+    run.</li>
+<li>Errors during the copy itself – a full target, say – only show up during the
+    run and are then in the <a href="logging.html">log</a>.</li>
+</ul>
+
+</body>
+</html>

@@ -39,35 +39,35 @@ public:
     SshDirDialog(wxWindow* parent, 
         const wxString& title,
         const SshAccount& account,
-        const wxString& defaultPath = "/",
+        const wxString& default_path = "/",
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
     virtual ~SshDirDialog();
 
-    wxString getPath() const { return selectedPath_; }
-    const SshAccount& getAccount() const { return account_; }
+    wxString get_path() const { return selected_path_; }
+    const SshAccount& get_account() const { return account_; }
 
 private:
-    void populateList(const wxString& path);
-    void renderList();
-    void onListDClick(wxMouseEvent& event);
-    void onListSelect(wxListEvent& event);
-    void onPathEnter(wxCommandEvent& event);
-    void onHomeButton(wxCommandEvent& event);
-    void onSortByName(wxCommandEvent& event);
+    void populate_list(const wxString& path);
+    void render_list();
+    void on_list_double_click(wxMouseEvent& event);
+    void on_list_select(wxListEvent& event);
+    void on_path_enter(wxCommandEvent& event);
+    void on_home_button(wxCommandEvent& event);
+    void on_sort_by_name(wxCommandEvent& event);
 
     SshAccount account_;
-    wxString currentPath_;
-    wxString selectedPath_;
+    wxString current_path_;
+    wxString selected_path_;
     std::vector<RemoteDirEntry> entries_;
-    bool sortAscending_ = true;
+    bool sort_ascending_ = true;
 
-    wxTextCtrl* pathBox_ = nullptr;
-    wxListCtrl* listCtrl_ = nullptr;
-    wxButton* homeButton_ = nullptr;
-    wxButton* sortButton_ = nullptr;
-    wxStaticText* statusText_ = nullptr;
+    wxTextCtrl* path_box_ = nullptr;
+    wxListCtrl* list_ctrl_ = nullptr;
+    wxButton* home_button_ = nullptr;
+    wxButton* sort_button_ = nullptr;
+    wxStaticText* status_text_ = nullptr;
 
     DECLARE_EVENT_TABLE()
 };

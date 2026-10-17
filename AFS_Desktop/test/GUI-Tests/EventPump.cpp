@@ -34,11 +34,11 @@ void pump(int milliseconds)  // [EventPump.md#idle-time-not-wall-time]
     wxYield();
 }
 
-bool waitUntil(const std::function<bool()>& ready, int timeoutMilliseconds)
+bool wait_until(const std::function<bool()>& ready, int timeout_milliseconds)
 {
     wxStopWatch watch;
     while (!ready()) {
-        if (watch.Time() > timeoutMilliseconds)
+        if (watch.Time() > timeout_milliseconds)
             return false;
         pump(10);
     }

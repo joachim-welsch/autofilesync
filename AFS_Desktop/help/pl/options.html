@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Opcje synchronizacji</title>
+</head>
+<body>
+<h1>Opcje synchronizacji</h1>
+
+<p>Karta <b>Opcje</b> w oknie synchronizacji określa, według czego porównywane
+są źródło i cel oraz co dzieje się w przypadkach szczególnych.</p>
+
+<h2>Porównuj pliki według</h2>
+
+<p>Te trzy pola wyboru decydują, po czym AutoFileSync rozpoznaje różnicę. Można
+je łączyć.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Kryterium</th><th align="left">Znaczenie</th></tr>
+<tr><td valign="top"><b>Czasu</b></td>
+    <td>Decyduje czas modyfikacji. To typowy przypadek i zdecydowanie
+        najszybszy.</td></tr>
+<tr><td valign="top"><b>Rozmiar</b></td>
+    <td>Różne rozmiary plików są traktowane jako różnica.</td></tr>
+<tr><td valign="top"><b>Zawartości</b></td>
+    <td>Pliki są porównywane pod względem zawartości. To dokładne, ale kosztuje
+        czas odczytu po obu stronach. Przy synchronizacji dwukierunkowej czas
+        modyfikacji dodatkowo rozstrzyga, która strona jest nowsza – samo
+        porównanie zawartości tego nie rozróżni.</td></tr>
+<tr><td valign="top"><b>Tolerancja w sekundach</b></td>
+    <td>Dwa czasy modyfikacji różniące się najwyżej o tyle sekund uznaje się za
+        równe. Pole jest aktywne tylko przy włączonym porównywaniu według
+        <b>Czasu</b>; domyślnie 2 sekundy, zobacz
+        <a href="#timetolerance">Tolerancja a systemy plików</a>.</td></tr>
+</table>
+
+<h3><a name="timetolerance"></a>Tolerancja a systemy plików</h3>
+
+<p>Przy kopiowaniu AutoFileSync przejmuje czas modyfikacji źródła, ale cel
+zapisuje go tylko z taką dokładnością, na jaką pozwala jego system plików. Bez
+tolerancji źródło byłoby wtedy przy każdym przebiegu o ułamki sekundy nowsze od
+własnej kopii i kopiowane wciąż od nowa. Tolerancja musi być co najmniej tak
+duża jak najgrubszy krok czasu po jednej ze stron:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">System plików</th><th align="left">Dokładność czasu modyfikacji</th><th align="left">Potrzebna tolerancja</th></tr>
+<tr><td>ext4, Btrfs, XFS, APFS</td><td>nanosekundy</td><td>0 s</td></tr>
+<tr><td>NTFS</td><td>100 nanosekund</td><td>1 s</td></tr>
+<tr><td>exFAT</td><td>10 milisekund</td><td>1 s</td></tr>
+<tr><td>HFS+, serwery SFTP</td><td>pełne sekundy</td><td>1 s</td></tr>
+<tr><td>FAT32, FAT16 (pendrive’y, karty pamięci)</td><td>2 sekundy</td><td>2 s</td></tr>
+</table>
+
+<p>Domyślne 2 sekundy obejmują wszystkie te przypadki. FAT zapisuje ponadto czas
+jako czas lokalny: po zmianie czasu letniego na zimowy lub odwrotnie wszystkie
+pliki wydają się przesunięte o godzinę. Aby tego uniknąć, można tymczasowo
+ustawić tolerancję na 3600 sekund albo porównywać dodatkowo według
+<b>Rozmiar</b>.</p>
+
+<p>Druga strona tolerancji: jeśli plik zostanie ponownie zapisany w czasie
+tolerancji po poprzedniej zmianie, a w międzyczasie odbył się przebieg, druga
+zmiana zostanie zauważona dopiero przy następnym zapisie. Kto edytuje pliki w
+szybkim tempie, powinien dodatkowo włączyć <b>Rozmiar</b> albo ustawić
+tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.</p>
+
+<h2>Opcje szczegółowo</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Opcja</th><th align="left">Działanie</th></tr>
+
+<tr><td valign="top"><b>Usuń źródło po skopiowaniu</b></td>
+    <td>Po udanym skopiowaniu <i>plik źródłowy</i> zostaje usunięty – zależnie
+        od <a href="settings.html">trybu usuwania</a> do kosza albo trwale. Z
+        synchronizacji robi się w ten sposób przenoszenie. Dla źródeł dostępnych
+        przez SSH opcja nie działa. Razem z tą opcją zablokowane są <b>Synchronizacja dwukierunkowa</b> i <b>Usuwaj także w celu usunięte pliki</b>: pierwsza kopiowałaby przeniesione pliki z powrotem, druga usuwałaby je ponownie w celu.</td></tr>
+
+<tr><td valign="top"><b>Synchronizacja dwukierunkowa</b></td>
+    <td>Uwzględniany jest także kierunek odwrotny: to, co istnieje tylko w celu,
+        jest kopiowane z powrotem do źródła, a nowszy cel wygrywa ze starszym
+        źródłem. Razem z <b>Usuwaj także w celu usunięte pliki</b> wygrywa
+        usuwanie – ustawianie obu naraz rzadko ma sens. Opcja wyklucza się z <b>Usuń źródło po skopiowaniu</b> oraz z <b>Kopiuj, nawet jeśli plik docelowy jest nowszy</b>; zaznaczona jako pierwsza blokuje drugą.</td></tr>
+
+<tr><td valign="top"><b>Kopiuj, nawet jeśli plik docelowy jest nowszy</b></td>
+    <td>Zwykle AutoFileSync nie nadpisuje pliku docelowego, który jest nowszy od
+        źródła. Z tą opcją jednak to robi. Przy włączonej synchronizacji
+        dwukierunkowej opcja jest zablokowana, bo tam nie ma sensu. Jest też zablokowana, dopóki nie porównuje się ani według <b>Czasu</b>, ani według <b>Rozmiaru</b>, bo tylko te kryteria mogą rozpoznać nowszy cel.</td></tr>
+
+<tr><td valign="top"><b>Zasada pokoleniowa</b></td>
+    <td>Zanim istniejący plik docelowy zostanie nadpisany, AutoFileSync zmienia
+        jego nazwę: z <tt>raport.doc</tt> robi się <tt>raport.doc.bak.1</tt>,
+        następnym razem <tt>.bak.2</tt> i tak dalej. Starsze wersje zostają w ten
+        sposób zachowane. Pamiętaj, że te kopie pozostają w celu i zajmują
+        miejsce – nie są automatycznie usuwane.</td></tr>
+
+<tr><td valign="top"><b>Usuwaj także w celu usunięte pliki</b></td>
+    <td>Plik, który istnieje już tylko w celu, zostaje tam usunięty – cel staje
+        się więc lustrem źródła. Szczegóły i ograniczenia opisano w
+        <a href="#deleteintarget">sekcji poniżej</a>. Przy typie Plik oraz razem z <b>Usuń źródło po skopiowaniu</b> opcja jest zablokowana.</td></tr>
+
+<tr><td valign="top"><b>Dowód kopii zapasowej</b></td>
+    <td>Każdy przebieg, który coś skopiował albo natrafił na błąd, zapisuje wpis
+        w pliku dowodu; zobacz <a href="backupproof.html">Dowód kopii
+        zapasowej</a>.</td></tr>
+
+<tr><td valign="top"><b>Synchronizuj puste pliki</b></td>
+    <td>Pliki o rozmiarze 0 są zwykle pomijane: pusty plik to częściej przerwany
+        zapis niż plik celowo pusty, a skopiowanie go na wypełniony plik docelowy
+        oznaczałoby utratę danych. Z tą opcją są uwzględniane – z myślą o
+        plikach zastępczych, takich jak <tt>.gitkeep</tt>, oraz plikach blokad i
+        znaczników. <b>Uwaga:</b> jeśli plik źródłowy jest pusty, a docelowy nie,
+        synchronizacja zastąpi wtedy zawartość celu pustym plikiem.</td></tr>
+
+<tr><td valign="top"><b>Ostrzegaj, gdy brakuje dysku lub połączenia SSH</b></td>
+    <td>Gdy źródło lub cel są nieosiągalne – odłączony dysk, niepodłączony udział
+        sieciowy, serwer SSH, który nie odpowiada – synchronizacja jest
+        pomijana; nic nie jest kopiowane ani usuwane. To nie jest błąd. Z tą
+        opcją (domyślnie: włączona) „Synchronizuj raz” zgłasza pominięcie jako
+        ostrzeżenie, a dziennik zawiera ostrzeżenie. Dla dysku kopii zapasowej,
+        który podłącza się tylko od czasu do czasu, opcję należy wyłączyć:
+        brak jest wtedy odnotowywany tylko w dzienniku. Szczegóły: <a href="unreachable.html">Nieosiągalne dyski i połączenia</a>.</td></tr>
+
+<tr><td valign="top"><b>Sekundy przerwy</b></td>
+    <td>Czas oczekiwania między dwoma przebiegami synchronizacji ciągłej,
+        ustawiany od 1 do 60 sekund. Krótkie przerwy szybciej wykrywają zmiany,
+        ale bardziej obciążają nośniki i sieć.</td></tr>
+</table>
+
+<h2><a name="deleteintarget"></a>Usuwaj także w celu usunięte pliki</h2>
+
+<p>Ta opcja zasługuje na dokładniejszy opis, ponieważ jako jedyna usuwa dane w
+celu.</p>
+
+<ul>
+<li>Jest dostępna dla typów <b>Folder</b> i <b>Drzewo folderów</b>, nie dla typu
+    <b>Plik</b>.</li>
+<li>Usuwanie odbywa się zgodnie z <a href="settings.html">trybem usuwania</a>,
+    czyli zwykle do kosza. Przy celu dostępnym przez SSH usunięcie jest trwałe,
+    ponieważ zdalny plik trzeba by do tego najpierw pobrać.</li>
+<li>Pliki, które z powodu <b>symbolu wieloznacznego</b> lub <b>wykluczeń</b> i
+    tak nie należą do tej synchronizacji, pozostają nietknięte.</li>
+<li>Jeśli <b>źródło jest nieosiągalne</b> – dysk odłączony, udział sieciowy
+    niepodłączony, serwer SSH nieosiągalny – nic nie zostanie usunięte.
+    Nieosiągalne miejsce to nie puste miejsce.</li>
+<li>Odzwierciedlane są <b>pliki</b>, nie foldery: folder usunięty w źródle
+    pozostaje w celu razem z zawartością.</li>
+</ul>
+
+<p>Jeśli opcja nie działa, choć jest ustawiona, pomoże
+<a href="troubleshooting.html">Gdy coś nie działa zgodnie z oczekiwaniami</a>.</p>
+
+</body>
+</html>

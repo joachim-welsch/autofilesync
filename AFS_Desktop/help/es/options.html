@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Opciones de una sincronización</title>
+</head>
+<body>
+<h1>Opciones de una sincronización</h1>
+
+<p>La pestaña <b>Opciones</b> del diálogo de una sincronización establece por qué
+se comparan el origen y el destino y qué ocurre en los casos especiales.</p>
+
+<h2>Comparar archivos por</h2>
+
+<p>Estas tres marcas deciden cómo reconoce AutoFileSync una diferencia. Se
+pueden combinar.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Criterio</th><th align="left">Significado</th></tr>
+<tr><td valign="top"><b>Fecha</b></td>
+    <td>Decide la fecha de modificación. Es el caso habitual y, con diferencia,
+        el más rápido.</td></tr>
+<tr><td valign="top"><b>Tamaño</b></td>
+    <td>Los tamaños de archivo distintos cuentan como diferencia.</td></tr>
+<tr><td valign="top"><b>Contenido</b></td>
+    <td>Los archivos se comparan por su contenido. Es exacto, pero cuesta tiempo
+        de lectura en ambos lados. En la sincronización bidireccional, la fecha
+        de modificación decide además qué lado es el más reciente – una
+        comparación solo por contenido no puede saberlo.</td></tr>
+<tr><td valign="top"><b>Tolerancia en segundos</b></td>
+    <td>Dos fechas de modificación separadas como mucho por estos segundos se
+        consideran iguales. El campo solo está activo si la comparación por
+        <b>Fecha</b> está activada; el valor predeterminado es 2 segundos,
+        consulte <a href="#timetolerance">Tolerancia y sistemas de
+        archivos</a>.</td></tr>
+</table>
+
+<h3><a name="timetolerance"></a>Tolerancia y sistemas de archivos</h3>
+
+<p>Al copiar, AutoFileSync toma la fecha de modificación del origen, pero el
+destino solo la guarda con la precisión que permite su sistema de archivos. Sin
+tolerancia, el origen sería en cada ejecución unas fracciones de segundo más
+reciente que su propia copia y se copiaría una y otra vez. La tolerancia debe ser
+al menos tan grande como el paso de tiempo más grueso de cualquiera de los dos
+lados:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Sistema de archivos</th><th align="left">Precisión de la fecha de modificación</th><th align="left">Tolerancia necesaria</th></tr>
+<tr><td>ext4, Btrfs, XFS, APFS</td><td>nanosegundos</td><td>0 s</td></tr>
+<tr><td>NTFS</td><td>100 nanosegundos</td><td>1 s</td></tr>
+<tr><td>exFAT</td><td>10 milisegundos</td><td>1 s</td></tr>
+<tr><td>HFS+, servidores SFTP</td><td>segundos enteros</td><td>1 s</td></tr>
+<tr><td>FAT32, FAT16 (memorias USB, tarjetas de memoria)</td><td>2 segundos</td><td>2 s</td></tr>
+</table>
+
+<p>El valor predeterminado de 2 segundos cubre todos estos casos. FAT guarda
+además la hora como hora local: tras un cambio entre horario de verano y de
+invierno, todos los archivos aparecen desplazados una hora. Para evitarlo, ponga
+la tolerancia en 3600 segundos durante un tiempo o compare también por
+<b>Tamaño</b>.</p>
+
+<p>La otra cara de la tolerancia: si un archivo se vuelve a guardar dentro de la
+tolerancia tras su cambio anterior y entretanto hubo una ejecución, el segundo
+cambio solo se detecta con el siguiente guardado. Si edita archivos en sucesión
+rápida, lo mejor es activar también <b>Tamaño</b>, o poner la tolerancia en 0 si
+ambos lados guardan la hora con la misma precisión.</p>
+
+<h2>Las opciones en detalle</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Opción</th><th align="left">Efecto</th></tr>
+
+<tr><td valign="top"><b>Eliminar el origen después de copiar</b></td>
+    <td>Tras una copia correcta se elimina el <i>archivo de origen</i> – a la
+        papelera o definitivamente, según el
+        <a href="settings.html">modo de eliminación</a>. Así una sincronización
+        se convierte en un traslado. Para orígenes accesibles por SSH la opción
+        no tiene efecto. Junto con esta opción quedan bloqueadas <b>Sincronización bidireccional</b> y <b>Eliminar también en el destino los archivos eliminados</b>: la una copiaría de vuelta los archivos trasladados, la otra los eliminaría de nuevo en el destino.</td></tr>
+
+<tr><td valign="top"><b>Sincronización bidireccional</b></td>
+    <td>También cuenta el sentido contrario: lo que solo existe en el destino se
+        copia de vuelta al origen, y un destino más reciente gana a un origen más
+        antiguo. Junto con <b>Eliminar también en el destino los archivos
+        eliminados</b>, gana la eliminación – activar ambas a la vez rara vez
+        tiene sentido. La opción se excluye mutuamente con <b>Eliminar el origen después de copiar</b> y con <b>Copiar aunque el archivo de destino sea más reciente</b>; la que se activa primero bloquea la otra.</td></tr>
+
+<tr><td valign="top"><b>Copiar aunque el archivo de destino sea más reciente</b></td>
+    <td>Normalmente AutoFileSync no sobrescribe un archivo de destino más
+        reciente que el origen. Con esta opción sí lo hace. Con la sincronización
+        bidireccional activada, la opción está bloqueada porque ahí no tiene
+        sentido. También está bloqueada mientras no se compare ni por <b>Fecha</b> ni por <b>Tamaño</b>, porque solo esos criterios pueden reconocer un destino más reciente.</td></tr>
+
+<tr><td valign="top"><b>Principio generacional</b></td>
+    <td>Antes de sobrescribir un archivo de destino existente, AutoFileSync le
+        cambia el nombre: <tt>informe.doc</tt> pasa a ser
+        <tt>informe.doc.bak.1</tt>, la siguiente vez <tt>.bak.2</tt> y así
+        sucesivamente. Así se conservan las versiones anteriores. Tenga en cuenta
+        que estas copias se quedan en el destino y ocupan espacio – no se limpian
+        automáticamente.</td></tr>
+
+<tr><td valign="top"><b>Eliminar también en el destino los archivos eliminados</b></td>
+    <td>Un archivo que ya solo existe en el destino se elimina allí – el destino
+        se convierte en un espejo del origen. Los detalles y límites están en la
+        <a href="#deleteintarget">sección de abajo</a>. Con el tipo Archivo y junto con <b>Eliminar el origen después de copiar</b> la opción está bloqueada.</td></tr>
+
+<tr><td valign="top"><b>Comprobante de copia</b></td>
+    <td>Cada ejecución que haya copiado algo o haya encontrado un error escribe
+        una entrada en un archivo de comprobante; consulte
+        <a href="backupproof.html">Comprobante de copia</a>.</td></tr>
+
+<tr><td valign="top"><b>Sincronizar archivos vacíos</b></td>
+    <td>Los archivos de tamaño 0 normalmente se omiten: un archivo vacío suele
+        ser una escritura interrumpida más que un archivo vacío a propósito, y
+        copiarlo sobre un archivo de destino con contenido supondría perder
+        datos. Con esta opción se incluyen – pensado para marcadores como
+        <tt>.gitkeep</tt> y para archivos de bloqueo y de marca.
+        <b>Atención:</b> si el archivo de origen está vacío y el de destino no,
+        la sincronización sustituye entonces el contenido del destino por el
+        archivo vacío.</td></tr>
+
+<tr><td valign="top"><b>Avisar si falta la unidad o la conexión SSH</b></td>
+    <td>Si no se puede acceder al origen o al destino – una unidad desconectada,
+        un recurso compartido sin conexión, un servidor SSH que no responde –,
+        la sincronización se omite; no se copia ni se borra nada. Eso no es un
+        error. Con esta opción (predeterminada: activada) «Sincronizar una vez»
+        informa de la omisión como aviso, y el registro contiene un aviso. Para
+        un disco de copia de seguridad que solo se conecta de vez en cuando,
+        desactive la opción: la ausencia solo se anota en el registro. En detalle: <a href="unreachable.html">Unidades y conexiones no accesibles</a>.</td></tr>
+
+<tr><td valign="top"><b>Segundos de pausa</b></td>
+    <td>Tiempo de espera entre dos ejecuciones de una sincronización continua,
+        ajustable de 1 a 60 segundos. Las pausas cortas detectan antes los
+        cambios y cargan más las unidades y la red.</td></tr>
+</table>
+
+<h2><a name="deleteintarget"></a>Eliminar también en el destino los archivos eliminados</h2>
+
+<p>Esta opción merece una descripción más detallada, porque es la única que
+elimina datos en el destino.</p>
+
+<ul>
+<li>Está disponible para <b>Carpeta</b> y <b>Árbol de carpetas</b>, no para el
+    tipo <b>Archivo</b>.</li>
+<li>Se elimina según el <a href="settings.html">modo de eliminación</a>, es
+    decir, normalmente a la papelera. Con un destino por SSH la eliminación es
+    definitiva, porque para ello habría que descargar antes el archivo
+    remoto.</li>
+<li>Los archivos que de todos modos no pertenecen a esta sincronización, por el
+    <b>Comodín</b> o las <b>Exclusiones</b>, no se tocan.</li>
+<li>Si el <b>origen no es accesible</b> – unidad desconectada, recurso
+    compartido no conectado, servidor SSH no accesible – no se elimina nada. Un
+    lugar inaccesible no es un lugar vacío.</li>
+<li>Se reflejan <b>archivos</b>, no carpetas: una carpeta eliminada en el origen
+    permanece en el destino con su contenido.</li>
+</ul>
+
+<p>Si la opción no surte efecto aunque esté activada, le ayudará
+<a href="troubleshooting.html">Cuando algo no ocurre como se espera</a>.</p>
+
+</body>
+</html>

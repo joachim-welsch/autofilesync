@@ -158,6 +158,18 @@ the user never opted in for.
 same applies as for syncDeletions: if the flag is lost on save or load - or gained unasked - the
 behaviour towards the user's data changes.
 
+## TimeToleranceRoundTripsThroughSaveAndLoad
+
+The tolerance of the time comparison is persisted under the compareitems key
+"timeToleranceSeconds". A value that is lost on save or load silently changes which files
+count as modified.
+
+## TimeToleranceDefaultsToTwoSecondsForOlderConfigFiles
+
+A configuration file written before the tolerance existed does not know the key. It has to
+load with the default of two seconds: that is what stops a backup on NTFS, exFAT or FAT from
+copying every file on every pass, and the existing installations are the ones hit by it.
+
 ## SyncEmptyFilesDefaultsToFalseForOlderConfigFiles
 
 A configuration file written before the flag existed does not know the key. It has to load with
@@ -183,3 +195,90 @@ is one (set two seconds ahead rather than rewritten, so the test does not depend
 system's time stamp resolution), and read() takes the new time over. The second test covers the
 file that does not exist yet: read() of a missing file records the "no file" time, so the file
 being created afterwards is a change too.
+
+## UmlautsRoundTripThroughSaveAndLoad
+
+Regression test: the configuration was written through a std::wfstream in the "C" locale, which
+failed on the first umlaut on Linux and macOS - write() returned false, and every change of a
+user whose paths contain one was lost at the next start. Name, paths, an exclusion and a setting
+cover each kind of text the file holds.
+
+## NonLatinNamesStayReadableInTheFile
+
+The configuration is meant to be readable and editable by hand. write_json() escaped every
+character above U+00FF and clamped those above U+FFFF, so a Ukrainian path read as \u041E... and
+an emoji in a name came back as U+FFFF. The name must stand in the file as UTF-8 and survive the
+round trip unchanged.
+
+## WarnIfUnreachableIsOnByDefaultAndRoundTripsOff
+
+The flag is the first one whose default is on (SyncItem.md#warn_if_unreachable_), so the
+round trip is tested with the non-default value: a fresh item has it on, and off survives
+save and load. A config file without the key reads as on, the same way the other flags read
+their defaults (Config.md#defaulted-flag-reads).
+
+## MoveCopyWhenTargetNewerAndFatherSonRoundTripThroughSaveAndLoad
+
+Every other round-trip test constructs its item with SyncFlags(false, false, false, false, true),
+so the three oldest flags were written and read back only as "false". Set together, with
+two_way_sync left off, the test also notices a swapped key.
+
+## configure_logging
+
+One value per key, none of them a default, and disturb_logging() sets every key to yet another
+value before the read - a read that silently kept the current state would otherwise pass the
+round trip.
+
+## LoggingSetupRoundTripsThroughSaveAndLoad
+
+All ten keys of the Logging section in one round trip, including the encrypted SMTP password.
+Before this the section had no test at all.
+
+## SmtpPasswordIsNotStoredAsPlaintext
+
+Same requirement as for the SSH passwords: the file may carry the AES-GCM marker, never the
+secret.
+
+## EmptySmtpPasswordStaysEmptyThroughSaveAndLoad
+
+An empty password is written as "" rather than encrypted (Config.md#smtp-password-encryption), so
+that read_stored_password() never has to tell "unset" from "undecryptable", and reading it back
+must not log a decryption error or invent a password.
+
+## UndecryptableSmtpPasswordIsDroppedNotUsedAsIs
+
+A ciphertext from another machine's key: the password becomes empty, the ciphertext is never
+handed to the SMTP server as if it were the password, and the other SMTP values survive.
+
+## LoggingSectionWithoutNotificationKeysLoadsWithDefaults
+
+A Logging section as written before the e-mail notification existed: the four old keys load,
+the notification stays off and the SMTP account is the empty default.
+
+## ConfigWithoutLoggingSectionKeepsTheCurrentLoggingSetup
+
+Without the section nothing is touched - the GUI relies on that for a freshly created
+configuration.
+
+## UnknownLogLevelFallsBackToError
+
+Logging::get_from_string() answers Error for a name it does not know, so a hand-edited level
+cannot silence the log or flood it with debug output.
+
+## MalformedLoggingSectionDoesNotBlockSyncitems
+
+read_logging_setup() uses the throwing get<> for the four old keys; a section missing one of them
+is logged and dropped as a whole, which must neither change the current logging setup halfway nor
+keep the sync items from loading.
+
+## SyncPossibleNeedsALoadedConfigurationWithItems
+
+sync_possible() is what the GUI and the daemon ask before a run: an instance that exists, has
+been read and holds at least one item. Before the read, after a reset or after the last item is
+erased the answer is no.
+
+## UnloadDropsTheInstanceAndTheNextOneStartsEmpty
+
+unload() is the application's last call; the next instance() after it has to work (the
+once_flag has fired already, so instance() recreates the object itself) and must not carry
+anything over.

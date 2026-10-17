@@ -22,6 +22,7 @@
 #include <fstream>
 #include <iostream>
 #include <chrono>
+#include <algorithm>
 
 using namespace std::chrono;
 using std::wstring;
@@ -45,6 +46,15 @@ namespace tu {
 	{
 		std::ifstream in(file);
 		return std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	}
+
+	void write_large_file(const fs::path& file, std::size_t bytes)
+	{
+		fs::create_directories(file.parent_path());
+		std::ofstream out(file, std::ios::binary);
+		std::string block(1u << 20, 'x');
+		for (std::size_t written = 0; written < bytes; written += block.size())  // [FileUtil.md#write_large_file]
+			out.write(block.data(), static_cast<std::streamsize>(std::min(block.size(), bytes - written)));
 	}
 
 	bool erase_test_file(const wstring& fn)

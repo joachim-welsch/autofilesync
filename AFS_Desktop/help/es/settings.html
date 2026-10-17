@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Configuración general</title>
+</head>
+<body>
+<h1>Configuración general</h1>
+
+<p><b>Edición &rarr; Configuración general…</b> o la rueda dentada a la derecha
+de la barra de herramientas abre la configuración que vale para todo el programa
+– no para una sincronización concreta.</p>
+
+<h2>Idioma</h2>
+
+<p>La lista <b>Idioma</b> establece en qué idioma muestra AutoFileSync los menús,
+los diálogos y los mensajes. Tras <b>OK</b> el idioma cambia al instante, sin
+reiniciar; se guarda en la configuración y vale en cada inicio posterior, también
+para el servicio en segundo plano.</p>
+
+<p>Con <b>Idioma del sistema operativo</b>, AutoFileSync vuelve a seguir el idioma
+del sistema operativo. Si no hay traducción para él, todo aparece en inglés. Esta
+ayuda existe en alemán, inglés, español, francés, italiano, polaco y ucraniano, es
+decir, en todos los idiomas que ofrece el programa.</p>
+
+<h2>Inicio y ventana</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Iniciar la aplicación automáticamente</b></td>
+    <td>AutoFileSync se inicia junto con su sesión.</td></tr>
+<tr><td valign="top"><b>Iniciar la sincronización al arrancar el programa</b></td>
+    <td>El funcionamiento continuo empieza justo después del inicio, sin
+        necesidad de <b>Sincronización &rarr; Iniciar</b>.</td></tr>
+<tr><td valign="top"><b>Iniciar minimizado</b></td>
+    <td>La ventana no aparece al iniciar; el programa pasa directamente al área
+        de notificación de la barra de tareas.</td></tr>
+<tr><td valign="top"><b>Minimizar en lugar de cerrar</b></td>
+    <td>Cerrar la ventana no termina el programa, sino que lo minimiza al área de
+        notificación. Se termina entonces con <b>Archivo &rarr; Salir</b> o con
+        el menú contextual del área de notificación.</td></tr>
+</table>
+
+<p>Solo se ejecuta una instancia a la vez: un segundo inicio avisa de que
+AutoFileSync ya se está ejecutando y se cierra.</p>
+
+<h2>Mostrar los mensajes en un cuadro de diálogo</h2>
+
+<p>Las tres marcas <b>Error</b>, <b>Advertencia</b> e <b>Información</b>
+establecen qué mensajes aparecen además en una ventana de diálogo tras
+<a href="synconce.html">Sincronizar una vez</a>: todos los mensajes de la
+ejecución reunidos en una ventana, cada uno con su nivel, como mucho 15 líneas –
+el resto está en el <a href="logging.html">registro</a>. Por defecto solo están
+marcados los errores. Sin marcas, la sincronización transcurre en silencio. El
+funcionamiento continuo (<b>Iniciar</b>) nunca muestra una ventana, porque cada
+aviso traería la ventana al frente; tampoco un inicio en estado minimizado.</p>
+
+<h2>Modo de eliminación</h2>
+
+<p>El modo de eliminación vale para todas las eliminaciones que hace
+AutoFileSync: el origen con <b>Eliminar el origen después de copiar</b> y el
+destino con <b>Eliminar también en el destino los archivos eliminados</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Mover a la papelera</b></td>
+    <td>El valor predeterminado. Los archivos eliminados van a la carpeta de
+        papelera indicada abajo y se pueden recuperar desde allí. Se conserva la
+        estructura de origen y los archivos con el mismo nombre no se
+        sobrescriben entre sí.</td></tr>
+<tr><td valign="top"><b>Eliminar definitivamente</b></td>
+    <td>Los archivos se eliminan al momento.</td></tr>
+</table>
+
+<p>El campo <b>Papelera</b> contiene la carpeta para ello. Debería estar en una
+unidad con espacio suficiente; AutoFileSync no la vacía por sí solo.</p>
+
+<p>En los destinos por SSH se elimina siempre definitivamente,
+independientemente de esta opción; consulte <a href="ssh.html">Sincronizar por
+SSH</a>.</p>
+
+</body>
+</html>

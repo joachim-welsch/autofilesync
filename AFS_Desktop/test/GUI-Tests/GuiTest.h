@@ -28,20 +28,20 @@ class ListCtrl;
 namespace guitest {
 
 struct ApplicationState {  // snapshot of everything a GUI test is required to leave untouched
-    std::vector<std::string> syncItemNames;
-    std::vector<std::string> sshAccountNames;
-    std::string configFile;
-    std::vector<std::string> sourceEntries;
-    std::vector<std::string> targetEntries;
+    std::vector<std::string> sync_item_names;
+    std::vector<std::string> ssh_account_names;
+    std::string config_file;
+    std::vector<std::string> source_entries;
+    std::vector<std::string> target_entries;
 };
 
 class GuiTest: public ::testing::Test {  // [GuiTest.md#GuiTest]
 protected:
     void SetUp() override;
     void TearDown() override;
-    MainWindow& mainWindow() const;  // [GuiTest.md#mainWindow]
-    ListCtrl* syncItemList() const;
-    bool listShows(const std::wstring& syncItemName) const;
+    MainWindow& main_window() const;  // [GuiTest.md#main_window]
+    ListCtrl* sync_item_list() const;
+    bool list_shows(const std::wstring& sync_item_name) const;
 private:
     ApplicationState before_;
 };

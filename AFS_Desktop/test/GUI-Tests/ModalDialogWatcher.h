@@ -32,13 +32,13 @@ class ModalDialogWatcher: public wxModalDialogHook {  // [ModalDialogWatcher.md#
 public:
     static ModalDialogWatcher& instance();
     void expect(const wxString& title, DialogAction action);
-    void choosePath(const wxString& title, const wxString& path);  // [ModalDialogWatcher.md#choosePath]
-    void answer(const wxString& title, int buttonId);  // wxID_OK, wxID_YES, wxID_NO ... - the dialog's return code, not the wxYES/wxNO style flags [ModalDialogWatcher.md#answer]
-    bool hasPendingExpectations() const { return !expected_.empty(); }
-    const std::vector<wxString>& unexpectedDialogs() const { return unexpected_; }
-    const std::vector<wxString>& answeredMessages() const { return answered_; }
+    void choose_path(const wxString& title, const wxString& path);  // [ModalDialogWatcher.md#choose_path]
+    void answer(const wxString& title, int button_id);  // wxID_OK, wxID_YES, wxID_NO ... - the dialog's return code, not the wxYES/wxNO style flags [ModalDialogWatcher.md#answer]
+    bool has_pending_expectations() const { return !expected_.empty(); }
+    const std::vector<wxString>& unexpected_dialogs() const { return unexpected_; }
+    const std::vector<wxString>& answered_messages() const { return answered_; }
     void reset();
-    int dialogsEntered() const { return entered_; }  // [ModalDialogWatcher.md#dialogsEntered]
+    int dialogs_entered() const { return entered_; }  // [ModalDialogWatcher.md#dialogs_entered]
 protected:
     int Enter(wxDialog* dialog) override;
 private:

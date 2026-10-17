@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Service en arrière-plan</title>
+</head>
+<body>
+<h1>Service en arrière-plan</h1>
+
+<p>Le service en arrière-plan synchronise sans que la fenêtre du programme soit
+ouverte – même lorsque personne n'est connecté. Il utilise le même
+<a href="config.html">fichier de configuration</a> que le programme, donc les
+mêmes synchronisations avec les mêmes options.</p>
+
+<h2>Le piloter</h2>
+
+<p>Le menu <b>Service en arrière-plan</b> contient <b>Démarrer</b> et
+<b>Arrêter</b>. Sous <b>Affichage &rarr; Arrière-plan</b>, vous voyez si le
+service tourne en ce moment.</p>
+
+<p>Le paquet d'installation permet à l'utilisateur sous lequel tourne le service
+de le démarrer et de l'arrêter sans mot de passe administrateur. Les autres
+utilisateurs doivent saisir le mot de passe d'un administrateur.</p>
+
+<h2>Fonctionnement avec le programme</h2>
+
+<p>Le service et le programme ne se gênent pas : un seul des deux synchronise à
+la fois, pour que deux passages ne touchent jamais les mêmes fichiers en même
+temps. Si vous choisissez <b>Démarrer</b> dans le programme pendant que le
+service travaille, le service se retire.</p>
+
+<h2>Quand le service est utile</h2>
+
+<ul>
+<li>Les sauvegardes doivent se faire même sans utilisateur connecté.</li>
+<li>La fenêtre du programme ne doit pas rester ouverte en permanence.</li>
+<li>L'ordinateur tourne jour et nuit et doit synchroniser sans surveillance –
+    la <a href="logging.html">notification par e-mail</a> est alors utile, car
+    personne ne voit les messages à l'écran.</li>
+</ul>
+
+<h2>Modifications de la configuration</h2>
+<p>Le service lit le fichier de configuration. Comme le programme enregistre
+chaque modification aussitôt, un service en cours la reprend de lui-même : il
+interrompt le passage en cours et recommence avec la nouvelle configuration.
+C'est seulement si l'enregistrement a échoué que le titre de la fenêtre affiche
+<b>(non enregistré)</b> et que le service continue avec l'ancien état ; au
+démarrage du service, le programme demande alors s'il faut enregistrer –
+<b>Annuler</b> ne démarre pas le service.</p>
+
+</body>
+</html>

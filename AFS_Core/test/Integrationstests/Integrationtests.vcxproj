@@ -171,6 +171,10 @@
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="PasswordCryptoTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
+    <ClCompile Include="TranslationTests.cpp" />
+    <ClCompile Include="JsonTextTests.cpp" />
+    <ClCompile Include="LlamaClientTests.cpp" />
+    <ClCompile Include="HelpKnowledgeTests.cpp" />
     <ClCompile Include="UtilTests.cpp" />
     <ClCompile Include="FilesystemUtilTests.cpp" />
     <ClCompile Include="RecycleBinTests.cpp" />
@@ -179,11 +183,29 @@
     <ClCompile Include="Libssh2InitTests.cpp" />
     <ClCompile Include="SyncTreeTests.cpp" />
     <ClCompile Include="TwoWaySyncTests.cpp" />
+    <ClCompile Include="SyncFlagTests.cpp" />
+    <!-- LocalPermissionTests.cpp arbeitet mit Unix-Dateirechten (chmod) und ist komplett in
+         #ifdef _UNIX eingeschlossen; ein Windows-Gegenstueck mit ACLs fehlt noch. -->
+    <ClCompile Include="LocalPermissionTests.cpp" />
+    <!-- SymlinkTests.cpp legt Symlinks an (unter Windows ein Privileg); komplett in #ifdef _UNIX. -->
+    <ClCompile Include="SymlinkTests.cpp" />
     <!-- MountedDrivesTests.cpp prueft /etc/fstab bzw. /proc/mounts und ruft
          MountedDrives::setFstabPathForTest(), das es im Windows-Zweig nicht gibt.
          Solange der Test nicht portiert ist, kann er hier ausgeschlossen werden:
          <ClCompile Include="MountedDrivesTests.cpp"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile> -->
     <ClCompile Include="MountedDrivesTests.cpp" />
+    <!-- SshHostKeyTests.cpp prueft den libssh-Zweig von verify_ssh_host_key() und ist
+         komplett in #ifdef _UNIX eingeschlossen; der libssh2-Zweig fuer Windows hat
+         noch keinen Test. -->
+    <ClCompile Include="SshHostKeyTests.cpp" />
+    <!-- SshConnectTimeoutTests.cpp: libssh-Zweig, komplett in #ifdef _UNIX. -->
+    <ClCompile Include="SshConnectTimeoutTests.cpp" />
+    <!-- SshDirInspectorTests.cpp bereitet Symlinks und Rechte auf der geteilten Platte vor; komplett in #ifdef _UNIX. -->
+    <ClCompile Include="SshDirInspectorTests.cpp" />
+    <!-- SmtpSink.cpp und SmtpMailerTests.cpp brauchen POSIX-Sockets; die Tests sind in
+         #ifdef _UNIX eingeschlossen, der Sink hat unter Windows keinen Rumpf. -->
+    <ClCompile Include="SmtpSink.cpp" />
+    <ClCompile Include="SmtpMailerTests.cpp" />
     <ClCompile Include="SynchronizeTests.cpp" />
     <ClCompile Include="SyncArbiterTests.cpp" />
     <ClCompile Include="CheckPathTests.cpp" />
@@ -191,15 +213,23 @@
     <ClCompile Include="LoggingCollectTests.cpp" />
     <ClCompile Include="LogAnalysisTests.cpp" />
     <ClCompile Include="ModelLocationTests.cpp" />
+    <ClCompile Include="CpuTopologyTests.cpp" />
+    <ClCompile Include="SyncProposalTests.cpp" />
+    <ClCompile Include="SyncPlanTests.cpp" />
+    <ClCompile Include="ConfigSummaryTests.cpp" />
     <ClCompile Include="SyncSshFileTests.cpp" />
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshTreeTests.cpp" />
     <ClCompile Include="SyncSshTwoWayTests.cpp" />
+    <ClCompile Include="SyncSshToSshTests.cpp" />
     <ClCompile Include="SshPathEncodingTests.cpp" />
     <ClCompile Include="SshTest.cpp" />
     <ClCompile Include="TestMain.cpp" />
     <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp" />
     <ClCompile Include="$(LibDir)\src\ModelLocation.cpp" />
+    <ClCompile Include="$(LibDir)\src\CpuTopology.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncProposal.cpp" />
+    <ClCompile Include="$(LibDir)\src\ConfigSummary.cpp" />
     <ClCompile Include="$(LibDir)\src\LlamaClient.cpp" />
     <ClCompile Include="$(LibDir)\src\LogAnalysis.cpp" />
     <ClCompile Include="$(LibDir)\src\LogCut.cpp" />
@@ -218,6 +248,8 @@
     <ClCompile Include="$(LibDir)\src\CheckPath.cpp" />
     <ClCompile Include="$(LibDir)\src\Config.cpp" />
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp" />
+    <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp" />
+    <ClCompile Include="$(LibDir)\src\JsonText.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
     <ClCompile Include="$(LibDir)\src\SftpConnection.cpp" />
     <ClCompile Include="$(LibDir)\src\SshConnectTimeout.cpp" />
@@ -235,6 +267,7 @@
     <ClCompile Include="$(LibDir)\src\Translation.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncItem.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncMessage.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncPlan.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncTree.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +278,9 @@
     <ClInclude Include="ScopedEnv.h" />
     <ClInclude Include="ScopedLog.h" />
     <ClInclude Include="ScopedRecycleBin.h" />
+    <ClInclude Include="ScopedDeleteMode.h" />
+    <ClInclude Include="ScopedLoggingSetup.h" />
+    <ClInclude Include="SmtpSink.h" />
     <ClInclude Include="SshTest.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="SyncDirTests.h" />
@@ -262,6 +298,8 @@
     <ClInclude Include="$(LibDir)\include\CheckPath.h" />
     <ClInclude Include="$(LibDir)\include\Config.h" />
     <ClInclude Include="$(LibDir)\include\CopyLog.h" />
+    <ClInclude Include="$(LibDir)\include\HelpKnowledge.h" />
+    <ClInclude Include="$(LibDir)\include\JsonText.h" />
     <ClInclude Include="$(LibDir)\include\FileDelete.h" />
     <ClInclude Include="$(LibDir)\include\FileDifference.h" />
     <ClInclude Include="$(LibDir)\include\FilesystemUtil.h" />
@@ -273,6 +311,9 @@
     <ClInclude Include="$(LibDir)\include\LogEmail.h" />
     <ClInclude Include="$(LibDir)\include\Logging.h" />
     <ClInclude Include="$(LibDir)\include\ModelLocation.h" />
+    <ClInclude Include="$(LibDir)\include\CpuTopology.h" />
+    <ClInclude Include="$(LibDir)\include\SyncProposal.h" />
+    <ClInclude Include="$(LibDir)\include\ConfigSummary.h" />
     <ClInclude Include="$(LibDir)\include\MountedDrives.h" />
     <ClInclude Include="$(LibDir)\include\PasswordCrypto.h" />
     <ClInclude Include="$(LibDir)\include\pch.h" />
@@ -296,6 +337,7 @@
     <ClInclude Include="$(LibDir)\include\Synchronize.h" />
     <ClInclude Include="$(LibDir)\include\SyncItem.h" />
     <ClInclude Include="$(LibDir)\include\SyncMessage.h" />
+    <ClInclude Include="$(LibDir)\include\SyncPlan.h" />
     <ClInclude Include="$(LibDir)\include\SyncTree.h" />
     <ClInclude Include="$(LibDir)\include\ThreadSaveStack.h" />
     <ClInclude Include="$(LibDir)\include\Translation.h" />

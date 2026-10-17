@@ -19,42 +19,41 @@
 #include "pch.h"
 #include "LogEmail.h"
 
-
 namespace AFS_Core {
 
 void LogEmail::notify_active(bool active)
-{ 
+{
 	std::lock_guard<std::mutex> lock(mutex_);
-	notify_active_ = active; 
+	notify_active_ = active;
 }
 
 bool LogEmail::notify_active() const
-{ 
-	std::lock_guard<std::mutex> lock(mutex_); 
+{
+	std::lock_guard<std::mutex> lock(mutex_);
 	return notify_active_;
 }
 
-std::wstring LogEmail::notify_address() const 
-{ 
-	std::lock_guard<std::mutex> lock(mutex_); return notify_address_; 
+std::wstring LogEmail::notify_address() const
+{
+	std::lock_guard<std::mutex> lock(mutex_); return notify_address_;
 }
 
-void  LogEmail::notify_address(const std::wstring& address) 
-{ 
-	std::lock_guard<std::mutex> lock(mutex_); 
-	notify_address_ = address; 
-}
-
-SmtpAccount LogEmail::smtp_account() const 
-{ 
-	std::lock_guard<std::mutex> lock(mutex_); 
-	return smtp_; 
-}
-
-void LogEmail::smtp_account(const SmtpAccount& account) 
-{ 
+void  LogEmail::notify_address(const std::wstring& address)
+{
 	std::lock_guard<std::mutex> lock(mutex_);
-	smtp_ = account; 
+	notify_address_ = address;
+}
+
+SmtpAccount LogEmail::smtp_account() const
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	return smtp_;
+}
+
+void LogEmail::smtp_account(const SmtpAccount& account)
+{
+	std::lock_guard<std::mutex> lock(mutex_);
+	smtp_ = account;
 }
 
 } // namespace AFS_Core

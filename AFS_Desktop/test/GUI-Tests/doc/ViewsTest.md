@@ -6,20 +6,20 @@ Module comment for ViewsTest.cpp.
 
 Each switch is checked twice: the new view shows both synchronisations, and the previous view
 is gone - MainWindow destroys the old window rather than hiding it, and a leftover would keep
-answering findSyncItem() for the wrong view.
+answering find_sync_item() for the wrong view.
 
-## editAndDeleteEnabledFor
+## edit_and_delete_enabled_for
 
 Same construction as in TreeViewContextMenuTest: the native popup cannot be driven, so the
-menu is built like ListWindow/GridWindow::ShowContextMenu build it and primed the way
-PopupMenu() primes it, which runs MainWindow::onUpdateSyncItemSelected for the invoking window.
+menu is built like ListWindow/GridWindow::show_context_menu build it and primed the way
+PopupMenu() primes it, which runs MainWindow::on_update_sync_item_selected for the invoking window.
 
 ## context-menus
 
 The list and the grid have the same two entries as the tree, guarded by the same update rule,
-but each view answers "what is selected" differently (ListCtrl::getSelected, the grid cursor).
+but each view answers "what is selected" differently (ListCtrl::get_selected, the grid cursor).
 The grid test moves the cursor through the grid's API: a click on a cell would start the
-in-place editor on some platforms, and the cursor is what GridCtrl::getSelected reads.
+in-place editor on some platforms, and the cursor is what GridCtrl::get_selected reads.
 
 ## grid-editing
 

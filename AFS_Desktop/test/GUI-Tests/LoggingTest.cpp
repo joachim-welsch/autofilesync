@@ -30,8 +30,11 @@
 #include "Logging.h"
 #include "TextResources.h"
 #include "Translation.h"
+#include "Util.h"
 #include "id.h"
 #include "utilwx.h"
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -45,17 +48,27 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
+std::wstring proven_status(const fs::path& proof)  // [LoggingTest.md#proven_status]
+{
+    boost::property_tree::wptree root;
+    std::wistringstream text(util::read_utf8_file(proof));
+    boost::property_tree::read_json(text, root);
+    const auto& entry = root.front().second.back().second;
+    const auto found = entry.find(translation::translate("backup_proof_field_status"));
+    return found == entry.not_found() ? std::wstring() : found->second.data();
+}
+
 wxString logging_title()  // translated at the call, once the catalogue is bound
 {
     return txt::logging_settings();
 }
 
-void applyLogging(MainWindow& window, const LoggingInput& input, const wxString& expectedMessageBox = wxString())  // [LoggingTest.md#applyLogging]
+void apply_logging(MainWindow& window, const LoggingInput& input, const wxString& expected_message_box = wxString())  // [LoggingTest.md#apply_logging]
 {
-    ModalDialogWatcher::instance().expect(logging_title(), fillLoggingDialog(input));
-    if (!expectedMessageBox.empty())
-        ModalDialogWatcher::instance().answer(expectedMessageBox, wxID_OK);
-    activateMenuItem(window, tul(id::EditLogging));
+    ModalDialogWatcher::instance().expect(logging_title(), fill_logging_dialog(input));
+    if (!expected_message_box.empty())
+        ModalDialogWatcher::instance().answer(expected_message_box, wxID_OK);
+    activate_menu_item(window, tul(id::EditLogging));
     pump();
 }
 
@@ -63,33 +76,33 @@ class RestoredLogging {  // [LoggingTest.md#RestoredLogging]
 public:
     RestoredLogging()
         : path_(Logging::instance().get_log_file_path_name()), level_(Logging::instance().get_log_level())
-        , retentionDays_(Logging::instance().retention_days()), editor_(Logging::instance().get_editor_path_name())
-        , emailActive_(Logging::instance().email().notify_active()), email_(Logging::instance().email().notify_address())
-        , smtp_(Logging::instance().email().smtp_account()), backupProofPath_(Config::instance().settings().backup_proof_path()) {}
+        , retention_days_(Logging::instance().retention_days()), editor_(Logging::instance().get_editor_path_name())
+        , email_active_(Logging::instance().email().notify_active()), email_(Logging::instance().email().notify_address())
+        , smtp_(Logging::instance().email().smtp_account()), backup_proof_path_(Config::instance().settings().backup_proof_path()) {}
     ~RestoredLogging()
     {
         Logging& logging = Logging::instance();
         logging.set_log_file_path_name(path_);
         logging.set_log_level(level_);
-        logging.retention_days(retentionDays_);
+        logging.retention_days(retention_days_);
         logging.set_editor_path_name(editor_);
-        logging.email().notify_active(emailActive_);
+        logging.email().notify_active(email_active_);
         logging.email().notify_address(email_);
         logging.email().smtp_account(smtp_);
-        Config::instance().settings().backup_proof_path(backupProofPath_);
+        Config::instance().settings().backup_proof_path(backup_proof_path_);
     }
 private:
     std::wstring path_;
     LogLevel level_;
-    uint16_t retentionDays_;
+    uint16_t retention_days_;
     std::wstring editor_;
-    bool emailActive_;
+    bool email_active_;
     std::wstring email_;
     SmtpAccount smtp_;
-    std::wstring backupProofPath_;
+    std::wstring backup_proof_path_;
 };
 
-std::string logLineDaysAgo(int days, const std::string& text)  // [LoggingTest.md#logLineDaysAgo]
+std::string log_line_days_ago(int days, const std::string& text)  // [LoggingTest.md#log_line_days_ago]
 {
     const std::time_t then = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - std::chrono::hours(24 * days));
     std::tm local{};
@@ -103,7 +116,7 @@ std::string logLineDaysAgo(int days, const std::string& text)  // [LoggingTest.m
     return line.str();
 }
 
-std::string readFile(const fs::path& pathname)
+std::string read_file(const fs::path& pathname)
 {
     std::ostringstream content;
     content << std::ifstream(pathname).rdbuf();
@@ -117,36 +130,36 @@ TEST_F(GuiTest, LogPfadUndLevelWerdenUebernommen)
     const RestoredLogging restored;
     const SandboxTree tree(GuiTestSandbox::root() / "logging");
     LoggingInput input;
-    input.logPath = tree.path("neu.log").string();
-    input.logLevel = "Debug";
+    input.log_path = tree.path("neu.log").string();
+    input.log_level = "Debug";
     input.editor = "notepad";
 
-    applyLogging(mainWindow(), input);
+    apply_logging(main_window(), input);
 
     EXPECT_EQ(Logging::instance().get_log_file_path_name(), tree.path("neu.log").wstring());
     EXPECT_EQ(Logging::instance().get_log_level(), LogLevel::Debug);
     EXPECT_EQ(Logging::instance().get_editor_path_name(), L"notepad");
     EXPECT_FALSE(Config::instance().changed()) << "Die geänderten Logging-Einstellungen wurden nicht sofort gespeichert.";
-    EXPECT_NE(readFile(GuiTestSandbox::configFile()).find("neu.log"), std::string::npos) << "Der neue Logpfad steht nicht in der Datei.";
+    EXPECT_NE(read_file(GuiTestSandbox::config_file()).find("neu.log"), std::string::npos) << "Der neue Logpfad steht nicht in der Datei.";
 }
 
 TEST_F(GuiTest, KuerzereHistorieKuerztLogSofort)  // [LoggingTest.md#KuerzereHistorieKuerztLogSofort]
 {
     const RestoredLogging restored;
     const SandboxTree tree(GuiTestSandbox::root() / "historie");
-    std::ofstream(tree.path("alt.log")) << logLineDaysAgo(10, "zehn Tage alt") << '\n' << logLineDaysAgo(0, "von heute") << '\n';
-    LoggingInput toNewLog;
-    toNewLog.logPath = tree.path("alt.log").string();
-    toNewLog.retentionDays = 30;
-    applyLogging(mainWindow(), toNewLog);
+    std::ofstream(tree.path("alt.log")) << log_line_days_ago(10, "zehn Tage alt") << '\n' << log_line_days_ago(0, "von heute") << '\n';
+    LoggingInput to_new_log;
+    to_new_log.log_path = tree.path("alt.log").string();
+    to_new_log.retention_days = 30;
+    apply_logging(main_window(), to_new_log);
     ASSERT_EQ(Logging::instance().retention_days(), 30);
-    ASSERT_NE(readFile(tree.path("alt.log")).find("zehn Tage alt"), std::string::npos);
+    ASSERT_NE(read_file(tree.path("alt.log")).find("zehn Tage alt"), std::string::npos);
 
     LoggingInput shorter;
-    shorter.retentionDays = 5;
-    applyLogging(mainWindow(), shorter);
+    shorter.retention_days = 5;
+    apply_logging(main_window(), shorter);
 
-    const std::string log = readFile(tree.path("alt.log"));
+    const std::string log = read_file(tree.path("alt.log"));
     EXPECT_EQ(log.find("zehn Tage alt"), std::string::npos) << "Die alte Zeile überlebte die kürzere Historie:\n" << log;
     EXPECT_NE(log.find("von heute"), std::string::npos) << "Die junge Zeile wurde mit gelöscht:\n" << log;
 }
@@ -160,10 +173,10 @@ TEST_F(GuiTest, EmailAktivOhneAdresseWirdAbgelehnt)  // [LoggingTest.md#email-va
     input.email.server = "mail.example.org";
     input.email.sender = "afs@example.org";
 
-    applyLogging(mainWindow(), input, translation::translate("tab_email"));
+    apply_logging(main_window(), input, translation::translate("validation_error"));
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Die fehlende Adresse wurde ohne Meldung angenommen.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("email_address_required"));
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Die fehlende Adresse wurde ohne Meldung angenommen.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), translation::translate("email_address_required"));
     EXPECT_FALSE(Logging::instance().email().notify_active()) << "Die Benachrichtigung wurde trotz Ablehnung aktiviert.";
 }
 
@@ -176,10 +189,10 @@ TEST_F(GuiTest, EmailAktivOhneServerOderAbsenderWirdAbgelehnt)  // [LoggingTest.
     input.email.server = "";
     input.email.sender = "afs@example.org";
 
-    applyLogging(mainWindow(), input, translation::translate("tab_email"));
+    apply_logging(main_window(), input, translation::translate("validation_error"));
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der fehlende Server wurde ohne Meldung angenommen.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("smtp_server_required"));
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der fehlende Server wurde ohne Meldung angenommen.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), translation::translate("smtp_server_required"));
     EXPECT_FALSE(Logging::instance().email().notify_active());
 }
 
@@ -195,7 +208,7 @@ TEST_F(GuiTest, EmailMitAllenAngabenWirdUebernommen)
     input.email.password = "geheim";
     input.email.sender = "afs@example.org";
 
-    applyLogging(mainWindow(), input);
+    apply_logging(main_window(), input);
 
     EXPECT_TRUE(Logging::instance().email().notify_active());
     EXPECT_EQ(Logging::instance().email().notify_address(), L"wer@example.org");
@@ -209,20 +222,20 @@ TEST_F(GuiTest, BackupNachweisWirdNachLaufGeschrieben)  // [LoggingTest.md#Backu
     const RestoredLogging restored;
     const SandboxTree tree(GuiTestSandbox::root() / "nachweis", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}, {"nachweise/", ""}});
     LoggingInput logging;
-    logging.backupProofPath = tree.path("nachweise").string();
-    applyLogging(mainWindow(), logging);
+    logging.backup_proof_path = tree.path("nachweise").string();
+    apply_logging(main_window(), logging);
     ASSERT_EQ(Config::instance().settings().backup_proof_path(), tree.path("nachweise").wstring());
     SyncItemInput input{"guitest-nachweis", tree.path("quelle").string(), tree.path("ziel").string()};
     input.type = SyncItemType::Dir;
-    input.options.backupProof = true;
-    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    input.options.backup_proof = true;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
     const fs::path proof = copy_log_file_path(tree.path("nachweise"), L"guitest-nachweis");
     ASSERT_TRUE(fs::exists(proof)) << "Die Nachweisdatei " << proof << " wurde nicht geschrieben.";
-    const std::string content = readFile(proof);
-    EXPECT_NE(content.find("Erfolgreich"), std::string::npos) << "Der Nachweis meldet keinen Erfolg:\n" << content;
+    const std::string content = read_file(proof);
+    EXPECT_EQ(proven_status(proof), translation::translate("backup_proof_status_successful")) << "Der Nachweis meldet keinen Erfolg:\n" << content;
     EXPECT_NE(content.find("guitest-nachweis"), std::string::npos) << "Der Nachweis nennt die Synchronisation nicht:" << std::endl << content;
 }
 
@@ -231,14 +244,14 @@ TEST_F(GuiTest, LogDateiAnzeigenOhneEditorZeigtFehler)
     const RestoredLogging restored;
     LoggingInput input;
     input.editor = (GuiTestSandbox::root() / "gibt-es-nicht.exe").string();
-    applyLogging(mainWindow(), input);
+    apply_logging(main_window(), input);
     ModalDialogWatcher::instance().answer(translation::translate("error"), wxID_OK);
 
-    activateMenuItem(mainWindow(), tul(id::View_Log));
+    activate_menu_item(main_window(), tul(id::View_Log));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der fehlende Editor blieb ohne Meldung.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("editor_start_failed"));
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der fehlende Editor blieb ohne Meldung.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), translation::translate("editor_start_failed"));
 }
 
 }

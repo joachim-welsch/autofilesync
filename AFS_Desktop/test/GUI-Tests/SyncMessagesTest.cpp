@@ -43,10 +43,6 @@ wxString no_files()  // translated at the call, once the catalogue is bound
 {
     return translation::translate("info");
 }
-wxString errors_box()
-{
-    return translation::translate("synchronisation") + L": " + translation::translate("error");
-}
 wxString warnings_box()
 {
     return translation::translate("synchronisation") + L": " + translation::translate("warning");
@@ -56,18 +52,18 @@ wxString infos_box()
     return translation::translate("synchronisation") + L": " + translation::translate("info");
 }
 
-void filterMessages(MainWindow& window, bool errors, bool warnings, bool infos)  // [SyncMessagesTest.md#filterMessages]
+void filter_messages(MainWindow& window, bool errors, bool warnings, bool infos)  // [SyncMessagesTest.md#filter_messages]
 {
     SettingsInput input;
-    input.showErrors = errors;
-    input.showWarnings = warnings;
-    input.showInfos = infos;
-    ModalDialogWatcher::instance().expect(txt::settings(), fillSettingsDialog(input));
-    activateMenuItem(window, tul(id::EditSettings));
+    input.show_errors = errors;
+    input.show_warnings = warnings;
+    input.show_infos = infos;
+    ModalDialogWatcher::instance().expect(txt::settings(), fill_settings_dialog(input));
+    activate_menu_item(window, tul(id::EditSettings));
     pump();
 }
 
-SyncItemInput dirSync(const wxString& name, const std::filesystem::path& source, const std::filesystem::path& target)
+SyncItemInput dir_sync(const wxString& name, const std::filesystem::path& source, const std::filesystem::path& target)
 {
     SyncItemInput input{name, source.string(), target.string()};
     input.type = SyncItemType::Dir;
@@ -76,35 +72,53 @@ SyncItemInput dirSync(const wxString& name, const std::filesystem::path& source,
 
 const std::vector<wxString>& answered()
 {
-    return ModalDialogWatcher::instance().answeredMessages();
+    return ModalDialogWatcher::instance().answered_messages();
 }
 
 }
 
-TEST_F(GuiTest, FehlerDesEinzelsyncsErscheintAlsMeldung)  // [SyncMessagesTest.md#unreachable-source]
+TEST_F(GuiTest, UnerreichbareQuelleWarntTrotzMeldungsfilter)  // [SyncMessagesTest.md#unreachable-source]
 {
     const RestoredSettings restored;
-    filterMessages(mainWindow(), true, false, false);
+    filter_messages(main_window(), false, false, false);
     const std::filesystem::path missing = GuiTestSandbox::root() / "gibt-es-nicht";
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-fehler", missing, GuiTestSandbox::targetDir())));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync("guitest-warnung", missing, GuiTestSandbox::target_dir())));
     ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
-    ModalDialogWatcher::instance().answer(errors_box(), wxID_OK);
+    ModalDialogWatcher::instance().answer(warnings_box(), wxID_OK);
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
-    ASSERT_EQ(answered().size(), 2u) << "Die Fehlerbox nach dem Lauf fehlt.";
-    EXPECT_TRUE(answered()[1].StartsWith(translation::translate("error") + L": ")) << answered()[1];
-    EXPECT_TRUE(answered()[1].Contains(missing.string())) << "Die Fehlerbox nennt die unerreichbare Quelle nicht: " << answered()[1];
+    ASSERT_EQ(answered().size(), 2u) << "Die Warnbox nach dem Lauf fehlt.";
+    EXPECT_TRUE(answered()[1].StartsWith(translation::translate("warning") + L": ")) << answered()[1];
+    EXPECT_TRUE(answered()[1].Contains(missing.string())) << "Die Warnbox nennt die unerreichbare Quelle nicht: " << answered()[1];
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
+}
+
+TEST_F(GuiTest, AbgewaehlteWarnungSchweigtBeiUnerreichbarerQuelle)  // [SyncMessagesTest.md#unreachable-source]
+{
+    const RestoredSettings restored;
+    filter_messages(main_window(), true, true, false);
+    SyncItemInput input = dir_sync("guitest-still", GuiTestSandbox::root() / "gibt-es-nicht", GuiTestSandbox::target_dir());
+    input.options.warn_if_unreachable = false;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
+
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_EQ(answered().size(), 1u) << "Trotz abgewählter Warnung erschien eine Meldungsbox.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
 }
 
 TEST_F(GuiTest, MeldungsfilterAusUnterdruecktDieFehlerbox)
 {
     const RestoredSettings restored;
-    filterMessages(mainWindow(), false, false, false);
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-still", GuiTestSandbox::root() / "gibt-es-nicht", GuiTestSandbox::targetDir())));
+    filter_messages(main_window(), false, false, false);
+    SyncItemInput input = dir_sync("guitest-still", GuiTestSandbox::root() / "gibt-es-nicht", GuiTestSandbox::target_dir());
+    input.options.warn_if_unreachable = false;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
     ModalDialogWatcher::instance().answer(no_files(), wxID_OK);
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
     EXPECT_EQ(answered().size(), 1u) << "Trotz abgewähltem Filter erschien eine Meldungsbox.";
 }
@@ -112,12 +126,12 @@ TEST_F(GuiTest, MeldungsfilterAusUnterdruecktDieFehlerbox)
 TEST_F(GuiTest, WarnungDesEinzelsyncsErscheintMitFilter)  // [SyncMessagesTest.md#levels]
 {
     const RestoredSettings restored;
-    filterMessages(mainWindow(), true, true, false);
+    filter_messages(main_window(), true, true, false);
     const SandboxTree tree(GuiTestSandbox::root() / "warnung", {{"quelle/leer.txt", ""}, {"ziel/", ""}});
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-warnung", tree.path("quelle"), tree.path("ziel"))));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync("guitest-warnung", tree.path("quelle"), tree.path("ziel"))));
     ModalDialogWatcher::instance().answer(warnings_box(), wxID_OK);
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
     ASSERT_EQ(answered().size(), 1u) << "Die Warnung zur leeren Quelldatei erschien nicht.";
     EXPECT_TRUE(answered().front().StartsWith(translation::translate("warning") + L": ")) << answered().front();
@@ -127,12 +141,12 @@ TEST_F(GuiTest, WarnungDesEinzelsyncsErscheintMitFilter)  // [SyncMessagesTest.m
 TEST_F(GuiTest, InfoDesEinzelsyncsErscheintMitFilter)  // [SyncMessagesTest.md#levels]
 {
     const RestoredSettings restored;
-    filterMessages(mainWindow(), true, true, true);
+    filter_messages(main_window(), true, true, true);
     const SandboxTree tree(GuiTestSandbox::root() / "info", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-info", tree.path("quelle"), tree.path("ziel"))));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync("guitest-info", tree.path("quelle"), tree.path("ziel"))));
     ModalDialogWatcher::instance().answer(infos_box(), wxID_OK);
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
     ASSERT_EQ(answered().size(), 1u) << "Die Infos des Laufs erschienen nicht.";
     EXPECT_TRUE(answered().front().Contains(translation::translate("info") + L": ")) << answered().front();
@@ -143,17 +157,17 @@ TEST_F(GuiTest, InfoDesEinzelsyncsErscheintMitFilter)  // [SyncMessagesTest.md#l
 TEST_F(GuiTest, FortlaufenderBetriebZeigtKeineMeldungsbox)  // [SyncMessagesTest.md#continuous-is-silent]
 {
     const RestoredSettings restored;
-    filterMessages(mainWindow(), true, true, true);
+    filter_messages(main_window(), true, true, true);
     const SandboxTree tree(GuiTestSandbox::root() / "fortlaufend-still", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync("guitest-fortlaufend-still", tree.path("quelle"), tree.path("ziel"))));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync("guitest-fortlaufend-still", tree.path("quelle"), tree.path("ziel"))));
 
-    activateMenuItem(mainWindow(), tul(id::StartSync));
-    ASSERT_TRUE(waitUntil([&tree] { return tree.exists("ziel/bericht.txt"); }, 10000));
-    activateMenuItem(mainWindow(), tul(id::StopSync));
-    ASSERT_TRUE(waitUntilSyncFinished(mainWindow()));
+    activate_menu_item(main_window(), tul(id::StartSync));
+    ASSERT_TRUE(wait_until([&tree] { return tree.exists("ziel/bericht.txt"); }, 10000));
+    activate_menu_item(main_window(), tul(id::StopSync));
+    ASSERT_TRUE(wait_until_sync_finished(main_window()));
 
     EXPECT_TRUE(answered().empty());
-    EXPECT_TRUE(ModalDialogWatcher::instance().unexpectedDialogs().empty()) << "Der fortlaufende Betrieb zeigte eine Box: " << ModalDialogWatcher::instance().unexpectedDialogs().front();
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Der fortlaufende Betrieb zeigte eine Box: " << ModalDialogWatcher::instance().unexpected_dialogs().front();
 }
 
 }

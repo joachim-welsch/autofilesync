@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Global settings</title>
+</head>
+<body>
+<h1>Global settings</h1>
+
+<p><b>Edit &rarr; Global settings…</b> or the gear at the right of the toolbar
+opens the settings that apply to the whole program – not to a single
+synchronisation.</p>
+
+<h2>Language</h2>
+
+<p>The <b>Language</b> choice sets the language in which AutoFileSync shows
+menus, dialogs and messages. After <b>OK</b> the language changes at once,
+without a restart; it is stored in the configuration and applies at every later
+start, also to the background service.</p>
+
+<p>With <b>Operating system language</b>, AutoFileSync follows the language of
+the operating system again. If there is no translation for it, everything
+appears in English. This help appears in the chosen language as well; it is
+available in every language the choice offers.</p>
+
+<h2>Start and window</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Start the application automatically</b></td>
+    <td>AutoFileSync is started along with your login.</td></tr>
+<tr><td valign="top"><b>Start synchronisation at program start</b></td>
+    <td>Continuous operation begins right after the start, without
+        <b>Synchronisation &rarr; Start</b> being needed.</td></tr>
+<tr><td valign="top"><b>Start minimised</b></td>
+    <td>The window does not appear at start; the program goes straight into
+        the notification area of the taskbar.</td></tr>
+<tr><td valign="top"><b>Minimise instead of closing</b></td>
+    <td>Closing the window does not end the program but minimises it into the
+        notification area. It is then ended with <b>File &rarr; Quit</b> or the
+        context menu in the notification area.</td></tr>
+</table>
+
+<p>Only one instance ever runs: a second start reports that AutoFileSync is
+already running and ends itself.</p>
+
+<h2>Showing messages in a dialog</h2>
+
+<p>The three ticks <b>Error</b>, <b>Warning</b> and <b>Info</b> set which
+messages appear in a dialog window in addition after
+<a href="synconce.html">Synchronise once</a>: all messages of the run collected
+in one window, each with its level, at most 15 lines – the rest is in the
+<a href="logging.html">log</a>. Only errors are preset. Without ticks the
+synchronisation runs silently. Continuous operation (<b>Start</b>) never shows
+a window, because every notice would otherwise bring the window to the front;
+neither does a start in the minimised state.</p>
+
+<h2>Delete mode</h2>
+
+<p>The delete mode applies to every deletion AutoFileSync makes: the source with
+<b>Delete the source after copying</b> and the target with <b>Also delete
+deleted files in the target</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Move to recycle bin</b></td>
+    <td>The default. Deleted files land in the recycle bin directory given
+        below and can be brought back from there. The original structure is
+        kept, and files of the same name do not overwrite each other.</td></tr>
+<tr><td valign="top"><b>Delete permanently</b></td>
+    <td>The files are removed straight away.</td></tr>
+</table>
+
+<p>The <b>Recycle bin</b> field holds the directory for it. It should be on a
+drive with enough space; AutoFileSync does not clean it up by itself.</p>
+
+<p>For targets over SSH, files are deleted permanently whatever this setting
+says, see <a href="ssh.html">Synchronising over SSH</a>.</p>
+
+</body>
+</html>

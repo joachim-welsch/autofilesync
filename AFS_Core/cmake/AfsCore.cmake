@@ -28,6 +28,8 @@ get_filename_component(AFS_CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
 
 set(AFS_CORE_SOURCES
     CopyLog.cpp
+    HelpKnowledge.cpp
+    JsonText.cpp
     CheckPath.cpp
     FileDelete.cpp
     FileDifference.cpp
@@ -37,6 +39,9 @@ set(AFS_CORE_SOURCES
     LogAnalysis.cpp
     LogEmail.cpp
     ModelLocation.cpp
+    CpuTopology.cpp
+    SyncProposal.cpp
+    ConfigSummary.cpp
     PasswordCrypto.cpp
     SshAccount.cpp
     SftpConnection.cpp
@@ -51,6 +56,7 @@ set(AFS_CORE_SOURCES
     SyncFile.cpp
     SyncFileSsh.cpp
     SyncMessage.cpp
+    SyncPlan.cpp
     SyncTree.cpp
     Synchronize.cpp
     Config.cpp
@@ -132,6 +138,8 @@ function(afs_core_add_library target)
     target_include_directories(${target} PUBLIC ${AFS_CORE_DIR}/include)
     target_compile_features(${target} PUBLIC cxx_std_20)
     target_compile_definitions(${target} PUBLIC ${ARG_DEFINITIONS})
+    include(${AFS_CORE_DIR}/cmake/CatalogueStamp.cmake)
+    target_compile_definitions(${target} PRIVATE AFS_CATALOGUE_STAMP="${AFS_CATALOGUE_STAMP}")
     if(NOT WIN32)
         target_compile_definitions(${target} PUBLIC _UNIX)
     endif()

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Nicht erreichbare Laufwerke und Verbindungen</title>
+</head>
+<body>
+<h1>Nicht erreichbare Laufwerke und Verbindungen</h1>
+
+<p>Eine Synchronisation braucht beide Seiten: die Quelle, aus der gelesen wird, und das
+Ziel, in das geschrieben wird. Ist eine Seite nicht da – eine externe Platte ist nicht
+angeschlossen, eine Netzwerkfreigabe nicht verbunden, ein SSH-Server antwortet nicht –,
+wird die Synchronisation <b>in diesem Durchlauf übersprungen</b>. Es wird nichts kopiert,
+nichts verschoben und nichts gelöscht; die übrigen Synchronisationen laufen normal weiter.
+Sobald die Seite wieder da ist, läuft die Synchronisation von selbst weiter.</p>
+
+<p>Das ist <b>kein Fehler</b>. Eine Sicherungsplatte, die nur zum Sichern angeschlossen
+wird, ist die meiste Zeit nicht da – und genau so gewollt. Ob Sie trotzdem davon erfahren
+möchten, entscheiden Sie je Synchronisation.</p>
+
+<h2>Die Option „Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung“</h2>
+
+<p>Sie steht im Dialog der Synchronisation im Reiter
+<a href="options.html">Optionen</a> und ist bei neuen Synchronisationen
+<b>eingeschaltet</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Option</th><th align="left">Was passiert, wenn Quelle oder Ziel fehlt</th></tr>
+<tr><td valign="top"><b>Eingeschaltet</b><br>(Voreinstellung)</td>
+    <td>Sie gehen davon aus, dass das Laufwerk oder der Server da sein muss. Fehlt
+        es, soll das auffallen:
+        <ul>
+        <li>Nach <a href="synconce.html">Einmal synchronisieren</a> erscheint eine
+            <b>Warnung</b>, die die betroffene Synchronisation mit Quelle und Ziel
+            nennt – unabhängig davon, welche Meldungen Sie in den
+            <a href="settings.html">Einstellungen</a> eingeschaltet haben.</li>
+        <li>Das <a href="logging.html">Protokoll</a> enthält eine Zeile der Stufe
+            <tt>Warnung</tt>.</li>
+        <li>Ein <a href="backupproof.html">Sicherungsnachweis</a>, falls eingeschaltet,
+            hält fest, dass der Durchlauf nicht stattfinden konnte.</li>
+        </ul></td></tr>
+<tr><td valign="top"><b>Ausgeschaltet</b></td>
+    <td>Das Fehlen ist für Sie normal. Es erscheint keine Warnung, der
+        Sicherungsnachweis bleibt leer, und das Protokoll vermerkt das Überspringen
+        nur auf Stufe <tt>Info</tt>.</td></tr>
+</table>
+
+<h2>Wann welche Einstellung passt</h2>
+
+<ul>
+<li><b>Eingeschaltet lassen</b>, wenn die Gegenseite immer da sein sollte: die zweite
+    interne Platte, das NAS im Heimnetz, der Server, auf dem die Sicherung liegt.
+    Fehlt er, stimmt etwas nicht, und Sie möchten es sofort wissen.</li>
+<li><b>Ausschalten</b>, wenn die Gegenseite nur gelegentlich da ist: die externe
+    Sicherungsplatte, der USB-Stick, der Laptop, der nur zu Hause das Heimnetz
+    sieht. Die Synchronisation holt alles nach, sobald die Seite wieder da ist; eine
+    Warnung bei jedem Durchlauf ohne die Platte hätte keinen Wert.</li>
+</ul>
+
+<p>Haben Sie mehrere Synchronisationen auf dieselbe Platte, setzen Sie die Option
+bei allen gleich – sonst warnt die eine und die andere schweigt, obwohl beide
+dieselbe Platte vermissen.</p>
+
+<h2>Wo das Fehlen sichtbar wird</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Stelle</th><th align="left">Verhalten</th></tr>
+<tr><td valign="top"><b>Einmal synchronisieren</b></td>
+    <td>Warnung nur bei eingeschalteter Option. Haben alle Synchronisationen eine
+        fehlende Seite, kommt zuerst der Hinweis, dass nichts zu tun war, dann die
+        Warnung.</td></tr>
+<tr><td valign="top"><b>Vorschau</b></td>
+    <td>Die <a href="preview.html">Vorschau</a> nennt übersprungene Synchronisationen
+        immer, denn sie beantwortet, was ein Durchlauf jetzt täte – und für diese
+        Synchronisationen ist das unbekannt. Das Symbol der Meldung ist eine
+        Warnung, wenn eine der genannten Synchronisationen die Option eingeschaltet
+        hat, sonst ein Hinweis.</td></tr>
+<tr><td valign="top"><b>Start (fortlaufend)</b> und
+        <a href="service.html">Hintergrunddienst</a></td>
+    <td>Keine Meldungsfenster, nur das Protokoll: Warnung oder Info je nach Option.
+        Ein Laufwerk, das fehlt, wird einmal vermerkt – nicht bei jedem Durchlauf –
+        und erneut, wenn es nach einer Rückkehr wieder verschwindet.</td></tr>
+<tr><td valign="top"><b>Assistent</b></td>
+    <td>Der <a href="assistant.html">Assistent</a> kennt die Option jeder
+        Synchronisation und weiß, ob der letzte Durchlauf eine Seite vermisst hat. Er
+        kann deshalb erklären, warum in einem Fall eine Warnung kam und in einem
+        anderen nicht.</td></tr>
+</table>
+
+<h2>Gut zu wissen</h2>
+
+<ul>
+<li>Was als „nicht erreichbar“ gilt: Die Quelle muss vorhanden sein. Das Ziel muss
+    unter Linux ebenfalls vorhanden sein; unter Windows genügt es, wenn das Laufwerk
+    da ist – ein fehlendes Zielverzeichnis wird angelegt. Bei SSH muss der Server
+    antworten und die Anmeldung gelingen; die Quelle muss dort vorhanden sein.</li>
+<li>Die Erreichbarkeit wird vor jedem Durchlauf geprüft und das Ergebnis eine Weile
+    zwischengespeichert. Nach einem Ausfall wird zunächst nach wenigen Sekunden
+    erneut geprüft, bei anhaltendem Ausfall höchstens alle fünf Minuten. Es kann
+    also bis zu fünf Minuten dauern, bis eine zurückgekehrte Platte bemerkt wird.</li>
+<li>Weil bei fehlender Quelle nichts im Ziel gelöscht wird, kann eine abgezogene
+    Quellplatte nie dazu führen, dass die Sicherung geleert wird.</li>
+</ul>
+
+</body>
+</html>

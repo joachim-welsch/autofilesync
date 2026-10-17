@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Archivo de configuración</title>
+</head>
+<body>
+<h1>Archivo de configuración</h1>
+
+<p>Todas las sincronizaciones, conexiones SSH y opciones están en un archivo en
+formato JSON. Es el archivo que comparten el programa y el
+<a href="service.html">servicio en segundo plano</a>.</p>
+
+<h2>Dónde está</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="25%"><b>Windows</b></td>
+    <td><tt>%APPDATA%\autofilesync\autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td><tt>$XDG_CONFIG_HOME/autofilesync/autofilesync.json</tt>; si no,
+        <tt>~/.config/autofilesync/autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>~/Library/Application Support/autofilesync/autofilesync.json</tt></td></tr>
+</table>
+
+<h2>Abrir y guardar</h2>
+
+<ul>
+<li><b>Archivo &rarr; Abrir…</b> carga otra configuración, por ejemplo un
+    conjunto de sincronizaciones para un fin determinado.</li>
+<li>Cada cambio se <b>guarda al instante</b> – una marca en la tabla igual que un
+    diálogo cerrado con OK. No hace falta un paso de guardado aparte.</li>
+<li><b>Archivo &rarr; Guardar</b> solo se puede elegir si la escritura automática
+    ha fallado, por ejemplo con el disco lleno. Mientras tanto el título de la
+    ventana muestra <b>(sin guardar)</b>, y el programa pregunta antes de salir y
+    antes de iniciar el servicio en segundo plano.</li>
+<li><b>Archivo &rarr; Guardar como…</b> crea una copia. Si el archivo ya existe,
+    se pregunta antes de sobrescribirlo.</li>
+</ul>
+
+<h2>Qué contiene</h2>
+
+<p>Para cada sincronización: nombre, tipo, origen, destino, comodín, exclusiones,
+las opciones y la pausa; además, las conexiones SSH y la configuración general.
+Las contraseñas de las conexiones SSH y del servidor de correo saliente se guardan
+<b>cifradas</b>, no en texto claro.</p>
+
+<p>El archivo está en UTF-8 y, en caso de necesidad, se puede consultar con un
+editor de texto. Una clave que una versión anterior del programa aún no conocía
+simplemente falta en los archivos antiguos – AutoFileSync usa entonces el valor
+predeterminado documentado y carga el archivo igualmente. Una sola entrada dañada
+tampoco hace que se pierda toda la configuración; se omite.</p>
+
+<p>Un ejemplo es la clave <tt>warnIfUnreachable</tt> entre las opciones de una
+sincronización (<tt>syncflags</tt>). Contiene la opción <b>Avisar si falta la unidad
+o la conexión SSH</b>: <tt>true</tt> significa que una unidad ausente se notifica
+como aviso, <tt>false</tt> que solo se anota en el registro. Si la clave falta
+porque el archivo procede de una versión anterior, se aplica <tt>true</tt>. Las
+demás opciones están bajo sus propias claves al lado y, si faltan en archivos
+antiguos, valen <tt>false</tt>. Lo que hace la opción se explica en
+<a href="unreachable.html">Unidades y conexiones no accesibles</a>.</p>
+
+<p>Al escribir, el archivo existente no se destruye si falla el guardado – en
+caso de duda se conserva el estado anterior.</p>
+
+</body>
+</html>

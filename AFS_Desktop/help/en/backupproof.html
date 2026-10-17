@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Backup proof</title>
+</head>
+<body>
+<h1>Backup proof</h1>
+
+<p>If you have to prove that a backup was made, you can mark a synchronisation
+for a <b>Backup proof</b> – the tick is on the <a href="options.html">Options</a>
+tab. Unlike the log, whose extent depends on the level set and which is cut
+after a few days, the proof is meant to be kept.</p>
+
+<h2>Where it is written</h2>
+
+<p>The directory is set in the <a href="logging.html">logging settings</a> under
+<b>Path for backup proofs</b>. In it AutoFileSync creates one file per
+synchronisation, named after it, in JSON format:</p>
+
+<blockquote><tt>&lt;proof directory&gt;\&lt;name of the synchronisation&gt;.json</tt></blockquote>
+
+<h2>What an entry contains</h2>
+
+<ul>
+<li>time stamp of the run</li>
+<li>source and target</li>
+<li>number of files transferred</li>
+<li>volume transferred</li>
+<li>error messages that occurred</li>
+<li>status <tt>Successful</tt> or <tt>Failed</tt></li>
+</ul>
+
+<p>The field names are written in the language the program shows at the time
+of the run; a file begun in one language is continued under its list name.</p>
+
+<h2>What is not written</h2>
+
+<p>A run that had nothing to do writes no entry. With a pause of a few seconds
+there would otherwise be hundreds of meaningless lines per hour, among which the
+runs with real content could no longer be found.</p>
+
+<p>The error messages in the proof come directly from the synchronisation, not
+from the log. The log level set therefore has no influence on what the proof
+contains.</p>
+
+<p>If an existing proof file cannot be read, it is not replaced but left alone:
+it is evidence, and the content already there weighs more than the entry that
+cannot be added right now.</p>
+
+</body>
+</html>

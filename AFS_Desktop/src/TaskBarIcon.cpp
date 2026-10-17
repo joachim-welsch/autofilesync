@@ -30,38 +30,38 @@ enum
 };
 
 wxBEGIN_EVENT_TABLE(TaskBarIcon, wxTaskBarIcon)
-EVT_MENU(PU_RESTORE, TaskBarIcon::OnMenuRestore)
-EVT_MENU(PU_EXIT, TaskBarIcon::OnMenuExit)
-EVT_MENU(PU_CHECKMARK, TaskBarIcon::OnMenuCheckmark)
-EVT_UPDATE_UI(PU_CHECKMARK, TaskBarIcon::OnMenuUICheckmark)
-EVT_TASKBAR_LEFT_DCLICK(TaskBarIcon::OnLeftButtonDClick)
+EVT_MENU(PU_RESTORE, TaskBarIcon::on_menu_restore)
+EVT_MENU(PU_EXIT, TaskBarIcon::on_menu_exit)
+EVT_MENU(PU_CHECKMARK, TaskBarIcon::on_menu_checkmark)
+EVT_UPDATE_UI(PU_CHECKMARK, TaskBarIcon::on_menu_ui_checkmark)
+EVT_TASKBAR_LEFT_DCLICK(TaskBarIcon::on_left_button_double_click)
 wxEND_EVENT_TABLE()
 
-void TaskBarIcon::OnMenuRestore(wxCommandEvent&)
+void TaskBarIcon::on_menu_restore(wxCommandEvent&)
 {
-    if (mainWindow_ != nullptr)
-        mainWindow_->Show(true);
+    if (main_window_ != nullptr)
+        main_window_->Show(true);
 }
 
-void TaskBarIcon::OnMenuExit(wxCommandEvent&)
+void TaskBarIcon::on_menu_exit(wxCommandEvent&)
 {
-    if (mainWindow_ != nullptr)
-        mainWindow_->Close(true);
+    if (main_window_ != nullptr)
+        main_window_->Close(true);
 }
 
 static bool check = true;
 
-void TaskBarIcon::OnMenuCheckmark(wxCommandEvent&)
+void TaskBarIcon::on_menu_checkmark(wxCommandEvent&)
 {
     check = !check;
 }
 
-void TaskBarIcon::OnMenuUICheckmark(wxUpdateUIEvent& event)
+void TaskBarIcon::on_menu_ui_checkmark(wxUpdateUIEvent& event)
 {
     event.Check(check);
 }
 
-void TaskBarIcon::OnMenuSetNewIcon(wxCommandEvent&)
+void TaskBarIcon::on_menu_set_new_icon(wxCommandEvent&)
 {
     wxIcon icon(smile_xpm);
 
@@ -69,7 +69,7 @@ void TaskBarIcon::OnMenuSetNewIcon(wxCommandEvent&)
         wxMessageBox("Could not set new icon.");
 }
 
-void TaskBarIcon::OnMenuSub(wxCommandEvent&)
+void TaskBarIcon::on_menu_sub(wxCommandEvent&)
 {
     wxMessageBox("You clicked on a submenu!");
 }
@@ -88,8 +88,8 @@ wxMenu* TaskBarIcon::CreatePopupMenu()
     return menu;
 }
 
-void TaskBarIcon::OnLeftButtonDClick(wxTaskBarIconEvent&)
+void TaskBarIcon::on_left_button_double_click(wxTaskBarIconEvent&)
 {
-    if (mainWindow_ != nullptr)
-        mainWindow_->Show(true);
+    if (main_window_ != nullptr)
+        main_window_->Show(true);
 }

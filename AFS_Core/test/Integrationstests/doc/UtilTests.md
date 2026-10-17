@@ -31,3 +31,14 @@ Prefixing a path without a file name would rename the last directory instead.
 
 fs::remove() throws here instead of answering false; remove_file() has to turn that into false
 without deleting anything.
+
+## WriteUtf8FileWritesTheBytesAndThrowsWhereItCannotWrite
+
+The configuration and the proof files go through this; the bytes on disk are UTF-8 without a
+BOM, and a path that cannot be opened throws instead of silently writing nothing - the caller
+reports the failure (ConfigPathTest.WriteFailureDoesNotCorruptExistingConfig relies on that).
+
+## VolumeExistsLooksForTheVolumeInTheMountTable
+
+On Unix the volume name is searched in /proc/mounts as a substring and the drive name is
+ignored; /proc is mounted on every Linux system, the made-up name on none.

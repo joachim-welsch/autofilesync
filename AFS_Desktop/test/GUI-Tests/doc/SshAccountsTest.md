@@ -2,7 +2,7 @@
 
 Module comment for SshAccountsTest.cpp.
 
-## addAccount
+## add_account
 
 The direct route Datei → Neu → SSH-Verbindung; AddSshAccountTest covers the other route
 through the "SSH-Verbindungen" list dialog. No server is contacted when an account is created,

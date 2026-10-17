@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
+#include <optional>
 
 using namespace AFS_Core;  // [SynchronizeTests.md#stop-flag-regression]
 
@@ -242,6 +243,47 @@ TEST(SynchronizeTests, ContentConflictIsLoggedExactlyOnceAcrossPasses)  // [Sync
 }
 
 #include "SyncControler.h"  // [SynchronizeTests.md#request-stop-must-not-block]
+namespace {
+std::optional<LastRun> last_run_after_one_pass(const std::wstring& source, const std::wstring& target)
+{
+    Config::instance().reset();
+    Config::instance().add(SyncItem(L"lauf", SyncItemType::Dir, source, target, L"*"));
+    Synchronize::create(SyncType::Single);
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    Synchronize::destroy();
+    const std::optional<LastRun> run = Config::instance().syncitems().at(0).last_run();
+    Config::instance().reset();
+    return run;
+}
+}
+
+TEST(SynchronizeTests, LastRunIsRecordedInTheConfiguration)  // [SynchronizeTests.md#LastRunIsRecordedInTheConfiguration]
+{
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(util::current_pid()));
+    std::filesystem::create_directories(root / "quelle");
+    std::filesystem::create_directories(root / "ziel");
+    std::ofstream(root / "quelle" / "a.txt") << "a";
+
+    const std::optional<LastRun> run = last_run_after_one_pass((root / "quelle").wstring(), (root / "ziel").wstring());
+
+    std::filesystem::remove_all(root);
+    ASSERT_TRUE(run.has_value()) << "Der Durchlauf hat nichts eingetragen.";
+    EXPECT_TRUE(run->reachable);
+    EXPECT_EQ(run->errors, 0u);
+}
+
+TEST(SynchronizeTests, UnreachableSourceIsRecordedAsSuch)
+{
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(util::current_pid()));
+    std::filesystem::create_directories(root / "ziel");
+
+    const std::optional<LastRun> run = last_run_after_one_pass((root / "gibt-es-nicht").wstring(), (root / "ziel").wstring());
+
+    std::filesystem::remove_all(root);
+    ASSERT_TRUE(run.has_value()) << "Der Durchlauf hat nichts eingetragen.";
+    EXPECT_FALSE(run->reachable);
+}
+
 TEST(SyncControlerTests, RequestStopReturnsImmediatelyUnlikeStopSync)
 {
     Config::instance().reset();
@@ -252,9 +294,130 @@ TEST(SyncControlerTests, RequestStopReturnsImmediatelyUnlikeStopSync)
     const auto start = std::chrono::steady_clock::now();
     sc.request_stop();
     const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-    EXPECT_LT(elapsed_ms, 200) << "requestStop() must signal and return, not wait for the worker to finish";
+    EXPECT_LT(elapsed_ms, 200) << "request_stop() must signal and return, not wait for the worker to finish";
 
     sc.destroy_synchronize();  // [SynchronizeTests.md#cleanup-via-destroy]
     sc.reset_state();
     Config::instance().reset();
+}
+
+namespace {
+
+class SyncScheduleTest : public ::testing::Test {  // [SynchronizeTests.md#SyncScheduleTest]
+protected:
+    const std::filesystem::path root_ = std::filesystem::temp_directory_path() / ("afs_schedule_" + std::to_string(util::current_pid()));
+    const std::filesystem::path source_ = root_ / "quelle";
+    const std::filesystem::path target_ = root_ / "ziel";
+
+    void SetUp() override
+    {
+        std::filesystem::remove_all(root_);
+        std::filesystem::create_directories(target_);
+        tu::write_text_file(source_ / "a.txt", "a");
+        Config::instance().reset();
+    }
+
+    void TearDown() override
+    {
+        if (Synchronize::has_instance())
+            Synchronize::destroy();
+        Config::instance().reset();
+        std::error_code ec;
+        std::filesystem::remove_all(root_, ec);
+    }
+
+    void add_item(uint16_t cycle_seconds, bool enabled = true) const
+    {
+        SyncItem si(L"lauf", SyncItemType::Dir, source_.wstring(), target_.wstring(), L"*");
+        si.sync_cycle(cycle_seconds);
+        si.enabled(enabled);
+        Config::instance().add(si);
+    }
+
+    static Synchronize* pass(SyncType type, std::chrono::milliseconds wait)  // [SynchronizeTests.md#pass]
+    {
+        Synchronize* sync = Synchronize::create(type);
+        std::this_thread::sleep_for(wait);
+        return sync;
+    }
+
+    bool in_target(const char* name) const { return std::filesystem::exists(target_ / name); }
+};
+
+} // namespace
+
+TEST_F(SyncScheduleTest, DisabledItemIsSkippedByARun)  // [SynchronizeTests.md#DisabledItemIsSkippedByARun]
+{
+    add_item(0, false);
+
+    pass(SyncType::Single, std::chrono::milliseconds(400));
+
+    EXPECT_FALSE(in_target("a.txt")) << "ein deaktiviertes Item darf nichts kopieren";
+    const SyncItem item = Config::instance().syncitems().at(0);
+    EXPECT_EQ(item.last_sync(), (std::chrono::steady_clock::time_point::min)()) << "ein uebersprungenes Item bekommt keinen Zeitstempel";
+    EXPECT_FALSE(item.last_run().has_value()) << "ein uebersprungenes Item bekommt keinen letzten Lauf";
+}
+
+TEST_F(SyncScheduleTest, DisabledItemIsSkippedByThePreviewToo)
+{
+    add_item(0, false);
+
+    Synchronize* sync = pass(SyncType::Preview, std::chrono::milliseconds(400));
+
+    EXPECT_TRUE(sync->plan().empty());
+    EXPECT_FALSE(in_target("a.txt"));
+}
+
+TEST_F(SyncScheduleTest, ItemWaitsForItsCycleBeforeItRunsAgain)  // [SynchronizeTests.md#cycle-timing]
+{
+    add_item(30);
+    Synchronize* sync = pass(SyncType::Continuous, std::chrono::milliseconds(400));
+    ASSERT_TRUE(in_target("a.txt")) << "der erste Durchlauf laeuft sofort";
+    tu::write_text_file(source_ / "b.txt", "b");
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+
+    EXPECT_GE(sync->loop_iterations(), 2) << "der Takt muss weitergelaufen sein, sonst sagt der Test nichts";
+    EXPECT_FALSE(in_target("b.txt")) << "vor Ablauf der Pause darf das Item nicht erneut laufen";
+}
+
+TEST_F(SyncScheduleTest, ItemRunsAgainOnceItsCycleHasElapsed)  // [SynchronizeTests.md#cycle-timing]
+{
+    add_item(1);
+    pass(SyncType::Continuous, std::chrono::milliseconds(400));
+    ASSERT_TRUE(in_target("a.txt"));
+    tu::write_text_file(source_ / "b.txt", "b");
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+
+    EXPECT_TRUE(in_target("b.txt")) << "nach Ablauf der Pause muss das Item erneut laufen";
+}
+
+TEST_F(SyncScheduleTest, ASingleRunHonoursThePauseOfTheLastRun)  // [SynchronizeTests.md#cycle-timing]
+{
+    add_item(30);
+    pass(SyncType::Single, std::chrono::milliseconds(400));
+    Synchronize::destroy();
+    ASSERT_TRUE(in_target("a.txt"));
+    tu::write_text_file(source_ / "b.txt", "b");
+
+    pass(SyncType::Single, std::chrono::milliseconds(400));
+
+    EXPECT_FALSE(in_target("b.txt")) << "auch ein einzelner Lauf wartet die Pause seit dem letzten Lauf ab";
+}
+
+TEST_F(SyncScheduleTest, PreviewIgnoresThePause)  // [SynchronizeTests.md#PreviewIgnoresThePause]
+{
+    add_item(30);
+    pass(SyncType::Single, std::chrono::milliseconds(400));
+    Synchronize::destroy();
+    ASSERT_TRUE(in_target("a.txt"));
+    tu::write_text_file(source_ / "b.txt", "b");
+
+    Synchronize* sync = pass(SyncType::Preview, std::chrono::milliseconds(400));
+
+    const SyncPlan& plan = sync->plan();
+    ASSERT_EQ(plan.steps().size(), 1u) << "die Vorschau muss das Item trotz laufender Pause ansehen";
+    EXPECT_EQ(std::filesystem::path(plan.steps().front().source).filename(), "b.txt");
+    EXPECT_FALSE(in_target("b.txt")) << "die Vorschau kopiert nichts";
 }

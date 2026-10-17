@@ -2,6 +2,24 @@
 
 Module comment for Menu.h / Menu.cpp.
 
+## structure
+
+No submenu for two entries: "Neue Synchronisation…" and "Neue SSH-Verbindung…" stand in the
+File menu, as the platform guidelines ask, which saves a click.
+
+The assistant keeps a menu of its own although it has a single entry, against the same
+guidelines: tucked into the Help menu it was not found at all - users took it for removed. A
+feature nobody finds is worth less than the rule, see the priority of intuitive use.
+
+## shortcuts
+
+The keyboard shortcuts live here, not in the catalogues: they are the same in every language,
+and the platform-standard set (Cmd/Ctrl+N, O, S, Shift+S, comma, Q) is what users expect
+without reading anything. wxWidgets turns "Ctrl" into Cmd on macOS. Help is Cmd+? there and
+F1 elsewhere, as the platforms' own guidelines name it. Menu items that open a dialog or
+ask for confirmation carry an ellipsis in the catalogue text; the toolbar strips it again
+(see Toolbar.md#tooltips-without-ellipsis).
+
 ## background-service-state-entry
 
 Which of the two commands is available already tells whether the service runs, but only once it

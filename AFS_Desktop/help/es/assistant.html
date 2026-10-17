@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>El asistente</title>
+</head>
+<body>
+<h1>El asistente</h1>
+
+<p>El asistente responde a preguntas sobre AutoFileSync en lenguaje corriente y
+puede ahorrarle trabajo: propone sincronizaciones nuevas, averigua por qué algo
+no ha funcionado y, si se lo pide, ejecuta órdenes del menú. Funciona por
+completo en este equipo – no se envía nada a Internet y no hace falta ninguna
+cuenta ni clave.</p>
+
+<h2>Usar el asistente</h2>
+
+<ol>
+<li><b>Asistente &rarr; Chat…</b> abre la ventana de chat.</li>
+<li>Escriba la pregunta o el deseo en el campo inferior, tal como se lo diría a
+    una persona.</li>
+<li>Haga clic en <b>Enviar</b> o pulse <b>Ctrl+Intro</b> (en el Mac
+    <b>Cmd+Intro</b>). La tecla Intro sola empieza una línea nueva.</li>
+<li>La respuesta aparece arriba, en el historial de la conversación, palabra por
+    palabra mientras se genera. Mientras tanto, abajo se lee <b>El asistente
+    está respondiendo…</b>.</li>
+</ol>
+
+<p>Según el equipo, una respuesta tarda desde unos segundos hasta unos pocos
+minutos; la primera, algo más, porque antes hay que cargar el modelo. Mientras
+tanto el programa sigue utilizable y la ventana de chat se puede cerrar: la
+respuesta estará en el historial la próxima vez que la abra.</p>
+
+<p>El asistente conoce la conversación anterior, así que entiende preguntas
+como «¿y cómo lo deshago?». La conversación se conserva hasta que se cierra
+AutoFileSync. <b>Nueva conversación</b> empieza desde cero – conviene cuando
+cambia el tema, porque así la conversación anterior ya no distrae.</p>
+
+<p>El asistente responde en el idioma en que se le pregunta.</p>
+
+<h2>Qué puede hacer el asistente</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Responder preguntas sobre el manejo</b></td>
+    <td>Busca la sección adecuada de esta ayuda, responde con ella e indica la
+        página de la ayuda donde hay más información.<br>
+        <i>«¿Cómo sincronizo por SSH?»</i></td></tr>
+<tr><td valign="top"><b>Informar sobre sus sincronizaciones</b></td>
+    <td>Conoce todas las sincronizaciones creadas con su origen, destino, tipo
+        y opciones activadas, las conexiones SSH (sin contraseñas), cuándo se
+        sincronizó por última vez, si el origen o el destino estaban accesibles –
+        y si la sincronización debe <a href="unreachable.html">avisar</a> en ese
+        caso – y el primer error de la última pasada.<br>
+        <i>«¿Cuántas sincronizaciones tengo?», «¿Por qué mi memoria USB no está
+        al día?»</i></td></tr>
+<tr><td valign="top"><b>Indicar el estado actual</b></td>
+    <td>Sabe si el programa está sincronizando y si el
+        <a href="service.html">servicio en segundo plano</a> está en marcha.<br>
+        <i>«¿Se está sincronizando ahora?»</i></td></tr>
+<tr><td valign="top"><b>Analizar el registro</b></td>
+    <td>Si la pregunta contiene la palabra <b>registro</b>, <b>bitácora</b> o
+        <b>log</b>, lee las entradas más recientes del
+        <a href="logging.html">registro</a> y las explica.<br>
+        <i>«¿Qué dice el registro?», «¿Hay errores en el log?»</i></td></tr>
+<tr><td valign="top"><b>Proponer una sincronización nueva</b></td>
+    <td>Si se indican el origen y el destino como rutas, propone una
+        sincronización completa.<br>
+        <i>«Sincroniza /home/ana/Fotos con /media/usb/Fotos»</i></td></tr>
+<tr><td valign="top"><b>Proponer quitar una sincronización</b></td>
+    <td>Si se nombra una sincronización creada, propone quitarla.<br>
+        <i>«Quita la sincronización Fotos»</i></td></tr>
+<tr><td valign="top"><b>Ejecutar órdenes del menú</b></td>
+    <td><b>Sincronizar una vez</b>, <b>Vista previa</b>,
+        <b>Iniciar sincronización</b>,
+        <b>Detener sincronización</b>, <b>Iniciar el servicio en segundo
+        plano</b>, <b>Detener el servicio en segundo plano</b> y <b>Mostrar
+        archivo de registro</b>.<br>
+        <i>«Sincroniza ahora una vez», «Muestra el archivo de
+        registro»</i></td></tr>
+</table>
+
+<h2>Confirmar las propuestas</h2>
+
+<p>El asistente nunca cambia nada por sí mismo. Cuando tiene una propuesta, la
+describe en una frase y abajo en la ventana de chat aparece un botón que dice
+lo que hace:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Crear sincronización…</b></td>
+    <td>Abre el diálogo habitual de una sincronización nueva, ya rellenado con
+        nombre, tipo, origen y destino. Allí se puede revisar y cambiar todo;
+        no se crea hasta pulsar <b>OK</b>.</td></tr>
+<tr><td valign="top"><b>Eliminar sincronización…</b></td>
+    <td>Hace la misma pregunta de seguridad que <b>Edición &rarr; Eliminar
+        sincronización</b>.</td></tr>
+<tr><td valign="top">Nombre de una orden, por ejemplo <b>Sincronizar una
+        vez</b></td>
+    <td>Ejecuta la orden, igual que el elemento del menú del mismo
+        nombre.</td></tr>
+</table>
+
+<p>Si no quiere la propuesta, simplemente siga preguntando: con la siguiente
+pregunta el botón desaparece.</p>
+
+<h2>Preguntar bien</h2>
+
+<ul>
+<li>Indique las rutas completas, por ejemplo <tt>C:\Users\Ana\Documentos</tt>,
+    <tt>/home/ana/Documentos</tt> o, para SSH,
+    <tt>ana@servidor:/copia</tt>. Si falta una ruta, el asistente la pide en
+    lugar de inventarla.</li>
+<li>Use las palabras que emplea el propio programa – origen, destino,
+    sincronización, papelera. Con ellas el asistente encuentra la sección
+    adecuada de esta ayuda; funciona mejor en el idioma en que se muestra el
+    programa.</li>
+<li>Para las órdenes, formule una petición: «sincroniza», «inicia», «arranca»,
+    «detén», «abre», «muestra».</li>
+<li>Una cosa por pregunta. Varios deseos en un mismo mensaje suelen dar
+    propuestas incompletas.</li>
+</ul>
+
+<h2>Límites</h2>
+
+<p>El asistente es un modelo de lenguaje pequeño. Puede equivocarse, confundir
+rutas o afirmar algo que no es cierto. Por eso cada propuesta pasa por un botón
+y el diálogo habitual – antes de pulsar <b>OK</b> merece la pena revisar el
+origen y el destino. En caso de duda, vale lo que dice esta ayuda.</p>
+
+<p>Del registro solo ve las entradas más recientes. Si hay muchas
+sincronizaciones, describe en detalle las 30 primeras y del resto solo indica
+cuántas hay. No modifica ajustes; solo explica dónde se encuentran.</p>
+
+<h2>Instalar el modelo</h2>
+
+<p>El asistente necesita un modelo de lenguaje, un archivo con la extensión
+<tt>.gguf</tt>. No forma parte de AutoFileSync porque ocupa varios gigabytes y
+tiene su propia licencia (véase
+<a href="licensing.html">Condiciones de licencia</a>). Si falta, la ventana de
+chat muestra <b>No se encontró ningún modelo.</b> e indica la carpeta en la que
+debe estar.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="20%"><b>Windows</b></td>
+    <td><tt>setup_llama_windows.cmd</tt>, en la carpeta de instalación, descarga
+        un modelo adecuado en
+        <tt>%LOCALAPPDATA%\autofilesync\models</tt>.</td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>setup_llama_macos.sh</tt> descarga un modelo adecuado en
+        <tt>~/Library/Application Support/autofilesync/models</tt>.</td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td>Copie un archivo GGUF en
+        <tt>~/.local/share/autofilesync/models</tt>.</td></tr>
+</table>
+
+<p>Los scripts eligen el tamaño según la memoria RAM: con menos de 16 GB el
+modelo 3B, a partir de 16 GB el modelo 7B y a partir de 32 GB el modelo 14B.
+Los modelos más grandes responden con más precisión, pero más despacio. Si hay
+varios archivos en la carpeta, el asistente usa el primero por nombre de
+archivo. Un modelo recién colocado se encuentra sin reiniciar.</p>
+
+<p>Para usar un archivo situado en otro lugar, la variable de entorno
+<tt>AUTOFILESYNC_LLAMA_MODEL</tt> indica su ruta completa; tiene prioridad
+sobre la carpeta.</p>
+
+</body>
+</html>

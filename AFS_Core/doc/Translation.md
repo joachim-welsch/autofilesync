@@ -43,6 +43,37 @@ Binds the catalogue "autofilesync" below localeDir, where gettext expects
 <localeDir>/<language>/LC_MESSAGES/autofilesync.mo. An empty path leaves the system search path
 in place - callers cannot always locate the directory.
 
+## fall_back_to_english
+
+A session in a language without a catalogue (sv_SE, say) would see every message as its key,
+because the ids are technical. gettext has no fallback language of its own, but it honours a
+list in LANGUAGE; when no catalogue answers the empty msgid - which every catalogue maps to its
+header - the language list is replaced by "en". Checked by init() and by every set_language().
+Does not help a process stuck in the "C" locale, where gettext ignores LANGUAGE; init_locale()
+avoids that wherever the system has a German locale.
+
+## LANGUAGES
+
+The catalogues shipped in po/, each with the name its own speakers use, so that a user who
+cannot read the current language still finds theirs. A new po/<language>.po needs an entry here
+to become selectable in the settings.
+
+## environment_language
+
+LANGUAGE as init() found it, before the English fallback or a chosen language overwrote it:
+what "the operating system's language" means when the user withdraws a choice. nullopt when
+the environment had no LANGUAGE, which then must be removed again, not set empty.
+
+## set_language
+
+Switches the language of every later translate() call, by the same LANGUAGE variable gettext
+reads; an empty code returns to environment_language. textdomain() is called again because
+it bumps gettext's catalogue counter, which drops translations cached for the old language.
+
+LANGUAGE is process-wide and setenv() is not thread-safe against a concurrent getenv(): a
+sync thread translating a message while the user switches the language could race. The window
+is a single user action, and the old string the variable pointed to stays valid on glibc.
+
 ## msgid
 
 Returns its argument unchanged; it only marks a message id that is stored now and translated
@@ -74,6 +105,33 @@ recode to the charset of the current locale.
 
 dgettext() instead of gettext(): the core must not depend on whichever domain the hosting
 program set last.
+
+## missing-translation
+
+A translation that is missing is logged once per message id, as a warning with the id: the
+bare key is what the user sees, and until now nothing said why - a program copied over an
+installation whose catalogues stayed behind looked like a model that ignores its prompt. Only
+while a catalogue is bound (its header translates), checked at that moment and not cached: a
+test binary without catalogues, or one that just restored the C locale, would otherwise warn
+about every message.
+Logging translates its own messages ("log_message_repeated"), so the report guards against
+re-entering itself on the same thread.
+
+## catalogue_mismatch
+
+The message, if the catalogues gettext found were not built with this program: every catalogue
+carries the stamp of the message ids it was compiled from (see cmake/CatalogueStamp.cmake), the
+program the stamp of the ids it was compiled with. The directory named is the one gettext
+searches, asked back from bindtextdomain(): with the GUI installed to /opt and the catalogues
+in /usr/share/locale, the user would not guess which of the two is meant. Empty when the
+program was built without a stamp (the Visual Studio projects) or no catalogue is bound at all
+- then there is nothing to compare, and the bare ids are the known no-catalogue case.
+
+## english-safety-net
+
+The one message with a built-in English fallback: it reports that the catalogue is outdated,
+and an outdated catalogue is exactly one that may lack this message. Everywhere else the ids
+are keys without a fallback language (see no-libintl-fallback).
 
 ## no-libintl-fallback
 

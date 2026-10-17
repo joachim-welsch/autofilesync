@@ -88,6 +88,8 @@
     <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp" />
+    <ClCompile Include="..\AFS_Core\src\JsonText.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDelete.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />
     <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp" />
@@ -99,6 +101,9 @@
     <ClCompile Include="..\AFS_Core\src\LogEmail.cpp" />
     <ClCompile Include="..\AFS_Core\src\Logging.cpp" />
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
+    <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp" />
+    <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />
     <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp" />
@@ -120,6 +125,7 @@
     <ClCompile Include="..\AFS_Core\src\Synchronize.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncItem.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncPlan.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
     <ClCompile Include="..\AFS_Core\src\Translation.cpp" />
     <ClCompile Include="..\AFS_Core\src\Util.cpp" />

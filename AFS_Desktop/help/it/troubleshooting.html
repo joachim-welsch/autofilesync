@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Quando qualcosa non va come previsto</title>
+</head>
+<body>
+<h1>Quando qualcosa non va come previsto</h1>
+
+<p>Il primo posto da guardare è sempre il <a href="logging.html">log</a>. Al
+livello <tt>Info</tt> riporta che cosa è stato copiato ed eliminato; a
+<tt>Debug</tt> anche quale file è stato saltato e perché.</p>
+
+<h2>Un file non viene copiato</h2>
+
+<ul>
+<li><b>È vuoto.</b> I file di dimensione 0 vengono saltati finché
+    <a href="options.html">Sincronizza file vuoti</a> non è attivata. Il log
+    riporta «Il file di origine vuoto non è stato copiato».</li>
+<li><b>Il carattere jolly non corrisponde</b> oppure si applica
+    un'<b>esclusione</b>, vedere <a href="syncitems.html">Creare
+    sincronizzazioni</a>.</li>
+<li><b>La destinazione è più recente dell'origine.</b> Senza <b>Copia anche se il
+    file di destinazione è più recente</b> resta intatta.</li>
+<li><b>Origine e destinazione risultano uguali.</b> Se si confronta solo per
+    <b>Data</b>, una modifica del contenuto senza una nuova data di modifica non
+    viene notata. In tal caso attivare anche <b>Dimensione</b> o
+    <b>Contenuto</b>.</li>
+<li><b>La sincronizzazione non è attiva</b> – manca la spunta
+    <b>Sincronizzazione attiva</b>.</li>
+<li><b>Si tratta di una sottocartella</b>, ma la sincronizzazione è di tipo
+    <b>Cartella</b>. Per le sottocartelle serve il tipo <b>Albero di
+    cartelle</b>.</li>
+</ul>
+
+<h2>I file vengono copiati di nuovo a ogni esecuzione anche se non sono cambiati</h2>
+
+<p>La destinazione memorizza la data di modifica in modo meno preciso
+dell'origine, per esempio un disco NTFS o FAT come destinazione di un disco
+Linux. La copia risulta allora in anticipo di una frazione di secondo rispetto
+all'originale e nel confronto per <b>Data</b> l'origine conta come più recente.
+La <a href="options.html#timetolerance">Tolleranza in secondi</a> nella scheda
+Opzioni lo compensa; è a 0 se qualcuno l'ha disattivata. Uno spostamento di
+esattamente un'ora su tutti i file indica FAT dopo il cambio dell'ora, vedere
+lì.</p>
+
+<h2>Nella destinazione non viene eliminato nulla anche se l'opzione è attivata</h2>
+
+<ul>
+<li><b>L'origine non è raggiungibile.</b> Un'unità scollegata, una condivisione
+    non connessa o un server SSH non raggiungibile fanno sì che non venga
+    eliminato nulla. È voluto.</li>
+<li><b>Il tipo è File.</b> L'opzione vale solo per Cartella e Albero di
+    cartelle.</li>
+<li><b>Carattere jolly o esclusione</b> tolgono il file dalla sincronizzazione –
+    allora non viene nemmeno eliminato.</li>
+<li><b>Si tratta di una cartella.</b> Vengono rispecchiati i file; una cartella
+    eliminata nell'origine resta nella destinazione.</li>
+</ul>
+
+<h2>Non viene sincronizzato nulla</h2>
+
+<ul>
+<li>Il <a href="service.html">servizio in background</a> è in esecuzione?
+    Servizio e programma non sincronizzano contemporaneamente.</li>
+<li>Se <b>Avvia</b> e <b>Sincronizza una volta</b> sono grigi, la configurazione
+    non contiene alcuna sincronizzazione eseguibile – per esempio perché sono
+    tutte inattive o mancano origine e destinazione.</li>
+<li>La configurazione è stata <a href="config.html">salvata</a> dopo l'ultima
+    modifica?</li>
+<li>Con origine o destinazione tramite SSH: l'altro capo risponde? AutoFileSync
+    lo controlla prima di ogni esecuzione e salta la sincronizzazione finché il
+    server non è raggiungibile o l'accesso non riesce. Il log riporta allora
+    «Percorso SSH non raggiungibile» con il motivo.</li>
+<li><b>Il server è di nuovo raggiungibile, ma non succede ancora nulla.</b> Il
+    risultato del controllo di raggiungibilità viene memorizzato, così non ogni
+    esecuzione apre una nuova connessione. Dopo un tentativo fallito si
+    ricontrolla al più presto dopo qualche secondo, con un guasto prolungato al
+    massimo ogni cinque minuti. Possono quindi passare fino a cinque minuti
+    prima che una connessione ripristinata venga notata.</li>
+</ul>
+
+<h2>Una connessione SSH non riesce</h2>
+
+<ul>
+<li><b>Errore di autenticazione</b> – nome utente o password sono errati, oppure
+    il server non consente l'accesso con password.</li>
+<li><b>Errore di connessione</b> – host o porta non sono raggiungibili.</li>
+<li><b>La chiave host è cambiata</b> – il server si presenta con una chiave
+    diversa dalla prima volta. AutoFileSync allora si interrompe. Se il
+    cambiamento si spiega, per esempio dopo una reinstallazione del server, la
+    vecchia voce va rimossa dal file <tt>known_hosts</tt> del proprio profilo
+    utente.</li>
+<li><b>Account SSH non trovato</b> – il nome prima dei due punti nel percorso non
+    appartiene a nessuna connessione creata. Succede per esempio quando una
+    connessione è stata rinominata; le sincronizzazioni interessate puntano
+    allora ancora al vecchio nome.</li>
+</ul>
+
+<p>In tutti questi casi la sincronizzazione interessata viene saltata per questa
+esecuzione: non si copia né si elimina nulla. Le altre sincronizzazioni
+continuano normalmente.</p>
+
+<h2>Compare un avviso per un'unità mancante – oppure no</h2>
+
+<p>Se un'origine o una destinazione non raggiungibile viene segnalata lo decide, per ogni
+sincronizzazione, l'opzione <b>Avvisa se manca l'unità o la connessione SSH</b>: attiva,
+dopo <b>Sincronizza una volta</b> c'è un avviso e una riga di avviso nel registro;
+disattivata, solo una riga informativa. Se una sincronizzazione avvisa e un'altra no,
+sebbene a entrambe manchi lo stesso disco, l'opzione è impostata diversamente. Tutto il
+resto in <a href="unreachable.html">Unità e connessioni non raggiungibili</a>.</p>
+
+<h2>Recuperare file eliminati</h2>
+
+<p>Se la <a href="settings.html">modalità di eliminazione</a> è impostata su
+<b>Sposta nel cestino</b>, i file si trovano nella cartella del cestino
+impostata, nella struttura del luogo di provenienza. Con <b>Elimina
+definitivamente</b> e con le destinazioni tramite SSH non esiste una copia di
+questo tipo.</p>
+
+<p>Se un file di destinazione è stato sovrascritto, aiuta il
+<a href="options.html">Principio generazionale</a> – purché fosse attivato prima:
+la versione precedente si trova allora accanto al file come
+<tt>.bak.1</tt>.</p>
+
+</body>
+</html>

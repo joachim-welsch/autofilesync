@@ -31,7 +31,7 @@ namespace {
 constexpr int PLACEMENT_QUIET_MILLISECONDS = 500;
 constexpr int PLACEMENT_TIMEOUT_MILLISECONDS = 3000;
 
-void waitUntilPlaced(wxWindow& window)  // [GuiTestMain.md#waitUntilPlaced]
+void wait_until_placed(wxWindow& window)  // [GuiTestMain.md#wait_until_placed]
 {
     wxStopWatch total;
     wxRect placed;
@@ -51,16 +51,16 @@ int main(int argc, char** argv)
     guitest::GuiTestSandbox::create();
     if (!wxEntryStart(argc, argv))
         return EXIT_FAILURE;
-    guitest::GuiTestSandbox::isolatePreferences();  // [GuiTestSandbox.md#isolatePreferences]
+    guitest::GuiTestSandbox::isolate_preferences();  // [GuiTestSandbox.md#isolate_preferences]
     guitest::ModalDialogWatcher::instance();  // [GuiTestMain.md#watcher-before-start]
     int result = EXIT_FAILURE;
     if (wxTheApp->CallOnInit()) {
-        wxEventLoop mainLoop;  // [GuiTestMain.md#active-event-loop-needed]
-        wxEventLoopActivator activateMainLoop(&mainLoop);
+        wxEventLoop main_loop;  // [GuiTestMain.md#active-event-loop-needed]
+        wxEventLoopActivator activate_main_loop(&main_loop);
 #ifdef _MACOS
-        guitest::bringToForeground();  // [ForegroundApp.md#bringToForeground]
+        guitest::bring_to_foreground();  // [ForegroundApp.md#bring_to_foreground]
 #endif
-        waitUntilPlaced(*wxTheApp->GetTopWindow());
+        wait_until_placed(*wxTheApp->GetTopWindow());
         result = RUN_ALL_TESTS();
         wxTheApp->OnExit();
     }

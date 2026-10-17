@@ -10,13 +10,16 @@ Charset=utf-8
 help.html
 syncitems.html
 options.html
+unreachable.html
 runsync.html
 synconce.html
+preview.html
 ssh.html
 settings.html
 logging.html
 backupproof.html
 service.html
+assistant.html
 config.html
 licensing.html
 troubleshooting.html

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Configuration file</title>
+</head>
+<body>
+<h1>Configuration file</h1>
+
+<p>All synchronisations, SSH connections and settings are in one file in JSON
+format. It is this file that the program and the
+<a href="service.html">background service</a> share.</p>
+
+<h2>Where it is</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="25%"><b>Windows</b></td>
+    <td><tt>%APPDATA%\autofilesync\autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>Linux</b></td>
+    <td><tt>$XDG_CONFIG_HOME/autofilesync/autofilesync.json</tt>, otherwise
+        <tt>~/.config/autofilesync/autofilesync.json</tt></td></tr>
+<tr><td valign="top"><b>macOS</b></td>
+    <td><tt>~/Library/Application Support/autofilesync/autofilesync.json</tt></td></tr>
+</table>
+
+<h2>Opening and saving</h2>
+
+<ul>
+<li><b>File &rarr; Open…</b> loads another configuration, a set of
+    synchronisations for a particular purpose, for example.</li>
+<li>Every change is <b>saved at once</b> – a tick in the table just like a
+    dialog left with OK. A separate save step is not needed.</li>
+<li><b>File &rarr; Save</b> can only be chosen when writing automatically has
+    failed, for example on a full disk. Meanwhile the window title shows
+    <b>(unsaved)</b>, and the program asks before quitting and before starting
+    the background service.</li>
+<li><b>File &rarr; Save as…</b> makes a copy. If the file exists already, you
+    are asked before it is overwritten.</li>
+</ul>
+
+<h2>What it contains</h2>
+
+<p>For each synchronisation name, type, source, target, wildcard, exclusions, the
+options and the pause; in addition the SSH connections and the global settings.
+Passwords for SSH connections and for the outgoing mail server are stored
+<b>encrypted</b>, not in plain text.</p>
+
+<p>The file is UTF-8 and can be looked at with a text editor in an emergency. A
+key that an older version of the program did not know yet is simply missing in
+old files – AutoFileSync then uses the documented default and loads the file
+anyway. A single damaged entry does not lose the whole configuration either; it
+is skipped.</p>
+
+<p>An example is the key <tt>warnIfUnreachable</tt> among the options of a
+synchronisation (<tt>syncflags</tt>). It carries the option <b>Warn if the drive or
+SSH connection is missing</b>: <tt>true</tt> means a missing drive is reported as
+a warning, <tt>false</tt> that it is only noted in the log. If the key is missing
+because the file comes from an older version, <tt>true</tt> applies. The other
+options sit under their own keys next to it and default to <tt>false</tt> when
+missing from old files. What the option does is described under
+<a href="unreachable.html">Unreachable drives and connections</a>.</p>
+
+<p>When writing, the existing file is not destroyed if saving fails – when in
+doubt, the old state is kept.</p>
+
+</body>
+</html>

@@ -37,26 +37,29 @@ public:
 private:
     bool TransferDataToWindow() override;
     bool TransferDataFromWindow() override;
-    void onPickRecycleBinPath(wxCommandEvent&);
-    void onDeleteModeChanged(wxCommandEvent&);
-    void enableRecycleBinPath();
+    void on_pick_recycle_bin_path(wxCommandEvent&);
+    void on_delete_mode_changed(wxCommandEvent&);
+    void enable_recycle_bin_path();
+    void add_language_choice(wxSizer* sizer);
 
-    wxRadioBox* deleteModeRB_ = nullptr;
-    wxTextCtrl* recycleBinPathBox_ = nullptr;
-    wxButton*   recycleBinPathBtn_ = nullptr;
-    wxCheckBox* startMinimizedCB_ = nullptr;
-    wxCheckBox* minimizeInsteadOfCloseCB_ = nullptr;
-    wxCheckBox* autoStartCB_ = nullptr;
-    wxCheckBox* startSyncAtStartCB_ = nullptr;
-    wxCheckBox* messageBoxErrorCB_ = nullptr;
-    wxCheckBox* messageBoxWarningCB_ = nullptr;
-    wxCheckBox* messageBoxInfoCB_ = nullptr;
+    wxChoice*   language_choice_ = nullptr;
+    wxRadioBox* delete_mode_radio_ = nullptr;
+    wxTextCtrl* recycle_bin_path_box_ = nullptr;
+    wxButton*   recycle_bin_path_button_ = nullptr;
+    wxCheckBox* start_minimized_check_ = nullptr;
+    wxCheckBox* minimize_instead_of_close_check_ = nullptr;
+    wxCheckBox* auto_start_check_ = nullptr;
+    wxCheckBox* start_sync_at_start_check_ = nullptr;
+    wxCheckBox* message_box_error_check_ = nullptr;
+    wxCheckBox* message_box_warning_check_ = nullptr;
+    wxCheckBox* message_box_info_check_ = nullptr;
     DECLARE_EVENT_TABLE()
 };
 
 enum {
     ID_DELETE_MODE_RADIO = wxID_HIGHEST + 1,
     ID_RECYCLEBIN_PATH_BOX,
-    ID_RECYCLEBIN_PATH_BUTTON
+    ID_RECYCLEBIN_PATH_BUTTON,
+    ID_LANGUAGE_CHOICE
 };
 

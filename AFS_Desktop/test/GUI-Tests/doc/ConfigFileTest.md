@@ -16,7 +16,7 @@ is pointed at a directory for the duration: Config::write writes its temporary f
 and then cannot rename over the directory, on Windows and POSIX alike. The temporary file it
 leaves behind is removed with the directory.
 
-## addUnsavedSyncItem
+## add_unsaved_sync_item
 
 Adds an item through the dialog while the file is blocked - the fill action and the answer to
 the "Fehler" box are both queued before the menu command, since the box opens from inside the
@@ -31,7 +31,7 @@ menu bar reflects after UpdateWindowUI.
 
 ## save-as
 
-The native save dialog is answered through ModalDialogWatcher::choosePath with a name
+The native save dialog is answered through ModalDialogWatcher::choose_path with a name
 without extension: the ".json" is appended by the application, and because the native
 overwrite prompt cannot see the appended name, MainWindow asks itself ("Datei
 überschreiben"). Both answers are tested, the file content proves which one won.
@@ -59,6 +59,7 @@ enabled "Speichern" - and vanishes once the command has written the file.
 The service reads the file, so a start over a pending change first asks "Jetzt speichern?"
 with Ja/Nein/Abbrechen. Abbrechen must stop the start before the service manager is touched -
 on a machine with the service installed that would be a UAC prompt no test can answer. The
-answered messages count the "Fehler" box of addUnsavedSyncItem as well. Ja is only tested where
-the service is not installed; there the start ends in the "Hintergrunddienst" error box, and
-the file content proves that the save came first.
+answered messages count the "Fehler" box of add_unsaved_sync_item as well. Ja is tested where the
+service is not installed - the start ends in the "Hintergrunddienst" error box - and where this
+user may control the installed service without a password prompt, where the service runs
+afterwards. Either way the file content proves that the save came first.

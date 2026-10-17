@@ -16,9 +16,9 @@ have had its chance to copy.
 
 ## ToolbarStartUndStoppSchaltenUm
 
-The toolbar replaces the Start tool by a Stop tool in place (Toolbar::setStarted), so the
+The toolbar replaces the Start tool by a Stop tool in place (Toolbar::set_started), so the
 presence of the tool ids is what the user sees. The tools are activated through the toolbar's
-handler, see UserActions.md#activateToolbarTool.
+handler, see UserActions.md#activate_toolbar_tool.
 
 ## StatuszeileZeigtZustandDerSynchronisation
 

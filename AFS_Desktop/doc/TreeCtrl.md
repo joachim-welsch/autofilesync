@@ -2,6 +2,11 @@
 
 Module comment for TreeCtrl.h / TreeCtrl.cpp.
 
+## root-label
+
+The root is only a heading for the tree ("Dieser Computer", translated); the paths come
+from Tree's maps, not from labels, so the text is free to follow the language.
+
 ## separator-detected-from-path
 
 SSH paths ("account:/remote/...") and local Unix/macOS paths use '/' exclusively and never

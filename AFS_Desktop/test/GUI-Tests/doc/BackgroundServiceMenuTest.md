@@ -2,14 +2,14 @@
 
 Module comment for BackgroundServiceMenuTest.cpp.
 
-## backgroundServiceMenu
+## background_service_menu
 
 The menu bar owns what Menu::create() appended, so the item lookup yields the same wxMenu that
-MainWindow::onMenuOpen compares the opened menu against.
+MainWindow::on_menu_open compares the opened menu against.
 
-## openMenu
+## open_menu
 
-A menu bar cannot be opened headlessly (see UserActions.cpp's activateMenuItem()), so this sends
+A menu bar cannot be opened headlessly (see UserActions.cpp's activate_menu_item()), so this sends
 the event that opening it produces. MainWindow refreshes the two commands from there, because
 the service can be started and stopped outside of AutoFileSync as well.
 
@@ -35,3 +35,10 @@ the undeterminable state that leads to it.
 
 The state line carries the answer where neither command does: a service that is not installed
 offers neither of them.
+
+## HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten
+
+The installer lets the service user start and stop the service without a password: polkit rule
+on Linux, service permissions on Windows. Both commands run in the order that ends where the
+service began, and RestoredBackgroundService puts it back should a step fail. A missing right
+shows as the "Hintergrunddienst" error box, which the fixture reports as an unexpected dialog.

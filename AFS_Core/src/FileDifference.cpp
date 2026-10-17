@@ -66,7 +66,6 @@ FileDifference::FileDifference(const wstring& source, const wstring& dest, const
     }
 }
 
-
 static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
     const auto colon_pos = fname.find(L':');
@@ -138,18 +137,19 @@ uint64_t FileDifference::operator()()
     return sourcesize_;
 }
 
-static bool newer(fs::file_time_type a, fs::file_time_type b, SSHPATH ssh)  // [FileDifference.md#second-resolution]
+bool FileDifference::newer(fs::file_time_type a, fs::file_time_type b) const  // [FileDifference.md#time-tolerance]
 {
-    if (ssh == SSHPATH::none)
-        return util::greater(a, b);
-    return util::to_time_t(a) > util::to_time_t(b);
+    const std::chrono::seconds tolerance(ci_.time_tolerance_seconds());
+    if (ssh_ == SSHPATH::none)
+        return util::greater(a, b + std::chrono::duration_cast<fs::file_time_type::duration>(tolerance));
+    return util::to_time_t(a) > util::to_time_t(b) + tolerance.count();  // [FileDifference.md#second-resolution]
 }
 
 FileDifference::Result FileDifference::compare_metadata(fs::file_time_type sourcetime, fs::file_time_type desttime) const
 {
-    if (ci_.time() && newer(desttime, sourcetime, ssh_))
+    if (ci_.time() && newer(desttime, sourcetime))
         return Result::DestModified;
-    if (ci_.time() && newer(sourcetime, desttime, ssh_))
+    if (ci_.time() && newer(sourcetime, desttime))
         return Result::SourceModified;
     if (ci_.size() && sourcesize_ > destsize_)
         return Result::SourceModified;
@@ -167,10 +167,10 @@ void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_tim
     }
     if (util::files_equal(source_, dest_))
         return;
-    if (two_way_sync_ && sourcesize_ == destsize_ && util::equal(sourcetime, desttime))
+    if (two_way_sync_ && sourcesize_ == destsize_ && !newer(sourcetime, desttime) && !newer(desttime, sourcetime))
         result_ = Result::ContentConflict;  // [FileDifference.md#content-conflict]
     else
-        result_ = two_way_sync_ && util::greater(desttime, sourcetime) ? Result::DestModified : Result::SourceModified;
+        result_ = two_way_sync_ && newer(desttime, sourcetime) ? Result::DestModified : Result::SourceModified;
 }
 
 } // namespace AFS_Core

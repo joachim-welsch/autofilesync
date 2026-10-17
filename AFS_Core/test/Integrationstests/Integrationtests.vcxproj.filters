@@ -36,6 +36,15 @@
     <ClInclude Include="ScopedRecycleBin.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
+    <ClInclude Include="ScopedDeleteMode.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopedLoggingSetup.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="SmtpSink.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
     <ClInclude Include="SshTest.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
@@ -87,6 +96,12 @@
     <ClInclude Include="$(LibDir)\include\CopyLog.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\HelpKnowledge.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\JsonText.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\FileDelete.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -118,6 +133,15 @@
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\ModelLocation.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\CpuTopology.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\SyncProposal.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\ConfigSummary.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\MountedDrives.h">
@@ -189,6 +213,9 @@
     <ClInclude Include="$(LibDir)\include\SyncMessage.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\SyncPlan.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\SyncTree.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -251,6 +278,18 @@
     <ClCompile Include="ModelLocationTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="CpuTopologyTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncProposalTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncPlanTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigSummaryTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="MountedDrivesTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -305,6 +344,9 @@
     <ClCompile Include="SyncSshTwoWayTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="SyncSshToSshTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="SyncTreeTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -314,7 +356,43 @@
     <ClCompile Include="ThStrUtil.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="TranslationTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonTextTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="LlamaClientTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpKnowledgeTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="TwoWaySyncTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncFlagTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalPermissionTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SymlinkTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshHostKeyTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshConnectTimeoutTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshDirInspectorTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SmtpSink.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SmtpMailerTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="UtilTests.cpp">
@@ -327,6 +405,12 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\JsonText.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\FileDelete.cpp">
@@ -360,6 +444,15 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\ModelLocation.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\CpuTopology.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\SyncProposal.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\ConfigSummary.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\MountedDrives.cpp">
@@ -423,6 +516,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\SyncMessage.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\SyncPlan.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\SyncTree.cpp">

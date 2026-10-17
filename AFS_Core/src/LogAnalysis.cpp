@@ -22,7 +22,10 @@
 #include <cwctype>
 #include <fstream>
 #include <Logging.h>
+#include "Translation.h"
 #include "Util.h"
+#include <sstream>
+#include <vector>
 
 namespace AFS_Core {
 
@@ -47,12 +50,25 @@ std::wstring read_recent_log_entries(std::size_t max_chars)
     return string_to_wstring(content);
 }
 
+namespace {
+std::vector<std::wstring> log_words()  // [LogAnalysis.md#log_words]
+{
+    std::vector<std::wstring> words{L"log"};
+    std::wistringstream list(translation::translate("log_question_words"));
+    for (std::wstring word; std::getline(list, word, L',');)
+        if (!word.empty())
+            words.push_back(word);
+    return words;
+}
+}
+
 bool looks_like_log_question(const std::wstring& text)
 {
     std::wstring lower = text;
     std::transform(lower.begin(), lower.end(), lower.begin(),
-        [](wchar_t c) { return static_cast<wchar_t>(std::towlower(c)); });
-    return lower.find(L"log") != std::wstring::npos || lower.find(L"protokoll") != std::wstring::npos;
+        [](wchar_t c) { return static_cast<wchar_t>(std::towlower(c)); });  // [LogAnalysis.md#towlower]
+    const std::vector<std::wstring> words = log_words();
+    return std::ranges::any_of(words, [&lower](const std::wstring& word) { return lower.find(word) != std::wstring::npos; });
 }
 
 } // namespace AFS_Core

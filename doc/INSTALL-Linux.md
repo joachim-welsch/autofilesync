@@ -29,7 +29,10 @@ Das Paket wird gegen das wxWidgets der Distribution gebaut (ein selbst
 Bei der Installation mit `sudo` trägt das Paket den aufrufenden Benutzer in
 `/etc/systemd/system/backgroundsync.service.d/user.conf` ein und aktiviert den
 Dienst. Ohne diese Datei startet der Dienst nicht, damit er nie mit der
-Konfiguration von root synchronisiert. Vor dem Start wartet der Dienst bis zu
+Konfiguration von root synchronisiert. Für diesen Benutzer legt das Paket außerdem
+die polkit-Regel `/etc/polkit-1/rules.d/50-backgroundsync.rules` an: Er darf den
+Dienst im Menü **Hintergrunddienst** ohne Administratorpasswort starten und
+stoppen, und nur diesen Dienst. Deinstallieren entfernt die Regel. Vor dem Start wartet der Dienst bis zu
 60 s auf die Netzlaufwerke aus `/etc/fstab` (`/usr/lib/autofilesync/wait-network-mounts`),
 auch auf solche mit `nofail`. Laufwerke, die systemd nicht einhängen konnte,
 überspringt er. Weitere Laufwerksabhängigkeiten (`Wants=`/`After=` für Mounts)
@@ -137,18 +140,21 @@ cd ~/Entwicklung/autofilesync
 
 sudo mkdir -p /opt/autofilesync/help
 sudo install -m 755 build/Release/autofilesync /opt/autofilesync/autofilesync
-sudo install -m 644 AFS_Desktop/help/* /opt/autofilesync/help/
+sudo cp -r AFS_Desktop/help/. /opt/autofilesync/help/
 ```
 
-Die Hilfe besteht aus dem kompilierten Hilfebuch `help.htb` (ein ZIP-Archiv mit
-allen Seiten) sowie den unkomprimierten Quelldateien. Das Programm liest zur
-Laufzeit ausschließlich `help/help.htb`; die übrigen Dateien werden mitkopiert,
-damit die Hilfe am Zielsystem nachvollziehbar und neu erzeugbar bleibt.
+Die Hilfe besteht aus den kompilierten Hilfebüchern (ZIP-Archive mit allen
+Seiten) sowie den unkomprimierten Quelldateien: `help/help.htb` auf Deutsch,
+`help/<sprache>/help.htb` für jede weitere Sprache. Das Programm liest zur
+Laufzeit nur das Buch in der angezeigten Sprache – Englisch für eine Sprache
+ohne eigenes Buch –; die
+übrigen Dateien werden mitkopiert, damit die Hilfe am Zielsystem nachvollziehbar
+und neu erzeugbar bleibt.
 
 Kontrolle:
 
 ```bash
-ls -l /opt/autofilesync/help/help.htb
+ls -l /opt/autofilesync/help/help.htb /opt/autofilesync/help/en/help.htb
 ```
 
 ### Hilfeseiten nach Änderungen neu erzeugen
@@ -333,7 +339,12 @@ git pull
 scripts/build.sh -r
 sudo install -m 755 build/Release/autofilesync /opt/autofilesync/autofilesync
 sudo install -m 644 help/* /opt/autofilesync/help/
+for l in build/Release/locale/*/; do l=$(basename "$l"); sudo install -m 644 build/Release/locale/$l/LC_MESSAGES/autofilesync.mo /usr/share/locale/$l/LC_MESSAGES/; done
 ```
+
+Die Übersetzungen gehören zu jeder Aktualisierung dazu: Ein neues Programm mit
+den alten Katalogen zeigt für neue Texte nur Schlüssel wie
+`assistant_sync_proposal_instruction` und meldet das beim Start als Warnung.
 
 Ist der Hintergrunddienst installiert, aktualisiert ihn `install.sh`; es stoppt
 ihn vorher und startet ihn danach wieder:

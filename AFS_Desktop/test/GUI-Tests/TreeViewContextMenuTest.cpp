@@ -36,14 +36,14 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString syncItemName = "guitest-baumansicht";
+const wxString sync_item_name = "guitest-baumansicht";
 
-bool editAndDeleteEnabledFor(wxWindow& invokingCanvas)  // [TreeViewContextMenuTest.md#editAndDeleteEnabledFor]
+bool edit_and_delete_enabled_for(wxWindow& invoking_canvas)  // [TreeViewContextMenuTest.md#edit_and_delete_enabled_for]
 {
     wxMenu menu;
     menu.Append(tul(id::EditSync), "&Editiere");
     menu.Append(tul(id::DeleteSync), L"&Lösche");
-    menu.SetInvokingWindow(&invokingCanvas);
+    menu.SetInvokingWindow(&invoking_canvas);
     menu.UpdateUI();
     menu.SetInvokingWindow(nullptr);
     return menu.IsEnabled(tul(id::EditSync)) && menu.IsEnabled(tul(id::DeleteSync));
@@ -53,32 +53,32 @@ bool editAndDeleteEnabledFor(wxWindow& invokingCanvas)  // [TreeViewContextMenuT
 
 TEST_F(GuiTest, KontextmenueInBaumansichtAktivWennSyncItemAusgewaehlt)
 {
-    const SyncItemInput input{syncItemName,
-        GuiTestSandbox::sourceDir().string(), GuiTestSandbox::targetDir().string()};
-    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fillSyncItemDialog(input));
-    activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
+    const SyncItemInput input{sync_item_name,
+        GuiTestSandbox::source_dir().string(), GuiTestSandbox::target_dir().string()};
+    ModalDialogWatcher::instance().expect(txt::add_synchronisation(), fill_sync_item_dialog(input));
+    activate_menu_item(main_window(), tul(id::File_new_Synchronization));
     pump();
-    ASSERT_TRUE(Config::instance().find_by_name(syncItemName.ToStdWstring()).has_value())
+    ASSERT_TRUE(Config::instance().find_by_name(sync_item_name.ToStdWstring()).has_value())
         << "Die Synchronisation wurde nicht angelegt.";
 
-    activateMenuItem(mainWindow(), tul(id::View_Tree));
+    activate_menu_item(main_window(), tul(id::View_Tree));
     pump();
 
-    wxWindow* sourceCanvas = wxWindow::FindWindowByName("source", &mainWindow());
-    ASSERT_NE(sourceCanvas, nullptr) << "Das Quell-Panel der Baumansicht wurde nicht gefunden.";
-    wxTreeCtrl* tree = dynamic_cast<wxTreeCtrl*>(find(*sourceCanvas, ID_SRC_TREE_CTRL));
+    wxWindow* source_canvas = wxWindow::FindWindowByName("source", &main_window());
+    ASSERT_NE(source_canvas, nullptr) << "Das Quell-Panel der Baumansicht wurde nicht gefunden.";
+    wxTreeCtrl* tree = dynamic_cast<wxTreeCtrl*>(find(*source_canvas, ID_SRC_TREE_CTRL));
     ASSERT_NE(tree, nullptr) << "Der Baum des Quell-Panels wurde nicht gefunden.";
 
     tree->SelectItem(tree->GetRootItem());  // nothing belonging to the SyncItem selected yet: still grayed out
     pump();
-    EXPECT_FALSE(editAndDeleteEnabledFor(*sourceCanvas))
+    EXPECT_FALSE(edit_and_delete_enabled_for(*source_canvas))
         << "Das Kontextmenue sollte ohne Auswahl eines SyncItem deaktiviert sein.";
 
-    const wxTreeItemId sourceItem = findTreeItemForPath(*tree, GuiTestSandbox::sourceDir());
-    ASSERT_TRUE(sourceItem.IsOk()) << "Der Quellordner der Synchronisation fehlt im Baum.";
-    tree->SelectItem(sourceItem);
+    const wxTreeItemId source_item = find_tree_item_for_path(*tree, GuiTestSandbox::source_dir());
+    ASSERT_TRUE(source_item.IsOk()) << "Der Quellordner der Synchronisation fehlt im Baum.";
+    tree->SelectItem(source_item);
     pump();
-    EXPECT_TRUE(editAndDeleteEnabledFor(*sourceCanvas))
+    EXPECT_TRUE(edit_and_delete_enabled_for(*source_canvas))
         << "Das Kontextmenue sollte bedienbar sein, wenn der Quellordner des SyncItem ausgewaehlt ist.";
 }
 

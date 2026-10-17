@@ -25,6 +25,8 @@
 #include "Config.h"
 #include "Util.h"
 #include <fstream>
+#include <functional>
+#include <thread>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -96,7 +98,12 @@ TEST(SyncFileTests, CheckSyncChangedSizeFile)
     std::filesystem::remove(SOURCE_PATH_NAME);
 }
 
-TEST(SyncFileTests, CheckSyncChangedFileTime)
+static void age_by_an_hour(const std::wstring& file)  // [SyncFileTests.md#age_by_an_hour]
+{
+    fs::last_write_time(file, fs::file_time_type::clock::now() - hours(1));
+}
+
+TEST(SyncFileTests, CheckSyncChangedFileTime)  // [SyncFileTests.md#age_by_an_hour]
 {
     Synchronize::start();
     SyncItem si;
@@ -108,6 +115,7 @@ TEST(SyncFileTests, CheckSyncChangedFileTime)
     si.compare_items(ci);
     tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
     EXPECT_TRUE(tu::copy_source_to_dest(RESOURCE_PATH_NAME, TARGET_PATH_NAME));
+    age_by_an_hour(TARGET_PATH_NAME);
     EXPECT_TRUE(fsu::touch(SOURCE_PATH_NAME));
     std::size_t copy_count = 0;
     SyncFile test(si, copy_count, false, true);
@@ -130,6 +138,7 @@ TEST(SyncFileTests, CheckSyncDoNotChangeTargetDirWithFile)
     si.compare_items(ci);
     tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
     EXPECT_TRUE(tu::copy_source_to_dest(RESOURCE_PATH_NAME, TARGET_PATH_NAME));
+    age_by_an_hour(TARGET_PATH_NAME);
     EXPECT_TRUE(fsu::touch(SOURCE_PATH_NAME));
     std::size_t copy_count = 0;
     SyncFile test(si, copy_count, false, true);
@@ -151,7 +160,7 @@ TEST(SyncFileTests, CheckOnlyCountDoesNotCopy)  // [SyncFileTests.md#CheckOnlyCo
     tu::copy_file(RESOURCE_PATH_NAME, SOURCE_PATH_NAME);
     tu::erase_test_file(TARGET_PATH_NAME);
     std::size_t copy_count = 0;
-    SyncFile test(si, copy_count, true, true); // onlyCount=true
+    SyncFile test(si, copy_count, true, true); // only_count=true
     test();
     EXPECT_EQ(copy_count, 1); // still counted as "needs sync" ...
     EXPECT_FALSE(fs::exists(TARGET_PATH_NAME)); // ... but nothing was actually copied
@@ -411,4 +420,89 @@ TEST_F(NewerTargetTest, NewerTargetIsReportedAgainAfterItWasResolved)  // [SyncF
     fs::last_write_time(SOURCE_PATH_NAME, target_time - hours(1));
     sync();
     EXPECT_EQ(reports(), 2);
+}
+
+namespace {
+
+class StopDuringCopyTest : public ::testing::Test {  // [SyncFileTests.md#StopDuringCopyTest]
+protected:
+    static constexpr std::size_t LARGE_FILE_BYTES = 64u << 20;
+    const fs::path base_ = fs::temp_directory_path() / ("autofilesync_stoptest_" + std::to_string(TestPaths::process_id()));
+    const std::wstring source_ = (base_ / "gross.bin").wstring();
+    const std::wstring target_ = (base_ / "ziel" / "gross.bin").wstring();
+    const std::wstring backup_ = target_ + L".bak";
+
+    void SetUp() override
+    {
+        fs::remove_all(base_);
+        fs::create_directories(base_ / "ziel");
+        tu::write_large_file(source_, LARGE_FILE_BYTES);
+        Synchronize::start();
+    }
+
+    void TearDown() override
+    {
+        Synchronize::start();
+        fs::remove_all(base_);
+    }
+
+    SyncItem item() const
+    {
+        SyncItem si;
+        si.sync_cycle(0);
+        si.sync_item_type(SyncItemType::File);
+        si.source(source_);
+        si.target(target_);
+        return si;
+    }
+
+    std::size_t sync_and_stop_when(const SyncItem& si, const std::function<bool()>& copy_has_begun) const  // [SyncFileTests.md#sync_and_stop_when]
+    {
+        std::thread stopper([&] {
+            while (!copy_has_begun())
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            Synchronize::stop();
+        });
+        std::size_t copy_count = 0;
+        SyncFile(si, copy_count)();
+        stopper.join();
+        return copy_count;
+    }
+};
+
+} // namespace
+
+TEST_F(StopDuringCopyTest, StopDuringTheCopyLeavesNoHalfFileInTheTarget)  // [SyncFileTests.md#StopDuringTheCopyLeavesNoHalfFileInTheTarget]
+{
+    const std::size_t copy_count = sync_and_stop_when(item(), [&] { return fs::exists(target_); });
+
+    EXPECT_EQ(copy_count, 0u) << "die Kopie war schon fertig, bevor der Stopp ankam - die Datei muss groesser sein";
+    EXPECT_FALSE(fs::exists(target_)) << "eine halb kopierte Datei darf nicht im Ziel zurueckbleiben";
+    EXPECT_FALSE(fs::exists(backup_));
+    EXPECT_EQ(fs::file_size(source_), LARGE_FILE_BYTES);
+}
+
+TEST_F(StopDuringCopyTest, StopDuringTheCopyRestoresTheOldTarget)  // [SyncFileTests.md#StopDuringTheCopyRestoresTheOldTarget]
+{
+    tu::write_text_file(target_, "alter Inhalt", hours(1));
+
+    const std::size_t copy_count = sync_and_stop_when(item(), [&] { return fs::exists(backup_) && fs::exists(target_); });
+
+    EXPECT_EQ(copy_count, 0u) << "die Kopie war schon fertig, bevor der Stopp ankam - die Datei muss groesser sein";
+    ASSERT_TRUE(fs::exists(target_)) << "das alte Ziel muss zurueckkommen";
+    EXPECT_EQ(tu::read_text_file(target_), "alter Inhalt");
+    EXPECT_FALSE(fs::exists(backup_)) << "die Sicherung ist nach der Wiederherstellung ueberfluessig";
+}
+
+TEST_F(StopDuringCopyTest, StopDuringAMoveKeepsTheSource)  // [SyncFileTests.md#StopDuringAMoveKeepsTheSource]
+{
+    SyncItem si = item();
+    si.del_aftercopy(true);
+
+    const std::size_t copy_count = sync_and_stop_when(si, [&] { return fs::exists(target_); });
+
+    EXPECT_EQ(copy_count, 0u) << "die Kopie war schon fertig, bevor der Stopp ankam - die Datei muss groesser sein";
+    EXPECT_TRUE(fs::exists(source_)) << "ohne vollstaendige Kopie darf die Quelle nicht geloescht werden";
+    EXPECT_EQ(fs::file_size(source_), LARGE_FILE_BYTES);
+    EXPECT_FALSE(fs::exists(target_));
 }

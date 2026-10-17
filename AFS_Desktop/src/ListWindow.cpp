@@ -26,33 +26,33 @@ using utilwx::tul;
 using std::wstring;
 
 wxBEGIN_EVENT_TABLE(ListWindow, wxScrolledWindow)
-EVT_CONTEXT_MENU(ListWindow::OnContextMenu)
+EVT_CONTEXT_MENU(ListWindow::on_context_menu)
 wxEND_EVENT_TABLE()
 
 ListWindow::ListWindow(wxWindow* parent)
 	: wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 		wxHSCROLL | wxVSCROLL)
 {
-	listCtrl_ = new ListCtrl(this, tul(id::ListCtrl), wxDefaultPosition, wxDefaultSize, wxLC_LIST | wxBORDER_THEME);
+	list_ctrl_ = new ListCtrl(this, tul(id::ListCtrl), wxDefaultPosition, wxDefaultSize, wxLC_LIST | wxBORDER_THEME);
 	wxBoxSizer* const sizer = new wxBoxSizer(wxVERTICAL);
-	sizer->Add(listCtrl_, wxSizerFlags(2).Expand().Border());
+	sizer->Add(list_ctrl_, wxSizerFlags(2).Expand().Border());
 	SetSizer(sizer);
 	SetClientSize(GetBestSize());
-	listCtrl_->addDataItems();
+	list_ctrl_->add_data_items();
 }
 
-wstring ListWindow::getSelected() const
+wstring ListWindow::get_selected() const
 {
-	return listCtrl_->getSelected();
+	return list_ctrl_->get_selected();
 }
 
 void ListWindow::update()
 {
-	listCtrl_->update();
+	list_ctrl_->update();
 	SetClientSize(GetBestSize());
 }
 
-void ListWindow::ShowContextMenu(const wxPoint& pos)
+void ListWindow::show_context_menu(const wxPoint& pos)
 {
 	wxMenu menu;
 	if (wxGetKeyState(WXK_SHIFT)) {
@@ -64,7 +64,7 @@ void ListWindow::ShowContextMenu(const wxPoint& pos)
 	}
 }
 
-void ListWindow::OnContextMenu(wxContextMenuEvent& event)
+void ListWindow::on_context_menu(wxContextMenuEvent& event)
 {
 	wxPoint point = event.GetPosition();
 	if (point.x == -1 && point.y == -1) {  // (-1,-1) means the menu came from the keyboard
@@ -75,5 +75,5 @@ void ListWindow::OnContextMenu(wxContextMenuEvent& event)
 	else {
 		point = ScreenToClient(point);
 	}
-	ShowContextMenu(point);
+	show_context_menu(point);
 }

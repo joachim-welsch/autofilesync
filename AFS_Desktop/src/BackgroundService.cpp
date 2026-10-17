@@ -40,11 +40,11 @@ using AFS_Core::translation::translate;
 
 namespace {
 #ifndef _MACOS
-constexpr wchar_t serviceName[] = L"backgroundsync";  // [BackgroundService.md#serviceName]
+constexpr wchar_t SERVICE_NAME[] = L"backgroundsync";  // [BackgroundService.md#SERVICE_NAME]
 #endif
 
 #ifdef WIN32
-constexpr DWORD elevationTimeout = 30000;  // [BackgroundService.md#elevationTimeout]
+constexpr DWORD ELEVATION_TIMEOUT = 30000;  // [BackgroundService.md#ELEVATION_TIMEOUT]
 
 class ScHandle {  // CloseServiceHandle is not CloseHandle, so util::AutoHandle does not fit
     SC_HANDLE handle_;
@@ -56,7 +56,7 @@ public:
     operator SC_HANDLE() const { return handle_; }
 };
 
-wstring systemMessage(DWORD error)
+wstring system_message(DWORD error)
 {
     wchar_t* buffer = nullptr;
     const DWORD length = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -70,12 +70,12 @@ wstring failure(const wstring& action, DWORD error)
 {
     if (error == ERROR_SERVICE_DOES_NOT_EXIST)
         return translate("bs_not_installed_windows");
-    return translate("bs_action_failed", {action, systemMessage(error)});
+    return translate("bs_action_failed", {action, system_message(error)});
 }
 
 wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundService.md#elevate]
 {
-    const wstring parameters = verb + L" " + serviceName;
+    const wstring parameters = verb + L" " + SERVICE_NAME;
     SHELLEXECUTEINFOW info{};
     info.cbSize = sizeof(info);
     info.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
@@ -87,25 +87,25 @@ wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundServi
         const DWORD error = GetLastError();
         if (error == ERROR_CANCELLED)
             return translate("bs_elevation_denied", {action});
-        return translate("bs_sc_start_failed", {action, systemMessage(error)});
+        return translate("bs_sc_start_failed", {action, system_message(error)});
     }
     if (info.hProcess == nullptr)
         return L"";
-    WaitForSingleObject(info.hProcess, elevationTimeout);  // [BackgroundService.md#sc-exit-code]
-    DWORD exitCode = 0;
-    const bool known = GetExitCodeProcess(info.hProcess, &exitCode) != FALSE;
+    WaitForSingleObject(info.hProcess, ELEVATION_TIMEOUT);  // [BackgroundService.md#sc-exit-code]
+    DWORD exit_code = 0;
+    const bool known = GetExitCodeProcess(info.hProcess, &exit_code) != FALSE;
     CloseHandle(info.hProcess);
-    if (!known || exitCode == 0 || exitCode == STILL_ACTIVE)
+    if (!known || exit_code == 0 || exit_code == STILL_ACTIVE)
         return L"";
-    return failure(action, exitCode);
+    return failure(action, exit_code);
 }
 
-wstring withService(DWORD access, const wstring& verb, const wstring& action, bool (*control)(SC_HANDLE))  // [BackgroundService.md#withService]
+wstring with_service(DWORD access, const wstring& verb, const wstring& action, bool (*control)(SC_HANDLE))  // [BackgroundService.md#with_service]
 {
     ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
     if (manager == nullptr)
         return failure(action, GetLastError());
-    ScHandle service(OpenServiceW(manager, serviceName, access));
+    ScHandle service(OpenServiceW(manager, SERVICE_NAME, access));
     if (service == nullptr)
         return GetLastError() == ERROR_ACCESS_DENIED ? elevate(verb, action) : failure(action, GetLastError());
     if (control(service))
@@ -113,12 +113,12 @@ wstring withService(DWORD access, const wstring& verb, const wstring& action, bo
     return GetLastError() == ERROR_ACCESS_DENIED ? elevate(verb, action) : failure(action, GetLastError());
 }
 
-BackgroundService::State queryState()  // [BackgroundService.md#queryState-access]
+BackgroundService::State query_state()  // [BackgroundService.md#query_state-access]
 {
     ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
     if (manager == nullptr)
         return BackgroundService::State::Unknown;
-    ScHandle service(OpenServiceW(manager, serviceName, SERVICE_QUERY_STATUS));
+    ScHandle service(OpenServiceW(manager, SERVICE_NAME, SERVICE_QUERY_STATUS));
     if (service == nullptr)
         return GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST ? BackgroundService::State::NotInstalled : BackgroundService::State::Unknown;
     SERVICE_STATUS status{};
@@ -127,28 +127,28 @@ BackgroundService::State queryState()  // [BackgroundService.md#queryState-acces
     return status.dwCurrentState == SERVICE_STOPPED ? BackgroundService::State::Stopped : BackgroundService::State::Running;
 }
 #elif _MACOS
-constexpr wchar_t launchAgentLabel[] = L"com.autofilesync.backgroundsync";  // [BackgroundService.md#launchAgentLabel]
+constexpr wchar_t LAUNCH_AGENT_LABEL[] = L"com.autofilesync.backgroundsync";  // [BackgroundService.md#LAUNCH_AGENT_LABEL]
 
-wxString agentPlistPath()
+wxString agent_plist_path()
 {
-    return wxGetHomeDir() + "/Library/LaunchAgents/" + wxString(launchAgentLabel) + ".plist";
+    return wxGetHomeDir() + "/Library/LaunchAgents/" + wxString(LAUNCH_AGENT_LABEL) + ".plist";
 }
 
-wxString domainTarget() { return wxString::Format("gui/%u", getuid()); }
-wxString serviceTarget() { return domainTarget() + "/" + wxString(launchAgentLabel); }
+wxString domain_target() { return wxString::Format("gui/%u", getuid()); }
+wxString service_target() { return domain_target() + "/" + wxString(LAUNCH_AGENT_LABEL); }
 
 struct LaunchctlResult { long status = -1; wxArrayString output, errors; };
 
-LaunchctlResult runLaunchctl(const wxString& arguments)  // [BackgroundService.md#runLaunchctl]
+LaunchctlResult run_launchctl(const wxString& arguments)  // [BackgroundService.md#run_launchctl]
 {
     LaunchctlResult result;
     result.status = wxExecute("launchctl " + arguments, result.output, result.errors, wxEXEC_SYNC | wxEXEC_NOEVENTS);
     return result;
 }
 
-LaunchctlResult listAgent() { return runLaunchctl("list " + wxString(launchAgentLabel)); }
+LaunchctlResult list_agent() { return run_launchctl("list " + wxString(LAUNCH_AGENT_LABEL)); }
 
-wstring launchctlFailure(const wstring& action, const LaunchctlResult& result)
+wstring launchctl_failure(const wstring& action, const LaunchctlResult& result)
 {
     wxString reason;
     for (const wxString& line : result.errors)
@@ -158,19 +158,19 @@ wstring launchctlFailure(const wstring& action, const LaunchctlResult& result)
     return translate("bs_action_failed", {action, reason.ToStdWstring()});
 }
 
-wxString daemonPath()  // [BackgroundService.md#daemonPath]
+wxString daemon_path()  // [BackgroundService.md#daemon_path]
 {
     wxFileName daemon(wxStandardPaths::Get().GetExecutablePath());
     daemon.SetFullName("backgroundsync");
     return daemon.GetFullPath();
 }
 
-wstring notInstalled()
+wstring not_installed()
 {
-    return translate("bs_not_installed_macos", {daemonPath().ToStdWstring()});
+    return translate("bs_not_installed_macos", {daemon_path().ToStdWstring()});
 }
 
-wxString xmlEscaped(wxString text)
+wxString xml_escaped(wxString text)
 {
     text.Replace("&", "&amp;");
     text.Replace("<", "&lt;");
@@ -178,7 +178,7 @@ wxString xmlEscaped(wxString text)
     return text;
 }
 
-wxString agentPlist()  // [BackgroundService.md#agentPlist]
+wxString agent_plist()  // [BackgroundService.md#agent_plist]
 {
     return wxString::Format(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -190,53 +190,53 @@ wxString agentPlist()  // [BackgroundService.md#agentPlist]
         "    <key>RunAtLoad</key><true/>\n"
         "    <key>KeepAlive</key><true/>\n"
         "</dict>\n"
-        "</plist>\n", wxString(launchAgentLabel), xmlEscaped(daemonPath()));
+        "</plist>\n", wxString(LAUNCH_AGENT_LABEL), xml_escaped(daemon_path()));
 }
 
-bool agentPlistCurrent()
+bool agent_plist_current()
 {
-    wxFFile file(agentPlistPath(), "r");
+    wxFFile file(agent_plist_path(), "r");
     wxString content;
-    return file.IsOpened() && file.ReadAll(&content) && content == agentPlist();
+    return file.IsOpened() && file.ReadAll(&content) && content == agent_plist();
 }
 
-wstring writeAgentPlist()
+wstring write_agent_plist()
 {
-    wxFileName::Mkdir(wxFileName(agentPlistPath()).GetPath(), wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-    wxFFile file(agentPlistPath(), "w");
-    if (!file.IsOpened() || !file.Write(agentPlist()))
-        return translate("bs_agent_not_writable", {agentPlistPath().ToStdWstring()});
+    wxFileName::Mkdir(wxFileName(agent_plist_path()).GetPath(), wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+    wxFFile file(agent_plist_path(), "w");
+    if (!file.IsOpened() || !file.Write(agent_plist()))
+        return translate("bs_agent_not_writable", {agent_plist_path().ToStdWstring()});
     return L"";
 }
 
-bool waitUntilUnregistered()  // [BackgroundService.md#waitUntilUnregistered]
+bool wait_until_unregistered()  // [BackgroundService.md#wait_until_unregistered]
 {
-    constexpr int attempts = 50, pollInterval = 100; // 5 s, ample for one pass to end
+    constexpr int attempts = 50, poll_interval = 100; // 5 s, ample for one pass to end
     for (int attempt = 0; attempt < attempts; ++attempt) {
-        if (listAgent().status != 0)
+        if (list_agent().status != 0)
             return true;
-        wxMilliSleep(pollInterval);
+        wxMilliSleep(poll_interval);
     }
     return false;
 }
 
-wstring unregisterAgent()
+wstring unregister_agent()
 {
-    if (listAgent().status != 0)
+    if (list_agent().status != 0)
         return L""; // an agent that is not registered is already stopped
-    const LaunchctlResult stopped = runLaunchctl("bootout " + serviceTarget());
+    const LaunchctlResult stopped = run_launchctl("bootout " + service_target());
     if (stopped.status != 0)
-        return launchctlFailure(translate("bs_action_stopped"), stopped);
-    if (!waitUntilUnregistered())
+        return launchctl_failure(translate("bs_action_stopped"), stopped);
+    if (!wait_until_unregistered())
         return translate("bs_still_running");
     return L"";
 }
 
-BackgroundService::State queryState()  // [BackgroundService.md#launchctl-list-pid]
+BackgroundService::State query_state()  // [BackgroundService.md#launchctl-list-pid]
 {
-    if (!wxFileExists(daemonPath()))
+    if (!wxFileExists(daemon_path()))
         return BackgroundService::State::NotInstalled;
-    const LaunchctlResult listed = listAgent();
+    const LaunchctlResult listed = list_agent();
     if (listed.status != 0)
         return BackgroundService::State::Stopped;
     for (const wxString& line : listed.output)
@@ -245,49 +245,49 @@ BackgroundService::State queryState()  // [BackgroundService.md#launchctl-list-p
     return BackgroundService::State::Stopped;
 }
 
-wstring refreshAgentPlist()  // [BackgroundService.md#agent-follows-the-bundle]
+wstring refresh_agent_plist()  // [BackgroundService.md#agent-follows-the-bundle]
 {
-    if (agentPlistCurrent())
+    if (agent_plist_current())
         return L"";
-    const wstring error = unregisterAgent();
-    return error.empty() ? writeAgentPlist() : error;
+    const wstring error = unregister_agent();
+    return error.empty() ? write_agent_plist() : error;
 }
 
-wstring registerAgent()
+wstring register_agent()
 {
-    if (listAgent().status == 0)
+    if (list_agent().status == 0)
         return L"";
-    const LaunchctlResult bootstrapped = runLaunchctl("bootstrap " + domainTarget() + " \"" + agentPlistPath() + "\"");
-    return bootstrapped.status == 0 ? L"" : launchctlFailure(translate("bs_action_started"), bootstrapped);
+    const LaunchctlResult bootstrapped = run_launchctl("bootstrap " + domain_target() + " \"" + agent_plist_path() + "\"");
+    return bootstrapped.status == 0 ? L"" : launchctl_failure(translate("bs_action_started"), bootstrapped);
 }
 
-wstring startAgent()  // [BackgroundService.md#startAgent]
+wstring start_agent()  // [BackgroundService.md#start_agent]
 {
-    if (!wxFileExists(daemonPath()))
-        return notInstalled();
-    for (wstring (*step)() : {refreshAgentPlist, registerAgent}) {
+    if (!wxFileExists(daemon_path()))
+        return not_installed();
+    for (wstring (*step)() : {refresh_agent_plist, register_agent}) {
         const wstring error = step();
         if (!error.empty())
             return error;
     }
-    const LaunchctlResult started = runLaunchctl("kickstart " + serviceTarget());
-    return started.status == 0 ? L"" : launchctlFailure(translate("bs_action_started"), started);
+    const LaunchctlResult started = run_launchctl("kickstart " + service_target());
+    return started.status == 0 ? L"" : launchctl_failure(translate("bs_action_started"), started);
 }
 
-wstring stopAgent()  // [BackgroundService.md#stopAgent]
+wstring stop_agent()  // [BackgroundService.md#stop_agent]
 {
-    const wstring error = unregisterAgent();
+    const wstring error = unregister_agent();
     if (!error.empty())
         return error;
-    if (wxFileExists(agentPlistPath()))
-        wxRemoveFile(agentPlistPath());
+    if (wxFileExists(agent_plist_path()))
+        wxRemoveFile(agent_plist_path());
     return L"";
 }
 #elif _UNIX
-wstring runSystemctl(const wstring& verb, const wstring& action)  // [BackgroundService.md#runSystemctl]
+wstring run_systemctl(const wstring& verb, const wstring& action)  // [BackgroundService.md#run_systemctl]
 {
     wxArrayString output, errors;
-    const wxString command = wxString::Format("systemctl %s %s", wxString(verb), wxString(serviceName));
+    const wxString command = wxString::Format("systemctl %s %s", wxString(verb), wxString(SERVICE_NAME));
     if (wxExecute(command, output, errors, wxEXEC_SYNC) == 0)
         return L"";
     wxString reason;
@@ -298,10 +298,10 @@ wstring runSystemctl(const wstring& verb, const wstring& action)  // [Background
     return translate("bs_action_failed", {action, reason.ToStdWstring()});
 }
 
-BackgroundService::State queryState()  // [BackgroundService.md#queryState-systemctl]
+BackgroundService::State query_state()  // [BackgroundService.md#query_state-systemctl]
 {
     wxArrayString output, errors;
-    const wxString command = wxString::Format("systemctl show %s -p LoadState -p ActiveState", wxString(serviceName));
+    const wxString command = wxString::Format("systemctl show %s -p LoadState -p ActiveState", wxString(SERVICE_NAME));
     if (wxExecute(command, output, errors, wxEXEC_SYNC | wxEXEC_NOEVENTS) != 0)
         return BackgroundService::State::Unknown;
     BackgroundService::State result = BackgroundService::State::Stopped;
@@ -321,7 +321,7 @@ namespace BackgroundService {
 State state()
 {
 #if defined(WIN32) || defined(_UNIX)
-    return queryState();
+    return query_state();
 #else
     return State::NotInstalled;
 #endif
@@ -330,12 +330,12 @@ State state()
 wstring start()
 {
 #ifdef WIN32
-    return withService(SERVICE_START, L"start", translate("bs_action_started"),  // an already running service is what the user asked for
+    return with_service(SERVICE_START, L"start", translate("bs_action_started"),  // an already running service is what the user asked for
         [](SC_HANDLE service) { return StartServiceW(service, 0, nullptr) != FALSE || GetLastError() == ERROR_SERVICE_ALREADY_RUNNING; });
 #elif _MACOS
-    return startAgent();
+    return start_agent();
 #elif _UNIX
-    return runSystemctl(L"start", translate("bs_action_started"));
+    return run_systemctl(L"start", translate("bs_action_started"));
 #else
     return translate("bs_unsupported");
 #endif
@@ -344,15 +344,15 @@ wstring start()
 wstring stop()
 {
 #ifdef WIN32
-    return withService(SERVICE_STOP, L"stop", translate("bs_action_stopped"),
+    return with_service(SERVICE_STOP, L"stop", translate("bs_action_stopped"),
         [](SC_HANDLE service) {
             SERVICE_STATUS status{};
             return ControlService(service, SERVICE_CONTROL_STOP, &status) != FALSE || GetLastError() == ERROR_SERVICE_NOT_ACTIVE;
         });
 #elif _MACOS
-    return stopAgent();
+    return stop_agent();
 #elif _UNIX
-    return runSystemctl(L"stop", translate("bs_action_stopped"));
+    return run_systemctl(L"stop", translate("bs_action_stopped"));
 #else
     return translate("bs_unsupported");
 #endif

@@ -56,6 +56,8 @@ namespace util {
     bool rename_file(const std::wstring& oldname, const std::wstring& newname);
     bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
     bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
+    std::wstring read_utf8_file(const std::filesystem::path& file);  // [Util.md#utf8-files]
+    void write_utf8_file(const std::filesystem::path& file, const std::wstring& text);  // [Util.md#utf8-files]
 } // namespace util
 
 } // namespace AFS_Core

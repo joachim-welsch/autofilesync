@@ -90,6 +90,9 @@ verify_build()
         [ -f "${BUILD_DIR}/locale/${language}/LC_MESSAGES/autofilesync.mo" ] || fail "Übersetzung ${language} fehlt im Build."
     done
     [ -f "${SOURCE_DIR}/AFS_Desktop/help/help.htb" ] || fail "AFS_Desktop/help/help.htb fehlt."
+    for project in "${SOURCE_DIR}"/AFS_Desktop/help/*/help.hhp; do
+        [ -f "${project%/help.hhp}/help.htb" ] || fail "${project%/help.hhp}/help.htb fehlt."
+    done
 }
 
 stage_programs()
@@ -114,7 +117,12 @@ stage_translations()
 stage_help()
 {
     mkdir -p "${STAGING}/usr/share/autofilesync/help"
-    install -m 644 "${SOURCE_DIR}"/AFS_Desktop/help/* "${STAGING}/usr/share/autofilesync/help/"
+    install -m 644 "${SOURCE_DIR}"/AFS_Desktop/help/*.* "${STAGING}/usr/share/autofilesync/help/"
+    for project in "${SOURCE_DIR}"/AFS_Desktop/help/*/help.hhp; do
+        local language_dir="${project%/help.hhp}"
+        mkdir -p "${STAGING}/usr/share/autofilesync/help/${language_dir##*/}"
+        install -m 644 "${language_dir}"/* "${STAGING}/usr/share/autofilesync/help/${language_dir##*/}/"
+    done
     ln -s ../../share/autofilesync/help "${STAGING}/usr/lib/autofilesync/help"
 }
 

@@ -18,6 +18,8 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include "Logging.h"
+#include "ScopedLoggingSetup.h"
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
@@ -651,6 +653,74 @@ TEST_F(ConfigPathTest, FailedPasswordDecryptionDoesNotUseRawCiphertextAsPassword
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, UmlautsRoundTripThroughSaveAndLoad)  // [ConfigTests.md#UmlautsRoundTripThroughSaveAndLoad]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    Exclusions exclusions;
+    exclusions.push_back(L"Ärger*.tmp");
+    Config::instance().add(SyncItem(L"Übersicht", SyncItemType::Tree, L"/home/jürgen/Größe", L"/mnt/Sicherung/Straße", L"",
+        exclusions, SyncFlags(false, false, false, false, true), CompareItems()));
+    Config::instance().settings().backup_proof_path(L"/home/jürgen/Nachweise");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring())) << "Eine Konfiguration mit Umlauten ließ sich nicht speichern.";
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].name(), L"Übersicht");
+    EXPECT_EQ(items[0].source(), L"/home/jürgen/Größe");
+    EXPECT_EQ(items[0].target(), L"/mnt/Sicherung/Straße");
+    EXPECT_EQ(items[0].exclusions().at(0), L"Ärger*.tmp");
+    EXPECT_EQ(Config::instance().settings().backup_proof_path(), L"/home/jürgen/Nachweise");
+    std::ifstream in(target_path);
+    const std::string bytes((std::istreambuf_iterator<char>(in)), {});
+    EXPECT_NE(bytes.find("\xC3\x9C" "bersicht"), std::string::npos) << "Der Name steht nicht als UTF-8 in der Datei.";
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, NonLatinNamesStayReadableInTheFile)  // [ConfigTests.md#NonLatinNamesStayReadableInTheFile]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    const std::wstring name = L"Звіт \U0001F600";
+    Config::instance().reset();
+    Config::instance().add(SyncItem(name, SyncItemType::Dir, L"/home/олена/Документи", L"/mnt/Резерв", L""));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    std::ifstream in(target_path);
+    const std::string bytes((std::istreambuf_iterator<char>(in)), {});
+    EXPECT_NE(bytes.find(util::wstring_to_string(name)), std::string::npos) << "Der Name steht nicht lesbar in der Datei:\n" << bytes;
+    EXPECT_EQ(bytes.find("\\u"), std::string::npos) << "Die Datei enthält maskierte Zeichen:\n" << bytes;
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+    ASSERT_EQ(Config::instance().syncitems().size(), 1u);
+    EXPECT_EQ(Config::instance().syncitems()[0].name(), name);
+    EXPECT_EQ(Config::instance().syncitems()[0].source(), L"/home/олена/Документи");
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, HandWrittenUtf8ConfigIsRead)
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    Config::instance().settings().backup_proof_path(L"/home/PLATZHALTER");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    std::string bytes;
+    {
+        std::ifstream in(target_path);
+        bytes.assign(std::istreambuf_iterator<char>(in), {});
+    }
+    bytes.replace(bytes.find("PLATZHALTER"), 11, "j\xC3\xBCrgen");  // as an editor saving UTF-8 leaves it
+    std::ofstream(target_path) << bytes;
+    Config::instance().reset();
+
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    EXPECT_EQ(Config::instance().settings().backup_proof_path(), L"/home/jürgen");
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, ExclusionsRoundTripThroughSaveAndLoad)  // [ConfigTests.md#ExclusionsRoundTripThroughSaveAndLoad]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
@@ -746,6 +816,27 @@ TEST_F(ConfigPathTest, DeleteInTargetRoundTripsThroughSaveAndLoad)  // [ConfigTe
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, MoveCopyWhenTargetNewerAndFatherSonRoundTripThroughSaveAndLoad)  // [ConfigTests.md#MoveCopyWhenTargetNewerAndFatherSonRoundTripThroughSaveAndLoad]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
+        SyncFlags(true, false, true, true, true), CompareItems());
+    Config::instance().add(si);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_TRUE(items[0].del_aftercopy());
+    EXPECT_TRUE(items[0].copy_when_target_newer());
+    EXPECT_TRUE(items[0].father_son_principle());
+    EXPECT_FALSE(items[0].two_way_sync());
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, DeleteInTargetStaysOffThroughSaveAndLoad)  // [ConfigTests.md#DeleteInTargetStaysOffThroughSaveAndLoad]
 {
     const fs::path target_path = test_home_ / "autofilesync.json";
@@ -834,6 +925,81 @@ TEST_F(ConfigPathTest, SyncEmptyFilesStaysOffThroughSaveAndLoad)
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, WarnIfUnreachableIsOnByDefaultAndRoundTripsOff)  // [ConfigTests.md#WarnIfUnreachableIsOnByDefaultAndRoundTripsOff]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
+        SyncFlags(false, false, false, false, true), CompareItems());
+    ASSERT_TRUE(si.warn_if_unreachable());
+    si.warn_if_unreachable(false);
+    Config::instance().add(si);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_FALSE(items[0].warn_if_unreachable());
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, TimeToleranceRoundTripsThroughSaveAndLoad)  // [ConfigTests.md#TimeToleranceRoundTripsThroughSaveAndLoad]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    CompareItems ci;
+    ci.time(true);
+    ci.time_tolerance_seconds(7);
+    SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(), SyncFlags(false, false, false, false, true), ci);
+    Config::instance().add(si);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].compare_items().time_tolerance_seconds(), 7);
+    EXPECT_TRUE(items[0].compare_items().time());
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, TimeToleranceDefaultsToTwoSecondsForOlderConfigFiles)  // [ConfigTests.md#TimeToleranceDefaultsToTwoSecondsForOlderConfigFiles]
+{
+    const fs::path config_path = test_home_ / "legacy_timetolerance.json";
+    write_file(config_path, R"({
+        "Syncitems": {
+            "Syncitem": {
+                "compareitems": { "size": "false", "time": "true", "content": "false" },
+                "syncflags": {
+                    "delAftercopy": "false",
+                    "twoWaySync": "false",
+                    "copyWhenTargetNewer": "false",
+                    "fatherSonPrinciple": "false",
+                    "enabled": "true"
+                },
+                "name": "item",
+                "type": "Datei",
+                "source": "/tmp/src",
+                "target": "/tmp/dst",
+                "wildcard": "*",
+                "SyncCycle": "5"
+            }
+        }
+    })");
+    Config::instance().reset();
+
+    ASSERT_TRUE(Config::instance().read(config_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_EQ(items[0].compare_items().time_tolerance_seconds(), DEFAULT_TIME_TOLERANCE_SECONDS);
+    EXPECT_TRUE(items[0].compare_items().time());
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, SyncEmptyFilesDefaultsToFalseForOlderConfigFiles)  // [ConfigTests.md#SyncEmptyFilesDefaultsToFalseForOlderConfigFiles]
 {
     const fs::path config_path = test_home_ / "legacy_syncemptyfiles.json";
@@ -878,6 +1044,21 @@ TEST_F(ConfigPathTest, BackupProofPathRoundTripsThroughSaveAndLoad)
     ASSERT_TRUE(Config::instance().read(target_path.wstring()));
 
     EXPECT_EQ(Config::instance().settings().backup_proof_path(), L"/tmp/nachweise");
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, LanguageRoundTripsThroughSaveAndLoad)
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    Config::instance().settings().language("uk");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().settings().language().empty());
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    EXPECT_EQ(Config::instance().settings().language(), "uk");
     Config::instance().reset();
 }
 
@@ -957,4 +1138,245 @@ TEST_F(ConfigPathTest, ConfigWithoutRecycleBinPathKeepsCurrentPath)  // [ConfigT
     EXPECT_TRUE(Config::instance().settings().start_minimized());
     EXPECT_TRUE(Config::instance().settings().show_errors());
     Config::instance().reset();
+}
+
+namespace {
+
+SmtpAccount test_smtp_account(const std::wstring& password)
+{
+    SmtpAccount smtp;
+    smtp.server = L"mail.example.org";
+    smtp.port = 465;
+    smtp.user = L"sicherung@example.org";
+    smtp.password = password;
+    smtp.from = L"sicherung@example.org";
+    return smtp;
+}
+
+void configure_logging(const fs::path& log_file, const std::wstring& smtp_password)  // [ConfigTests.md#configure_logging]
+{
+    Logging& log = Logging::instance();
+    log.set_log_level(LogLevel::Warning);
+    log.set_log_file_path_name(log_file.wstring());
+    log.retention_days(30);
+    log.set_editor_path_name(L"/usr/bin/gedit");
+    log.email().notify_active(true);
+    log.email().notify_address(L"admin@example.org");
+    log.email().smtp_account(test_smtp_account(smtp_password));
+}
+
+void disturb_logging(const fs::path& other_log_file)  // [ConfigTests.md#configure_logging]
+{
+    Logging& log = Logging::instance();
+    log.set_log_level(LogLevel::Debug);
+    log.set_log_file_path_name(other_log_file.wstring());
+    log.retention_days(1);
+    log.set_editor_path_name(L"/usr/bin/anderer-editor");
+    log.email().notify_active(false);
+    log.email().notify_address(L"niemand@example.org");
+    log.email().smtp_account(SmtpAccount());
+}
+
+std::string hand_written_logging_section(const fs::path& log_file, const std::string& extra_keys)
+{
+    return R"({
+        "Logging": {
+            "LogLevel": "Info",
+            "LogFilePathName": ")" + log_file.generic_string() + R"(",
+            "RetentionDays": "7",
+            "EditorPathName": "/usr/bin/nautilus")" + extra_keys + R"(
+        }
+    })";
+}
+
+} // namespace
+
+TEST_F(ConfigPathTest, LoggingSetupRoundTripsThroughSaveAndLoad)  // [ConfigTests.md#LoggingSetupRoundTripsThroughSaveAndLoad]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    const fs::path log_file = test_home_ / "logs" / "afs.log";
+    Config::instance().reset();
+    configure_logging(log_file, L"testonly-smtp-secret");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    disturb_logging(test_home_ / "anders.log");
+
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    Logging& log = Logging::instance();
+    EXPECT_EQ(log.get_log_level(), LogLevel::Warning);
+    EXPECT_EQ(log.get_log_file_path_name(), log_file.wstring());
+    EXPECT_EQ(log.retention_days(), 30);
+    EXPECT_EQ(log.get_editor_path_name(), L"/usr/bin/gedit");
+    EXPECT_TRUE(log.email().notify_active());
+    EXPECT_EQ(log.email().notify_address(), L"admin@example.org");
+    EXPECT_TRUE(log.email().smtp_account() == test_smtp_account(L"testonly-smtp-secret")) << "SMTP-Konto samt Passwort muss unveraendert zurueckkommen";
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, SmtpPasswordIsNotStoredAsPlaintext)  // [ConfigTests.md#SmtpPasswordIsNotStoredAsPlaintext]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    configure_logging(test_home_ / "afs.log", L"testonly-smtp-secret");
+
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    const std::string file_content = read_file(target_path);
+    EXPECT_EQ(file_content.find("testonly-smtp-secret"), std::string::npos) << file_content;
+    EXPECT_NE(file_content.find("\"SmtpPassword\": \"$AES256GCM$"), std::string::npos) << file_content;
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, EmptySmtpPasswordStaysEmptyThroughSaveAndLoad)  // [ConfigTests.md#EmptySmtpPasswordStaysEmptyThroughSaveAndLoad]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    configure_logging(test_home_ / "afs.log", L"");
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    EXPECT_NE(read_file(target_path).find("\"SmtpPassword\": \"\""), std::string::npos) << "ein leeres Passwort wird nicht verschluesselt";
+    Logging::instance().email().smtp_account(test_smtp_account(L"nicht leer"));
+
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    EXPECT_TRUE(Logging::instance().email().smtp_account().password.empty());
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, UndecryptableSmtpPasswordIsDroppedNotUsedAsIs)  // [ConfigTests.md#UndecryptableSmtpPasswordIsDroppedNotUsedAsIs]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path config_path = test_home_ / "bad_smtp_password.json";
+    write_file(config_path, hand_written_logging_section(test_home_ / "afs.log", R"(,
+            "SmtpServer": "mail.example.org",
+            "SmtpFrom": "sicherung@example.org",
+            "SmtpPassword": "$AES256GCM$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")"));
+
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
+
+    const SmtpAccount smtp = Logging::instance().email().smtp_account();
+    EXPECT_EQ(smtp.server, L"mail.example.org") << "die uebrigen SMTP-Werte bleiben lesbar";
+    EXPECT_TRUE(smtp.password.empty());
+    EXPECT_EQ(smtp.password.find(L"AES256GCM"), std::wstring::npos);
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, LoggingSectionWithoutNotificationKeysLoadsWithDefaults)  // [ConfigTests.md#LoggingSectionWithoutNotificationKeysLoadsWithDefaults]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path config_path = test_home_ / "old_logging.json";
+    const fs::path log_file = test_home_ / "afs.log";
+    configure_logging(test_home_ / "anders.log", L"geheim");
+    write_file(config_path, hand_written_logging_section(log_file, ""));
+
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
+
+    Logging& log = Logging::instance();
+    EXPECT_EQ(log.get_log_level(), LogLevel::Info);
+    EXPECT_EQ(log.get_log_file_path_name(), log_file.wstring());
+    EXPECT_EQ(log.retention_days(), 7);
+    EXPECT_FALSE(log.email().notify_active()) << "ohne Schluessel ist die Benachrichtigung aus";
+    EXPECT_TRUE(log.email().notify_address().empty());
+    EXPECT_TRUE(log.email().smtp_account() == SmtpAccount()) << "ohne Schluessel gilt das leere SMTP-Konto mit Port 587";
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, ConfigWithoutLoggingSectionKeepsTheCurrentLoggingSetup)  // [ConfigTests.md#ConfigWithoutLoggingSectionKeepsTheCurrentLoggingSetup]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path config_path = test_home_ / "no_logging.json";
+    const fs::path log_file = test_home_ / "afs.log";
+    configure_logging(log_file, L"geheim");
+    write_file(config_path, R"({ "Settings": { "StartMinimized": "false" } })");
+
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
+
+    Logging& log = Logging::instance();
+    EXPECT_EQ(log.get_log_level(), LogLevel::Warning);
+    EXPECT_EQ(log.get_log_file_path_name(), log_file.wstring());
+    EXPECT_EQ(log.retention_days(), 30);
+    EXPECT_TRUE(log.email().notify_active());
+    EXPECT_TRUE(log.email().smtp_account() == test_smtp_account(L"geheim"));
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, UnknownLogLevelFallsBackToError)  // [ConfigTests.md#UnknownLogLevelFallsBackToError]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path config_path = test_home_ / "odd_level.json";
+    std::string json = hand_written_logging_section(test_home_ / "afs.log", "");
+    json.replace(json.find("\"Info\""), 6, "\"Verbose\"");
+    write_file(config_path, json);
+    Logging::instance().set_log_level(LogLevel::Debug);
+
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
+
+    EXPECT_EQ(Logging::instance().get_log_level(), LogLevel::Error);
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, MalformedLoggingSectionDoesNotBlockSyncitems)  // [ConfigTests.md#MalformedLoggingSectionDoesNotBlockSyncitems]
+{
+    const tu::ScopedLoggingSetup restore;
+    const fs::path config_path = test_home_ / "broken_logging.json";
+    write_file(config_path, R"({
+        "Logging": {
+            "LogFilePathName": "/tmp/afs.log"
+        },
+        "Syncitems": {
+            "Syncitem": {
+                "syncflags": {
+                    "delAftercopy": "false",
+                    "twoWaySync": "false",
+                    "copyWhenTargetNewer": "false",
+                    "fatherSonPrinciple": "false",
+                    "enabled": "true"
+                },
+                "name": "item",
+                "type": "Datei",
+                "source": "/tmp/src",
+                "target": "/tmp/dst",
+                "wildcard": "*",
+                "SyncCycle": "5"
+            }
+        }
+    })");
+    const std::wstring log_file_before = Logging::instance().get_log_file_path_name();
+
+    EXPECT_TRUE(Config::instance().read(config_path.wstring()));
+
+    EXPECT_EQ(Config::instance().syncitems().size(), 1u);
+    EXPECT_EQ(Logging::instance().get_log_file_path_name(), log_file_before) << "ein unvollstaendiger Logging-Abschnitt wird als Ganzes verworfen";
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, SyncPossibleNeedsALoadedConfigurationWithItems)  // [ConfigTests.md#SyncPossibleNeedsALoadedConfigurationWithItems]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    EXPECT_FALSE(Config::sync_possible()) << "ohne Items gibt es nichts zu synchronisieren";
+    Config::instance().add(SyncItem(L"item", SyncItemType::Dir, L"/src", L"/dst", L"*"));
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    Config::instance().reset();
+
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+    EXPECT_TRUE(Config::sync_possible());
+
+    EXPECT_TRUE(Config::instance().erase_by_name(L"item"));
+    EXPECT_FALSE(Config::sync_possible());
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, UnloadDropsTheInstanceAndTheNextOneStartsEmpty)  // [ConfigTests.md#UnloadDropsTheInstanceAndTheNextOneStartsEmpty]
+{
+    Config::instance().add(SyncItem(L"item", SyncItemType::Dir, L"/src", L"/dst", L"*"));
+    ASSERT_TRUE(Config::exists());
+
+    Config::instance().unload();
+
+    EXPECT_FALSE(Config::exists());
+    EXPECT_TRUE(Config::instance().syncitems().empty()) << "die neue Instanz darf nichts von der alten erben";
+    EXPECT_TRUE(Config::exists());
 }

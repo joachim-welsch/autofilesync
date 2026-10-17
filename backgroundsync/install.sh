@@ -11,6 +11,16 @@ for MO in "${LOCALE_DIR}"/*/LC_MESSAGES/autofilesync.mo; do
     sudo install -D -m 644 "${MO}" "/usr/share/locale/${MO#"${LOCALE_DIR}"/}"
 done
 sudo cp "${SCRIPT_DIR}/backgroundsync.service" /etc/systemd/system/
+sudo tee /etc/polkit-1/rules.d/50-backgroundsync.rules > /dev/null <<EOF
+// the user who installed the service may start and stop it without a password
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        action.lookup("unit") == "backgroundsync.service" &&
+        subject.user == "$(id -un)" &&
+        ["start", "stop", "restart"].indexOf(action.lookup("verb")) >= 0)
+        return polkit.Result.YES;
+});
+EOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now backgroundsync.service
 sudo systemctl status backgroundsync.service --no-pager || true

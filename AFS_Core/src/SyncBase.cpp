@@ -24,9 +24,11 @@
 #include "MountedDrives.h"
 #include "SyncFile.h"
 #include "SyncFileSsh.h"
+#include "SyncPlan.h"
 #include "Synchronize.h"
 #include "Translation.h"
 #include "Util.h"
+#include <algorithm>
 #include <filesystem>
 
 namespace AFS_Core {
@@ -73,14 +75,14 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)
 
 void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstring& wildcard)
 {
-    if (only_count_) {
+    if (only_count_ && !planning()) {  // [SyncPlan.md#planning]
         ++copy_count_;
         return;
     }
     try {
         SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard, Exclusions(),
                           sync_item_.flags(), sync_item_.compare_items()),
-                 copy_count_)();
+                 copy_count_, only_count_)();
     } catch (const std::exception& e) {
         log_error(source, dest, string_to_wstring(e.what()));
         report_sync_error(source + L": " + string_to_wstring(e.what()));
@@ -113,7 +115,8 @@ void SyncBase::sync_target_only_entries(const wstring& source_dir, const wstring
     const wchar_t source_separator = sync_item_.ssh_source() ? L'/' : DIR_SEPARATOR;
     auto handle_entry = [&](const wstring& name, const wstring& target_path) {
         if (source_names.count(name) || (!wildcard.empty() && !wildmatch(name, wildcard))
-            || is_excluded(name, sync_item_.exclusions()))
+            || is_excluded(name, sync_item_.exclusions())
+            || (sync_item_.father_son_principle() && father_son_backup(name)))  // [SyncBase.md#father_son_backup]
             return;
         sync_file(with_trailing_char(source_dir, source_separator) + name, target_path, wildcard);
     };
@@ -136,6 +139,15 @@ void SyncBase::sync_target_only_entries(const wstring& source_dir, const wstring
         if (stop_requested())
             break;
     }
+}
+
+bool father_son_backup(const wstring& name)  // [SyncBase.md#father_son_backup]
+{
+    const std::size_t suffix = name.rfind(FATHER_SON_SUFFIX);
+    if (suffix == wstring::npos || suffix == 0)
+        return false;
+    const wstring generation = name.substr(suffix + std::char_traits<wchar_t>::length(FATHER_SON_SUFFIX));
+    return !generation.empty() && std::all_of(generation.begin(), generation.end(), [](wchar_t c) { return c >= L'0' && c <= L'9'; });
 }
 
 bool SyncBase::stop_requested() const

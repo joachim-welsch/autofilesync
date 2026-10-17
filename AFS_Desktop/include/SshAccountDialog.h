@@ -29,11 +29,11 @@ namespace AFS_Core { class SshAccount; }
 
 using namespace AFS_Core;
 
-std::optional<wxString> validateSshAccountName(const wxString& name);  // [SshAccountDialog.md#validateSshAccountName]
+std::optional<wxString> validate_ssh_account_name(const wxString& name);  // [SshAccountDialog.md#validate_ssh_account_name]
 
 class SshAccountDialog : public wxDialog {
 public:
-    SshAccountDialog(SshAccount* sshAccount,
+    SshAccountDialog(SshAccount* ssh_account,
         wxWindow* parent, wxWindowID id,
         const wxString& title,
         const wxPoint& pos = wxDefaultPosition,
@@ -47,25 +47,25 @@ public:
     wxString host() const { return host_; }
     wxString password() const { return password_; }
 
-    void saveData(SshAccount& account);
+    void save_data(SshAccount& account);
 
 private:
     bool TransferDataToWindow() override;
     bool TransferDataFromWindow() override;
     bool Validate() override;
 
-    void onUpdateOkButton(wxUpdateUIEvent& event);
-    void setData(const SshAccount& account);
+    void on_update_ok_button(wxUpdateUIEvent& event);
+    void set_data(const SshAccount& account);
 
     wxString name_;
     wxString user_;
     wxString host_;
     wxString password_;
 
-    wxTextCtrl* nameBox_ = nullptr;
-    wxTextCtrl* userBox_ = nullptr;
-    wxTextCtrl* hostBox_ = nullptr;
-    wxTextCtrl* passwordBox_ = nullptr;
+    wxTextCtrl* name_box_ = nullptr;
+    wxTextCtrl* user_box_ = nullptr;
+    wxTextCtrl* host_box_ = nullptr;
+    wxTextCtrl* password_box_ = nullptr;
 
     DECLARE_EVENT_TABLE()
 };

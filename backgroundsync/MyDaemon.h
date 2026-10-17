@@ -18,15 +18,12 @@
  */
 #pragma once
 
-#include <string>
-#include <thread>
 #include <atomic>
-#include <csignal>
-#include <LogCut.h>
+#include <thread>
+#include "LogCut.h"
 
 class MyDaemon {
 public:
-    MyDaemon();
     ~MyDaemon();
 
     void start();
@@ -37,7 +34,7 @@ private:
     void load_config();
     void reload_config();  // [MyDaemon.md#reload_config]
 
-    std::atomic<bool> running_;
+    std::atomic<bool> running_ = false;
     std::thread worker_thread_;
     AFS_Core::DailyLogCut cut_log_daily_;
 };

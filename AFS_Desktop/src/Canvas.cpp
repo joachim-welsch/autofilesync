@@ -30,8 +30,8 @@ using std::wstring;
 using std::nullopt;
 
 wxBEGIN_EVENT_TABLE(Canvas, wxScrolledWindow)
-    EVT_CONTEXT_MENU(Canvas::OnContextMenu)
-    EVT_SIZE(Canvas::OnSize)
+    EVT_CONTEXT_MENU(Canvas::on_context_menu)
+    EVT_SIZE(Canvas::on_size)
 wxEND_EVENT_TABLE()
 
 Canvas::Canvas(wxWindow* parent, const wxString& heading)
@@ -42,26 +42,26 @@ Canvas::Canvas(wxWindow* parent, const wxString& heading)
 	heading_ = new wxStaticText(this, wxID_ANY, heading, wxDefaultPosition, wxDefaultSize,
 		wxALIGN_CENTRE_HORIZONTAL | wxST_NO_AUTORESIZE);
 	heading_->SetFont(heading_->GetFont().Bold());
-	long style = wxTR_DEFAULT_STYLE | wxTR_HAS_VARIABLE_ROW_HEIGHT | wxSUNKEN_BORDER;  // [Canvas.md#no-inline-rename]
-    treeCtrl_ = new TreeCtrl(this, ID_SRC_TREE_CTRL, wxDefaultPosition, wxDefaultSize, style);
+	long style = wxTR_DEFAULT_STYLE | wxTR_HAS_VARIABLE_ROW_HEIGHT | wxBORDER_THEME;  // [Canvas.md#no-inline-rename]
+    tree_ctrl_ = new TreeCtrl(this, ID_SRC_TREE_CTRL, wxDefaultPosition, wxDefaultSize, style);
 }
 
-void Canvas::OnSize(wxSizeEvent& event)
+void Canvas::on_size(wxSizeEvent& event)
 {
-    const wxSize clientSize = GetClientSize();
-    const int headingHeight = heading_->GetBestSize().GetHeight() + 4;
-    heading_->SetSize(0, 0, clientSize.GetWidth(), headingHeight);
-    treeCtrl_->SetSize(0, headingHeight, clientSize.GetWidth(), clientSize.GetHeight() - headingHeight);
+    const wxSize client_size = GetClientSize();
+    const int heading_height = heading_->GetBestSize().GetHeight() + 4;
+    heading_->SetSize(0, 0, client_size.GetWidth(), heading_height);
+    tree_ctrl_->SetSize(0, heading_height, client_size.GetWidth(), client_size.GetHeight() - heading_height);
     event.Skip();
 }
 
-wstring Canvas::selectedPath() const
+wstring Canvas::selected_path() const
 {
-    auto selItem = treeCtrl_->GetSelection();
-    return tree_.path(selItem);
+    auto sel_item = tree_ctrl_->GetSelection();
+    return tree_.path(sel_item);
 }
 
-void Canvas::ShowContextMenu(const wxPoint& pos)
+void Canvas::show_context_menu(const wxPoint& pos)
 {
     wxMenu menu;
     if (wxGetKeyState(WXK_SHIFT)) {
@@ -73,7 +73,7 @@ void Canvas::ShowContextMenu(const wxPoint& pos)
     }
 }
 
-void Canvas::OnContextMenu(wxContextMenuEvent& event)
+void Canvas::on_context_menu(wxContextMenuEvent& event)
 {
     wxPoint point = event.GetPosition();
     if (point.x == -1 && point.y == -1) {  // (-1,-1) means the menu came from the keyboard
@@ -84,44 +84,44 @@ void Canvas::OnContextMenu(wxContextMenuEvent& event)
     else {
         point = ScreenToClient(point);
     }
-    ShowContextMenu(point);
+    show_context_menu(point);
 }
 
-void Canvas::OnRightUp(wxMouseEvent& event)
+void Canvas::on_right_up(wxMouseEvent& event)
 {
-    ShowContextMenu(event.GetPosition());
+    show_context_menu(event.GetPosition());
 }
 
-bool Canvas::mouseClicked() const
+bool Canvas::mouse_clicked() const
 {
-    return treeCtrl_->mouseClicked();
+    return tree_ctrl_->mouse_clicked();
 }
 
-void Canvas::deSelect()
+void Canvas::deselect()
 {
-    auto selItem=treeCtrl_->GetSelection();
-    if (selItem != nullptr) {
-        treeCtrl_->SelectItem(selItem, false);
-        treeCtrl_->ClearFocusedItem();
+    auto sel_item=tree_ctrl_->GetSelection();
+    if (sel_item != nullptr) {
+        tree_ctrl_->SelectItem(sel_item, false);
+        tree_ctrl_->ClearFocusedItem();
     }
 }
 
-bool Canvas::selectPath(const wstring& path)
+bool Canvas::select_path(const wstring& path)
 {
     auto id = tree_.id(path);
     if (id == nullopt)
         return false;
-    treeCtrl_->SelectItem(id.value());
-    treeCtrl_->EnsureVisible(id.value());
+    tree_ctrl_->SelectItem(id.value());
+    tree_ctrl_->EnsureVisible(id.value());
     return true;
 }
 
-void Canvas::onItemLeftClicked(wxTreeItemId item)
+void Canvas::on_item_left_clicked(wxTreeItemId item)
 {
     if (item.IsOk()) {
         auto found = Config::instance().find(tree_.path(item), source());
-        if (found.has_value() && other()->selectPath(source() ? found->target() : found->source()))
+        if (found.has_value() && other()->select_path(source() ? found->target() : found->source()))
             return;
     }
-    other()->deSelect();
+    other()->deselect();
 }

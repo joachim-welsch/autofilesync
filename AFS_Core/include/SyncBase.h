@@ -55,6 +55,8 @@ public:
 	std::wstring get_message() const { return message_; }
 };
 
+constexpr wchar_t FATHER_SON_SUFFIX[] = L".bak.";  // [SyncBase.md#father_son_backup]
+bool father_son_backup(const std::wstring& name);  // [SyncBase.md#father_son_backup]
 std::wstring root_name(const std::wstring& path);
 std::wstring without_volume_spec(const std::wstring& path);
 

@@ -55,8 +55,10 @@ set(TEST_SOURCES
     TreeViewCrossSelectionTest.cpp
     SshDirDialogTest.cpp
     SyncOnceTest.cpp
+    PreviewTest.cpp
     ContinuousSyncTest.cpp
     ProgressDialogTest.cpp
+    HugeFileTest.cpp
     SyncOptionsTest.cpp
     SyncItemManagementTest.cpp
     SyncItemDialogRulesTest.cpp

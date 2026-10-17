@@ -20,6 +20,6 @@
 
 namespace guitest {
 
-void bringToForeground();  // [ForegroundApp.md#bringToForeground]
+void bring_to_foreground();  // [ForegroundApp.md#bring_to_foreground]
 
 }

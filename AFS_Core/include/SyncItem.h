@@ -23,6 +23,7 @@
 #include <vector>
 #include <chrono>
 #include <memory>
+#include <optional>
 #include "SshAccount.h"
 
 namespace AFS_Core {
@@ -37,6 +38,7 @@ class SyncFlags {
     bool    delete_in_target_ = false;
     bool    backup_proof_ = false;
     bool    sync_empty_files_ = false;  // [SyncItem.md#sync_empty_files_]
+    bool    warn_if_unreachable_ = true;  // [SyncItem.md#warn_if_unreachable_]
     bool    enabled_ = true;
     uint16_t sync_cycle_ = 60;
 public:
@@ -56,12 +58,17 @@ public:
     void backup_proof(bool v);
     bool sync_empty_files() const;
     void sync_empty_files(bool v);
+    bool warn_if_unreachable() const;
+    void warn_if_unreachable(bool v);
     bool enabled() const;
     void enabled(bool v);
 };
 
 enum class CompareItem { size, time, content };
+constexpr uint16_t DEFAULT_TIME_TOLERANCE_SECONDS = 2;  // [SyncItem.md#time_tolerance_seconds_]
+
 class CompareItems: std::set<CompareItem>{
+    uint16_t time_tolerance_seconds_ = DEFAULT_TIME_TOLERANCE_SECONDS;  // [SyncItem.md#time_tolerance_seconds_]
 public:
     CompareItems();
     void set(const std::wstring& name, bool value);
@@ -71,6 +78,8 @@ public:
     void size(bool);
     void time(bool);
     void content(bool);
+    uint16_t time_tolerance_seconds() const { return time_tolerance_seconds_; }
+    void time_tolerance_seconds(uint16_t seconds) { time_tolerance_seconds_ = seconds; }
 };
 
 enum class SyncPathType { Filesystem, Ssh };
@@ -126,6 +135,12 @@ std::wstring sync_item_type_to_str(SyncItemType);       // translated, for displ
 std::wstring sync_item_type_key(SyncItemType);        // untranslated, for the configuration file
 SyncItemType str_to_sync_item_type(const std::wstring&);
 
+struct LastRun {  // [SyncItem.md#LastRun]
+    bool         reachable = true;
+    std::size_t  errors = 0;
+    std::wstring first_error;
+};
+
 class SyncItem {
     using TimePoint = std::chrono::steady_clock::time_point;
     using SyncPathPtr = std::unique_ptr<SyncPath>;
@@ -139,6 +154,7 @@ class SyncItem {
     Exclusions      exclusions_;
     uint16_t        sync_cycle_ = 60;
     TimePoint       last_sync_ = (TimePoint::min)(); // not persisted; min makes the first sync run immediately
+    std::optional<LastRun> last_run_;  // not persisted
     SshPath* ssh_path(const std::unique_ptr<SyncPath>& path) const;
 public:
     SyncItem() = default;
@@ -180,6 +196,8 @@ public:
     void backup_proof(bool b);
     bool sync_empty_files() const;
     void sync_empty_files(bool s);
+    bool warn_if_unreachable() const;
+    void warn_if_unreachable(bool w);
     bool enabled() const;
     void enabled(bool e);
     SyncItemType sync_item_type() const;
@@ -196,6 +214,8 @@ public:
     uint16_t sync_cycle() const;
     void set_last_sync();
     TimePoint last_sync() const;
+    void last_run(const LastRun& run) { last_run_ = run; }
+    const std::optional<LastRun>& last_run() const { return last_run_; }
     SSHPATH ssh_path_type() const;
     bool rename_ssh_account_reference(const std::string& old_name, const SshAccount& new_account);  // [SyncItem.md#rename_ssh_account_reference]
     bool references_ssh_account(const std::string& name) const;
@@ -217,6 +237,8 @@ inline bool SyncFlags::backup_proof() const { return backup_proof_; }
 inline void SyncFlags::backup_proof(bool v) { backup_proof_ = v; }
 inline bool SyncFlags::sync_empty_files() const { return sync_empty_files_; }
 inline void SyncFlags::sync_empty_files(bool v) { sync_empty_files_ = v; }
+inline bool SyncFlags::warn_if_unreachable() const { return warn_if_unreachable_; }
+inline void SyncFlags::warn_if_unreachable(bool v) { warn_if_unreachable_ = v; }
 inline bool SyncFlags::enabled() const { return enabled_; }
 inline void SyncFlags::enabled(bool v) { enabled_ = v; }
 
@@ -247,6 +269,8 @@ inline bool SyncItem::backup_proof() const { return flags_.backup_proof(); }
 inline void SyncItem::backup_proof(bool b) { flags_.backup_proof(b); }
 inline bool SyncItem::sync_empty_files() const { return flags_.sync_empty_files(); }
 inline void SyncItem::sync_empty_files(bool s) { flags_.sync_empty_files(s); }
+inline bool SyncItem::warn_if_unreachable() const { return flags_.warn_if_unreachable(); }
+inline void SyncItem::warn_if_unreachable(bool w) { flags_.warn_if_unreachable(w); }
 inline bool SyncItem::enabled() const { return flags_.enabled(); }
 inline void SyncItem::enabled(bool e) { flags_.enabled(e); }
 inline std::wstring SyncItem::item_type_str() const { return sync_item_type_to_str(type_); }

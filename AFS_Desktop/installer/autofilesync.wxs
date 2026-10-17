@@ -171,6 +171,10 @@
                         Account="[SERVICEDOMAIN]\[SERVICEUSER]" Password="[SERVICEPASSWORD]">
           <ServiceDependency Id="Tcpip" />
           <ServiceDependency Id="LanmanWorkstation" />
+          <!-- Das Dienstkonto darf den Dienst aus dem Programm heraus starten und
+               stoppen, ohne UAC-Abfrage. -->
+          <util:PermissionEx User="[SERVICEUSER]" Domain="[SERVICEDOMAIN]"
+                             ServiceQueryStatus="yes" ServiceStart="yes" ServiceStop="yes" ServiceInterrogate="yes" />
         </ServiceInstall>
         <ServiceControl Id="BackgroundServiceControl" Name="backgroundsync" Stop="both" Remove="both" Wait="yes" />
         <util:User Id="ServiceAccount" Name="[SERVICEUSER]" Domain="[SERVICEDOMAIN]"

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Dowód kopii zapasowej</title>
+</head>
+<body>
+<h1>Dowód kopii zapasowej</h1>
+
+<p>Jeśli musisz udokumentować, że kopia została wykonana, możesz oznaczyć
+synchronizację opcją <b>Dowód kopii zapasowej</b> – pole wyboru znajduje się na
+karcie <a href="options.html">Opcje</a>. W przeciwieństwie do dziennika,
+którego zakres zależy od ustawionego poziomu i który jest skracany po kilku
+dniach, dowód jest przeznaczony do przechowywania.</p>
+
+<h2>Gdzie jest zapisywany</h2>
+
+<p>Folder ustawia się w <a href="logging.html">ustawieniach dziennika</a> w polu
+<b>Ścieżka dowodów kopii zapasowej</b>. AutoFileSync tworzy w nim dla każdej
+synchronizacji jeden plik, nazwany jej nazwą, w formacie JSON:</p>
+
+<blockquote><tt>&lt;folder dowodów&gt;\&lt;nazwa synchronizacji&gt;.json</tt></blockquote>
+
+<h2>Co zawiera wpis</h2>
+
+<ul>
+<li>znacznik czasu przebiegu</li>
+<li>źródło i cel</li>
+<li>liczbę przesłanych plików</li>
+<li>przesłaną ilość danych</li>
+<li>komunikaty o błędach, które wystąpiły</li>
+<li>stan <tt>Powodzenie</tt> lub <tt>Niepowodzenie</tt></li>
+</ul>
+
+<p>Nazwy pól są zapisywane w języku, który program wyświetla w chwili
+przebiegu; plik rozpoczęty w jednym języku jest kontynuowany pod swoją nazwą
+listy.</p>
+
+<h2>Czego się nie zapisuje</h2>
+
+<p>Przebieg, który nie miał nic do zrobienia, nie zapisuje wpisu. Przy przerwie
+kilku sekund powstawałyby inaczej co godzinę setki bezwartościowych wierszy,
+wśród których nie dałoby się już znaleźć przebiegów z rzeczywistą treścią.</p>
+
+<p>Komunikaty o błędach w dowodzie pochodzą bezpośrednio z synchronizacji, a nie
+z dziennika. Ustawiony poziom dziennika nie ma więc wpływu na to, co zawiera
+dowód.</p>
+
+<p>Jeśli istniejącego pliku dowodu nie da się odczytać, nie jest on zastępowany,
+lecz pozostawiany w spokoju: jest dowodem, a istniejąca już zawartość waży
+więcej niż wpis, którego akurat nie można dodać.</p>
+
+</body>
+</html>

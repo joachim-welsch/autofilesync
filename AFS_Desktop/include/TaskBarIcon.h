@@ -30,17 +30,17 @@ class MainWindow;
 
 class TaskBarIcon: public wxTaskBarIcon {
 public:
-    TaskBarIcon(MainWindow* mwd) : mainWindow_(mwd) {}
-    void OnLeftButtonDClick(wxTaskBarIconEvent&);
-    void OnMenuRestore(wxCommandEvent&);
-    void OnMenuExit(wxCommandEvent&);
-    void OnMenuSetNewIcon(wxCommandEvent&);
-    void OnMenuCheckmark(wxCommandEvent&);
-    void OnMenuUICheckmark(wxUpdateUIEvent&);
-    void OnMenuSub(wxCommandEvent&);
+    TaskBarIcon(MainWindow* mwd) : main_window_(mwd) {}
+    void on_left_button_double_click(wxTaskBarIconEvent&);
+    void on_menu_restore(wxCommandEvent&);
+    void on_menu_exit(wxCommandEvent&);
+    void on_menu_set_new_icon(wxCommandEvent&);
+    void on_menu_checkmark(wxCommandEvent&);
+    void on_menu_ui_checkmark(wxUpdateUIEvent&);
+    void on_menu_sub(wxCommandEvent&);
     virtual wxMenu* CreatePopupMenu() wxOVERRIDE;
 private:
-    MainWindow* mainWindow_ = nullptr;
+    MainWindow* main_window_ = nullptr;
     wxDECLARE_EVENT_TABLE();
 
 };

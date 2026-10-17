@@ -31,6 +31,8 @@
 #include <FilesystemUtil.h>
 #include "FileUtil.h"
 #include "DirUtil.h"
+#include "TestPaths.h"
+#include "SyncRunner.h"
 #include "StrUtil.h"
 #include "SshTest.h"
 #include "DirUtil.h"
@@ -395,6 +397,23 @@ TEST_F(SyncSshFileCopyTest, CopyRemoteFileToLocalKeepsThePermissions)  // [SyncS
     ASSERT_EQ(result, CopyResult::OK);
     EXPECT_EQ(fs::status(dest).permissions(), source_perms);
 }
+
+TEST_F(SyncSshFileCopyTest, CopyLocalFileToRemoteKeepsThePermissions)  // [SyncSshFileTests.md#CopyLocalFileToRemoteKeepsThePermissions]
+{
+    ensure_account_in_config();
+    namespace fs = std::filesystem;
+    const fs::path source = fs::path(LOCAL_TEST_DIR) / TEST_FILENAME;
+    const fs::path dest = tu::concat_ssh_temp("uploaded_with_permissions.txt");
+    const fs::perms source_perms = fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec | fs::perms::others_read;
+    fs::permissions(source, source_perms);
+    ssh_remove_file(L"localhost:" + dest.wstring());
+
+    const CopyResult result = copy_fs_to_ssh(source.wstring(), L"localhost:" + dest.wstring());
+
+    ASSERT_EQ(result, CopyResult::OK);
+    EXPECT_EQ(fs::status(dest).permissions(), source_perms) << "der Upload muss die Rechte der Quelle mitnehmen";
+    ssh_remove_file(L"localhost:" + dest.wstring());
+}
 #endif
 
 TEST_F(SyncSshFileCopyTest, CopyLargeFileToRemote)
@@ -432,4 +451,199 @@ TEST_F(SyncSshFileCopyTest, CopyNonExistentSourceFile)
     CopyResult result = copy_fs_to_ssh(src_path, dest_path);  // the copy must fail
     
     EXPECT_NE(result, CopyResult::OK) << "Kopieren einer nicht existierenden Datei sollte fehlschlagen";
+}
+namespace {
+
+class SyncSshStopTest : public ::testing::Test {  // [SyncSshFileTests.md#SyncSshStopTest]
+protected:
+    static constexpr std::size_t LARGE_FILE_BYTES = 64u << 20;
+    const std::filesystem::path shared_dir_ = tu::concat_ssh_temp("autofilesync_sshstop_" + std::to_string(TestPaths::process_id()));
+    const std::filesystem::path local_dir_ = std::filesystem::temp_directory_path() / "autofilesync_sshstop_local";
+
+    void SetUp() override
+    {
+        SKIP_WITHOUT_SSH_SERVER();
+        Config::instance().add(SyncSshFileTestConfig::create_test_account());
+        clean_up();
+        std::filesystem::create_directories(shared_dir_);
+        std::filesystem::permissions(shared_dir_, std::filesystem::perms::all);  // [SyncSshFileTests.md#SyncSshStopTest]
+        std::filesystem::create_directories(local_dir_);
+        Synchronize::start();
+    }
+
+    void TearDown() override
+    {
+        Synchronize::start();
+        clean_up();
+    }
+
+    void clean_up() const
+    {
+        std::error_code ec;
+        std::filesystem::remove_all(shared_dir_, ec);
+        std::filesystem::remove_all(local_dir_, ec);
+    }
+
+    std::wstring remote(const std::filesystem::path& file) const
+    {
+        return L"test_account:" + string_to_wstring(file.string());
+    }
+
+    std::size_t sync_and_stop_when(const std::wstring& source, const std::wstring& target, const std::filesystem::path& file_the_copy_creates) const  // [SyncSshFileTests.md#sync_and_stop_when]
+    {
+        std::thread stopper([&] {
+            while (!std::filesystem::exists(file_the_copy_creates))
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            Synchronize::stop();
+        });
+        SyncItem si;
+        si.sync_cycle(0);
+        si.sync_item_type(SyncItemType::File);
+        si.source(source);
+        si.target(target);
+        std::size_t copy_count = 0;
+        SyncFile(si, copy_count)();
+        stopper.join();
+        return copy_count;
+    }
+};
+
+} // namespace
+
+TEST_F(SyncSshStopTest, StopDuringTheUploadLeavesNoHalfFileOnTheRemote)  // [SyncSshFileTests.md#StopDuringTheUploadLeavesNoHalfFileOnTheRemote]
+{
+    const std::filesystem::path source = local_dir_ / "gross.bin";
+    const std::filesystem::path target = shared_dir_ / "gross.bin";
+    tu::write_large_file(source, LARGE_FILE_BYTES);
+
+    const std::size_t copy_count = sync_and_stop_when(source.wstring(), remote(target), target);
+
+    EXPECT_EQ(copy_count, 0u) << "der Upload war schon fertig, bevor der Stopp ankam - die Datei muss groesser sein";
+    EXPECT_FALSE(ssh_exists(remote(target))) << "eine halb hochgeladene Datei darf nicht im Ziel zurueckbleiben";
+}
+
+TEST_F(SyncSshStopTest, StopDuringTheDownloadLeavesNoHalfFileLocally)  // [SyncSshFileTests.md#StopDuringTheDownloadLeavesNoHalfFileLocally]
+{
+    const std::filesystem::path source = shared_dir_ / "gross.bin";
+    const std::filesystem::path target = local_dir_ / "gross.bin";
+    tu::write_large_file(source, LARGE_FILE_BYTES);
+    std::filesystem::permissions(source, std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::others_read);
+
+    const std::size_t copy_count = sync_and_stop_when(remote(source), target.wstring(), target);
+
+    EXPECT_EQ(copy_count, 0u) << "der Download war schon fertig, bevor der Stopp ankam - die Datei muss groesser sein";
+    EXPECT_FALSE(std::filesystem::exists(target)) << "eine halb heruntergeladene Datei darf nicht im Ziel zurueckbleiben";
+    EXPECT_FALSE(std::filesystem::exists(target.wstring() + L".bak"));
+}
+
+namespace {
+class SyncSshFlagTest : public SyncSshStopTest {};  // [SyncSshFileTests.md#SyncSshFlagTest]
+}
+
+TEST_F(SyncSshFlagTest, MoveLeavesTheSshSourceInPlace)  // [SyncSshFileTests.md#MoveLeavesTheSshSourceInPlace]
+{
+    const std::filesystem::path source = shared_dir_ / "brief.txt";
+    const std::filesystem::path target = local_dir_ / "brief.txt";
+    tu::write_text_file(source, "Inhalt");
+    std::filesystem::permissions(source, std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::others_read);
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source(remote(source));
+    si.target(target.wstring());
+    si.del_aftercopy(true);
+
+    EXPECT_EQ(tu::run_sync(si), 1u);
+
+    EXPECT_EQ(tu::read_text_file(target), "Inhalt");
+    EXPECT_TRUE(ssh_exists(remote(source))) << "eine SSH-Quelle wird nicht geloescht - das Verschieben endet als Kopie";
+}
+
+namespace {
+
+class SyncSshFileToDirTest : public SyncSshStopTest {  // [SyncSshFileTests.md#SyncSshFileToDirTest]
+protected:
+    void SetUp() override
+    {
+        SyncSshStopTest::SetUp();
+        if (IsSkipped())
+            return;
+        Config::instance().reset();
+        Config::instance().add(SyncSshFileTestConfig::create_test_account());
+        std::filesystem::create_directories(shared_dir_ / "ziel");
+        std::filesystem::permissions(shared_dir_ / "ziel", std::filesystem::perms::all);
+    }
+
+    void TearDown() override
+    {
+        if (Synchronize::has_instance())
+            Synchronize::destroy();
+        Config::instance().reset();
+        SyncSshStopTest::TearDown();
+    }
+
+    void run_file_item(const std::wstring& source, const std::wstring& target, const std::filesystem::path& expected_file) const  // [SyncSshFileTests.md#run_file_item]
+    {
+        SyncItem si(L"datei", SyncItemType::File, source, target, L"*");
+        si.sync_cycle(0);
+        Config::instance().add(si);
+        Synchronize::create(SyncType::Single);
+        for (int i = 0; i < 100 && !std::filesystem::exists(expected_file); ++i)
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        Synchronize::destroy();
+    }
+
+    static uint64_t remote_size(const std::filesystem::path& file)  // [SyncSshFileTests.md#remote_size]
+    {
+        SshFileInspector inspector(SyncSshFileTestConfig::create_test_account());
+        return inspector.inspect_file(file.string()).size_bytes;
+    }
+
+    std::filesystem::path readable_source(const std::filesystem::path& file) const
+    {
+        tu::write_text_file(file, "Inhalt");
+        std::filesystem::permissions(file, std::filesystem::perms::owner_all | std::filesystem::perms::group_read | std::filesystem::perms::others_read);
+        return file;
+    }
+};
+
+} // namespace
+
+TEST_F(SyncSshFileToDirTest, LocalFileLandsInTheSshDirectoryUnderItsOwnName)  // [SyncSshFileTests.md#file-into-directory]
+{
+    const std::filesystem::path source = readable_source(local_dir_ / "brief.txt");
+
+    run_file_item(source.wstring(), remote(shared_dir_ / "ziel"), shared_dir_ / "ziel" / "brief.txt");
+
+    EXPECT_TRUE(ssh_exists(remote(shared_dir_ / "ziel" / "brief.txt")));
+    EXPECT_EQ(remote_size(shared_dir_ / "ziel" / "brief.txt"), 6u);
+    EXPECT_EQ(Config::instance().syncitems().at(0).last_run()->errors, 0u);
+}
+
+TEST_F(SyncSshFileToDirTest, LocalFileKeepsTheNameOfAnSshFileTarget)  // [SyncSshFileTests.md#file-into-directory]
+{
+    const std::filesystem::path source = readable_source(local_dir_ / "brief.txt");
+
+    run_file_item(source.wstring(), remote(shared_dir_ / "ziel" / "anders.txt"), shared_dir_ / "ziel" / "anders.txt");
+
+    EXPECT_EQ(remote_size(shared_dir_ / "ziel" / "anders.txt"), 6u);
+    EXPECT_FALSE(ssh_exists(remote(shared_dir_ / "ziel" / "brief.txt"))) << "ein Dateiziel bekommt nicht den Quellnamen angehaengt";
+}
+
+TEST_F(SyncSshFileToDirTest, SshFileLandsInTheLocalDirectoryUnderItsOwnName)  // [SyncSshFileTests.md#file-into-directory]
+{
+    const std::filesystem::path source = readable_source(shared_dir_ / "brief.txt");
+
+    run_file_item(remote(source), local_dir_.wstring(), local_dir_ / "brief.txt");
+
+    EXPECT_EQ(tu::read_text_file(local_dir_ / "brief.txt"), "Inhalt");
+}
+
+TEST_F(SyncSshFileToDirTest, SshFileLandsInTheSshDirectoryUnderItsOwnName)  // [SyncSshFileTests.md#file-into-directory]
+{
+    const std::filesystem::path source = readable_source(shared_dir_ / "brief.txt");
+
+    run_file_item(remote(source), remote(shared_dir_ / "ziel"), shared_dir_ / "ziel" / "brief.txt");
+
+    EXPECT_EQ(tu::read_text_file(shared_dir_ / "ziel" / "brief.txt"), "Inhalt");
 }

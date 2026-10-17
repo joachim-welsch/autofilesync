@@ -30,81 +30,13 @@ using std::wstring;
 using std::nullopt;
 
 namespace {
-	constexpr int kMinRowLabelSize = 150;  // [GridCtrl.md#kMinRowLabelSize]
+	constexpr int MIN_ROW_LABEL_SIZE = 150;  // [GridCtrl.md#MIN_ROW_LABEL_SIZE]
 }
 
 wxBEGIN_EVENT_TABLE(GridCtrl, wxGrid)
-EVT_GRID_LABEL_LEFT_CLICK(GridCtrl::OnModifyEntry)
-EVT_GRID_CELL_CHANGED(GridCtrl::OnCellValueChanged)
+EVT_GRID_LABEL_LEFT_CLICK(GridCtrl::on_modify_entry)
+EVT_GRID_CELL_CHANGED(GridCtrl::on_cell_value_changed)
 wxEND_EVENT_TABLE()
-
-class CustomColumnHeaderRenderer : public wxGridColumnHeaderRenderer
-{
-public:
-	CustomColumnHeaderRenderer(const wxColour& colFg, const wxColour& colBg)
-		: m_colFg(colFg),
-		m_colBg(colBg)
-	{}
-
-	virtual void DrawLabel(const wxGrid& WXUNUSED(grid),
-		wxDC& dc,
-		const wxString& value,
-		const wxRect& rect,
-		int horizAlign,
-		int vertAlign,
-		int WXUNUSED(textOrientation)) const wxOVERRIDE
-	{
-		dc.SetTextForeground(m_colFg);
-		dc.SetFont(wxITALIC_FONT->Bold());
-		dc.DrawLabel(value, rect, horizAlign | vertAlign);
-	}
-
-	virtual void DrawBorder(const wxGrid& WXUNUSED(grid),
-		wxDC& dc,
-		wxRect& rect) const wxOVERRIDE
-	{
-		dc.SetPen(*wxTRANSPARENT_PEN);
-		dc.SetBrush(wxBrush(m_colBg));
-		dc.DrawRectangle(rect);
-	}
-
-private:
-	const wxColour m_colFg, m_colBg;
-
-	wxDECLARE_NO_COPY_CLASS(CustomColumnHeaderRenderer);
-};
-
-class CustomColumnHeadersProvider : public wxGridCellAttrProvider
-{
-public:
-	CustomColumnHeadersProvider()  // [GridCtrl.md#CustomColumnHeadersProvider]
-		: m_customOddRenderer(*wxYELLOW, *wxBLUE),
-		m_customEvenRenderer(*wxWHITE, *wxBLACK),
-		m_useCustom(false)
-	{
-	}
-
-	void UseCustomColHeaders(bool use = true) { m_useCustom = use; }
-
-protected:
-	virtual const wxGridColumnHeaderRenderer& GetColumnHeaderRenderer(int col) wxOVERRIDE
-	{
-		if (m_useCustom)
-		{
-			return col % 2 ? m_customOddRenderer : m_customEvenRenderer;
-		}
-
-		return wxGridCellAttrProvider::GetColumnHeaderRenderer(col);
-	}
-
-private:
-	CustomColumnHeaderRenderer m_customOddRenderer,
-		m_customEvenRenderer;
-
-	bool m_useCustom;
-
-	wxDECLARE_NO_COPY_CLASS(CustomColumnHeadersProvider);
-};
 
 GridCtrl::GridCtrl(wxWindow* parent,
 	const wxWindowID id,
@@ -113,22 +45,21 @@ GridCtrl::GridCtrl(wxWindow* parent,
 	: wxGrid(parent, id, pos, size)
 {
 	CreateGrid(0, 0);
-	GetTable()->SetAttrProvider(new CustomColumnHeadersProvider());
 	AppendCols(3);
 	SetCornerLabelValue(translation::translate("name"));
 	SetColLabelValue(0, translation::translate("active"));
 	SetColLabelValue(1, translation::translate("source"));
 	SetColLabelValue(2, translation::translate("target"));
-	SetColSize(0, 40);
-	SetColSize(1, 200);
-	SetColSize(2, 200);
-	SetColLabelSize(25);
-	SetRowLabelSize(kMinRowLabelSize);
+	SetColSize(0, FromDIP(40));
+	SetColSize(1, FromDIP(200));
+	SetColSize(2, FromDIP(200));
+	SetColLabelSize(FromDIP(25));
+	SetRowLabelSize(FromDIP(MIN_ROW_LABEL_SIZE));
 	SetRowLabelAlignment(wxALIGN_LEFT, wxALIGN_CENTRE);  // [GridCtrl.md#row-label-alignment]
 }
 
 
-void GridCtrl::addDataItems()
+void GridCtrl::add_data_items()
 {
 	Config& cfg = Config::instance();
 	int index = 0;
@@ -145,12 +76,12 @@ void GridCtrl::addDataItems()
 		index++;
 	}
 	SetRowLabelSize(wxGRID_AUTOSIZE);  // [GridCtrl.md#autosize-row-label]
-	if (GetRowLabelSize() < kMinRowLabelSize)
-		SetRowLabelSize(kMinRowLabelSize);
-	adjustColumnWidths(GetSize().GetWidth());
+	if (GetRowLabelSize() < FromDIP(MIN_ROW_LABEL_SIZE))
+		SetRowLabelSize(FromDIP(MIN_ROW_LABEL_SIZE));
+	adjust_column_widths(GetSize().GetWidth());
 }
 
-wstring GridCtrl::getSelected() const
+wstring GridCtrl::get_selected() const
 {
 	int row = GetGridCursorRow();
 	if (row < 0 || row >= GetNumberRows())
@@ -160,12 +91,12 @@ wstring GridCtrl::getSelected() const
 
 void GridCtrl::update()
 {
-	const wstring selectedName = getSelected();  // [GridCtrl.md#selection-restored]
+	const wstring selected_name = get_selected();  // [GridCtrl.md#selection-restored]
 	DeleteRows(0, GetNumberRows());
-	addDataItems();
-	if (!selectedName.empty()) {
+	add_data_items();
+	if (!selected_name.empty()) {
 		for (int row = 0; row < GetNumberRows(); ++row) {
-			if (GetRowLabelValue(row).ToStdWstring() == selectedName) {
+			if (GetRowLabelValue(row).ToStdWstring() == selected_name) {
 				SetGridCursor(row, 0);
 				SelectRow(row);
 				break;
@@ -174,7 +105,7 @@ void GridCtrl::update()
 	}
 }
 
-void GridCtrl::OnModifyEntry(wxGridEvent& ev)
+void GridCtrl::on_modify_entry(wxGridEvent& ev)
 {
 	int row = ev.GetRow();
 	if (row < 0)
@@ -185,17 +116,17 @@ void GridCtrl::OnModifyEntry(wxGridEvent& ev)
 		found = Config::instance().find_by_name(name.ToStdWstring());
 	if (!found.has_value()) // click on a row label with no matching item
 		return;
-	const std::wstring originalName = found->name();  // [GridCtrl.md#copy-written-back]
+	const std::wstring original_name = found->name();  // [GridCtrl.md#copy-written-back]
 	SyncItemDialog dlg(&*found, this, wxID_ANY, txt::edit_synchronisation());
 	if (dlg.ShowModal() == wxID_OK) {
-		dlg.saveData(*found);
-		Config::instance().update_by_name(originalName, *found);
+		dlg.save_data(*found);
+		Config::instance().update_by_name(original_name, *found);
 		autosave::after_change(this);  // [AutoSave.md#after_change]
 		update();
 	}
 }
 
-void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
+void GridCtrl::on_cell_value_changed(wxGridEvent& ev)
 {
 	int row = ev.GetRow(),
 		col = ev.GetCol();
@@ -221,16 +152,16 @@ void GridCtrl::OnCellValueChanged(wxGridEvent& ev)
 	ev.Skip();
 }
 
-void GridCtrl::adjustColumnWidths(int windowWidth)
+void GridCtrl::adjust_column_widths(int window_width)
 {
-	int availableWidth = windowWidth - GetRowLabelSize() - 20;
-	if (availableWidth < 100) return;
+	int available_width = window_width - GetRowLabelSize() - 20;
+	if (available_width < 100) return;
 	
-	const int aktivWidth = 50;
-	int remainingWidth = availableWidth - aktivWidth;
-	int colWidth = remainingWidth / 2;
+	const int aktiv_width = 50;
+	int remaining_width = available_width - aktiv_width;
+	int col_width = remaining_width / 2;
 	
-	SetColSize(0, aktivWidth);
-	SetColSize(1, colWidth);
-	SetColSize(2, colWidth);
+	SetColSize(0, aktiv_width);
+	SetColSize(1, col_width);
+	SetColSize(2, col_width);
 }

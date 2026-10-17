@@ -1,0 +1,1990 @@
+# Ukrainian catalogue for autofilesync.
+msgid ""
+msgstr ""
+"Project-Id-Version: autofilesync\n"
+"PO-Revision-Date: 2026-10-11 00:00+0000\n"
+"Last-Translator: autofilesync\n"
+"Language-Team: uk\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: AFS_Core/src/CheckPath.cpp:108 AFS_Core/src/SyncFileSsh.cpp:200
+#: AFS_Core/src/SyncFileSsh.cpp:460 AFS_Core/src/SyncFileSsh.cpp:834
+#: AFS_Core/src/SyncFileSsh.cpp:957 AFS_Core/src/SyncFileSsh.cpp:1043
+#: AFS_Core/src/SyncFileSsh.cpp:1125 AFS_Core/src/SyncFileSsh.cpp:1209
+#: AFS_Core/src/SyncFileSsh.cpp:1295
+msgid "ssh_account_not_found_for"
+msgstr "Обліковий запис SSH не знайдено для: "
+
+#: AFS_Core/src/CheckPath.cpp:117
+msgid "ssh_path_not_exist"
+msgstr "Шлях SSH не існує: "
+
+#: AFS_Core/src/CheckPath.cpp:121 AFS_Core/src/CheckPath.cpp:125
+msgid "ssh_path_not_reachable"
+msgstr "Шлях SSH недоступний: "
+
+#: AFS_Core/src/CheckPath.cpp:148
+msgid "source_dir_not_reachable"
+msgstr "Папка джерела недоступна: "
+
+#: AFS_Core/src/CheckPath.cpp:152
+msgid "target_dir_not_reachable"
+msgstr "Папка призначення недоступна: "
+
+#: AFS_Core/src/CheckPath.cpp:182
+msgid "invalid_path"
+msgstr "Недійсний шлях: "
+
+#: AFS_Core/src/Config.cpp:54 AFS_Core/src/Config.cpp:56
+msgid "config_file_not_exist"
+msgstr "Файл конфігурації не існує: "
+
+#: AFS_Core/src/Config.cpp:65 AFS_Core/src/Config.cpp:67
+msgid "config_read_exception"
+msgstr "Виняток під час читання конфігурації: "
+
+#: AFS_Core/src/Config.cpp:163
+msgid "config_migrated_from"
+msgstr "Конфігурацію перенесено з: "
+
+#: AFS_Core/src/Config.cpp:165
+msgid "config_migration_failed"
+msgstr "Не вдалося перенести конфігурацію з: "
+
+#: AFS_Core/src/Config.cpp:323
+msgid "config_read_sync_settings"
+msgstr "Читання параметрів синхронізації: "
+
+#: AFS_Core/src/Config.cpp:336
+msgid "smtp_password_not_decryptable"
+msgstr "Не вдалося розшифрувати пароль SMTP"
+
+#: AFS_Core/src/Config.cpp:369
+msgid "config_read_logging_settings"
+msgstr "Читання параметрів журналу: "
+
+#: AFS_Core/src/Config.cpp:389
+msgid "config_read_settings"
+msgstr "Читання параметрів: "
+
+#: AFS_Core/src/Config.cpp:391
+msgid "config_settings_read_error"
+msgstr "Помилка читання параметрів: "
+
+#: AFS_Core/src/Config.cpp:415
+msgid "ssh_password_not_decryptable"
+msgstr "Не вдалося розшифрувати пароль для облікового запису SSH: "
+
+#: AFS_Core/src/Config.cpp:420
+msgid "ssh_account_entry_skipped"
+msgstr "Пропущено хибний запис облікового запису SSH: "
+
+#: AFS_Core/src/Config.cpp:430
+msgid "config_read_error"
+msgstr "Помилка читання конфігурації."
+
+#: AFS_Core/src/Config.cpp:444
+msgid "sync_item_entry_skipped"
+msgstr "Пропущено хибний запис синхронізації."
+
+#: AFS_Core/src/Config.cpp:569 AFS_Core/src/Config.cpp:571
+msgid "config_write_error"
+msgstr "Помилка запису конфігурації: "
+
+#: AFS_Core/src/Config.cpp:589 AFS_Core/src/Config.cpp:591
+msgid "config_not_readable"
+msgstr "Не вдалося прочитати конфігурацію."
+
+#: AFS_Core/src/CopyLog.cpp:85
+msgid "backup_proof_field_timestamp"
+msgstr "Позначка часу"
+
+#: AFS_Core/src/CopyLog.cpp:86
+msgid "backup_proof_field_name"
+msgstr "Назва"
+
+#: AFS_Core/src/CopyLog.cpp:87
+msgid "backup_proof_field_source"
+msgstr "Джерело"
+
+#: AFS_Core/src/CopyLog.cpp:88
+msgid "backup_proof_field_target"
+msgstr "Призначення"
+
+#: AFS_Core/src/CopyLog.cpp:89
+msgid "backup_proof_field_files"
+msgstr "Файли"
+
+#: AFS_Core/src/CopyLog.cpp:90
+msgid "backup_proof_field_volume"
+msgstr "Обсяг даних"
+
+#: AFS_Core/src/CopyLog.cpp:91
+msgid "backup_proof_field_status"
+msgstr "Стан"
+
+#: AFS_Core/src/CopyLog.cpp:92
+msgid "backup_proof_status_successful"
+msgstr "Успішно"
+
+#: AFS_Core/src/CopyLog.cpp:92
+msgid "backup_proof_status_failed"
+msgstr "Невдало"
+
+#: AFS_Core/src/CopyLog.cpp:94
+msgid "backup_proof_field_errors"
+msgstr "Помилки"
+
+#: AFS_Core/src/CopyLog.cpp:110
+msgid "backup_proof_not_readable"
+msgstr "Підтвердження резервного копіювання не читається, запис відкинуто: "
+
+#: AFS_Core/src/CopyLog.cpp:120
+msgid "backup_proof_entries_key"
+msgstr "Підтвердження резервного копіювання"
+
+#: AFS_Core/src/CopyLog.cpp:133
+msgid "backup_proof_not_writable"
+msgstr "Не вдалося записати підтвердження резервного копіювання: "
+
+#: AFS_Core/src/CopyLog.cpp:147
+msgid "error_list_capped"
+msgstr "Подальші помилки не записано."
+
+#: AFS_Core/src/CopyLog.cpp:187
+msgid "backup_proof_dir_not_creatable"
+msgstr "Неможливо створити папку для підтверджень резервного копіювання: "
+
+#: AFS_Core/src/FileDelete.cpp:39
+msgid "file_move_to_recycle_bin_failed"
+msgstr "Не вдалося перемістити до кошика: "
+
+#: AFS_Core/src/FileDelete.cpp:42
+msgid "file_moved_to_recycle_bin"
+msgstr "Переміщено до кошика: "
+
+#: AFS_Core/src/FileDifference.cpp:74
+msgid "ssh_path_invalid"
+msgstr "Недійсний шлях SSH: "
+
+#: AFS_Core/src/FileDifference.cpp:82
+msgid "ssh_account_not_found"
+msgstr "Обліковий запис SSH не знайдено: "
+
+#: AFS_Core/src/FileDifference.cpp:97
+msgid "ssh_not_reachable_for"
+msgstr "Шлях SSH недоступний: "
+
+#: AFS_Core/src/FileDifference.cpp:102
+msgid "ssh_read_error_for"
+msgstr "Помилка SSH під час читання "
+
+#: AFS_Core/src/FileDifference.cpp:165
+msgid "comparing"
+msgstr "Порівняння"
+
+#: AFS_Core/src/FileDifference.cpp:165
+msgid "comparing_with"
+msgstr "з"
+
+#: AFS_Core/src/FilesystemUtil.cpp:73
+msgid "file_not_exist"
+msgstr "Файл не існує"
+
+#: AFS_Core/src/FilesystemUtil.cpp:75
+msgid "drive_not_mounted"
+msgstr "Диск не змонтовано"
+
+#: AFS_Core/src/FilesystemUtil.cpp:77
+msgid "file_attributes_unreadable"
+msgstr "Неможливо прочитати атрибути файлу"
+
+#: AFS_Core/src/FilesystemUtil.cpp:79
+msgid "file_time_invalid"
+msgstr "Недійсний час файлу"
+
+#: AFS_Core/src/FilesystemUtil.cpp:81
+msgid "file_info_read_error"
+msgstr "Помилка читання відомостей про файл"
+
+#: AFS_Core/src/FilesystemUtil.cpp:83 AFS_Core/src/SyncBase.cpp:88
+#: AFS_Core/src/SyncDir.cpp:85 AFS_Core/src/SyncFile.cpp:326
+#: AFS_Core/src/SyncFile.cpp:366 AFS_Core/src/SyncFile.cpp:393
+#: AFS_Core/src/SyncTree.cpp:91 AFS_Core/src/Synchronize.cpp:298
+#: AFS_Core/src/Util.cpp:304 AFS_Core/src/Util.cpp:319
+#: AFS_Core/src/Util.cpp:335
+msgid "unknown_error"
+msgstr "Невідома помилка"
+
+#: AFS_Core/src/LlamaClient.cpp:39
+msgid "assistant_system_prompt"
+msgstr "Ти вбудований асистент Autofilesync — програми для зручної автоматичної синхронізації файлів і дерев папок у Windows і Linux. Відповідай українською, коротко й конкретно щодо Autofilesync.\nОсновні поняття:\n- Користувач налаштовує синхронізації між папкою джерела та папкою призначення; Autofilesync автоматично узгоджує їхній вміст, щойно в них щось змінюється.\n- Для налаштування синхронізацій використовується програма з графічним інтерфейсом (wxWidgets).\n- Фонова служба/демон виконує ту саму конфігурацію без відкритого інтерфейсу користувача.\n- Найвища мета — надійність, далі — настільки інтуїтивне керування, що недосвідчені користувачі розуміють його без документації.\n- Якщо джерело або ціль недоступні (диск не під'єднано, SSH-сервер не відповідає), це не помилка: синхронізація пропускається в цьому проході, нічого не копіюється і не видаляється. Чи з'явиться попередження, вирішує для кожної синхронізації опція «Попереджати, якщо немає диска або з'єднання SSH» (типово: увімкнена). Увімкнена: попередження після «Синхронізувати один раз» і попередження в журналі. Вимкнена: лише інформаційний рядок у журналі, без попередження – для резервних дисків, які під'єднують лише зрідка. Попередній перегляд завжди називає пропущені синхронізації. Конфігурація нижче вказує для кожної синхронізації, чи опцію вимкнено і чи бракувало сторони в останньому проході.\nЯкщо ти не можеш упевнено відповісти на запитання на основі цих знань, скажи про це відверто, замість вигадувати неіснуючі функції."
+
+#: AFS_Core/src/LlamaClient.cpp:40
+msgid "assistant_log_analysis_instruction"
+msgstr "Наступний уривок узято з файлу журналу Autofilesync (найновіші записи в кінці). Використай його, щоб відповісти на наступне запитання користувача. Якщо в уривку немає нічого придатного для цього, скажи про це відверто, замість щось вигадувати."
+
+#: AFS_Core/src/LlamaClient.cpp:56
+msgid "assistant_no_model_configured"
+msgstr "Локальну модель не знайдено. Покладіть файл GGUF у папку %1 або вкажіть у %2 файл GGUF."
+
+#: AFS_Core/src/LlamaClient.cpp:76
+msgid "assistant_model_not_loadable"
+msgstr "Не вдалося завантажити модель: "
+
+#: AFS_Core/src/LlamaClient.cpp:87
+msgid "assistant_model_context_failed"
+msgstr "Не вдалося створити контекст для моделі."
+
+#: AFS_Core/src/LlamaClient.cpp:129 AFS_Core/src/LlamaClient.cpp:184
+msgid "assistant_nothing_to_send"
+msgstr "Нічого надсилати."
+
+#: AFS_Core/src/LlamaClient.cpp:132
+msgid "assistant_unknown_chat_format"
+msgstr "Модель не підтримує жодного відомого формату чату."
+
+#: AFS_Core/src/LlamaClient.cpp:150
+msgid "assistant_conversation_too_long"
+msgstr "Розмова довша за контекстне вікно моделі."
+
+#: AFS_Core/src/LlamaClient.cpp:153
+msgid "assistant_prompt_failed"
+msgstr "Не вдалося обробити запит."
+
+#: AFS_Core/src/LlamaClient.cpp:177
+msgid "assistant_empty_answer"
+msgstr "Відповідь не містила тексту."
+
+#: AFS_Core/src/LlamaClient.cpp:186
+msgid "assistant_log_file_unreadable"
+msgstr "Файл журналу порожній або його не вдалося прочитати."
+
+#: AFS_Core/src/LlamaClient.cpp:189
+msgid "assistant_question_label"
+msgstr "Запитання: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr "Поточна конфігурація користувача:"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr "Налаштовані синхронізації: %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr "кожні %1 секунд"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr "... і ще %1"
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr "Облікові записи SSH: "
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr "Неактивна"
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr "Якщо користувач хоче створити нову синхронізацію і назвав джерело та ціль, додай до відповіді рівно один блок такого вигляду:\n```sync\n{\"name\": \"Коротка назва\", \"source\": \"/шлях/до/джерела\", \"target\": \"/шлях/до/цілі\", \"type\": \"%2\"}\n```\nДозволені типи: %1. Не додавай блок, поки бракує джерела або цілі; натомість запитай про них. Якщо користувач хоче видалити наявну синхронізацію, натомість додай рівно один блок такого вигляду:\n```sync\n{\"delete\": \"назва синхронізації\"}\n```\nВикористовуй назву точно так, як вона записана в конфігурації. Потім користувач перевіряє і підтверджує пропозицію."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_summary"
+msgstr "Пропозиція: синхронізація \"%1\" (%2) з %3 до %4. Перевірте й створіть її кнопкою \"%5\"."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_deletion_summary"
+msgstr "Пропозиція: видалити синхронізацію \"%1\". Підтвердьте кнопкою \"%2\"."
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_extraction"
+msgstr "Чи хотів користувач останнім запитанням створити нову синхронізацію і назвав джерело та ціль? Тоді відповідай лише JSON-об'єктом {\"name\": ..., \"source\": ..., \"target\": ..., \"type\": ...} зі шляхами із запитання. Чи хотів він видалити наявну синхронізацію? Тоді відповідай лише {\"delete\": \"назва\"}. Інакше відповідай лише null."
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr "Створити синхронізацію…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_delete_sync"
+msgstr "Видалити синхронізацію…"
+
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
+msgstr "Каталог повідомлень у %1 не відповідає цій версії Autofilesync; встановіть файли locale з цієї збірки. Доти бракуватиме текстів, зокрема в помічнику."
+
+#: AFS_Core/src/LogCut.cpp:67
+msgid "log_file_not_shortenable"
+msgstr "Не вдалося скоротити файл журналу: "
+
+#: AFS_Core/src/Logging.cpp:338
+msgid "log_message_repeated"
+msgstr "(повторень: %1)"
+
+#: AFS_Core/src/Logging.cpp:382
+msgid "fatal_error_mail_subject"
+msgstr "autofilesync: критична помилка"
+
+#: AFS_Core/src/Logging.cpp:384
+msgid "notification_failed"
+msgstr "Не вдалося надіслати сповіщення до %1: "
+
+#: AFS_Core/src/MountedDrives.cpp:66
+msgid "mount_point_query_error"
+msgstr "Помилка визначення точки монтування: "
+
+#: AFS_Core/src/PasswordCrypto.cpp:67
+msgid "crypto_key_generation_failed"
+msgstr "Не вдалося створити криптографічно стійкий ключ."
+
+#: AFS_Core/src/PasswordCrypto.cpp:86
+msgid "crypto_key_not_storable"
+msgstr "Не вдалося зберегти ключ для зашифрованих паролів; після перезапуску паролі буде неможливо прочитати: "
+
+#: AFS_Core/src/PasswordCrypto.cpp:128
+msgid "crypto_encryption_unavailable"
+msgstr "Шифрування недоступне, пароль не збережено."
+
+#: AFS_Core/src/PasswordCrypto.cpp:159
+msgid "crypto_password_corrupted"
+msgstr "Зашифрований пароль пошкоджено."
+
+#: AFS_Core/src/PasswordCrypto.cpp:173
+msgid "crypto_decryption_unavailable"
+msgstr "Розшифрування недоступне."
+
+#: AFS_Core/src/PasswordCrypto.cpp:185
+msgid "crypto_decryption_failed"
+msgstr "Не вдалося розшифрувати пароль (неправильний ключ або пошкоджені дані)."
+
+#: AFS_Core/src/RecycleBin.cpp:45
+msgid "recycle_bin_dir_not_creatable"
+msgstr "Кошик: неможливо створити папку"
+
+#: AFS_Core/src/RecycleBin.cpp:67
+msgid "recycle_bin_absolute_path"
+msgstr "Кошик: абсолютний шлях не дозволено"
+
+#: AFS_Core/src/RecycleBin.cpp:72
+msgid "recycle_bin_path_escapes"
+msgstr "Кошик: шлях виходить за межі кошика"
+
+#: AFS_Core/src/RecycleBin.cpp:86
+msgid "recycle_bin_move_failed"
+msgstr "Кошик: не вдалося перемістити"
+
+#: AFS_Core/src/RecycleBin.cpp:91
+msgid "recycle_bin_source_not_deletable"
+msgstr "Кошик: не вдалося видалити файл джерела"
+
+#: AFS_Core/src/RecycleBin.cpp:120
+msgid "recycle_bin_file_not_exist"
+msgstr "Кошик: файл не існує"
+
+#: AFS_Core/src/RecycleBin.cpp:138
+msgid "recycle_bin_file_not_inside"
+msgstr "Кошик: файлу немає в кошику"
+
+#: AFS_Core/src/RecycleBin.cpp:142
+msgid "recycle_bin_target_exists"
+msgstr "Кошик: ціль уже існує"
+
+#: AFS_Core/src/RecycleBin.cpp:161
+msgid "recycle_bin_dir_unreadable"
+msgstr "Кошик: папка не читається"
+
+#: AFS_Core/src/SftpConnection.cpp:67 AFS_Core/src/SshDirInspector.cpp:195
+#: AFS_Core/src/SshFileInspector.cpp:135 AFS_Core/src/SyncFileSsh.cpp:488
+#: AFS_Core/src/SyncFileSsh.cpp:869 AFS_Core/src/SyncFileSsh.cpp:985
+#: AFS_Core/src/SyncFileSsh.cpp:1071 AFS_Core/src/SyncFileSsh.cpp:1153
+#: AFS_Core/src/SyncFileSsh.cpp:1237 AFS_Core/src/SyncFileSsh.cpp:1323
+msgid "ssh_session_create_error"
+msgstr "Помилка створення сеансу SSH"
+
+#: AFS_Core/src/SftpConnection.cpp:72
+msgid "libssh_connect_error"
+msgstr "Помилка з'єднання: "
+
+#: AFS_Core/src/SftpConnection.cpp:74 AFS_Core/src/SshDirInspector.cpp:207
+#: AFS_Core/src/SshFileInspector.cpp:147
+msgid "host_key_verification_failed"
+msgstr "Перевірка ключа хоста не вдалася: можлива атака «людина посередині»."
+
+#: AFS_Core/src/SftpConnection.cpp:76
+msgid "libssh_auth_error"
+msgstr "Помилка автентифікації: "
+
+#: AFS_Core/src/SftpConnection.cpp:79 AFS_Core/src/SyncFileSsh.cpp:518
+#: AFS_Core/src/SyncFileSsh.cpp:899 AFS_Core/src/SyncFileSsh.cpp:1015
+#: AFS_Core/src/SyncFileSsh.cpp:1101 AFS_Core/src/SyncFileSsh.cpp:1183
+#: AFS_Core/src/SyncFileSsh.cpp:1267 AFS_Core/src/SyncFileSsh.cpp:1353
+msgid "sftp_session_create_error"
+msgstr "Помилка створення сеансу SFTP"
+
+#: AFS_Core/src/SftpConnection.cpp:81 AFS_Core/src/SshDirInspector.cpp:219
+#: AFS_Core/src/SshFileInspector.cpp:161
+msgid "sftp_init_failed"
+msgstr "Не вдалося ініціалізувати SFTP"
+
+#: AFS_Core/src/SmtpMailer.cpp:173
+msgid "smtp_connection_not_openable"
+msgstr "Не вдалося відкрити з'єднання з %1"
+
+#: AFS_Core/src/SmtpMailer.cpp:175
+msgid "smtp_no_connection_to"
+msgstr "немає з'єднання з "
+
+#: AFS_Core/src/SmtpMailer.cpp:204
+msgid "smtp_tls_init_failed"
+msgstr "Не вдалося ініціалізувати TLS"
+
+#: AFS_Core/src/SmtpMailer.cpp:213 AFS_Core/src/SmtpMailer.cpp:218
+msgid "smtp_tls_layer_failed"
+msgstr "Не вдалося створити рівень TLS"
+
+#: AFS_Core/src/SmtpMailer.cpp:224
+msgid "smtp_tls_handshake_failed"
+msgstr "Узгодження TLS з %1 не вдалося (перевірте сертифікат)"
+
+#: AFS_Core/src/SmtpMailer.cpp:227
+msgid "smtp_read_buffer_failed"
+msgstr "Не вдалося створити буфер читання для %1"
+
+#: AFS_Core/src/SmtpMailer.cpp:240
+msgid "smtp_no_starttls"
+msgstr "%1 не підтримує STARTTLS: "
+
+#: AFS_Core/src/SmtpMailer.cpp:258
+msgid "smtp_login_rejected"
+msgstr "Вхід до %1 відхилено"
+
+#: AFS_Core/src/SmtpMailer.cpp:314
+msgid "smtp_send_failed"
+msgstr "Не вдалося надіслати до %1"
+
+#: AFS_Core/src/SmtpMailer.cpp:327
+msgid "smtp_no_answer_from"
+msgstr "немає відповіді від "
+
+#: AFS_Core/src/SmtpMailer.cpp:332
+msgid "smtp_truncated_answer_from"
+msgstr "обрізана відповідь від "
+
+#: AFS_Core/src/SmtpMailer.cpp:339
+msgid "smtp_unexpected_answer"
+msgstr "неочікувана відповідь від %1: "
+
+#: AFS_Core/src/SmtpMailer.cpp:352 AFS_Core/src/SmtpMailer.cpp:360
+msgid "smtp_server_answers"
+msgstr "%1 відповідає: "
+
+#: AFS_Core/src/SmtpMailer.cpp:369
+msgid "smtp_not_configured"
+msgstr "Сервер SMTP або відправника не налаштовано"
+
+#: AFS_Core/src/SmtpMailer.cpp:371
+msgid "smtp_no_recipient"
+msgstr "немає одержувача"
+
+#: AFS_Core/src/SshDirInspector.cpp:73 AFS_Core/src/SshDirInspector.cpp:256
+#: AFS_Core/src/SshDirInspector.cpp:331
+msgid "path_not_exist"
+msgstr "Шлях не існує: "
+
+#: AFS_Core/src/SshDirInspector.cpp:79 AFS_Core/src/SshDirInspector.cpp:264
+#: AFS_Core/src/SshDirInspector.cpp:339
+msgid "path_not_a_dir"
+msgstr "Шлях не є папкою: "
+
+#: AFS_Core/src/SshDirInspector.cpp:97 AFS_Core/src/SshDirInspector.cpp:130
+#: AFS_Core/src/SshDirInspector.cpp:272 AFS_Core/src/SshDirInspector.cpp:351
+#: AFS_Core/src/SyncFileSsh.cpp:442 AFS_Core/src/SyncFileSsh.cpp:1362
+msgid "remote_dir_open_error"
+msgstr "Помилка відкриття віддаленої папки: "
+
+#: AFS_Core/src/SshDirInspector.cpp:104
+msgid "dir_read_error"
+msgstr "Помилка читання папки: "
+
+#: AFS_Core/src/SshDirInspector.cpp:112 AFS_Core/src/SshDirInspector.cpp:316
+msgid "home_dir_unknown"
+msgstr "Не вдалося визначити домашню папку: "
+
+#: AFS_Core/src/SshDirInspector.cpp:142 AFS_Core/src/SshDirInspector.cpp:303
+#: AFS_Core/src/SshDirInspector.cpp:392 AFS_Core/src/SyncFileSsh.cpp:449
+#: AFS_Core/src/SyncFileSsh.cpp:1386
+msgid "remote_dir_read_incomplete"
+msgstr "Віддалену папку прочитано не повністю: "
+
+#: AFS_Core/src/SshDirInspector.cpp:160 AFS_Core/src/SshFileInspector.cpp:96
+msgid "wsastartup_failed"
+msgstr "Помилка WSAStartup"
+
+#: AFS_Core/src/SshDirInspector.cpp:167 AFS_Core/src/SshFileInspector.cpp:120
+#: AFS_Core/src/SyncFileSsh.cpp:469 AFS_Core/src/SyncFileSsh.cpp:850
+#: AFS_Core/src/SyncFileSsh.cpp:966 AFS_Core/src/SyncFileSsh.cpp:1052
+#: AFS_Core/src/SyncFileSsh.cpp:1134 AFS_Core/src/SyncFileSsh.cpp:1218
+#: AFS_Core/src/SyncFileSsh.cpp:1304
+msgid "socket_create_error"
+msgstr "Помилка створення сокета"
+
+#: AFS_Core/src/SshDirInspector.cpp:178 AFS_Core/src/SshFileInspector.cpp:114
+#: AFS_Core/src/SyncFileSsh.cpp:475 AFS_Core/src/SyncFileSsh.cpp:856
+#: AFS_Core/src/SyncFileSsh.cpp:972 AFS_Core/src/SyncFileSsh.cpp:1058
+#: AFS_Core/src/SyncFileSsh.cpp:1140 AFS_Core/src/SyncFileSsh.cpp:1224
+#: AFS_Core/src/SyncFileSsh.cpp:1310
+msgid "host_name_not_resolvable"
+msgstr "Не вдалося визначити адресу хоста: "
+
+#: AFS_Core/src/SshDirInspector.cpp:186 AFS_Core/src/SshFileInspector.cpp:127
+#: AFS_Core/src/SyncFileSsh.cpp:862 AFS_Core/src/SyncFileSsh.cpp:978
+#: AFS_Core/src/SyncFileSsh.cpp:1064 AFS_Core/src/SyncFileSsh.cpp:1146
+#: AFS_Core/src/SyncFileSsh.cpp:1230 AFS_Core/src/SyncFileSsh.cpp:1316
+msgid "server_connect_failed"
+msgstr "Не вдалося з'єднатися з сервером"
+
+#: AFS_Core/src/SshDirInspector.cpp:202 AFS_Core/src/SshFileInspector.cpp:142
+#: AFS_Core/src/SyncFileSsh.cpp:495 AFS_Core/src/SyncFileSsh.cpp:876
+#: AFS_Core/src/SyncFileSsh.cpp:992 AFS_Core/src/SyncFileSsh.cpp:1078
+#: AFS_Core/src/SyncFileSsh.cpp:1160 AFS_Core/src/SyncFileSsh.cpp:1244
+#: AFS_Core/src/SyncFileSsh.cpp:1330
+msgid "ssh_handshake_failed"
+msgstr "Узгодження SSH не вдалося"
+
+#: AFS_Core/src/SshDirInspector.cpp:213 AFS_Core/src/SshFileInspector.cpp:155
+#: AFS_Core/src/SyncFileSsh.cpp:509 AFS_Core/src/SyncFileSsh.cpp:890
+#: AFS_Core/src/SyncFileSsh.cpp:1006 AFS_Core/src/SyncFileSsh.cpp:1092
+#: AFS_Core/src/SyncFileSsh.cpp:1174 AFS_Core/src/SyncFileSsh.cpp:1258
+#: AFS_Core/src/SyncFileSsh.cpp:1344
+msgid "ssh_auth_failed"
+msgstr "Автентифікація не вдалася"
+
+#: AFS_Core/src/SshFileInspector.cpp:76 AFS_Core/src/SshFileInspector.cpp:212
+msgid "sftp_stat_failed"
+msgstr "Помилка SFTP stat (код помилки "
+
+#: AFS_Core/src/SshFileInspector.cpp:234
+msgid "ssh_unsupported_platform"
+msgstr "SSH не підтримується на цій платформі."
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:39
+msgid "host_key_not_storable"
+msgstr "Не вдалося зберегти ключ хоста: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:42
+#: AFS_Core/src/SshHostKeyVerification.cpp:109
+msgid "host_key_stored"
+msgstr "Збережено новий ключ хоста для: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:45
+#: AFS_Core/src/SshHostKeyVerification.cpp:113
+msgid "host_key_changed"
+msgstr "Ключ хоста змінився, можлива атака «людина посередині»: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:48
+#: AFS_Core/src/SshHostKeyVerification.cpp:117
+msgid "host_key_verification_failed_for"
+msgstr "Перевірка ключа хоста не вдалася для: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:85
+msgid "host_key_not_readable"
+msgstr "Не вдалося прочитати ключ хоста: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp:91
+msgid "known_hosts_store_failed"
+msgstr "Не вдалося створити сховище відомих хостів"
+
+#: AFS_Core/src/SyncArbiter.cpp:74
+msgid "arbiter_announce_failed"
+msgstr "SyncArbiter: не вдалося оголосити, помилка "
+
+#: AFS_Core/src/SyncArbiter.cpp:78
+msgid "arbiter_lock_file_failed"
+msgstr "SyncArbiter: неможливо створити файл блокування, помилка "
+
+#: AFS_Core/src/SyncArbiter.cpp:82
+msgid "arbiter_own_lock_taken"
+msgstr "SyncArbiter: власне блокування цієї програми вже зайняте, синхронізація все одно триває."
+
+#: AFS_Core/src/SyncArbiter.cpp:147
+msgid "arbiter_service_not_releasing"
+msgstr "SyncArbiter: фонова служба не звільняє синхронізацію, графічний інтерфейс усе одно синхронізує."
+
+#: AFS_Core/src/SyncBase.cpp:61
+msgid "ssh_dir_create_error"
+msgstr "Помилка створення папки SSH: "
+
+#: AFS_Core/src/SyncBase.cpp:62
+msgid "ssh_target_dir_not_creatable"
+msgstr "Неможливо створити папку призначення SSH: "
+
+#: AFS_Core/src/SyncBase.cpp:69
+msgid "target_dir_create_error"
+msgstr "Помилка створення папки призначення: "
+
+#: AFS_Core/src/SyncBase.cpp:70
+msgid "target_dir_not_creatable"
+msgstr "Неможливо створити папку призначення: "
+
+#: AFS_Core/src/SyncBase.cpp:89 AFS_Core/src/SyncDir.cpp:86
+#: AFS_Core/src/SyncFile.cpp:394 AFS_Core/src/SyncTree.cpp:92
+msgid "unknown_error_for"
+msgstr "Невідома помилка: "
+
+#: AFS_Core/src/SyncFile.cpp:70
+msgid "target_newer_not_copied"
+msgstr "Не скопійовано, бо призначення новіше за джерело:"
+
+#: AFS_Core/src/SyncFile.cpp:77 AFS_Core/src/SyncFile.cpp:78
+msgid "content_conflict_not_copied"
+msgstr "Не синхронізовано, бо час і розмір однакові, але вміст відрізняється:"
+
+#: AFS_Core/src/SyncFile.cpp:101
+msgid "rename_error"
+msgstr "Помилка: %1, під час перейменування %2 на %3"
+
+#: AFS_Core/src/SyncFile.cpp:140 AFS_Core/src/SyncFileSsh.cpp:76
+#: AFS_Core/src/SyncFileSsh.cpp:108 AFS_Core/src/SyncFileSsh.cpp:291
+msgid "file_time_not_settable"
+msgstr "Не вдалося встановити час файлу: "
+
+#: AFS_Core/src/SyncFile.cpp:225 AFS_Core/src/SyncFile.cpp:231
+#: AFS_Core/src/SyncFile.cpp:321 AFS_Core/src/SyncFile.cpp:326
+#: AFS_Core/src/SyncFile.cpp:361 AFS_Core/src/SyncFile.cpp:366
+#: AFS_Core/src/SyncFile.cpp:388 AFS_Core/src/SyncFile.cpp:392
+msgid "copying_label"
+msgstr "Копіювання: "
+
+#: AFS_Core/src/SyncFile.cpp:225
+msgid "copy_verification_differs"
+msgstr "Перевірка скопійованого файлу виявила відмінності"
+
+#: AFS_Core/src/SyncFile.cpp:226
+msgid "copied_file_differs"
+msgstr "Скопійований файл відрізняється: "
+
+#: AFS_Core/src/SyncFile.cpp:231
+msgid "copy_failed"
+msgstr "Копіювання не вдалося"
+
+#: AFS_Core/src/SyncFile.cpp:232
+msgid "copy_failed_for"
+msgstr "Копіювання не вдалося: "
+
+#: AFS_Core/src/SyncFile.cpp:237
+msgid "copy_cancelled"
+msgstr "Копіювання скасовано: "
+
+#: AFS_Core/src/SyncFile.cpp:254 AFS_Core/src/SyncFileSsh.cpp:272
+#: AFS_Core/src/SyncFileSsh.cpp:281
+msgid "file_attributes_change"
+msgstr "Зміна атрибутів файлу: "
+
+#: AFS_Core/src/SyncFile.cpp:281
+msgid "empty_source_not_copied"
+msgstr "Порожній файл джерела не скопійовано: "
+
+#: AFS_Core/src/SyncFile.cpp:285
+msgid "empty_target_not_copied"
+msgstr "Порожній файл призначення не скопійовано: "
+
+#: AFS_Core/src/SyncFile.cpp:290
+msgid "target_deleted_source_missing"
+msgstr "Видалення файлу призначення, бо джерело не існує: "
+
+#: AFS_Core/src/SyncFile.cpp:291
+msgid "source_label"
+msgstr "Джерело:"
+
+#: AFS_Core/src/SyncFile.cpp:294 AFS_Core/src/SyncFile.cpp:295
+msgid "target_delete_failed"
+msgstr "Не вдалося видалити файл призначення: "
+
+#: AFS_Core/src/SyncFile.cpp:305 AFS_Core/src/SyncFile.cpp:342
+msgid "copy_progress"
+msgstr "Копіювання \n%1\nдо\n%2..."
+
+#: AFS_Core/src/SyncFile.cpp:313
+msgid "copied_source_to_target"
+msgstr "Джерело скопійовано до призначення: "
+
+#: AFS_Core/src/SyncFile.cpp:313 AFS_Core/src/SyncFile.cpp:353
+msgid "to_label"
+msgstr "до"
+
+#: AFS_Core/src/SyncFile.cpp:327 AFS_Core/src/SyncFile.cpp:367
+msgid "unknown_copy_error"
+msgstr "Невідома помилка під час копіювання: "
+
+#: AFS_Core/src/SyncFile.cpp:353
+msgid "copied_target_to_source"
+msgstr "Призначення до джерела: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:235 AFS_Core/src/SyncFileSsh.cpp:560
+msgid "local_file_write_error"
+msgstr "Помилка запису локального файлу"
+
+#: AFS_Core/src/SyncFileSsh.cpp:237 AFS_Core/src/SyncFileSsh.cpp:567
+msgid "remote_file_read_error"
+msgstr "Помилка читання віддаленого файлу"
+
+#: AFS_Core/src/SyncFileSsh.cpp:247 AFS_Core/src/SyncFileSsh.cpp:928
+msgid "remote_file_write_error"
+msgstr "Помилка запису віддаленого файлу"
+
+#: AFS_Core/src/SyncFileSsh.cpp:249 AFS_Core/src/SyncFileSsh.cpp:935
+msgid "local_file_read_error"
+msgstr "Помилка читання локального файлу"
+
+#: AFS_Core/src/SyncFileSsh.cpp:260 AFS_Core/src/SyncFileSsh.cpp:798
+msgid "target_file_write_error"
+msgstr "Помилка запису файлу призначення"
+
+#: AFS_Core/src/SyncFileSsh.cpp:262 AFS_Core/src/SyncFileSsh.cpp:805
+msgid "source_file_read_error"
+msgstr "Помилка читання файлу джерела"
+
+#: AFS_Core/src/SyncFileSsh.cpp:320 AFS_Core/src/SyncFileSsh.cpp:528
+msgid "remote_file_open_error"
+msgstr "Помилка відкриття віддаленого файлу: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:326 AFS_Core/src/SyncFileSsh.cpp:369
+#: AFS_Core/src/SyncFileSsh.cpp:539 AFS_Core/src/SyncFileSsh.cpp:843
+msgid "local_file_open_error"
+msgstr "Помилка відкриття локального файлу: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:348 AFS_Core/src/SyncFileSsh.cpp:758
+msgid "source_file_open_error"
+msgstr "Помилка відкриття файлу джерела: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:354 AFS_Core/src/SyncFileSsh.cpp:774
+msgid "target_file_open_error"
+msgstr "Помилка відкриття файлу призначення: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:378 AFS_Core/src/SyncFileSsh.cpp:910
+msgid "remote_file_open_write_error"
+msgstr "Помилка відкриття віддаленого файлу для запису: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:416 AFS_Core/src/SyncFileSsh.cpp:1194
+msgid "remote_dir_create_error"
+msgstr "Помилка створення віддаленої папки: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:428 AFS_Core/src/SyncFileSsh.cpp:1277
+msgid "remote_file_delete_error"
+msgstr "Помилка видалення віддаленого файлу: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:481
+msgid "ssh_connect_error_for_host"
+msgstr "Помилка з'єднання SSH з хостом: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:592
+msgid "ssh_account_not_found_source"
+msgstr "Обліковий запис SSH не знайдено для джерела: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:600
+msgid "ssh_account_not_found_target"
+msgstr "Обліковий запис SSH не знайдено для призначення: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:609
+msgid "source_socket_create_error"
+msgstr "Помилка створення сокета джерела"
+
+#: AFS_Core/src/SyncFileSsh.cpp:615
+msgid "source_host_name_resolve_error"
+msgstr "Помилка визначення адреси хоста джерела: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:621
+msgid "ssh_connect_error_source"
+msgstr "Помилка з'єднання SSH (джерело)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:628
+msgid "source_ssh_session_create_error"
+msgstr "Помилка створення сеансу SSH джерела"
+
+#: AFS_Core/src/SyncFileSsh.cpp:635
+msgid "ssh_handshake_error_source"
+msgstr "Помилка узгодження SSH (джерело)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:649
+msgid "ssh_auth_error_source"
+msgstr "Помилка автентифікації SSH (джерело)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:658
+msgid "source_sftp_session_create_error"
+msgstr "Помилка створення сеансу SFTP джерела"
+
+#: AFS_Core/src/SyncFileSsh.cpp:667
+msgid "target_socket_create_error"
+msgstr "Помилка створення сокета призначення"
+
+#: AFS_Core/src/SyncFileSsh.cpp:677
+msgid "target_host_name_resolve_error"
+msgstr "Помилка визначення адреси хоста призначення: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:687
+msgid "ssh_connect_error_target"
+msgstr "Помилка з'єднання SSH (призначення)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:698
+msgid "target_ssh_session_create_error"
+msgstr "Помилка створення сеансу SSH призначення"
+
+#: AFS_Core/src/SyncFileSsh.cpp:709
+msgid "ssh_handshake_error_target"
+msgstr "Помилка узгодження SSH (призначення)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:731
+msgid "ssh_auth_error_target"
+msgstr "Помилка автентифікації SSH (призначення)"
+
+#: AFS_Core/src/SyncFileSsh.cpp:744
+msgid "target_sftp_session_create_error"
+msgstr "Помилка створення сеансу SFTP призначення"
+
+#: AFS_Core/src/SyncItem.cpp:123
+msgid "sync_item_type_file"
+msgstr "Файл"
+
+#: AFS_Core/src/SyncItem.cpp:124
+msgid "sync_item_type_dir"
+msgstr "Папка"
+
+#: AFS_Core/src/SyncItem.cpp:125
+msgid "sync_item_type_tree"
+msgstr "Дерево папок"
+
+#: AFS_Core/src/SyncTree.cpp:111
+msgid "symlink_not_followed"
+msgstr "Символьне посилання не відстежується: "
+
+#: AFS_Core/src/Synchronize.cpp:73
+msgid "no_sync_active"
+msgstr "Жодна синхронізація не активна."
+
+#: AFS_Core/src/Synchronize.cpp:244
+msgid "source_or_target_not_reachable"
+msgstr "Джерело або призначення недоступне: "
+
+#: AFS_Core/src/Synchronize.cpp:291
+msgid "sync_item_failed"
+msgstr "Synchronize::sync_item не вдалося для: "
+
+#: AFS_Core/src/Synchronize.cpp:297
+msgid "sync_item_unknown_error"
+msgstr "Невідома помилка в Synchronize::sync_item для: "
+
+#: AFS_Core/src/Util.cpp:70
+msgid "value_out_of_uint16_range"
+msgstr "Значення поза діапазоном 0..65535: "
+
+#: AFS_Core/src/Util.cpp:115
+msgid "proc_mounts_not_openable"
+msgstr "Неможливо відкрити /proc/mounts"
+
+#: AFS_Core/src/Util.cpp:301 AFS_Core/src/Util.cpp:304
+msgid "file_rename_error"
+msgstr "Помилка перейменування файлу: "
+
+#: AFS_Desktop/src/App.cpp:72
+msgid "start_aborted_other_instance"
+msgstr "Запуск перервано: інший екземпляр AutoFileSync уже працює."
+
+#: AFS_Desktop/src/App.cpp:73
+msgid "already_running"
+msgstr "AutoFileSync уже працює."
+
+#: AFS_Desktop/src/App.cpp:111
+msgid "cmdline_help"
+msgstr "показати цю довідку"
+
+#: AFS_Desktop/src/App.cpp:112
+msgid "cmdline_console"
+msgstr "запустити консольну версію"
+
+#: AFS_Desktop/src/BackgroundService.cpp:61
+msgid "bs_system_error"
+msgstr "Помилка %1"
+
+#: AFS_Desktop/src/BackgroundService.cpp:69
+msgid "bs_not_installed_windows"
+msgstr "Фонову службу не встановлено. Спочатку запустіть install.ps1 з проєкту backgroundsync."
+
+#: AFS_Desktop/src/BackgroundService.cpp:70
+#: AFS_Desktop/src/BackgroundService.cpp:155
+#: AFS_Desktop/src/BackgroundService.cpp:223
+msgid "bs_action_failed"
+msgstr "Фонову службу не вдалося %1:\n%2"
+
+#: AFS_Desktop/src/BackgroundService.cpp:86
+msgid "bs_elevation_denied"
+msgstr "Фонову службу не вдалося %1: права адміністратора не надано."
+
+#: AFS_Desktop/src/BackgroundService.cpp:87
+msgid "bs_sc_start_failed"
+msgstr "Фонову службу не вдалося %1: не вдалося запустити sc.exe:\n%2"
+
+#: AFS_Desktop/src/BackgroundService.cpp:154
+msgid "bs_launchctl_exit"
+msgstr "launchctl завершився з кодом %1."
+
+#: AFS_Desktop/src/BackgroundService.cpp:170
+msgid "bs_not_installed_macos"
+msgstr "Фонова служба відсутня в пакеті програми: %1"
+
+#: AFS_Desktop/src/BackgroundService.cpp:208
+msgid "bs_agent_not_writable"
+msgstr "Не вдалося записати LaunchAgent %1."
+
+#: AFS_Desktop/src/BackgroundService.cpp:183
+#: AFS_Desktop/src/BackgroundService.cpp:186
+#: AFS_Desktop/src/BackgroundService.cpp:258
+#: AFS_Desktop/src/BackgroundService.cpp:263
+msgid "bs_action_started"
+msgstr "запустити"
+
+#: AFS_Desktop/src/BackgroundService.cpp:206
+#: AFS_Desktop/src/BackgroundService.cpp:272
+#: AFS_Desktop/src/BackgroundService.cpp:280
+msgid "bs_action_stopped"
+msgstr "зупинити"
+
+#: AFS_Desktop/src/BackgroundService.cpp:208
+msgid "bs_still_running"
+msgstr "Фоновій службі надіслано запит на зупинку, але вона все ще працює."
+
+#: AFS_Desktop/src/BackgroundService.cpp:265
+#: AFS_Desktop/src/BackgroundService.cpp:282
+msgid "bs_unsupported"
+msgstr "Фонова служба не підтримується на цій платформі."
+
+#: AFS_Desktop/src/Canvas.cpp:70 AFS_Desktop/src/GridWindow.cpp:63
+#: AFS_Desktop/src/ListWindow.cpp:61
+msgid "context_edit"
+msgstr "&Редагувати…"
+
+#: AFS_Desktop/src/Canvas.cpp:71 AFS_Desktop/src/GridWindow.cpp:64
+#: AFS_Desktop/src/ListWindow.cpp:62
+msgid "context_delete"
+msgstr "В&идалити"
+
+#: AFS_Desktop/src/ChatDialog.cpp:53
+msgid "button_send"
+msgstr "Надіслати"
+
+#: AFS_Desktop/src/ChatDialog.cpp:61
+msgid "chat_hint"
+msgstr "Примітка"
+
+#: AFS_Desktop/src/ChatDialog.cpp:62
+msgid "chat_no_model"
+msgstr "Модель не знайдено."
+
+#: AFS_Desktop/src/ChatDialog.cpp:65 AFS_Desktop/src/ChatDialog.cpp:87
+msgid "chat_ctrl_enter"
+msgstr "Ctrl+Enter надсилає."
+
+#: AFS_Desktop/src/ChatDialog.cpp:87
+msgid "chat_answering"
+msgstr "Асистент відповідає…"
+
+#: AFS_Desktop/src/ChatDialog.cpp:111
+msgid "chat_you"
+msgstr "Ви"
+
+#: AFS_Desktop/src/ChatDialog.cpp:127
+msgid "chat_assistant"
+msgstr "Асистент"
+
+#: AFS_Desktop/src/ChatDialog.cpp:131 AFS_Desktop/src/GridCtrl.cpp:206
+#: AFS_Desktop/src/MainWindow.cpp:395 AFS_Desktop/src/MainWindow.cpp:438
+#: AFS_Desktop/src/MainWindow.cpp:525 AFS_Desktop/src/MainWindow.cpp:577
+#: AFS_Desktop/src/MainWindow.cpp:635 AFS_Desktop/src/MainWindow.cpp:768
+#: AFS_Desktop/src/SettingsDialog.cpp:66 AFS_Desktop/src/SyncInterface.cpp:92
+#: AFS_Desktop/src/SyncInterface.cpp:226 AFS_Desktop/src/SyncInterface.cpp:255
+#: AFS_Desktop/src/SyncInterface.cpp:262 AFS_Desktop/src/SyncInterface.cpp:267
+#: AFS_Desktop/src/SyncItemDialog.cpp:492
+#: AFS_Desktop/src/SyncItemDialog.cpp:496
+msgid "error"
+msgstr "Помилка"
+
+#: AFS_Desktop/src/GridCtrl.cpp:117 AFS_Desktop/src/SshAccountDialog.cpp:42
+#: AFS_Desktop/src/SshAccountSelectDialog.cpp:45
+#: AFS_Desktop/src/SshAccountsDialog.cpp:50 AFS_Desktop/src/SshDirDialog.cpp:71
+#: AFS_Desktop/src/SyncItemDialog.cpp:62
+msgid "name"
+msgstr "Назва"
+
+#: AFS_Desktop/src/GridCtrl.cpp:118 AFS_Desktop/src/LoggingDialog.cpp:138
+msgid "active"
+msgstr "Активна"
+
+#: AFS_Desktop/src/GridCtrl.cpp:119 AFS_Desktop/src/SourceCanvas.cpp:29
+#: AFS_Desktop/src/SyncItemDialog.cpp:91
+msgid "source"
+msgstr "Джерело"
+
+#: AFS_Desktop/src/GridCtrl.cpp:120 AFS_Desktop/src/SyncItemDialog.cpp:107
+#: AFS_Desktop/src/TargetCanvas.cpp:29
+msgid "target"
+msgstr "Призначення"
+
+#: AFS_Desktop/src/GridCtrl.cpp:206
+msgid "source_target_required"
+msgstr "Джерело і призначення не можуть бути порожніми."
+
+#: AFS_Desktop/src/LoggingDialog.cpp:50
+msgid "tab_logging"
+msgstr "Журнал"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:51 AFS_Desktop/src/LoggingDialog.cpp:268
+#: AFS_Desktop/src/LoggingDialog.cpp:273
+msgid "tab_email"
+msgstr "Ел. пошта"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:69 AFS_Desktop/src/LoggingDialog.cpp:106
+msgid "backup_proof_path"
+msgstr "Шлях для підтверджень резервного копіювання:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:72
+msgid "log_file_path"
+msgstr "Шлях до файлу журналу:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:81
+msgid "log_level"
+msgstr "Рівень журналу:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:90
+msgid "retention_days"
+msgstr "Історія [днів]:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:97
+msgid "editor"
+msgstr "Редактор:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:140
+msgid "email_address"
+msgstr "Адреса ел. пошти:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:142
+msgid "smtp_server_group"
+msgstr "Сервер вихідної пошти:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:144
+msgid "server"
+msgstr "Сервер:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:147
+msgid "port"
+msgstr "Порт:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:155
+msgid "user_field"
+msgstr "Користувач:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:156
+msgid "password_field"
+msgstr "Пароль:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:157
+msgid "sender"
+msgstr "Відправник:"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:173
+msgid "choose_backup_proof_dir"
+msgstr "Виберіть папку для підтверджень резервного копіювання"
+
+#: AFS_Desktop/src/LoggingDialog.cpp:268
+msgid "email_address_required"
+msgstr "Введіть адресу ел. пошти або вимкніть сповіщення."
+
+#: AFS_Desktop/src/LoggingDialog.cpp:273
+msgid "smtp_server_required"
+msgstr "Введіть сервер вихідної пошти та відправника."
+
+#: AFS_Desktop/src/MainWindow.cpp:133
+msgid "started_minimized"
+msgstr "AutoFileSync продовжує працювати згорнутим."
+
+#: AFS_Desktop/src/MainWindow.cpp:133 AFS_Desktop/src/SettingsDialog.cpp:70
+#: AFS_Desktop/src/SyncInterface.cpp:90 AFS_Desktop/src/SyncInterface.cpp:166
+#: AFS_Desktop/src/SyncInterface.cpp:220
+msgid "info"
+msgstr "Інформація"
+
+#: AFS_Desktop/src/MainWindow.cpp:193
+msgid "autostart_enabled"
+msgstr "Автозапуск увімкнено."
+
+#: AFS_Desktop/src/MainWindow.cpp:195
+msgid "autostart_file_not_created"
+msgstr "Не вдалося створити файл."
+
+#: AFS_Desktop/src/MainWindow.cpp:202
+msgid "autostart_disabled"
+msgstr "Автозапуск вимкнено."
+
+#: AFS_Desktop/src/MainWindow.cpp:204
+msgid "autostart_file_delete_failed"
+msgstr "Помилка видалення файлу."
+
+#: AFS_Desktop/src/MainWindow.cpp:207
+msgid "autostart_already_disabled"
+msgstr "Автозапуск уже був вимкнений."
+
+#: AFS_Desktop/src/MainWindow.cpp:218
+msgid "executable_path_error"
+msgstr "Помилка визначення шляху: "
+
+#: AFS_Desktop/src/MainWindow.cpp:319
+msgid "about_text"
+msgstr "%1\nВерсія %2\n\nАвтоматична синхронізація файлів і дерев папок\nу %3.\n\nCopyright © 2026 Joachim Welsch\nhttps://welsch-software.com\n\nЛіцензія: GNU GPL v3 або новіша,\nдив. Довідка → Умови ліцензії."
+
+#: AFS_Desktop/src/MainWindow.cpp:321
+msgid "about_title"
+msgstr "Про AutoFileSync"
+
+#: AFS_Desktop/src/MainWindow.cpp:363
+msgid "config_file_wildcard"
+msgstr "Файли конфігурації (*.json)|*.json"
+
+#: AFS_Desktop/src/MainWindow.cpp:376
+msgid "open_config_title"
+msgstr "Відкрити файл конфігурації"
+
+#: AFS_Desktop/src/MainWindow.cpp:395 AFS_Desktop/src/MainWindow.cpp:438
+msgid "config_save_failed"
+msgstr "Не вдалося зберегти конфігурацію."
+
+#: AFS_Desktop/src/MainWindow.cpp:409 AFS_Desktop/src/MainWindow.cpp:443
+msgid "config_saved"
+msgstr "Конфігурацію збережено"
+
+#: AFS_Desktop/src/MainWindow.cpp:421
+msgid "overwrite_question"
+msgstr "'%1' уже існує."
+
+#: AFS_Desktop/src/MainWindow.cpp:422
+msgid "overwrite_title"
+msgstr "Перезаписати файл?"
+
+#: AFS_Desktop/src/MainWindow.cpp:429
+msgid "save_as_title"
+msgstr "Виберіть назву для файлу конфігурації"
+
+#: AFS_Desktop/src/MainWindow.cpp:525 AFS_Desktop/src/MainWindow.cpp:577
+msgid "sync_not_found"
+msgstr "Синхронізацію не знайдено."
+
+#: AFS_Desktop/src/MainWindow.cpp:580
+msgid "confirm_delete_sync"
+msgstr "Справді видалити синхронізацію '%1'?"
+
+#: AFS_Desktop/src/MainWindow.cpp:581 AFS_Desktop/src/SshAccountsDialog.cpp:146
+msgid "confirm_delete_title"
+msgstr "Підтвердження видалення"
+
+#: AFS_Desktop/src/MainWindow.cpp:635
+msgid "editor_start_failed"
+msgstr "Не вдалося запустити налаштований редактор."
+
+#: AFS_Desktop/src/MainWindow.cpp:654
+msgid "bs_state_running"
+msgstr "Стан: працює"
+
+#: AFS_Desktop/src/MainWindow.cpp:655
+msgid "bs_state_stopped"
+msgstr "Стан: зупинено"
+
+#: AFS_Desktop/src/MainWindow.cpp:656
+msgid "bs_state_not_installed"
+msgstr "Стан: не встановлено"
+
+#: AFS_Desktop/src/MainWindow.cpp:659 AFS_Desktop/src/Menu.cpp:112
+msgid "bs_state_unknown"
+msgstr "Стан: невідомий"
+
+#: AFS_Desktop/src/MainWindow.cpp:677 AFS_Desktop/src/MainWindow.cpp:678
+msgid "bs_started"
+msgstr "Фонову службу запущено."
+
+#: AFS_Desktop/src/MainWindow.cpp:685 AFS_Desktop/src/MainWindow.cpp:686
+msgid "bs_stopped"
+msgstr "Фонову службу зупинено."
+
+#: AFS_Desktop/src/MainWindow.cpp:694
+msgid "bs_caption"
+msgstr "Фонова служба"
+
+#: AFS_Desktop/src/MainWindow.cpp:676
+msgid "bs_save_question"
+msgstr "Фонова служба працює зі збереженою конфігурацією."
+
+#: AFS_Desktop/src/MainWindow.cpp:764
+msgid "help_file_not_found"
+msgstr "Файл довідки не знайдено"
+
+#: AFS_Desktop/src/MainWindow.cpp:768
+msgid "help_file_add_failed"
+msgstr "Помилка додавання файлу довідки: "
+
+#: AFS_Desktop/src/MainWindow.cpp:792
+msgid "taskbar_tooltip"
+msgstr "AutoFileSync\nЗгорнута програма синхронізації."
+
+#: AFS_Desktop/src/MainWindow.cpp:793
+msgid "icon_set_failed"
+msgstr "Не вдалося встановити значок в області сповіщень."
+
+#: AFS_Desktop/src/MainWindow.cpp:801
+msgid "save_question"
+msgstr "Зміни в конфігурації ще не збережено."
+
+#: AFS_Desktop/src/MainWindow.cpp:801
+msgid "not_saved_title"
+msgstr "Зберегти зміни?"
+
+#: AFS_Desktop/src/MainWindow.cpp:170
+msgid "title_unsaved"
+msgstr "(не збережено)"
+
+#: AFS_Desktop/src/Menu.cpp:57
+msgid "menu_new_synchronisation"
+msgstr "Нова синхронізація…"
+
+#: AFS_Desktop/src/Menu.cpp:58
+msgid "menu_new_ssh_connection"
+msgstr "Нове з'єднання SSH…"
+
+#: AFS_Desktop/src/Menu.cpp:59
+msgid "menu_new"
+msgstr "&Створити"
+
+#: AFS_Desktop/src/Menu.cpp:60
+msgid "menu_open"
+msgstr "&Відкрити…"
+
+#: AFS_Desktop/src/Menu.cpp:61
+msgid "menu_save"
+msgstr "&Зберегти"
+
+#: AFS_Desktop/src/Menu.cpp:62
+msgid "menu_save_as"
+msgstr "Зберегти &як…"
+
+#: AFS_Desktop/src/Menu.cpp:63
+msgid "menu_quit"
+msgstr "Вихід"
+
+#: AFS_Desktop/src/Menu.cpp:63
+msgid "menu_quit_help"
+msgstr "Завершити роботу програми"
+
+#: AFS_Desktop/src/Menu.cpp:70
+msgid "menu_about"
+msgstr "Про AutoFileSync"
+
+#: AFS_Desktop/src/Menu.cpp:71
+msgid "menu_help"
+msgstr "Показати довідку"
+
+#: AFS_Desktop/src/Menu.cpp:78 AFS_Desktop/src/Toolbar.cpp:77
+msgid "edit_synchronisation"
+msgstr "Редагувати синхронізацію…"
+
+#: AFS_Desktop/src/Menu.cpp:79 AFS_Desktop/src/Toolbar.cpp:79
+msgid "delete_synchronisation"
+msgstr "Видалити синхронізацію…"
+
+#: AFS_Desktop/src/Menu.cpp:80
+msgid "menu_ssh_connections"
+msgstr "З'єднання SSH…"
+
+#: AFS_Desktop/src/Menu.cpp:81
+msgid "menu_settings"
+msgstr "Загальні параметри…"
+
+#: AFS_Desktop/src/Menu.cpp:83
+msgid "menu_logging_settings"
+msgstr "Параметри журналу…"
+
+#: AFS_Desktop/src/Menu.cpp:90
+msgid "menu_view_list"
+msgstr "&Список"
+
+#: AFS_Desktop/src/Menu.cpp:90
+msgid "menu_view_list_help"
+msgstr "Список"
+
+#: AFS_Desktop/src/Menu.cpp:91
+msgid "menu_view_tree"
+msgstr "&Дерево"
+
+#: AFS_Desktop/src/Menu.cpp:91
+msgid "menu_view_tree_help"
+msgstr "Дерево"
+
+#: AFS_Desktop/src/Menu.cpp:92
+msgid "menu_view_grid"
+msgstr "&Таблиця"
+
+#: AFS_Desktop/src/Menu.cpp:92
+msgid "menu_view_grid_help"
+msgstr "Таблиця"
+
+#: AFS_Desktop/src/Menu.cpp:94
+msgid "menu_view_log"
+msgstr "Показати &журнал"
+
+#: AFS_Desktop/src/Menu.cpp:96
+msgid "menu_view_background"
+msgstr "&Фон"
+
+#: AFS_Desktop/src/Menu.cpp:103 AFS_Desktop/src/Menu.cpp:115
+msgid "menu_start"
+msgstr "Запустити"
+
+#: AFS_Desktop/src/Menu.cpp:104 AFS_Desktop/src/Menu.cpp:116
+msgid "menu_stop"
+msgstr "Зупинити"
+
+#: AFS_Desktop/src/Menu.cpp:105
+msgid "menu_sync_once"
+msgstr "Синхронізувати один раз"
+
+#: AFS_Desktop/src/Menu.cpp:115
+msgid "menu_bs_start_help"
+msgstr "Запустити фонову службу"
+
+#: AFS_Desktop/src/Menu.cpp:116
+msgid "menu_bs_stop_help"
+msgstr "Зупинити фонову службу"
+
+#: AFS_Desktop/src/Menu.cpp:123
+msgid "menu_chat"
+msgstr "&Чат…"
+
+#: AFS_Desktop/src/Menu.cpp:123
+msgid "menu_chat_help"
+msgstr "Чат з асистентом"
+
+#: AFS_Desktop/src/Menu.cpp:130
+msgid "menu_file"
+msgstr "&Файл"
+
+#: AFS_Desktop/src/Menu.cpp:131
+msgid "menu_edit"
+msgstr "&Редагування"
+
+#: AFS_Desktop/src/Menu.cpp:132
+msgid "menu_synchronisation"
+msgstr "&Синхронізація"
+
+#: AFS_Desktop/src/Menu.cpp:133
+msgid "menu_background_service"
+msgstr "Фонова с&лужба"
+
+#: AFS_Desktop/src/Menu.cpp:134
+msgid "menu_view"
+msgstr "&Вигляд"
+
+#: AFS_Desktop/src/Menu.cpp:135
+msgid "menu_assistant"
+msgstr "&Асистент"
+
+#: AFS_Desktop/src/Menu.cpp:136
+msgid "menu_help_menu"
+msgstr "&Довідка"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:42
+msgid "settings_autostart"
+msgstr "Запускати програму автоматично"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:47
+msgid "settings_sync_at_start"
+msgstr "Починати синхронізацію під час запуску програми"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:52
+msgid "settings_start_minimized"
+msgstr "Запускати згорнутим"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:57
+msgid "settings_minimize_instead_of_close"
+msgstr "Згортати замість закриття"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr "Мова:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr "Мова операційної системи"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:62
+msgid "settings_show_messages"
+msgstr "Показувати повідомлення у вікні:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:68 AFS_Desktop/src/SyncInterface.cpp:91
+msgid "warning"
+msgstr "Попередження"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:74
+msgid "delete_mode_recycle_bin"
+msgstr "Перемістити до кошика"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:74
+msgid "delete_mode_permanent"
+msgstr "Видалити остаточно"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:75
+msgid "delete_mode"
+msgstr "Режим видалення"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:81
+msgid "recycle_bin"
+msgstr "Кошик:"
+
+#: AFS_Desktop/src/SettingsDialog.cpp:136
+msgid "choose_recycle_bin_dir"
+msgstr "Виберіть папку кошика"
+
+#: AFS_Desktop/src/SourceCanvas.cpp:32
+msgid "source_panel"
+msgstr "Панель джерела"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:50
+#: AFS_Desktop/src/SshAccountSelectDialog.cpp:46
+#: AFS_Desktop/src/SshAccountsDialog.cpp:51
+msgid "host"
+msgstr "Хост"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:58
+#: AFS_Desktop/src/SshAccountSelectDialog.cpp:47
+#: AFS_Desktop/src/SshAccountsDialog.cpp:52
+msgid "user"
+msgstr "Користувач"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:66
+#: AFS_Desktop/src/SshAccountsDialog.cpp:53
+msgid "password"
+msgstr "Пароль"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:132
+msgid "ssh_name_too_short"
+msgstr "Назва має містити щонайменше 2 символи."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:134
+msgid "ssh_name_colon"
+msgstr "Назва не може містити двокрапку."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:137
+msgid "ssh_name_characters"
+msgstr "Назва може містити лише літери, цифри, підкреслення та дефіс."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:147
+#: AFS_Desktop/src/SshAccountDialog.cpp:153
+#: AFS_Desktop/src/SshAccountDialog.cpp:160
+#: AFS_Desktop/src/SshAccountDialog.cpp:166
+#: AFS_Desktop/src/SshAccountsDialog.cpp:181
+#: AFS_Desktop/src/SshAccountsDialog.cpp:190
+msgid "validation_error"
+msgstr "Неправильне введення"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:153
+#: AFS_Desktop/src/SshAccountsDialog.cpp:189
+msgid "ssh_account_exists"
+msgstr "Обліковий запис SSH '%1' уже існує."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:160
+msgid "host_required"
+msgstr "Введіть хост."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp:166
+msgid "user_required"
+msgstr "Введіть користувача."
+
+#: AFS_Desktop/src/SshAccountSelectDialog.cpp:39
+msgid "select_ssh_connection_hint"
+msgstr "Виберіть з'єднання SSH:"
+
+#: AFS_Desktop/src/SshAccountsDialog.cpp:59
+msgid "button_add"
+msgstr "Додати"
+
+#: AFS_Desktop/src/SshAccountsDialog.cpp:60
+msgid "button_edit"
+msgstr "Редагувати..."
+
+#: AFS_Desktop/src/SshAccountsDialog.cpp:61
+msgid "button_delete"
+msgstr "Видалити"
+
+#: AFS_Desktop/src/SshAccountsDialog.cpp:68
+msgid "button_ok"
+msgstr "OK"
+
+#: AFS_Desktop/src/SshAccountsDialog.cpp:69
+msgid "button_cancel"
+msgstr "Скасувати"
+
+#: AFS_Desktop/src/SshAccountsDialog.cpp:142
+msgid "confirm_delete_ssh_account"
+msgstr "Справді видалити обліковий запис SSH '%1'?"
+
+#: AFS_Desktop/src/SshAccountsDialog.cpp:144
+msgid "ssh_account_in_use_warning"
+msgstr "Увага: є синхронізації, що використовують цей обліковий запис. Після цього вони не працюватимуть."
+
+#: AFS_Desktop/src/SshDirDialog.cpp:49
+msgid "ssh_connection_info"
+msgstr "З'єднання: %1@%2"
+
+#: AFS_Desktop/src/SshDirDialog.cpp:54
+msgid "home"
+msgstr "Домашня папка"
+
+#: AFS_Desktop/src/SshDirDialog.cpp:72 AFS_Desktop/src/SyncItemDialog.cpp:148
+msgid "size"
+msgstr "Розмір"
+
+#: AFS_Desktop/src/SshDirDialog.cpp:73
+msgid "modified"
+msgstr "Змінено"
+
+#: AFS_Desktop/src/SshDirDialog.cpp:99
+msgid "loading_dir"
+msgstr "Завантаження папки..."
+
+#: AFS_Desktop/src/SshDirDialog.cpp:108 AFS_Desktop/src/SshDirDialog.cpp:126
+#: AFS_Desktop/src/SshDirDialog.cpp:220
+msgid "error_with_reason"
+msgstr "Помилка: %1"
+
+#: AFS_Desktop/src/SshDirDialog.cpp:113
+msgid "not_a_directory"
+msgstr "Шлях не є папкою"
+
+#: AFS_Desktop/src/SshDirDialog.cpp:123
+msgid "entries_count"
+msgstr "Записів: %1"
+
+#: AFS_Desktop/src/SyncInterface.cpp:69
+msgid "progress_title"
+msgstr "Перебіг"
+
+#: AFS_Desktop/src/SyncInterface.cpp:102
+msgid "more_messages"
+msgstr "… і ще повідомлення (%1), див. журнал."
+
+#: AFS_Desktop/src/SyncInterface.cpp:130
+msgid "synchronisation"
+msgstr "Синхронізація"
+
+#: AFS_Desktop/src/SyncInterface.cpp:166 AFS_Desktop/src/SyncInterface.cpp:220
+msgid "no_files_to_sync"
+msgstr "Файлів для синхронізації не знайдено."
+
+#: AFS_Desktop/src/SyncInterface.cpp:226
+msgid "sync_start_failed"
+msgstr "Неможливо запустити синхронізацію."
+
+#: AFS_Desktop/src/SyncInterface.cpp:250
+msgid "no_sync_items"
+msgstr "Жодної синхронізації не створено."
+
+#: AFS_Desktop/src/SyncInterface.cpp:250
+msgid "attention"
+msgstr "Увага"
+
+#: AFS_Desktop/src/SyncInterface.cpp:255
+msgid "sync_already_running"
+msgstr "Синхронізація вже виконується."
+
+#: AFS_Desktop/src/SyncInterface.cpp:267 AFS_Desktop/src/SyncInterface.cpp:268
+msgid "sync_failed"
+msgstr "Синхронізація не вдалася."
+
+#: AFS_Desktop/src/SyncInterface.cpp:316
+msgid "state_stopped"
+msgstr "Синхронізацію зупинено"
+
+#: AFS_Desktop/src/SyncInterface.cpp:317
+msgid "state_counting"
+msgstr "Підрахунок файлів …"
+
+#: AFS_Desktop/src/SyncInterface.cpp:318
+msgid "state_single_running"
+msgstr "Виконується одноразова синхронізація …"
+
+#: AFS_Desktop/src/SyncInterface.cpp:322
+msgid "state_paused"
+msgstr "Пауза – наступний запуск через %1 с"
+
+#: AFS_Desktop/src/SyncInterface.cpp:323
+msgid "state_running"
+msgstr "Виконується синхронізація …"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:70
+msgid "type"
+msgstr "Тип"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:81
+msgid "wildcard"
+msgstr "Шаблон"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:124
+msgid "tab_general"
+msgstr "Загальне"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:131
+msgid "option_enabled"
+msgstr "Синхронізація активна"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:133
+msgid "compare_by"
+msgstr "Порівнювати файли за"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:138
+msgid "option_delete_source_after_copy"
+msgstr "Видаляти джерело після копіювання"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:140
+msgid "compare_time"
+msgstr "Часом"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:146
+msgid "option_two_way_sync"
+msgstr "Двостороння синхронізація"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:154
+msgid "option_copy_when_target_newer"
+msgstr "Копіювати, навіть якщо файл призначення новіший"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:156
+msgid "compare_content"
+msgstr "Вмістом"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:162
+msgid "option_father_son_principle"
+msgstr "Принцип поколінь"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:168
+msgid "option_delete_in_target"
+msgstr "Видаляти в призначенні також видалені файли"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "option_backup_proof"
+msgstr "Підтвердження резервного копіювання"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:180
+msgid "option_sync_empty_files"
+msgstr "Синхронізувати порожні файли"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:172
+msgid "option_warn_if_unreachable"
+msgstr "Попереджати, якщо немає диска або з'єднання SSH"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:188
+msgid "pause_seconds"
+msgstr "Секунд паузи:"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:186
+msgid "time_tolerance_seconds"
+msgstr "Допуск у секундах:"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:193
+msgid "tab_options"
+msgstr "Параметри"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:197
+msgid "exclusions_hint"
+msgstr "Назви або шаблони, виключені із синхронізації\n(один запис на рядок, напр. *.tmp або node_modules):"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:202
+msgid "tab_exclusions"
+msgstr "Винятки"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:394
+msgid "volume_name_error"
+msgstr "Помилка визначення назви тому: "
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:431
+msgid "choose_file_title"
+msgstr "Виберіть файл"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:434
+msgid "all_files_wildcard"
+msgstr "Усі файли (%1)|%2"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:449
+msgid "choose_dir_title"
+msgstr "Виберіть папку"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:492
+msgid "name_empty"
+msgstr "Назва не може бути порожньою."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:496
+msgid "sync_exists"
+msgstr "Синхронізація %1 уже існує."
+
+#: AFS_Desktop/src/TargetCanvas.cpp:32
+msgid "target_panel"
+msgstr "Панель призначення"
+
+#: AFS_Desktop/src/TaskBarIcon.cpp:80
+msgid "taskbar_restore"
+msgstr "&Відновити головне вікно"
+
+#: AFS_Desktop/src/TaskBarIcon.cpp:86
+msgid "taskbar_exit"
+msgstr "В&ихід"
+
+#: AFS_Desktop/src/Toolbar.cpp:78
+msgid "toolbar_save"
+msgstr "Зберегти"
+
+#: AFS_Desktop/src/Toolbar.cpp:80 AFS_Desktop/src/Toolbar.cpp:104
+msgid "toolbar_start_sync"
+msgstr "Запустити синхронізацію"
+
+#: AFS_Desktop/src/Toolbar.cpp:83
+msgid "toolbar_help"
+msgstr "Довідка"
+
+#: AFS_Desktop/src/Toolbar.cpp:101
+msgid "toolbar_stop_sync"
+msgstr "Зупинити синхронізацію"
+
+#: AFS_Desktop/include/TextResources.h:24
+msgid "title_add_synchronisation"
+msgstr "Додати синхронізацію"
+
+#: AFS_Desktop/include/TextResources.h:25
+msgid "title_edit_synchronisation"
+msgstr "Редагувати синхронізацію"
+
+#: AFS_Desktop/include/TextResources.h:26
+msgid "title_add_ssh_connection"
+msgstr "Додати з'єднання SSH"
+
+#: AFS_Desktop/include/TextResources.h:27
+msgid "title_edit_ssh_connection"
+msgstr "Редагувати з'єднання SSH"
+
+#: AFS_Desktop/include/TextResources.h:28
+msgid "title_ssh_connections"
+msgstr "З'єднання SSH"
+
+#: AFS_Desktop/include/TextResources.h:29
+msgid "title_select_ssh_connection"
+msgstr "Вибрати з'єднання SSH"
+
+#: AFS_Desktop/include/TextResources.h:30
+msgid "title_select_ssh_dir"
+msgstr "Виберіть папку SSH"
+
+#: AFS_Desktop/include/TextResources.h:31
+msgid "title_settings"
+msgstr "Загальні параметри"
+
+#: AFS_Desktop/include/TextResources.h:32
+msgid "title_logging_settings"
+msgstr "Параметри журналу"
+
+#: AFS_Desktop/include/TextResources.h:33
+msgid "title_assistant"
+msgstr "Асистент"
+
+#: backgroundsync/MyDaemon.cpp:45 backgroundsync/backgroundsync.cpp:49
+msgid "daemon_running"
+msgstr "backgroundsync працює..."
+
+#: backgroundsync/MyDaemon.cpp:66
+msgid "config_reloaded"
+msgstr "Конфігурацію перезавантажено: "
+
+#: backgroundsync/backgroundsync.cpp:50
+msgid "daemon_started"
+msgstr "backgroundsync запущено"
+
+#: backgroundsync/backgroundsync.cpp:55 backgroundsync/backgroundsync.cpp:56
+msgid "daemon_stopped"
+msgstr "backgroundsync зупинено"
+
+#: backgroundsync/WindowsService.cpp:90
+msgid "daemon_console_mode"
+msgstr "backgroundsync працює в цьому вікні консолі, Ctrl+C зупиняє його."
+
+#: backgroundsync/WindowsService.cpp:113
+msgid "daemon_dispatcher_failed"
+msgstr "Не вдалося підключитися до диспетчера служб Windows, помилка %1"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr "Зберегти"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr "Не зберігати"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr "Перезаписати"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr "Copyright © 2026 Joachim Welsch"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr "Автоматична синхронізація файлів і дерев папок у %1.\n\nhttps://welsch-software.com\n\nЛіцензія: GNU GPL v3 або новіша, див. Довідка → Умови ліцензії."
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ":"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr "Вибрати…"
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr "Cmd+Enter надсилає."
+
+#: AFS_Desktop/src/TreeCtrl.cpp
+msgid "tree_root"
+msgstr "Цей комп'ютер"
+
+#: AFS_Desktop/src/ChatDialog.cpp:69
+msgid "chat_new_conversation"
+msgstr "Нова розмова"
+
+#: AFS_Core/src/LogAnalysis.cpp:57
+msgid "log_question_words"
+msgstr "лог,журнал"
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr "Наступний уривок узято з довідки AutoFileSync; у квадратних дужках указано сторінку довідки. Використай його, щоб відповісти на наступне запитання, і наприкінці назви сторінку довідки, де користувач знайде більше. Якщо уривок іншою мовою, однак відповідай українською. Якщо уривок не стосується запитання, проігноруй його, не згадуючи про нього."
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr "ще не синхронізовано цією програмою"
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr "востаннє синхронізовано %1 хв тому"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_warned"
+msgstr "джерело або ціль були недоступні в останньому проході; синхронізацію пропущено і показано попередження, бо опцію «Попереджати, якщо немає диска або з'єднання SSH» увімкнено"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable_silent"
+msgstr "джерело або ціль були недоступні в останньому проході; синхронізацію пропущено без попередження, бо опцію «Попереджати, якщо немає диска або з'єднання SSH» вимкнено"
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_no_unreachable_warning"
+msgstr "без попередження, якщо немає диска або з'єднання SSH"
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr "помилок в останньому запуску: %1, перша: %2"
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr "У програмі: %1. Фонова служба – %2."
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr "Якщо користувач хоче виконати одну з цих команд, додай натомість рівно один блок у такій формі:\n```sync\n{\"command\": \"sync_once\"}\n```\nДозволені команди: %1. Користувач виконує команду кнопкою."
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr "Чи просив користувач в останньому запитанні виконати одну з цих команд: %1? Тоді відповідай лише {\"command\": \"...\"}."
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr "Пропозиція: %1. Виконати кнопкою \"%1\"."
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr "синхроніз,запусти,зупини,заверши,відкрий,покажи,попередн"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview"
+msgstr "&Попередній перегляд…"
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview_help"
+msgstr "Показує, що зробила б синхронізація зараз, нічого не змінюючи"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:39 AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_title"
+msgstr "Попередній перегляд"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:42
+msgid "preview_intro"
+msgstr "Синхронізація виконала б зараз ці кроки. Поки що нічого не змінено."
+
+#: AFS_Desktop/src/PreviewDialog.cpp:44
+msgid "preview_column_action"
+msgstr "Дія"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:88
+msgid "preview_copy_to_target"
+msgstr "Скопіювати в призначення"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:89
+msgid "preview_move_to_target"
+msgstr "Перемістити в призначення"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:90
+msgid "preview_copy_to_source"
+msgstr "Скопіювати назад у джерело"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:93
+msgid "preview_delete_in_target"
+msgstr "Видалити в призначенні"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:98
+msgid "preview_summary"
+msgstr "%1 кроків, з них %2 видалень у призначенні; до передавання: %3"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:70
+msgid "preview_more"
+msgstr "… і ще %1 кроків"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:56
+msgid "preview_run_now"
+msgstr "Синхронізувати зараз"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:57
+msgid "button_close"
+msgstr "Закрити"
+
+#: AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_nothing_to_do"
+msgstr "Джерело й призначення збігаються – синхронізація зараз нічого б не зробила."
+
+#: AFS_Desktop/src/SyncInterface.cpp:125
+msgid "preview_unreachable"
+msgstr "Джерело або ціль недоступні – ці синхронізації не вдалося порівняти:%1"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:34
+msgid "preview_no_bytes"
+msgstr "0 байтів"
+
+#: AFS_Desktop/src/SyncInterface.cpp:342
+msgid "state_preview"
+msgstr "Визначається попередній перегляд …"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:66
+msgid "preview_column_file"
+msgstr "Файл"

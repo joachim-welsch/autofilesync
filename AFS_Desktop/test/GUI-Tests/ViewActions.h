@@ -27,9 +27,9 @@ class wxTreeCtrl;
 
 namespace guitest {  // [ViewActions.md#ViewActions]
 
-void showView(MainWindow& window, id view);
-GridCtrl* gridView(MainWindow& window);
-wxTreeCtrl* sourceTree(MainWindow& window);
-wxTreeCtrl* targetTree(MainWindow& window);
+void show_view(MainWindow& window, id view);
+GridCtrl* grid_view(MainWindow& window);
+wxTreeCtrl* source_tree(MainWindow& window);
+wxTreeCtrl* target_tree(MainWindow& window);
 
 }

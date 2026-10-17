@@ -17,18 +17,12 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "MyDaemon.h"
-#include <ctime>
-#include <Synchronize.h>
-#include <Config.h>
+#include "Config.h"
 #include "Logging.h"
+#include "Synchronize.h"
 #include "Translation.h"
 
 using namespace AFS_Core;
-
-MyDaemon::MyDaemon()
-    : running_(false)
-{
-}
 
 MyDaemon::~MyDaemon()
 {
@@ -42,7 +36,6 @@ void MyDaemon::start()
     running_.store(true);
     Config::instance().pathname(Config::get_root_pathname());  // the GUI's file, so both sync the same items
     load_config();
-    log_info(translation::translate("daemon_running"));
     worker_thread_ = std::thread(&MyDaemon::run, this);
 }
 
@@ -58,7 +51,10 @@ void MyDaemon::stop()
 void MyDaemon::load_config()
 {
     Config::instance().read(Config::instance().pathname());
+    translation::set_language(Config::instance().settings().language());  // the language chosen in the GUI, also after a reload
     Logging::instance().open_file();  // read() leaves the file closed when the configured name equals the default name
+    if (const auto mismatch = translation::catalogue_mismatch())  // [MyDaemon.md#catalogue-check]
+        log_warning(*mismatch);
 }
 
 void MyDaemon::reload_config()

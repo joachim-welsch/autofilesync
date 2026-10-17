@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Impostazioni generali</title>
+</head>
+<body>
+<h1>Impostazioni generali</h1>
+
+<p><b>Modifica &rarr; Impostazioni generali…</b> oppure l'ingranaggio a destra
+nella barra degli strumenti apre le impostazioni che valgono per tutto il
+programma – non per una singola sincronizzazione.</p>
+
+<h2>Lingua</h2>
+
+<p>La scelta <b>Lingua</b> stabilisce in quale lingua AutoFileSync mostra menu,
+finestre e messaggi. Dopo <b>OK</b> la lingua cambia subito, senza riavvio;
+viene salvata nella configurazione e vale per ogni avvio successivo, anche per
+il servizio in background.</p>
+
+<p>Con <b>Lingua del sistema operativo</b> AutoFileSync torna a seguire la lingua
+del sistema operativo. Se per questa non esiste una traduzione, tutto compare in
+inglese. Questa guida è disponibile in tedesco, inglese, spagnolo, francese,
+italiano, polacco e ucraino.</p>
+
+<h2>Avvio e finestra</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Avvia l'applicazione automaticamente</b></td>
+    <td>AutoFileSync viene avviato insieme all'accesso.</td></tr>
+<tr><td valign="top"><b>Avvia la sincronizzazione all'avvio del programma</b></td>
+    <td>Il funzionamento continuo inizia subito dopo l'avvio, senza bisogno di
+        <b>Sincronizzazione &rarr; Avvia</b>.</td></tr>
+<tr><td valign="top"><b>Avvia ridotto a icona</b></td>
+    <td>All'avvio la finestra non compare; il programma va subito nell'area di
+        notifica della barra delle applicazioni.</td></tr>
+<tr><td valign="top"><b>Ridurre a icona invece di chiudere</b></td>
+    <td>Chiudere la finestra non termina il programma, ma lo riduce nell'area di
+        notifica. Si termina poi con <b>File &rarr; Esci</b> o con il menu
+        contestuale nell'area di notifica.</td></tr>
+</table>
+
+<p>Gira sempre una sola istanza: un secondo avvio segnala che AutoFileSync è già
+in esecuzione e si chiude.</p>
+
+<h2>Mostrare i messaggi in una finestra</h2>
+
+<p>Le tre spunte <b>Errore</b>, <b>Avviso</b> e <b>Informazioni</b> stabiliscono
+quali messaggi compaiono anche in una finestra dopo
+<a href="synconce.html">Sincronizza una volta</a>: tutti i messaggi
+dell'esecuzione raccolti in una finestra, ciascuno con il suo livello, al
+massimo 15 righe – il resto è nel <a href="logging.html">log</a>. Sono
+preimpostati solo gli errori. Senza spunte la sincronizzazione lavora in
+silenzio. Il funzionamento continuo (<b>Avvia</b>) non mostra mai una finestra,
+perché altrimenti ogni avviso porterebbe la finestra in primo piano; lo stesso
+vale per un avvio ridotto a icona.</p>
+
+<h2>Modalità di eliminazione</h2>
+
+<p>La modalità di eliminazione vale per tutte le eliminazioni che AutoFileSync
+esegue: l'origine con <b>Elimina l'origine dopo la copia</b> e la destinazione
+con <b>Elimina anche nella destinazione i file eliminati</b>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="35%"><b>Sposta nel cestino</b></td>
+    <td>Il valore predefinito. I file eliminati finiscono nella cartella del
+        cestino indicata qui sotto e si possono recuperare da lì. La struttura di
+        provenienza viene mantenuta e i file con lo stesso nome non si
+        sovrascrivono.</td></tr>
+<tr><td valign="top"><b>Elimina definitivamente</b></td>
+    <td>I file vengono rimossi subito.</td></tr>
+</table>
+
+<p>Il campo <b>Cestino</b> contiene la cartella da usare. Dovrebbe trovarsi su
+un'unità con spazio sufficiente; AutoFileSync non la svuota da solo.</p>
+
+<p>Per le destinazioni tramite SSH l'eliminazione è sempre definitiva,
+indipendentemente da questa impostazione, vedere
+<a href="ssh.html">Sincronizzare tramite SSH</a>.</p>
+
+</body>
+</html>

@@ -27,7 +27,9 @@
 #include "Translation.h"
 #include "id.h"
 #include "utilwx.h"
-#include <wx/stattext.h>
+#include <wx/gauge.h>
+#include <wx/utils.h>
+#include <algorithm>
 
 using namespace AFS_Core;
 
@@ -38,7 +40,7 @@ namespace {
 
 constexpr int MANY_FILES = 1500;  // [ProgressDialogTest.md#MANY_FILES]
 
-FileContents manyFiles()
+FileContents many_files()
 {
     FileContents files{{"ziel/", ""}};
     for (int i = 0; i < MANY_FILES; ++i)
@@ -46,23 +48,14 @@ FileContents manyFiles()
     return files;
 }
 
-SyncItemInput dirSync(const SandboxTree& tree, const wxString& name)
+SyncItemInput dir_sync(const SandboxTree& tree, const wxString& name)
 {
     SyncItemInput input{name, tree.path("quelle").string(), tree.path("ziel").string()};
     input.type = SyncItemType::Dir;
     return input;
 }
 
-wxString currentFileShown(ProgressDialog& dialog)
-{
-    for (wxWindow* child : dialog.GetChildren()) {
-        if (auto* text = dynamic_cast<wxStaticText*>(child))
-            return text->GetLabelText();
-    }
-    return wxString();
-}
-
-std::size_t copiedFiles(const SandboxTree& tree)
+std::size_t copied_files(const SandboxTree& tree)
 {
     std::size_t count = 0;
     for (const std::string& entry : tree.entries())
@@ -74,37 +67,75 @@ std::size_t copiedFiles(const SandboxTree& tree)
 
 TEST_F(GuiTest, FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich)  // [ProgressDialogTest.md#FortschrittsdialogZeigtAktuelleDateiUndSchliesstSich]
 {
-    const SandboxTree tree(GuiTestSandbox::root() / "fortschritt", manyFiles());
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync(tree, "guitest-fortschritt")));
+    const SandboxTree tree(GuiTestSandbox::root() / "fortschritt", many_files());
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-fortschritt")));
 
-    activateMenuItem(mainWindow(), tul(id::SyncOnce));
-    ASSERT_TRUE(waitUntil([] { return progressDialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
-    ProgressDialog& dialog = *progressDialog();
+    activate_menu_item(main_window(), tul(id::SyncOnce));
+    ASSERT_TRUE(wait_until([] { return progress_dialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
+    ProgressDialog& dialog = *progress_dialog();
     EXPECT_EQ(dialog.GetTitle(), translation::translate("progress_title"));
-    EXPECT_TRUE(waitUntil([&dialog] { return currentFileShown(dialog).Contains("datei"); }))
-        << "Der Dialog zeigt keine Datei an, zuletzt: " << currentFileShown(dialog);
+    EXPECT_TRUE(wait_until([&dialog] { return current_file_shown(dialog).Contains("datei"); }))
+        << "Der Dialog zeigt keine Datei an, zuletzt: " << current_file_shown(dialog);
     EXPECT_TRUE(find(dialog, wxID_CANCEL)->IsEnabled()) << "Abbrechen ist während des Laufs gesperrt.";
 
-    ASSERT_TRUE(waitUntilSyncFinished(mainWindow()));
-    EXPECT_TRUE(waitUntil([] { return progressDialog() == nullptr; })) << "Der Fortschrittsdialog blieb nach dem Lauf offen.";
-    EXPECT_EQ(copiedFiles(tree), MANY_FILES);
+    ASSERT_TRUE(wait_until_sync_finished(main_window()));
+    EXPECT_TRUE(wait_until([] { return progress_dialog() == nullptr; })) << "Der Fortschrittsdialog blieb nach dem Lauf offen.";
+    EXPECT_EQ(copied_files(tree), MANY_FILES);
+}
+
+TEST_F(GuiTest, FortschrittsbalkenRuecktMitJederDateiVor)  // [ProgressDialogTest.md#FortschrittsbalkenRuecktMitJederDateiVor]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "balken", many_files());
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-balken")));
+
+    activate_menu_item(main_window(), tul(id::SyncOnce));
+    ASSERT_TRUE(wait_until([] { return progress_dialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
+    const int range = gauge_of(*progress_dialog())->GetRange();
+    const std::optional<ProgressWatch> watch = watch_progress_dialog();
+    ASSERT_TRUE(watch) << "Der Fortschrittsdialog blieb nach dem Lauf offen.";
+    ASSERT_TRUE(wait_until_sync_finished(main_window()));
+
+    EXPECT_EQ(range % MANY_FILES, 0) << "Der Balken ist nicht auf die Dateien des Laufs eingeteilt.";
+    EXPECT_GT(std::ranges::count_if(watch->bar_values, [range](int value) { return value > 0 && value < range; }), 1)
+        << "Der Balken rückte während des Laufs nicht vor.";
+    EXPECT_TRUE(std::ranges::is_sorted(watch->bar_values)) << "Der Balken sprang zurück.";
+    EXPECT_EQ(watch->bar_values.back(), range) << "Der Balken war am Ende nicht voll.";
+    EXPECT_GT(watch->files.size(), 1u) << "Der Dialog nannte nicht nacheinander verschiedene Dateien.";
+    EXPECT_EQ(copied_files(tree), MANY_FILES);
+}
+
+TEST_F(GuiTest, ZaehlenZeigtWartecursorBisDerDialogErscheint)  // [ProgressDialogTest.md#ZaehlenZeigtWartecursorBisDerDialogErscheint]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "zaehlen", many_files());
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-zaehlen")));
+    ASSERT_FALSE(wxIsBusy());
+
+    activate_menu_item(main_window(), tul(id::SyncOnce));
+    ASSERT_EQ(main_window().sync_interface().act_sync_type(), SyncType::CountFiles) << "Der Lauf begann nicht mit dem Zählen.";
+    EXPECT_TRUE(wxIsBusy()) << "Während des Zählens fehlt der Wartecursor.";
+    ASSERT_TRUE(wait_until([] { return progress_dialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
+    EXPECT_FALSE(wxIsBusy()) << "Der Wartecursor blieb, obwohl der Fortschrittsdialog schon offen ist.";
+
+    ASSERT_TRUE(wait_until_sync_finished(main_window()));
+    EXPECT_FALSE(wxIsBusy()) << "Der Wartecursor blieb nach dem Lauf.";
+    EXPECT_EQ(copied_files(tree), MANY_FILES);
 }
 
 TEST_F(GuiTest, AbbrechenImFortschrittsdialogBeendetDenLauf)  // [ProgressDialogTest.md#AbbrechenImFortschrittsdialogBeendetDenLauf]
 {
-    const SandboxTree tree(GuiTestSandbox::root() / "abbruch", manyFiles());
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync(tree, "guitest-abbruch")));
+    const SandboxTree tree(GuiTestSandbox::root() / "abbruch", many_files());
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-abbruch")));
 
-    activateMenuItem(mainWindow(), tul(id::SyncOnce));
-    ASSERT_TRUE(waitUntil([] { return progressDialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
-    ASSERT_TRUE(clickOn(find(*progressDialog(), wxID_CANCEL))) << "Abbrechen ließ sich nicht klicken.";
-    ASSERT_TRUE(waitUntilSyncFinished(mainWindow())) << "Nach Abbrechen kam der Lauf nicht zur Ruhe.";
+    activate_menu_item(main_window(), tul(id::SyncOnce));
+    ASSERT_TRUE(wait_until([] { return progress_dialog() != nullptr; })) << "Der Fortschrittsdialog erschien nicht.";
+    ASSERT_TRUE(click_on(find(*progress_dialog(), wxID_CANCEL))) << "Abbrechen ließ sich nicht klicken.";
+    ASSERT_TRUE(wait_until_sync_finished(main_window())) << "Nach Abbrechen kam der Lauf nicht zur Ruhe.";
 
-    const std::size_t copied = copiedFiles(tree);
+    const std::size_t copied = copied_files(tree);
     EXPECT_LT(copied, MANY_FILES) << "Abbrechen hat den Lauf nicht unterbrochen.";
-    EXPECT_TRUE(waitUntil([] { return progressDialog() == nullptr; })) << "Der Fortschrittsdialog blieb nach Abbrechen offen.";
-    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::SyncOnce))) << "Nach Abbrechen bleibt \"Einmal synchronisieren\" gesperrt.";
-    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::StartSync)));
+    EXPECT_TRUE(wait_until([] { return progress_dialog() == nullptr; })) << "Der Fortschrittsdialog blieb nach Abbrechen offen.";
+    EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::SyncOnce))) << "Nach Abbrechen bleibt \"Einmal synchronisieren\" gesperrt.";
+    EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::StartSync)));
 }
 
 }

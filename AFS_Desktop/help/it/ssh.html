@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sincronizzare tramite SSH</title>
+</head>
+<body>
+<h1>Sincronizzare tramite SSH</h1>
+
+<p>Origine o destinazione possono trovarsi su un altro computer raggiungibile
+tramite SSH – per esempio un NAS, un server o un piccolo computer nella rete di
+casa. Sono possibili anche entrambi i lati contemporaneamente.</p>
+
+<h2>Creare una connessione</h2>
+
+<p><b>File &rarr; Nuova connessione SSH…</b> oppure <b>Modifica &rarr;
+Connessioni SSH…</b> apre la gestione. Una connessione è composta da:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Nome</b></td>
+    <td>Liberamente scelto. Con questo nome la connessione viene poi indicata
+        nei percorsi.</td></tr>
+<tr><td valign="top"><b>Host</b></td>
+    <td>Nome del computer o indirizzo IP.</td></tr>
+<tr><td valign="top"><b>Utente</b></td>
+    <td>Account sul computer remoto.</td></tr>
+<tr><td valign="top"><b>Password</b></td>
+    <td>Viene salvata cifrata nella configurazione, non in chiaro.</td></tr>
+</table>
+
+<p>Nell'elenco le connessioni si possono creare, modificare, rinominare ed
+eliminare. Se una connessione viene rinominata, le sincronizzazioni che la usano
+si adeguano automaticamente.</p>
+
+<h2>Scrivere percorsi remoti</h2>
+
+<p>Un percorso remoto è composto dal nome della connessione, da due punti e dal
+percorso sul computer remoto:</p>
+
+<blockquote><tt>nas:/home/anna/documenti</tt></blockquote>
+
+<p>Nella finestra di una sincronizzazione, il pulsante SSH accanto a origine e
+destinazione porta prima alla scelta della connessione e poi a una finestra che
+sfoglia le cartelle del computer remoto – con dimensione e data di modifica,
+così il posto giusto si trova senza digitare.</p>
+
+<h2>Che cosa cambia</h2>
+
+<ul>
+<li>I <b>collegamenti simbolici</b> sul computer remoto non vengono seguiti.
+    Vengono saltati, così un collegamento a una cartella superiore non crea un
+    ciclo infinito.</li>
+<li><b>L'eliminazione è definitiva.</b> Il cestino è disponibile solo in
+    locale; per spostarvi un file remoto bisognerebbe prima scaricarlo. Questo
+    riguarda <b>Elimina anche nella destinazione i file eliminati</b> come
+    <b>Elimina l'origine dopo la copia</b>, anche se quest'ultima per le
+    origini remote non viene comunque eseguita.</li>
+<li>Gli <b>attributi dei file</b> non vengono modificati sul lato remoto.</li>
+<li><b>Se il server non è raggiungibile</b>, AutoFileSync lo distingue da «lì non
+    c'è più niente» e non tocca la destinazione. Un'interruzione della
+    connessione non porta quindi a eliminazioni.</li>
+<li>Alla prima connessione viene memorizzata la chiave del server. Se in seguito
+    cambia, AutoFileSync interrompe la connessione e segnala il sospetto di un
+    attacco man-in-the-middle.</li>
+</ul>
+
+<h2>Il controllo prima di ogni esecuzione</h2>
+
+<p>Prima che una sincronizzazione con un lato remoto inizi, AutoFileSync si
+assicura che l'altro capo ci sia: si connette, controlla la chiave del server ed
+effettua l'accesso. È la stessa domanda che per un percorso locale significa
+«l'unità è collegata?». Se uno di questi passaggi non riesce, la sincronizzazione
+viene saltata per questa esecuzione – non si copia né si elimina nulla.</p>
+
+<p>Per <b>origine</b> e <b>destinazione</b> valgono criteri diversi:</p>
+
+<ul>
+<li>L'<b>origine</b> deve esistere. Se il server risponde ma segnala «non
+    esiste», l'origine è scomparsa – e una sincronizzazione la cui origine è
+    scomparsa resta ferma invece di riprodurre la scomparsa. Altrimenti una
+    cartella di origine eliminata, insieme a <b>Elimina anche nella
+    destinazione i file eliminati</b>, svuoterebbe la destinazione.</li>
+<li>Per la <b>destinazione</b> basta che la connessione riesca. Una cartella di
+    destinazione che non esiste ancora viene creata da AutoFileSync stesso – non
+    deve bloccare la sincronizzazione.</li>
+</ul>
+
+<p>Il risultato viene memorizzato, così non ogni esecuzione apre una nuova
+connessione. Un lato remoto raggiungibile viene ricontrollato al massimo una
+volta all'ora, uno non raggiungibile al massimo ogni cinque minuti. Dopo un
+guasto possono quindi passare alcuni minuti prima che la sincronizzazione
+riparta da sola.</p>
+
+</body>
+</html>

@@ -46,3 +46,18 @@ conversion has to go through the clocks rather than through the raw duration. Bo
 are needed wherever a foreign timestamp meets a local one: SFTP reports seconds since the Unix
 epoch, and that is also what is sent back to a server.
 
+## utf8-files
+
+The configuration and the backup proofs are JSON, once written by boost's write_json() into a
+wide stream. A std::wofstream converts through the C++ global locale, which stays "C" whatever
+setlocale() chose, and write_json() leaves characters up to U+00FF unescaped: on Linux and macOS
+the first umlaut made the stream fail, so a configuration with an umlaut in a name or path could
+not be saved. These two functions convert explicitly instead, so the file is UTF-8 everywhere.
+
+Reading old files: on Windows the wide stream wrote such characters as single bytes in the ANSI
+code page, and string_to_wstring() falls back to exactly that code page for invalid UTF-8, so
+those files keep their umlauts. Elsewhere an old file could only ever be ASCII.
+
+write_utf8_file() refuses an empty conversion of a non-empty text - WideCharToMultiByte() returns
+nothing for an unpaired surrogate - because the caller renames the result over the real file,
+and an empty configuration would replace the user's synchronisations.

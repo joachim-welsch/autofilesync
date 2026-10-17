@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Uruchamianie synchronizacji</title>
+</head>
+<body>
+<h1>Uruchamianie synchronizacji</h1>
+
+<p>Menu <b>Synchronizacja</b> steruje przebiegiem.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="25%">Polecenie</th><th align="left">Działanie</th></tr>
+<tr><td valign="top"><b>Uruchom</b></td>
+    <td>Uruchamia pracę ciągłą. AutoFileSync wykonuje po kolei wszystkie aktywne
+        synchronizacje, odczekuje przerwę ustawioną dla danego zadania i zaczyna
+        od nowa.</td></tr>
+<tr><td valign="top"><b>Zatrzymaj</b></td>
+    <td>Kończy pracę. Trwające kopiowanie zostaje jeszcze dokończone, potem
+        przetwarzanie się zatrzymuje.</td></tr>
+<tr><td valign="top"><b>Synchronizuj jednorazowo</b></td>
+    <td>Pojedynczy przebieg przez wszystkie aktywne synchronizacje; potem
+        przetwarzanie zatrzymuje się samo. Zobacz
+        <a href="synconce.html">Synchronizuj jednorazowo</a>.</td></tr>
+<tr><td valign="top"><b>Podgląd…</b></td>
+    <td>Pokazuje, co przebieg zrobiłby teraz, niczego nie zmieniając; stamtąd
+        można uruchomić przebieg. Zobacz <a href="preview.html">Podgląd</a>.</td></tr>
+</table>
+
+<p>Uruchomienie i przebieg jednorazowy są dostępne tylko wtedy, gdy konfiguracja
+zawiera co najmniej jedną synchronizację, którą da się wykonać. Podczas trwania
+przebiegu są zablokowane.</p>
+
+<h2>Co widać w tym czasie</h2>
+
+<p>Prawe pole paska stanu stale pokazuje, co robi synchronizacja:
+<em>Synchronizacja zatrzymana</em>, <em>Liczenie plików …</em>, <em>Trwa
+jednorazowa synchronizacja …</em>, <em>Trwa synchronizacja …</em> albo
+<em>Wstrzymano – następne uruchomienie za N s</em>, gdy wszystkie zadania są w
+swojej <a href="options.html">przerwie</a>. Przy dłuższych transferach pojawia
+się okno postępu ze źródłem, celem i zakresem. Pasek narzędzi przełącza między
+uruchomieniem a zatrzymaniem, dzięki czemu stan można w każdej chwili
+odczytać.</p>
+
+<p>Gdy okno jest zminimalizowane, synchronizacja działa dalej w obszarze
+powiadomień paska zadań.</p>
+
+<h2>Automatycznie przy starcie programu</h2>
+
+<p>W <a href="settings.html">ustawieniach ogólnych</a> można ustawić, aby
+AutoFileSync rozpoczynał synchronizację zaraz po starcie – razem z
+<b>Uruchamiaj aplikację automatycznie</b> i <b>Uruchamiaj zminimalizowany</b>
+daje to przebieg, który działa bez żadnej obsługi. Kto chce synchronizacji
+całkiem bez otwartego programu, korzysta z <a href="service.html">usługi w
+tle</a>.</p>
+
+<h2>Widoki</h2>
+
+<p>Menu <b>Widok</b> przełącza przegląd:</p>
+
+<ul>
+<li><b>Lista</b> – jeden wiersz na synchronizację</li>
+<li><b>Drzewo</b> – uporządkowane według źródła i celu</li>
+<li><b>Tabela</b> – wszystkie pola obok siebie, wygodne do porównywania wielu
+    zadań</li>
+<li><b>Pokaż plik dziennika</b> – otwiera dziennik w ustawionym edytorze,
+    zobacz <a href="logging.html">Dziennik i powiadomienia</a></li>
+<li><b>Usługa w tle</b> – pokazuje stan <a href="service.html">usługi w
+    tle</a></li>
+</ul>
+
+</body>
+</html>

@@ -40,16 +40,16 @@ public:
         long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
     virtual ~SshAccountSelectDialog();
 
-    std::optional<SshAccount> getSelectedAccount() const;
+    std::optional<SshAccount> get_selected_account() const;
 
 private:
-    void populateList();
-    void onListDClick(wxMouseEvent& event);
-    void onListSelect(wxListEvent& event);
-    void updateButtons();
+    void populate_list();
+    void on_list_double_click(wxMouseEvent& event);
+    void on_list_select(wxListEvent& event);
+    void update_buttons();
 
-    wxListCtrl* listCtrl_ = nullptr;
-    int selectedIndex_ = -1;
+    wxListCtrl* list_ctrl_ = nullptr;
+    int selected_index_ = -1;
 
     DECLARE_EVENT_TABLE()
 };

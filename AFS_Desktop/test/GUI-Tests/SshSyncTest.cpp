@@ -52,21 +52,21 @@ wxString select_dialog_title()
     return txt::select_ssh_connection();
 }
 
-bool addTestAccount(MainWindow& window)
+bool add_test_account(MainWindow& window)
 {
     const SshAccountInput input{ACCOUNT, SSH_TEST_HOST, SSH_TEST_USER, SSH_TEST_PASSWORD};
-    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(input));
-    activateMenuItem(window, tul(id::File_new_SshConnection));
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fill_ssh_account_dialog(input));
+    activate_menu_item(window, tul(id::File_new_SshConnection));
     pump();
     return Config::instance().find_ssh_account_by_name(std::string(ACCOUNT.ToUTF8())).has_value();
 }
 
-wxListCtrl* dirList(wxDialog& dialog)
+wxListCtrl* dir_list(wxDialog& dialog)
 {
     return dynamic_cast<wxListCtrl*>(find(dialog, ID_SSH_DIR_LIST));
 }
 
-long rowNamed(wxListCtrl& list, const wxString& text)
+long row_named(wxListCtrl& list, const wxString& text)
 {
     for (long row = 0; row < list.GetItemCount(); ++row)
         if (list.GetItemText(row) == text)
@@ -74,123 +74,123 @@ long rowNamed(wxListCtrl& list, const wxString& text)
     return -1;
 }
 
-wxString statusOf(wxDialog& dialog)  // [SshSyncTest.md#statusOf]
+wxString status_of(wxDialog& dialog)  // [SshSyncTest.md#status_of]
 {
-    const wxString connectionLabel = wxString(translation::translate("ssh_connection_info")).BeforeFirst('%');
+    const wxString connection_label = wxString(translation::translate("ssh_connection_info")).BeforeFirst('%');
     for (wxWindow* child : dialog.GetChildren())
-        if (auto* text = dynamic_cast<wxStaticText*>(child); text != nullptr && text->GetId() == wxID_STATIC && !text->GetLabelText().StartsWith(connectionLabel))
+        if (auto* text = dynamic_cast<wxStaticText*>(child); text != nullptr && text->GetId() == wxID_STATIC && !text->GetLabelText().StartsWith(connection_label))
             return text->GetLabelText();
     return wxString();
 }
 
-bool listShowsFile(wxDialog& dialog, const wxString& name)
+bool list_shows_file(wxDialog& dialog, const wxString& name)
 {
-    return waitUntil([&dialog, name] { wxListCtrl* list = dirList(dialog); return list != nullptr && rowNamed(*list, name) >= 0; });
+    return wait_until([&dialog, name] { wxListCtrl* list = dir_list(dialog); return list != nullptr && row_named(*list, name) >= 0; });
 }
 
 }
 
 TEST_F(SshGuiTest, SshVerzeichnisdialogDoppelklickSteigtAb)
 {
-    ASSERT_TRUE(sftp().makeDir(probeDir() + "/unter"));
-    ASSERT_TRUE(sftp().createFile(probeDir() + "/unter/drin.txt"));
+    ASSERT_TRUE(sftp().make_dir(probe_dir() + "/unter"));
+    ASSERT_TRUE(sftp().create_file(probe_dir() + "/unter/drin.txt"));
     ModalDialogWatcher::instance().expect(dir_dialog_title(), [this](wxDialog& dialog) {
-        ASSERT_TRUE(listShowsFile(dialog, "[unter]")) << "Das Unterverzeichnis erscheint nicht in der Liste.";
-        ASSERT_TRUE(clickOn(*dirList(dialog), rowNamed(*dirList(dialog), "[unter]"), true));
-        EXPECT_TRUE(listShowsFile(dialog, "drin.txt")) << "Der Doppelklick stieg nicht ins Verzeichnis ab.";
-        EXPECT_EQ(valueOf(find(dialog, ID_SSH_DIR_PATH_BOX)), wxString::FromUTF8(probeDir() + "/unter"));
+        ASSERT_TRUE(list_shows_file(dialog, "[unter]")) << "Das Unterverzeichnis erscheint nicht in der Liste.";
+        ASSERT_TRUE(click_on(*dir_list(dialog), row_named(*dir_list(dialog), "[unter]"), true));
+        EXPECT_TRUE(list_shows_file(dialog, "drin.txt")) << "Der Doppelklick stieg nicht ins Verzeichnis ab.";
+        EXPECT_EQ(value_of(find(dialog, ID_SSH_DIR_PATH_BOX)), wxString::FromUTF8(probe_dir() + "/unter"));
         dialog.EndModal(wxID_CANCEL);
     });
 
-    SshDirDialog dialog(&mainWindow(), dir_dialog_title(), sshTestAccount("guitest-dialog"), wxString::FromUTF8(probeDir()));
+    SshDirDialog dialog(&main_window(), dir_dialog_title(), ssh_test_account("guitest-dialog"), wxString::FromUTF8(probe_dir()));
     dialog.ShowModal();
 
-    sftp().removeFile(probeDir() + "/unter/drin.txt");
-    sftp().removeDir(probeDir() + "/unter");
+    sftp().remove_file(probe_dir() + "/unter/drin.txt");
+    sftp().remove_dir(probe_dir() + "/unter");
 }
 
 TEST_F(SshGuiTest, SshVerzeichnisdialogPfadfeldMitEnterNavigiert)
 {
-    ASSERT_TRUE(sftp().makeDir(probeDir() + "/unter"));
-    ASSERT_TRUE(sftp().createFile(probeDir() + "/unter/drin.txt"));
+    ASSERT_TRUE(sftp().make_dir(probe_dir() + "/unter"));
+    ASSERT_TRUE(sftp().create_file(probe_dir() + "/unter/drin.txt"));
     ModalDialogWatcher::instance().expect(dir_dialog_title(), [this](wxDialog& dialog) {
-        ASSERT_TRUE(listShowsFile(dialog, "[unter]"));
-        ASSERT_TRUE(replaceText(find(dialog, ID_SSH_DIR_PATH_BOX), wxString::FromUTF8(probeDir() + "/unter")));
-        ASSERT_TRUE(pressReturn());
-        EXPECT_TRUE(listShowsFile(dialog, "drin.txt")) << "Enter im Pfadfeld wechselte nicht ins Verzeichnis.";
-        EXPECT_TRUE(statusOf(dialog).Matches(translation::translate("entries_count", {L"*"}))) << statusOf(dialog);
+        ASSERT_TRUE(list_shows_file(dialog, "[unter]"));
+        ASSERT_TRUE(replace_text(find(dialog, ID_SSH_DIR_PATH_BOX), wxString::FromUTF8(probe_dir() + "/unter")));
+        ASSERT_TRUE(press_return());
+        EXPECT_TRUE(list_shows_file(dialog, "drin.txt")) << "Enter im Pfadfeld wechselte nicht ins Verzeichnis.";
+        EXPECT_TRUE(status_of(dialog).Matches(translation::translate("entries_count", {L"*"}))) << status_of(dialog);
         dialog.EndModal(wxID_CANCEL);
     });
 
-    SshDirDialog dialog(&mainWindow(), dir_dialog_title(), sshTestAccount("guitest-dialog"), wxString::FromUTF8(probeDir()));
+    SshDirDialog dialog(&main_window(), dir_dialog_title(), ssh_test_account("guitest-dialog"), wxString::FromUTF8(probe_dir()));
     dialog.ShowModal();
 
-    sftp().removeFile(probeDir() + "/unter/drin.txt");
-    sftp().removeDir(probeDir() + "/unter");
+    sftp().remove_file(probe_dir() + "/unter/drin.txt");
+    sftp().remove_dir(probe_dir() + "/unter");
 }
 
 TEST_F(SshGuiTest, SshVerzeichnisdialogZeigtFehlerBeiUnbekanntemPfad)
 {
     ModalDialogWatcher::instance().expect(dir_dialog_title(), [this](wxDialog& dialog) {
-        ASSERT_TRUE(waitUntil([&dialog] { return dialog.IsShownOnScreen(); }));
-        ASSERT_TRUE(replaceText(find(dialog, ID_SSH_DIR_PATH_BOX), wxString::FromUTF8(probeDir() + "/gibt-es-nicht")));
-        ASSERT_TRUE(pressReturn());
-        EXPECT_TRUE(waitUntil([&dialog] { return statusOf(dialog).Matches(translation::translate("error_with_reason", {L"*"})) || statusOf(dialog) == translation::translate("not_a_directory"); }))
-            << "Der unbekannte Pfad blieb ohne Fehlermeldung, Status: " << statusOf(dialog);
+        ASSERT_TRUE(wait_until([&dialog] { return dialog.IsShownOnScreen(); }));
+        ASSERT_TRUE(replace_text(find(dialog, ID_SSH_DIR_PATH_BOX), wxString::FromUTF8(probe_dir() + "/gibt-es-nicht")));
+        ASSERT_TRUE(press_return());
+        EXPECT_TRUE(wait_until([&dialog] { return status_of(dialog).Matches(translation::translate("error_with_reason", {L"*"})) || status_of(dialog) == translation::translate("not_a_directory"); }))
+            << "Der unbekannte Pfad blieb ohne Fehlermeldung, Status: " << status_of(dialog);
         dialog.EndModal(wxID_CANCEL);
     });
 
-    SshDirDialog dialog(&mainWindow(), dir_dialog_title(), sshTestAccount("guitest-dialog"), wxString::FromUTF8(probeDir()));
+    SshDirDialog dialog(&main_window(), dir_dialog_title(), ssh_test_account("guitest-dialog"), wxString::FromUTF8(probe_dir()));
     dialog.ShowModal();
 }
 
 TEST_F(SshGuiTest, SshButtonOeffnetAuswahlUndVerzeichnisdialogUndSetztPfad)  // [SshSyncTest.md#ssh-button]
 {
-    ASSERT_TRUE(addTestAccount(mainWindow()));
-    ASSERT_TRUE(sftp().makeDir(probeDir() + "/ziel"));
+    ASSERT_TRUE(add_test_account(main_window()));
+    ASSERT_TRUE(sftp().make_dir(probe_dir() + "/ziel"));
     ModalDialogWatcher::instance().expect(txt::add_synchronisation(), [this](wxDialog& dialog) {
-        ASSERT_TRUE(waitUntil([&dialog] { return dialog.IsShownOnScreen(); }));
-        ASSERT_TRUE(replaceText(find(dialog, ID_TARGET_DIR_BOX), wxString::FromUTF8(":" + probeDir())));  // [SshSyncTest.md#start-path]
-        ASSERT_TRUE(clickOn(find(dialog, ID_BTN_SSH_TARGET)));
-        EXPECT_EQ(valueOf(find(dialog, ID_TARGET_DIR_BOX)), wxString::FromUTF8(std::string(ACCOUNT.ToUTF8()) + ":" + probeDir() + "/ziel"))
+        ASSERT_TRUE(wait_until([&dialog] { return dialog.IsShownOnScreen(); }));
+        ASSERT_TRUE(replace_text(find(dialog, ID_TARGET_DIR_BOX), wxString::FromUTF8(":" + probe_dir())));  // [SshSyncTest.md#start-path]
+        ASSERT_TRUE(click_on(find(dialog, ID_BTN_SSH_TARGET)));
+        EXPECT_EQ(value_of(find(dialog, ID_TARGET_DIR_BOX)), wxString::FromUTF8(std::string(ACCOUNT.ToUTF8()) + ":" + probe_dir() + "/ziel"))
             << "Das Ziel wurde nicht aus Verbindung und gewähltem Verzeichnis zusammengesetzt.";
         dialog.EndModal(wxID_CANCEL);
     });
     ModalDialogWatcher::instance().expect(select_dialog_title(), [](wxDialog& dialog) {
-        ASSERT_TRUE(waitUntil([&dialog] { return dialog.IsShownOnScreen(); }));
+        ASSERT_TRUE(wait_until([&dialog] { return dialog.IsShownOnScreen(); }));
         auto* list = dynamic_cast<wxListCtrl*>(find(dialog, ID_SSH_SELECT_LIST));
         ASSERT_NE(list, nullptr);
-        ASSERT_GE(rowNamed(*list, ACCOUNT), 0) << "Die Verbindung fehlt in der Auswahl.";
+        ASSERT_GE(row_named(*list, ACCOUNT), 0) << "Die Verbindung fehlt in der Auswahl.";
         EXPECT_FALSE(find(dialog, wxID_OK)->IsEnabled()) << "OK ist ohne Auswahl aktiv.";
-        ASSERT_TRUE(clickOn(*list, rowNamed(*list, ACCOUNT)));
-        ASSERT_TRUE(clickWhenEnabled(find(dialog, wxID_OK)));
+        ASSERT_TRUE(click_on(*list, row_named(*list, ACCOUNT)));
+        ASSERT_TRUE(click_when_enabled(find(dialog, wxID_OK)));
     });
     ModalDialogWatcher::instance().expect(dir_dialog_title(), [this](wxDialog& dialog) {
-        ASSERT_TRUE(listShowsFile(dialog, "[ziel]")) << "Der Verzeichnisdialog zeigt das Startverzeichnis nicht.";
-        ASSERT_TRUE(clickOn(*dirList(dialog), rowNamed(*dirList(dialog), "[ziel]")));
-        ASSERT_TRUE(clickWhenEnabled(find(dialog, wxID_OK)));
+        ASSERT_TRUE(list_shows_file(dialog, "[ziel]")) << "Der Verzeichnisdialog zeigt das Startverzeichnis nicht.";
+        ASSERT_TRUE(click_on(*dir_list(dialog), row_named(*dir_list(dialog), "[ziel]")));
+        ASSERT_TRUE(click_when_enabled(find(dialog, wxID_OK)));
     });
 
-    activateMenuItem(mainWindow(), tul(id::File_new_Synchronization));
+    activate_menu_item(main_window(), tul(id::File_new_Synchronization));
     pump();
 
-    sftp().removeDir(probeDir() + "/ziel");
+    sftp().remove_dir(probe_dir() + "/ziel");
 }
 
 TEST_F(SshGuiTest, EinmalSynchronisierenNachSshLegtDateiAufServerAb)  // [SshSyncTest.md#sync-to-server]
 {
-    ASSERT_TRUE(addTestAccount(mainWindow()));
+    ASSERT_TRUE(add_test_account(main_window()));
     const SandboxTree tree(GuiTestSandbox::root() / "nach-ssh", {{"quelle/bericht.txt", "Bericht"}});
-    const std::string remoteTarget = probeDir() + "/ziel";
-    SyncItemInput input{"guitest-nach-ssh", tree.path("quelle").string(), wxString::FromUTF8(std::string(ACCOUNT.ToUTF8()) + ":" + remoteTarget)};
+    const std::string remote_target = probe_dir() + "/ziel";
+    SyncItemInput input{"guitest-nach-ssh", tree.path("quelle").string(), wxString::FromUTF8(std::string(ACCOUNT.ToUTF8()) + ":" + remote_target)};
     input.type = SyncItemType::Dir;
-    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    ASSERT_TRUE(add_sync_item(main_window(), input));
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
-    EXPECT_EQ(sftp().readFile(remoteTarget + "/bericht.txt"), "Bericht") << "Die Datei kam nicht auf dem Server an.";
-    sftp().removeFile(remoteTarget + "/bericht.txt");
-    sftp().removeDir(remoteTarget);
+    EXPECT_EQ(sftp().read_file(remote_target + "/bericht.txt"), "Bericht") << "Die Datei kam nicht auf dem Server an.";
+    sftp().remove_file(remote_target + "/bericht.txt");
+    sftp().remove_dir(remote_target);
 }
 
 }

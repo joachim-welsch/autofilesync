@@ -30,8 +30,8 @@ class SourceCanvas: public Canvas {
 public:
 	SourceCanvas(wxWindow* parent);
 	void update() override;
-	void onSelectRoot() override;
+	void on_select_root() override;
 	bool source() const override { return true;  }
 protected:
-	void addDataItems() override;
+	void add_data_items() override;
 };

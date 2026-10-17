@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Registro y notificación</title>
+</head>
+<body>
+<h1>Registro y notificación</h1>
+
+<p><b>Edición &rarr; Configuración del registro…</b> controla qué se anota y cómo
+se entera usted de los errores graves.</p>
+
+<h2>Registro</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Ruta del archivo de registro</b></td>
+    <td>Ubicación del archivo de registro. Sin una ruta propia, AutoFileSync
+        escribe en <tt>%LOCALAPPDATA%\autofilesync\autofilesync.log</tt> en
+        Windows y en <tt>~/.cache/autofilesync/autofilesync.log</tt> en Linux.
+        La carpeta se crea cuando hace falta.</td></tr>
+<tr><td valign="top"><b>Nivel de registro</b></td>
+    <td>A partir de qué nivel se escribe: <tt>Debug</tt>, <tt>Info</tt>,
+        <tt>Warning</tt>, <tt>Error</tt> o <tt>FatalError</tt>. <tt>Debug</tt>
+        anota cada paso y hace crecer el archivo deprisa – pensado para buscar
+        errores, no para el funcionamiento continuo. <tt>Info</tt> anota qué se
+        copió y qué se eliminó.</td></tr>
+<tr><td valign="top"><b>Historial [días]</b></td>
+    <td>Cuánto tiempo se conservan las entradas. Al iniciar el programa se
+        eliminan las líneas más antiguas; las más recientes se quedan.</td></tr>
+<tr><td valign="top"><b>Editor</b></td>
+    <td>Programa con el que <b>Ver &rarr; Mostrar archivo de registro</b> abre el
+        registro.</td></tr>
+<tr><td valign="top"><b>Ruta de los comprobantes de copia</b></td>
+    <td>Carpeta para los archivos de comprobante; consulte
+        <a href="backupproof.html">Comprobante de copia</a>.</td></tr>
+</table>
+
+<h2>Notificación por correo electrónico</h2>
+
+<p>En la segunda pestaña puede configurar una notificación que envía un correo
+electrónico ante un error grave – útil cuando AutoFileSync funciona sin
+supervisión o como <a href="service.html">servicio en segundo plano</a>.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top" width="30%"><b>Activa</b></td>
+    <td>Activa el envío. Sin la marca, todo lo demás no tiene efecto.</td></tr>
+<tr><td valign="top"><b>Dirección de correo</b></td>
+    <td>Destinatario de la notificación.</td></tr>
+<tr><td valign="top"><b>Servidor de correo saliente</b>, <b>Puerto</b></td>
+    <td>Servidor SMTP y puerto del proveedor.</td></tr>
+<tr><td valign="top"><b>Usuario</b>, <b>Contraseña</b></td>
+    <td>Datos de acceso al servidor de correo saliente.</td></tr>
+<tr><td valign="top"><b>Remitente</b></td>
+    <td>Dirección que figura como remitente. Muchos proveedores exigen que
+        pertenezca a la cuenta.</td></tr>
+</table>
+
+<p>Si con la notificación activa faltan el destinatario, el servidor o el
+remitente, el diálogo lo indica al confirmar. El mismo error no envía un correo
+una y otra vez – tras un aviso queda en silencio durante un tiempo, para que un
+destino inaccesible durante mucho tiempo no llene el buzón.</p>
+
+</body>
+</html>

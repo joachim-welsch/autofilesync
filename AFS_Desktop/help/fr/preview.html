@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Aperçu</title>
+</head>
+<body>
+<h1>Aperçu</h1>
+
+<p><b>Synchronisation &rarr; Aperçu…</b> montre ce qu'un passage ferait
+maintenant sans rien modifier : rien n'est copié, déplacé ni supprimé. Ce n'est
+que lorsque vous choisissez <b>Synchroniser maintenant</b> dans la boîte de
+dialogue que la synchronisation s'exécute – exactement comme si vous aviez choisi
+<a href="synconce.html">Synchroniser une fois</a>.</p>
+
+<p>L'aperçu est surtout utile</p>
+<ul>
+<li>après la création d'une nouvelle synchronisation, pour vérifier que source
+    et cible ne sont pas inversées,</li>
+<li>avant d'activer pour la première fois <b>Supprimer dans la cible les
+    fichiers supprimés</b> ou <b>Supprimer la source après la copie</b>,</li>
+<li>quand vous voulez savoir combien un passage transférerait.</li>
+</ul>
+
+<h2>La boîte de dialogue</h2>
+
+<p>Chaque ligne est une étape que le passage exécuterait :</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Action</th><th align="left">Signification</th></tr>
+<tr><td valign="top"><b>Copier vers la cible</b></td>
+    <td>Le fichier est nouveau ou plus récent dans la source que dans la cible.</td></tr>
+<tr><td valign="top"><b>Déplacer vers la cible</b></td>
+    <td>Comme la copie ; ensuite le fichier source est retiré, parce que
+        <b>Supprimer la source après la copie</b> est activé.</td></tr>
+<tr><td valign="top"><b>Recopier vers la source</b></td>
+    <td>Avec la <b>synchronisation bidirectionnelle</b> : le fichier n'existe que
+        dans la cible ou y est plus récent.</td></tr>
+<tr><td valign="top"><b>Supprimer dans la cible</b></td>
+    <td>Le fichier n'existe plus dans la source et <b>Supprimer dans la cible
+        les fichiers supprimés</b> est activé. Ces lignes sont en rouge parce
+        qu'elles sont les seules à retirer des données.</td></tr>
+</table>
+
+<p>Sous la liste figure le résumé : combien d'étapes, combien d'entre elles sont
+des suppressions et quel volume de données serait transféré. Les messages de la
+vérification – une source inaccessible, par exemple – apparaissent sous la
+liste. Si un très grand nombre d'étapes est prévu, la liste montre les dix mille
+premières et indique le nombre des autres.</p>
+
+<p>Si la source et la cible concordent, seule une note indiquant qu'un passage
+ne ferait rien apparaît à la place de la boîte de dialogue.</p>
+
+<h2>Ce que l'aperçu ne prend pas en compte</h2>
+<ul>
+<li>La <b>pause</b> d'une synchronisation ne joue aucun rôle : l'aperçu montre
+    la différence entre la source et la cible, même juste après un passage.</li>
+<li>Ce qui change encore entre l'aperçu et le passage n'est vu que par le
+    passage.</li>
+<li>Les erreurs lors de la copie elle-même – une cible pleine, par exemple – ne
+    se manifestent que pendant le passage et figurent alors dans le
+    <a href="logging.html">journal</a>.</li>
+</ul>
+
+</body>
+</html>

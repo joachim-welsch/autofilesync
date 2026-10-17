@@ -22,6 +22,11 @@
 #include <filesystem>
 #include <fstream>
 #include "ScopedLog.h"
+#include <ScopedEnv.h>
+#include <Translation.h>
+#include <clocale>
+#include <optional>
+#include <utility>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -78,11 +83,48 @@ TEST(LogAnalysisTests, ReturnsEmptyForMissingFile)
     EXPECT_TRUE(read_recent_log_entries(1000).empty());
 }
 
-TEST(LogAnalysisTests, RecognisesLogAndProtokollKeywordsCaseInsensitively)
+class LogWordsTest : public ::testing::Test {  // [LogAnalysisTests.md#LogWordsTest]
+protected:
+    std::string saved_locale_ = std::setlocale(LC_ALL, nullptr);
+    std::optional<ScopedEnv> language_;
+
+    void SetUp() override
+    {
+        if (translation::locale_dir().empty())
+            GTEST_SKIP() << "no compiled catalogues beside the test binary";
+        language_.emplace("LANGUAGE", nullptr);
+        translation::init_locale(translation::DEFAULT_LOCALES);
+#ifdef LC_MESSAGES
+        if (std::string(std::setlocale(LC_MESSAGES, nullptr)) == "C")
+            GTEST_SKIP() << "no usable locale, gettext ignores LANGUAGE in C";
+#endif
+        translation::init(translation::locale_dir());
+    }
+
+    void TearDown() override
+    {
+        language_.reset();
+        std::setlocale(LC_ALL, saved_locale_.c_str());  // with C restored, later tests see the bare keys as before
+    }
+};
+
+TEST_F(LogWordsTest, RecognisesLogAndProtokollKeywordsCaseInsensitively)
 {
+    translation::set_language("de");
     EXPECT_TRUE(looks_like_log_question(L"Was steht im Log?"));
     EXPECT_TRUE(looks_like_log_question(L"WARUM GIBT ES FEHLER IM LOG"));
     EXPECT_TRUE(looks_like_log_question(L"Kannst du die Protokolldatei pruefen?"));
+}
+
+TEST_F(LogWordsTest, RecognisesTheLogWordOfEveryLanguage)  // [LogAnalysisTests.md#RecognisesTheLogWordOfEveryLanguage]
+{
+    const std::pair<const char*, const wchar_t*> questions[] = {
+        {"es", L"¿Qué dice el registro?"}, {"fr", L"Que dit le journal ?"}, {"it", L"Cosa dice il registro?"},
+        {"pl", L"Co jest w dzienniku?"}, {"uk", L"Що в журналі?"}};
+    for (const auto& [code, question] : questions) {
+        translation::set_language(code);
+        EXPECT_TRUE(looks_like_log_question(question)) << code;
+    }
 }
 
 TEST(LogAnalysisTests, DoesNotFlagUnrelatedQuestions)

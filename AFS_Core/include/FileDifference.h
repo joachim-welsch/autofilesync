@@ -35,6 +35,7 @@ private:
     SSHPATH             ssh_ {SSHPATH::none};
     bool                two_way_sync_ = false;
     Result              result_ = Result::Equal;
+    bool newer(std::filesystem::file_time_type a, std::filesystem::file_time_type b) const;
     Result compare_metadata(std::filesystem::file_time_type sourcetime, std::filesystem::file_time_type desttime) const;
     void compare_content(std::filesystem::file_time_type sourcetime, std::filesystem::file_time_type desttime);
 public:

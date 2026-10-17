@@ -52,6 +52,16 @@ alten Dateien einfach – AutoFileSync setzt dann die dokumentierte Vorgabe ein
 und lädt die Datei trotzdem. Ein einzelner beschädigter Eintrag führt ebenfalls
 nicht dazu, dass die ganze Konfiguration verloren geht; er wird übersprungen.</p>
 
+<p>Ein Beispiel dafür ist der Schlüssel <tt>warnIfUnreachable</tt> bei den Optionen
+einer Synchronisation (<tt>syncflags</tt>). Er trägt die Option <b>Warnung bei nicht
+vorhandenem Laufwerk oder SSH-Verbindung</b>: <tt>true</tt> bedeutet, dass ein
+fehlendes Laufwerk als Warnung gemeldet wird, <tt>false</tt>, dass es nur im
+Protokoll vermerkt wird. Fehlt der Schlüssel, weil die Datei von einer älteren
+Ausgabe stammt, gilt <tt>true</tt>. Die anderen Optionen stehen unter ihren
+eigenen Schlüsseln daneben und fehlen in alten Dateien mit der Vorgabe
+<tt>false</tt>. Was die Option bewirkt, steht unter
+<a href="unreachable.html">Nicht erreichbare Laufwerke und Verbindungen</a>.</p>
+
 <p>Beim Schreiben wird die vorhandene Datei nicht zerstört, falls das Speichern
 scheitert – im Zweifel bleibt der alte Stand erhalten.</p>
 

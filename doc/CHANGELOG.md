@@ -1,5 +1,103 @@
 # Änderungen
 
+## Unveröffentlicht
+
+- Beim Kopieren auf einen SSH-Server behält die Datei die Rechte der Quelle
+  (Lesen, Schreiben, Ausführen für Besitzer, Gruppe und andere), so wie es beim
+  Kopieren vom Server schon der Fall war. Bisher kam sie dort nur für den
+  SSH-Benutzer lesbar an, ein Skript verlor sein Ausführungsrecht.
+- Der SSH-Verzeichnisdialog zeigt die Änderungszeit der Einträge wie überall
+  sonst als Ortszeit auf die Sekunde genau; bisher stand dort die Weltzeit mit
+  neun Nachkommastellen.
+- Kann die alte Zieldatei vor dem Kopieren nicht beiseitegelegt werden, etwa in
+  einem schreibgeschützten Zielverzeichnis, zählt das jetzt als Fehler des
+  Laufs und erscheint im Sicherungsnachweis; bisher stand es nur im Log.
+- Im Dialog einer Synchronisation sperren sich Optionen gegenseitig, die
+  zusammen keinen Sinn ergeben: „Quelle nach dem Kopieren löschen“ gegen
+  Zwei-Wege-Synchronisation und „Gelöschte Dateien im Ziel ebenfalls löschen“,
+  Zwei-Wege-Synchronisation gegen „Kopieren, auch wenn Zieldatei neuer ist“,
+  und Letzteres braucht den Vergleich nach Zeit oder Größe. Nach jedem Klick
+  wird der Zustand aller Optionen neu geprüft; die Hilfe nennt die Sperren.
+- Vater-Sohn-Prinzip: Die aufbewahrten Generationen (`name.bak.1`, `name.bak.2`, …)
+  im Ziel werden nicht mehr als Nur-im-Ziel-Dateien behandelt. Bisher löschte
+  „Löschen im Ziel“ sie im selben Durchlauf wieder, und die Zwei-Wege-
+  Synchronisation kopierte sie in die Quelle zurück.
+- Abbrechen während eines Uploads über SSH entfernt die halb übertragene Datei
+  auf dem Server; bisher blieb sie dort liegen.
+- Die Hilfe gibt es in allen Sprachen der Oberfläche: Deutsch, Englisch,
+  Spanisch, Französisch, Italienisch, Polnisch und Ukrainisch. Sie erscheint in
+  der Sprache, die das Programm anzeigt, und wechselt mit, wenn die Sprache in
+  den globalen Einstellungen umgestellt wird. Auch der Assistent liest die Hilfe
+  in dieser Sprache.
+- Assistent: Er kann auch Befehle vorschlagen – einmal synchronisieren,
+  Synchronisation starten oder stoppen, Hintergrunddienst starten oder stoppen,
+  Log-Datei anzeigen. Der Knopf trägt den Namen aus dem Menü und führt den
+  Menübefehl aus; ist er gerade nicht möglich, sagt das Programm warum.
+- Assistent: Er weiß, wann jede Synchronisation zuletzt lief, ob Quelle und
+  Ziel dabei erreichbar waren und welcher Fehler zuerst auftrat, außerdem ob
+  das Programm gerade synchronisiert und ob der Hintergrunddienst läuft. So
+  kann er Fragen wie „Warum ist mein Ziel nicht aktuell?“ begründen.
+- Assistent: Fragen wie „Wie stelle ich die Sprache um?“ beantwortet er mit
+  dem passenden Abschnitt der Hilfe und nennt die Hilfeseite.
+- Assistent: Ein langes Gespräch lässt seine ältesten Runden weg, statt jede
+  weitere Frage mit „Unterhaltung zu lang“ abzulehnen, bis das Programm neu
+  gestartet wird. **Neues Gespräch** im Chatfenster beginnt von vorn.
+- Assistent: Fragen nach dem Protokoll werden in jeder Sprache erkannt
+  („journal“, „registro“, „dziennik“, „журнал“ …), nicht nur auf Deutsch und
+  Englisch; nur dann bekommt er den Auszug aus der Logdatei.
+- Der Datumsvergleich hat eine einstellbare Toleranz (Reiter Optionen, Vorgabe
+  2 Sekunden). Bisher galt eine Datei auf einem NTFS-, exFAT- oder
+  FAT-Datenträger bei jedem Durchlauf als geändert, weil das Ziel die
+  Änderungszeit gröber speichert als die Quelle, und wurde immer wieder
+  kopiert.
+- Der Fortschrittsbalken bewegt sich auch innerhalb einer Datei: Er zeigt die
+  fertigen Dateien plus den schon kopierten Anteil der laufenden Datei, auch
+  über SSH. Abbrechen wirkt mitten in einer großen Datei und lässt keine halbe
+  Datei im Ziel zurück. Während „Einmal synchronisieren“ die Dateien zählt,
+  zeigt der Mauszeiger die Wartesanduhr.
+- Die Oberfläche folgt den Plattformregeln enger: Tastenkürzel für Neu,
+  Öffnen, Speichern, Speichern als, Einstellungen, Beenden und Hilfe;
+  Menüpunkte, die einen Dialog öffnen, enden mit „…“; Bestätigungen fragen
+  mit „Löschen“, „Überschreiben“ bzw. „Speichern“/„Nicht speichern“ statt
+  Ja/Nein, und Abbrechen ist die Vorgabe. Unter macOS stehen „Einstellungen…“
+  und „Info“ im Programm-Menü, das Fenster zeigt ungespeicherte Änderungen im
+  Schließen-Knopf, und das Info-Fenster ist das native.
+- Dialoge nach den Plattformregeln: Feldbeschriftungen enden mit Doppelpunkt,
+  die Knöpfe „...“ und „ssh“ heißen „Auswählen…“ und „SSH…“, der Log-Level ist
+  ein Aufklappmenü, die globalen Einstellungen lassen sich abbrechen, und jede
+  Meldung trägt ihr Symbol und erscheint vor dem richtigen Fenster. Der Hinweis
+  auf den minimierten Start und auf ein fehlendes Hilfebuch kommt als
+  Systembenachrichtigung statt als Dialog, der sich von selbst schließt.
+- Die Werkzeugleiste beginnt mit „Neue Synchronisation“. Im Menü Datei stehen
+  „Neue Synchronisation…“ und „Neue SSH-Verbindung…“ direkt. Im Dialog einer
+  Synchronisation bilden die Vergleichskriterien eine eigene Gruppe. Dialoge
+  und Tabelle skalieren mit der Bildschirmauflösung, die Tabellenköpfe nutzen
+  die Systemschrift, und die Wurzel der Baumansicht heißt „Dieser Computer“
+  statt „PC“.
+- Konfiguration und Sicherungsnachweise stehen lesbar in der Datei: Zeichen wie
+  kyrillische Buchstaben erscheinen als sie selbst statt als `\u0423…`, und
+  Emoji in Namen gehen nicht mehr verloren.
+- Der Benutzer, unter dem der Hintergrunddienst läuft, darf ihn ohne
+  Administratorpasswort starten und stoppen: Das Debian-Paket legt dafür eine
+  polkit-Regel an, der Windows-Installer gibt dem Dienstkonto die Rechte am
+  Dienst.
+- Die Konfiguration wird als UTF-8 geschrieben. Unter Linux und macOS ließ sie
+  sich bisher nicht speichern, sobald Name oder Pfad einer Synchronisation
+  einen Umlaut enthielt.
+- Sicherungsnachweise werden als UTF-8 geschrieben. Bisher entstand kein
+  Nachweis, wenn Name oder Pfad einer Synchronisation einen Umlaut enthielt,
+  und in Französisch und Polnisch gar keiner.
+- Die globalen Einstellungen haben eine Sprachauswahl. Die gewählte Sprache
+  gilt sofort, steht in der Konfiguration und gilt bei jedem Start, auch für
+  den Hintergrunddienst; ohne Auswahl gilt die Sprache des Betriebssystems.
+- Ein Zahnrad rechts in der Werkzeugleiste öffnet die globalen Einstellungen.
+- Übersetzungen ins Spanische, Französische, Italienische, Polnische und
+  Ukrainische (`po/es.po`, `po/fr.po`, `po/it.po`, `po/pl.po`, `po/uk.po`);
+  sie gelten, wenn die Umgebung die Sprache einstellt, z.B. `LANGUAGE=pl`.
+- In einer Sprache ohne eigene Übersetzung (z.B. Schwedisch) erscheinen die
+  Meldungen auf Englisch statt als technische Schlüssel wie
+  `source_dir_not_reachable`.
+
 ## 0.2.0 – 2026-10-09
 
 - macOS: Der Hintergrunddienst steckt im Programmbündel und damit im

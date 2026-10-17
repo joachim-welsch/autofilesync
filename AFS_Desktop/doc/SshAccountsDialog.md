@@ -2,6 +2,12 @@
 
 Module comment for SshAccountsDialog.h / SshAccountsDialog.cpp.
 
+## standard-buttons
+
+OK and Cancel come from CreateStdDialogButtonSizer, like in every other dialog: the sizer
+puts them in the order the platform expects (Cancel left of OK on macOS and GTK) and gives
+them the stock labels, which the hand-built buttons did not.
+
 ## utf8-list
 
 FromUTF8: the configuration holds these fields as UTF-8; the implicit conversion would read them

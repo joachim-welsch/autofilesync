@@ -7,6 +7,23 @@ Module comment for SyncItem.h / SyncItem.cpp.
 Without this flag empty files are skipped: a file of size 0 is usually an aborted write, and
 copying it over an existing target would lose data.
 
+## warn_if_unreachable_
+
+A source or target that is not there is not an error: a backup disk is plugged in now and
+then, a laptop is not always on its home network. Whether the user wants to hear about it is
+their call per synchronisation. On, the default, a pass that finds the item unreachable logs
+a warning and the GUI shows it after a single run (SyncInterface.md#unreachable-warnings);
+off, the pass notes it at info level and moves on. Either way the item is skipped and
+nothing is deleted.
+
+## time_tolerance_seconds_
+
+How far apart two write times may be and still count as the same, see
+FileDifference.md#time-tolerance. It lives with the comparison criteria because it qualifies
+the time criterion and travels with them into FileDifference. DEFAULT_TIME_TOLERANCE_SECONDS
+is the value an item gets when the configuration file predates the setting; two seconds is
+the coarsest timestamp a common file system (FAT32) stores.
+
 ## clone
 
 Deep copy for SyncItem's value semantics; the concrete type stays intact.
@@ -52,3 +69,9 @@ source_/target_ hold a *copy* of the SshAccount taken when the path was set (see
 source()/target() above), not a live lookup - so renaming or editing the account in Config
 leaves existing items pointing at a name that no longer resolves. Config calls this on every
 item after a successful account edit to keep them in sync.
+
+## LastRun
+
+The outcome of the item's last pass in this program: whether source and target were reachable,
+how many errors there were and the first of them. Kept on the item like last_sync_, not
+written to the configuration, so that the assistant can say why an item is not up to date.

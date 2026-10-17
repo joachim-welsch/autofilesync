@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Créer des synchronisations</title>
+</head>
+<body>
+<h1>Créer des synchronisations</h1>
+
+<p>Une synchronisation décrit une tâche : ce qui est mis en concordance, d'où et
+vers où. Elle se crée avec <b>Fichier &rarr; Nouvelle synchronisation…</b> et se
+modifie avec <b>Édition &rarr; Modifier la synchronisation…</b> ou par un double
+clic sur l'entrée.</p>
+
+<h2>Nom</h2>
+
+<p>Le nom identifie la synchronisation et doit être unique. Il apparaît dans la
+vue d'ensemble, dans le journal et – si l'option est activée – comme nom du
+fichier de la <a href="backupproof.html">preuve de sauvegarde</a>.</p>
+
+<h2>Type</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Type</th><th align="left">Ce qui est mis en concordance</th></tr>
+<tr>
+  <td valign="top"><b>Fichier</b></td>
+  <td>Exactement un fichier. Source et cible sont des noms de fichier complets.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Dossier</b></td>
+  <td>Tous les fichiers d'un dossier, <i>sans</i> ses sous-dossiers.</td>
+</tr>
+<tr>
+  <td valign="top"><b>Arborescence</b></td>
+  <td>Un dossier avec tous ses sous-dossiers. Les dossiers cibles manquants sont
+      créés.</td>
+</tr>
+</table>
+
+<h2>Source et cible</h2>
+
+<p>Les deux champs acceptent un chemin. Le bouton à côté ouvre une sélection ;
+pour un ordinateur à l'autre bout d'une connexion SSH, il existe un bouton à
+part, voir <a href="ssh.html">Synchroniser par SSH</a>.</p>
+
+<p>Une cible qui n'existe pas encore est créée lors de la première exécution. Si
+la source se trouve sur un support amovible ou un lecteur réseau qui n'est pas
+connecté pour l'instant, AutoFileSync saute la synchronisation et ne touche pas
+à la cible – c'est important pour qu'un lecteur débranché ne soit jamais pris
+pour « tout a été supprimé ».</p>
+
+<h2>Caractère générique</h2>
+
+<p>Pour les types Dossier et Arborescence, le champ <b>Caractère générique</b>
+limite les fichiers pris en compte, par exemple <tt>*.txt</tt> pour les fichiers
+texte ou <tt>*.*</tt> pour tous. Les fichiers qui ne correspondent pas sont
+invisibles pour cette synchronisation : ils ne sont ni copiés ni supprimés, même
+si <a href="options.html">les fichiers supprimés doivent aussi être supprimés
+dans la cible</a>.</p>
+
+<h2>Exclusions</h2>
+
+<p>L'onglet <b>Exclusions</b> contient un motif par ligne, par exemple :</p>
+
+<blockquote><tt>*.tmp<br>
+node_modules<br>
+Thumbs.db</tt></blockquote>
+
+<p>Les exclusions s'appliquent à la copie comme à la suppression. Dans une
+arborescence, un dossier exclu n'est même pas parcouru – cela fait gagner du
+temps et évite de vérifier un à un les fichiers qu'il contient.</p>
+
+<h2>Active</h2>
+
+<p>Une synchronisation dont la case <b>Synchronisation active</b> n'est pas
+cochée reste dans la liste, mais n'est pas exécutée. Vous pouvez ainsi mettre
+une tâche de côté pour un temps sans la perdre.</p>
+
+<p>Suite : les <a href="options.html">options</a>.</p>
+
+</body>
+</html>

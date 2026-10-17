@@ -21,6 +21,7 @@
 #endif
 
 #include "SshDirInspector.h"
+#include "SshFileInspector.h"
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
@@ -29,7 +30,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <chrono>
-#include <format>
 #include <cstring>
 
 #ifdef _UNIX
@@ -61,7 +61,7 @@ namespace {
         entry.size_bytes = attr.size;
         entry.raw_mtime = attr.mtime;
         entry.permissions = attr.permissions;
-        entry.last_modified_iso = std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::from_time_t(attr.mtime));
+        entry.last_modified_iso = time_to_iso(attr.mtime);
         return entry;
     }
 
@@ -293,8 +293,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
         entry.raw_mtime = static_cast<time_t>(entry_attrs.mtime);
         entry.permissions = static_cast<uint32_t>(entry_attrs.permissions);
 
-        auto tp = std::chrono::system_clock::from_time_t(entry.raw_mtime);
-        entry.last_modified_iso = std::format("{:%Y-%m-%d %H:%M:%S}", tp);
+        entry.last_modified_iso = time_to_iso(entry.raw_mtime);
 
         info.entries.push_back(entry);
     }
@@ -378,8 +377,7 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
         entry.raw_mtime = static_cast<time_t>(entry_attrs.mtime);
         entry.permissions = static_cast<uint32_t>(entry_attrs.permissions);
 
-        auto tp = std::chrono::system_clock::from_time_t(entry.raw_mtime);
-        entry.last_modified_iso = std::format("{:%Y-%m-%d %H:%M:%S}", tp);
+        entry.last_modified_iso = time_to_iso(entry.raw_mtime);
 
         result.entries.push_back(entry);
 

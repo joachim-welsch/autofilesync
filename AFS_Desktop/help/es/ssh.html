@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sincronizar por SSH</title>
+</head>
+<body>
+<h1>Sincronizar por SSH</h1>
+
+<p>El origen o el destino pueden estar en otro equipo accesible por SSH – por
+ejemplo un NAS, un servidor o un pequeño equipo de la red doméstica. También es
+posible que lo estén ambos lados a la vez.</p>
+
+<h2>Crear una conexión</h2>
+
+<p><b>Archivo &rarr; Nueva conexión SSH…</b> o <b>Edición &rarr; Conexiones
+SSH…</b> abre la administración. Una conexión consta de:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Nombre</b></td>
+    <td>De libre elección. Más adelante las rutas se refieren a la conexión por
+        este nombre.</td></tr>
+<tr><td valign="top"><b>Host</b></td>
+    <td>Nombre del equipo o dirección IP.</td></tr>
+<tr><td valign="top"><b>Usuario</b></td>
+    <td>Cuenta en el equipo remoto.</td></tr>
+<tr><td valign="top"><b>Contraseña</b></td>
+    <td>Se guarda cifrada en la configuración, no en texto claro.</td></tr>
+</table>
+
+<p>En la vista general se pueden crear, editar, renombrar y eliminar conexiones.
+Si se renombra una conexión, las sincronizaciones que la usan se actualizan
+automáticamente.</p>
+
+<h2>Escribir rutas remotas</h2>
+
+<p>Una ruta remota consta del nombre de la conexión, dos puntos y la ruta en el
+equipo remoto:</p>
+
+<blockquote><tt>nas:/home/anna/documentos</tt></blockquote>
+
+<p>En el diálogo de una sincronización, el botón SSH junto al origen y al destino
+lleva primero a la elección de la conexión y después a un diálogo que recorre las
+carpetas del equipo remoto – con tamaño y fecha de modificación, de modo que el
+lugar correcto se encuentra sin escribir.</p>
+
+<h2>Qué es diferente</h2>
+
+<ul>
+<li><b>Los enlaces simbólicos</b> del equipo remoto no se siguen. Se omiten para
+    que un enlace a una carpeta superior no provoque un bucle infinito.</li>
+<li><b>La eliminación es definitiva.</b> La papelera solo está disponible en
+    local; para moverlo allí habría que descargar antes el archivo remoto. Esto
+    afecta a <b>Eliminar también en el destino los archivos eliminados</b> y a
+    <b>Eliminar el origen después de copiar</b>, aunque esta última no se aplica
+    de todos modos a orígenes remotos.</li>
+<li><b>Los atributos de archivo</b> no se modifican en el lado remoto.</li>
+<li><b>Si el servidor no es accesible</b>, AutoFileSync lo distingue de «allí ya
+    no hay nada» y no toca el destino. Por tanto, un fallo de la conexión nunca
+    provoca eliminaciones.</li>
+<li>En la primera conexión se guarda la clave del servidor. Si cambia más
+    adelante, AutoFileSync interrumpe la conexión y avisa de un posible ataque de
+    intermediario.</li>
+</ul>
+
+<h2>La comprobación antes de cada ejecución</h2>
+
+<p>Antes de que una sincronización con un lado remoto empiece siquiera,
+AutoFileSync se asegura de que el otro extremo está ahí: se conecta, comprueba la
+clave del servidor e inicia sesión. Es la misma pregunta que «¿está conectada la
+unidad?» responde para una ruta local. Si falla uno de estos pasos, la
+sincronización se omite en esta ejecución – no se copia ni se elimina nada.</p>
+
+<p>Al <b>origen</b> y al <b>destino</b> se les exige algo distinto:</p>
+
+<ul>
+<li>El <b>origen</b> debe existir. Si el servidor responde pero indica «no
+    existe», el origen ha desaparecido – y una sincronización cuyo origen ha
+    desaparecido se queda quieta en lugar de reproducir la desaparición. De lo
+    contrario, una carpeta de origen eliminada, junto con <b>Eliminar también en
+    el destino los archivos eliminados</b>, vaciaría el destino.</li>
+<li>Para el <b>destino</b> basta con que la conexión se establezca. Una carpeta
+    de destino que aún no existe la crea AutoFileSync – no debe bloquear la
+    sincronización.</li>
+</ul>
+
+<p>El resultado se guarda temporalmente para que no cada ejecución abra una
+conexión nueva. Un lado remoto accesible se vuelve a comprobar como mucho una vez
+por hora; uno inaccesible, como mucho cada cinco minutos. Tras una avería pueden
+pasar, por tanto, unos minutos hasta que la sincronización vuelva a arrancar por
+sí sola.</p>
+
+</body>
+</html>

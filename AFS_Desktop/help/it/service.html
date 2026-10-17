@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Servizio in background</title>
+</head>
+<body>
+<h1>Servizio in background</h1>
+
+<p>Il servizio in background sincronizza senza che la finestra del programma
+debba essere aperta – anche quando nessuno ha effettuato l'accesso. Usa lo stesso
+<a href="config.html">file di configurazione</a> del programma, quindi le stesse
+sincronizzazioni con le stesse opzioni.</p>
+
+<h2>Controllarlo</h2>
+
+<p>Il menu <b>Servizio in background</b> contiene <b>Avvia</b> e <b>Arresta</b>.
+Con <b>Visualizza &rarr; Background</b> si vede se il servizio è in esecuzione in
+quel momento.</p>
+
+<p>Il pacchetto di installazione consente all'utente con cui gira il servizio di
+avviarlo e arrestarlo senza password di amministratore. Agli altri utenti viene
+chiesta la password di un amministratore.</p>
+
+<h2>Collaborazione con il programma</h2>
+
+<p>Servizio e programma non si intralciano: sincronizza sempre solo uno dei due,
+così due esecuzioni non toccano mai gli stessi file contemporaneamente. Se nel
+programma si sceglie <b>Avvia</b> mentre il servizio sta lavorando, il servizio
+si fa da parte.</p>
+
+<h2>Quando conviene il servizio</h2>
+
+<ul>
+<li>I backup devono girare anche senza utenti collegati.</li>
+<li>La finestra del programma non deve restare sempre aperta.</li>
+<li>Il computer resta acceso e deve allineare i dati senza sorveglianza – allora
+    ha senso la <a href="logging.html">notifica via e-mail</a>, perché nessuno
+    vede i messaggi sullo schermo.</li>
+</ul>
+
+<h2>Modifiche alla configurazione</h2>
+<p>Il servizio legge il file di configurazione. Poiché il programma salva subito
+ogni modifica, un servizio in esecuzione la recepisce da solo: interrompe
+l'esecuzione in corso e ricomincia con la nuova configurazione. Solo se il
+salvataggio non è riuscito il titolo della finestra mostra <b>(non salvato)</b> e
+il servizio continua a lavorare con lo stato precedente; all'avvio del servizio
+il programma chiede allora se salvare – <b>Annulla</b> non avvia il
+servizio.</p>
+
+</body>
+</html>

@@ -21,7 +21,7 @@
 
 namespace guitest {
 
-void bringToForeground()
+void bring_to_foreground()
 {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 }

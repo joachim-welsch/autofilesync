@@ -21,22 +21,4 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include "gtest/gtest.h"
-#ifndef test_suite_name
-/* Compat: older GoogleTest versions provide test_case_name(), newer ones test_suite_name().
-   Map the newer name to the older one when only the old API exists. */
-#define test_suite_name test_case_name
-#endif
-
-#ifndef GTEST_SKIP
-/* Minimal fallback for environments where GTEST_SKIP() is not available.
-   This allows tests to compile; it does not mark tests as skipped in the
-   test runner. */
-namespace testing {
-	struct GTestSkipFallback {
-		template<typename T>
-		GTestSkipFallback& operator<<(T const&) { return *this; }
-	};
-}
-#define GTEST_SKIP() ::testing::GTestSkipFallback()
-#endif
 #include <iostream>

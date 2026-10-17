@@ -26,6 +26,7 @@
 #include "UserActions.h"
 #include "Config.h"
 #include "Translation.h"
+#include "SyncProposal.h"
 #include <filesystem>
 #include "id.h"
 #include "utilwx.h"
@@ -43,7 +44,7 @@ wxString no_files_found()  // translated at the call, once the catalogue is boun
 }
 constexpr int PAUSE_MILLISECONDS = 1100;  // the item's sync cycle is 1 s, a run inside it is skipped
 
-SyncItemInput dirSync(const SandboxTree& tree, const wxString& name)
+SyncItemInput dir_sync(const SandboxTree& tree, const wxString& name)
 {
     SyncItemInput input{name, tree.path("quelle").string(), tree.path("ziel").string()};
     input.type = SyncItemType::Dir;
@@ -55,25 +56,25 @@ SyncItemInput dirSync(const SandboxTree& tree, const wxString& name)
 TEST_F(GuiTest, EinmalSynchronisierenKopiertDateiInsZiel)  // [SyncOnceTest.md#EinmalSynchronisierenKopiertDateiInsZiel]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "einmal", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync(tree, "guitest-einmal"))) << "Die Synchronisation wurde nicht angelegt.";
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-einmal"))) << "Die Synchronisation wurde nicht angelegt.";
 
-    ASSERT_TRUE(syncOnce(mainWindow())) << "Die Synchronisation ist nicht zu Ende gelaufen.";
+    ASSERT_TRUE(sync_once(main_window())) << "Die Synchronisation ist nicht zu Ende gelaufen.";
 
     EXPECT_EQ(tree.read("ziel/bericht.txt"), "Bericht") << "Die Datei wurde nicht ins Ziel kopiert.";
     EXPECT_EQ(tree.entries(), (std::vector<std::string>{"quelle", "quelle/bericht.txt", "ziel", "ziel/bericht.txt"}));
-    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::SyncOnce))) << "\"Einmal synchronisieren\" bleibt nach dem Lauf gesperrt.";
-    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::StartSync))) << "\"Start\" bleibt nach dem Lauf gesperrt.";
+    EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::SyncOnce))) << "\"Einmal synchronisieren\" bleibt nach dem Lauf gesperrt.";
+    EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::StartSync))) << "\"Start\" bleibt nach dem Lauf gesperrt.";
 }
 
 TEST_F(GuiTest, EinmalSynchronisierenVerzeichnisbaumKopiertAlleEbenen)
 {
     const SandboxTree tree(GuiTestSandbox::root() / "baum",
         {{"quelle/oben.txt", "1"}, {"quelle/a/mitte.txt", "2"}, {"quelle/a/b/unten.txt", "3"}, {"ziel/", ""}});
-    SyncItemInput input = dirSync(tree, "guitest-baum");
+    SyncItemInput input = dir_sync(tree, "guitest-baum");
     input.type = SyncItemType::Tree;
-    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    ASSERT_TRUE(add_sync_item(main_window(), input));
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
     EXPECT_EQ(tree.read("ziel/oben.txt"), "1");
     EXPECT_EQ(tree.read("ziel/a/mitte.txt"), "2");
@@ -83,9 +84,9 @@ TEST_F(GuiTest, EinmalSynchronisierenVerzeichnisbaumKopiertAlleEbenen)
 TEST_F(GuiTest, EinmalSynchronisierenVerzeichnisKopiertKeineUnterverzeichnisse)  // [SyncOnceTest.md#dir-versus-tree]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "flach", {{"quelle/oben.txt", "1"}, {"quelle/a/unten.txt", "2"}, {"ziel/", ""}});
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync(tree, "guitest-flach")));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-flach")));
 
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
     EXPECT_EQ(tree.read("ziel/oben.txt"), "1");
     EXPECT_FALSE(tree.exists("ziel/a")) << "Typ Verzeichnis hat ein Unterverzeichnis mitkopiert.";
@@ -94,48 +95,48 @@ TEST_F(GuiTest, EinmalSynchronisierenVerzeichnisKopiertKeineUnterverzeichnisse) 
 TEST_F(GuiTest, EinmalSynchronisierenOhneAenderungKopiertNichts)  // [SyncOnceTest.md#nothing-to-do]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "unveraendert", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
-    ASSERT_TRUE(addSyncItem(mainWindow(), dirSync(tree, "guitest-unveraendert")));
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-unveraendert")));
+    ASSERT_TRUE(sync_once(main_window()));
     ASSERT_TRUE(tree.exists("ziel/bericht.txt"));
-    const auto copiedAt = std::filesystem::last_write_time(tree.path("ziel/bericht.txt"));
+    const auto copied_at = std::filesystem::last_write_time(tree.path("ziel/bericht.txt"));
 
     pump(PAUSE_MILLISECONDS);
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
-    EXPECT_EQ(std::filesystem::last_write_time(tree.path("ziel/bericht.txt")), copiedAt) << "Die unveränderte Datei wurde erneut kopiert.";
-    EXPECT_TRUE(ModalDialogWatcher::instance().answeredMessages().empty());
-    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::SyncOnce)));
+    EXPECT_EQ(std::filesystem::last_write_time(tree.path("ziel/bericht.txt")), copied_at) << "Die unveränderte Datei wurde erneut kopiert.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answered_messages().empty());
+    EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::SyncOnce)));
 }
 
 TEST_F(GuiTest, EinmalSynchronisierenInDerPauseMeldetNichtsZuTun)  // [SyncOnceTest.md#pause]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "pause", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
-    SyncItemInput input = dirSync(tree, "guitest-pause");
-    input.options.syncCycleSeconds = 60;  // long enough that the second run surely falls into the pause
-    ASSERT_TRUE(addSyncItem(mainWindow(), input));
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    SyncItemInput input = dir_sync(tree, "guitest-pause");
+    input.options.sync_cycle_seconds = 60;  // long enough that the second run surely falls into the pause
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ASSERT_TRUE(sync_once(main_window()));
 
     ModalDialogWatcher::instance().answer(translation::translate("info"), wxID_OK);
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u) << "Der Lauf in der Pause zeigte keinen Hinweis.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), no_files_found());
-    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::SyncOnce))) << "\"Einmal synchronisieren\" bleibt nach dem Hinweis gesperrt.";
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der Lauf in der Pause zeigte keinen Hinweis.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), no_files_found());
+    EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::SyncOnce))) << "\"Einmal synchronisieren\" bleibt nach dem Hinweis gesperrt.";
 }
 
 TEST_F(GuiTest, InaktiveSynchronisationWirdUebersprungen)
 {
     const SandboxTree tree(GuiTestSandbox::root() / "inaktiv", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
-    SyncItemInput input = dirSync(tree, "guitest-inaktiv");
+    SyncItemInput input = dir_sync(tree, "guitest-inaktiv");
     input.options.enabled = false;
-    ASSERT_TRUE(addSyncItem(mainWindow(), input));
+    ASSERT_TRUE(add_sync_item(main_window(), input));
 
     ModalDialogWatcher::instance().answer(translation::translate("info"), wxID_OK);
-    ASSERT_TRUE(syncOnce(mainWindow()));
+    ASSERT_TRUE(sync_once(main_window()));
 
     EXPECT_FALSE(tree.exists("ziel/bericht.txt")) << "Eine inaktive Synchronisation hat kopiert.";
-    ASSERT_EQ(ModalDialogWatcher::instance().answeredMessages().size(), 1u);
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), no_files_found());
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u);
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), no_files_found());
 }
 
 TEST_F(GuiTest, StartOhneSynchronisationZeigtHinweis)  // [SyncOnceTest.md#start-without-sync-item]
@@ -143,15 +144,38 @@ TEST_F(GuiTest, StartOhneSynchronisationZeigtHinweis)  // [SyncOnceTest.md#start
     ASSERT_TRUE(Config::instance().syncitems().empty()) << "Die Sandbox enthält schon Synchronisationen.";
     ModalDialogWatcher::instance().answer(translation::translate("attention"), wxID_OK);
 
-    activateMenuItem(mainWindow(), tul(id::StartSync));
-    ASSERT_TRUE(waitUntil([] { return !ModalDialogWatcher::instance().answeredMessages().empty(); }))
+    activate_menu_item(main_window(), tul(id::StartSync));
+    ASSERT_TRUE(wait_until([] { return !ModalDialogWatcher::instance().answered_messages().empty(); }))
         << "Der Hinweis auf die fehlende Synchronisation kam nicht.";
-    activateMenuItem(mainWindow(), tul(id::StopSync));
-    ASSERT_TRUE(waitUntilSyncFinished(mainWindow()));
+    activate_menu_item(main_window(), tul(id::StopSync));
+    ASSERT_TRUE(wait_until_sync_finished(main_window()));
 
-    EXPECT_EQ(ModalDialogWatcher::instance().answeredMessages().front(), translation::translate("no_sync_items"));
-    EXPECT_TRUE(syncMenuItemEnabled(mainWindow(), tul(id::StartSync)));
-    EXPECT_FALSE(syncMenuItemEnabled(mainWindow(), tul(id::StopSync)));
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), translation::translate("no_sync_items"));
+    EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::StartSync)));
+    EXPECT_FALSE(sync_menu_item_enabled(main_window(), tul(id::StopSync)));
+}
+
+TEST_F(GuiTest, VorgeschlagenesEinmalSynchronisierenKopiertDateiInsZiel)  // [SyncOnceTest.md#proposed-command]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "befehl", {{"quelle/bericht.txt", "Bericht"}, {"ziel/", ""}});
+    ASSERT_TRUE(add_sync_item(main_window(), dir_sync(tree, "guitest-befehl"))) << "Die Synchronisation wurde nicht angelegt.";
+
+    main_window().apply_proposal(AFS_Core::sync_proposal::Command::SyncOnce);
+    pump();
+
+    ASSERT_TRUE(wait_until_sync_finished(main_window())) << "Die Synchronisation ist nicht zu Ende gelaufen.";
+    EXPECT_EQ(tree.read("ziel/bericht.txt"), "Bericht") << "Der vorgeschlagene Befehl hat nicht synchronisiert.";
+}
+
+TEST_F(GuiTest, VorgeschlagenesStoppenOhneLaufMeldetDas)  // [SyncOnceTest.md#proposed-command]
+{
+    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("info"), wxID_OK);
+
+    main_window().apply_proposal(AFS_Core::sync_proposal::Command::StopSync);
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der gesperrte Befehl blieb ohne Hinweis.";
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), AFS_Core::translation::translate("no_sync_active"));
 }
 
 }

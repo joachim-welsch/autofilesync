@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Vista previa</title>
+</head>
+<body>
+<h1>Vista previa</h1>
+
+<p><b>Sincronización &rarr; Vista previa…</b> muestra lo que haría ahora una
+ejecución sin cambiar nada: no se copia, no se mueve y no se elimina nada. Solo
+cuando elige <b>Sincronizar ahora</b> en el diálogo se ejecuta la sincronización
+– exactamente como si hubiera elegido
+<a href="synconce.html">Sincronizar una vez</a>.</p>
+
+<p>La vista previa merece la pena sobre todo</p>
+<ul>
+<li>después de crear una sincronización nueva, para comprobar que origen y
+    destino no están invertidos,</li>
+<li>antes de activar por primera vez <b>Eliminar también en el destino los
+    archivos eliminados</b> o <b>Eliminar el origen después de copiar</b>,</li>
+<li>cuando quiere saber cuánto transferiría una ejecución.</li>
+</ul>
+
+<h2>El diálogo</h2>
+
+<p>Cada fila es un paso que la ejecución realizaría:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Acción</th><th align="left">Significado</th></tr>
+<tr><td valign="top"><b>Copiar al destino</b></td>
+    <td>El archivo es nuevo o es más reciente en el origen que en el destino.</td></tr>
+<tr><td valign="top"><b>Mover al destino</b></td>
+    <td>Como copiar; después se elimina el archivo de origen porque está
+        activado <b>Eliminar el origen después de copiar</b>.</td></tr>
+<tr><td valign="top"><b>Copiar de vuelta al origen</b></td>
+    <td>Con <b>sincronización bidireccional</b>: el archivo solo existe en el
+        destino o es más reciente allí.</td></tr>
+<tr><td valign="top"><b>Eliminar en el destino</b></td>
+    <td>El archivo ya no existe en el origen y está activado <b>Eliminar también
+        en el destino los archivos eliminados</b>. Estas filas aparecen en rojo
+        porque son las únicas que eliminan datos.</td></tr>
+</table>
+
+<p>Debajo de la lista está el resumen: cuántos pasos, cuántos de ellos son
+eliminaciones y cuántos datos se transferirían. Los mensajes de la comprobación
+– por ejemplo un origen no accesible – aparecen debajo de la lista. Si hay
+muchísimos pasos previstos, la lista muestra los primeros diez mil e indica el
+número de los restantes.</p>
+
+<p>Si origen y destino coinciden, en lugar del diálogo solo aparece el aviso de
+que una ejecución no haría nada.</p>
+
+<h2>Lo que la vista previa no tiene en cuenta</h2>
+<ul>
+<li>La <b>pausa</b> de una sincronización no influye: la vista previa muestra la
+    diferencia entre origen y destino, incluso justo después de una ejecución.</li>
+<li>Lo que cambie entre la vista previa y la ejecución solo lo ve la
+    ejecución.</li>
+<li>Los errores al copiar – por ejemplo un destino lleno – solo se manifiestan
+    durante la ejecución y quedan entonces en el
+    <a href="logging.html">registro</a>.</li>
+</ul>
+
+</body>
+</html>

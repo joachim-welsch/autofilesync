@@ -12,6 +12,7 @@ set(AFS_DESKTOP_SOURCES
     BackgroundService.cpp
     Canvas.cpp
     ChatDialog.cpp
+    HelpBook.cpp
     GridCtrl.cpp
     GridWindow.cpp
     ListCtrl.cpp
@@ -20,6 +21,7 @@ set(AFS_DESKTOP_SOURCES
     MainWindow.cpp
     Menu.cpp
     ProgressDialog.cpp
+    PreviewDialog.cpp
     SettingsDialog.cpp
     SourceCanvas.cpp
     SplitterWindow.cpp
@@ -31,7 +33,6 @@ set(AFS_DESKTOP_SOURCES
     SyncItemDialog.cpp
     TargetCanvas.cpp
     TaskBarIcon.cpp
-    TimedMessageBox.cpp
     Toolbar.cpp
     Tree.cpp
     TreeCtrl.cpp

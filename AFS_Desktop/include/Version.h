@@ -24,6 +24,6 @@
 #define afsVERSION_TEXT "0.2.0"
 
 #ifndef RC_INVOKED
-constexpr char afsNAME_STRING[] = "AutoFileSync";
-constexpr char afsVERSION_STRING[] = afsVERSION_TEXT;
+constexpr char AFS_NAME_STRING[] = "AutoFileSync";
+constexpr char AFS_VERSION_STRING[] = afsVERSION_TEXT;
 #endif

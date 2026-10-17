@@ -33,23 +33,23 @@ using utilwx::tul;
 namespace guitest {
 namespace {
 
-const wxString passwordWithSpecialCharacters = R"(geheim$+!"#%&/()=?@[]{}\<>|,.;:-_*'^~`)";  // [AddSshAccountTest.md#passwordWithSpecialCharacters]
-const wxString accountName = "guitest-ssh";
+const wxString PASSWORD_WITH_SPECIAL_CHARACTERS = R"(geheim$+!"#%&/()=?@[]{}\<>|,.;:-_*'^~`)";  // [AddSshAccountTest.md#PASSWORD_WITH_SPECIAL_CHARACTERS]
+const wxString account_name = "guitest-ssh";
 
 }
 
 TEST_F(GuiTest, SshPasswortMitSonderzeichenWirdUebernommen)
 {
-    const SshAccountInput input{accountName, "localhost", "pi", passwordWithSpecialCharacters};
-    ModalDialogWatcher::instance().expect(txt::ssh_connections(), addSshAccountAndClose());
-    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fillSshAccountDialog(input));
+    const SshAccountInput input{account_name, "localhost", "pi", PASSWORD_WITH_SPECIAL_CHARACTERS};
+    ModalDialogWatcher::instance().expect(txt::ssh_connections(), add_ssh_account_and_close());
+    ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fill_ssh_account_dialog(input));
 
-    activateMenuItem(mainWindow(), tul(id::EditSshAccounts));
+    activate_menu_item(main_window(), tul(id::EditSshAccounts));
     pump();
 
-    const auto created = Config::instance().find_ssh_account_by_name(accountName.ToStdString());
+    const auto created = Config::instance().find_ssh_account_by_name(account_name.ToStdString());
     ASSERT_TRUE(created.has_value()) << "Die SSH-Verbindung wurde nicht angelegt.";
-    EXPECT_EQ(created->password(), std::string(passwordWithSpecialCharacters.ToUTF8()));
+    EXPECT_EQ(created->password(), std::string(PASSWORD_WITH_SPECIAL_CHARACTERS.ToUTF8()));
 }
 
 }

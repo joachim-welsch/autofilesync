@@ -1,7 +1,9 @@
 # Translation template for autofilesync.
 # The message ids are technical keys, not display text: every language needs a
-# catalogue, English (po/en.po) as much as German (po/de.po). A missing or
-# unreadable catalogue shows the key itself.
+# catalogue, English (po/en.po) as much as German (po/de.po), Spanish
+# (po/es.po), French (po/fr.po), Italian (po/it.po), Polish (po/pl.po) or
+# Ukrainian (po/uk.po). A language without a catalogue falls back to English; without the
+# English one as well, the key itself is shown.
 #
 # Refresh after adding or changing a translated string:
 #   xgettext --keyword=translate --keyword=translate_utf8 --keyword=msgid \
@@ -9,6 +11,11 @@
 #            AFS_Core/src/*.cpp AFS_Desktop/src/*.cpp AFS_Desktop/include/TextResources.h backgroundsync/*.cpp
 #   msgmerge --no-wrap --update po/de.po po/autofilesync.pot
 #   msgmerge --no-wrap --update po/en.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/es.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/fr.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/it.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/pl.po po/autofilesync.pot
+#   msgmerge --no-wrap --update po/uk.po po/autofilesync.pot
 #
 msgid ""
 msgstr ""
@@ -273,6 +280,58 @@ msgstr ""
 
 #: AFS_Core/src/LlamaClient.cpp:189
 msgid "assistant_question_label"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_intro"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_count"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_cycle"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_more"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "config_summary_ssh_accounts"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp
+msgid "inactive"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_instruction"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_summary"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_deletion_summary"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp
+msgid "assistant_sync_proposal_extraction"
+msgstr ""
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_create_sync"
+msgstr ""
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_delete_sync"
+msgstr ""
+
+#: AFS_Core/src/Translation.cpp
+msgid "catalogue_outdated"
 msgstr ""
 
 #: AFS_Core/src/LogCut.cpp:67
@@ -893,6 +952,10 @@ msgstr ""
 msgid "bs_not_installed_macos"
 msgstr ""
 
+#: AFS_Desktop/src/BackgroundService.cpp:208
+msgid "bs_agent_not_writable"
+msgstr ""
+
 #: AFS_Desktop/src/BackgroundService.cpp:183
 #: AFS_Desktop/src/BackgroundService.cpp:186
 #: AFS_Desktop/src/BackgroundService.cpp:258
@@ -1369,6 +1432,14 @@ msgstr ""
 msgid "settings_minimize_instead_of_close"
 msgstr ""
 
+#: AFS_Desktop/src/SettingsDialog.cpp:122
+msgid "settings_language"
+msgstr ""
+
+#: AFS_Desktop/src/SettingsDialog.cpp:124
+msgid "language_system"
+msgstr ""
+
 #: AFS_Desktop/src/SettingsDialog.cpp:62
 msgid "settings_show_messages"
 msgstr ""
@@ -1633,6 +1704,10 @@ msgstr ""
 msgid "pause_seconds"
 msgstr ""
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:186
+msgid "time_tolerance_seconds"
+msgstr ""
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:193
 msgid "tab_options"
 msgstr ""
@@ -1751,4 +1826,164 @@ msgstr ""
 
 #: backgroundsync/backgroundsync.cpp:55 backgroundsync/backgroundsync.cpp:56
 msgid "daemon_stopped"
+msgstr ""
+
+#: backgroundsync/WindowsService.cpp:90
+msgid "daemon_console_mode"
+msgstr ""
+
+#: backgroundsync/WindowsService.cpp:113
+msgid "daemon_dispatcher_failed"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_save"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_dont_save"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "button_overwrite"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_copyright"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "about_description"
+msgstr ""
+
+#: AFS_Desktop/include/utilwx.h
+msgid "label_colon"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_choose"
+msgstr ""
+
+#: AFS_Desktop/src/ChatDialog.cpp
+msgid "chat_cmd_enter"
+msgstr ""
+
+#: AFS_Desktop/src/TreeCtrl.cpp
+msgid "tree_root"
+msgstr ""
+
+#: AFS_Desktop/src/ChatDialog.cpp:69
+msgid "chat_new_conversation"
+msgstr ""
+
+#: AFS_Core/src/LogAnalysis.cpp:57
+msgid "log_question_words"
+msgstr ""
+
+#: AFS_Core/src/LlamaClient.cpp:45
+msgid "assistant_help_instruction"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:77
+msgid "config_summary_never_synced"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:79
+msgid "config_summary_last_sync"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:97
+msgid "config_summary_unreachable"
+msgstr ""
+
+#: AFS_Core/src/ConfigSummary.cpp:99
+msgid "config_summary_last_errors"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp:670
+msgid "assistant_situation"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp:175
+msgid "assistant_command_instruction"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp:231
+msgid "assistant_command_extraction"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp:195
+msgid "assistant_command_summary"
+msgstr ""
+
+#: AFS_Core/src/SyncProposal.cpp:222
+msgid "assistant_command_words"
+msgstr ""
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview"
+msgstr ""
+
+#: AFS_Desktop/src/Menu.cpp:126
+msgid "menu_preview_help"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:39 AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_title"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:42
+msgid "preview_intro"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:44
+msgid "preview_column_action"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:88
+msgid "preview_copy_to_target"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:89
+msgid "preview_move_to_target"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:90
+msgid "preview_copy_to_source"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:93
+msgid "preview_delete_in_target"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:98
+msgid "preview_summary"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:70
+msgid "preview_more"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:56
+msgid "preview_run_now"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:57
+msgid "button_close"
+msgstr ""
+
+#: AFS_Desktop/src/SyncInterface.cpp:186
+msgid "preview_nothing_to_do"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:34
+msgid "preview_no_bytes"
+msgstr ""
+
+#: AFS_Desktop/src/SyncInterface.cpp:342
+msgid "state_preview"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:66
+msgid "preview_column_file"
 msgstr ""

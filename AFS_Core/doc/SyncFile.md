@@ -15,7 +15,20 @@ thread to finish.
 
 ## restore_backup
 
-Removes a failed or aborted copy and puts the previous target back.
+Removes a failed or aborted copy and puts the previous target back. The partial target lives
+where the copy wrote it: a local remove_file() on an "account:/path" string touches nothing, so
+an SSH target is removed through SFTP instead - otherwise a cancelled upload left the half file
+on the server (SyncSshStopTest). The exists check first keeps a transfer whose remote open
+already failed from logging a second error for a file that was never created. There is no remote
+backup yet: an existing remote target is truncated by the upload itself, so only the half file
+can be cleared, not the old content restored.
+
+## backup-rename-failure
+
+The rename of the old target to ".bak" is the first step of the copy, and a target directory
+without write permission refuses it. rename_file() logs that, but the item was only reported
+as failed when the copy itself failed - so the proof file and the last-run record claimed a
+clean run while the target stayed old. Reported like a failed copy, under the same message.
 
 ## discard_backup
 
@@ -32,21 +45,39 @@ picked the opposite direction for every copy back from the target - e.g. copy_fs
 the remote path as its local source, which can only fail. get_account_from_path() is the same
 classification SyncItem uses when it builds its paths.
 
+## copy_local_file
+
+fs::copy_file copied in one call: nothing for the progress bar until the file was through, and
+no way to stop inside a large file. The block loop reports the bytes after every block
+(Synchronize.md#copied_bytes_) and checks the stop flag, so Cancel ends inside the file and
+save_copy_file()'s Stopped path removes the partial target. The source's permission bits are
+set afterwards as fs::copy_file did; a failure there is no failed copy, and the file time
+follows separately in copy_source_to_dest().
+
 ## ssh-skips-verification-only
 
 SSH skips only the content verification below (TODO); Error/Stopped must still run the
 cleanup/restore paths, or a failed transfer is reported as success - the caller would then e.g.
 delete the source (del_aftercopy).
 
+## decide
+
+One place for the decision what to do with a file - delete it in the target, copy or move it
+there, copy it back, or leave it alone - so the counting pass, the preview and the real run
+cannot drift apart. The real run carries the decision out, the counting pass counts it, the
+preview records it (SyncPlan.md#SyncPlan).
+
 ## only-count-touches-nothing
 
 only_count_ means "count only" - it must not touch the filesystem, the way
-SyncBase::sync_dir_entry() already handles it for Dir/Tree items.
+SyncBase::sync_dir_entry() already handles it for Dir/Tree items. A file the run would skip
+as empty is neither counted nor planned, so the preview shows what the run does.
 
 ## empty-source-file
 
 An empty file is more often an aborted write than an intentionally empty file; copying it over
-an existing one would lose data. Placeholders like .gitkeep need sync_empty_files.
+an existing one would lose data. Placeholders like .gitkeep need sync_empty_files. A deletion
+has no file to be empty; a copy back looks at the target's size, the file it would copy.
 
 ## volume-is-target-size
 

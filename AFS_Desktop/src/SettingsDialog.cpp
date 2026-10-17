@@ -21,8 +21,23 @@
 #include "RecycleBin.h"
 #include "Translation.h"
 #include <wx/dirdlg.h>
+#include <algorithm>
 
 using namespace AFS_Core;
+
+namespace {
+int language_index(const std::string& code)  // [SettingsDialog.md#language_index]
+{
+    const auto& languages = translation::LANGUAGES;
+    const auto found = std::ranges::find(languages, code, &translation::Language::code);
+    return found == languages.end() ? 0 : static_cast<int>(found - languages.begin()) + 1;
+}
+
+std::string language_code(int index)
+{
+    return index <= 0 ? std::string() : translation::LANGUAGES[static_cast<std::size_t>(index - 1)].code;
+}
+}
 
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 END_EVENT_TABLE()
@@ -35,64 +50,65 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
     const wxString& name)
     : wxDialog(parent, id, title, pos, size, style, name)
 {
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    mainSizer->AddStretchSpacer()->SetMinSize(20, 10);
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
+    main_sizer->AddStretchSpacer()->SetMinSize(FromDIP(wxSize(20, 10)));
+    add_language_choice(main_sizer);
 
-    wxBoxSizer* startAutostartSizer = new wxBoxSizer(wxHORIZONTAL);
-    autoStartCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_autostart"));
-    startAutostartSizer->Add(autoStartCB_, 1);
-    mainSizer->Add(startAutostartSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* start_autostart_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto_start_check_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_autostart"));
+    start_autostart_sizer->Add(auto_start_check_, 1);
+    main_sizer->Add(start_autostart_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* startSyncAtStartSizer = new wxBoxSizer(wxHORIZONTAL);
-    startSyncAtStartCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_sync_at_start"));
-    startSyncAtStartSizer->Add(startSyncAtStartCB_, 1);
-    mainSizer->Add(startSyncAtStartSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* start_sync_at_start_sizer = new wxBoxSizer(wxHORIZONTAL);
+    start_sync_at_start_check_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_sync_at_start"));
+    start_sync_at_start_sizer->Add(start_sync_at_start_check_, 1);
+    main_sizer->Add(start_sync_at_start_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* startMinimizedSizer = new wxBoxSizer(wxHORIZONTAL);
-    startMinimizedCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_start_minimized"));
-    startMinimizedSizer->Add(startMinimizedCB_, 1);
-    mainSizer->Add(startMinimizedSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* start_minimized_sizer = new wxBoxSizer(wxHORIZONTAL);
+    start_minimized_check_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_start_minimized"));
+    start_minimized_sizer->Add(start_minimized_check_, 1);
+    main_sizer->Add(start_minimized_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* minimizeInsteadOfCloseSizer = new wxBoxSizer(wxHORIZONTAL);
-    minimizeInsteadOfCloseCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_minimize_instead_of_close"));
-    minimizeInsteadOfCloseSizer->Add(minimizeInsteadOfCloseCB_, 1);
-    mainSizer->Add(minimizeInsteadOfCloseSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* minimize_instead_of_close_sizer = new wxBoxSizer(wxHORIZONTAL);
+    minimize_instead_of_close_check_ = new wxCheckBox(this, wxID_ANY, translation::translate("settings_minimize_instead_of_close"));
+    minimize_instead_of_close_sizer->Add(minimize_instead_of_close_check_, 1);
+    main_sizer->Add(minimize_instead_of_close_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* showBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* showBoxLable = new wxStaticText(this, wxID_STATIC, translation::translate("settings_show_messages"));
-    mainSizer->Add(showBoxSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM | wxTOP, 5);
-    showBoxSizer->Add(showBoxLable, 1);
-    wxBoxSizer* showMessageBoxSizer = new wxBoxSizer(wxHORIZONTAL);
-    messageBoxErrorCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("error"));
-    showMessageBoxSizer->Add(messageBoxErrorCB_);
-    messageBoxWarningCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("warning"));
-    showMessageBoxSizer->Add(messageBoxWarningCB_);
-    messageBoxInfoCB_ = new wxCheckBox(this, wxID_ANY, translation::translate("info"));
-    showMessageBoxSizer->Add(messageBoxInfoCB_);
-    mainSizer->Add(showMessageBoxSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* show_box_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* show_box_lable = new wxStaticText(this, wxID_STATIC, translation::translate("settings_show_messages"));
+    main_sizer->Add(show_box_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM | wxTOP, 5);
+    show_box_sizer->Add(show_box_lable, 1);
+    wxBoxSizer* show_message_box_sizer = new wxBoxSizer(wxHORIZONTAL);
+    message_box_error_check_ = new wxCheckBox(this, wxID_ANY, translation::translate("error"));
+    show_message_box_sizer->Add(message_box_error_check_);
+    message_box_warning_check_ = new wxCheckBox(this, wxID_ANY, translation::translate("warning"));
+    show_message_box_sizer->Add(message_box_warning_check_);
+    message_box_info_check_ = new wxCheckBox(this, wxID_ANY, translation::translate("info"));
+    show_message_box_sizer->Add(message_box_info_check_);
+    main_sizer->Add(show_message_box_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    const wxString deleteModes[] = { translation::translate("delete_mode_recycle_bin"), translation::translate("delete_mode_permanent") };
-    deleteModeRB_ = new wxRadioBox(this, ID_DELETE_MODE_RADIO, translation::translate("delete_mode"), wxDefaultPosition, wxDefaultSize,
-        WXSIZEOF(deleteModes), deleteModes, 1, wxRA_SPECIFY_COLS);
-    deleteModeRB_->Bind(wxEVT_RADIOBOX, &SettingsDialog::onDeleteModeChanged, this);
-    mainSizer->Add(deleteModeRB_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    const wxString delete_modes[] = { translation::translate("delete_mode_recycle_bin"), translation::translate("delete_mode_permanent") };
+    delete_mode_radio_ = new wxRadioBox(this, ID_DELETE_MODE_RADIO, translation::translate("delete_mode"), wxDefaultPosition, wxDefaultSize,
+        WXSIZEOF(delete_modes), delete_modes, 1, wxRA_SPECIFY_COLS);
+    delete_mode_radio_->Bind(wxEVT_RADIOBOX, &SettingsDialog::on_delete_mode_changed, this);
+    main_sizer->Add(delete_mode_radio_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxBoxSizer* recycleBinSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* recycleBinLable = new wxStaticText(this, wxID_STATIC, translation::translate("recycle_bin"));
-    recycleBinSizer->Add(recycleBinLable, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-    recycleBinPathBox_ = new wxTextCtrl(this, ID_RECYCLEBIN_PATH_BOX);
-    recycleBinPathBox_->SetMinSize(wxSize(250, recycleBinPathBox_->GetMinSize().y));
-    recycleBinSizer->Add(recycleBinPathBox_, 1);
-    recycleBinPathBtn_ = new wxButton(this, ID_RECYCLEBIN_PATH_BUTTON, "...", wxDefaultPosition, wxSize(40, -1));
-    recycleBinSizer->Add(recycleBinPathBtn_, wxSizerFlags().Border(wxLEFT, 2));
-    recycleBinPathBtn_->Bind(wxEVT_BUTTON, &SettingsDialog::onPickRecycleBinPath, this);
-    mainSizer->Add(recycleBinSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    wxBoxSizer* recycle_bin_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* recycle_bin_lable = new wxStaticText(this, wxID_STATIC, translation::translate("recycle_bin"));
+    recycle_bin_sizer->Add(recycle_bin_lable, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    recycle_bin_path_box_ = new wxTextCtrl(this, ID_RECYCLEBIN_PATH_BOX);
+    recycle_bin_path_box_->SetMinSize(wxSize(FromDIP(250), recycle_bin_path_box_->GetMinSize().y));
+    recycle_bin_sizer->Add(recycle_bin_path_box_, 1);
+    recycle_bin_path_button_ = new wxButton(this, ID_RECYCLEBIN_PATH_BUTTON, translation::translate("button_choose"));
+    recycle_bin_sizer->Add(recycle_bin_path_button_, wxSizerFlags().Border(wxLEFT, 2));
+    recycle_bin_path_button_->Bind(wxEVT_BUTTON, &SettingsDialog::on_pick_recycle_bin_path, this);
+    main_sizer->Add(recycle_bin_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxSizer* buttonSizer = CreateButtonSizer(wxOK);
-    mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM, 5);
+    wxSizer* button_sizer = CreateButtonSizer(wxOK | wxCANCEL);
+    main_sizer->Add(button_sizer, 0, wxALIGN_RIGHT | wxBOTTOM, 5);
 
-    SetSizer(mainSizer);
-    SetMinSize(wxSize(250, 150));
+    SetSizer(main_sizer);
+    SetMinSize(FromDIP(wxSize(250, 150)));
     Fit();
     Centre();
 }
@@ -100,84 +116,101 @@ SettingsDialog::SettingsDialog(wxWindow* parent, wxWindowID id,
 SettingsDialog::~SettingsDialog()
 {}
 
+void SettingsDialog::add_language_choice(wxSizer* sizer)
+{
+    wxBoxSizer* language_sizer = new wxBoxSizer(wxHORIZONTAL);
+    language_sizer->Add(new wxStaticText(this, wxID_STATIC, translation::translate("settings_language")), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    language_choice_ = new wxChoice(this, ID_LANGUAGE_CHOICE);
+    language_choice_->Append(translation::translate("language_system"));
+    for (const translation::Language& language : translation::LANGUAGES)
+        language_choice_->Append(wxString::FromUTF8(language.name));
+    language_sizer->Add(language_choice_, 1);
+    sizer->Add(language_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+}
+
 bool SettingsDialog::TransferDataToWindow()
 {
     const Settings& s = Config::instance().settings();
-    startMinimizedCB_->SetValue(s.start_minimized());
-    minimizeInsteadOfCloseCB_->SetValue(s.minimize_instead_of_close());
-    autoStartCB_->SetValue(s.auto_start());
-    startSyncAtStartCB_->SetValue(s.start_sync_at_start());
-    messageBoxErrorCB_->SetValue(s.show_errors());
-    messageBoxWarningCB_->SetValue(s.show_warnings());
-    messageBoxInfoCB_->SetValue(s.show_infos());
-    recycleBinPathBox_->SetValue(RecycleBin::instance().bin_path().wstring());
-    deleteModeRB_->SetSelection(s.delete_mode() == DeleteMode::Permanent ? 1 : 0);
-    enableRecycleBinPath();
+    start_minimized_check_->SetValue(s.start_minimized());
+    minimize_instead_of_close_check_->SetValue(s.minimize_instead_of_close());
+    auto_start_check_->SetValue(s.auto_start());
+    start_sync_at_start_check_->SetValue(s.start_sync_at_start());
+    message_box_error_check_->SetValue(s.show_errors());
+    message_box_warning_check_->SetValue(s.show_warnings());
+    message_box_info_check_->SetValue(s.show_infos());
+    recycle_bin_path_box_->SetValue(RecycleBin::instance().bin_path().wstring());
+    delete_mode_radio_->SetSelection(s.delete_mode() == DeleteMode::Permanent ? 1 : 0);
+    language_choice_->SetSelection(language_index(s.language()));
+    enable_recycle_bin_path();
     return true;
 }
 
-void SettingsDialog::enableRecycleBinPath()  // [SettingsDialog.md#enableRecycleBinPath]
+void SettingsDialog::enable_recycle_bin_path()  // [SettingsDialog.md#enable_recycle_bin_path]
 {
-    const bool usesBin = deleteModeRB_->GetSelection() == 0;
-    recycleBinPathBox_->Enable(usesBin);
-    recycleBinPathBtn_->Enable(usesBin);
+    const bool uses_bin = delete_mode_radio_->GetSelection() == 0;
+    recycle_bin_path_box_->Enable(uses_bin);
+    recycle_bin_path_button_->Enable(uses_bin);
 }
 
-void SettingsDialog::onDeleteModeChanged(wxCommandEvent&)
+void SettingsDialog::on_delete_mode_changed(wxCommandEvent&)
 {
-    enableRecycleBinPath();
+    enable_recycle_bin_path();
 }
 
-void SettingsDialog::onPickRecycleBinPath(wxCommandEvent&)  // [SettingsDialog.md#onPickRecycleBinPath]
+void SettingsDialog::on_pick_recycle_bin_path(wxCommandEvent&)  // [SettingsDialog.md#on_pick_recycle_bin_path]
 {
-    wxString start = recycleBinPathBox_->GetValue();
+    wxString start = recycle_bin_path_box_->GetValue();
     if (start.empty() || !wxDirExists(start))
         start = wxGetHomeDir();
     wxDirDialog dialog(this, translation::translate("choose_recycle_bin_dir"), start, wxDD_DEFAULT_STYLE);
     if (dialog.ShowModal() == wxID_OK)
-        recycleBinPathBox_->SetValue(dialog.GetPath());
+        recycle_bin_path_box_->SetValue(dialog.GetPath());
 }
 
 bool SettingsDialog::TransferDataFromWindow()
 {
     bool changed = false;
     Settings& s = Config::instance().settings();
-    if (s.start_minimized() != startMinimizedCB_->GetValue()) {
-        s.start_minimized(startMinimizedCB_->GetValue());
+    if (s.start_minimized() != start_minimized_check_->GetValue()) {
+        s.start_minimized(start_minimized_check_->GetValue());
         changed = true;
     }
-    if (s.minimize_instead_of_close() != minimizeInsteadOfCloseCB_->GetValue()) {
-        s.minimize_instead_of_close(minimizeInsteadOfCloseCB_->GetValue());
+    if (s.minimize_instead_of_close() != minimize_instead_of_close_check_->GetValue()) {
+        s.minimize_instead_of_close(minimize_instead_of_close_check_->GetValue());
         changed = true;
     }
-    if (s.auto_start() != autoStartCB_->GetValue()) {
-        s.auto_start(autoStartCB_->GetValue());
+    if (s.auto_start() != auto_start_check_->GetValue()) {
+        s.auto_start(auto_start_check_->GetValue());
         changed = true;
     }
-    if (s.start_sync_at_start() != startSyncAtStartCB_->GetValue()) {
-        s.start_sync_at_start(startSyncAtStartCB_->GetValue());
+    if (s.start_sync_at_start() != start_sync_at_start_check_->GetValue()) {
+        s.start_sync_at_start(start_sync_at_start_check_->GetValue());
         changed = true;
     }
-    if (s.show_errors() != messageBoxErrorCB_->GetValue()) {
-        s.show_errors(messageBoxErrorCB_->GetValue());
+    if (s.show_errors() != message_box_error_check_->GetValue()) {
+        s.show_errors(message_box_error_check_->GetValue());
         changed = true;
     }
-    if (s.show_warnings() != messageBoxWarningCB_->GetValue()) {
-        s.show_warnings(messageBoxWarningCB_->GetValue());
+    if (s.show_warnings() != message_box_warning_check_->GetValue()) {
+        s.show_warnings(message_box_warning_check_->GetValue());
         changed = true;
     }
-    if (s.show_infos() != messageBoxInfoCB_->GetValue()) {
-        s.show_infos(messageBoxInfoCB_->GetValue());
+    if (s.show_infos() != message_box_info_check_->GetValue()) {
+        s.show_infos(message_box_info_check_->GetValue());
         changed = true;
     }
-    const DeleteMode deleteMode = deleteModeRB_->GetSelection() == 1 ? DeleteMode::Permanent : DeleteMode::RecycleBin;
-    if (s.delete_mode() != deleteMode) {
-        s.delete_mode(deleteMode);
+    const DeleteMode delete_mode = delete_mode_radio_->GetSelection() == 1 ? DeleteMode::Permanent : DeleteMode::RecycleBin;
+    if (s.delete_mode() != delete_mode) {
+        s.delete_mode(delete_mode);
         changed = true;
     }
-    const std::wstring recycleBinPath = recycleBinPathBox_->GetValue().ToStdWstring();
-    if (!recycleBinPath.empty() && RecycleBin::instance().bin_path() != std::filesystem::path(recycleBinPath)) {
-        RecycleBin::instance().bin_path(recycleBinPath);
+    const std::wstring recycle_bin_path = recycle_bin_path_box_->GetValue().ToStdWstring();
+    if (!recycle_bin_path.empty() && RecycleBin::instance().bin_path() != std::filesystem::path(recycle_bin_path)) {
+        RecycleBin::instance().bin_path(recycle_bin_path);
+        changed = true;
+    }
+    if (language_choice_->GetSelection() != language_index(s.language())) {  // [SettingsDialog.md#language_index]
+        s.language(language_code(language_choice_->GetSelection()));
         changed = true;
     }
     if (changed)

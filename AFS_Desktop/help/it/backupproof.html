@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Prova di backup</title>
+</head>
+<body>
+<h1>Prova di backup</h1>
+
+<p>Chi deve dimostrare che è stato eseguito un backup può contrassegnare una
+sincronizzazione con <b>Prova di backup</b> – la spunta si trova nella scheda
+<a href="options.html">Opzioni</a>. A differenza del log, il cui contenuto
+dipende dal livello impostato e che viene accorciato dopo alcuni giorni, la prova
+è pensata per essere conservata.</p>
+
+<h2>Dove viene scritta</h2>
+
+<p>La cartella si imposta nelle <a href="logging.html">impostazioni di
+registrazione</a> alla voce <b>Percorso per le prove di backup</b>. Lì
+AutoFileSync crea un file per ogni sincronizzazione, con il suo nome, in formato
+JSON:</p>
+
+<blockquote><tt>&lt;cartella delle prove&gt;\&lt;nome della sincronizzazione&gt;.json</tt></blockquote>
+
+<h2>Che cosa contiene una voce</h2>
+
+<ul>
+<li>data e ora dell'esecuzione</li>
+<li>origine e destinazione</li>
+<li>numero di file trasferiti</li>
+<li>volume trasferito</li>
+<li>messaggi di errore che si sono verificati</li>
+<li>stato <tt>Riuscito</tt> o <tt>Non riuscito</tt></li>
+</ul>
+
+<p>I nomi dei campi sono scritti nella lingua che il programma mostra al momento
+dell'esecuzione; un file iniziato in una lingua continua con il nome del suo
+elenco.</p>
+
+<h2>Che cosa non viene scritto</h2>
+
+<p>Un'esecuzione che non aveva niente da fare non scrive alcuna voce. Con una
+pausa di pochi secondi si avrebbero altrimenti centinaia di righe all'ora senza
+significato, tra le quali le esecuzioni con un contenuto reale non si
+troverebbero più.</p>
+
+<p>I messaggi di errore nella prova provengono direttamente dalla
+sincronizzazione e non dal log. Il livello di log impostato non influisce quindi
+su ciò che contiene la prova.</p>
+
+<p>Se un file di prova esistente non si può leggere, non viene sostituito ma
+lasciato com'è: è una documentazione, e il contenuto già presente conta più
+della voce che al momento non si può aggiungere.</p>
+
+</body>
+</html>

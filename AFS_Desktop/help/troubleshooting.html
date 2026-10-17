@@ -32,6 +32,16 @@ Stufe <tt>Info</tt> steht darin, was kopiert und gelöscht wurde; auf
     <b>Verzeichnisbaum</b>.</li>
 </ul>
 
+<h2>Dateien werden bei jedem Durchlauf erneut kopiert, obwohl sie unverändert sind</h2>
+
+<p>Das Ziel speichert die Änderungszeit gröber als die Quelle, etwa eine
+NTFS- oder FAT-Platte als Ziel einer Linux-Festplatte. Die Kopie liegt dann
+um Bruchteile einer Sekunde vor ihrem Original, und beim Vergleich nach
+<b>Datum</b> gilt die Quelle als neuer. Die <a href="options.html#timetolerance">Toleranz
+in Sekunden</a> im Reiter Optionen fängt das ab; sie steht auf 0, wenn jemand
+sie ausgeschaltet hat. Ein Sprung um genau eine Stunde auf allen Dateien deutet
+auf FAT nach einer Zeitumstellung hin, siehe dort.</p>
+
 <h2>Im Ziel wird nichts gelöscht, obwohl die Option gesetzt ist</h2>
 
 <ul>
@@ -88,6 +98,16 @@ Stufe <tt>Info</tt> steht darin, was kopiert und gelöscht wurde; auf
 <p>In allen diesen Fällen wird die betroffene Synchronisation für diesen
 Durchlauf übersprungen: Es wird weder kopiert noch gelöscht. Die übrigen
 Synchronisationen laufen normal weiter.</p>
+
+<h2>Eine Warnung über ein fehlendes Laufwerk erscheint – oder bleibt aus</h2>
+
+<p>Ob eine nicht erreichbare Quelle oder ein nicht erreichbares Ziel gemeldet wird,
+entscheidet je Synchronisation die Option <b>Warnung bei nicht vorhandenem Laufwerk
+oder SSH-Verbindung</b>: eingeschaltet gibt es nach <b>Einmal synchronisieren</b> eine
+Warnung und einen Warnungseintrag im Protokoll, ausgeschaltet nur einen Info-Eintrag.
+Warnt also die eine Synchronisation und die andere nicht, obwohl beide dieselbe Platte
+vermissen, steht die Option bei ihnen unterschiedlich. Alles Weitere unter
+<a href="unreachable.html">Nicht erreichbare Laufwerke und Verbindungen</a>.</p>
 
 <h2>Gelöschte Dateien zurückholen</h2>
 

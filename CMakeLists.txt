@@ -27,16 +27,22 @@ endif()
 # way libintl is (see AfsCore.cmake) - a missing catalogue is a packaging fault,
 # a missing libintl would be compiled-in.
 # Defined before the subdirectories so that AFS_Desktop can depend on the target.
+# Each catalogue is compiled from a copy that carries the build's stamp, so the
+# program can tell a catalogue of another version apart (CatalogueStamp.cmake).
 find_program(MSGFMT_EXECUTABLE msgfmt)
 if(MSGFMT_EXECUTABLE)
+    include(AFS_Core/cmake/CatalogueStamp.cmake)
     file(GLOB AFS_PO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/po/*.po)
     foreach(po_file ${AFS_PO_FILES})
         get_filename_component(language ${po_file} NAME_WE)
         set(mo_dir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/locale/${language}/LC_MESSAGES)
+        set(stamped_po ${CMAKE_BINARY_DIR}/po/${language}.po)
         add_custom_command(OUTPUT ${mo_dir}/autofilesync.mo
             COMMAND ${CMAKE_COMMAND} -E make_directory ${mo_dir}
-            COMMAND ${MSGFMT_EXECUTABLE} -o ${mo_dir}/autofilesync.mo ${po_file}
-            DEPENDS ${po_file}
+            COMMAND ${CMAKE_COMMAND} -DPO=${po_file} -DOUT=${stamped_po} -DSTAMP=${AFS_CATALOGUE_STAMP}
+                -P ${CMAKE_CURRENT_SOURCE_DIR}/AFS_Core/cmake/StampCatalogue.cmake
+            COMMAND ${MSGFMT_EXECUTABLE} -o ${mo_dir}/autofilesync.mo ${stamped_po}
+            DEPENDS ${po_file} ${AFS_POT_FILE}
             COMMENT "Compiling the message catalogue ${language}")
         list(APPEND AFS_MO_FILES ${mo_dir}/autofilesync.mo)
     endforeach()

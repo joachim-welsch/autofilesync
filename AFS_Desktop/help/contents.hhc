@@ -20,9 +20,16 @@
       <PARAM name="Name" value="Optionen einer Synchronisation">
       <PARAM name="Local" value="options.html">
     </OBJECT>
+    <UL>
+      <LI> <OBJECT type="text/sitemap">
+        <PARAM name="Name" value="Nicht erreichbare Laufwerke und Verbindungen">
+        <PARAM name="Local" value="unreachable.html">
+      </OBJECT>
+      </LI>
+    </UL>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="Synchronisation ausf&uuml;hren">
+      <PARAM name="Name" value="Synchronisation ausführen">
       <PARAM name="Local" value="runsync.html">
     </OBJECT>
     <UL>
@@ -31,10 +38,15 @@
         <PARAM name="Local" value="synconce.html">
       </OBJECT>
       </LI>
+      <LI> <OBJECT type="text/sitemap">
+        <PARAM name="Name" value="Vorschau">
+        <PARAM name="Local" value="preview.html">
+      </OBJECT>
+      </LI>
     </UL>
     </LI>
     <LI> <OBJECT type="text/sitemap">
-      <PARAM name="Name" value="&Uuml;ber SSH synchronisieren">
+      <PARAM name="Name" value="Über SSH synchronisieren">
       <PARAM name="Local" value="ssh.html">
     </OBJECT>
     </LI>
@@ -56,6 +68,11 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Hintergrunddienst">
       <PARAM name="Local" value="service.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Der Assistent">
+      <PARAM name="Local" value="assistant.html">
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">

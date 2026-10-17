@@ -2,7 +2,7 @@
 
 Module comment for GuiTest.h / GuiTest.cpp.
 
-## entriesOf
+## entries_of
 
 Names and sizes are enough to spot every change a synchronisation could cause: a copied, deleted
 or overwritten file changes one of them.
@@ -27,7 +27,7 @@ not.
 Both branches have to be a wxString: mixing it with a string literal makes the conditional
 ambiguous, since either side converts to the other.
 
-## mainWindow
+## main_window
 
 Typed as MainWindow, not wxFrame: the sync tests read the state of SyncInterface and the menu
 through it, and it is the only top-level window the application ever creates. Tests that only

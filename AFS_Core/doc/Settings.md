@@ -12,6 +12,12 @@ setting existed falls back to.
 Directory the proofs of backup go into, one file per sync item. Empty means none are written,
 whatever a single sync item asks for - there is nowhere to put them.
 
+## language_
+
+The language code of a message catalogue ("de", "en", ...) the user chose. Empty means the
+user chose none, and the language the environment names applies - see
+translation::set_language().
+
 ## reset
 
 Console mode comes from the command line, not from the configuration file, so it survives a

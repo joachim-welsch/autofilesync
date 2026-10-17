@@ -23,6 +23,6 @@
 namespace guitest {
 
 void pump(int milliseconds = 50);  // [EventPump.md#pump]
-bool waitUntil(const std::function<bool()>& ready, int timeoutMilliseconds = 5000);
+bool wait_until(const std::function<bool()>& ready, int timeout_milliseconds = 5000);
 
 }

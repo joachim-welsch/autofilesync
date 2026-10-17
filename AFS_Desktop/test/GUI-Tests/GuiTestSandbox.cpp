@@ -34,22 +34,22 @@ namespace fs = std::filesystem;
 namespace guitest {
 namespace {
 
-fs::path sandboxRoot;
+fs::path sandbox_root;
 
 #ifdef _WIN32
-void setEnvironmentVariable(const wchar_t* name, const fs::path& value)  // [GuiTestSandbox.md#setEnvironmentVariable]
+void set_environment_variable(const wchar_t* name, const fs::path& value)  // [GuiTestSandbox.md#set_environment_variable]
 {
     _wputenv_s(name, value.c_str());
     SetEnvironmentVariableW(name, value.c_str());
 }
 #else
-void setEnvironmentVariable(const char* name, const fs::path& value)
+void set_environment_variable(const char* name, const fs::path& value)
 {
     setenv(name, value.c_str(), 1);
 }
 #endif
 
-int currentProcessId()
+int current_process_id()
 {
 #ifdef _WIN32
     return _getpid();
@@ -58,41 +58,41 @@ int currentProcessId()
 #endif
 }
 
-void redirectUserDirectories()
+void redirect_user_directories()
 {
 #ifdef _WIN32
-    setEnvironmentVariable(L"APPDATA", GuiTestSandbox::root() / "AppData");  // [GuiTestSandbox.md#which-variables-matter]
-    setEnvironmentVariable(L"USERPROFILE", GuiTestSandbox::root());
-    setEnvironmentVariable(L"HOME", GuiTestSandbox::root());
-    setEnvironmentVariable(L"HOMEDRIVE", GuiTestSandbox::root().root_name());  // [GuiTestSandbox.md#homedrive-homepath]
-    setEnvironmentVariable(L"HOMEPATH", GuiTestSandbox::root().relative_path().wstring().insert(0, L"\\"));
+    set_environment_variable(L"APPDATA", GuiTestSandbox::root() / "AppData");  // [GuiTestSandbox.md#which-variables-matter]
+    set_environment_variable(L"USERPROFILE", GuiTestSandbox::root());
+    set_environment_variable(L"HOME", GuiTestSandbox::root());
+    set_environment_variable(L"HOMEDRIVE", GuiTestSandbox::root().root_name());  // [GuiTestSandbox.md#homedrive-homepath]
+    set_environment_variable(L"HOMEPATH", GuiTestSandbox::root().relative_path().wstring().insert(0, L"\\"));
 #else
-    setEnvironmentVariable("HOME", GuiTestSandbox::root());
-    setEnvironmentVariable("XDG_CONFIG_HOME", GuiTestSandbox::root() / ".config");
+    set_environment_variable("HOME", GuiTestSandbox::root());
+    set_environment_variable("XDG_CONFIG_HOME", GuiTestSandbox::root() / ".config");
 #endif
 }
 
-void isolateInputMethod()  // [GuiTestSandbox.md#isolateInputMethod]
+void isolate_input_method()  // [GuiTestSandbox.md#isolate_input_method]
 {
 #ifdef __linux__
     setenv("GTK_IM_MODULE", "gtk-im-context-simple", 1);
 #endif
 }
 
-void writeFile(const fs::path& pathname, const std::string& content)
+void write_file(const fs::path& pathname, const std::string& content)
 {
     fs::create_directories(pathname.parent_path());
     std::ofstream(pathname) << content;
 }
 
-std::string minimalConfig()  // [GuiTestSandbox.md#minimalConfig]
+std::string minimal_config()  // [GuiTestSandbox.md#minimal_config]
 {
     return std::string("{\n")
         + "  \"Settings\": {\"StartMinimzed\": \"false\", \"MinimizeInsteadOfClose\": \"false\","
           " \"Autostart\": \"false\", \"StartSyncAtStart\": \"false\","
           " \"ShowErrors\": \"false\", \"ShowWarnings\": \"false\", \"ShowInfos\": \"false\"},\n"
         + "  \"Logging\": {\"LogLevel\": \"Error\", \"LogFilePathName\": \""
-        + (sandboxRoot / "autofilesync.log").generic_string()
+        + (sandbox_root / "autofilesync.log").generic_string()
         + "\", \"RetentionDays\": \"1\", \"EditorPathName\": \"true\"}\n}\n";
 }
 
@@ -100,50 +100,50 @@ std::string minimalConfig()  // [GuiTestSandbox.md#minimalConfig]
 
 void GuiTestSandbox::create()
 {
-    sandboxRoot = fs::temp_directory_path() / ("autofilesync-guitest-" + std::to_string(currentProcessId()));
-    fs::remove_all(sandboxRoot);
-    fs::create_directories(sandboxRoot);
-    redirectUserDirectories();
-    isolateInputMethod();
-    writeFile(configFile(), minimalConfig());
-    writeFile(sourceDir() / "beispiel.txt", "Inhalt der Quelldatei\n");
-    fs::create_directories(targetDir());
+    sandbox_root = fs::temp_directory_path() / ("autofilesync-guitest-" + std::to_string(current_process_id()));
+    fs::remove_all(sandbox_root);
+    fs::create_directories(sandbox_root);
+    redirect_user_directories();
+    isolate_input_method();
+    write_file(config_file(), minimal_config());
+    write_file(source_dir() / "beispiel.txt", "Inhalt der Quelldatei\n");
+    fs::create_directories(target_dir());
 }
 
-void GuiTestSandbox::isolatePreferences()  // [GuiTestSandbox.md#isolatePreferences]
+void GuiTestSandbox::isolate_preferences()  // [GuiTestSandbox.md#isolate_preferences]
 {
-    wxConfigBase::Set(new wxFileConfig(wxEmptyString, wxEmptyString, (sandboxRoot / "GuiTests.ini").string(), wxEmptyString, wxCONFIG_USE_LOCAL_FILE));
+    wxConfigBase::Set(new wxFileConfig(wxEmptyString, wxEmptyString, (sandbox_root / "GuiTests.ini").string(), wxEmptyString, wxCONFIG_USE_LOCAL_FILE));
 }
 
 void GuiTestSandbox::remove()
 {
-    fs::remove_all(sandboxRoot);
+    fs::remove_all(sandbox_root);
 }
 
 const fs::path& GuiTestSandbox::root()
 {
-    return sandboxRoot;
+    return sandbox_root;
 }
 
-fs::path GuiTestSandbox::configFile()
+fs::path GuiTestSandbox::config_file()
 {
 #ifdef _WIN32
-    return sandboxRoot / "AppData" / "autofilesync" / "autofilesync.json";
+    return sandbox_root / "AppData" / "autofilesync" / "autofilesync.json";
 #elif defined(_MACOS)
-    return sandboxRoot / "Library" / "Application Support" / "autofilesync" / "autofilesync.json";  // [GuiTestSandbox.md#configFile]
+    return sandbox_root / "Library" / "Application Support" / "autofilesync" / "autofilesync.json";  // [GuiTestSandbox.md#config_file]
 #else
-    return sandboxRoot / ".config" / "autofilesync" / "autofilesync.json";
+    return sandbox_root / ".config" / "autofilesync" / "autofilesync.json";
 #endif
 }
 
-fs::path GuiTestSandbox::sourceDir()
+fs::path GuiTestSandbox::source_dir()
 {
-    return sandboxRoot / "quelle";
+    return sandbox_root / "quelle";
 }
 
-fs::path GuiTestSandbox::targetDir()
+fs::path GuiTestSandbox::target_dir()
 {
-    return sandboxRoot / "ziel";
+    return sandbox_root / "ziel";
 }
 
 }

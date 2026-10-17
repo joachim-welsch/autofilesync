@@ -82,6 +82,7 @@ public:
     SyncItem item(unsigned) const;
     SyncItems syncitems() const;  // [Config.md#syncitems]
     void refresh_last_sync(const std::wstring& name);
+    void record_last_run(const std::wstring& name, const LastRun& run);  // [Config.md#record_last_run]
     std::optional<SshAccount> find_ssh_account_by_name(const std::string& name) const;  // [Config.md#ssh-account-access]
     std::optional<SshAccount> ssh_account_at(std::size_t index) const;
     SshAccounts ssh_accounts_snapshot() const;

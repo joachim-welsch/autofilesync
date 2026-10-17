@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Options d'une synchronisation</title>
+</head>
+<body>
+<h1>Options d'une synchronisation</h1>
+
+<p>L'onglet <b>Options</b> de la boîte de dialogue d'une synchronisation définit
+sur quoi source et cible sont comparées et ce qui se passe dans les cas
+particuliers.</p>
+
+<h2>Comparer les fichiers par</h2>
+
+<p>Ces trois cases déterminent comment AutoFileSync reconnaît une différence.
+Elles peuvent être combinées.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Critère</th><th align="left">Signification</th></tr>
+<tr><td valign="top"><b>Date</b></td>
+    <td>La date de modification décide. C'est le cas habituel et de loin le
+        plus rapide.</td></tr>
+<tr><td valign="top"><b>Taille</b></td>
+    <td>Des tailles de fichier différentes comptent comme une différence.</td></tr>
+<tr><td valign="top"><b>Contenu</b></td>
+    <td>Les fichiers sont comparés par leur contenu. C'est exact, mais cela coûte
+        du temps de lecture des deux côtés. En synchronisation bidirectionnelle,
+        la date de modification décide en plus quel côté est le plus récent – une
+        simple comparaison du contenu ne peut pas le savoir.</td></tr>
+<tr><td valign="top"><b>Tolérance en secondes</b></td>
+    <td>Deux dates de modification séparées d'au plus ce nombre de secondes
+        comptent comme égales. Le champ n'est actif que si la comparaison par
+        <b>Date</b> est cochée ; la valeur par défaut est de 2 secondes, voir
+        <a href="#timetolerance">Tolérance et systèmes de fichiers</a>.</td></tr>
+</table>
+
+<h3><a name="timetolerance"></a>Tolérance et systèmes de fichiers</h3>
+
+<p>Lors de la copie, AutoFileSync reprend la date de modification de la source,
+mais la cible ne l'enregistre qu'avec la précision que permet son système de
+fichiers. Sans tolérance, la source serait alors plus récente que sa propre copie
+de quelques fractions de seconde à chaque passage et serait copiée encore et
+encore. La tolérance doit être au moins aussi grande que le pas de temps le plus
+grossier des deux côtés :</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left">Système de fichiers</th><th align="left">Précision de la date de modification</th><th align="left">Tolérance nécessaire</th></tr>
+<tr><td>ext4, Btrfs, XFS, APFS</td><td>nanosecondes</td><td>0 s</td></tr>
+<tr><td>NTFS</td><td>100 nanosecondes</td><td>1 s</td></tr>
+<tr><td>exFAT</td><td>10 millisecondes</td><td>1 s</td></tr>
+<tr><td>HFS+, serveurs SFTP</td><td>secondes entières</td><td>1 s</td></tr>
+<tr><td>FAT32, FAT16 (clés USB, cartes mémoire)</td><td>2 secondes</td><td>2 s</td></tr>
+</table>
+
+<p>La valeur par défaut de 2 secondes couvre tous ces cas. FAT enregistre en
+outre l'heure en heure locale : après un passage à l'heure d'été ou d'hiver, tous
+les fichiers semblent décalés d'une heure. Pour l'éviter, réglez la tolérance sur
+3600 secondes pendant un temps ou comparez aussi par <b>Taille</b>.</p>
+
+<p>Le revers de la tolérance : si un fichier est de nouveau enregistré dans le
+délai de tolérance après sa modification précédente et qu'un passage a eu lieu
+entre-temps, la seconde modification n'est remarquée qu'au prochain
+enregistrement. Si vous modifiez des fichiers à intervalles rapprochés, cochez de
+préférence aussi <b>Taille</b>, ou réglez la tolérance sur 0 si les deux côtés
+enregistrent l'heure avec la même précision.</p>
+
+<h2>Les options en détail</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th align="left" width="30%">Option</th><th align="left">Effet</th></tr>
+
+<tr><td valign="top"><b>Supprimer la source après la copie</b></td>
+    <td>Après une copie réussie, le <i>fichier source</i> est supprimé – dans la
+        corbeille ou définitivement, selon le
+        <a href="settings.html">mode de suppression</a>. Une synchronisation
+        devient ainsi un déplacement. Pour les sources accessibles par SSH,
+        l'option n'a aucun effet. Avec cette option, <b>Synchronisation bidirectionnelle</b> et <b>Supprimer aussi dans la cible les fichiers supprimés</b> sont désactivées : l'une recopierait les fichiers déplacés, l'autre les supprimerait à nouveau dans la cible.</td></tr>
+
+<tr><td valign="top"><b>Synchronisation bidirectionnelle</b></td>
+    <td>Le sens inverse compte aussi : ce qui n'existe que dans la cible est
+        recopié dans la source, et une cible plus récente l'emporte sur une source
+        plus ancienne. Avec <b>Supprimer aussi dans la cible les fichiers
+        supprimés</b>, la suppression l'emporte – cocher les deux à la fois a
+        rarement un sens. L'option s'exclut mutuellement avec <b>Supprimer la source après la copie</b> et avec <b>Copier même si le fichier cible est plus récent</b> ; celle cochée en premier désactive l'autre.</td></tr>
+
+<tr><td valign="top"><b>Copier même si le fichier cible est plus récent</b></td>
+    <td>Normalement, AutoFileSync n'écrase pas un fichier cible plus récent que
+        la source. Avec cette option, il le fait quand même. Si la
+        synchronisation bidirectionnelle est cochée, l'option est désactivée,
+        car elle n'y a pas de sens. Elle est aussi désactivée tant que ni la <b>Date</b> ni la <b>Taille</b> ne sont comparées, car seuls ces critères peuvent reconnaître une cible plus récente.</td></tr>
+
+<tr><td valign="top"><b>Principe des générations</b></td>
+    <td>Avant d'écraser un fichier cible existant, AutoFileSync le renomme :
+        <tt>rapport.doc</tt> devient <tt>rapport.doc.bak.1</tt>, la fois
+        suivante <tt>.bak.2</tt> et ainsi de suite. Les versions plus anciennes
+        sont ainsi conservées. Notez que ces sauvegardes restent dans la cible et
+        occupent de la place – elles ne sont pas nettoyées
+        automatiquement.</td></tr>
+
+<tr><td valign="top"><b>Supprimer aussi dans la cible les fichiers supprimés</b></td>
+    <td>Un fichier qui n'existe plus que dans la cible y est supprimé – la cible
+        devient un miroir de la source. Détails et limites dans la
+        <a href="#deleteintarget">section ci-dessous</a>. Pour le type Fichier et avec <b>Supprimer la source après la copie</b>, l'option est désactivée.</td></tr>
+
+<tr><td valign="top"><b>Preuve de sauvegarde</b></td>
+    <td>Chaque passage qui a copié quelque chose ou rencontré une erreur écrit
+        une entrée dans un fichier de preuve ; voir
+        <a href="backupproof.html">Preuve de sauvegarde</a>.</td></tr>
+
+<tr><td valign="top"><b>Synchroniser les fichiers vides</b></td>
+    <td>Les fichiers de taille 0 sont normalement ignorés : un fichier vide est
+        plus souvent une écriture interrompue qu'un fichier volontairement vide,
+        et le copier sur un fichier cible rempli ferait perdre des données. Avec
+        cette option, ils sont pris en compte – prévu pour des fichiers comme
+        <tt>.gitkeep</tt> ainsi que les fichiers de verrouillage et de marquage.
+        <b>Attention :</b> si le fichier source est vide et le fichier cible ne
+        l'est pas, la synchronisation remplace alors le contenu de la cible par
+        le fichier vide.</td></tr>
+
+<tr><td valign="top"><b>Avertir si le lecteur ou la connexion SSH manque</b></td>
+    <td>Si la source ou la cible est inaccessible – un lecteur débranché, un
+        partage non connecté, un serveur SSH qui ne répond pas –, la
+        synchronisation est ignorée ; rien n'est copié ni supprimé. Ce n'est pas
+        une erreur. Avec cette option (par défaut : activée), « Synchroniser une
+        fois » signale l'omission par un avertissement, et le journal contient
+        un avertissement. Pour un disque de sauvegarde branché seulement de temps
+        en temps, désactivez l'option : l'absence n'est alors notée que dans le
+        journal. En détail : <a href="unreachable.html">Lecteurs et connexions inaccessibles</a>.</td></tr>
+
+<tr><td valign="top"><b>Secondes de pause</b></td>
+    <td>Temps d'attente entre deux passages en synchronisation continue,
+        réglable de 1 à 60 secondes. Des pauses courtes détectent les
+        modifications plus vite et sollicitent davantage disques et
+        réseau.</td></tr>
+</table>
+
+<h2><a name="deleteintarget"></a>Supprimer aussi dans la cible les fichiers supprimés</h2>
+
+<p>Cette option mérite une description plus précise, car c'est la seule qui
+supprime des données dans la cible.</p>
+
+<ul>
+<li>Elle est disponible pour <b>Dossier</b> et <b>Arborescence</b>, pas pour le
+    type <b>Fichier</b>.</li>
+<li>La suppression suit le <a href="settings.html">mode de suppression</a>,
+    donc normalement vers la corbeille. Pour une cible SSH, la suppression est
+    définitive, car un fichier distant devrait d'abord être téléchargé pour
+    cela.</li>
+<li>Les fichiers qui n'appartiennent de toute façon pas à cette
+    synchronisation, à cause du <b>Caractère générique</b> ou des
+    <b>Exclusions</b>, restent intacts.</li>
+<li>Si la <b>source est inaccessible</b> – lecteur débranché, partage non
+    connecté, serveur SSH injoignable –, rien n'est supprimé. Un endroit
+    inaccessible n'est pas un endroit vide.</li>
+<li>Ce sont les <b>fichiers</b> qui sont reproduits, pas les dossiers : un
+    dossier supprimé dans la source reste dans la cible avec son contenu.</li>
+</ul>
+
+<p>Si l'option ne fait pas effet alors qu'elle est cochée, consultez
+<a href="troubleshooting.html">Quand quelque chose ne se passe pas comme prévu</a>.</p>
+
+</body>
+</html>

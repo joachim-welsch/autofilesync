@@ -31,25 +31,22 @@
     #include "../bitmaps/start.xpm"
     #include "../bitmaps/stop.xpm"
     #include "../bitmaps/help.xpm"
+    #include "../bitmaps/settings.xpm"
 
     #pragma GCC diagnostic pop
 #endif
 
 using utilwx::tul;
-using AFS_Core::translation::translate;
 
-enum
+namespace {
+wxString tooltip(const char* msgid)  // [Toolbar.md#tooltips-without-ellipsis]
 {
-    Tool_new,
-    Tool_edit,
-    Tool_save,
-    Tool_delete,
-    Tool_start,
-	Tool_stop,
-    Tool_help,
-    Tool_Max
-};
-wxBitmap toolBarBitmaps[Tool_Max];
+    wxString label = AFS_Core::translation::translate(msgid);
+    if (label.EndsWith(L"\u2026"))
+        label.RemoveLast();
+    return label;
+}
+}
 
 wxToolBar* Toolbar::toolbar()
 {
@@ -59,48 +56,36 @@ wxToolBar* Toolbar::toolbar()
 void Toolbar::create(wxFrame* parent)
 {
 	toolbar_ = parent->CreateToolBar(wxTB_FLAT | wxTB_NODIVIDER | wxTB_HORIZONTAL, tul(id::ToolBar));
-
-#define INIT_TOOL_BMP(bmp) \
-		toolBarBitmaps[Tool_##bmp] = wxBITMAP(bmp)
-
-	INIT_TOOL_BMP(new);
-	INIT_TOOL_BMP(edit);
-	INIT_TOOL_BMP(save);
-	INIT_TOOL_BMP(delete);
-	INIT_TOOL_BMP(start);
-	INIT_TOOL_BMP(stop);
-	INIT_TOOL_BMP(help);
-
-	long style = 0;
-	style |= wxTB_TOP;
 	toolbar_->SetToolBitmapSize(wxSize(24, 24));
-	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), translate("edit_synchronisation"));
-	toolbar_->AddTool(tul(id::File_save), wxEmptyString, wxBITMAP(save), translate("toolbar_save"));
-	toolbar_->AddTool(tul(id::DeleteSync), wxEmptyString, wxBITMAP(delete), translate("delete_synchronisation"));
-	toolbar_->AddTool(tul(id::StartSync), wxEmptyString, wxBITMAP(start), translate("toolbar_start_sync"));
+	toolbar_->AddTool(tul(id::File_new_Synchronization), wxEmptyString, wxBITMAP(new), tooltip("menu_new_synchronisation"));  // [Toolbar.md#new-first]
+	toolbar_->AddTool(tul(id::EditSync), wxEmptyString, wxBITMAP(edit), tooltip("edit_synchronisation"));
+	toolbar_->AddTool(tul(id::File_save), wxEmptyString, wxBITMAP(save), tooltip("toolbar_save"));
+	toolbar_->AddTool(tul(id::DeleteSync), wxEmptyString, wxBITMAP(delete), tooltip("delete_synchronisation"));
+	toolbar_->AddTool(tul(id::StartSync), wxEmptyString, wxBITMAP(start), tooltip("toolbar_start_sync"));
 
 	toolbar_->AddStretchableSpace();
-	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), translate("toolbar_help"));
+	toolbar_->AddTool(tul(id::Help), wxEmptyString, wxBITMAP(help), tooltip("toolbar_help"));
+	toolbar_->AddTool(tul(id::EditSettings), wxEmptyString, wxBITMAP(settings), tooltip("menu_settings"));
 	toolbar_->Realize();
 }
 
 
-void Toolbar::replaceTool(int oldToolId, int newToolId, const wxString& label, const wxBitmap& newBitmap, const wxString& shortHelp)
+void Toolbar::replace_tool(int old_tool_id, int new_tool_id, const wxString& label, const wxBitmap& new_bitmap, const wxString& short_help)
 {
-    size_t pos = toolbar_->GetToolPos(oldToolId);
+    size_t pos = toolbar_->GetToolPos(old_tool_id);
     if (pos != wxNOT_FOUND) {
-        toolbar_->DeleteTool(oldToolId);
-        toolbar_->InsertTool(pos, newToolId, label, newBitmap, wxBitmapBundle(), wxITEM_NORMAL, shortHelp);
+        toolbar_->DeleteTool(old_tool_id);
+        toolbar_->InsertTool(pos, new_tool_id, label, new_bitmap, wxBitmapBundle(), wxITEM_NORMAL, short_help);
         toolbar_->Realize();
     }
 }
 
-void Toolbar::setStarted(bool started)
+void Toolbar::set_started(bool started)
 {
     if (started) {
-        replaceTool(tul(id::StartSync), tul(id::StopSync), translate("toolbar_stop_sync"), wxBITMAP(stop), translate("toolbar_stop_sync"));
+        replace_tool(tul(id::StartSync), tul(id::StopSync), tooltip("toolbar_stop_sync"), wxBITMAP(stop), tooltip("toolbar_stop_sync"));
     }
     else {
-        replaceTool(tul(id::StopSync), tul(id::StartSync), translate("toolbar_start_sync"), wxBITMAP(start), translate("toolbar_start_sync"));
+        replace_tool(tul(id::StopSync), tul(id::StartSync), tooltip("toolbar_start_sync"), wxBITMAP(start), tooltip("toolbar_start_sync"));
     }
 }

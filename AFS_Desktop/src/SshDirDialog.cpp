@@ -25,78 +25,78 @@
 using namespace AFS_Core;
 
 BEGIN_EVENT_TABLE(SshDirDialog, wxDialog)
-    EVT_BUTTON(ID_SSH_DIR_HOME_BUTTON, SshDirDialog::onHomeButton)
-    EVT_BUTTON(ID_SSH_DIR_SORT_BUTTON, SshDirDialog::onSortByName)
-    EVT_TEXT_ENTER(ID_SSH_DIR_PATH_BOX, SshDirDialog::onPathEnter)
-    EVT_LIST_ITEM_SELECTED(ID_SSH_DIR_LIST, SshDirDialog::onListSelect)
+    EVT_BUTTON(ID_SSH_DIR_HOME_BUTTON, SshDirDialog::on_home_button)
+    EVT_BUTTON(ID_SSH_DIR_SORT_BUTTON, SshDirDialog::on_sort_by_name)
+    EVT_TEXT_ENTER(ID_SSH_DIR_PATH_BOX, SshDirDialog::on_path_enter)
+    EVT_LIST_ITEM_SELECTED(ID_SSH_DIR_LIST, SshDirDialog::on_list_select)
 END_EVENT_TABLE()
 
 SshDirDialog::SshDirDialog(wxWindow* parent, 
     const wxString& title,
     const SshAccount& account,
-    const wxString& defaultPath,
+    const wxString& default_path,
     const wxPoint& pos,
     const wxSize& size,
     long style)
     : wxDialog(parent, wxID_ANY, title, pos, size, style)
     , account_(account)
-    , currentPath_(defaultPath)
-    , selectedPath_(defaultPath)
+    , current_path_(default_path)
+    , selected_path_(default_path)
 {
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
 
-    wxStaticText* connInfo = new wxStaticText(this, wxID_STATIC, 
+    wxStaticText* conn_info = new wxStaticText(this, wxID_STATIC, 
         translation::translate("ssh_connection_info", {wxString::FromUTF8(account_.user()).ToStdWstring(), wxString::FromUTF8(account_.host()).ToStdWstring()}));
-    mainSizer->Add(connInfo, 0, wxEXPAND | wxALL, 5);
+    main_sizer->Add(conn_info, 0, wxEXPAND | wxALL, 5);
 
-    wxBoxSizer* pathSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* path_sizer = new wxBoxSizer(wxHORIZONTAL);
     
-    homeButton_ = new wxButton(this, ID_SSH_DIR_HOME_BUTTON, translation::translate("home"),
-        wxDefaultPosition, wxSize(50, -1));
-    pathSizer->Add(homeButton_, 0, wxRIGHT, 2);
+    home_button_ = new wxButton(this, ID_SSH_DIR_HOME_BUTTON, translation::translate("home"),
+        wxDefaultPosition, FromDIP(wxSize(50, -1)));
+    path_sizer->Add(home_button_, 0, wxRIGHT, 2);
 
-    sortButton_ = new wxButton(this, ID_SSH_DIR_SORT_BUTTON, "A-Z",
-        wxDefaultPosition, wxSize(35, -1));
-    pathSizer->Add(sortButton_, 0, wxRIGHT, 5);
+    sort_button_ = new wxButton(this, ID_SSH_DIR_SORT_BUTTON, "A-Z",
+        wxDefaultPosition, FromDIP(wxSize(35, -1)));
+    path_sizer->Add(sort_button_, 0, wxRIGHT, 5);
 
-    pathBox_ = new wxTextCtrl(this, ID_SSH_DIR_PATH_BOX, currentPath_,
+    path_box_ = new wxTextCtrl(this, ID_SSH_DIR_PATH_BOX, current_path_,
         wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    pathSizer->Add(pathBox_, 1, wxEXPAND);
+    path_sizer->Add(path_box_, 1, wxEXPAND);
     
-    mainSizer->Add(pathSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    main_sizer->Add(path_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    listCtrl_ = new wxListCtrl(this, ID_SSH_DIR_LIST, wxDefaultPosition,
-        wxSize(500, 300), wxLC_REPORT | wxLC_SINGLE_SEL);
+    list_ctrl_ = new wxListCtrl(this, ID_SSH_DIR_LIST, wxDefaultPosition,
+        FromDIP(wxSize(500, 300)), wxLC_REPORT | wxLC_SINGLE_SEL);
     
-    listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 250);
-    listCtrl_->InsertColumn(1, translation::translate("size"), wxLIST_FORMAT_RIGHT, 80);
-    listCtrl_->InsertColumn(2, translation::translate("modified"), wxLIST_FORMAT_LEFT, 150);
+    list_ctrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 250);
+    list_ctrl_->InsertColumn(1, translation::translate("size"), wxLIST_FORMAT_RIGHT, 80);
+    list_ctrl_->InsertColumn(2, translation::translate("modified"), wxLIST_FORMAT_LEFT, 150);
     
-    mainSizer->Add(listCtrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    main_sizer->Add(list_ctrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
     
-    listCtrl_->Bind(wxEVT_LEFT_DCLICK, &SshDirDialog::onListDClick, this);
+    list_ctrl_->Bind(wxEVT_LEFT_DCLICK, &SshDirDialog::on_list_double_click, this);
 
-    statusText_ = new wxStaticText(this, wxID_STATIC, wxEmptyString);
-    mainSizer->Add(statusText_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    status_text_ = new wxStaticText(this, wxID_STATIC, wxEmptyString);
+    main_sizer->Add(status_text_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
-    mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 5);
+    wxSizer* button_sizer = CreateButtonSizer(wxOK | wxCANCEL);
+    main_sizer->Add(button_sizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 5);
 
-    SetSizer(mainSizer);
-    SetMinSize(wxSize(550, 400));
+    SetSizer(main_sizer);
+    SetMinSize(FromDIP(wxSize(550, 400)));
     Fit();
     Centre();
 
-    populateList(currentPath_);
+    populate_list(current_path_);
 }
 
 SshDirDialog::~SshDirDialog()
 {}
 
-void SshDirDialog::populateList(const wxString& path)
+void SshDirDialog::populate_list(const wxString& path)
 {
-    listCtrl_->DeleteAllItems();
-    statusText_->SetLabel(translation::translate("loading_dir"));
+    list_ctrl_->DeleteAllItems();
+    status_text_->SetLabel(translation::translate("loading_dir"));
     Update();
 
     try {
@@ -105,129 +105,129 @@ void SshDirDialog::populateList(const wxString& path)
         RemoteDirInfo info = inspector.inspect_dir(std::string(path.ToUTF8()));
 
         if (!info.exists) {
-            statusText_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(info.error_message).ToStdWstring()}));
+            status_text_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(info.error_message).ToStdWstring()}));
             return;
         }
 
         if (!info.is_directory) {
-            statusText_->SetLabel(translation::translate("not_a_directory"));
+            status_text_->SetLabel(translation::translate("not_a_directory"));
             return;
         }
 
-        currentPath_ = path;
-        pathBox_->SetValue(currentPath_);
+        current_path_ = path;
+        path_box_->SetValue(current_path_);
 
         entries_ = std::move(info.entries);
-        renderList();
+        render_list();
 
-        statusText_->SetLabel(translation::translate("entries_count", {std::to_wstring(entries_.size())}));
+        status_text_->SetLabel(translation::translate("entries_count", {std::to_wstring(entries_.size())}));
 
     } catch (const std::exception& ex) {
-        statusText_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(ex.what()).ToStdWstring()}));
+        status_text_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(ex.what()).ToStdWstring()}));
     }
 }
 
-void SshDirDialog::renderList()
+void SshDirDialog::render_list()
 {
-    listCtrl_->DeleteAllItems();
+    list_ctrl_->DeleteAllItems();
 
     long index = 0;
     for (const auto& entry : entries_) {
-        wxString displayName = wxString::FromUTF8(entry.name);  // remote file names arrive as UTF-8 from the SFTP server
+        wxString display_name = wxString::FromUTF8(entry.name);  // remote file names arrive as UTF-8 from the SFTP server
         if (entry.is_directory) {
-            displayName = "[" + displayName + "]";
+            display_name = "[" + display_name + "]";
         }
 
-        long item = listCtrl_->InsertItem(index, displayName);
+        long item = list_ctrl_->InsertItem(index, display_name);
 
         if (entry.is_regular_file) {
-            wxString sizeStr;
+            wxString size_str;
             if (entry.size_bytes < 1024) {
-                sizeStr = wxString::Format("%llu B", entry.size_bytes);
+                size_str = wxString::Format("%llu B", entry.size_bytes);
             } else if (entry.size_bytes < 1024 * 1024) {
-                sizeStr = wxString::Format("%.1f KB", entry.size_bytes / 1024.0);
+                size_str = wxString::Format("%.1f KB", entry.size_bytes / 1024.0);
             } else {
-                sizeStr = wxString::Format("%.1f MB", entry.size_bytes / (1024.0 * 1024.0));
+                size_str = wxString::Format("%.1f MB", entry.size_bytes / (1024.0 * 1024.0));
             }
-            listCtrl_->SetItem(item, 1, sizeStr);
+            list_ctrl_->SetItem(item, 1, size_str);
         } else if (entry.is_directory) {
-            listCtrl_->SetItem(item, 1, "<DIR>");
+            list_ctrl_->SetItem(item, 1, "<DIR>");
         }
 
-        listCtrl_->SetItem(item, 2, entry.last_modified_iso);
+        list_ctrl_->SetItem(item, 2, entry.last_modified_iso);
 
-        listCtrl_->SetItemData(item, entry.is_directory ? 1 : 0);
+        list_ctrl_->SetItemData(item, entry.is_directory ? 1 : 0);
 
         index++;
     }
 }
 
-void SshDirDialog::onListDClick(wxMouseEvent&)
+void SshDirDialog::on_list_double_click(wxMouseEvent&)
 {
-    long sel = listCtrl_->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+    long sel = list_ctrl_->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
     if (sel == -1)
         return;
     
-    if (listCtrl_->GetItemData(sel) == 1) {
-        wxString itemText = listCtrl_->GetItemText(sel);
-        if (itemText.StartsWith("[") && itemText.EndsWith("]")) {
-            itemText = itemText.Mid(1, itemText.Length() - 2);
+    if (list_ctrl_->GetItemData(sel) == 1) {
+        wxString item_text = list_ctrl_->GetItemText(sel);
+        if (item_text.StartsWith("[") && item_text.EndsWith("]")) {
+            item_text = item_text.Mid(1, item_text.Length() - 2);
         }
         
-        wxString newPath = currentPath_;
-        if (!newPath.EndsWith("/")) {
-            newPath += "/";
+        wxString new_path = current_path_;
+        if (!new_path.EndsWith("/")) {
+            new_path += "/";
         }
-        newPath += itemText;
+        new_path += item_text;
         
-        populateList(newPath);
+        populate_list(new_path);
     }
 }
 
-void SshDirDialog::onListSelect(wxListEvent& event)
+void SshDirDialog::on_list_select(wxListEvent& event)
 {
     long sel = event.GetIndex();
     if (sel == -1)
         return;
     
-    wxString itemText = listCtrl_->GetItemText(sel);
-    if (itemText.StartsWith("[") && itemText.EndsWith("]")) {
-        itemText = itemText.Mid(1, itemText.Length() - 2);
+    wxString item_text = list_ctrl_->GetItemText(sel);
+    if (item_text.StartsWith("[") && item_text.EndsWith("]")) {
+        item_text = item_text.Mid(1, item_text.Length() - 2);
     }
     
-    selectedPath_ = currentPath_;
-    if (!selectedPath_.EndsWith("/")) {
-        selectedPath_ += "/";
+    selected_path_ = current_path_;
+    if (!selected_path_.EndsWith("/")) {
+        selected_path_ += "/";
     }
-    selectedPath_ += itemText;
+    selected_path_ += item_text;
 }
 
-void SshDirDialog::onPathEnter(wxCommandEvent&)
+void SshDirDialog::on_path_enter(wxCommandEvent&)
 {
-    wxString newPath = pathBox_->GetValue();
-    if (!newPath.IsEmpty()) {
-        populateList(newPath);
+    wxString new_path = path_box_->GetValue();
+    if (!new_path.IsEmpty()) {
+        populate_list(new_path);
     }
 }
 
-void SshDirDialog::onHomeButton(wxCommandEvent&)
+void SshDirDialog::on_home_button(wxCommandEvent&)
 {
     try {
         wxBusyCursor wait;
         SshDirInspector inspector(account_);
-        populateList(wxString::FromUTF8(inspector.get_home_dir()));
+        populate_list(wxString::FromUTF8(inspector.get_home_dir()));
     } catch (const std::exception& ex) {
-        statusText_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(ex.what()).ToStdWstring()}));
+        status_text_->SetLabel(translation::translate("error_with_reason", {wxString::FromUTF8(ex.what()).ToStdWstring()}));
     }
 }
 
-void SshDirDialog::onSortByName(wxCommandEvent&)
+void SshDirDialog::on_sort_by_name(wxCommandEvent&)
 {
-    bool ascending = sortAscending_;
+    bool ascending = sort_ascending_;
     std::sort(entries_.begin(), entries_.end(), [ascending](const RemoteDirEntry& a, const RemoteDirEntry& b) {
         int cmp = wxString::FromUTF8(a.name).CmpNoCase(wxString::FromUTF8(b.name));
         return ascending ? cmp < 0 : cmp > 0;
     });
-    sortAscending_ = !sortAscending_;
-    renderList();
+    sort_ascending_ = !sort_ascending_;
+    render_list();
 }

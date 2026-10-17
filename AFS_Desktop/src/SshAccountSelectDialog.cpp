@@ -23,7 +23,7 @@
 using namespace AFS_Core;
 
 BEGIN_EVENT_TABLE(SshAccountSelectDialog, wxDialog)
-    EVT_LIST_ITEM_SELECTED(ID_SSH_SELECT_LIST, SshAccountSelectDialog::onListSelect)
+    EVT_LIST_ITEM_SELECTED(ID_SSH_SELECT_LIST, SshAccountSelectDialog::on_list_select)
 END_EVENT_TABLE()
 
 SshAccountSelectDialog::SshAccountSelectDialog(wxWindow* parent,
@@ -33,77 +33,77 @@ SshAccountSelectDialog::SshAccountSelectDialog(wxWindow* parent,
     long style)
     : wxDialog(parent, wxID_ANY, title, pos, size, style)
 {
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
 
-    wxStaticText* infoText = new wxStaticText(this, wxID_STATIC,
+    wxStaticText* info_text = new wxStaticText(this, wxID_STATIC,
         translation::translate("select_ssh_connection_hint"));
-    mainSizer->Add(infoText, 0, wxEXPAND | wxALL, 10);
+    main_sizer->Add(info_text, 0, wxEXPAND | wxALL, 10);
 
-    listCtrl_ = new wxListCtrl(this, ID_SSH_SELECT_LIST, wxDefaultPosition,
-        wxSize(400, 200), wxLC_REPORT | wxLC_SINGLE_SEL);
+    list_ctrl_ = new wxListCtrl(this, ID_SSH_SELECT_LIST, wxDefaultPosition,
+        FromDIP(wxSize(400, 200)), wxLC_REPORT | wxLC_SINGLE_SEL);
     
-    listCtrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 150);
-    listCtrl_->InsertColumn(1, translation::translate("host"), wxLIST_FORMAT_LEFT, 150);
-    listCtrl_->InsertColumn(2, translation::translate("user"), wxLIST_FORMAT_LEFT, 100);
+    list_ctrl_->InsertColumn(0, translation::translate("name"), wxLIST_FORMAT_LEFT, 150);
+    list_ctrl_->InsertColumn(1, translation::translate("host"), wxLIST_FORMAT_LEFT, 150);
+    list_ctrl_->InsertColumn(2, translation::translate("user"), wxLIST_FORMAT_LEFT, 100);
     
-    mainSizer->Add(listCtrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    main_sizer->Add(list_ctrl_, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     
-    listCtrl_->Bind(wxEVT_LEFT_DCLICK, &SshAccountSelectDialog::onListDClick, this);
+    list_ctrl_->Bind(wxEVT_LEFT_DCLICK, &SshAccountSelectDialog::on_list_double_click, this);
 
-    wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
-    mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 10);
+    wxSizer* button_sizer = CreateButtonSizer(wxOK | wxCANCEL);
+    main_sizer->Add(button_sizer, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 10);
 
-    SetSizer(mainSizer);
-    SetMinSize(wxSize(450, 300));
+    SetSizer(main_sizer);
+    SetMinSize(FromDIP(wxSize(450, 300)));
     Fit();
     Centre();
 
-    populateList();
-    updateButtons();
+    populate_list();
+    update_buttons();
 }
 
 SshAccountSelectDialog::~SshAccountSelectDialog()
 {}
 
-void SshAccountSelectDialog::populateList()
+void SshAccountSelectDialog::populate_list()
 {
-    listCtrl_->DeleteAllItems();
+    list_ctrl_->DeleteAllItems();
 
     const SshAccounts accounts = Config::instance().ssh_accounts_snapshot();
     long index = 0;
     for (const auto& account : accounts) {
-        long item = listCtrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
-        listCtrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
-        listCtrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
+        long item = list_ctrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
+        list_ctrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
+        list_ctrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
         index++;
     }
 }
 
-void SshAccountSelectDialog::onListDClick(wxMouseEvent&)
+void SshAccountSelectDialog::on_list_double_click(wxMouseEvent&)
 {
-    if (selectedIndex_ >= 0) {
+    if (selected_index_ >= 0) {
         EndModal(wxID_OK);
     }
 }
 
-void SshAccountSelectDialog::onListSelect(wxListEvent& event)
+void SshAccountSelectDialog::on_list_select(wxListEvent& event)
 {
-    selectedIndex_ = event.GetIndex();
-    updateButtons();
+    selected_index_ = event.GetIndex();
+    update_buttons();
 }
 
-void SshAccountSelectDialog::updateButtons()
+void SshAccountSelectDialog::update_buttons()
 {
-    wxButton* okButton = dynamic_cast<wxButton*>(FindWindow(wxID_OK));
-    if (okButton) {
-        okButton->Enable(selectedIndex_ >= 0);
+    wxButton* ok_button = dynamic_cast<wxButton*>(FindWindow(wxID_OK));
+    if (ok_button) {
+        ok_button->Enable(selected_index_ >= 0);
     }
 }
 
-std::optional<SshAccount> SshAccountSelectDialog::getSelectedAccount() const
+std::optional<SshAccount> SshAccountSelectDialog::get_selected_account() const
 {
-    if (selectedIndex_ < 0) {
+    if (selected_index_ < 0) {
         return std::nullopt;
     }
-    return Config::instance().ssh_account_at(static_cast<size_t>(selectedIndex_));
+    return Config::instance().ssh_account_at(static_cast<size_t>(selected_index_));
 }
