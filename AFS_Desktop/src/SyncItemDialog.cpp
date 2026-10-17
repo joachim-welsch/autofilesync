@@ -193,40 +193,33 @@ wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItem
     return page;
 }
 
-void SyncItemDialog::update_time_tolerance_state()
+namespace {
+void lock(wxCheckBox* check, bool locked)  // [SyncItemDialog.md#option-locks]
 {
-    time_tolerance_spin_->Enable(compare_date_check_->GetValue());
+    if (locked)
+        check->SetValue(false);
+    check->Enable(!locked);
+}
 }
 
-void SyncItemDialog::update_delete_in_target_state()
+void SyncItemDialog::update_option_locks()  // [SyncItemDialog.md#option-locks]
 {
-    bool is_file_type = (type_choice_->GetSelection() != wxNOT_FOUND) &&
-                      (type_choice_->GetString(type_choice_->GetSelection()) == sync_item_type_to_str(SyncItemType::File));
-    if (is_file_type) {
-        delete_in_target_check_->SetValue(false);
-        delete_in_target_check_->Enable(false);
-    } else {
-        delete_in_target_check_->Enable(true);
-    }
+    const bool move = del_source_after_check_->GetValue();
+    lock(two_way_sync_check_, move);
+    lock(delete_in_target_check_, move || act_sync_item_type(type_choice_) == SyncItemType::File);
+    const bool two_way = two_way_sync_check_->GetValue();
+    lock(copy_when_target_newer_check_, two_way || !(compare_date_check_->GetValue() || compare_size_check_->GetValue()));
+    two_way_sync_check_->Enable(!move && !copy_when_target_newer_check_->GetValue());
+    del_source_after_check_->Enable(!two_way && !delete_in_target_check_->GetValue());
+    time_tolerance_spin_->Enable(compare_date_check_->GetValue());
 }
 
 void SyncItemDialog::event_bindings()
 {
-    two_way_sync_check_->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) {
-        if (two_way_sync_check_->GetValue()) {
-            copy_when_target_newer_check_->SetValue(false);
-            copy_when_target_newer_check_->Enable(false);
-        } else {
-            copy_when_target_newer_check_->Enable(true);
-        }
-    });
-
-    type_choice_->Bind(wxEVT_CHOICE, [this](wxCommandEvent&) {
-        update_delete_in_target_state();
-    });
-    compare_date_check_->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) {
-        update_time_tolerance_state();
-    });
+    for (wxCheckBox* check : {del_source_after_check_, two_way_sync_check_, copy_when_target_newer_check_, delete_in_target_check_,
+                              compare_date_check_, compare_size_check_, compare_content_check_})
+        check->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) { update_option_locks(); });
+    type_choice_->Bind(wxEVT_CHOICE, [this](wxCommandEvent&) { update_option_locks(); });
 }
 
 SyncItemDialog::~SyncItemDialog()
@@ -335,8 +328,7 @@ bool SyncItemDialog::TransferDataToWindow()
     warn_if_unreachable_check_->SetValue(warn_if_unreachable_);
     sync_cycle_spin_->SetValue(sync_cycle_);
     time_tolerance_spin_->SetValue(time_tolerance_seconds_);
-    update_delete_in_target_state();
-    update_time_tolerance_state();
+    update_option_locks();
     return true;
 }
 

@@ -31,3 +31,9 @@ key file for writing can never succeed.
 
 A second, independent encrypt/decrypt pair must also round-trip - proves the cached key is
 reused, not just "got lucky" on the first call.
+
+## IsEncryptedRecognisesOnlyTheMarker
+
+The marker decides whether Config treats a stored password as ciphertext or as a legacy plain
+text to be encrypted on the next save; a plain text that merely contains the letters must stay
+plain text.

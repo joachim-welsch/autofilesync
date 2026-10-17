@@ -15,7 +15,20 @@ thread to finish.
 
 ## restore_backup
 
-Removes a failed or aborted copy and puts the previous target back.
+Removes a failed or aborted copy and puts the previous target back. The partial target lives
+where the copy wrote it: a local remove_file() on an "account:/path" string touches nothing, so
+an SSH target is removed through SFTP instead - otherwise a cancelled upload left the half file
+on the server (SyncSshStopTest). The exists check first keeps a transfer whose remote open
+already failed from logging a second error for a file that was never created. There is no remote
+backup yet: an existing remote target is truncated by the upload itself, so only the half file
+can be cleared, not the old content restored.
+
+## backup-rename-failure
+
+The rename of the old target to ".bak" is the first step of the copy, and a target directory
+without write permission refuses it. rename_file() logs that, but the item was only reported
+as failed when the copy itself failed - so the proof file and the last-run record claimed a
+clean run while the target stayed old. Reported like a failed copy, under the same message.
 
 ## discard_backup
 

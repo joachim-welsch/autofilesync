@@ -26,6 +26,7 @@ namespace tu {
 	void write_text_file(const std::filesystem::path& file, const std::string& content,
 		std::chrono::seconds age = std::chrono::seconds(0));  // [FileUtil.md#write_text_file]
 	std::string read_text_file(const std::filesystem::path& file);
+	void write_large_file(const std::filesystem::path& file, std::size_t bytes);  // [FileUtil.md#write_large_file]
 	bool copy_file(const std::wstring& source, const std::wstring& destination);
 	bool copy_source_to_dest(const std::wstring& source = SyncFileTests::SOURCE_PATH_NAME, const std::wstring& destination = SyncFileTests::TARGET_PATH_NAME);
 	bool erase_test_file(const std::wstring& fn);

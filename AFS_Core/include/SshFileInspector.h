@@ -34,6 +34,8 @@
 
 namespace AFS_Core {
 
+std::string time_to_iso(time_t t);  // [SshFileInspector.md#time_to_iso]
+
 struct RemoteFileInfo {
     bool exists;
     uint64_t size_bytes;

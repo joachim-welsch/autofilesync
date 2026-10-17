@@ -72,20 +72,20 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
     <td>Nach erfolgreichem Kopieren wird die <i>Quelldatei</i> entfernt – je nach
         <a href="settings.html">Löschmodus</a> in den Papierkorb oder endgültig.
         Aus einer Synchronisation wird damit ein Verschieben. Für Quellen, die
-        über SSH liegen, hat die Option keine Wirkung.</td></tr>
+        über SSH liegen, hat die Option keine Wirkung. Zusammen mit dieser Option sind <b>Zwei-Wege-Synchronisation</b> und <b>Gelöschte Dateien im Ziel ebenfalls löschen</b> gesperrt: Das eine würde die verschobenen Dateien zurückkopieren, das andere sie im Ziel wieder löschen.</td></tr>
 
 <tr><td valign="top"><b>Zwei-Wege-Synchronisation</b></td>
     <td>Auch der umgekehrte Weg wird berücksichtigt: Was nur im Ziel existiert,
         wird zurück in die Quelle kopiert, und ein neueres Ziel gewinnt gegen
         eine ältere Quelle. Zusammen mit <b>Gelöschte Dateien im Ziel ebenfalls
         löschen</b> gewinnt das Löschen – beides gleichzeitig zu setzen ist
-        selten sinnvoll.</td></tr>
+        selten sinnvoll. Mit <b>Quelle nach dem Kopieren löschen</b> und mit <b>Kopieren wenn Ziel neuer</b> schließt sich die Option gegenseitig aus; die zuerst gesetzte sperrt die andere.</td></tr>
 
 <tr><td valign="top"><b>Kopieren wenn Ziel neuer</b></td>
     <td>Normalerweise überschreibt AutoFileSync keine Zieldatei, die neuer ist
         als die Quelle. Mit dieser Option tut es das doch. Bei eingeschalteter
         Zwei-Wege-Synchronisation ist die Option gesperrt, weil sie dort keinen
-        Sinn ergibt.</td></tr>
+        Sinn ergibt. Ebenso gesperrt ist sie, solange weder nach <b>Zeit</b> noch nach <b>Größe</b> verglichen wird, denn nur diese Kriterien können ein neueres Ziel erkennen.</td></tr>
 
 <tr><td valign="top"><b>Generationenprinzip</b></td>
     <td>Bevor eine vorhandene Zieldatei überschrieben wird, benennt
@@ -98,7 +98,7 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
 <tr><td valign="top"><b>Gelöschte Dateien im Ziel ebenfalls löschen</b></td>
     <td>Eine Datei, die es nur noch im Ziel gibt, wird dort gelöscht – das Ziel
         wird also zum Spiegel der Quelle. Einzelheiten und Grenzen stehen im
-        <a href="#deleteintarget">Abschnitt unten</a>.</td></tr>
+        <a href="#deleteintarget">Abschnitt unten</a>. Beim Typ Datei und zusammen mit <b>Quelle nach dem Kopieren löschen</b> ist die Option gesperrt.</td></tr>
 
 <tr><td valign="top"><b>Sicherungsnachweis</b></td>
     <td>Jeder Durchlauf, der etwas kopiert hat oder auf einen Fehler gelaufen

@@ -20,12 +20,6 @@ wrote into them in between.
 Every sync class returns immediately while Synchronize::stopping() is true, which is the state
 of a fresh process - without this the tests would silently pass on an empty sync.
 
-## ScopedDeleteMode
-
-The delete mode is global configuration and other test suites change it, so the test that needs
-a permanent delete sets it itself and restores the previous value - otherwise the recycle bin
-would keep a copy and the test order would decide where the deleted file ends up.
-
 ## back-copy-timestamp
 
 The back copy must take the target's modification time with it. Without that the source looks

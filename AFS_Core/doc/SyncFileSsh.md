@@ -56,6 +56,14 @@ rights. Set before the time, and like the time after the file is closed and
 without touching the result - the file itself arrived. Windows keeps its
 behaviour: POSIX permissions have no counterpart there.
 
+## upload-keeps-the-permissions
+
+The other direction: a file uploaded from a local source used to arrive as rw------- for the
+SSH user, whatever the source had - a script lost its execute bit, a shared document its group
+read. The upload now carries the source's nine permission bits over like the download does,
+through the same keep_remote_permissions() (so the owner keeps write, see below). Only on Unix:
+a Windows source has no POSIX bits, and the libssh2 branch leaves the remote default.
+
 ## remote-target-stays-writable
 
 A remote target is overwritten in place the next time the source changes, which

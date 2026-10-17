@@ -88,8 +88,7 @@ TEST_F(GuiTest, ZweiWegeSyncSperrtKopierenWennZielNeuer)  // [SyncItemDialogRule
 {
     open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
         ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
-        wxWindow* copy_when_newer = find(dialog, ID_CPY_WHEN_TARGET_NEWER_CHECK);
-        ASSERT_TRUE(set_check_box(copy_when_newer, true));
+        wxWindow* copy_when_newer = find(dialog, ID_CPY_WHEN_TARGET_NEWER_CHECK);  // not set beforehand: that would lock two-way sync itself
 
         ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), true));
         EXPECT_FALSE(copy_when_newer->IsEnabled()) << "\"Kopieren wenn Ziel neuer\" bleibt bei Zwei-Wege-Sync bedienbar.";
@@ -97,6 +96,72 @@ TEST_F(GuiTest, ZweiWegeSyncSperrtKopierenWennZielNeuer)  // [SyncItemDialogRule
 
         ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), false));
         EXPECT_TRUE(copy_when_newer->IsEnabled()) << "\"Kopieren wenn Ziel neuer\" wird nach dem Abwählen nicht wieder frei.";
+    });
+}
+
+TEST_F(GuiTest, VerschiebenSperrtZweiWegeUndLoeschenImZiel)  // [SyncItemDialogRulesTest.md#option-locks]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_general")));
+        ASSERT_TRUE(select_entry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::Dir)));
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* move = find(dialog, ID_DEL_SOURCE_AFTER_CHECK);
+        wxWindow* two_way = find(dialog, ID_TWO_WAY_SYNC_CHECK);
+        wxWindow* delete_in_target = find(dialog, ID_DELETE_IN_TARGET_CHECK);
+
+        ASSERT_TRUE(set_check_box(delete_in_target, true));
+        EXPECT_FALSE(move->IsEnabled()) << "\"Quelle nach dem Kopieren löschen\" bleibt bei Löschen im Ziel bedienbar.";
+        ASSERT_TRUE(set_check_box(delete_in_target, false));
+        EXPECT_TRUE(move->IsEnabled()) << "\"Quelle nach dem Kopieren löschen\" wird nach dem Abwählen nicht wieder frei.";
+
+        ASSERT_TRUE(set_check_box(move, true));
+        EXPECT_FALSE(two_way->IsEnabled()) << "Zwei-Wege-Sync bleibt beim Verschieben bedienbar.";
+        EXPECT_FALSE(delete_in_target->IsEnabled()) << "Löschen im Ziel bleibt beim Verschieben bedienbar.";
+        ASSERT_TRUE(set_check_box(move, false));
+        EXPECT_TRUE(two_way->IsEnabled()) << "Zwei-Wege-Sync wird nach dem Abwählen nicht wieder frei.";
+        EXPECT_TRUE(delete_in_target->IsEnabled()) << "Löschen im Ziel wird nach dem Abwählen nicht wieder frei.";
+    });
+}
+
+TEST_F(GuiTest, ZweiWegeSyncSperrtVerschieben)  // [SyncItemDialogRulesTest.md#option-locks]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* move = find(dialog, ID_DEL_SOURCE_AFTER_CHECK);
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), true));
+        EXPECT_FALSE(move->IsEnabled()) << "\"Quelle nach dem Kopieren löschen\" bleibt bei Zwei-Wege-Sync bedienbar.";
+        ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), false));
+        EXPECT_TRUE(move->IsEnabled()) << "\"Quelle nach dem Kopieren löschen\" wird nach dem Abwählen nicht wieder frei.";
+    });
+}
+
+TEST_F(GuiTest, KopierenWennZielNeuerSperrtZweiWegeSync)  // [SyncItemDialogRulesTest.md#option-locks]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* two_way = find(dialog, ID_TWO_WAY_SYNC_CHECK);
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_CPY_WHEN_TARGET_NEWER_CHECK), true));
+        EXPECT_FALSE(two_way->IsEnabled()) << "Zwei-Wege-Sync bleibt bei \"Kopieren wenn Ziel neuer\" bedienbar.";
+        ASSERT_TRUE(set_check_box(find(dialog, ID_CPY_WHEN_TARGET_NEWER_CHECK), false));
+        EXPECT_TRUE(two_way->IsEnabled()) << "Zwei-Wege-Sync wird nach dem Abwählen nicht wieder frei.";
+    });
+}
+
+TEST_F(GuiTest, KopierenWennZielNeuerBrauchtZeitOderGroesse)  // [SyncItemDialogRulesTest.md#option-locks]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* copy_when_newer = find(dialog, ID_CPY_WHEN_TARGET_NEWER_CHECK);
+        ASSERT_TRUE(set_check_box(copy_when_newer, true));
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_COMPARE_DATE_CHECK), false));
+        EXPECT_FALSE(copy_when_newer->IsEnabled()) << "\"Kopieren wenn Ziel neuer\" bleibt ohne Zeit- und Größenvergleich bedienbar.";
+        EXPECT_FALSE(static_cast<wxCheckBox*>(copy_when_newer)->GetValue()) << "\"Kopieren wenn Ziel neuer\" bleibt ohne Zeit- und Größenvergleich gesetzt.";
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_COMPARE_SIZE_CHECK), true));
+        EXPECT_TRUE(copy_when_newer->IsEnabled()) << "\"Kopieren wenn Ziel neuer\" wird mit dem Größenvergleich nicht wieder frei.";
     });
 }
 

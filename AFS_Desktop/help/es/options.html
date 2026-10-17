@@ -75,20 +75,20 @@ ambos lados guardan la hora con la misma precisión.</p>
         papelera o definitivamente, según el
         <a href="settings.html">modo de eliminación</a>. Así una sincronización
         se convierte en un traslado. Para orígenes accesibles por SSH la opción
-        no tiene efecto.</td></tr>
+        no tiene efecto. Junto con esta opción quedan bloqueadas <b>Sincronización bidireccional</b> y <b>Eliminar también en el destino los archivos eliminados</b>: la una copiaría de vuelta los archivos trasladados, la otra los eliminaría de nuevo en el destino.</td></tr>
 
 <tr><td valign="top"><b>Sincronización bidireccional</b></td>
     <td>También cuenta el sentido contrario: lo que solo existe en el destino se
         copia de vuelta al origen, y un destino más reciente gana a un origen más
         antiguo. Junto con <b>Eliminar también en el destino los archivos
         eliminados</b>, gana la eliminación – activar ambas a la vez rara vez
-        tiene sentido.</td></tr>
+        tiene sentido. La opción se excluye mutuamente con <b>Eliminar el origen después de copiar</b> y con <b>Copiar aunque el archivo de destino sea más reciente</b>; la que se activa primero bloquea la otra.</td></tr>
 
 <tr><td valign="top"><b>Copiar aunque el archivo de destino sea más reciente</b></td>
     <td>Normalmente AutoFileSync no sobrescribe un archivo de destino más
         reciente que el origen. Con esta opción sí lo hace. Con la sincronización
         bidireccional activada, la opción está bloqueada porque ahí no tiene
-        sentido.</td></tr>
+        sentido. También está bloqueada mientras no se compare ni por <b>Fecha</b> ni por <b>Tamaño</b>, porque solo esos criterios pueden reconocer un destino más reciente.</td></tr>
 
 <tr><td valign="top"><b>Principio generacional</b></td>
     <td>Antes de sobrescribir un archivo de destino existente, AutoFileSync le
@@ -101,7 +101,7 @@ ambos lados guardan la hora con la misma precisión.</p>
 <tr><td valign="top"><b>Eliminar también en el destino los archivos eliminados</b></td>
     <td>Un archivo que ya solo existe en el destino se elimina allí – el destino
         se convierte en un espejo del origen. Los detalles y límites están en la
-        <a href="#deleteintarget">sección de abajo</a>.</td></tr>
+        <a href="#deleteintarget">sección de abajo</a>. Con el tipo Archivo y junto con <b>Eliminar el origen después de copiar</b> la opción está bloqueada.</td></tr>
 
 <tr><td valign="top"><b>Comprobante de copia</b></td>
     <td>Cada ejecución que haya copiado algo o haya encontrado un error escribe

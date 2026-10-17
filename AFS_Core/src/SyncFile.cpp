@@ -92,7 +92,7 @@ static void move_file_to_backup(const wstring& dest_filename)
     wstring new_dest_filename;
     do {
         std::wstringstream os;
-        os << dest_filename << ".bak." << i;
+        os << dest_filename << FATHER_SON_SUFFIX << i;
         new_dest_filename = os.str();
         ++i;
     } while (file_exists(new_dest_filename));
@@ -222,9 +222,17 @@ CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
     return copy_normal_file(src, dest);
 }
 
+static void remove_partial_target(const wstring& dest)  // [SyncFile.md#restore_backup]
+{
+    if (!get_account_from_path(dest).has_value())
+        util::remove_file(dest);
+    else if (ssh_exists(dest))
+        ssh_remove_file(dest);
+}
+
 static void restore_backup(const wstring& dest, const wstring& bak_filename)  // [SyncFile.md#restore_backup]
 {
-    util::remove_file(dest);
+    remove_partial_target(dest);
     if (file_exists(bak_filename))
         util::rename_file(bak_filename, dest);
 }
@@ -242,8 +250,10 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
     if (file_exists(dest)) {
         if (file_exists(bak_filename))
             util::remove_file(bak_filename);
-        if (!util::rename_file(dest, bak_filename))
+        if (!util::rename_file(dest, bak_filename)) {  // [SyncFile.md#backup-rename-failure]
+            report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest);
             return false;
+        }
     }
     const CopyResult copy_ok = core_copy_function(src, dest);
     if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK) {  // [SyncFile.md#ssh-skips-verification-only]

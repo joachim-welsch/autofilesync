@@ -73,3 +73,70 @@ use the same one, so nothing of them outlives the fixture either.
 The source gets permissions no umask produces for a new file (rwxr-xr--), so
 the copy can only show them when they were taken over. Others may read: the
 file is fetched through the SSH server as the SSH test user.
+
+## SyncSshStopTest
+
+The SSH counterpart of StopDuringCopyTest (SyncFileTests.md): a 64 MiB file is copied through
+the local SSH server as the test user and stopped as soon as the target appears. The shared
+directory lies in /tmp with permissions for everyone, because the SSH test user has to create
+the upload target in it and read the download source from it; the test process itself cleans
+it up, which works because it owns the directory.
+
+## sync_and_stop_when
+
+The target is checked through the local filesystem, not through SFTP: the server is localhost,
+so the file the SSH user creates is the same file, and a local exists() is quick enough to be
+polled every millisecond while an SFTP round trip is not.
+
+## StopDuringTheUploadLeavesNoHalfFileOnTheRemote
+
+upload() returns Stopped between two SFTP writes. SyncFile then has to remove the partial
+remote file - a local remove_file() on the "account:/path" string does nothing there.
+
+## StopDuringTheDownloadLeavesNoHalfFileLocally
+
+download() returns Stopped between two SFTP reads; the half-written local file must be removed.
+
+## SyncSshFlagTest
+
+Reuses the shared directory and account of SyncSshStopTest for tests of the sync flags over SSH.
+
+## MoveLeavesTheSshSourceInPlace
+
+SyncFile::decide() and copy_source_to_dest() exclude an SSH source from "delete after copy"
+because the source cannot be deleted through the local filesystem. That is a documented limit,
+not an accident, so the test pins it: the copy happens, the remote source stays.
+
+## SyncSshFileToDirTest
+
+A File item whose target is a directory gets the source's file name appended
+(SyncFile::transfer_filename); whether the target is a directory is decided in
+Synchronize::run_sync_item - locally with is_directory(), over SSH with the cached
+ssh_is_directory(). The local case had tests, the SSH cases only the cache-count test, which
+never looked at where the file ended up. The fixture reuses the shared directory of
+SyncSshStopTest, resets the configuration so the item and the account are the only ones, and
+destroys a leftover Synchronize in TearDown.
+
+## run_file_item
+
+The decision sits in Synchronize, so the item goes through a real single pass; the wait polls
+for the expected file, because an SSH pass takes several connections, and destroy() joins the
+worker before the test reads anything.
+
+## file-into-directory
+
+Four combinations of local and SSH sides. The SSH file target is the control: with a file name
+as target nothing may be appended, so the cached directory check must answer "no" there.
+
+## remote_size
+
+An uploaded file belongs to the SSH user, and until the upload took the source's permissions
+over it arrived as 0600, unreadable for the test process; existence and size are therefore
+read through SFTP as that user, which stays correct whatever the mode.
+
+## CopyLocalFileToRemoteKeepsThePermissions
+
+The mirror image of CopyRemoteFileToLocalKeepsThePermissions: the source gets permissions no
+umask produces (rwxr-xr--), the upload goes to /tmp where the SSH user may create files, and
+the mode is read back through the filesystem because the server is localhost. The remote file
+is removed as the SSH user, before and after, since it belongs to that user.

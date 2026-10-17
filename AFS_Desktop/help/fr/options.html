@@ -75,20 +75,20 @@ enregistrent l'heure avec la même précision.</p>
         corbeille ou définitivement, selon le
         <a href="settings.html">mode de suppression</a>. Une synchronisation
         devient ainsi un déplacement. Pour les sources accessibles par SSH,
-        l'option n'a aucun effet.</td></tr>
+        l'option n'a aucun effet. Avec cette option, <b>Synchronisation bidirectionnelle</b> et <b>Supprimer aussi dans la cible les fichiers supprimés</b> sont désactivées : l'une recopierait les fichiers déplacés, l'autre les supprimerait à nouveau dans la cible.</td></tr>
 
 <tr><td valign="top"><b>Synchronisation bidirectionnelle</b></td>
     <td>Le sens inverse compte aussi : ce qui n'existe que dans la cible est
         recopié dans la source, et une cible plus récente l'emporte sur une source
         plus ancienne. Avec <b>Supprimer aussi dans la cible les fichiers
         supprimés</b>, la suppression l'emporte – cocher les deux à la fois a
-        rarement un sens.</td></tr>
+        rarement un sens. L'option s'exclut mutuellement avec <b>Supprimer la source après la copie</b> et avec <b>Copier même si le fichier cible est plus récent</b> ; celle cochée en premier désactive l'autre.</td></tr>
 
 <tr><td valign="top"><b>Copier même si le fichier cible est plus récent</b></td>
     <td>Normalement, AutoFileSync n'écrase pas un fichier cible plus récent que
         la source. Avec cette option, il le fait quand même. Si la
         synchronisation bidirectionnelle est cochée, l'option est désactivée,
-        car elle n'y a pas de sens.</td></tr>
+        car elle n'y a pas de sens. Elle est aussi désactivée tant que ni la <b>Date</b> ni la <b>Taille</b> ne sont comparées, car seuls ces critères peuvent reconnaître une cible plus récente.</td></tr>
 
 <tr><td valign="top"><b>Principe des générations</b></td>
     <td>Avant d'écraser un fichier cible existant, AutoFileSync le renomme :
@@ -101,7 +101,7 @@ enregistrent l'heure avec la même précision.</p>
 <tr><td valign="top"><b>Supprimer aussi dans la cible les fichiers supprimés</b></td>
     <td>Un fichier qui n'existe plus que dans la cible y est supprimé – la cible
         devient un miroir de la source. Détails et limites dans la
-        <a href="#deleteintarget">section ci-dessous</a>.</td></tr>
+        <a href="#deleteintarget">section ci-dessous</a>. Pour le type Fichier et avec <b>Supprimer la source après la copie</b>, l'option est désactivée.</td></tr>
 
 <tr><td valign="top"><b>Preuve de sauvegarde</b></td>
     <td>Chaque passage qui a copié quelque chose ou rencontré une erreur écrit

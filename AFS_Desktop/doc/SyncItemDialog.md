@@ -17,6 +17,26 @@ without it, and greying it out says so without a hint text. The range reaches 36
 FAT stores local time and a DST change shifts every stored time by an hour; the default of two
 seconds is the coarsest step a common file system keeps (see FileDifference.md#time-tolerance).
 
+## option-locks
+
+Options that make no sense together lock each other, and the whole set is re-evaluated from
+the current state after every click, so no click can leave a stale lock behind:
+
+- "Quelle nach dem Kopieren löschen" turns the sync into a move. Two-way sync would copy the
+  moved files straight back, and "Gelöschte Dateien im Ziel ebenfalls löschen" would delete
+  them in the target on the next pass because the source no longer has them - both are locked.
+- Two-way sync and "Kopieren wenn Ziel neuer" contradict each other (the newer side wins
+  versus the source always wins), so each locks the other.
+- "Kopieren wenn Ziel neuer" needs a criterion that can find a newer target at all: only the
+  time and the size comparison report DestModified in a one-way sync.
+- The type Datei has no target-only files, so "Gelöschte Dateien im Ziel" is locked there.
+
+A locked option is cleared as well, so the configuration never stores a forbidden pair - that
+also resolves an old file that has both options set: the option earlier in the list wins. The
+reverse direction (B is checked, so A is disabled) only disables, because A cannot be checked
+at that point. The tolerance field follows the time criterion for the same reason
+(#tolerance-beside-time).
+
 ## exclusions-one-per-line
 
 One wildcard pattern per line; blank/whitespace-only lines are ignored so trailing newlines or

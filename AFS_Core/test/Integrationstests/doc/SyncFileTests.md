@@ -118,3 +118,33 @@ Continuous sync meets the same newer target every cycle; the log must name it on
 ## NewerTargetIsReportedAgainAfterItWasResolved
 
 Once both files have the same time the target is forgotten, so a later recurrence is reported again.
+
+## StopDuringCopyTest
+
+The CHANGELOG promises that cancelling in the middle of a large file leaves no half file in the
+target. The fixture gives the copy a 64 MiB source in a scratch directory of its own and resets
+the process-wide stop flag again in TearDown, because every other test relies on
+Synchronize::start() having been called before it copies.
+
+## sync_and_stop_when
+
+A second thread watches for the first trace the copy leaves on disk and then calls
+Synchronize::stop(); copy_local_file() checks that flag before every 1 MiB block, so the copy
+ends as Stopped with most of the file still pending. The file has to be large enough for the
+watcher to win the race - with a small file the copy is complete before the thread wakes up,
+which the copy_count assertion then names as the reason instead of failing mysteriously.
+
+## StopDuringTheCopyLeavesNoHalfFileInTheTarget
+
+New target: the half-written file must be gone, nothing counted, the source untouched.
+
+## StopDuringTheCopyRestoresTheOldTarget
+
+Existing target: save_copy_file() renames it to .bak before the copy, so the watcher waits for
+both the backup and the new target to exist. After the stop the old content must be back under
+its name and the backup gone.
+
+## StopDuringAMoveKeepsTheSource
+
+"Delete after copy" is the one option under which a cancelled copy could cost data: the source
+may only go once the copy is complete, never after a Stopped or failed one.

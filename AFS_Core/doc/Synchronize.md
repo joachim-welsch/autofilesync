@@ -28,6 +28,13 @@ daemon has only the log, so the level is decided here. The list is filled where 
 once-per-instance guard above lets the line through, so a continuous run does not grow it
 pass after pass.
 
+## stop
+
+Public, not only for SyncControler: the cancel tests call it from a second thread while a
+SyncFile is copying, which is exactly what the GUI's Stop button does through the controller.
+It only raises the process-wide flag that every copy loop checks between two blocks; nothing
+waits here.
+
 ## constructor-clears-stop
 
 stop_ is already false by the time the constructor returns; see there.

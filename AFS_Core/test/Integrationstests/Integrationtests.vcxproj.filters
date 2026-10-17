@@ -36,6 +36,15 @@
     <ClInclude Include="ScopedRecycleBin.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
+    <ClInclude Include="ScopedDeleteMode.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopedLoggingSetup.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="SmtpSink.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
     <ClInclude Include="SshTest.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
@@ -335,6 +344,9 @@
     <ClCompile Include="SyncSshTwoWayTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="SyncSshToSshTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="SyncTreeTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -357,6 +369,30 @@
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="TwoWaySyncTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncFlagTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalPermissionTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SymlinkTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshHostKeyTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshConnectTimeoutTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SshDirInspectorTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SmtpSink.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SmtpMailerTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="UtilTests.cpp">

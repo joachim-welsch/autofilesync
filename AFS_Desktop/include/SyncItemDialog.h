@@ -58,8 +58,7 @@ public:
 
 private:
     void event_bindings();
-    void update_delete_in_target_state();
-    void update_time_tolerance_state();
+    void update_option_locks();
     wxPanel* create_options_page(wxNotebook* notebook);
 
     bool TransferDataToWindow() override;

@@ -39,6 +39,7 @@ set(SOURCES
     pch.cpp
     FileUtil.cpp
     DirUtil.cpp
+    SmtpSink.cpp
     SyncFileTests.cpp
     SyncDirTests.cpp
     DifficultFilenameTests.cpp
@@ -62,6 +63,9 @@ set(SOURCES
     Libssh2InitTests.cpp
     SyncTreeTests.cpp
     TwoWaySyncTests.cpp
+    SyncFlagTests.cpp
+    LocalPermissionTests.cpp
+    SymlinkTests.cpp
     MountedDrivesTests.cpp
     SynchronizeTests.cpp
     SyncArbiterTests.cpp
@@ -78,7 +82,12 @@ set(SOURCES
     SyncSshDirTests.cpp
     SyncSshTreeTests.cpp
     SyncSshTwoWayTests.cpp
+    SyncSshToSshTests.cpp
     SshPathEncodingTests.cpp
+    SshHostKeyTests.cpp
+    SshConnectTimeoutTests.cpp
+    SshDirInspectorTests.cpp
+    SmtpMailerTests.cpp
     SshTest.cpp
     TestMain.cpp
 )

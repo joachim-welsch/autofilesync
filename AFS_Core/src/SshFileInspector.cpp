@@ -42,7 +42,7 @@
 
 namespace AFS_Core {
 
-static std::string time_to_iso(time_t t)
+std::string time_to_iso(time_t t)  // [SshFileInspector.md#time_to_iso]
 {
     struct tm timeinfo;
     #ifdef _WIN32

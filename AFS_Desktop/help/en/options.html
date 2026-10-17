@@ -72,19 +72,19 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
         recycle bin or permanently, depending on the
         <a href="settings.html">delete mode</a>. This turns a synchronisation
         into a move. For sources reached over SSH the option has no
-        effect.</td></tr>
+        effect. Together with this option, <b>Two-way synchronisation</b> and <b>Also delete deleted files in the target</b> are disabled: the one would copy the moved files back, the other would delete them in the target again.</td></tr>
 
 <tr><td valign="top"><b>Two-way synchronisation</b></td>
     <td>The opposite direction counts as well: what exists only in the target is
         copied back into the source, and a newer target wins against an older
         source. Together with <b>Also delete deleted files in the target</b>,
-        deleting wins – setting both at once rarely makes sense.</td></tr>
+        deleting wins – setting both at once rarely makes sense. The option excludes <b>Delete the source after copying</b> and <b>Copy even if the target file is newer</b>; whichever is set first disables the other.</td></tr>
 
 <tr><td valign="top"><b>Copy even if the target file is newer</b></td>
     <td>Normally AutoFileSync does not overwrite a target file that is newer
         than the source. With this option it does. With two-way synchronisation
         switched on the option is disabled, because it makes no sense
-        there.</td></tr>
+        there. It is also disabled while neither <b>Time</b> nor <b>Size</b> is compared, because only those criteria can find a target newer than the source.</td></tr>
 
 <tr><td valign="top"><b>Generation principle</b></td>
     <td>Before an existing target file is overwritten, AutoFileSync renames it:
@@ -96,7 +96,7 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
 <tr><td valign="top"><b>Also delete deleted files in the target</b></td>
     <td>A file that exists only in the target any more is deleted there – the
         target becomes a mirror of the source. Details and limits are in the
-        <a href="#deleteintarget">section below</a>.</td></tr>
+        <a href="#deleteintarget">section below</a>. For the type File and together with <b>Delete the source after copying</b> the option is disabled.</td></tr>
 
 <tr><td valign="top"><b>Backup proof</b></td>
     <td>Every run that copied something or ran into an error writes an entry

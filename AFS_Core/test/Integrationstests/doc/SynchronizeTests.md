@@ -82,3 +82,37 @@ the conflict exactly once, at level Error, and both files must be untouched.
 
 The assistant reads the outcome of each item from the configuration, so a real pass of the
 engine must leave it there - on the live item, not on the snapshot the pass worked on.
+
+## SyncScheduleTest
+
+Which items a pass runs at all: Synchronize::sync_item() skips a disabled item and, except in a
+preview, an item whose pause since its last run has not elapsed. Both decisions had no test;
+every other test sets sync_cycle to 0 or a fresh item precisely so that the pause never gets in
+the way. The fixture owns one Dir item whose target starts empty, so "did the item run" is
+simply "is a.txt in the target", and destroys a leftover Synchronize in TearDown because a
+failed assertion must not leave the worker thread running into the next test.
+
+## pass
+
+create() starts the worker thread; the sleep gives one pass time to finish before the test
+looks (400 ms, like the other tests here). The caller destroys the instance when it is done
+with it, or lets TearDown do it.
+
+## DisabledItemIsSkippedByARun
+
+Skipped means untouched in every respect: no copy, no last_sync, no last_run - the summary
+and the assistant read those and must not report a run that never happened.
+
+## cycle-timing
+
+The continuous loop wakes every second (Synchronize::operator()), so 2.5 s after the first pass
+at least two further passes have happened: with a 30 s cycle none of them may run the item
+(b.txt stays out), with a 1 s cycle one of them must. The pause survives the end of a run
+because last_sync lives in the configuration's item, which is why a second single run also
+waits.
+
+## PreviewIgnoresThePause
+
+Synchronize.md#preview-ignores-the-pause: right after a run the preview still has to look at
+the item and plan b.txt, while copying nothing. The plan is read through the _TEST accessor, as
+unreachable() is.

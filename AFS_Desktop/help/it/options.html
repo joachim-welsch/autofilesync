@@ -76,20 +76,20 @@ precisione.</p>
         cestino o definitivamente, a seconda della
         <a href="settings.html">modalità di eliminazione</a>. La sincronizzazione
         diventa così uno spostamento. Per origini raggiunte tramite SSH l'opzione
-        non ha effetto.</td></tr>
+        non ha effetto. Insieme a questa opzione sono bloccate <b>Sincronizzazione bidirezionale</b> ed <b>Elimina anche nella destinazione i file eliminati</b>: l'una ricopierebbe i file spostati, l'altra li eliminerebbe di nuovo nella destinazione.</td></tr>
 
 <tr><td valign="top"><b>Sincronizzazione bidirezionale</b></td>
     <td>Conta anche la direzione opposta: ciò che esiste solo nella destinazione
         viene copiato nell'origine, e una destinazione più recente prevale su
         un'origine più vecchia. Insieme a <b>Elimina anche nella destinazione i
         file eliminati</b> prevale l'eliminazione – attivarle entrambe raramente
-        ha senso.</td></tr>
+        ha senso. L'opzione si esclude a vicenda con <b>Elimina l'origine dopo la copia</b> e con <b>Copia anche se il file di destinazione è più recente</b>; quella attivata per prima blocca l'altra.</td></tr>
 
 <tr><td valign="top"><b>Copia anche se il file di destinazione è più recente</b></td>
     <td>Normalmente AutoFileSync non sovrascrive un file di destinazione più
         recente dell'origine. Con questa opzione lo fa. Con la sincronizzazione
         bidirezionale attivata l'opzione è bloccata, perché lì non ha
-        senso.</td></tr>
+        senso. È bloccata anche finché non si confronta né per <b>Data</b> né per <b>Dimensione</b>, perché solo questi criteri possono riconoscere una destinazione più recente.</td></tr>
 
 <tr><td valign="top"><b>Principio generazionale</b></td>
     <td>Prima di sovrascrivere un file di destinazione esistente, AutoFileSync
@@ -102,7 +102,7 @@ precisione.</p>
 <tr><td valign="top"><b>Elimina anche nella destinazione i file eliminati</b></td>
     <td>Un file che esiste ormai solo nella destinazione viene eliminato lì – la
         destinazione diventa quindi uno specchio dell'origine. Dettagli e limiti
-        sono nella <a href="#deleteintarget">sezione qui sotto</a>.</td></tr>
+        sono nella <a href="#deleteintarget">sezione qui sotto</a>. Con il tipo File e insieme a <b>Elimina l'origine dopo la copia</b> l'opzione è bloccata.</td></tr>
 
 <tr><td valign="top"><b>Prova di backup</b></td>
     <td>Ogni esecuzione che ha copiato qualcosa o ha incontrato un errore scrive

@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <FileUtil.h>
 #include "ScopedLog.h"
+#include "Util.h"
 #include <ThStrUtil.h>
 #ifndef _WIN32
 #include <unistd.h>
@@ -231,3 +232,52 @@ TEST_F(ScratchLogTest, WritingRecreatesADeletedFile)
     EXPECT_FALSE(line_with("after the deletion").empty());
 }
 #endif
+
+namespace {
+int count_lines(const std::filesystem::path& file, const std::string& text)
+{
+    std::ifstream in(file);
+    int count = 0;
+    for (std::string line; std::getline(in, line);)
+        if (line.find(text) != std::string::npos)
+            ++count;
+    return count;
+}
+}
+
+TEST(LoggingTests, LevelNamesRoundTripAndUnknownNamesFallBackToError)  // [LoggingConcurrencyTests.md#LevelNamesRoundTripAndUnknownNamesFallBackToError]
+{
+    Logging& log = Logging::instance();
+    for (const LogLevel level : {LogLevel::Debug, LogLevel::Info, LogLevel::Warning, LogLevel::Error, LogLevel::FatalError})
+        EXPECT_EQ(log.get_from_string(AFS_Core::util::string_to_wstring(log.log_level_str(level))), level);
+    EXPECT_EQ(log.get_from_string(L"Verbose"), LogLevel::Error);
+    EXPECT_EQ(log.get_from_string(L""), LogLevel::Error);
+}
+
+TEST(LoggingTests, ShouldLogFiltersBelowTheLevel)  // [LoggingConcurrencyTests.md#ShouldLogFiltersBelowTheLevel]
+{
+    const tu::ScopedLog log(std::filesystem::temp_directory_path() / ("afx_shouldlog_" + std::to_string(getpid()) + ".log"), LogLevel::Warning);
+
+    EXPECT_FALSE(Logging::instance().should_log(LogLevel::Debug));
+    EXPECT_FALSE(Logging::instance().should_log(LogLevel::Info));
+    EXPECT_TRUE(Logging::instance().should_log(LogLevel::Warning));
+    EXPECT_TRUE(Logging::instance().should_log(LogLevel::Error));
+    EXPECT_TRUE(Logging::instance().should_log(LogLevel::FatalError));
+}
+
+TEST(LoggingTests, EraseFileStartsOverAndForgetsTheRepetitions)  // [LoggingConcurrencyTests.md#EraseFileStartsOverAndForgetsTheRepetitions]
+{
+    const tu::ScopedLog log(std::filesystem::temp_directory_path() / ("afx_erase_" + std::to_string(getpid()) + ".log"), LogLevel::Info);
+    const std::string text = "Wiederholte Warnung " + std::to_string(getpid());
+    log_warning(text);
+    log_warning(text);
+    Logging::instance().close_file();
+    ASSERT_EQ(count_lines(log.path(), text), 1) << "die Wiederholung wird unterdrueckt";
+
+    Logging::instance().erase_file();
+
+    EXPECT_TRUE(std::filesystem::exists(log.path())) << "nach dem Loeschen beginnt sofort eine neue Datei";
+    log_warning(text);
+    Logging::instance().close_file();
+    EXPECT_EQ(count_lines(log.path(), text), 1) << "nach dem Loeschen ist die Warnung wieder neu";
+}

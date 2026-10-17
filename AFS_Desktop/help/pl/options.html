@@ -72,18 +72,18 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
     <td>Po udanym skopiowaniu <i>plik źródłowy</i> zostaje usunięty – zależnie
         od <a href="settings.html">trybu usuwania</a> do kosza albo trwale. Z
         synchronizacji robi się w ten sposób przenoszenie. Dla źródeł dostępnych
-        przez SSH opcja nie działa.</td></tr>
+        przez SSH opcja nie działa. Razem z tą opcją zablokowane są <b>Synchronizacja dwukierunkowa</b> i <b>Usuwaj także w celu usunięte pliki</b>: pierwsza kopiowałaby przeniesione pliki z powrotem, druga usuwałaby je ponownie w celu.</td></tr>
 
 <tr><td valign="top"><b>Synchronizacja dwukierunkowa</b></td>
     <td>Uwzględniany jest także kierunek odwrotny: to, co istnieje tylko w celu,
         jest kopiowane z powrotem do źródła, a nowszy cel wygrywa ze starszym
         źródłem. Razem z <b>Usuwaj także w celu usunięte pliki</b> wygrywa
-        usuwanie – ustawianie obu naraz rzadko ma sens.</td></tr>
+        usuwanie – ustawianie obu naraz rzadko ma sens. Opcja wyklucza się z <b>Usuń źródło po skopiowaniu</b> oraz z <b>Kopiuj, nawet jeśli plik docelowy jest nowszy</b>; zaznaczona jako pierwsza blokuje drugą.</td></tr>
 
 <tr><td valign="top"><b>Kopiuj, nawet jeśli plik docelowy jest nowszy</b></td>
     <td>Zwykle AutoFileSync nie nadpisuje pliku docelowego, który jest nowszy od
         źródła. Z tą opcją jednak to robi. Przy włączonej synchronizacji
-        dwukierunkowej opcja jest zablokowana, bo tam nie ma sensu.</td></tr>
+        dwukierunkowej opcja jest zablokowana, bo tam nie ma sensu. Jest też zablokowana, dopóki nie porównuje się ani według <b>Czasu</b>, ani według <b>Rozmiaru</b>, bo tylko te kryteria mogą rozpoznać nowszy cel.</td></tr>
 
 <tr><td valign="top"><b>Zasada pokoleniowa</b></td>
     <td>Zanim istniejący plik docelowy zostanie nadpisany, AutoFileSync zmienia
@@ -95,7 +95,7 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
 <tr><td valign="top"><b>Usuwaj także w celu usunięte pliki</b></td>
     <td>Plik, który istnieje już tylko w celu, zostaje tam usunięty – cel staje
         się więc lustrem źródła. Szczegóły i ograniczenia opisano w
-        <a href="#deleteintarget">sekcji poniżej</a>.</td></tr>
+        <a href="#deleteintarget">sekcji poniżej</a>. Przy typie Plik oraz razem z <b>Usuń źródło po skopiowaniu</b> opcja jest zablokowana.</td></tr>
 
 <tr><td valign="top"><b>Dowód kopii zapasowej</b></td>
     <td>Każdy przebieg, który coś skopiował albo natrafił na błąd, zapisuje wpis

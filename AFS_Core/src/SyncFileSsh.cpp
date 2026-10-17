@@ -25,6 +25,7 @@
 #include "SftpConnection.h"
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <cstring>
 #include <memory>
 #include <vector>
@@ -278,6 +279,15 @@ namespace {
             log_error(translation::translate("file_attributes_change"), local_path, string_to_wstring(ec.message()));
     }
 
+    std::optional<uint32_t> local_permissions_of(const wstring& path)  // [SyncFileSsh.md#upload-keeps-the-permissions]
+    {
+        std::error_code ec;
+        const auto status = std::filesystem::status(path, ec);
+        if (ec)
+            return std::nullopt;
+        return static_cast<uint32_t>(status.permissions()) & PERMISSION_BITS;
+    }
+
     void keep_remote_permissions(const SftpConnection& connection, const std::string& remote_path, uint32_t permissions)  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
     {
         sftp_attributes_struct attributes{};
@@ -384,8 +394,11 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
             return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(*remote_path));
         result = upload(local_file, remote_file.get());
     }
-    if (result == CopyResult::OK)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    if (result == CopyResult::OK) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+        if (const auto permissions = local_permissions_of(src))  // [SyncFileSsh.md#upload-keeps-the-permissions]
+            keep_remote_permissions(connection, *remote_path, *permissions);
         keep_remote_time(connection, *remote_path, local_time_of(src));
+    }
     return result;
 }
 

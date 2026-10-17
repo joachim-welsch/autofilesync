@@ -41,3 +41,10 @@ Only the spelling is adjusted ("C:\dir" -> "/C:/dir"). The parameter is the remo
 account prefix; running get_remote_path() over it again would cut a drive letter path at its
 colon ("C:\temp\x" -> "/temp/x"), which only ever worked because the Windows SFTP server looks
 up "/temp" on the system drive.
+
+## time_to_iso
+
+Local time to the second, "YYYY-MM-DD HH:MM:SS", for the file information the dialogs show.
+Shared with SshDirInspector: it used to format the same mtime through std::chrono, which
+prints the nine fractional digits of a system_clock time point and UTC - the SSH directory
+dialog showed "07:00:00.000000000" next to the file inspector's local "09:00:00".

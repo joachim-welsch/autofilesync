@@ -25,6 +25,15 @@ source-side pass (matched by wildcard or not - either way it is not "missing"), 
 acts on names absent from it. Reuses SyncFile's existing FileDifference-based decision (delete
 vs. copy back) by constructing it with a source path that is confirmed not to exist.
 
+## father_son_backup
+
+The father-son principle keeps every replaced target as "<name>.bak.<n>" (SyncFile's
+move_file_to_backup, which shares FATHER_SON_SUFFIX). Those generations exist only in the
+target, so sync_target_only_entries would otherwise treat them like any file the source no
+longer has: delete_in_target removed them in the same pass that created them, and two_way_sync
+copied them back into the source. They are skipped only while the item keeps generations; an item
+without the principle still handles a stray ".bak.1" like every other target-only file.
+
 ## SyncException
 
 what() carries the UTF-8 encoded message, so the catch(std::exception&) handlers see the same

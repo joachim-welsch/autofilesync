@@ -89,8 +89,8 @@ public:
     Synchronize() = default;
     Synchronize(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground);
     bool stop_requested() const;
+    static void stop();  // [Synchronize.md#stop]
 protected:
-    static void stop();
     std::size_t count_files() const;
 #ifdef _TEST
 public:
@@ -108,6 +108,7 @@ public:
         void start_logging(LogLevel, const std::wstring& lfname);
         int loop_iterations() const { return loop_iterations_; }
         const std::vector<UnreachableItem>& unreachable() const { return unreachable_; }  // the hand-off to the controller is wx-only, tests read it here
+        const SyncPlan& plan() const { return plan_; }  // same reason
     #endif
     static void set_progress_message(const std::wstring&, const std::wstring& file, int64_t sourcesize);
     static void report_copied_bytes(uint64_t bytes);  // [Synchronize.md#copied_bytes_]

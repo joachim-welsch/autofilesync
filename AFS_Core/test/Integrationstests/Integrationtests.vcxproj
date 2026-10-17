@@ -183,11 +183,29 @@
     <ClCompile Include="Libssh2InitTests.cpp" />
     <ClCompile Include="SyncTreeTests.cpp" />
     <ClCompile Include="TwoWaySyncTests.cpp" />
+    <ClCompile Include="SyncFlagTests.cpp" />
+    <!-- LocalPermissionTests.cpp arbeitet mit Unix-Dateirechten (chmod) und ist komplett in
+         #ifdef _UNIX eingeschlossen; ein Windows-Gegenstueck mit ACLs fehlt noch. -->
+    <ClCompile Include="LocalPermissionTests.cpp" />
+    <!-- SymlinkTests.cpp legt Symlinks an (unter Windows ein Privileg); komplett in #ifdef _UNIX. -->
+    <ClCompile Include="SymlinkTests.cpp" />
     <!-- MountedDrivesTests.cpp prueft /etc/fstab bzw. /proc/mounts und ruft
          MountedDrives::setFstabPathForTest(), das es im Windows-Zweig nicht gibt.
          Solange der Test nicht portiert ist, kann er hier ausgeschlossen werden:
          <ClCompile Include="MountedDrivesTests.cpp"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile> -->
     <ClCompile Include="MountedDrivesTests.cpp" />
+    <!-- SshHostKeyTests.cpp prueft den libssh-Zweig von verify_ssh_host_key() und ist
+         komplett in #ifdef _UNIX eingeschlossen; der libssh2-Zweig fuer Windows hat
+         noch keinen Test. -->
+    <ClCompile Include="SshHostKeyTests.cpp" />
+    <!-- SshConnectTimeoutTests.cpp: libssh-Zweig, komplett in #ifdef _UNIX. -->
+    <ClCompile Include="SshConnectTimeoutTests.cpp" />
+    <!-- SshDirInspectorTests.cpp bereitet Symlinks und Rechte auf der geteilten Platte vor; komplett in #ifdef _UNIX. -->
+    <ClCompile Include="SshDirInspectorTests.cpp" />
+    <!-- SmtpSink.cpp und SmtpMailerTests.cpp brauchen POSIX-Sockets; die Tests sind in
+         #ifdef _UNIX eingeschlossen, der Sink hat unter Windows keinen Rumpf. -->
+    <ClCompile Include="SmtpSink.cpp" />
+    <ClCompile Include="SmtpMailerTests.cpp" />
     <ClCompile Include="SynchronizeTests.cpp" />
     <ClCompile Include="SyncArbiterTests.cpp" />
     <ClCompile Include="CheckPathTests.cpp" />
@@ -203,6 +221,7 @@
     <ClCompile Include="SyncSshDirTests.cpp" />
     <ClCompile Include="SyncSshTreeTests.cpp" />
     <ClCompile Include="SyncSshTwoWayTests.cpp" />
+    <ClCompile Include="SyncSshToSshTests.cpp" />
     <ClCompile Include="SshPathEncodingTests.cpp" />
     <ClCompile Include="SshTest.cpp" />
     <ClCompile Include="TestMain.cpp" />
@@ -259,6 +278,9 @@
     <ClInclude Include="ScopedEnv.h" />
     <ClInclude Include="ScopedLog.h" />
     <ClInclude Include="ScopedRecycleBin.h" />
+    <ClInclude Include="ScopedDeleteMode.h" />
+    <ClInclude Include="ScopedLoggingSetup.h" />
+    <ClInclude Include="SmtpSink.h" />
     <ClInclude Include="SshTest.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="SyncDirTests.h" />

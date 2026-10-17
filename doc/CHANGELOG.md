@@ -2,6 +2,28 @@
 
 ## Unveröffentlicht
 
+- Beim Kopieren auf einen SSH-Server behält die Datei die Rechte der Quelle
+  (Lesen, Schreiben, Ausführen für Besitzer, Gruppe und andere), so wie es beim
+  Kopieren vom Server schon der Fall war. Bisher kam sie dort nur für den
+  SSH-Benutzer lesbar an, ein Skript verlor sein Ausführungsrecht.
+- Der SSH-Verzeichnisdialog zeigt die Änderungszeit der Einträge wie überall
+  sonst als Ortszeit auf die Sekunde genau; bisher stand dort die Weltzeit mit
+  neun Nachkommastellen.
+- Kann die alte Zieldatei vor dem Kopieren nicht beiseitegelegt werden, etwa in
+  einem schreibgeschützten Zielverzeichnis, zählt das jetzt als Fehler des
+  Laufs und erscheint im Sicherungsnachweis; bisher stand es nur im Log.
+- Im Dialog einer Synchronisation sperren sich Optionen gegenseitig, die
+  zusammen keinen Sinn ergeben: „Quelle nach dem Kopieren löschen“ gegen
+  Zwei-Wege-Synchronisation und „Gelöschte Dateien im Ziel ebenfalls löschen“,
+  Zwei-Wege-Synchronisation gegen „Kopieren, auch wenn Zieldatei neuer ist“,
+  und Letzteres braucht den Vergleich nach Zeit oder Größe. Nach jedem Klick
+  wird der Zustand aller Optionen neu geprüft; die Hilfe nennt die Sperren.
+- Vater-Sohn-Prinzip: Die aufbewahrten Generationen (`name.bak.1`, `name.bak.2`, …)
+  im Ziel werden nicht mehr als Nur-im-Ziel-Dateien behandelt. Bisher löschte
+  „Löschen im Ziel“ sie im selben Durchlauf wieder, und die Zwei-Wege-
+  Synchronisation kopierte sie in die Quelle zurück.
+- Abbrechen während eines Uploads über SSH entfernt die halb übertragene Datei
+  auf dem Server; bisher blieb sie dort liegen.
 - Die Hilfe gibt es in allen Sprachen der Oberfläche: Deutsch, Englisch,
   Spanisch, Französisch, Italienisch, Polnisch und Ukrainisch. Sie erscheint in
   der Sprache, die das Programm anzeigt, und wechselt mit, wenn die Sprache in

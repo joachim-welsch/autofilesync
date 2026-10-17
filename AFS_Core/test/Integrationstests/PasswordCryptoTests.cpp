@@ -152,3 +152,11 @@ TEST(PasswordCryptoTests, RoundTripsWithinProcessEvenWhenKeyPersistenceFails)  /
 
     fs::remove(blocker);
 }
+
+TEST(PasswordCryptoTests, IsEncryptedRecognisesOnlyTheMarker)  // [PasswordCryptoTests.md#IsEncryptedRecognisesOnlyTheMarker]
+{
+    EXPECT_TRUE(passwordcrypto::is_encrypted("$AES256GCM$AAAA"));
+    EXPECT_FALSE(passwordcrypto::is_encrypted("plaintext"));
+    EXPECT_FALSE(passwordcrypto::is_encrypted(""));
+    EXPECT_FALSE(passwordcrypto::is_encrypted("AES256GCM$AAAA")) << "ohne das fuehrende $ ist es ein Klartext, der zufaellig so beginnt";
+}
