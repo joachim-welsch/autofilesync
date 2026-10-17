@@ -21,6 +21,9 @@
 #include <algorithm>
 #include <thread>
 #ifdef _WIN32
+    #ifndef NOMINMAX
+    #define NOMINMAX  // its min/max macros would break std::min/std::max below
+    #endif
     #include <Windows.h>
     #include <vector>
 #elif defined(_MACOS)

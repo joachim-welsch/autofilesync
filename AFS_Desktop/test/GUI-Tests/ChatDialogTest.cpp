@@ -141,7 +141,7 @@ TEST_F(GuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#ChatNe
     const HiddenChat hidden(chat);
     if (LlamaClient::available())
         GTEST_SKIP() << "Mit Sprachmodell dauert die Antwort zu lange für diesen Test.";
-    const wxString you = AFS_Core::translation::translate("chat_you") + ":";
+    const wxString you = wxString(AFS_Core::translation::translate("chat_you")) + ":";
     ASSERT_TRUE(type_into(chat.input, "Hallo"));
     ASSERT_TRUE(click_when_enabled(chat.send));
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Die Antwort kam nicht.";

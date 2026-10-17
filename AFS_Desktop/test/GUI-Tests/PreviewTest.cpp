@@ -57,6 +57,17 @@ SyncItemInput dir_sync(const SandboxTree& tree, const wxString& name)
     return input;
 }
 
+std::filesystem::path unmounted_dir(const SandboxTree& tree)  // [PreviewTest.md#unmounted_dir]
+{
+#ifdef _WIN32
+    std::error_code ec;
+    for (wchar_t letter = L'Z'; letter > L'C'; --letter)
+        if (const std::filesystem::path drive = std::wstring{letter, L':', L'\\'}; !std::filesystem::exists(drive, ec))
+            return drive / "nicht-angeschlossen";
+#endif
+    return tree.path("nicht-angeschlossen");
+}
+
 bool preview(MainWindow& window)  // [PreviewTest.md#preview]
 {
     activate_menu_item(window, tul(id::Preview));
@@ -137,7 +148,7 @@ TEST_F(GuiTest, VorgeschlageneVorschauZeigtDenDialog)  // [PreviewTest.md#Vorges
 TEST_F(GuiTest, VorschauMitNichtErreichbaremZielWarntStattNichtsZuTun)  // [PreviewTest.md#VorschauMitNichtErreichbaremZielWarntStattNichtsZuTun]
 {
     const SandboxTree tree(GuiTestSandbox::root() / "vorschau-weg", {{"quelle/bericht.txt", "Bericht"}});
-    SyncItemInput input{"guitest-vorschau-weg", tree.path("quelle").string(), tree.path("nicht-angeschlossen").string()};
+    SyncItemInput input{"guitest-vorschau-weg", tree.path("quelle").string(), unmounted_dir(tree).string()};
     input.type = SyncItemType::Dir;
     ASSERT_TRUE(add_sync_item(main_window(), input));
 

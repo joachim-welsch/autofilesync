@@ -47,3 +47,9 @@ After a run the sides match, and the preview must say so in a box rather than sh
 list. The preview ignores the pause (Synchronize.md#preview-ignores-the-pause), so it can
 follow the run at once without a wait - which is what this test also pins down: within the
 pause a single run would show "nothing to do" for a different reason.
+
+## unmounted_dir
+
+A target that cannot be reached. On Unix a missing directory is enough. On Windows CheckPath only
+asks for the drive, since a missing target is created (CheckPath.md#target-need-not-exist), so
+the target goes on a drive letter that is not assigned.

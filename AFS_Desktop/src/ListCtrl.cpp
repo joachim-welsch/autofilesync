@@ -56,7 +56,7 @@ wstring ListCtrl::get_selected() const
 void ListCtrl::update()
 {
 	const wstring selected_name = get_selected();  // [ListCtrl.md#selection-restored]
-	ClearAll();
+	DeleteAllItems();  // [ListCtrl.md#items-only]
 	add_data_items();
 	if (!selected_name.empty()) {
 		for (long i = 0; i < GetItemCount(); ++i) {
