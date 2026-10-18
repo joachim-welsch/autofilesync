@@ -1,7 +1,26 @@
 # Änderungen
 
-## Unveröffentlicht
+## 0.3.0 – 2026-10-18
 
+- macOS: Ob ein Datenträger eingehängt ist, wird über die Liste der
+  eingehängten Dateisysteme des Systems geprüft; bisher las das Programm dafür
+  `/proc/mounts`, das es unter macOS nicht gibt, und hielt jeden Datenträger
+  für nicht vorhanden.
+- Einträge der Hilfe mit Umlauten oder Akzenten erscheinen im
+  Inhaltsverzeichnis und im Index; bisher standen dort leere Zeilen.
+- Ist Quelle oder Ziel nicht erreichbar, etwa eine nicht angeschlossene
+  externe Festplatte, ist das kein Fehler mehr, sondern eine Warnung für diese
+  Synchronisation. Die neue Option „Warnung bei nicht vorhandenem Laufwerk oder
+  SSH-Verbindung“ (Vorgabe ein, `warnIfUnreachable` in der Konfiguration)
+  entscheidet: Ein, steht die Warnung im Log, in der Meldung nach „Einmal
+  synchronisieren“ und im Sicherungsnachweis; aus, bleibt nur ein Info-Eintrag
+  im Log – für eine Sicherungsplatte, die nur ab und zu angeschlossen ist.
+- Synchronisation → Vorschau… zeigt, was ein Lauf tun würde, ohne etwas zu
+  verändern: jeder geplante Schritt (kopieren, verschieben, zurückkopieren,
+  im Ziel löschen) mit Synchronisation, Datei und Größe, Löschungen rot. Was
+  nicht verglichen werden konnte, weil Quelle oder Ziel fehlt, nennt die
+  Vorschau ebenfalls. „Jetzt synchronisieren“ startet von dort einen einzelnen
+  Lauf. Auch der Assistent kann die Vorschau als Befehl vorschlagen.
 - Beim Kopieren auf einen SSH-Server behält die Datei die Rechte der Quelle
   (Lesen, Schreiben, Ausführen für Besitzer, Gruppe und andere), so wie es beim
   Kopieren vom Server schon der Fall war. Bisher kam sie dort nur für den

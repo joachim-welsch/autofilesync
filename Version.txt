@@ -1,4 +1,4 @@
-Aktuell ist Version 0.2.0
+Aktuell ist Version 0.3.0
 
 wird eingetragen in: AFS_Desktop/include/Version.h (afsVERSION_MAJOR/MINOR/PATCH und afsVERSION_TEXT)
 
