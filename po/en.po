@@ -959,6 +959,14 @@ msgstr "No synchronisation is active."
 msgid "source_or_target_not_reachable"
 msgstr "Source or target not reachable: "
 
+#: AFS_Core/src/Synchronize.cpp:260
+msgid "watching_changes"
+msgstr "%1: watching for changes in %2"
+
+#: AFS_Core/src/ChangeWatcher.cpp:70
+msgid "watching_unavailable"
+msgstr "%1: changes cannot be watched, the tick applies: %2"
+
 #: AFS_Core/src/Synchronize.cpp:291
 msgid "sync_item_failed"
 msgstr "Synchronize::sync_item failed for: "
@@ -1803,6 +1811,10 @@ msgstr "Recognise renames and moves"
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "option_conflict_copies"
 msgstr "Keep both versions on a conflict"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:175
+msgid "option_watch_changes"
+msgstr "Pick up changes at once"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"

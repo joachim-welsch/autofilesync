@@ -422,3 +422,61 @@ TEST_F(SyncScheduleTest, PreviewIgnoresThePause)  // [SynchronizeTests.md#Previe
     EXPECT_EQ(std::filesystem::path(plan.steps().front().source).filename(), "b.txt");
     EXPECT_FALSE(in_target("b.txt")) << "die Vorschau kopiert nichts";
 }
+
+namespace {
+    struct WatchedRun {  // [SynchronizeTests.md#watched-run]
+        const std::filesystem::path dir = std::filesystem::temp_directory_path() / "autofilesync_watched_run";
+        const std::filesystem::path source = dir / "source";
+        const std::filesystem::path target = dir / "target";
+        explicit WatchedRun(bool watch)
+        {
+            std::filesystem::remove_all(dir);
+            std::filesystem::create_directories(source);
+            std::filesystem::create_directories(target);
+            std::ofstream(source / "erste.txt") << "1";
+            Config::instance().reset();
+            SyncItem si(L"watched", SyncItemType::Dir, source.wstring(), target.wstring(), L"");
+            si.sync_cycle(60);
+            si.watch_changes(watch);
+            Config::instance().add(si, true);
+        }
+        ~WatchedRun()
+        {
+            Synchronize::destroy();
+            Config::instance().reset();
+            std::error_code ec;
+            std::filesystem::remove_all(dir, ec);
+        }
+        bool appears(const char* name, int timeout_ms) const
+        {
+            for (int waited = 0; waited < timeout_ms; waited += 50) {
+                if (std::filesystem::exists(target / name))
+                    return true;
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+            return false;
+        }
+    };
+}
+
+TEST(SynchronizeTests, AWatchedItemSyncsANewFileLongBeforeItsPause)  // [SynchronizeTests.md#watched-run]
+{
+    const WatchedRun run(true);
+    Synchronize::create(SyncType::Continuous);
+    ASSERT_TRUE(run.appears("erste.txt", 5000)) << "the first pass runs at once, watched or not";
+
+    std::ofstream(run.source / "zweite.txt") << "2";
+
+    EXPECT_TRUE(run.appears("zweite.txt", 8000)) << "the change must trigger a pass within the settle time, not after the 60 s pause";
+}
+
+TEST(SynchronizeTests, AnUnwatchedItemWaitsForItsPause)  // [SynchronizeTests.md#watched-run]
+{
+    const WatchedRun run(false);
+    Synchronize::create(SyncType::Continuous);
+    ASSERT_TRUE(run.appears("erste.txt", 5000));
+
+    std::ofstream(run.source / "zweite.txt") << "2";
+
+    EXPECT_FALSE(run.appears("zweite.txt", 4000)) << "without the option the 60 s pause applies as before";
+}

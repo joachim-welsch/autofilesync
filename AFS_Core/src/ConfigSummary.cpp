@@ -50,7 +50,7 @@ wstring enabled_options(const SyncItem& item)
         {item.delete_in_target(), "option_delete_in_target"}, {item.backup_proof(), "option_backup_proof"},
         {item.sync_empty_files(), "option_sync_empty_files"}, {item.del_aftercopy(), "option_delete_source_after_copy"},
         {item.copy_when_target_newer(), "option_copy_when_target_newer"}, {item.track_moves() && !item.two_way_sync(), "option_track_moves"},
-        {item.two_way_sync() && item.conflict_copies(), "option_conflict_copies"},
+        {item.two_way_sync() && item.conflict_copies(), "option_conflict_copies"}, {item.watch_changes(), "option_watch_changes"},
         {!item.warn_if_unreachable(), "config_summary_no_unreachable_warning"}};  // [ConfigSummary.md#unreachable-explained]
     std::vector<wstring> names;
     for (const auto& [enabled, msgid] : options)

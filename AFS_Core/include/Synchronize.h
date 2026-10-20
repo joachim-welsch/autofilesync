@@ -18,6 +18,7 @@
  */
 #pragma once
 
+#include <memory>
 #include <string>
 #include <thread>
 #include <atomic>
@@ -30,6 +31,7 @@
 #include "Config.h"
 #include "ThreadSaveStack.h"
 #include "SyncMessage.h"
+#include "ChangeWatcher.h"
 #include "CheckPath.h"
 #include "SyncArbiter.h"
 #include "SyncPlan.h"
@@ -63,6 +65,7 @@ class Synchronize {
     SyncPlan                plan_;  // [Synchronize.md#preview]
     std::vector<UnreachableItem> unreachable_;  // [Synchronize.md#unreachable_]
     std::vector<LogMessage> notes_;  // [Synchronize.md#notes]
+    std::unique_ptr<ChangeWatcher> watcher_;  // [Synchronize.md#watcher_]
 #ifdef _TEST
     std::atomic<int>        loop_iterations_{0}; // counts do-while passes of operator()(), for race regression tests
 #endif
@@ -80,6 +83,8 @@ class Synchronize {
     bool touches_nothing() const { return sync_type_ == SyncType::CountFiles || sync_type_ == SyncType::Preview; }
     void sync_items();
     void sync_item(SyncItem& i);
+    void watch_items();  // [Synchronize.md#watcher_]
+    bool due(const SyncItem& i);  // [Synchronize.md#due]
     void run_sync_item(SyncItem& i);
     void report_unreachable(const SyncItem& i);
     void report_sync_item(SyncItem& i);  // [Synchronize.md#record_last_run]

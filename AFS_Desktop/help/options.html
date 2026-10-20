@@ -144,6 +144,19 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
         den Konflikt als Fehler und lässt beide Seiten unverändert. Nur bei
         Zwei-Wege-Synchronisation wählbar.</td></tr>
 
+<tr><td valign="top"><b>Änderungen sofort übernehmen</b></td>
+    <td>Bei fortlaufender Synchronisation und im Hintergrunddienst beobachtet
+        AutoFileSync die lokalen Verzeichnisse dieser Synchronisation und startet
+        einen Durchlauf, sobald sich dort etwas geändert hat und die Änderung zwei
+        Sekunden lang Ruhe hatte, statt bis zum nächsten Takt zu warten. Die
+        <b>Sekunden Pause</b> spielt für eine beobachtete Synchronisation keine
+        Rolle mehr. Ohne Änderung läuft zur Sicherheit alle zehn Minuten ein vollständiger
+        Durchlauf, denn nicht jede Änderung wird gemeldet: ein Netzlaufwerk meldet
+        keine, und ein Verzeichnis über SSH lässt sich nicht beobachten – dort
+        gilt weiterhin der Takt. Voreinstellung für neue Synchronisationen: an;
+        bestehende behalten ihren Takt, bis Sie die Option setzen. Das Protokoll
+        nennt beim Start, was beobachtet wird.</td></tr>
+
 <tr><td valign="top"><b>Sekunden Pause</b></td>
     <td>Wartezeit zwischen zwei Durchläufen bei fortlaufender Synchronisation,
         einstellbar von 1 bis 60 Sekunden. Kurze Pausen erkennen Änderungen

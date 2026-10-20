@@ -29,6 +29,16 @@
 - Der Assistent weiß, wie viele Dateien der Abgleichszustand einer
   Zwei-Wege-Synchronisation kennt.
 - Wird eine Synchronisation gelöscht, verschwindet ihr Abgleichszustand mit.
+- Änderungen werden sofort übernommen: Bei fortlaufender Synchronisation und
+  im Hintergrunddienst beobachtet AutoFileSync die lokalen Verzeichnisse einer
+  Synchronisation (inotify unter Linux, FSEvents unter macOS,
+  ReadDirectoryChangesW unter Windows) und startet den Durchlauf, sobald eine
+  Änderung zwei Sekunden Ruhe hatte, statt bis zum nächsten Takt zu warten.
+  Ohne Änderung läuft alle zehn Minuten ein vollständiger Durchlauf als
+  Sicherheitsnetz. Neue Option „Änderungen sofort übernehmen“ (`watchChanges`),
+  für neue Synchronisationen voreingestellt; bestehende behalten ihren Takt.
+  Verzeichnisse über SSH und Netzlaufwerke ohne Benachrichtigung bleiben beim
+  Takt.
 - SSH: Ein Durchlauf meldet sich je Konto einmal an und nutzt die Verbindung
   für alle Dateien, statt für jedes Auflisten, Prüfen, Kopieren und Löschen eine
   eigene Sitzung aufzubauen. Läufe über SSH sind damit um ein Vielfaches

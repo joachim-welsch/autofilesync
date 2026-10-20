@@ -57,6 +57,7 @@ public:
     bool warn_if_unreachable() const { return warn_if_unreachable_; }
     bool track_moves() const { return track_moves_; }
     bool conflict_copies() const { return conflict_copies_; }
+    bool watch_changes() const { return watch_changes_; }
     bool enabled() const { return enabled_; }
     void save_data(SyncItem& si);
 
@@ -97,6 +98,7 @@ private:
     bool     warn_if_unreachable_ = true;
     bool     track_moves_ = false;
     bool     conflict_copies_ = true;
+    bool     watch_changes_ = true;  // [SyncItem.md#watch_changes_] on for a new item
     bool     compare_date_ = true;
     bool     compare_size_ = false;
     bool     compare_content_ = false;
@@ -123,6 +125,7 @@ private:
     wxCheckBox* warn_if_unreachable_check_ = nullptr;
     wxCheckBox* track_moves_check_ = nullptr;
     wxCheckBox* conflict_copies_check_ = nullptr;
+    wxCheckBox* watch_changes_check_ = nullptr;
     wxStaticText* two_way_hint_ = nullptr;  // [SyncItemDialog.md#two-way-hint]
     wxSpinCtrl* sync_cycle_spin_ = nullptr;
     wxSpinCtrl* time_tolerance_spin_ = nullptr;
@@ -155,6 +158,7 @@ enum {
     ID_WARN_IF_UNREACHABLE_CHECK,
     ID_TRACK_MOVES_CHECK,
     ID_CONFLICT_COPIES_CHECK,
+    ID_WATCH_CHANGES_CHECK,
     ID_TWO_WAY_HINT,
     ID_SYNC_CYCLE_SPIN,
     ID_TIME_TOLERANCE_SPIN

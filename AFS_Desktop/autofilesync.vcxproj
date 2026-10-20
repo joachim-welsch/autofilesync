@@ -96,6 +96,7 @@
     <ClInclude Include="..\AFS_Core\include\ChatTypes.h" />
     <ClInclude Include="..\AFS_Core\include\CheckPath.h" />
     <ClInclude Include="..\AFS_Core\include\Config.h" />
+    <ClInclude Include="..\AFS_Core\include\ChangeWatcher.h" />
     <ClInclude Include="..\AFS_Core\include\CopyLog.h" />
     <ClInclude Include="..\AFS_Core\include\SyncState.h" />
     <ClInclude Include="..\AFS_Core\include\HelpKnowledge.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />
     <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
     <ClCompile Include="..\AFS_Core\src\Config.cpp" />
+    <ClCompile Include="..\AFS_Core\src\ChangeWatcher.cpp" />
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncState.cpp" />
     <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp" />

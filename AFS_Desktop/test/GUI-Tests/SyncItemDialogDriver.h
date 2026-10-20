@@ -39,6 +39,7 @@ struct SyncItemOptions {  // [SyncItemDialogDriver.md#SyncItemOptions]
     std::optional<bool> warn_if_unreachable;
     std::optional<bool> track_moves;
     std::optional<bool> conflict_copies;
+    std::optional<bool> watch_changes;
     std::optional<bool> compare_date;
     std::optional<bool> compare_size;
     std::optional<bool> compare_content;

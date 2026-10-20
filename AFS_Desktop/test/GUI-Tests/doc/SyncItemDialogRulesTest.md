@@ -40,3 +40,8 @@ item has nothing to rename.
 
 "Bei Konflikten beide Fassungen behalten" is ticked by default and enabled only with two-way
 sync (SyncItemDialog.md#conflict-copies-two-way-only); greying it out keeps its value.
+
+## watch-changes
+
+"Änderungen sofort übernehmen" is ticked for a new item (SyncItem.md#watch_changes_) and
+never locked: a side over SSH is simply not watched, the help says so.

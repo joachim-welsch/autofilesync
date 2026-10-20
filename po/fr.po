@@ -947,6 +947,14 @@ msgstr "Aucune synchronisation active."
 msgid "source_or_target_not_reachable"
 msgstr "Source ou cible inaccessible : "
 
+#: AFS_Core/src/Synchronize.cpp:260
+msgid "watching_changes"
+msgstr "%1 : surveillance des modifications dans %2"
+
+#: AFS_Core/src/ChangeWatcher.cpp:70
+msgid "watching_unavailable"
+msgstr "%1 : les modifications ne peuvent pas être surveillées, l’intervalle s’applique : %2"
+
 #: AFS_Core/src/Synchronize.cpp:291
 msgid "sync_item_failed"
 msgstr "Échec de Synchronize::sync_item pour : "
@@ -1772,6 +1780,10 @@ msgstr "Reconnaître les renommages et déplacements"
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "option_conflict_copies"
 msgstr "Conserver les deux versions en cas de conflit"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:175
+msgid "option_watch_changes"
+msgstr "Reprendre les modifications immédiatement"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"

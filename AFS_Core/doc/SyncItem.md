@@ -96,3 +96,11 @@ Whether a two-way item settles a file edited on both sides by keeping both versi
 conflict as an error on every pass until the user has decided. On by default: nothing is lost
 either way, but a conflict that resolves itself into two files the user can see beats an error
 line that many never read. Meaningless for a one-way item, whose source always wins.
+
+## watch_changes_
+
+Whether a continuous run watches the item's local directories for changes and runs a pass as
+soon as one has settled, instead of waiting for the next tick (Synchronize.md#due). Off in the
+flags themselves, so that a configuration from before the option and every test that builds
+items by hand keep the tick they were written for; the dialog ticks it for a new item, since
+reacting at once is what a user expects of a program that keeps two places the same.

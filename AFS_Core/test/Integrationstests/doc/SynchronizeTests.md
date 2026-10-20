@@ -116,3 +116,11 @@ waits.
 Synchronize.md#preview-ignores-the-pause: right after a run the preview still has to look at
 the item and plan b.txt, while copying nothing. The plan is read through the _TEST accessor, as
 unreachable() is.
+
+## watched-run
+
+A continuous run with a pause of 60 s: a file written after the first pass reaches the target
+within a few seconds when the item is watched (Synchronize.md#due: one second of loop, two of
+settling) and not within four seconds when it is not, which is the old behaviour the option
+leaves untouched. The fixture resets the configuration and removes its directories, and
+destroys the Synchronize first so that no pass runs into the removal.

@@ -93,6 +93,9 @@
     <ClInclude Include="$(LibDir)\include\Config.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\ChangeWatcher.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\CopyLog.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -246,6 +249,9 @@
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="SyncStateRunTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="ChangeWatcherTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="DifficultDirnameTests.cpp">
@@ -411,6 +417,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\Config.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\ChangeWatcher.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp">

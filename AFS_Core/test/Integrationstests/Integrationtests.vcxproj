@@ -170,6 +170,7 @@
     <ClCompile Include="CopyLogTests.cpp" />
     <ClCompile Include="SyncStateTests.cpp" />
     <ClCompile Include="SyncStateRunTests.cpp" />
+    <ClCompile Include="ChangeWatcherTests.cpp" />
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="PasswordCryptoTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
@@ -249,6 +250,7 @@
     <ClCompile Include="$(LibDir)\src\SyncFileSsh.cpp" />
     <ClCompile Include="$(LibDir)\src\CheckPath.cpp" />
     <ClCompile Include="$(LibDir)\src\Config.cpp" />
+    <ClCompile Include="$(LibDir)\src\ChangeWatcher.cpp" />
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncState.cpp" />
     <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp" />
@@ -300,6 +302,7 @@
     <ClInclude Include="$(LibDir)\include\ChatTypes.h" />
     <ClInclude Include="$(LibDir)\include\CheckPath.h" />
     <ClInclude Include="$(LibDir)\include\Config.h" />
+    <ClInclude Include="$(LibDir)\include\ChangeWatcher.h" />
     <ClInclude Include="$(LibDir)\include\CopyLog.h" />
     <ClInclude Include="$(LibDir)\include\SyncState.h" />
     <ClInclude Include="$(LibDir)\include\HelpKnowledge.h" />

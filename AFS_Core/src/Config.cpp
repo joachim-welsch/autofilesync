@@ -243,6 +243,7 @@ SyncFlags get_sync_flags(boost::property_tree::wptree& sf)
     retval.warn_if_unreachable(sf.get<wstring>(L"warnIfUnreachable", L"true") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.track_moves(sf.get<wstring>(L"trackMoves", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.conflict_copies(sf.get<wstring>(L"conflictCopies", L"true") == L"true");  // [Config.md#defaulted-flag-reads]
+    retval.watch_changes(sf.get<wstring>(L"watchChanges", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.enabled(sf.get<wstring>(L"enabled") == L"true");
     return retval;
 }
@@ -521,6 +522,7 @@ void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree
     sync_flags_node.put(wstring(L"warnIfUnreachable"), to_string(inode.warn_if_unreachable()));
     sync_flags_node.put(wstring(L"trackMoves"), to_string(inode.track_moves()));
     sync_flags_node.put(wstring(L"conflictCopies"), to_string(inode.conflict_copies()));
+    sync_flags_node.put(wstring(L"watchChanges"), to_string(inode.watch_changes()));
     sync_flags_node.put(wstring(L"enabled"), to_string(inode.enabled()));
     pt::wptree compare_items_node;
     write_compare_items(inode, compare_items_node);

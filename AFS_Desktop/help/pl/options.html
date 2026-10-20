@@ -139,6 +139,18 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
         jako błąd i pozostawia obie strony bez zmian. Dostępne tylko przy
         synchronizacji dwukierunkowej.</td></tr>
 
+<tr><td valign="top"><b>Przejmuj zmiany natychmiast</b></td>
+    <td>Przy synchronizacji ciągłej i w usłudze w tle AutoFileSync obserwuje
+        lokalne katalogi tej synchronizacji i uruchamia przebieg, gdy tylko coś się
+        tam zmieniło, a zmiana przez dwie sekundy pozostała w spokoju, zamiast
+        czekać na następny takt. <b>Pauza w sekundach</b> nie ma już
+        znaczenia dla obserwowanej synchronizacji. Bez zmian co dziesięć minut i tak
+        wykonywany jest pełny przebieg dla bezpieczeństwa, bo nie każda zmiana jest
+        zgłaszana: dysk sieciowy nie zgłasza żadnych, a katalogu przez SSH nie da
+        się obserwować – tam nadal obowiązuje takt. Domyślnie dla nowych
+        synchronizacji: włączone; istniejące zachowują swój takt, dopóki nie
+        ustawisz opcji. Dziennik wymienia przy starcie, co jest obserwowane.</td></tr>
+
 <tr><td valign="top"><b>Sekundy przerwy</b></td>
     <td>Czas oczekiwania między dwoma przebiegami synchronizacji ciągłej,
         ustawiany od 1 do 60 sekund. Krótkie przerwy szybciej wykrywają zmiany,

@@ -277,4 +277,15 @@ TEST_F(GuiTest, NurZweiWegeSyncGibtKonfliktkopienFrei)  // [SyncItemDialogRulesT
     });
 }
 
+TEST_F(GuiTest, AenderungenSofortUebernehmenIstFuerNeueSynchronisationenVoreingestellt)  // [SyncItemDialogRulesTest.md#watch-changes]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* watch = find(dialog, ID_WATCH_CHANGES_CHECK);
+        ASSERT_NE(watch, nullptr);
+        EXPECT_TRUE(watch->IsEnabled());
+        EXPECT_TRUE(static_cast<wxCheckBox*>(watch)->GetValue()) << "Eine neue Synchronisation soll Änderungen sofort übernehmen.";
+    });
+}
+
 }

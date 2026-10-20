@@ -79,6 +79,7 @@ set(SOURCES
     SyncPlanTests.cpp
     SyncStateTests.cpp
     SyncStateRunTests.cpp
+    ChangeWatcherTests.cpp
     ConfigSummaryTests.cpp
     SyncSshFileTests.cpp
     SyncSshDirTests.cpp

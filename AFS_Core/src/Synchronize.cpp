@@ -228,18 +228,63 @@ bool Synchronize::is_ssh_target_dir(const std::wstring& target)
     return is_dir;
 }
 
+namespace {
+    constexpr std::chrono::seconds SETTLE_TIME{2};  // [Synchronize.md#due]
+    constexpr std::chrono::seconds WATCHED_SCAN_INTERVAL{600};
+
+    void watch_side(std::vector<WatchedDir>& dirs, const SyncItem& item, const wstring& side, bool ssh)  // [Synchronize.md#watcher_]
+    {
+        if (ssh)
+            return;
+        const fs::path path = without_volume_spec(side);
+        dirs.push_back({item.name(), item.sync_item_type() == SyncItemType::File ? path.parent_path() : path, item.sync_item_type() == SyncItemType::Tree});
+    }
+}
+
+void Synchronize::watch_items()  // [Synchronize.md#watcher_]
+{
+    if (!ChangeWatcher::available())
+        return;
+    std::vector<WatchedDir> dirs;
+    for (const SyncItem& i : Config::instance().syncitems()) {
+        if (!i.enabled() || !i.watch_changes())
+            continue;
+        watch_side(dirs, i, i.source(), i.ssh_source());
+        watch_side(dirs, i, i.target(), i.ssh_target());
+    }
+    if (dirs.empty())
+        return;
+    watcher_ = std::make_unique<ChangeWatcher>(dirs);
+    for (const WatchedDir& dir : dirs)
+        if (watcher_->watching(dir.item))
+            log_info(translation::translate("watching_changes", {dir.item, dir.dir.wstring()}));
+}
+
+bool Synchronize::due(const SyncItem& i)  // [Synchronize.md#due]
+{
+    if (!watcher_ || !watcher_->watching(i.name()))
+        return pause_elapsed(i);
+    const auto now = std::chrono::steady_clock::now();
+    const std::optional<ChangeWatcher::TimePoint> change = watcher_->last_change(i.name());
+    if (change && now - *change >= SETTLE_TIME)
+        return true;
+    return now >= i.last_sync() + WATCHED_SCAN_INTERVAL;
+}
+
 void Synchronize::sync_item(SyncItem& i)
 {
     log_debug(L"Synchronize::sync_item: ", i.name());
     if (!i.enabled())
         return;
     log_debug(L"Synchronize::operator()() Start of ", i.name());
-    if (sync_type_ != SyncType::Preview && !pause_elapsed(i))  // [Synchronize.md#preview-ignores-the-pause]
+    if (sync_type_ != SyncType::Preview && !due(i))  // [Synchronize.md#preview-ignores-the-pause]
         return;
     if (touches_nothing())  // [Synchronize.md#no-proof-for-counting-passes]
         run_sync_item(i);
     else
         report_sync_item(i);
+    if (watcher_)
+        watcher_->clear(i.name());  // [Synchronize.md#due] the pass's own writes are not a reason for the next one
 }
 
 void Synchronize::sync_items()
@@ -384,6 +429,8 @@ void Synchronize::operator()()
     log_debug(L"Synchronize::operator()()");
     this_.store(this);
     try {
+        if (sync_type_ == SyncType::Continuous)
+            watch_items();  // [Synchronize.md#watcher_]
         do {
 #ifdef _TEST
             ++loop_iterations_;

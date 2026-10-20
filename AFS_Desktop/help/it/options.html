@@ -151,6 +151,20 @@ precisione.</p>
         entrambi i lati invariati. Disponibile solo con la sincronizzazione
         bidirezionale.</td></tr>
 
+<tr><td valign="top"><b>Applicare subito le modifiche</b></td>
+    <td>Nella sincronizzazione continua e nel servizio in background AutoFileSync
+        osserva le directory locali di questa sincronizzazione e avvia
+        un'esecuzione non appena lì qualcosa è cambiato e la modifica è rimasta
+        ferma per due secondi, invece di aspettare l'intervallo successivo. La
+        <b>pausa in secondi</b> non conta più per una sincronizzazione osservata. Senza
+        modifiche, ogni dieci minuti viene comunque eseguita una passata completa
+        per sicurezza, perché non ogni modifica viene segnalata: un'unità di rete
+        non ne segnala nessuna, e una directory via SSH non può essere osservata;
+        lì vale ancora l'intervallo. Impostazione predefinita per le nuove
+        sincronizzazioni: attivo; quelle esistenti mantengono il loro intervallo
+        finché non attivate l'opzione. Il registro indica all'avvio cosa viene
+        osservato.</td></tr>
+
 <tr><td valign="top"><b>Secondi di pausa</b></td>
     <td>Tempo di attesa tra due esecuzioni della sincronizzazione continua,
         regolabile da 1 a 60 secondi. Pause brevi notano prima le modifiche e

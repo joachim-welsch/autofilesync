@@ -76,6 +76,7 @@ bool enter_options(wxDialog& dialog, const SyncItemOptions& options)  // [SyncIt
         { options.warn_if_unreachable, ID_WARN_IF_UNREACHABLE_CHECK, "Warnung bei fehlendem Laufwerk" },
         { options.track_moves, ID_TRACK_MOVES_CHECK, "Umbenennen und Verschieben erkennen" },
         { options.conflict_copies, ID_CONFLICT_COPIES_CHECK, "Bei Konflikten beide Fassungen behalten" },
+        { options.watch_changes, ID_WATCH_CHANGES_CHECK, "Änderungen sofort übernehmen" },
     };
     for (const auto& box : boxes) {
         if (box.wanted && !set_check_box(find(dialog, box.id), *box.wanted)) {

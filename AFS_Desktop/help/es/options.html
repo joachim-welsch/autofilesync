@@ -148,6 +148,19 @@ ambos lados guardan la hora con la misma precisión.</p>
         informa del conflicto como error y deja ambos lados sin cambios. Solo
         disponible con la sincronización bidireccional.</td></tr>
 
+<tr><td valign="top"><b>Aplicar los cambios de inmediato</b></td>
+    <td>En la sincronización continua y en el servicio en segundo plano, AutoFileSync
+        vigila los directorios locales de esta sincronización e inicia una ejecución
+        en cuanto algo cambia allí y el cambio lleva dos segundos en calma, en lugar
+        de esperar al siguiente intervalo. La <b>pausa en segundos</b> deja de
+        importar para una sincronización vigilada. Sin cambios, cada diez minutos se
+        ejecuta igualmente una pasada completa como red de seguridad, porque no
+        todos los cambios se notifican: una unidad de red no notifica ninguno, y un
+        directorio por SSH no se puede vigilar; allí sigue valiendo el intervalo.
+        Valor predeterminado para sincronizaciones nuevas: activado; las existentes
+        conservan su intervalo hasta que active la opción. El registro indica al
+        inicio qué se vigila.</td></tr>
+
 <tr><td valign="top"><b>Segundos de pausa</b></td>
     <td>Tiempo de espera entre dos ejecuciones de una sincronización continua,
         ajustable de 1 a 60 segundos. Las pausas cortas detectan antes los

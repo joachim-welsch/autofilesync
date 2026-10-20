@@ -27,6 +27,7 @@ include_guard(DIRECTORY)
 get_filename_component(AFS_CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
 
 set(AFS_CORE_SOURCES
+    ChangeWatcher.cpp
     CopyLog.cpp
     HelpKnowledge.cpp
     JsonText.cpp
@@ -124,6 +125,9 @@ if(NOT TARGET afs_core_deps)
     target_include_directories(afs_core_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS})
     target_link_directories(afs_core_deps INTERFACE ${LIBSSH_LIBRARY_DIRS})
     target_link_libraries(afs_core_deps INTERFACE ${LIBSSH_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto llama Threads::Threads)
+    if(APPLE)
+        target_link_libraries(afs_core_deps INTERFACE "-framework CoreServices")  # FSEvents for ChangeWatcher
+    endif()
     target_include_directories(afs_core_deps SYSTEM INTERFACE ${Intl_INCLUDE_DIRS})
     target_link_libraries(afs_core_deps INTERFACE ${Intl_LIBRARIES})
     target_compile_definitions(afs_core_deps INTERFACE AFS_WITH_GETTEXT)

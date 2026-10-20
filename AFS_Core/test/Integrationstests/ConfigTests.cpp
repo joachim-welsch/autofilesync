@@ -1420,3 +1420,23 @@ TEST_F(ConfigPathTest, ConflictCopiesIsOnByDefaultAndRoundTripsOff)
     EXPECT_FALSE(items[0].conflict_copies());
     Config::instance().reset();
 }
+
+TEST_F(ConfigPathTest, WatchChangesIsOffByDefaultAndRoundTripsOn)
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
+        SyncFlags(false, false, false, false, true), CompareItems());
+    ASSERT_FALSE(si.watch_changes());
+    si.watch_changes(true);
+    Config::instance().add(si);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_TRUE(items[0].watch_changes());
+    Config::instance().reset();
+}

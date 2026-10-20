@@ -150,6 +150,19 @@ enregistrent l'heure avec la même précision.</p>
         côtés inchangés. Disponible seulement avec la synchronisation
         bidirectionnelle.</td></tr>
 
+<tr><td valign="top"><b>Reprendre les modifications immédiatement</b></td>
+    <td>En synchronisation continue et dans le service d'arrière-plan, AutoFileSync
+        surveille les répertoires locaux de cette synchronisation et lance un
+        passage dès que quelque chose y a changé et que la modification est restée
+        calme deux secondes, au lieu d'attendre le prochain intervalle. La <b>pause
+        en secondes</b> ne compte plus pour une synchronisation surveillée. Sans modification,
+        un passage complet a tout de même lieu toutes les dix minutes par sécurité,
+        car toutes les modifications ne sont pas signalées : un lecteur réseau n'en
+        signale aucune, et un répertoire via SSH ne peut pas être surveillé ; là,
+        l'intervalle reste valable. Par défaut pour les nouvelles synchronisations :
+        activé ; les existantes gardent leur intervalle jusqu'à ce que vous cochiez
+        l'option. Le journal indique au démarrage ce qui est surveillé.</td></tr>
+
 <tr><td valign="top"><b>Secondes de pause</b></td>
     <td>Temps d'attente entre deux passages en synchronisation continue,
         réglable de 1 à 60 secondes. Des pauses courtes détectent les

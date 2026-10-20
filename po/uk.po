@@ -947,6 +947,14 @@ msgstr "Жодна синхронізація не активна."
 msgid "source_or_target_not_reachable"
 msgstr "Джерело або призначення недоступне: "
 
+#: AFS_Core/src/Synchronize.cpp:260
+msgid "watching_changes"
+msgstr "%1: спостереження за змінами в %2"
+
+#: AFS_Core/src/ChangeWatcher.cpp:70
+msgid "watching_unavailable"
+msgstr "%1: зміни неможливо відстежувати, діє інтервал: %2"
+
 #: AFS_Core/src/Synchronize.cpp:291
 msgid "sync_item_failed"
 msgstr "Synchronize::sync_item не вдалося для: "
@@ -1772,6 +1780,10 @@ msgstr "Розпізнавати перейменування та перемі�
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "option_conflict_copies"
 msgstr "У разі конфлікту зберігати обидві версії"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:175
+msgid "option_watch_changes"
+msgstr "Переймати зміни негайно"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"

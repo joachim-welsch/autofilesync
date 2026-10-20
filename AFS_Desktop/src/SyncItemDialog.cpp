@@ -172,6 +172,7 @@ wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItem
     add_option(warn_if_unreachable_check_, ID_WARN_IF_UNREACHABLE_CHECK, "option_warn_if_unreachable");
     add_option(track_moves_check_, ID_TRACK_MOVES_CHECK, "option_track_moves");
     add_option(conflict_copies_check_, ID_CONFLICT_COPIES_CHECK, "option_conflict_copies");
+    add_option(watch_changes_check_, ID_WATCH_CHANGES_CHECK, "option_watch_changes");
     two_way_hint_ = new wxStaticText(page, ID_TWO_WAY_HINT, translation::translate("two_way_hint"));  // [SyncItemDialog.md#two-way-hint]
     two_way_hint_->Wrap(FromDIP(HINT_WRAP_WIDTH));
     behaviour_sizer->Add(two_way_hint_, 0, wxBOTTOM, 5);
@@ -264,6 +265,7 @@ void SyncItemDialog::set_data(const SyncItem& si)
     warn_if_unreachable_ = si.warn_if_unreachable();
     track_moves_ = si.track_moves();
     conflict_copies_ = si.conflict_copies();
+    watch_changes_ = si.watch_changes();
     sync_cycle_ = si.sync_cycle();
     
 }
@@ -306,6 +308,7 @@ void SyncItemDialog::save_data(SyncItem& si)
     si.warn_if_unreachable(warn_if_unreachable_);
     si.track_moves(track_moves_);
     si.conflict_copies(conflict_copies_);
+    si.watch_changes(watch_changes_);
     si.sync_cycle(sync_cycle_);
 }
 
@@ -343,6 +346,7 @@ bool SyncItemDialog::TransferDataToWindow()
     warn_if_unreachable_check_->SetValue(warn_if_unreachable_);
     track_moves_check_->SetValue(track_moves_);
     conflict_copies_check_->SetValue(conflict_copies_);
+    watch_changes_check_->SetValue(watch_changes_);
     sync_cycle_spin_->SetValue(sync_cycle_);
     time_tolerance_spin_->SetValue(time_tolerance_seconds_);
     update_option_locks();
@@ -375,6 +379,7 @@ bool SyncItemDialog::TransferDataFromWindow()
     warn_if_unreachable_ = warn_if_unreachable_check_->GetValue();
     track_moves_ = track_moves_check_->GetValue();
     conflict_copies_ = conflict_copies_check_->GetValue();
+    watch_changes_ = watch_changes_check_->GetValue();
     sync_cycle_ = sync_cycle_spin_->GetValue();
     time_tolerance_seconds_ = static_cast<uint16_t>(time_tolerance_spin_->GetValue());
     return true;

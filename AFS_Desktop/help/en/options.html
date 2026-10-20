@@ -140,6 +140,18 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
         Default: on. Switched off, the run reports the conflict as an error and
         leaves both sides as they are. Only available with two-way synchronisation.</td></tr>
 
+<tr><td valign="top"><b>Pick up changes at once</b></td>
+    <td>In a continuous run and in the background service AutoFileSync watches the
+        local directories of this synchronisation and starts a pass as soon as
+        something changed there and the change has been quiet for two seconds,
+        instead of waiting for the next tick. The <b>pause in seconds</b> no longer
+        matters for a watched synchronisation. Without a change a full pass still runs
+        every ten minutes as a safety net, since not every change is reported: a
+        network drive reports none, and a directory over SSH cannot be watched -
+        there the tick still applies. Default for new synchronisations: on;
+        existing ones keep their tick until you set the option. The log names what
+        is watched when the run starts.</td></tr>
+
 <tr><td valign="top"><b>Seconds of pause</b></td>
     <td>Waiting time between two runs of a continuous synchronisation,
         adjustable from 1 to 60 seconds. Short pauses notice changes sooner and

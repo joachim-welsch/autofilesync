@@ -947,6 +947,14 @@ msgstr "Nessuna sincronizzazione attiva."
 msgid "source_or_target_not_reachable"
 msgstr "Origine o destinazione non raggiungibile: "
 
+#: AFS_Core/src/Synchronize.cpp:260
+msgid "watching_changes"
+msgstr "%1: osservazione delle modifiche in %2"
+
+#: AFS_Core/src/ChangeWatcher.cpp:70
+msgid "watching_unavailable"
+msgstr "%1: le modifiche non possono essere osservate, vale l’intervallo: %2"
+
 #: AFS_Core/src/Synchronize.cpp:291
 msgid "sync_item_failed"
 msgstr "Synchronize::sync_item non riuscito per: "
@@ -1772,6 +1780,10 @@ msgstr "Riconoscere rinomine e spostamenti"
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "option_conflict_copies"
 msgstr "In caso di conflitto conservare entrambe le versioni"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:175
+msgid "option_watch_changes"
+msgstr "Applicare subito le modifiche"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"

@@ -87,6 +87,7 @@
     <ClCompile Include="WindowsService.cpp" />
     <ClCompile Include="..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\AFS_Core\src\Config.cpp" />
+    <ClCompile Include="..\AFS_Core\src\ChangeWatcher.cpp" />
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncState.cpp" />
     <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp" />

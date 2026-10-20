@@ -27,6 +27,9 @@
     <ClInclude Include="..\AFS_Core\include\Config.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\AFS_Core\include\ChangeWatcher.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\AFS_Core\include\CopyLog.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -279,6 +282,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Config.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\ChangeWatcher.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp">

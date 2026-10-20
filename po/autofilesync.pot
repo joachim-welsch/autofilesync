@@ -946,6 +946,14 @@ msgstr ""
 msgid "source_or_target_not_reachable"
 msgstr ""
 
+#: AFS_Core/src/Synchronize.cpp:260
+msgid "watching_changes"
+msgstr ""
+
+#: AFS_Core/src/ChangeWatcher.cpp:70
+msgid "watching_unavailable"
+msgstr ""
+
 #: AFS_Core/src/Synchronize.cpp:291
 msgid "sync_item_failed"
 msgstr ""
@@ -2062,6 +2070,10 @@ msgstr ""
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "option_conflict_copies"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:175
+msgid "option_watch_changes"
 msgstr ""
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174

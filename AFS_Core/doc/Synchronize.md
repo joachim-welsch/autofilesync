@@ -123,3 +123,30 @@ closes it. One scope per pass rather than per item or per process: a pass is the
 user thinks in, and a session that is reopened every minute heals from a dropped line by
 itself. The scope sits next to the plan guard, so the check of the paths and the inspectors
 it uses share the session too.
+
+## watcher_
+
+A continuous run watches the local directories of every enabled item that asks for it
+(SyncItem.md#watch_changes_) with a ChangeWatcher built once at the start of the run: the
+source and the target as long as they are local, the parent directory for a file item, the
+whole tree for a tree item. SSH sides cannot be watched and stay with the tick. Items that
+appear in the configuration while the run goes on are not watched - the GUI adds items to a
+running configuration, the daemon restarts the run on a reload - and run on their tick, which
+is what they did before. The log names every watched item once, so a user who wonders why a
+change arrived at once, or did not, finds the answer there.
+
+## due
+
+An unwatched item is due when its pause has elapsed (pause_elapsed), as it always was. A
+watched item is due when a change was seen and has settled - no further event for
+SETTLE_TIME, so that a program writing a file in several steps is not caught halfway - or
+when WATCHED_SCAN_INTERVAL has passed since its last pass, the safety net for the events a
+watcher can miss: an overflowed queue, a network drive that reports nothing, a change that
+came in during the pass. The pause does not apply to a watched item: "at once" is what the
+option promises, and the loop's one-second tick plus the settle time already keep a file that
+is saved every few seconds from running a pass per keystroke. The watcher's record for the
+item is cleared after the pass, not before: the pass's own copies into the watched target are
+events too, and taken as a reason they would run the item again on every tick. A change that
+arrives during the pass is therefore left to the scan interval; the alternative, a pass after
+every pass, was worse. An unwatched item - no local side, the option off, the platform's limit
+reached - is due by its pause alone, as before.
