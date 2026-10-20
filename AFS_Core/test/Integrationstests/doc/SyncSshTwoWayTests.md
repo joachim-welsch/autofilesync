@@ -98,3 +98,13 @@ A conflict whose losing version lies on the server: the copy is made there by an
 carries the server's host name (SyncFile.md#conflict-copy-name) and comes back to the local
 side like any file. The server's version is planted through a one-way upload so that its write
 time stays older than the local edit.
+
+## sessions
+
+The SshSessionScope (SftpConnection.md#SshSessionScope) counted through the test hook
+sftp_connect_count: a pass over twelve files in three directories logs in once inside a scope
+and more than twelve times without one, which is what every pass cost before; sessions end
+with the outermost scope and not with a nested one; and a real Synchronize pass - path check,
+listing, uploads - logs in once, since sync_items() opens the scope
+(Synchronize.md#ssh-sessions). The tests live here for the fixture's remote directory, not
+because they are about two-way sync.

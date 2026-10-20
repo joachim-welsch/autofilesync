@@ -29,6 +29,12 @@
 - Der Assistent weiß, wie viele Dateien der Abgleichszustand einer
   Zwei-Wege-Synchronisation kennt.
 - Wird eine Synchronisation gelöscht, verschwindet ihr Abgleichszustand mit.
+- SSH: Ein Durchlauf meldet sich je Konto einmal an und nutzt die Verbindung
+  für alle Dateien, statt für jedes Auflisten, Prüfen, Kopieren und Löschen eine
+  eigene Sitzung aufzubauen. Läufe über SSH sind damit um ein Vielfaches
+  schneller, und Server, die viele Anmeldungen als Angriff werten, bleiben
+  ruhig. Unter Windows (libssh2) bleibt es vorerst bei einer Sitzung je
+  Vorgang.
 - Konflikte lösen sich selbst: Wurde eine Datei seit dem letzten Abgleich auf
   beiden Seiten geändert, gewinnt die zuletzt geänderte Fassung (bei gleicher
   Zeit die Quelle), und die andere bleibt auf beiden Seiten als Konfliktkopie

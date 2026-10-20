@@ -19,7 +19,8 @@ Resolves hostname or IP address to sockaddr_in Returns true on success, false on
 
 ## connect_to
 
-Resolves "account:/path", connects and returns the remote part of the path
+Resolves "account:/path", connects - or shares the pass's session, see
+SftpConnection.md#SshSessionScope - and returns the remote part of the path
 
 ## unreachable-is-a-warning
 

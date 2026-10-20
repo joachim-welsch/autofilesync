@@ -34,6 +34,7 @@
 #include <filesystem>
 #include "Global.h"
 #include "SyncItem.h"
+#include "SftpConnection.h"
 #include "SyncFileSsh.h"
 #include "SyncFile.h"
 #include "SyncState.h"
@@ -244,6 +245,7 @@ void Synchronize::sync_item(SyncItem& i)
 void Synchronize::sync_items()
 {
     SyncPlanGuard guard(sync_type_ == SyncType::Preview ? &plan_ : nullptr);  // [Synchronize.md#preview]
+    SshSessionScope ssh_sessions;  // [Synchronize.md#ssh-sessions]
     for (auto& i: Config::instance().syncitems()) {
         if (stop_request_.load())
             break;

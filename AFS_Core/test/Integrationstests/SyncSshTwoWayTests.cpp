@@ -23,14 +23,17 @@
 #include "FileUtil.h"
 #include "SshAccount.h"
 #include "SshFileInspector.h"
+#include "SftpConnection.h"
 #include "SshTest.h"
 #include "SyncFileSsh.h"
 #include "SyncRunner.h"
+#include "SyncTree.h"
 #include "SyncSshTwoWayTests.h"
 #include "Synchronize.h"
 #include "Util.h"
 #include <chrono>
 #include <filesystem>
+#include <thread>
 
 using namespace AFS_Core;
 using namespace SSHTest;
@@ -433,4 +436,72 @@ TEST_F(SyncSshTwoWayTest, ConflictWithTheServerKeepsBothVersions)  // [SyncSshTw
         }
     EXPECT_EQ(copies, 1u);
     EXPECT_EQ(tu::run_sync(si, state), 0u);
+}
+
+TEST_F(SyncSshTwoWayTest, APassSharesOneSessionPerAccount)  // [SyncSshTwoWayTests.md#sessions]
+{
+    for (int dir = 0; dir < 3; ++dir)
+        for (int i = 0; i < 4; ++i)
+            tu::write_text_file(source_dir_ / ("ordner" + std::to_string(dir)) / ("datei" + std::to_string(i) + ".txt"), "x", seconds(3600));
+    const SyncItem si = ssh_target_item(SyncItemType::Tree, false);
+    using namespace std::chrono;
+
+    sftp_connect_count = 0;
+    const auto start = steady_clock::now();
+    EXPECT_EQ(tu::run_sync(si), 12u);
+    const auto shared = steady_clock::now();
+    EXPECT_EQ(sftp_connect_count.load(), 1) << "one login for the whole pass";
+    EXPECT_TRUE(remote_exists("ordner2/datei3.txt"));
+
+    sftp_connect_count = 0;
+    std::size_t count = 0;
+    SyncTree unscoped(si, count, false);
+    unscoped();
+    const auto separate = steady_clock::now();
+    EXPECT_EQ(count, 0u);
+    EXPECT_GT(sftp_connect_count.load(), 12) << "without a scope every operation logs in, as before";
+    std::cout << "one session: " << duration_cast<milliseconds>(shared - start).count() << " ms for 12 uploads, a session per operation: "
+        << duration_cast<milliseconds>(separate - shared).count() << " ms for the quiet pass after it (" << sftp_connect_count.load() << " logins)\n";
+}
+
+TEST_F(SyncSshTwoWayTest, SessionsEndWithTheScope)  // [SyncSshTwoWayTests.md#sessions]
+{
+    sftp_connect_count = 0;
+    {
+        SshSessionScope sessions;
+        EXPECT_TRUE(SshSessionScope::active());
+        EXPECT_TRUE(ssh_exists(remote_dir_w_));
+        EXPECT_TRUE(ssh_is_directory(remote_dir_w_));
+        {
+            SshSessionScope nested;
+            EXPECT_TRUE(ssh_exists(remote_dir_w_));
+        }
+        EXPECT_TRUE(SshSessionScope::active()) << "the inner scope must not close the outer one's sessions";
+        EXPECT_TRUE(ssh_exists(remote_dir_w_));
+    }
+    EXPECT_EQ(sftp_connect_count.load(), 1);
+    EXPECT_FALSE(SshSessionScope::active());
+
+    EXPECT_TRUE(ssh_exists(remote_dir_w_));
+    EXPECT_EQ(sftp_connect_count.load(), 2) << "after the scope a new session is opened";
+}
+
+TEST_F(SyncSshTwoWayTest, ASinglePassOfSynchronizeLogsInOnce)  // [SyncSshTwoWayTests.md#sessions]
+{
+    for (int i = 0; i < 5; ++i)
+        tu::write_text_file(source_dir_ / ("datei" + std::to_string(i) + ".txt"), "x", seconds(3600));
+    SyncItem si = ssh_target_item(SyncItemType::Tree, false);
+    si.name(L"ssh session test");
+    Config::instance().add(si);
+    const auto before = Config::instance().find_by_name(L"ssh session test")->last_sync();
+
+    sftp_connect_count = 0;
+    Synchronize::create(SyncType::Single);
+    for (int i = 0; i < 1500 && Config::instance().find_by_name(L"ssh session test")->last_sync() == before; ++i)
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    Synchronize::destroy();
+
+    EXPECT_EQ(sftp_connect_count.load(), 1) << "the path check, the listing and five uploads share one login";
+    EXPECT_TRUE(remote_exists("datei4.txt"));
+    EXPECT_TRUE(Config::instance().erase_by_name(L"ssh session test"));
 }

@@ -111,3 +111,15 @@ well, but the box after "Einmal synchronisieren" shows log lines only through th
 Fehler/Warnung/Info filters, and a user who switched the errors off would never learn why
 nothing was deleted. The notes travel to the controller next to the plan and the unreachable
 items; note() is static like report_copied_bytes(), since the sync classes know no instance.
+
+## ssh-sessions
+
+Every SSH operation of the sync classes used to open its own session - connect, host key,
+login, SFTP channel - so a tree of a thousand files cost thousands of logins per pass, and a
+server with fail2ban could take the daemon for an attacker. A pass now runs inside an
+SshSessionScope (SftpConnection.md#SshSessionScope): the first operation on an account logs
+in, every later one of the same pass on this thread shares that session, and the scope's end
+closes it. One scope per pass rather than per item or per process: a pass is the unit the
+user thinks in, and a session that is reopened every minute heals from a dropped line by
+itself. The scope sits next to the plan guard, so the check of the paths and the inspectors
+it uses share the session too.

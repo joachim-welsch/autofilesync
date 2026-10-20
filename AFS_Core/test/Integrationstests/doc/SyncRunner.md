@@ -14,3 +14,9 @@ repeat it.
 The same pass with the sync state of a two-way item (SyncBase.md#state_), as Synchronize hands
 it down - and nothing more: the pruning and the file belong to Synchronize's keeper, which
 SyncStateRunTests covers, so a test here sees exactly what the pass recorded.
+
+## ssh-sessions
+
+A pass of Synchronize shares one SSH session per account (Synchronize.md#ssh-sessions), so a
+test pass does the same; a test that wants the old one-session-per-operation behaviour drives
+the sync class directly (SyncSshTwoWayTests.md#sessions).
