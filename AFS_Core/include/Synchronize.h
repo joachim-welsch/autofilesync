@@ -58,9 +58,11 @@ class Synchronize {
     std::mutex              cv_mutex_;
     std::condition_variable cv_;
     SyncRole                role_ = SyncRole::Foreground;  // [Synchronize.md#role_]
+    bool                    mass_deletion_approved_ = false;  // [Synchronize.md#mass-deletion-approved]
     SyncArbiter             arbiter_{SyncRole::Foreground};
     SyncPlan                plan_;  // [Synchronize.md#preview]
     std::vector<UnreachableItem> unreachable_;  // [Synchronize.md#unreachable_]
+    std::vector<LogMessage> notes_;  // [Synchronize.md#notes]
 #ifdef _TEST
     std::atomic<int>        loop_iterations_{0}; // counts do-while passes of operator()(), for race regression tests
 #endif
@@ -88,7 +90,7 @@ public:
     bool pause_elapsed(const SyncItem&);
     bool path_exists(const std::wstring& pathname) const;
     Synchronize() = default;
-    Synchronize(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground);
+    Synchronize(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground, bool mass_deletion_approved = false);
     bool stop_requested() const;
     static void stop();  // [Synchronize.md#stop]
 protected:
@@ -99,7 +101,7 @@ public:
 #endif
     void operator()();
 public:
-    static Synchronize* create(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground);
+    static Synchronize* create(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground, bool mass_deletion_approved = false);  // [Synchronize.md#mass-deletion-approved]
     static bool has_instance();
     static Synchronize& instance();
     static void destroy();
@@ -110,9 +112,11 @@ public:
         int loop_iterations() const { return loop_iterations_; }
         const std::vector<UnreachableItem>& unreachable() const { return unreachable_; }  // the hand-off to the controller is wx-only, tests read it here
         const SyncPlan& plan() const { return plan_; }  // same reason
+        const std::vector<LogMessage>& notes() const { return notes_; }
     #endif
     static void set_progress_message(const std::wstring&, const std::wstring& file, int64_t sourcesize);
     static void report_copied_bytes(uint64_t bytes);  // [Synchronize.md#copied_bytes_]
+    static void note(LogLevel level, const std::wstring& text);  // [Synchronize.md#notes]
     SyncMessage get_message();
     uint64_t copied_bytes() const;
     SyncControler& sync_controler() const;

@@ -41,3 +41,9 @@ Whether the stop lands early or after the last file, every one of the 200 entrie
 in the state afterwards: the files the run reached were recorded again, the ones it did not
 reach were kept because a stopped run never prunes (Synchronize.md#complete-pass). The number
 of files copied before the stop is printed, so a run that never gets stopped is visible.
+
+## mass-deletion
+
+The approval travels from Synchronize::create() into the pass (Synchronize.md#mass-deletion-approved):
+without it the run refuses and records the refusal as its one error, with it the same situation
+is carried out.

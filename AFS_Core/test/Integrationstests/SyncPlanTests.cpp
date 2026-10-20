@@ -366,3 +366,22 @@ TEST_F(SyncPlanTest, PreviewPlansARenameAndNoDeletionForTheOldName)  // [SyncPla
     EXPECT_TRUE(file_in_target(PlannedAction::RenameInTarget));
     EXPECT_EQ(state.files().size(), 2u) << "the preview must leave the state as it found it";
 }
+
+TEST_F(SyncPlanTest, PreviewStillPlansAMassDeletion)  // [SyncPlanTests.md#mass-deletion]
+{
+    for (int i = 0; i < 12; ++i)
+        tu::write_text_file(source_dir_ / ("datei" + std::to_string(i) + ".txt"), "x", seconds(3600));
+    SyncItem si = item(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 12u);
+    fs::remove_all(target_dir_);
+    fs::create_directories(target_dir_);
+    const auto before = entries_below(root_);
+
+    const SyncPlan plan = preview(si, state);
+
+    EXPECT_EQ(plan.count(PlannedAction::DeleteInSource), 12u) << "the preview is where the user sees what the run refuses";
+    EXPECT_EQ(entries_below(root_), before);
+    EXPECT_EQ(state.files().size(), 12u);
+}

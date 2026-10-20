@@ -174,10 +174,14 @@ usunięcie jest rozpoznawane dopiero od drugiego przebiegu. <a
 href="preview.html">Podgląd</a> pokazuje wcześniej, jakie usunięcia i zmiany
 nazw czekają.</p>
 
-<p><b>Uwaga:</b> opróżniony cel – na przykład świeżo sformatowany dysk kopii –
-liczy się jako „wszystko usunięte w celu” i przy następnym przebiegu opróżniłby
-także źródło (do kosza). W takim przypadku usuń synchronizację i utwórz ją na
-nowo; stan synchronizacji zaczyna się wtedy od początku.</p>
+<p><b>Ochrona przed masowym usuwaniem:</b> opróżniony cel – na przykład świeżo
+sformatowany dysk kopii – wyglądałby jak „wszystko usunięte w celu”. Gdyby
+przebieg miał usunąć więcej niż połowę znanych plików (i co najmniej dziesięć),
+odmawia wszystkich usunięć tej synchronizacji, zgłasza to w dzienniku i po
+„Synchronizuj raz” oraz pozostawia obie strony bez zmian.
+<a href="preview.html">Podgląd</a> mimo to pokazuje usunięcia; jeśli są
+zamierzone, „Synchronizuj teraz” w podglądzie je wykonuje. Usługa w tle odmawia
+ich, dopóki tego nie zrobisz.</p>
 
 <h2><a name="deleteintarget"></a>Usuwaj także w celu usunięte pliki</h2>
 

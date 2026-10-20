@@ -46,6 +46,7 @@ class SyncInterface {
     bool            console_mode_ = false;
     SyncType        act_sync_type_ = SyncType::None;  // [SyncInterface.md#state_text]
     std::size_t     count_files_ = 0;
+    bool            deletions_approved_ = false;  // [SyncInterface.md#preview-approves-deletions]
     std::chrono::high_resolution_clock::time_point start_time_;
     bool silent_mode() const;
     std::vector<LogMessage> take_run_messages();  // [SyncInterface.md#show_run_messages]

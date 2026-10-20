@@ -58,6 +58,7 @@ class SyncState {  // [SyncState.md#SyncState]
     std::vector<PendingDeletion> pending_deletions_;  // [SyncState.md#pass-notebook]
     std::vector<PendingDirRemoval> pending_dir_removals_;
     std::set<std::wstring> renamed_;
+    bool mass_deletion_approved_ = false;  // [SyncState.md#mass-deletion-approval]
     void unindex(const std::wstring& path);
 public:
     static constexpr int FORMAT_VERSION = 1;  // [SyncState.md#FORMAT_VERSION]
@@ -77,6 +78,8 @@ public:
     std::vector<PendingDeletion> take_deletions();
     void defer(PendingDirRemoval removal);
     std::vector<PendingDirRemoval> take_dir_removals();
+    void approve_mass_deletion() { mass_deletion_approved_ = true; }  // [SyncState.md#mass-deletion-approval]
+    bool mass_deletion_approved() const { return mass_deletion_approved_; }
     void record(const std::wstring& path, const FileState& state);  // [SyncState.md#record]
     void seen(const std::wstring& path);
     void forget(const std::wstring& path);

@@ -126,3 +126,14 @@ there too. The state must not change what one-way means otherwise
 (FileDifference.md#base-only-two-way): a target the user deleted is copied again, a source
 file that disappears leaves the target alone without delete_in_target, and nothing in the
 source is ever deleted.
+
+## mass-deletion
+
+The valve of SyncBase.md#mass-deletion: an emptied target would delete all twelve known files
+of the source, so the pass refuses, leaves source and state untouched on this and every later
+pass, and only the approval in the pass notebook lets the deletions through. The threshold has
+two parts - more than half of the known files and at least ten - and the tests pin both: nine
+of nine go, ten of twenty go, and the pass that would take all ten remaining (nine deleted
+in the source, one more in the target, so one deletion in the source and nine in the target)
+is refused on both sides at once, because the deletions of one pass are counted together
+whichever side they hit.

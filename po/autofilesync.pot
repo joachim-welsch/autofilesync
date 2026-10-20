@@ -676,6 +676,14 @@ msgstr ""
 msgid "deleted_but_changed_kept"
 msgstr ""
 
+#: AFS_Core/src/SyncBase.cpp:100
+msgid "mass_deletion_refused"
+msgstr ""
+
+#: AFS_Core/src/SyncBase.cpp:97
+msgid "mass_deletion_planned"
+msgstr ""
+
 #: AFS_Core/src/SyncFile.cpp:89
 msgid "both_modified_not_copied"
 msgstr ""

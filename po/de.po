@@ -669,6 +669,14 @@ msgstr "Nicht synchronisiert, weil Zeit und Größe gleich sind, der Inhalt aber
 msgid "deleted_but_changed_kept"
 msgstr "Auf einer Seite gelöscht, auf der anderen seitdem geändert – die geänderte Datei wird kopiert statt gelöscht:"
 
+#: AFS_Core/src/SyncBase.cpp:100
+msgid "mass_deletion_refused"
+msgstr "%1: %2 von %3 bekannten Dateien würden gelöscht – das sieht nach einem geleerten oder ausgetauschten Datenträger aus. Es wurde nichts gelöscht. Prüfen Sie die Vorschau; „Jetzt synchronisieren“ dort führt die Löschungen aus."
+
+#: AFS_Core/src/SyncBase.cpp:97
+msgid "mass_deletion_planned"
+msgstr "%1: %2 von %3 bekannten Dateien würden gelöscht. „Jetzt synchronisieren“ führt diese Löschungen aus; ein gewöhnlicher Durchlauf verweigert sie."
+
 #: AFS_Core/src/SyncFile.cpp:89
 msgid "both_modified_not_copied"
 msgstr "Nicht synchronisiert, weil beide Seiten seit dem letzten Abgleich geändert wurden:"

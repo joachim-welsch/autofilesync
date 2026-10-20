@@ -184,11 +184,14 @@ un'eliminazione viene riconosciuta dalla seconda esecuzione in poi.
 L'<a href="preview.html">anteprima</a> mostra in anticipo quali eliminazioni e
 rinomine sono in arrivo.</p>
 
-<p><b>Attenzione:</b> una destinazione svuotata, per esempio un disco di backup
-appena formattato, conta come "tutto eliminato nella destinazione" e
-svuoterebbe anche l'origine alla prossima esecuzione (nel cestino). In tal caso
-eliminate la sincronizzazione e createla di nuovo; lo stato di sincronizzazione
-riparte da zero.</p>
+<p><b>Protezione dalle eliminazioni di massa:</b> una destinazione svuotata, per
+esempio un disco di backup appena formattato, sembrerebbe "tutto eliminato nella
+destinazione". Se un'esecuzione eliminasse più della metà dei file noti (e almeno
+dieci), rifiuta tutte le eliminazioni di quella sincronizzazione, lo segnala nel
+registro e dopo "Sincronizza una volta", e lascia entrambi i lati invariati.
+L'<a href="preview.html">anteprima</a> mostra comunque le eliminazioni; se sono
+volute, "Sincronizza ora" nell'anteprima le esegue. Il servizio in background le
+rifiuta finché non l'avete fatto.</p>
 
 <h2><a name="deleteintarget"></a>Elimina anche nella destinazione i file eliminati</h2>
 

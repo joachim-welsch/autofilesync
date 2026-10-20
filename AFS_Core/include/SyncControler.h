@@ -24,6 +24,7 @@
 #include "Global.h"
 #include "SyncMessage.h"
 #include "SyncPlan.h"
+#include "Logging.h"
 
 namespace AFS_Core {
 
@@ -40,6 +41,7 @@ class SyncControler {
 	std::size_t			count_files_ = 0;
 	SyncPlan			plan_;  // [SyncControler.md#plan_]
 	std::vector<UnreachableItem> unreachable_;
+	std::vector<LogMessage> notes_;  // [Synchronize.md#notes]
 
 protected:
 	void set_sync_finished();
@@ -47,7 +49,7 @@ protected:
 public:
 	~SyncControler() = default;
 	static SyncControler& instance();
-	bool start_sync(SyncType sync_type);
+	bool start_sync(SyncType sync_type, bool mass_deletion_approved = false);  // [Synchronize.md#mass-deletion-approved]
 	void request_stop();
 	void stop_sync();
 	bool sync_finished() const;
@@ -61,6 +63,8 @@ public:
 	SyncPlan take_plan() { return std::exchange(plan_, SyncPlan()); }
 	void unreachable(std::vector<UnreachableItem> items) { unreachable_ = std::move(items); }
 	std::vector<UnreachableItem> take_unreachable() { return std::exchange(unreachable_, {}); }
+	void notes(std::vector<LogMessage> notes) { notes_ = std::move(notes); }  // [Synchronize.md#notes]
+	std::vector<LogMessage> take_notes() { return std::exchange(notes_, {}); }
 	friend class Synchronize;
 };
 

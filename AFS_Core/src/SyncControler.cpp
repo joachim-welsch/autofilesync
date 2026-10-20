@@ -32,13 +32,13 @@ SyncControler& SyncControler::instance()
 	return *instance_;
 }
 
-bool SyncControler::start_sync(SyncType sync_type)
+bool SyncControler::start_sync(SyncType sync_type, bool mass_deletion_approved)
 {
 	log_debug(L"SyncControler::start_sync()");
 	if (synchronize_ != nullptr)
 		return false;
 	state_ = SyncCtrlState::SyncActive;
-    synchronize_ = Synchronize::create(sync_type, this);
+    synchronize_ = Synchronize::create(sync_type, this, SyncRole::Foreground, mass_deletion_approved);
 	return true;
 }
 

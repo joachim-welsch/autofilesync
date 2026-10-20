@@ -630,3 +630,85 @@ TEST_F(TwoWaySyncTest, OneWayItemWithAStateStillNeverDeletesInTheSource)  // [Tw
     EXPECT_TRUE(fs::exists(target_dir_ / "b.txt")) << "without delete_in_target the target keeps the file";
     EXPECT_FALSE(fs::exists(source_dir_ / "b.txt"));
 }
+
+TEST(MassDeletionTests, ThresholdNeedsBothTheShareAndTheCount)  // [TwoWaySyncTests.md#mass-deletion]
+{
+    EXPECT_TRUE(mass_deletion(10, 10));
+    EXPECT_FALSE(mass_deletion(9, 9)) << "fewer than MASS_DELETION_MIN_FILES is never a mass deletion";
+    EXPECT_FALSE(mass_deletion(10, 20)) << "exactly half is still allowed";
+    EXPECT_TRUE(mass_deletion(11, 20));
+    EXPECT_FALSE(mass_deletion(10, 100));
+    EXPECT_TRUE(mass_deletion(51, 100));
+    EXPECT_TRUE(mass_deletion(12, 0)) << "a state that knows nothing cannot vouch for twelve deletions";
+}
+
+namespace {
+    void write_numbered(const fs::path& dir, std::size_t count)
+    {
+        for (std::size_t i = 0; i < count; ++i)
+            tu::write_text_file(dir / ("datei" + std::to_string(i) + ".txt"), "x", seconds(3600));
+    }
+    std::size_t files_in(const fs::path& dir)
+    {
+        return static_cast<std::size_t>(std::distance(fs::directory_iterator(dir), fs::directory_iterator()));
+    }
+}
+
+TEST_F(TwoWaySyncTest, MassDeletionIsRefusedUntilApproved)  // [TwoWaySyncTests.md#mass-deletion]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    write_numbered(source_dir_, 12);
+    const SyncItem si = two_way_item(SyncItemType::Tree);
+    SyncState state = fresh_state(si);
+    ASSERT_EQ(tu::run_sync(si, state), 12u);
+    fs::remove_all(target_dir_);
+    fs::create_directories(target_dir_);
+
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+
+    EXPECT_EQ(files_in(source_dir_), 12u) << "an emptied target must not empty the source";
+    EXPECT_EQ(state.files().size(), 12u) << "the refused deletions must stay known, so the next pass sees the same";
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+    EXPECT_EQ(files_in(source_dir_), 12u);
+
+    state.approve_mass_deletion();
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+
+    EXPECT_EQ(files_in(source_dir_), 0u) << "the approved run carries the deletions out";
+    EXPECT_TRUE(state.empty());
+}
+
+TEST_F(TwoWaySyncTest, AFewDeletionsPassTheThreshold)  // [TwoWaySyncTests.md#mass-deletion]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    write_numbered(source_dir_, 9);
+    const SyncItem si = two_way_item(SyncItemType::Dir);
+    SyncState state = fresh_state(si);
+    ASSERT_EQ(tu::run_sync(si, state), 9u);
+    fs::remove_all(target_dir_);
+    fs::create_directories(target_dir_);
+
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+
+    EXPECT_EQ(files_in(source_dir_), 0u) << "nine files are below the count that makes a mass deletion";
+}
+
+TEST_F(TwoWaySyncTest, HalfOfTheFilesMayGoMoreMayNot)  // [TwoWaySyncTests.md#mass-deletion]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    write_numbered(source_dir_, 20);
+    const SyncItem si = two_way_item(SyncItemType::Dir);
+    SyncState state = fresh_state(si);
+    ASSERT_EQ(tu::run_sync(si, state), 20u);
+    for (std::size_t i = 0; i < 10; ++i)
+        fs::remove(target_dir_ / ("datei" + std::to_string(i) + ".txt"));
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+    EXPECT_EQ(files_in(source_dir_), 10u) << "half of the known files may be deleted";
+
+    fs::remove(target_dir_ / "datei10.txt");
+    for (std::size_t i = 11; i < 20; ++i)
+        fs::remove(source_dir_ / ("datei" + std::to_string(i) + ".txt"));
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+    EXPECT_EQ(files_in(source_dir_), 1u) << "the source's last file would go with the target's nine: refused";
+    EXPECT_EQ(files_in(target_dir_), 9u) << "the target's nine must stay too";
+}

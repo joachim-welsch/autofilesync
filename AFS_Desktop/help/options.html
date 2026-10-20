@@ -179,11 +179,14 @@ Löschung wird erst ab dem zweiten Durchlauf erkannt. Die
 <a href="preview.html">Vorschau</a> zeigt vorher, welche Löschungen und
 Umbenennungen anstehen.</p>
 
-<p><b>Achtung:</b> Ein leer geräumtes Ziel – etwa eine neu formatierte
-Sicherungsplatte – gilt als „alles im Ziel gelöscht“ und würde beim nächsten
-Durchlauf auch die Quelle leeren (in den Papierkorb). Löschen Sie in diesem Fall
-die Synchronisation und legen Sie sie neu an; damit beginnt der Abgleichszustand
-von vorn.</p>
+<p><b>Schutz vor Massenlöschung:</b> Ein leer geräumtes Ziel – etwa eine neu
+formatierte Sicherungsplatte – sähe aus wie „alles im Ziel gelöscht“. Würde ein
+Durchlauf mehr als die Hälfte der bekannten Dateien löschen (und mindestens
+zehn), verweigert er alle Löschungen dieser Synchronisation, meldet das im
+Protokoll und nach „Einmal synchronisieren“, und lässt beide Seiten unverändert.
+Die <a href="preview.html">Vorschau</a> zeigt die Löschungen trotzdem; sind sie
+beabsichtigt, führt „Jetzt synchronisieren“ in der Vorschau sie aus. Der
+Hintergrunddienst verweigert sie so lange, bis Sie das getan haben.</p>
 
 <h2><a name="deleteintarget"></a>Gelöschte Dateien im Ziel ebenfalls löschen</h2>
 

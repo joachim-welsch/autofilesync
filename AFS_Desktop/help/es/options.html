@@ -182,11 +182,14 @@ reconoce a partir de la segunda ejecución. La <a href="preview.html">vista
 previa</a> muestra de antemano qué eliminaciones y cambios de nombre están
 pendientes.</p>
 
-<p><b>Atención:</b> un destino vaciado, por ejemplo un disco de copia recién
-formateado, cuenta como «todo eliminado en el destino» y vaciaría también el
-origen en la siguiente ejecución (a la papelera). En ese caso elimine la
-sincronización y créela de nuevo; el estado de sincronización empieza entonces
-desde cero.</p>
+<p><b>Protección contra eliminaciones masivas:</b> un destino vaciado, por
+ejemplo un disco de copia recién formateado, parecería «todo eliminado en el
+destino». Si una ejecución eliminara más de la mitad de los archivos conocidos (y
+al menos diez), rechaza todas las eliminaciones de esa sincronización, lo informa
+en el registro y tras «Sincronizar una vez», y deja ambos lados sin cambios. La
+<a href="preview.html">vista previa</a> muestra las eliminaciones de todos modos;
+si son intencionadas, «Sincronizar ahora» en la vista previa las ejecuta. El
+servicio en segundo plano las rechaza hasta que lo haya hecho.</p>
 
 <h2><a name="deleteintarget"></a>Eliminar también en el destino los archivos eliminados</h2>
 

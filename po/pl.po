@@ -661,6 +661,14 @@ msgstr "Nie zsynchronizowano, ponieważ czas i rozmiar są równe, ale zawartoś
 msgid "deleted_but_changed_kept"
 msgstr "Usunięty po jednej stronie i zmieniony po drugiej od ostatniej synchronizacji – zmieniony plik zostanie skopiowany zamiast usunięty:"
 
+#: AFS_Core/src/SyncBase.cpp:100
+msgid "mass_deletion_refused"
+msgstr "%1: zostałoby usuniętych %2 z %3 znanych plików – wygląda to na opróżniony lub wymieniony dysk. Nic nie usunięto. Sprawdź podgląd; „Synchronizuj teraz” tam wykonuje usunięcia."
+
+#: AFS_Core/src/SyncBase.cpp:97
+msgid "mass_deletion_planned"
+msgstr "%1: zostałoby usuniętych %2 z %3 znanych plików. „Synchronizuj teraz” wykonuje te usunięcia; zwykły przebieg je odrzuca."
+
 #: AFS_Core/src/SyncFile.cpp:89
 msgid "both_modified_not_copied"
 msgstr "Nie zsynchronizowano, ponieważ obie strony zmieniły się od ostatniej synchronizacji:"

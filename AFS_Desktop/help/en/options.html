@@ -173,10 +173,14 @@ one side only is copied to the other; a deletion is recognised from the second
 run on. The <a href="preview.html">preview</a> shows beforehand which deletions
 and renames are due.</p>
 
-<p><b>Caution:</b> a target that was emptied – a freshly formatted backup disk,
-say – counts as "everything deleted in the target" and would empty the source
-on the next run (into the recycle bin). In that case delete the synchronisation
-and create it again; the sync state then starts afresh.</p>
+<p><b>Protection against mass deletion:</b> a target that was emptied – a
+freshly formatted backup disk, say – would look like "everything deleted in the
+target". If a run would delete more than half of the known files (and at least
+ten), it refuses all deletions of that synchronisation, reports this in the log
+and after "Synchronise once", and leaves both sides as they are. The
+<a href="preview.html">preview</a> shows the deletions all the same; if they are
+intended, "Synchronise now" in the preview carries them out. The background
+service refuses them until you have done so.</p>
 
 <h2><a name="deleteintarget"></a>Also delete deleted files in the target</h2>
 

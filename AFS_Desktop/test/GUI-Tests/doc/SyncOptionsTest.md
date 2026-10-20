@@ -43,3 +43,18 @@ the source to the target (SyncFile.md#state), into the recycle bin, and a one-wa
 "Umbenennen und Verschieben erkennen" renames in the target - which the empty recycle bin
 proves, since a copy-and-delete would have put the old file there. Both items leave a state
 file the fixture removes afterwards (GuiTest.md#sync-state-removed).
+
+## mass-deletion
+
+The valve from the user's side (SyncBase.md#mass-deletion, SyncInterface.md#preview-approves-deletions):
+"Einmal synchronisieren" over an emptied target refuses and explains itself in the error box
+after the run, source and recycle bin untouched; the preview lists the twelve deletions and
+"Jetzt synchronisieren" there carries them out, into the recycle bin.
+
+## let_the_pause_elapse
+
+A single run skips an item whose pause since its last run has not elapsed
+(Synchronize.md#preview-ignores-the-pause names the one exception), and the dialog's default
+pause is one second. A second "Einmal synchronisieren" right after the first therefore counts
+nothing, answers with the "no files" box and never runs - which looks exactly like a refused
+deletion. Every test that runs twice pumps events for a little over a second in between.

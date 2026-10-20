@@ -132,3 +132,18 @@ window server - it counts as visible and can become key, yet never appears and n
 the process appears either - and the dialog cannot be recovered once it is in that state. A hidden
 dialog that reset() refills avoids the destroy-then-create sequence that triggers it. The destructor
 still destroys the one instance at shutdown.
+
+## preview-approves-deletions
+
+"Jetzt synchronisieren" in the preview is the one way to let a run delete more than the
+threshold allows (SyncBase.md#mass-deletion): the user has just seen the list of deletions.
+The flag is set after the counting pass of that run has started - start_pass() clears it, so
+a run from the menu never inherits it - and handed to the single pass that follows the count;
+sync_once_finished() clears it again.
+
+## notes
+
+The pass's notes (Synchronize.md#notes) join the messages of the box after a single run and
+the notes under the preview's list, ahead of the filtered log lines and without a duplicate
+when the same line already came through the log. They are added after the filter, so the
+message filter cannot hide them: a refused mass deletion must reach the user every time.

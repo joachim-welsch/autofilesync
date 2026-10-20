@@ -136,3 +136,9 @@ its end and must not persist: the deletions a two-way or move-tracking pass foun
 empty (SyncTree.md#prepare-and-settle). They live here because every SyncFile of the pass
 shares this object already; claim() is how a file that turns out to be the renamed one takes
 its old entry out of the deletions before they run.
+
+## mass-deletion-approval
+
+Part of the pass notebook, not of the stored state: whether this pass may carry out a mass
+deletion (SyncBase.md#mass-deletion). Synchronize sets it for the single run the user starts
+from the preview, and nothing else does, so the daemon and an ordinary run never have it.

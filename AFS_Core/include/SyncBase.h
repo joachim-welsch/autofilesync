@@ -41,6 +41,7 @@ protected:
 	std::wstring state_key(const std::wstring& source) const;  // [SyncBase.md#state_key]
 	std::wstring side_path(const std::wstring& key, bool in_target) const;  // [SyncBase.md#side_path]
 	void finish_pass();  // [SyncBase.md#finish_pass]
+	bool deletions_refused(std::size_t deletions);  // [SyncBase.md#mass-deletion]
 	void create_target_dir_if_not_exist(const std::wstring& targetdir = L"");
 	void create_source_dir(const std::wstring& dir);  // [SyncBase.md#create_source_dir]
 	void remove_dir_if_empty(const std::wstring& dir, bool ssh);  // [SyncBase.md#remove_dir_if_empty]
@@ -66,6 +67,9 @@ public:
 };
 
 constexpr wchar_t FATHER_SON_SUFFIX[] = L".bak.";  // [SyncBase.md#father_son_backup]
+constexpr std::size_t MASS_DELETION_PERCENT = 50;  // [SyncBase.md#mass-deletion]
+constexpr std::size_t MASS_DELETION_MIN_FILES = 10;
+bool mass_deletion(std::size_t deletions, std::size_t known_files);  // [SyncBase.md#mass-deletion]
 bool father_son_backup(const std::wstring& name);  // [SyncBase.md#father_son_backup]
 std::wstring root_name(const std::wstring& path);
 std::wstring without_volume_spec(const std::wstring& path);

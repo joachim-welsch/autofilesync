@@ -75,10 +75,11 @@ Synchronize& Synchronize::instance()
     return *inst;
 }
 
-Synchronize::Synchronize(SyncType sync_type, SyncControler* sc, SyncRole role)
+Synchronize::Synchronize(SyncType sync_type, SyncControler* sc, SyncRole role, bool mass_deletion_approved)
   : sync_type_(sync_type),
     sync_controler_(sc),
     role_(role),
+    mass_deletion_approved_(mass_deletion_approved),
     arbiter_(role)
 {
     stop_ = false;
@@ -95,10 +96,10 @@ void Synchronize::destroy()
     }
 }
 
-Synchronize* Synchronize::create(SyncType sync_type, SyncControler* sc, SyncRole role)
+Synchronize* Synchronize::create(SyncType sync_type, SyncControler* sc, SyncRole role, bool mass_deletion_approved)
 {
     log_debug(L"Synchronize::create()");
-    Synchronize* retval = new Synchronize(sync_type, sc, role);  // [Synchronize.md#constructor-clears-stop]
+    Synchronize* retval = new Synchronize(sync_type, sc, role, mass_deletion_approved);  // [Synchronize.md#constructor-clears-stop]
     this_.store(retval);
     return retval;
 }
@@ -265,6 +266,12 @@ void Synchronize::report_unreachable(const SyncItem& i)
     unreachable_.push_back({i.name(), message, i.warn_if_unreachable()});
 }
 
+void Synchronize::note(LogLevel level, const wstring& text)  // [Synchronize.md#notes]
+{
+    if (Synchronize* inst = this_.load())
+        inst->notes_.push_back({level, util::wstring_to_string(text)});
+}
+
 LastRun Synchronize::last_run_of(const SyncItem& i, const SyncReport& report) const
 {
     const auto reachable = item_reachable_.find(i.name());
@@ -330,6 +337,8 @@ void Synchronize::run_sync_item(SyncItem& i)
         }
         item_reachable_[i.name()] = true;
         SyncStateKeeper keeper(i, (i.two_way_sync() || i.track_moves()) && sync_type_ != SyncType::CountFiles, !touches_nothing());  // [Synchronize.md#sync-state]
+        if (keeper.state() != nullptr && mass_deletion_approved_)  // [Synchronize.md#mass-deletion-approved]
+            keeper.state()->approve_mass_deletion();
         if (i.sync_item_type() == SyncItemType::Dir) {
             SyncDir sd(i, count_files_, touches_nothing(), keeper.state());
             sd();
@@ -401,6 +410,7 @@ void Synchronize::operator()()
         sync_controler_->count_files(count_files_);
         sync_controler_->plan(std::move(plan_));  // [Synchronize.md#preview]
         sync_controler_->unreachable(std::move(unreachable_));  // [Synchronize.md#unreachable_]
+        sync_controler_->notes(std::move(notes_));  // [Synchronize.md#notes]
         sync_controler_->set_sync_finished();
     }
 #endif

@@ -661,6 +661,14 @@ msgstr "Non sincronizzato perché data e dimensione coincidono ma il contenuto �
 msgid "deleted_but_changed_kept"
 msgstr "Eliminato da un lato e modificato dall'altro dall'ultima sincronizzazione: il file modificato viene copiato invece di essere eliminato:"
 
+#: AFS_Core/src/SyncBase.cpp:100
+msgid "mass_deletion_refused"
+msgstr "%1: verrebbero eliminati %2 di %3 file noti: sembra un disco svuotato o sostituito. Non è stato eliminato nulla. Controllate l’anteprima; «Sincronizza ora» lì esegue le eliminazioni."
+
+#: AFS_Core/src/SyncBase.cpp:97
+msgid "mass_deletion_planned"
+msgstr "%1: verrebbero eliminati %2 di %3 file noti. «Sincronizza ora» esegue queste eliminazioni; un’esecuzione normale le rifiuta."
+
 #: AFS_Core/src/SyncFile.cpp:89
 msgid "both_modified_not_copied"
 msgstr "Non sincronizzato perché entrambi i lati sono cambiati dall'ultima sincronizzazione:"

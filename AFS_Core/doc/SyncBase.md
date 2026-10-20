@@ -68,3 +68,18 @@ and only then, if nothing is left, removed - a file that survived because it was
 ".bak" generation, keeps the directory on both sides. An empty directory holds nothing to
 recover, so it is removed outright rather than through the recycle bin; a non-empty one is
 simply left, without a message, because that is the ordinary outcome.
+
+## mass-deletion
+
+A target that was emptied or swapped - a freshly formatted backup disk, a drive letter that
+now points elsewhere - reads to the three-way comparison as "everything deleted over there",
+and a pass that believed it would empty the other side. So a pass that would delete more than
+MASS_DELETION_PERCENT of the files the state knows, and at least MASS_DELETION_MIN_FILES of
+them (deleting three of four files is everyday work, not a disaster), refuses all of its
+deletions, leaves the state as it is so that the next pass sees the same situation, and says
+why: once per item at error level, into the log, the proof and the pass's notes
+(Synchronize.md#notes), which reach the user past the message filter, until a pass goes
+through normally. The way out is deliberate: the preview still plans the deletions and warns in its
+notes, and the run started from the preview carries the pass's approval
+(SyncState.md#mass-deletion-approval), because the user has then seen the list. The daemon
+can never approve; it keeps refusing until the user has looked.

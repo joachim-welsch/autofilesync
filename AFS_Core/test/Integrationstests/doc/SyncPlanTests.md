@@ -64,3 +64,9 @@ the directory itself (SyncTree.md#prepare-and-settle).
 A rename is planned as one step with the old and the new path on the target side and no bytes,
 and the old name does not show up as a deletion as well, whichever of the two names the pass
 meets first (SyncState.md#renamed). The unrelated deleted file is still planned as a deletion.
+
+## mass-deletion
+
+A run refuses a mass deletion (SyncBase.md#mass-deletion), but the preview must still list it:
+it is the user's way to see what is about to happen and, through "Jetzt synchronisieren", to
+approve it.

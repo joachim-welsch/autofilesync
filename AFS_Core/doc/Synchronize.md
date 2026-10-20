@@ -95,3 +95,19 @@ tracking deletions (ConfigSummary.md#known-files).
 forget_unseen() drops every entry the pass did not visit, and that is only right after a pass
 that visited everything: a stopped pass or one that threw leaves the unvisited files in the
 state, or the next pass would take every one of them for new on both sides.
+
+## mass-deletion-approved
+
+The one run that may carry out a mass deletion (SyncBase.md#mass-deletion) is the single run
+the user starts from the preview, and the GUI says so when it creates that Synchronize. The
+flag is per instance and reaches the pass through the state's notebook
+(SyncState.md#mass-deletion-approval); the daemon creates its Synchronize without it.
+
+## notes
+
+What a pass has to tell the user whatever the message filter in the settings says - so far the
+refusal of a mass deletion (SyncBase.md#mass-deletion). The log and the proof get the line as
+well, but the box after "Einmal synchronisieren" shows log lines only through the user's
+Fehler/Warnung/Info filters, and a user who switched the errors off would never learn why
+nothing was deleted. The notes travel to the controller next to the plan and the unreachable
+items; note() is static like report_copied_bytes(), since the sync classes know no instance.

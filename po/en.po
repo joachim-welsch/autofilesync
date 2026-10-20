@@ -669,6 +669,14 @@ msgstr "Not synchronized because time and size are equal but the content differs
 msgid "deleted_but_changed_kept"
 msgstr "Deleted on one side and changed on the other since the last sync - the changed file is copied instead of deleted:"
 
+#: AFS_Core/src/SyncBase.cpp:100
+msgid "mass_deletion_refused"
+msgstr "%1: %2 of %3 known files would be deleted - this looks like an emptied or swapped drive. Nothing was deleted. Check the preview; \"Synchronise now\" there carries the deletions out."
+
+#: AFS_Core/src/SyncBase.cpp:97
+msgid "mass_deletion_planned"
+msgstr "%1: %2 of %3 known files would be deleted. \"Synchronise now\" carries these deletions out; an ordinary run refuses them."
+
 #: AFS_Core/src/SyncFile.cpp:89
 msgid "both_modified_not_copied"
 msgstr "Not synchronized because both sides changed since the last sync:"

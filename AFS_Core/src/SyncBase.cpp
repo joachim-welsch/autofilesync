@@ -29,6 +29,7 @@
 #include "Translation.h"
 #include "Util.h"
 #include <algorithm>
+#include <mutex>
 #include <filesystem>
 
 namespace AFS_Core {
@@ -38,6 +39,18 @@ namespace fs = std::filesystem;
 using namespace util;
 
 namespace {
+    std::mutex refused_mutex;
+    std::set<wstring> refused_items;  // [SyncBase.md#mass-deletion]
+
+    bool first_refusal(const wstring& item, bool refused)
+    {
+        std::lock_guard<std::mutex> lock(refused_mutex);
+        if (refused)
+            return refused_items.insert(item).second;
+        refused_items.erase(item);
+        return false;
+    }
+
     wstring root_of(const SyncItem& item)  // the item's source as SyncFile::operator()() sees its files
     {
         return item.ssh_source() ? item.source() : without_volume_spec(item.source());
@@ -70,12 +83,36 @@ wstring SyncBase::side_path(const wstring& key, bool in_target) const  // [SyncB
     return with_trailing_char(in_target ? target_root_ : state_root_, separator) + relative;
 }
 
+bool mass_deletion(std::size_t deletions, std::size_t known_files)  // [SyncBase.md#mass-deletion]
+{
+    return deletions >= MASS_DELETION_MIN_FILES && deletions * 100 > known_files * MASS_DELETION_PERCENT;
+}
+
+bool SyncBase::deletions_refused(std::size_t deletions)  // [SyncBase.md#mass-deletion]
+{
+    const std::size_t known = state_->files().size();
+    const bool exceeded = mass_deletion(deletions, known) && !state_->mass_deletion_approved();
+    const std::initializer_list<wstring> values{sync_item_.name(), std::to_wstring(deletions), std::to_wstring(known)};
+    if (exceeded && only_count_) {
+        log_warning(translation::translate("mass_deletion_planned", values));
+        Synchronize::note(LogLevel::Warning, translation::translate("mass_deletion_planned", values));  // [Synchronize.md#notes]
+    }
+    if (!first_refusal(sync_item_.name(), exceeded && !only_count_))
+        return exceeded && !only_count_;
+    log_error(translation::translate("mass_deletion_refused", values));
+    report_sync_error(translation::translate("mass_deletion_refused", values));
+    Synchronize::note(LogLevel::Error, translation::translate("mass_deletion_refused", values));
+    return true;
+}
+
 void SyncBase::finish_pass()  // [SyncBase.md#finish_pass]
 {
     if (state_ == nullptr)
         return;
     const std::vector<PendingDeletion> deletions = state_->take_deletions();
     const std::vector<PendingDirRemoval> removals = state_->take_dir_removals();
+    if (deletions_refused(deletions.size()))
+        return;
     for (const PendingDeletion& deletion : deletions) {
         if (stop_requested())
             return;

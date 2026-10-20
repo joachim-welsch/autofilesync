@@ -25,6 +25,9 @@
 #include "SyncItemDialogDriver.h"
 #include "UserActions.h"
 #include "Config.h"
+#include "Translation.h"
+#include "id.h"
+#include "utilwx.h"
 #include "RecycleBin.h"
 #include <algorithm>
 #include <chrono>
@@ -71,6 +74,11 @@ void same_write_time(const SandboxTree& tree, const char* first, const char* sec
 void write_time_apart(const SandboxTree& tree, const char* newer, const char* older, std::chrono::seconds gap)  // [SyncOptionsTest.md#write_time_apart]
 {
     fs::last_write_time(tree.path(newer), fs::last_write_time(tree.path(older)) + gap);
+}
+
+void let_the_pause_elapse()  // [SyncOptionsTest.md#let_the_pause_elapse]
+{
+    pump(1100);
 }
 
 void age_file(const SandboxTree& tree, const char* file)  // [SyncOptionsTest.md#GenerationenprinzipLegtBakDateiAn]
@@ -254,6 +262,7 @@ TEST_F(GuiTest, ZweiWegeSyncUebernimmtLoeschungBeimZweitenLauf)  // [SyncOptions
     ASSERT_TRUE(sync_once(main_window()));
     ASSERT_TRUE(tree.exists("ziel/weg.txt"));
     fs::remove(tree.path("quelle/weg.txt"));
+    let_the_pause_elapse();
 
     ASSERT_TRUE(sync_once(main_window()));
 
@@ -275,12 +284,47 @@ TEST_F(GuiTest, UmbenennenErkennenBenenntImZielUm)  // [SyncOptionsTest.md#two-w
     ASSERT_TRUE(sync_once(main_window()));
     ASSERT_TRUE(tree.exists("ziel/alt.txt"));
     fs::rename(tree.path("quelle/alt.txt"), tree.path("quelle/neu.txt"));
+    let_the_pause_elapse();
 
     ASSERT_TRUE(sync_once(main_window()));
 
     EXPECT_EQ(tree.read("ziel/neu.txt"), "umbenannt");
     EXPECT_FALSE(tree.exists("ziel/alt.txt"));
     EXPECT_EQ(recycle_bin.items(), 0u) << "Die Datei wurde gelöscht und neu kopiert statt umbenannt.";
+}
+
+TEST_F(GuiTest, MassenloeschungWirdVerweigertUndAusDerVorschauAusgefuehrt)  // [SyncOptionsTest.md#mass-deletion]
+{
+    const EmptiedRecycleBin recycle_bin;
+    FileContents files{{"ziel/", ""}};
+    for (int i = 0; i < 12; ++i)
+        files.emplace_back("quelle/datei" + std::to_string(i) + ".txt", "x");
+    const SandboxTree tree(GuiTestSandbox::root() / "massenloeschung", files);
+    SyncItemInput input = dir_sync(tree, "guitest-massenloeschung");
+    input.options.two_way_sync = true;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ASSERT_TRUE(sync_once(main_window()));
+    ASSERT_TRUE(tree.exists("ziel/datei11.txt"));
+    fs::remove_all(tree.path("ziel"));
+    fs::create_directories(tree.path("ziel"));
+    let_the_pause_elapse();
+
+    ModalDialogWatcher::instance().answer(translation::translate("synchronisation") + L": " + translation::translate("error"), wxID_OK);
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_TRUE(tree.exists("quelle/datei0.txt")) << "Der Lauf hat die Quelle trotz Schwelle geleert.";
+    EXPECT_EQ(recycle_bin.items(), 0u);
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
+    EXPECT_FALSE(ModalDialogWatcher::instance().has_pending_expectations()) << "Die Fehlerbox mit der Verweigerung fehlt.";
+    let_the_pause_elapse();
+
+    ModalDialogWatcher::instance().expect(translation::translate("preview_title"), [](wxDialog& dialog) { click_on(find(dialog, wxID_OK)); });
+    activate_menu_item(main_window(), utilwx::tul(id::Preview));
+    pump();
+    ASSERT_TRUE(wait_until_sync_finished(main_window())) << "Der Lauf nach der Vorschau kam nicht zur Ruhe.";
+
+    EXPECT_FALSE(tree.exists("quelle/datei0.txt")) << "\"Jetzt synchronisieren\" in der Vorschau führt die Löschungen nicht aus.";
+    EXPECT_EQ(recycle_bin.items(), 12u) << "Die gelöschten Dateien gingen nicht in den Papierkorb.";
 }
 
 }

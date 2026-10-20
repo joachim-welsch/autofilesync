@@ -29,6 +29,14 @@
 - Der Assistent weiß, wie viele Dateien der Abgleichszustand einer
   Zwei-Wege-Synchronisation kennt.
 - Wird eine Synchronisation gelöscht, verschwindet ihr Abgleichszustand mit.
+- Schutz vor Massenlöschung: Würde ein Durchlauf mehr als die Hälfte der
+  bekannten Dateien einer Synchronisation löschen (mindestens zehn), etwa weil
+  das Ziel geleert oder der Datenträger ausgetauscht wurde, verweigert er alle
+  Löschungen, meldet das im Protokoll, im Sicherungsnachweis und nach „Einmal
+  synchronisieren“ und lässt beide Seiten unverändert. Die Vorschau zeigt die
+  Löschungen weiterhin; „Jetzt synchronisieren“ aus der Vorschau führt sie als
+  ausdrückliche Bestätigung aus. Der Hintergrunddienst verweigert sie, bis das
+  geschehen ist.
 
 ## 0.3.0 – 2026-10-18
 

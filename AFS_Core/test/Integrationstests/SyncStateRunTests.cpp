@@ -77,10 +77,10 @@ protected:
     fs::path state_file() const { return sync_state_file_path(sync_state_dir(), L"beide Seiten"); }
     std::optional<SyncState> stored_state() const { return read_sync_state(state_file(), source_dir_.wstring(), target_dir_.wstring()); }
 
-    void run_pass(SyncType type)  // [SyncStateRunTests.md#run_pass]
+    void run_pass(SyncType type, bool mass_deletion_approved = false)  // [SyncStateRunTests.md#run_pass]
     {
         const auto before = Config::instance().syncitems()[0].last_sync();
-        Synchronize::create(type);
+        Synchronize::create(type, nullptr, SyncRole::Foreground, mass_deletion_approved);
         if (type == SyncType::Single)
             for (int i = 0; i < 500 && Config::instance().syncitems()[0].last_sync() == before; ++i)
                 std::this_thread::sleep_for(milliseconds(20));
@@ -209,4 +209,23 @@ TEST_F(SyncStateRunTest, AOneWayItemTrackingMovesHasAStateAndRenames)
     EXPECT_TRUE(fs::exists(target_dir_ / "b.txt"));
     EXPECT_FALSE(fs::exists(target_dir_ / "a.txt"));
     EXPECT_EQ(Config::instance().syncitems()[0].last_run()->known_files, 1u);
+}
+
+TEST_F(SyncStateRunTest, AMassDeletionWaitsForTheApprovedRun)  // [SyncStateRunTests.md#mass-deletion]
+{
+    for (int i = 0; i < 12; ++i)
+        tu::write_text_file(source_dir_ / ("datei" + std::to_string(i) + ".txt"), "x", seconds(3600));
+    Config::instance().add(two_way_tree());
+    run_pass(SyncType::Single);
+    ASSERT_EQ(stored_state()->files().size(), 12u);
+    fs::remove_all(target_dir_);
+    fs::create_directories(target_dir_);
+
+    run_pass(SyncType::Single);
+    EXPECT_EQ(std::distance(fs::directory_iterator(source_dir_), fs::directory_iterator()), 12) << "an ordinary run must refuse";
+    EXPECT_EQ(Config::instance().syncitems()[0].last_run()->errors, 1u) << "the refusal is an error of the run";
+
+    run_pass(SyncType::Single, true);
+    EXPECT_EQ(std::distance(fs::directory_iterator(source_dir_), fs::directory_iterator()), 0) << "the approved run deletes";
+    EXPECT_TRUE(stored_state()->empty());
 }

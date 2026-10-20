@@ -184,11 +184,15 @@ suppression n'est reconnue qu'à partir du deuxième passage. L'<a
 href="preview.html">aperçu</a> montre à l'avance les suppressions et renommages
 à venir.</p>
 
-<p><b>Attention :</b> une cible vidée, par exemple un disque de sauvegarde
-fraîchement formaté, compte comme « tout supprimé dans la cible » et viderait
-aussi la source au passage suivant (vers la corbeille). Dans ce cas, supprimez
-la synchronisation et recréez-la ; l'état de synchronisation repart alors de
-zéro.</p>
+<p><b>Protection contre les suppressions massives :</b> une cible vidée, par
+exemple un disque de sauvegarde fraîchement formaté, ressemblerait à « tout
+supprimé dans la cible ». Si un passage devait supprimer plus de la moitié des
+fichiers connus (et au moins dix), il refuse toutes les suppressions de cette
+synchronisation, le signale dans le journal et après « Synchroniser une fois »,
+et laisse les deux côtés inchangés. L'<a href="preview.html">aperçu</a> montre
+tout de même les suppressions ; si elles sont voulues, « Synchroniser
+maintenant » dans l'aperçu les effectue. Le service d'arrière-plan les refuse
+tant que vous ne l'avez pas fait.</p>
 
 <h2><a name="deleteintarget"></a>Supprimer aussi dans la cible les fichiers supprimés</h2>
 

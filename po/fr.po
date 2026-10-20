@@ -661,6 +661,14 @@ msgstr "Non synchronisé car la date et la taille sont identiques mais le conten
 msgid "deleted_but_changed_kept"
 msgstr "Supprimé d'un côté et modifié de l'autre depuis la dernière synchronisation – le fichier modifié est copié au lieu d'être supprimé :"
 
+#: AFS_Core/src/SyncBase.cpp:100
+msgid "mass_deletion_refused"
+msgstr "%1 : %2 des %3 fichiers connus seraient supprimés – cela ressemble à un disque vidé ou remplacé. Rien n’a été supprimé. Vérifiez l’aperçu ; « Synchroniser maintenant » y effectue les suppressions."
+
+#: AFS_Core/src/SyncBase.cpp:97
+msgid "mass_deletion_planned"
+msgstr "%1 : %2 des %3 fichiers connus seraient supprimés. « Synchroniser maintenant » effectue ces suppressions ; un passage ordinaire les refuse."
+
 #: AFS_Core/src/SyncFile.cpp:89
 msgid "both_modified_not_copied"
 msgstr "Non synchronisé, car les deux côtés ont changé depuis la dernière synchronisation :"

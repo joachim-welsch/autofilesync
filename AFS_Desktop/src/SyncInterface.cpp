@@ -141,6 +141,13 @@ bool any_warns(const std::vector<UnreachableItem>& unreachable)
     return std::ranges::any_of(unreachable, [](const UnreachableItem& item) { return item.warn; });
 }
 
+void add_notes(std::vector<LogMessage>& messages, const std::vector<LogMessage>& notes)  // [SyncInterface.md#notes]
+{
+    for (const LogMessage& note : notes)
+        if (std::ranges::none_of(messages, [&note](const LogMessage& message) { return message.text == note.text; }))
+            messages.insert(messages.begin(), note);
+}
+
 void add_unreachable_warnings(std::vector<LogMessage>& messages, const std::vector<UnreachableItem>& unreachable)  // [SyncInterface.md#unreachable-warnings]
 {
     for (const UnreachableItem& item : unreachable) {
@@ -177,6 +184,7 @@ void SyncInterface::show_run_messages()
 {
     std::vector<LogMessage> messages = take_run_messages();
     add_unreachable_warnings(messages, sync_controler_.take_unreachable());  // [SyncInterface.md#unreachable-warnings]
+    add_notes(messages, sync_controler_.take_notes());  // [SyncInterface.md#notes]
     if (messages.empty() || silent_mode())
         return;
     show_state();  // [SyncInterface.md#show_state]
@@ -192,6 +200,7 @@ void SyncInterface::sync_once_finished()
     hide_progress_dialog();
     enable_start_commands(true);
     act_sync_type_ = SyncType::None;
+    deletions_approved_ = false;
     show_run_messages();
 }
 
@@ -232,15 +241,18 @@ void SyncInterface::preview_finished()  // [SyncInterface.md#preview]
     show_state();  // [SyncInterface.md#show_state]
     const SyncPlan plan = sync_controler_.take_plan();
     const std::vector<UnreachableItem> unreachable = sync_controler_.take_unreachable();
-    const std::vector<LogMessage> messages = take_run_messages();
+    std::vector<LogMessage> messages = take_run_messages();
+    add_notes(messages, sync_controler_.take_notes());  // [SyncInterface.md#notes]
     if (plan.empty()) {
         const long icon = any_warns(unreachable) ? wxICON_WARNING : wxICON_INFORMATION;
         wxMessageBox(empty_preview_text(unreachable, messages), translation::translate("preview_title"), wxOK | icon, &parent_window_);
         return;
     }
     PreviewDialog dialog(&parent_window_, plan, joined(unreachable_text(unreachable), run_messages_text(messages)));
-    if (dialog.ShowModal() == wxID_OK && single_sync())
+    if (dialog.ShowModal() == wxID_OK && single_sync()) {
+        deletions_approved_ = true;  // [SyncInterface.md#preview-approves-deletions]
         enable_start_commands(false);
+    }
 }
 
 void SyncInterface::continuous_sync_finished()
@@ -276,6 +288,7 @@ bool SyncInterface::start_pass(SyncType pass)
         return false;
     Logging::instance().collect_messages(true);  // [SyncInterface.md#show_run_messages]
     act_sync_type_ = pass;
+    deletions_approved_ = false;  // [SyncInterface.md#preview-approves-deletions]
     return start_sync();
 }
 
@@ -301,7 +314,7 @@ bool SyncInterface::start_sync()
         }
         open_progress_dialog(count_files_);
     }
-    if (!sync_controler_.start_sync(act_sync_type_)) {
+    if (!sync_controler_.start_sync(act_sync_type_, deletions_approved_ && act_sync_type_ == SyncType::Single)) {  // [SyncInterface.md#preview-approves-deletions]
         counting_cursor_.reset();
         wxMessageBox(translation::translate("sync_start_failed"), translation::translate("error"), wxOK | wxICON_ERROR, &parent_window_);
         return false;
