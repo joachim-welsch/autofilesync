@@ -77,6 +77,8 @@ set(SOURCES
     CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp
+    SyncStateTests.cpp
+    SyncStateRunTests.cpp
     ConfigSummaryTests.cpp
     SyncSshFileTests.cpp
     SyncSshDirTests.cpp

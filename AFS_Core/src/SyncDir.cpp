@@ -33,8 +33,8 @@ using std::wstring;
 namespace fs = std::filesystem;
 using namespace util;
 
-SyncDir::SyncDir(const SyncItem& si, std::size_t& copy_count, bool only_count)
-    : SyncBase(si, copy_count, only_count)
+SyncDir::SyncDir(const SyncItem& si, std::size_t& copy_count, bool only_count, SyncState* state)
+    : SyncBase(si, copy_count, only_count, state)
 {}
 
 void SyncDir::sync_ssh_dir_entry(const SshDirEntry& entry, const wstring& source_path, const wstring& wildcard, const wstring& destination)
@@ -76,6 +76,7 @@ void SyncDir::operator()()
         }
         if (!stop_requested())
             sync_target_only_entries(source, destination, wildcard, source_names);
+        finish_pass();
     }
     catch (const std::exception& e) {
         log_error(source, destination, string_to_wstring(e.what()));

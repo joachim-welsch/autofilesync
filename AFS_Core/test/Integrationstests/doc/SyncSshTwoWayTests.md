@@ -70,3 +70,24 @@ above, but with the SSH side as the copy destination.
 See TwoWaySyncTests.md#idempotence. Asserted for both comparisons an SSH item can run, because
 each settles for its own reason: the size is unchanged by a transfer, and the time is carried
 along by it.
+
+## state
+
+The local tests' deletion cases (TwoWaySyncTests.md#state) with the target on the server: the
+state records the server's write time in whole seconds, as the comparison reads it, so an
+unchanged remote file must still count as unchanged on the next pass. The third test rewrites
+the file on the server through a one-way upload after deleting it locally; the edit must come
+back instead of the deletion going out.
+
+## directories
+
+The directory cases of TwoWaySyncTests.md#target-only-directories and #deleted-directories with
+the target on the server: a remote-only directory comes back whole, a directory deleted locally
+is emptied and removed on the server (ssh_rmdir, SyncFileSsh.md#ssh_rmdir), and a directory
+removed on the server leaves the local side without being recreated remotely.
+
+## renames
+
+A local rename into a new subdirectory becomes an SFTP rename on the server (ssh_rename,
+SyncFileSsh.md#ssh_rename), directory created on the way; the server's write time of the file
+stays what the upload gave it, which an upload anew could not guarantee to the second.

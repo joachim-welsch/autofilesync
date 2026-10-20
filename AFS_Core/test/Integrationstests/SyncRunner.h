@@ -26,16 +26,24 @@
 
 namespace tu {
 
-inline std::size_t run_sync(const AFS_Core::SyncItem& si)  // [SyncRunner.md#run_sync]
+inline std::size_t run_sync(const AFS_Core::SyncItem& si, AFS_Core::SyncState* state)  // [SyncRunner.md#run_sync]
 {
 	using namespace AFS_Core;
 	std::size_t copy_count = 0;
 	switch (si.sync_item_type()) {
-	case SyncItemType::Tree: { SyncTree tree(si, copy_count, false); tree(); break; }
-	case SyncItemType::Dir: { SyncDir dir(si, copy_count, false); dir(); break; }
-	default: { SyncFile file(si, copy_count, false); file(); break; }
+	case SyncItemType::Tree: { SyncTree tree(si, copy_count, false, state); tree(); break; }
+	case SyncItemType::Dir: { SyncDir dir(si, copy_count, false, state); dir(); break; }
+	default: { SyncFile file(si, copy_count, false, false, state); file(); break; }
 	}
 	return copy_count;
+}
+inline std::size_t run_sync(const AFS_Core::SyncItem& si)
+{
+	return run_sync(si, nullptr);
+}
+inline std::size_t run_sync(const AFS_Core::SyncItem& si, AFS_Core::SyncState& state)  // [SyncRunner.md#run_sync-with-state]
+{
+	return run_sync(si, &state);
 }
 
 } // namespace tu

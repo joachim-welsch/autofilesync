@@ -76,9 +76,12 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
 
 <tr><td valign="top"><b>Synchronizacja dwukierunkowa</b></td>
     <td>Uwzględniany jest także kierunek odwrotny: to, co istnieje tylko w celu,
-        jest kopiowane z powrotem do źródła, a nowszy cel wygrywa ze starszym
-        źródłem. Razem z <b>Usuwaj także w celu usunięte pliki</b> wygrywa
-        usuwanie – ustawianie obu naraz rzadko ma sens. Opcja wyklucza się z <b>Usuń źródło po skopiowaniu</b> oraz z <b>Kopiuj, nawet jeśli plik docelowy jest nowszy</b>; zaznaczona jako pierwsza blokuje drugą.</td></tr>
+        jest kopiowane z powrotem do źródła, a usunięcia, zmiany i zmiany nazw są
+        przenoszone w obu kierunkach; zobacz <a href="#twoway">Synchronizacja
+        dwukierunkowa w szczegółach</a>. Razem z <b>Usuwaj także w celu usunięte
+        pliki</b> wygrywa usuwanie. Opcja wyklucza się z <b>Usuń źródło po
+        skopiowaniu</b> oraz z <b>Kopiuj, nawet jeśli plik docelowy jest
+        nowszy</b>; zaznaczona jako pierwsza blokuje drugą.</td></tr>
 
 <tr><td valign="top"><b>Kopiuj, nawet jeśli plik docelowy jest nowszy</b></td>
     <td>Zwykle AutoFileSync nie nadpisuje pliku docelowego, który jest nowszy od
@@ -119,11 +122,62 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
         który podłącza się tylko od czasu do czasu, opcję należy wyłączyć:
         brak jest wtedy odnotowywany tylko w dzienniku. Szczegóły: <a href="unreachable.html">Nieosiągalne dyski i połączenia</a>.</td></tr>
 
+<tr><td valign="top"><b>Rozpoznawanie zmian nazw i przeniesień</b></td>
+    <td>Plik, którego nazwę zmieniono lub który przeniesiono w źródle, otrzymuje
+        nową nazwę także w celu, zamiast być przesyłany ponownie i usuwany pod
+        starą nazwą. W tym celu AutoFileSync prowadzi także dla tej synchronizacji
+        <a href="#twoway">stan synchronizacji</a>. Opcja działa tylko razem z
+        <b>Usuwaj także w celu usunięte pliki</b>, bo zmiana nazwy usuwa starą
+        nazwę w celu. Przy synchronizacji dwukierunkowej rozpoznawanie jest zawsze
+        włączone; przy typie Plik nie ma czego przemianowywać.</td></tr>
+
 <tr><td valign="top"><b>Sekundy przerwy</b></td>
     <td>Czas oczekiwania między dwoma przebiegami synchronizacji ciągłej,
         ustawiany od 1 do 60 sekund. Krótkie przerwy szybciej wykrywają zmiany,
         ale bardziej obciążają nośniki i sieć.</td></tr>
 </table>
+
+<h2><a name="twoway"></a>Synchronizacja dwukierunkowa w szczegółach</h2>
+
+<p>Przy synchronizacji dwukierunkowej AutoFileSync zapamiętuje po każdym
+przebiegu, w jakim stanie każdy plik był po obu stronach. Ten <b>stan
+synchronizacji</b> to plik obok konfiguracji (podkatalog <tt>state</tt>, jeden
+plik na synchronizację), wspólny dla programu i usługi w tle. Dzięki niemu
+następny przebieg rozróżnia, czy plik jest nowy, czy został usunięty po jednej
+stronie:</p>
+
+<ul>
+<li><b>Usunięty po jednej stronie</b>: plik jest usuwany także po drugiej
+    stronie, zgodnie z <a href="settings.html">trybem usuwania</a>, czyli zwykle
+    do kosza. Dotyczy to także katalogów: folder usunięty po jednej stronie jest
+    po drugiej opróżniany i usuwany; folder istniejący tylko w celu jest
+    przejmowany do źródła.</li>
+<li><b>Usunięty po jednej stronie, od tego czasu zmieniony po drugiej</b>:
+    zmieniony plik wygrywa i jest kopiowany z powrotem; dziennik zawiera
+    ostrzeżenie.</li>
+<li><b>Zmieniony tylko po jednej stronie</b>: wygrywa zmieniona wersja, nawet
+    jeśli jej czas modyfikacji jest starszy niż po drugiej stronie, na przykład
+    po przywróceniu z archiwum.</li>
+<li><b>Zmieniony po obu stronach</b>: żadna strona nie jest nadpisywana.
+    Przebieg zgłasza błąd, dopóki nie zdecydujesz, która wersja obowiązuje –
+    skopiuj ręcznie właściwy plik na drugi.</li>
+<li><b>Przemianowany lub przeniesiony</b>: plik otrzymuje nową nazwę także po
+    drugiej stronie, zamiast być przesyłany ponownie i usuwany pod starą nazwą.
+    Jeśli są dwa pliki o tym samym rozmiarze i czasie modyfikacji, dla
+    bezpieczeństwa plik jest kopiowany.</li>
+</ul>
+
+<p>Pierwszy przebieg po skonfigurowaniu – i pierwszy po aktualizacji do wersji ze
+stanem synchronizacji – nie zna jeszcze żadnego stanu i zachowuje się jak
+dotąd: to, co istnieje tylko po jednej stronie, jest kopiowane na drugą;
+usunięcie jest rozpoznawane dopiero od drugiego przebiegu. <a
+href="preview.html">Podgląd</a> pokazuje wcześniej, jakie usunięcia i zmiany
+nazw czekają.</p>
+
+<p><b>Uwaga:</b> opróżniony cel – na przykład świeżo sformatowany dysk kopii –
+liczy się jako „wszystko usunięte w celu” i przy następnym przebiegu opróżniłby
+także źródło (do kosza). W takim przypadku usuń synchronizację i utwórz ją na
+nowo; stan synchronizacji zaczyna się wtedy od początku.</p>
 
 <h2><a name="deleteintarget"></a>Usuwaj także w celu usunięte pliki</h2>
 

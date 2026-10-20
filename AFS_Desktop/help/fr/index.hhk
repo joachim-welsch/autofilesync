@@ -115,6 +115,18 @@
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Synchronisation bidirectionnelle (suppressions, conflits, renommages)">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Reconnaître les renommages et déplacements">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="État de synchronisation">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Type (fichier, dossier, arborescence)">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>

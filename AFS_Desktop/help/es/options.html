@@ -79,10 +79,13 @@ ambos lados guardan la hora con la misma precisión.</p>
 
 <tr><td valign="top"><b>Sincronización bidireccional</b></td>
     <td>También cuenta el sentido contrario: lo que solo existe en el destino se
-        copia de vuelta al origen, y un destino más reciente gana a un origen más
-        antiguo. Junto con <b>Eliminar también en el destino los archivos
-        eliminados</b>, gana la eliminación – activar ambas a la vez rara vez
-        tiene sentido. La opción se excluye mutuamente con <b>Eliminar el origen después de copiar</b> y con <b>Copiar aunque el archivo de destino sea más reciente</b>; la que se activa primero bloquea la otra.</td></tr>
+        copia de vuelta al origen, y las eliminaciones, modificaciones y cambios de
+        nombre se trasladan en ambos sentidos; véase <a href="#twoway">La
+        sincronización bidireccional en detalle</a>. Junto con <b>Eliminar también
+        en el destino los archivos eliminados</b>, gana la eliminación. La opción
+        se excluye mutuamente con <b>Eliminar el origen después de copiar</b> y con
+        <b>Copiar aunque el archivo de destino sea más reciente</b>; la que se
+        activa primero bloquea la otra.</td></tr>
 
 <tr><td valign="top"><b>Copiar aunque el archivo de destino sea más reciente</b></td>
     <td>Normalmente AutoFileSync no sobrescribe un archivo de destino más
@@ -127,11 +130,63 @@ ambos lados guardan la hora con la misma precisión.</p>
         un disco de copia de seguridad que solo se conecta de vez en cuando,
         desactive la opción: la ausencia solo se anota en el registro. En detalle: <a href="unreachable.html">Unidades y conexiones no accesibles</a>.</td></tr>
 
+<tr><td valign="top"><b>Reconocer cambios de nombre y movimientos</b></td>
+    <td>Un archivo renombrado o movido en el origen se renombra también en el
+        destino, en lugar de transferirse de nuevo y eliminarse con su nombre
+        antiguo. Para ello AutoFileSync mantiene también para esta sincronización
+        un <a href="#twoway">estado de sincronización</a>. La opción solo actúa
+        junto con <b>Eliminar también en el destino los archivos eliminados</b>,
+        porque el cambio de nombre quita el nombre antiguo en el destino. Con la
+        sincronización bidireccional el reconocimiento está siempre activo; con el
+        tipo Archivo no hay nada que renombrar.</td></tr>
+
 <tr><td valign="top"><b>Segundos de pausa</b></td>
     <td>Tiempo de espera entre dos ejecuciones de una sincronización continua,
         ajustable de 1 a 60 segundos. Las pausas cortas detectan antes los
         cambios y cargan más las unidades y la red.</td></tr>
 </table>
+
+<h2><a name="twoway"></a>La sincronización bidireccional en detalle</h2>
+
+<p>Con la sincronización bidireccional AutoFileSync recuerda tras cada ejecución
+en qué estado se encontraba cada archivo en ambos lados. Este <b>estado de
+sincronización</b> es un archivo junto a la configuración (subcarpeta
+<tt>state</tt>, un archivo por sincronización) que comparten el programa y el
+servicio en segundo plano. Con él la siguiente ejecución distingue si un archivo
+es nuevo o se eliminó en un lado:</p>
+
+<ul>
+<li><b>Eliminado en un lado</b>: el archivo se elimina también en el otro lado,
+    según el <a href="settings.html">modo de eliminación</a>, es decir,
+    normalmente a la papelera. Esto incluye los directorios: una carpeta
+    eliminada en un lado se vacía y se elimina en el otro; una carpeta que solo
+    existe en el destino se incorpora al origen.</li>
+<li><b>Eliminado en un lado y modificado después en el otro</b>: el archivo
+    modificado gana y se copia de vuelta; el registro contiene una advertencia.</li>
+<li><b>Modificado solo en un lado</b>: gana la versión modificada, aunque su hora
+    de modificación sea anterior a la del otro lado, por ejemplo tras restaurar
+    desde un archivo comprimido.</li>
+<li><b>Modificado en ambos lados</b>: no se sobrescribe ningún lado. La
+    ejecución informa de un error hasta que usted decida qué versión vale: copie
+    a mano el archivo deseado sobre el otro.</li>
+<li><b>Renombrado o movido</b>: el archivo se renombra también en el otro lado
+    en lugar de transferirse de nuevo y eliminarse con el nombre antiguo. Si hay
+    dos archivos con el mismo tamaño y la misma hora de modificación, se copia
+    por seguridad.</li>
+</ul>
+
+<p>La primera ejecución tras la configuración, y la primera tras actualizar a la
+versión con estado de sincronización, aún no conoce ningún estado y se comporta
+como antes: lo que solo existe en un lado se copia al otro; una eliminación se
+reconoce a partir de la segunda ejecución. La <a href="preview.html">vista
+previa</a> muestra de antemano qué eliminaciones y cambios de nombre están
+pendientes.</p>
+
+<p><b>Atención:</b> un destino vaciado, por ejemplo un disco de copia recién
+formateado, cuenta como «todo eliminado en el destino» y vaciaría también el
+origen en la siguiente ejecución (a la papelera). En ese caso elimine la
+sincronización y créela de nuevo; el estado de sincronización empieza entonces
+desde cero.</p>
 
 <h2><a name="deleteintarget"></a>Eliminar también en el destino los archivos eliminados</h2>
 

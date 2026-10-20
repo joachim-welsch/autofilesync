@@ -76,10 +76,13 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
 
 <tr><td valign="top"><b>Zwei-Wege-Synchronisation</b></td>
     <td>Auch der umgekehrte Weg wird berücksichtigt: Was nur im Ziel existiert,
-        wird zurück in die Quelle kopiert, und ein neueres Ziel gewinnt gegen
-        eine ältere Quelle. Zusammen mit <b>Gelöschte Dateien im Ziel ebenfalls
-        löschen</b> gewinnt das Löschen – beides gleichzeitig zu setzen ist
-        selten sinnvoll. Mit <b>Quelle nach dem Kopieren löschen</b> und mit <b>Kopieren wenn Ziel neuer</b> schließt sich die Option gegenseitig aus; die zuerst gesetzte sperrt die andere.</td></tr>
+        wird zurück in die Quelle kopiert, und Löschungen, Änderungen und
+        Umbenennungen werden in beide Richtungen übernommen; siehe
+        <a href="#twoway">Zwei-Wege-Synchronisation im Einzelnen</a>. Zusammen
+        mit <b>Gelöschte Dateien im Ziel ebenfalls löschen</b> gewinnt das
+        Löschen. Mit <b>Quelle nach dem Kopieren löschen</b> und mit <b>Kopieren
+        wenn Ziel neuer</b> schließt sich die Option gegenseitig aus; die zuerst
+        gesetzte sperrt die andere.</td></tr>
 
 <tr><td valign="top"><b>Kopieren wenn Ziel neuer</b></td>
     <td>Normalerweise überschreibt AutoFileSync keine Zieldatei, die neuer ist
@@ -124,11 +127,63 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
         angeschlossen wird, schaltet man die Option ab: Dann wird das Fehlen
         nur im Protokoll vermerkt. Ausführlich: <a href="unreachable.html">Nicht erreichbare Laufwerke und Verbindungen</a>.</td></tr>
 
+<tr><td valign="top"><b>Umbenennen und Verschieben erkennen</b></td>
+    <td>Eine in der Quelle umbenannte oder verschobene Datei wird im Ziel
+        ebenfalls umbenannt statt neu übertragen und unter dem alten Namen
+        gelöscht. Dafür führt AutoFileSync auch für diese Synchronisation einen
+        <a href="#twoway">Abgleichszustand</a>. Die Option wirkt nur zusammen mit
+        <b>Gelöschte Dateien im Ziel ebenfalls löschen</b>, weil die Umbenennung
+        den alten Namen im Ziel entfernt. Bei Zwei-Wege-Synchronisation ist die
+        Erkennung immer eingeschaltet; beim Typ Datei gibt es nichts umzubenennen.</td></tr>
+
 <tr><td valign="top"><b>Sekunden Pause</b></td>
     <td>Wartezeit zwischen zwei Durchläufen bei fortlaufender Synchronisation,
         einstellbar von 1 bis 60 Sekunden. Kurze Pausen erkennen Änderungen
         schneller und belasten Datenträger und Netz stärker.</td></tr>
 </table>
+
+<h2><a name="twoway"></a>Zwei-Wege-Synchronisation im Einzelnen</h2>
+
+<p>Bei Zwei-Wege-Synchronisation merkt sich AutoFileSync nach jedem Durchlauf,
+in welchem Stand jede Datei auf beiden Seiten vorlag. Dieser
+<b>Abgleichszustand</b> liegt als Datei neben der Konfiguration (Unterordner
+<tt>state</tt>, eine Datei je Synchronisation) und wird vom Programm und vom
+Hintergrunddienst gemeinsam benutzt. Mit ihm unterscheidet der nächste
+Durchlauf, ob eine Datei neu ist oder auf einer Seite gelöscht wurde:</p>
+
+<ul>
+<li><b>Auf einer Seite gelöscht</b>: Die Datei wird auch auf der anderen Seite
+    gelöscht – gemäß <a href="settings.html">Löschmodus</a>, also normalerweise
+    in den Papierkorb. Das gilt auch für Verzeichnisse: Ein auf einer Seite
+    gelöschter Ordner wird auf der anderen geleert und entfernt; ein Ordner, den
+    es nur im Ziel gibt, wird in die Quelle übernommen.</li>
+<li><b>Auf einer Seite gelöscht, auf der anderen seitdem bearbeitet</b>: Die
+    bearbeitete Datei gewinnt und wird zurückkopiert; das Protokoll enthält eine
+    Warnung.</li>
+<li><b>Nur auf einer Seite bearbeitet</b>: Die bearbeitete Fassung gewinnt, auch
+    wenn ihre Änderungszeit älter ist als die der anderen Seite, etwa nach dem
+    Zurückspielen aus einem Archiv.</li>
+<li><b>Auf beiden Seiten bearbeitet</b>: Keine Seite wird überschrieben. Der
+    Durchlauf meldet einen Fehler, bis Sie entschieden haben, welche Fassung
+    gilt – kopieren Sie die gewünschte Datei von Hand über die andere.</li>
+<li><b>Umbenannt oder verschoben</b>: Die Datei wird auf der anderen Seite
+    ebenfalls umbenannt statt neu übertragen und unter dem alten Namen gelöscht.
+    Gibt es zwei Dateien gleicher Größe und Änderungszeit, wird sicherheitshalber
+    kopiert.</li>
+</ul>
+
+<p>Der erste Durchlauf nach dem Einrichten – und der erste nach dem Update auf
+die Version mit Abgleichszustand – kennt noch keinen Stand und verhält sich wie
+bisher: Was nur auf einer Seite liegt, wird auf die andere kopiert; eine
+Löschung wird erst ab dem zweiten Durchlauf erkannt. Die
+<a href="preview.html">Vorschau</a> zeigt vorher, welche Löschungen und
+Umbenennungen anstehen.</p>
+
+<p><b>Achtung:</b> Ein leer geräumtes Ziel – etwa eine neu formatierte
+Sicherungsplatte – gilt als „alles im Ziel gelöscht“ und würde beim nächsten
+Durchlauf auch die Quelle leeren (in den Papierkorb). Löschen Sie in diesem Fall
+die Synchronisation und legen Sie sie neu an; damit beginnt der Abgleichszustand
+von vorn.</p>
 
 <h2><a name="deleteintarget"></a>Gelöschte Dateien im Ziel ebenfalls löschen</h2>
 

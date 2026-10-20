@@ -150,6 +150,14 @@ msgstr "Підтвердження резервного копіювання"
 msgid "backup_proof_not_writable"
 msgstr "Не вдалося записати підтвердження резервного копіювання: "
 
+#: AFS_Core/src/SyncState.cpp:230
+msgid "sync_state_not_writable"
+msgstr "Не вдалося записати стан синхронізації: "
+
+#: AFS_Core/src/SyncState.cpp:217
+msgid "sync_state_not_readable"
+msgstr "Стан синхронізації неможливо прочитати, наступний запуск почнеться без нього: "
+
 #: AFS_Core/src/CopyLog.cpp:147
 msgid "error_list_capped"
 msgstr "Подальші помилки не записано."
@@ -628,6 +636,10 @@ msgstr "Неможливо створити папку призначення SS
 msgid "target_dir_create_error"
 msgstr "Помилка створення папки призначення: "
 
+#: AFS_Core/src/SyncBase.cpp:111
+msgid "source_dir_create_error"
+msgstr "Помилка створення каталогу джерела: "
+
 #: AFS_Core/src/SyncBase.cpp:70
 msgid "target_dir_not_creatable"
 msgstr "Неможливо створити папку призначення: "
@@ -644,6 +656,14 @@ msgstr "Не скопійовано, бо призначення новіше з
 #: AFS_Core/src/SyncFile.cpp:77 AFS_Core/src/SyncFile.cpp:78
 msgid "content_conflict_not_copied"
 msgstr "Не синхронізовано, бо час і розмір однакові, але вміст відрізняється:"
+
+#: AFS_Core/src/SyncFile.cpp:96
+msgid "deleted_but_changed_kept"
+msgstr "Видалено з одного боку та змінено з іншого після останньої синхронізації – змінений файл копіюється, а не видаляється:"
+
+#: AFS_Core/src/SyncFile.cpp:89
+msgid "both_modified_not_copied"
+msgstr "Не синхронізовано, оскільки обидві сторони змінилися з часу останньої синхронізації:"
 
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
@@ -702,9 +722,41 @@ msgstr "Видалення файлу призначення, бо джерел�
 msgid "source_label"
 msgstr "Джерело:"
 
+#: AFS_Core/src/SyncFile.cpp:420
+msgid "target_label"
+msgstr "Ціль:"
+
 #: AFS_Core/src/SyncFile.cpp:294 AFS_Core/src/SyncFile.cpp:295
 msgid "target_delete_failed"
 msgstr "Не вдалося видалити файл призначення: "
+
+#: AFS_Core/src/SyncBase.cpp:123
+msgid "empty_dir_removed"
+msgstr "Порожній каталог видалено, оскільки його видалено з іншого боку: "
+
+#: AFS_Core/src/SyncBase.cpp:126
+msgid "dir_delete_failed"
+msgstr "Не вдалося видалити порожній каталог: "
+
+#: AFS_Core/src/SyncFile.cpp:419
+msgid "source_deleted_target_missing"
+msgstr "Видалення файлу джерела, оскільки його видалено в цілі: "
+
+#: AFS_Core/src/SyncFile.cpp:423
+msgid "source_delete_failed"
+msgstr "Не вдалося видалити файл джерела: "
+
+#: AFS_Core/src/SyncFile.cpp:478
+msgid "renamed_in_target"
+msgstr "Перейменовано в цілі замість повторного копіювання: "
+
+#: AFS_Core/src/SyncFile.cpp:478
+msgid "renamed_in_source"
+msgstr "Перейменовано в джерелі замість повторного копіювання: "
+
+#: AFS_Core/src/SyncFile.cpp:448
+msgid "rename_failed"
+msgstr "Перейменування не вдалося, файл буде скопійовано: "
 
 #: AFS_Core/src/SyncFile.cpp:305 AFS_Core/src/SyncFile.cpp:342
 msgid "copy_progress"
@@ -778,6 +830,14 @@ msgstr "Помилка створення віддаленої папки: "
 #: AFS_Core/src/SyncFileSsh.cpp:428 AFS_Core/src/SyncFileSsh.cpp:1277
 msgid "remote_file_delete_error"
 msgstr "Помилка видалення віддаленого файлу: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:459
+msgid "remote_dir_delete_error"
+msgstr "Помилка видалення віддаленого каталогу: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:473
+msgid "remote_rename_error"
+msgstr "Помилка перейменування на сервері: "
 
 #: AFS_Core/src/SyncFileSsh.cpp:481
 msgid "ssh_connect_error_for_host"
@@ -1689,6 +1749,14 @@ msgstr "Синхронізувати порожні файли"
 msgid "option_warn_if_unreachable"
 msgstr "Попереджати, якщо немає диска або з'єднання SSH"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:173
+msgid "option_track_moves"
+msgstr "Розпізнавати перейменування та переміщення"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "two_way_hint"
+msgstr "Видалення, зміни та перейменування переносяться в обидва боки, щойно перший прохід дізнається про обидві сторони. Попередній перегляд показує заздалегідь, що було б видалено."
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Секунд паузи:"
@@ -1897,6 +1965,10 @@ msgstr "без попередження, якщо немає диска або �
 msgid "config_summary_last_errors"
 msgstr "помилок в останньому запуску: %1, перша: %2"
 
+#: AFS_Core/src/ConfigSummary.cpp:103
+msgid "config_summary_sync_state"
+msgstr "Стан синхронізації: відомо файлів: %1"
+
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr "У програмі: %1. Фонова служба – %2."
@@ -1953,9 +2025,21 @@ msgstr "Скопіювати назад у джерело"
 msgid "preview_delete_in_target"
 msgstr "Видалити в призначенні"
 
+#: AFS_Desktop/src/PreviewDialog.cpp:110
+msgid "preview_delete_in_source"
+msgstr "Видалити в джерелі"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:118
+msgid "preview_rename_in_target"
+msgstr "Перейменувати в цілі"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:119
+msgid "preview_rename_in_source"
+msgstr "Перейменувати в джерелі"
+
 #: AFS_Desktop/src/PreviewDialog.cpp:98
 msgid "preview_summary"
-msgstr "%1 кроків, з них %2 видалень у призначенні; до передавання: %3"
+msgstr "%1 кроків, з них %2 видалень; до передавання: %3"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:70
 msgid "preview_more"

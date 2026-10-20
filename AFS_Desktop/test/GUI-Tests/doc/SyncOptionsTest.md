@@ -35,3 +35,11 @@ sets the tolerance to 0 in the dialog and proves that the same second then count
 Same size, same write time, different content: the case only a content comparison can tell
 apart. The pair of tests shows both sides - the content comparison copies, the date
 comparison reports nothing to do.
+
+## two-way-state
+
+The sync state through the GUI: the second single run of a two-way item carries a deletion in
+the source to the target (SyncFile.md#state), into the recycle bin, and a one-way item with
+"Umbenennen und Verschieben erkennen" renames in the target - which the empty recycle bin
+proves, since a copy-and-delete would have put the old file there. Both items leave a state
+file the fixture removes afterwards (GuiTest.md#sync-state-removed).

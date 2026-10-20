@@ -39,6 +39,7 @@ class SyncFlags {
     bool    backup_proof_ = false;
     bool    sync_empty_files_ = false;  // [SyncItem.md#sync_empty_files_]
     bool    warn_if_unreachable_ = true;  // [SyncItem.md#warn_if_unreachable_]
+    bool    track_moves_ = false;  // [SyncItem.md#track_moves_]
     bool    enabled_ = true;
     uint16_t sync_cycle_ = 60;
 public:
@@ -60,6 +61,8 @@ public:
     void sync_empty_files(bool v);
     bool warn_if_unreachable() const;
     void warn_if_unreachable(bool v);
+    bool track_moves() const;
+    void track_moves(bool v);
     bool enabled() const;
     void enabled(bool v);
 };
@@ -139,6 +142,7 @@ struct LastRun {  // [SyncItem.md#LastRun]
     bool         reachable = true;
     std::size_t  errors = 0;
     std::wstring first_error;
+    std::optional<std::size_t> known_files;  // [SyncItem.md#known_files]
 };
 
 class SyncItem {
@@ -198,6 +202,8 @@ public:
     void sync_empty_files(bool s);
     bool warn_if_unreachable() const;
     void warn_if_unreachable(bool w);
+    bool track_moves() const;  // [SyncItem.md#track_moves_]
+    void track_moves(bool t);
     bool enabled() const;
     void enabled(bool e);
     SyncItemType sync_item_type() const;
@@ -239,6 +245,8 @@ inline bool SyncFlags::sync_empty_files() const { return sync_empty_files_; }
 inline void SyncFlags::sync_empty_files(bool v) { sync_empty_files_ = v; }
 inline bool SyncFlags::warn_if_unreachable() const { return warn_if_unreachable_; }
 inline void SyncFlags::warn_if_unreachable(bool v) { warn_if_unreachable_ = v; }
+inline bool SyncFlags::track_moves() const { return track_moves_; }
+inline void SyncFlags::track_moves(bool v) { track_moves_ = v; }
 inline bool SyncFlags::enabled() const { return enabled_; }
 inline void SyncFlags::enabled(bool v) { enabled_ = v; }
 
@@ -271,6 +279,8 @@ inline bool SyncItem::sync_empty_files() const { return flags_.sync_empty_files(
 inline void SyncItem::sync_empty_files(bool s) { flags_.sync_empty_files(s); }
 inline bool SyncItem::warn_if_unreachable() const { return flags_.warn_if_unreachable(); }
 inline void SyncItem::warn_if_unreachable(bool w) { flags_.warn_if_unreachable(w); }
+inline bool SyncItem::track_moves() const { return flags_.track_moves(); }
+inline void SyncItem::track_moves(bool t) { flags_.track_moves(t); }
 inline bool SyncItem::enabled() const { return flags_.enabled(); }
 inline void SyncItem::enabled(bool e) { flags_.enabled(e); }
 inline std::wstring SyncItem::item_type_str() const { return sync_item_type_to_str(type_); }

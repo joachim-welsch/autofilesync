@@ -113,3 +113,9 @@ file stays readable in a text editor whatever the language of its names and path
 
 Like refresh_last_sync(): the pass works on a snapshot of the items, so the outcome must go
 into the live item under the lock, where the next snapshot and the assistant find it.
+
+## state-leaves-with-item
+
+The sync state file belongs to the item it is named after; a deleted item would leave it
+behind for good, and an item created later under the same name would start with a foreign
+state - which read_sync_state() rejects only when the paths differ.

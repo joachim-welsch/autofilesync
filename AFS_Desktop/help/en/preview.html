@@ -37,8 +37,16 @@ you had chosen <a href="synconce.html">Synchronise once</a>.</p>
         or is newer there.</td></tr>
 <tr><td valign="top"><b>Delete in target</b></td>
     <td>The file no longer exists in the source and <b>Delete files in the
-        target that were deleted</b> is set. These rows are red because they
-        are the only ones that remove data.</td></tr>
+        target that were deleted</b> is set – or the two-way synchronisation
+        found that it was deleted in the source. These rows are red because they
+        remove data.</td></tr>
+<tr><td valign="top"><b>Delete in the source</b></td>
+    <td>With <b>two-way synchronisation</b>: the file was deleted in the target
+        since it was last synchronised. These rows are red as well.</td></tr>
+<tr><td valign="top"><b>Rename in the target</b>, <b>Rename in the source</b></td>
+    <td>The file was renamed or moved on the other side; here it is only
+        renamed, nothing is transferred. The file column shows the old and the
+        new name.</td></tr>
 </table>
 
 <p>Below the list is the summary: how many steps, how many of them deletions

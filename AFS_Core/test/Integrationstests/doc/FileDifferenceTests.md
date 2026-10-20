@@ -76,3 +76,21 @@ rounds to 100 ns, exFAT to 10 ms, FAT32 to 2 s), so a copy carries a time slight
 original and was sent again on every pass. The tolerance is a value of the item, so a
 tolerance of 0 still gives the exact comparison, and a two-way sync does not read a difference
 inside the tolerance as "the other side is newer" either - that pair is a content conflict.
+
+## ThreeWayTest
+
+Both sides start out identical and the base is read off the disk, so every test only has to
+make one change and ask what the comparison says with the base and what it says without
+(FileDifference.md#three-way). Ages of one and two hours keep the write times apart by far
+more than the tolerance, with the content criterion off so that only metadata decides.
+
+## TheChangedSideIsTheModifiedOneWhateverTheTimesSay
+
+The source is rewritten with an older write time than the target's: the plain comparison
+calls the target newer, the three-way comparison sees that the target still matches the base
+and the source does not.
+
+## BothChangedIsAConflictUnlessTheyAgree
+
+Both sides changed since the base: a conflict while they differ from each other, Equal once
+they agree (FileDifference.md#both-changed-alike).

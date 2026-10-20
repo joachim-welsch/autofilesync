@@ -103,6 +103,18 @@
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Two-way synchronisation (deletions, conflicts, renames)">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Recognise renames and moves">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sync state">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Troubleshooting">
       <PARAM name="Local" value="troubleshooting.html">
     </OBJECT></LI>

@@ -13,10 +13,15 @@ step, so the summary is right even when the list is cut.
 
 ## PlannedAction
 
-The four things a run does to a file, as the user needs to tell them apart: a copy into the
+The five things a run does to a file, as the user needs to tell them apart: a copy into the
 target, a move (copy, then the source is deleted - del_aftercopy), a copy back into the
-source (two_way_sync) and a deletion in the target (delete_in_target). The deletion is the
-one that loses data, so it is a kind of its own rather than a flag.
+source (two_way_sync), a deletion in the target (delete_in_target, or a two-way sync whose
+state says the source side was deleted) and a deletion in the source (a two-way sync whose
+state says the target side was deleted, see SyncFile.md#state). The deletions are the steps
+that lose data, so they are kinds of their own rather than flags, and deletion() names them
+for the preview. A rename in the target or in the source (SyncFile.md#renames) is a sixth and
+seventh kind: the step's source is the old path and its target the new one, both on the same
+side, and it moves no bytes, which rename() tells the volume count and the preview.
 
 ## UnreachableItem
 

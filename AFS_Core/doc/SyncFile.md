@@ -118,3 +118,40 @@ A two-way item whose files have the same time and size but different content
 (see FileDifference.md#content-conflict) is not copied in either direction. It is
 an error because the two sides stay different until the user decides which one
 is right, and it goes to the sync report as well, so a backup proof shows it.
+
+## state
+
+A two-way item passes the SyncState of its last pass down to every SyncFile
+(SyncBase.md#state_). Before the comparison the file is marked seen - whatever happens to it,
+its entry must survive the pruning at the end of a complete pass (SyncState.md#forget_unseen)
+- and its entry is handed to FileDifference as the base (FileDifference.md#three-way). Two
+decisions exist only with a base: a source deleted since the last pass deletes the target, a
+target deleted since the last pass deletes the source (PlannedAction::DeleteInSource), each
+through the same deletion path as delete_in_target, so the recycle bin applies.
+
+After the pass's verdict the state learns what it saw: a file that is Equal is recorded with
+the measured sizes and times, a copy records both sides as observe_file() finds them after
+the copy, a deletion or a move forgets the entry, a file gone on both sides is forgotten too.
+Only a real run records; the preview and the counting pass leave the state as they found it,
+so a preview never makes a later run think the sides were in sync.
+
+## both-modified
+
+Both sides edited since the last pass (FileDifference.md#three-way): neither copy is safe.
+Reported like the content conflict, once per file and as an error in the proof, and left
+alone until the user settles it; the state keeps the old entry, so the conflict is noticed
+again on every pass until then.
+
+## kept-instead-of-deleted
+
+Deleted on one side but edited on the other since the last pass: the plain SourceNotExits or
+DestNotExists stands and the edited file is copied back, as it would be without a state. The
+warning tells the user why a file they deleted came back.
+
+## parent-of-a-kept-file
+
+A file edited on one side after its directory was deleted on the other is copied back
+(kept-instead-of-deleted above) into a directory that no longer exists there - SyncTree does
+not recreate a deleted directory (SyncTree.md#prepare-and-settle), only the file's own copy
+does, with every missing level. Only this case pays for the check; the ordinary copy relies on
+the directory the tree pass created.

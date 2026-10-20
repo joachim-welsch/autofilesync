@@ -75,3 +75,16 @@ item after a successful account edit to keep them in sync.
 The outcome of the item's last pass in this program: whether source and target were reachable,
 how many errors there were and the first of them. Kept on the item like last_sync_, not
 written to the configuration, so that the assistant can say why an item is not up to date.
+
+## known_files
+
+How many files the item's sync state knew after its last pass (Synchronize.md#sync-state);
+empty for an item without a state.
+
+## track_moves_
+
+Whether a one-way item keeps a sync state so that a file renamed or moved in the source is
+renamed in the target instead of copied afresh and deleted (SyncFile.md#renames). A two-way
+item has the state anyway and tracks moves always; the flag is for the one-way item that
+wants the saving, at the price of the state file. Off by default, like every option that
+adds a file next to the configuration.

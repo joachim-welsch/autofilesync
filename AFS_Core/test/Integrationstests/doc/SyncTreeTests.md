@@ -40,9 +40,10 @@ leave every level untouched.
 ## DeleteInTargetLeavesTargetOnlyDirectoriesAlone
 
 A source subdirectory that disappears while the source root still exists: only that branch's
-target counterpart may be affected, and since SyncTree never descends into a target-only
-directory, its files stay. Pins down the current, deliberate boundary of the option - deletions
-are mirrored per file, not for whole directories.
+target counterpart may be affected, and since a one-way item never descends into a target-only
+directory, its files stay. Pins down the deliberate boundary of the option - deletions are
+mirrored per file, not for whole directories; only a two-way item with a state goes further
+(TwoWaySyncTests.md#deleted-directories).
 
 ## SyncTreeUnreachableSshSourceTest
 

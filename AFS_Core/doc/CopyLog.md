@@ -50,10 +50,6 @@ and rewriting the older ones would mean altering evidence.
 The name of the file decides which file an entry is appended to. Translated, it would start a
 second file for the same sync item after a change of language.
 
-## trailing-dots-and-blanks
-
-Trailing dots and blanks are not preserved by Windows file names.
-
 ## name-in-every-entry
 
 Repeated in every entry although the file name already carries it: as_file_name() may have

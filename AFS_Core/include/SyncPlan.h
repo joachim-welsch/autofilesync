@@ -25,11 +25,22 @@
 
 namespace AFS_Core {
 
-enum class PlannedAction { CopyToTarget, MoveToTarget, CopyToSource, DeleteInTarget };  // [SyncPlan.md#PlannedAction]
+enum class PlannedAction { CopyToTarget, MoveToTarget, CopyToSource, DeleteInTarget, DeleteInSource, RenameInTarget, RenameInSource };  // [SyncPlan.md#PlannedAction]
+constexpr std::size_t PLANNED_ACTIONS = 7;
 
 inline bool file_in_target(PlannedAction action)  // the file the step handles lives in the target
 {
-    return action == PlannedAction::DeleteInTarget || action == PlannedAction::CopyToSource;
+    return action == PlannedAction::DeleteInTarget || action == PlannedAction::CopyToSource || action == PlannedAction::RenameInTarget;
+}
+
+inline bool rename(PlannedAction action)  // the file keeps its content and only changes its name, see [SyncPlan.md#PlannedAction]
+{
+    return action == PlannedAction::RenameInTarget || action == PlannedAction::RenameInSource;
+}
+
+inline bool deletion(PlannedAction action)  // the steps that lose data, see [SyncPlan.md#PlannedAction]
+{
+    return action == PlannedAction::DeleteInTarget || action == PlannedAction::DeleteInSource;
 }
 
 struct PlannedStep {
@@ -42,7 +53,7 @@ struct PlannedStep {
 
 class SyncPlan {  // [SyncPlan.md#SyncPlan]
     std::vector<PlannedStep> steps_;
-    std::array<std::size_t, 4> counts_{};
+    std::array<std::size_t, PLANNED_ACTIONS> counts_{};
     uint64_t bytes_ = 0;
 public:
     static constexpr std::size_t MAX_STEPS = 10000;  // [SyncPlan.md#MAX_STEPS]
@@ -50,6 +61,7 @@ public:
     const std::vector<PlannedStep>& steps() const { return steps_; }
     std::size_t count(PlannedAction action) const { return counts_[static_cast<std::size_t>(action)]; }
     std::size_t count() const;
+    std::size_t deletions() const { return count(PlannedAction::DeleteInTarget) + count(PlannedAction::DeleteInSource); }
     std::size_t not_listed() const { return count() - steps_.size(); }
     uint64_t bytes() const { return bytes_; }  // volume of the copies, deletions move nothing
     bool empty() const { return count() == 0; }

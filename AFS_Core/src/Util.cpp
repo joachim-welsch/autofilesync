@@ -292,6 +292,39 @@ fs::file_time_type to_file_time(std::time_t tt)  // [Util.md#file-time-conversio
 #endif
 }
 
+int64_t to_unix_nanoseconds(const fs::file_time_type& ft)  // [Util.md#file-time-conversions]
+{
+    using namespace std::chrono;
+#ifdef _MACOS
+    const auto sys = file_clock::to_sys(ft);
+#else
+    const auto sys = clock_cast<system_clock>(ft);
+#endif
+    return duration_cast<nanoseconds>(sys.time_since_epoch()).count();
+}
+
+fs::file_time_type from_unix_nanoseconds(int64_t ns)  // [Util.md#file-time-conversions]
+{
+    using namespace std::chrono;
+    const sys_time<nanoseconds> sys{nanoseconds(ns)};
+#ifdef _MACOS
+    return time_point_cast<fs::file_time_type::duration>(file_clock::from_sys(sys));
+#else
+    return time_point_cast<fs::file_time_type::duration>(clock_cast<file_clock>(sys));
+#endif
+}
+
+wstring as_file_name(const wstring& name)  // [Util.md#as_file_name]
+{
+    const wstring forbidden = L"<>:\"/\\|?*";
+    wstring retval;
+    for (wchar_t c : name)
+        retval += (c < 32 || forbidden.find(c) != wstring::npos) ? L'_' : c;
+    while (!retval.empty() && (retval.back() == L'.' || retval.back() == L' '))
+        retval.pop_back();
+    return retval;
+}
+
 string to_string(const fs::file_time_type& ft)
 {
     const std::tm tm = utc_time(to_time_t(ft));

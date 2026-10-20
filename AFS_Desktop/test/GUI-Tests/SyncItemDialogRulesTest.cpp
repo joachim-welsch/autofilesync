@@ -219,4 +219,43 @@ TEST_F(GuiTest, BearbeitenZeigtDieGespeichertenAusschluesseZeilenweise)  // [Syn
     pump();
 }
 
+
+TEST_F(GuiTest, ZweiWegeSyncSetztUmbenennenErkennenUndZeigtDenHinweis)  // [SyncItemDialogRulesTest.md#two-way-implies-moves]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_general")));
+        ASSERT_TRUE(select_entry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::Dir)));
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* track_moves = find(dialog, ID_TRACK_MOVES_CHECK);
+        wxWindow* hint = find(dialog, ID_TWO_WAY_HINT);
+        ASSERT_NE(track_moves, nullptr);
+        ASSERT_NE(hint, nullptr);
+        EXPECT_TRUE(track_moves->IsEnabled()) << "\"Umbenennen und Verschieben erkennen\" ist ohne Zwei-Wege-Sync gesperrt.";
+        EXPECT_FALSE(hint->IsShown()) << "Der Zwei-Wege-Hinweis erscheint ohne Zwei-Wege-Sync.";
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), true));
+        EXPECT_TRUE(static_cast<wxCheckBox*>(track_moves)->GetValue()) << "Zwei-Wege-Sync setzt \"Umbenennen und Verschieben erkennen\" nicht.";
+        EXPECT_FALSE(track_moves->IsEnabled()) << "\"Umbenennen und Verschieben erkennen\" bleibt bei Zwei-Wege-Sync bedienbar.";
+        EXPECT_TRUE(hint->IsShown()) << "Der Zwei-Wege-Hinweis fehlt.";
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), false));
+        EXPECT_TRUE(track_moves->IsEnabled()) << "\"Umbenennen und Verschieben erkennen\" wird nach dem Abwählen nicht wieder frei.";
+        EXPECT_FALSE(hint->IsShown()) << "Der Zwei-Wege-Hinweis bleibt nach dem Abwählen stehen.";
+    });
+}
+
+TEST_F(GuiTest, TypDateiSperrtUmbenennenErkennen)  // [SyncItemDialogRulesTest.md#two-way-implies-moves]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        wxWindow* track_moves = find(dialog, ID_TRACK_MOVES_CHECK);
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        EXPECT_FALSE(track_moves->IsEnabled()) << "\"Umbenennen und Verschieben erkennen\" ist beim Typ Datei bedienbar.";
+
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_general")));
+        ASSERT_TRUE(select_entry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::Tree)));
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        EXPECT_TRUE(track_moves->IsEnabled()) << "\"Umbenennen und Verschieben erkennen\" bleibt beim Typ Verzeichnisbaum gesperrt.";
+    });
+}
+
 }

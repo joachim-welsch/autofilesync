@@ -28,7 +28,7 @@ class SyncDir: public SyncBase {
 private:
     void sync_ssh_dir_entry(const SshDirEntry& entry, const std::wstring& source_path, const std::wstring& wildcard, const std::wstring& destination);
 public:
-    SyncDir(const SyncItem& si, std::size_t& copy_count, bool only_count);
+    SyncDir(const SyncItem& si, std::size_t& copy_count, bool only_count, SyncState* state = nullptr);
     void operator()() override;
 };
 

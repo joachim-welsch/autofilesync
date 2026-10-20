@@ -115,7 +115,7 @@ TEST(ConfigSummaryTests, LastSyncIsGivenInMinutes)  // [ConfigSummaryTests.md#La
 TEST(ConfigSummaryTests, UnreachableLastRunExplainsTheWarning)  // [ConfigSummaryTests.md#UnreachableLastRunExplainsTheWarning]
 {
     SyncItem item = item_named(L"weg");
-    item.last_run({false, 1, L"nicht erreichbar"});
+    item.last_run({false, 1, L"nicht erreichbar", std::nullopt});
     const wstring summary = config_summary::describe({item}, {});
     EXPECT_TRUE(contains(summary, translate("config_summary_unreachable_warned"))) << summary;
     EXPECT_FALSE(contains(summary, translate("config_summary_no_unreachable_warning"))) << summary;
@@ -125,7 +125,7 @@ TEST(ConfigSummaryTests, UnreachableLastRunExplainsTheSilence)  // [ConfigSummar
 {
     SyncItem item = item_named(L"platte");
     item.warn_if_unreachable(false);
-    item.last_run({false, 0, L""});
+    item.last_run({false, 0, L"", std::nullopt});
     const wstring summary = config_summary::describe({item}, {});
     EXPECT_TRUE(contains(summary, translate("config_summary_unreachable_silent"))) << summary;
     EXPECT_TRUE(contains(summary, translate("config_summary_no_unreachable_warning"))) << summary;
@@ -134,8 +134,18 @@ TEST(ConfigSummaryTests, UnreachableLastRunExplainsTheSilence)  // [ConfigSummar
 TEST(ConfigSummaryTests, ErrorsOfTheLastRunAreNamedWithTheFirst)  // [ConfigSummaryTests.md#ErrorsOfTheLastRunAreNamedWithTheFirst]
 {
     SyncItem item = item_named(L"fehler");
-    item.last_run({true, 3, L"Zugriff verweigert: /ziel/a.txt" + wstring(500, L'x')});
+    item.last_run({true, 3, L"Zugriff verweigert: /ziel/a.txt" + wstring(500, L'x'), std::nullopt});
     const wstring summary = config_summary::describe({item}, {});
     EXPECT_TRUE(contains(summary, translate("config_summary_last_errors", {L"3", L"Zugriff verweigert: /ziel/a.txt"}).substr(0, 20))) << summary;
     EXPECT_FALSE(contains(summary, wstring(300, L'x'))) << "Der Fehlertext wurde nicht gekürzt.";
+}
+
+TEST(ConfigSummaryTests, TwoWayItemNamesTheFilesItsStateKnows)  // [ConfigSummaryTests.md#known-files]
+{
+    SyncItem item = item_named(L"beide");
+    item.last_run({true, 0, L"", 42});
+    const wstring hint = translation::translate("config_summary_sync_state", {L"42"});
+    EXPECT_NE(config_summary::describe({item}, {}).find(hint), wstring::npos);
+    item.last_run({true, 0, L"", std::nullopt});
+    EXPECT_EQ(config_summary::describe({item}, {}).find(hint), wstring::npos);
 }

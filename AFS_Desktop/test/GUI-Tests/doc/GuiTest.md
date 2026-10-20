@@ -69,3 +69,12 @@ state, so the create-and-destroy of modal dialogs in one test does not leave the
 stuck off screen on macOS. The progress dialog is handled separately, by reuse in the application
 (SyncInterface.md#reuse-progress-dialog), because it is destroyed through wx's deferred deletion,
 which a native cycle here does not flush.
+
+## sync-state-removed
+
+A two-way or move-tracking item writes its sync state next to the sandbox configuration
+(SyncState.md#sync_state_dir). Restoring the configuration file does not remove it, and a later
+test that creates an item of the same name over the same paths would inherit the earlier
+test's view of the sides - with a state, a missing file reads as a deletion. The whole state
+directory is therefore removed after every test; the sandbox's own configuration has no item
+that keeps one.

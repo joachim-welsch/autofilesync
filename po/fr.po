@@ -150,6 +150,14 @@ msgstr "Preuves de sauvegarde"
 msgid "backup_proof_not_writable"
 msgstr "La preuve de sauvegarde n'a pas pu être écrite : "
 
+#: AFS_Core/src/SyncState.cpp:230
+msgid "sync_state_not_writable"
+msgstr "L'état de synchronisation n'a pas pu être écrit : "
+
+#: AFS_Core/src/SyncState.cpp:217
+msgid "sync_state_not_readable"
+msgstr "L'état de synchronisation est illisible, la prochaine exécution démarre sans lui : "
+
 #: AFS_Core/src/CopyLog.cpp:147
 msgid "error_list_capped"
 msgstr "Les erreurs suivantes n'ont pas été enregistrées."
@@ -628,6 +636,10 @@ msgstr "Impossible de créer le dossier cible SSH : "
 msgid "target_dir_create_error"
 msgstr "Erreur lors de la création du dossier cible : "
 
+#: AFS_Core/src/SyncBase.cpp:111
+msgid "source_dir_create_error"
+msgstr "Erreur lors de la création du répertoire source : "
+
 #: AFS_Core/src/SyncBase.cpp:70
 msgid "target_dir_not_creatable"
 msgstr "Impossible de créer le dossier cible : "
@@ -644,6 +656,14 @@ msgstr "Non copié car la cible est plus récente que la source :"
 #: AFS_Core/src/SyncFile.cpp:77 AFS_Core/src/SyncFile.cpp:78
 msgid "content_conflict_not_copied"
 msgstr "Non synchronisé car la date et la taille sont identiques mais le contenu diffère :"
+
+#: AFS_Core/src/SyncFile.cpp:96
+msgid "deleted_but_changed_kept"
+msgstr "Supprimé d'un côté et modifié de l'autre depuis la dernière synchronisation – le fichier modifié est copié au lieu d'être supprimé :"
+
+#: AFS_Core/src/SyncFile.cpp:89
+msgid "both_modified_not_copied"
+msgstr "Non synchronisé, car les deux côtés ont changé depuis la dernière synchronisation :"
 
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
@@ -702,9 +722,41 @@ msgstr "Suppression du fichier cible car la source n'existe pas : "
 msgid "source_label"
 msgstr "Source :"
 
+#: AFS_Core/src/SyncFile.cpp:420
+msgid "target_label"
+msgstr "Cible :"
+
 #: AFS_Core/src/SyncFile.cpp:294 AFS_Core/src/SyncFile.cpp:295
 msgid "target_delete_failed"
 msgstr "Échec de la suppression du fichier cible : "
+
+#: AFS_Core/src/SyncBase.cpp:123
+msgid "empty_dir_removed"
+msgstr "Répertoire vide supprimé, car il a été supprimé de l'autre côté : "
+
+#: AFS_Core/src/SyncBase.cpp:126
+msgid "dir_delete_failed"
+msgstr "La suppression du répertoire vide a échoué : "
+
+#: AFS_Core/src/SyncFile.cpp:419
+msgid "source_deleted_target_missing"
+msgstr "Suppression du fichier source, car il a été supprimé dans la cible : "
+
+#: AFS_Core/src/SyncFile.cpp:423
+msgid "source_delete_failed"
+msgstr "La suppression du fichier source a échoué : "
+
+#: AFS_Core/src/SyncFile.cpp:478
+msgid "renamed_in_target"
+msgstr "Renommé dans la cible au lieu d'être copié à nouveau : "
+
+#: AFS_Core/src/SyncFile.cpp:478
+msgid "renamed_in_source"
+msgstr "Renommé dans la source au lieu d'être copié à nouveau : "
+
+#: AFS_Core/src/SyncFile.cpp:448
+msgid "rename_failed"
+msgstr "Le renommage a échoué, le fichier est copié à la place : "
 
 #: AFS_Core/src/SyncFile.cpp:305 AFS_Core/src/SyncFile.cpp:342
 msgid "copy_progress"
@@ -778,6 +830,14 @@ msgstr "Erreur lors de la création du dossier distant : "
 #: AFS_Core/src/SyncFileSsh.cpp:428 AFS_Core/src/SyncFileSsh.cpp:1277
 msgid "remote_file_delete_error"
 msgstr "Erreur lors de la suppression du fichier distant : "
+
+#: AFS_Core/src/SyncFileSsh.cpp:459
+msgid "remote_dir_delete_error"
+msgstr "Erreur lors de la suppression du répertoire distant : "
+
+#: AFS_Core/src/SyncFileSsh.cpp:473
+msgid "remote_rename_error"
+msgstr "Erreur lors du renommage sur le serveur : "
 
 #: AFS_Core/src/SyncFileSsh.cpp:481
 msgid "ssh_connect_error_for_host"
@@ -1689,6 +1749,14 @@ msgstr "Synchroniser les fichiers vides"
 msgid "option_warn_if_unreachable"
 msgstr "Avertir si le lecteur ou la connexion SSH manque"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:173
+msgid "option_track_moves"
+msgstr "Reconnaître les renommages et déplacements"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "two_way_hint"
+msgstr "Les suppressions, modifications et renommages sont reportés dans les deux sens dès qu’un premier passage connaît les deux côtés. L’aperçu montre à l’avance ce qui serait supprimé."
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Secondes de pause :"
@@ -1897,6 +1965,10 @@ msgstr "pas d'avertissement si le lecteur ou la connexion SSH manque"
 msgid "config_summary_last_errors"
 msgstr "erreurs lors de la dernière exécution : %1, la première : %2"
 
+#: AFS_Core/src/ConfigSummary.cpp:103
+msgid "config_summary_sync_state"
+msgstr "État de synchronisation : %1 fichiers connus"
+
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr "Dans le programme : %1. Service en arrière-plan – %2."
@@ -1953,9 +2025,21 @@ msgstr "Recopier vers la source"
 msgid "preview_delete_in_target"
 msgstr "Supprimer dans la cible"
 
+#: AFS_Desktop/src/PreviewDialog.cpp:110
+msgid "preview_delete_in_source"
+msgstr "Supprimer dans la source"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:118
+msgid "preview_rename_in_target"
+msgstr "Renommer dans la cible"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:119
+msgid "preview_rename_in_source"
+msgstr "Renommer dans la source"
+
 #: AFS_Desktop/src/PreviewDialog.cpp:98
 msgid "preview_summary"
-msgstr "%1 étapes, dont %2 suppressions dans la cible ; à transférer : %3"
+msgstr "%1 étapes, dont %2 suppressions ; à transférer : %3"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:70
 msgid "preview_more"

@@ -165,6 +165,14 @@ msgstr ""
 msgid "backup_proof_not_writable"
 msgstr ""
 
+#: AFS_Core/src/SyncState.cpp:230
+msgid "sync_state_not_writable"
+msgstr ""
+
+#: AFS_Core/src/SyncState.cpp:217
+msgid "sync_state_not_readable"
+msgstr ""
+
 #: AFS_Core/src/CopyLog.cpp:147
 msgid "error_list_capped"
 msgstr ""
@@ -643,6 +651,10 @@ msgstr ""
 msgid "target_dir_create_error"
 msgstr ""
 
+#: AFS_Core/src/SyncBase.cpp:111
+msgid "source_dir_create_error"
+msgstr ""
+
 #: AFS_Core/src/SyncBase.cpp:70
 msgid "target_dir_not_creatable"
 msgstr ""
@@ -658,6 +670,14 @@ msgstr ""
 
 #: AFS_Core/src/SyncFile.cpp:77 AFS_Core/src/SyncFile.cpp:78
 msgid "content_conflict_not_copied"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp:96
+msgid "deleted_but_changed_kept"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp:89
+msgid "both_modified_not_copied"
 msgstr ""
 
 #: AFS_Core/src/SyncFile.cpp:101
@@ -717,8 +737,28 @@ msgstr ""
 msgid "source_label"
 msgstr ""
 
+#: AFS_Core/src/SyncFile.cpp:420
+msgid "target_label"
+msgstr ""
+
 #: AFS_Core/src/SyncFile.cpp:294 AFS_Core/src/SyncFile.cpp:295
 msgid "target_delete_failed"
+msgstr ""
+
+#: AFS_Core/src/SyncBase.cpp:123
+msgid "empty_dir_removed"
+msgstr ""
+
+#: AFS_Core/src/SyncBase.cpp:126
+msgid "dir_delete_failed"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp:419
+msgid "source_deleted_target_missing"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp:423
+msgid "source_delete_failed"
 msgstr ""
 
 #: AFS_Core/src/SyncFile.cpp:305 AFS_Core/src/SyncFile.cpp:342
@@ -792,6 +832,10 @@ msgstr ""
 
 #: AFS_Core/src/SyncFileSsh.cpp:428 AFS_Core/src/SyncFileSsh.cpp:1277
 msgid "remote_file_delete_error"
+msgstr ""
+
+#: AFS_Core/src/SyncFileSsh.cpp:459
+msgid "remote_dir_delete_error"
 msgstr ""
 
 #: AFS_Core/src/SyncFileSsh.cpp:481
@@ -1900,6 +1944,10 @@ msgstr ""
 msgid "config_summary_last_errors"
 msgstr ""
 
+#: AFS_Core/src/ConfigSummary.cpp:103
+msgid "config_summary_sync_state"
+msgstr ""
+
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr ""
@@ -1956,6 +2004,10 @@ msgstr ""
 msgid "preview_delete_in_target"
 msgstr ""
 
+#: AFS_Desktop/src/PreviewDialog.cpp:110
+msgid "preview_delete_in_source"
+msgstr ""
+
 #: AFS_Desktop/src/PreviewDialog.cpp:98
 msgid "preview_summary"
 msgstr ""
@@ -1986,4 +2038,36 @@ msgstr ""
 
 #: AFS_Desktop/src/PreviewDialog.cpp:66
 msgid "preview_column_file"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "option_track_moves"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "two_way_hint"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp
+msgid "preview_rename_in_source"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp
+msgid "preview_rename_in_target"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "rename_failed"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "renamed_in_source"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "renamed_in_target"
+msgstr ""
+
+#: AFS_Core/src/SyncFileSsh.cpp
+msgid "remote_rename_error"
 msgstr ""

@@ -150,6 +150,14 @@ msgstr "Backup proofs"
 msgid "backup_proof_not_writable"
 msgstr "The backup proof could not be written: "
 
+#: AFS_Core/src/SyncState.cpp:230
+msgid "sync_state_not_writable"
+msgstr "The sync state could not be written: "
+
+#: AFS_Core/src/SyncState.cpp:217
+msgid "sync_state_not_readable"
+msgstr "The sync state is unreadable, the next run starts without it: "
+
 #: AFS_Core/src/CopyLog.cpp:147
 msgid "error_list_capped"
 msgstr "Further errors were not recorded."
@@ -636,6 +644,10 @@ msgstr "The SSH target directory cannot be created: "
 msgid "target_dir_create_error"
 msgstr "Error creating the target directory: "
 
+#: AFS_Core/src/SyncBase.cpp:111
+msgid "source_dir_create_error"
+msgstr "Error creating the source directory: "
+
 #: AFS_Core/src/SyncBase.cpp:70
 msgid "target_dir_not_creatable"
 msgstr "The target directory cannot be created: "
@@ -652,6 +664,14 @@ msgstr "Not copied because the target is newer than the source:"
 #: AFS_Core/src/SyncFile.cpp:77 AFS_Core/src/SyncFile.cpp:78
 msgid "content_conflict_not_copied"
 msgstr "Not synchronized because time and size are equal but the content differs:"
+
+#: AFS_Core/src/SyncFile.cpp:96
+msgid "deleted_but_changed_kept"
+msgstr "Deleted on one side and changed on the other since the last sync - the changed file is copied instead of deleted:"
+
+#: AFS_Core/src/SyncFile.cpp:89
+msgid "both_modified_not_copied"
+msgstr "Not synchronized because both sides changed since the last sync:"
 
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
@@ -710,9 +730,41 @@ msgstr "Deleting the target file because the source does not exist: "
 msgid "source_label"
 msgstr "Source:"
 
+#: AFS_Core/src/SyncFile.cpp:420
+msgid "target_label"
+msgstr "Target:"
+
 #: AFS_Core/src/SyncFile.cpp:294 AFS_Core/src/SyncFile.cpp:295
 msgid "target_delete_failed"
 msgstr "Deleting the target file failed: "
+
+#: AFS_Core/src/SyncBase.cpp:123
+msgid "empty_dir_removed"
+msgstr "Removed the empty directory because it was deleted on the other side: "
+
+#: AFS_Core/src/SyncBase.cpp:126
+msgid "dir_delete_failed"
+msgstr "Deleting the empty directory failed: "
+
+#: AFS_Core/src/SyncFile.cpp:419
+msgid "source_deleted_target_missing"
+msgstr "Deleting the source file because it was deleted in the target: "
+
+#: AFS_Core/src/SyncFile.cpp:423
+msgid "source_delete_failed"
+msgstr "Deleting the source file failed: "
+
+#: AFS_Core/src/SyncFile.cpp:478
+msgid "renamed_in_target"
+msgstr "Renamed in the target instead of copying again: "
+
+#: AFS_Core/src/SyncFile.cpp:478
+msgid "renamed_in_source"
+msgstr "Renamed in the source instead of copying again: "
+
+#: AFS_Core/src/SyncFile.cpp:448
+msgid "rename_failed"
+msgstr "Renaming failed, the file is copied instead: "
 
 #: AFS_Core/src/SyncFile.cpp:305 AFS_Core/src/SyncFile.cpp:342
 msgid "copy_progress"
@@ -790,6 +842,14 @@ msgstr "Error creating the remote directory: "
 #: AFS_Core/src/SyncFileSsh.cpp:428 AFS_Core/src/SyncFileSsh.cpp:1277
 msgid "remote_file_delete_error"
 msgstr "Error deleting the remote file: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:459
+msgid "remote_dir_delete_error"
+msgstr "Error deleting the remote directory: "
+
+#: AFS_Core/src/SyncFileSsh.cpp:473
+msgid "remote_rename_error"
+msgstr "Error renaming on the server: "
 
 #: AFS_Core/src/SyncFileSsh.cpp:481
 msgid "ssh_connect_error_for_host"
@@ -1720,6 +1780,14 @@ msgstr "Synchronise empty files"
 msgid "option_warn_if_unreachable"
 msgstr "Warn if the drive or SSH connection is missing"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp:173
+msgid "option_track_moves"
+msgstr "Recognise renames and moves"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "two_way_hint"
+msgstr "Deletions, edits and renames are carried over in both directions once a first run knows both sides. The preview shows beforehand what would be deleted."
+
 #: AFS_Desktop/src/SyncItemDialog.cpp:188
 msgid "pause_seconds"
 msgstr "Seconds of pause:"
@@ -1930,6 +1998,10 @@ msgstr "no warning if the drive or SSH connection is missing"
 msgid "config_summary_last_errors"
 msgstr "errors in the last run: %1, the first: %2"
 
+#: AFS_Core/src/ConfigSummary.cpp:103
+msgid "config_summary_sync_state"
+msgstr "Sync state: %1 files known"
+
 #: AFS_Desktop/src/MainWindow.cpp:670
 msgid "assistant_situation"
 msgstr "In the program: %1. Background service – %2."
@@ -1986,9 +2058,21 @@ msgstr "Copy back to source"
 msgid "preview_delete_in_target"
 msgstr "Delete in target"
 
+#: AFS_Desktop/src/PreviewDialog.cpp:110
+msgid "preview_delete_in_source"
+msgstr "Delete in the source"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:118
+msgid "preview_rename_in_target"
+msgstr "Rename in the target"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:119
+msgid "preview_rename_in_source"
+msgstr "Rename in the source"
+
 #: AFS_Desktop/src/PreviewDialog.cpp:98
 msgid "preview_summary"
-msgstr "%1 steps, %2 of them deletions in the target; to transfer: %3"
+msgstr "%1 steps, %2 of them deletions; to transfer: %3"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:70
 msgid "preview_more"

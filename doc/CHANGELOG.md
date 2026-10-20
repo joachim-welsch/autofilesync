@@ -1,5 +1,35 @@
 # Änderungen
 
+## 0.4.0 – in Arbeit
+
+- Zwei-Wege-Synchronisation merkt sich nach jedem Durchlauf den Stand beider
+  Seiten (Abgleichszustand, eine Datei je Synchronisation im Unterordner
+  `state` neben der Konfiguration, gemeinsam für Programm und
+  Hintergrunddienst). Damit wird eine auf einer Seite gelöschte Datei auf der
+  anderen ebenfalls gelöscht, statt von dort zurückzukommen; das gilt auch für
+  ganze Verzeichnisse, und ein nur im Ziel vorhandener Ordner wird in die
+  Quelle übernommen. Eine seit der Löschung bearbeitete Datei gewinnt und
+  wird zurückkopiert, mit Warnung im Protokoll. Auf beiden Seiten bearbeitete
+  Dateien werden nicht überschrieben, sondern als Fehler gemeldet. Welche
+  Seite sich geändert hat, entscheidet der Vergleich mit dem letzten Stand,
+  nicht mehr allein die Änderungszeit. Der erste Durchlauf nach dem Update
+  kennt noch keinen Stand und verhält sich wie bisher.
+- Umbenannte oder verschobene Dateien werden auf der anderen Seite ebenfalls
+  umbenannt statt neu übertragen und unter dem alten Namen gelöscht, auch
+  über SSH. Für Einweg-Synchronisationen gibt es dafür die neue Option
+  „Umbenennen und Verschieben erkennen“ (`trackMoves` in der Konfiguration),
+  die zusammen mit „Gelöschte Dateien im Ziel ebenfalls löschen“ wirkt.
+- Die Vorschau zeigt Löschungen in der Quelle (rot) und Umbenennungen mit
+  altem und neuem Namen; Löschungen werden am Ende eines Durchlaufs
+  ausgeführt.
+- Im Dialog einer Synchronisation erklärt ein Hinweis bei eingeschalteter
+  Zwei-Wege-Synchronisation, dass Löschungen und Umbenennungen übernommen
+  werden. Die Hilfe beschreibt die Zwei-Wege-Synchronisation im Einzelnen,
+  in allen sieben Sprachen.
+- Der Assistent weiß, wie viele Dateien der Abgleichszustand einer
+  Zwei-Wege-Synchronisation kennt.
+- Wird eine Synchronisation gelöscht, verschwindet ihr Abgleichszustand mit.
+
 ## 0.3.0 – 2026-10-18
 
 - macOS: Ob ein Datenträger eingehängt ist, wird über die Liste der

@@ -1380,3 +1380,23 @@ TEST_F(ConfigPathTest, UnloadDropsTheInstanceAndTheNextOneStartsEmpty)  // [Conf
     EXPECT_TRUE(Config::instance().syncitems().empty()) << "die neue Instanz darf nichts von der alten erben";
     EXPECT_TRUE(Config::exists());
 }
+
+TEST_F(ConfigPathTest, TrackMovesIsOffByDefaultAndRoundTripsOn)
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    Config::instance().reset();
+    SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
+        SyncFlags(false, false, false, false, true), CompareItems());
+    ASSERT_FALSE(si.track_moves());
+    si.track_moves(true);
+    Config::instance().add(si);
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+    Config::instance().reset();
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto items = Config::instance().syncitems();
+    ASSERT_EQ(items.size(), 1u);
+    EXPECT_TRUE(items[0].track_moves());
+    Config::instance().reset();
+}

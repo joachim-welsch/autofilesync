@@ -37,6 +37,7 @@ struct SyncItemOptions {  // [SyncItemDialogDriver.md#SyncItemOptions]
     std::optional<bool> backup_proof;
     std::optional<bool> sync_empty_files;
     std::optional<bool> warn_if_unreachable;
+    std::optional<bool> track_moves;
     std::optional<bool> compare_date;
     std::optional<bool> compare_size;
     std::optional<bool> compare_content;

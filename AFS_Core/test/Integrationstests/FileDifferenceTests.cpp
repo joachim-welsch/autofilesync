@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "FileDifference.h"
+#include "FileUtil.h"
 #include "Config.h"
 #include "SshAccount.h"
 #include "SyncFile.h"
@@ -333,4 +334,104 @@ TEST_F(TwoWaySyncContentComparisonTest, TwoWaySyncTreatsTimesWithinTheToleranceA
 
     EXPECT_EQ(fd.result(), FileDifference::Result::ContentConflict)
         << "a second between the write times is no evidence for either side being the newer one";
+}
+
+namespace {
+class ThreeWayTest: public ::testing::Test {  // [FileDifferenceTests.md#ThreeWayTest]
+protected:
+    using Result = FileDifference::Result;
+    const fs::path dir_ = fs::temp_directory_path() / "autofilesync_threeway_test";
+    const fs::path source_ = dir_ / "source.txt";
+    const fs::path dest_ = dir_ / "dest.txt";
+    const std::wstring source_w_ = source_.wstring();
+    const std::wstring dest_w_ = dest_.wstring();
+    FileState base_;
+
+    void SetUp() override
+    {
+        fs::remove_all(dir_);
+        fs::create_directories(dir_);
+        Synchronize::start();
+        tu::write_text_file(source_, "v1", std::chrono::seconds(3600));
+        tu::write_text_file(dest_, "v1", std::chrono::seconds(3600));
+        base_ = {fs::file_size(source_), fs::last_write_time(source_), fs::last_write_time(dest_)};
+    }
+    void TearDown() override { fs::remove_all(dir_); }
+
+    Result result(const FileState* base) const
+    {
+        CompareItems ci;
+        ci.content(false);
+        ci.time(true);
+        ci.size(true);
+        FileDifference fd(source_w_, dest_w_, ci, SSHPATH::none, true, base);
+        fd();
+        return fd.result();
+    }
+    Result with_base() const { return result(&base_); }
+    Result without_base() const { return result(nullptr); }
+};
+}
+
+TEST_F(ThreeWayTest, UnchangedSidesAreEqual)
+{
+    EXPECT_EQ(with_base(), Result::Equal);
+}
+
+TEST_F(ThreeWayTest, MissingSourceIsADeletionOnlyWhileTheTargetIsUnchanged)
+{
+    fs::remove(source_);
+    EXPECT_EQ(with_base(), Result::SourceDeleted);
+    EXPECT_EQ(without_base(), Result::SourceNotExits);
+    tu::write_text_file(dest_, "edited on the target");
+    EXPECT_EQ(with_base(), Result::SourceNotExits) << "an edit since the last pass must be copied back, not deleted";
+}
+
+TEST_F(ThreeWayTest, MissingTargetIsADeletionOnlyWhileTheSourceIsUnchanged)
+{
+    fs::remove(dest_);
+    EXPECT_EQ(with_base(), Result::DestDeleted);
+    EXPECT_EQ(without_base(), Result::DestNotExists);
+    tu::write_text_file(source_, "edited on the source");
+    EXPECT_EQ(with_base(), Result::DestNotExists);
+}
+
+TEST_F(ThreeWayTest, BothSidesMissingIsNeitherExists)
+{
+    fs::remove(source_);
+    fs::remove(dest_);
+    EXPECT_EQ(with_base(), Result::NeitherExists);
+    EXPECT_EQ(without_base(), Result::NeitherExists);
+}
+
+TEST_F(ThreeWayTest, TheChangedSideIsTheModifiedOneWhateverTheTimesSay)  // [FileDifferenceTests.md#TheChangedSideIsTheModifiedOneWhateverTheTimesSay]
+{
+    tu::write_text_file(source_, "older write time but changed", std::chrono::seconds(7200));
+    EXPECT_EQ(with_base(), Result::SourceModified);
+    EXPECT_EQ(without_base(), Result::DestModified);
+}
+
+TEST_F(ThreeWayTest, ChangedTargetIsDestModified)
+{
+    tu::write_text_file(dest_, "changed on the target", std::chrono::seconds(7200));
+    EXPECT_EQ(with_base(), Result::DestModified);
+    EXPECT_EQ(without_base(), Result::SourceModified);
+}
+
+TEST_F(ThreeWayTest, BothChangedIsAConflictUnlessTheyAgree)  // [FileDifferenceTests.md#BothChangedIsAConflictUnlessTheyAgree]
+{
+    tu::write_text_file(source_, "source v2");
+    tu::write_text_file(dest_, "target version 2");
+    EXPECT_EQ(with_base(), Result::BothModified);
+    tu::write_text_file(source_, "the same v2", std::chrono::seconds(60));
+    tu::write_text_file(dest_, "the same v2", std::chrono::seconds(60));
+    EXPECT_EQ(with_base(), Result::Equal);
+}
+
+TEST_F(ThreeWayTest, SizeAloneMarksASideAsChanged)
+{
+    tu::write_text_file(source_, "v1!");
+    util::set_last_write_time(source_w_, base_.source_time);
+    EXPECT_EQ(with_base(), Result::SourceModified);
+    EXPECT_EQ(without_base(), Result::SourceModified);
 }

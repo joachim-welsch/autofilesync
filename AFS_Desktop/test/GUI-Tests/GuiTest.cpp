@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "GuiTest.h"
+#include "SyncState.h"
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
 #ifdef _MACOS
@@ -90,6 +91,8 @@ void GuiTest::TearDown()
     if (read_file(GuiTestSandbox::config_file()) != before_.config_file)  // [GuiTest.md#autosave-undone]
         std::ofstream(GuiTestSandbox::config_file()) << before_.config_file;
     Config::instance().read(GuiTestSandbox::config_file().wstring());
+    std::error_code ignored;
+    std::filesystem::remove_all(sync_state_dir(), ignored);  // [GuiTest.md#sync-state-removed]
     show_view(main_window(), id::View_List);  // [GuiTest.md#list-view-restored]
     if (ListCtrl* list = sync_item_list())
         list->update();

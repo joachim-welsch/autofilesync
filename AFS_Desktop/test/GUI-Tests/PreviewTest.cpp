@@ -75,6 +75,14 @@ bool preview(MainWindow& window)  // [PreviewTest.md#preview]
     return wait_until_sync_finished(window);
 }
 
+const ShownStep* step_with(const std::vector<ShownStep>& steps, const wxString& action)  // [PreviewTest.md#step_with]
+{
+    for (const ShownStep& step : steps)
+        if (step.action == action)
+            return &step;
+    return nullptr;
+}
+
 }
 
 TEST_F(GuiTest, VorschauZeigtKopienUndLoeschungenUndAendertNichts)  // [PreviewTest.md#VorschauZeigtKopienUndLoeschungenUndAendertNichts]
@@ -177,6 +185,37 @@ TEST_F(GuiTest, VorschauOhneUnterschiedMeldetNichtsZuTun)  // [PreviewTest.md#Vo
     EXPECT_EQ(answered.front(), translation::translate("preview_nothing_to_do"));
     EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Trotz leerer Vorschau erschien ein Dialog.";
     EXPECT_TRUE(sync_menu_item_enabled(main_window(), tul(id::Preview)));
+}
+
+
+TEST_F(GuiTest, VorschauZeigtUmbenennungUndLoeschungInDerQuelleBeiZweiWege)  // [PreviewTest.md#VorschauZeigtUmbenennungUndLoeschungInDerQuelleBeiZweiWege]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "vorschau-zweiwege", {{"quelle/alt.txt", "umbenannt"}, {"quelle/weg.txt", "im Ziel gelöscht"}});
+    std::filesystem::create_directories(tree.path("ziel"));  // [PreviewTest.md#existing-target]
+    SyncItemInput input = dir_sync(tree, "guitest-vorschau-zweiwege");
+    input.options.two_way_sync = true;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ASSERT_TRUE(sync_once(main_window()));
+    std::filesystem::rename(tree.path("quelle/alt.txt"), tree.path("quelle/neu.txt"));
+    std::filesystem::remove(tree.path("ziel/weg.txt"));
+    const std::vector<std::string> before = tree.entries();
+
+    std::vector<ShownStep> steps;
+    ModalDialogWatcher::instance().expect(translation::translate("preview_title"), [&](wxDialog& dialog) {
+        steps = shown_steps(dialog);
+        click_on(find(dialog, wxID_CANCEL));
+    });
+    ASSERT_TRUE(preview(main_window())) << "Die Vorschau kam nicht zur Ruhe.";
+
+    EXPECT_FALSE(ModalDialogWatcher::instance().has_pending_expectations()) << "Der Vorschau-Dialog erschien nicht.";
+    ASSERT_EQ(steps.size(), 2u);
+    const ShownStep* renamed = step_with(steps, translation::translate("preview_rename_in_target"));
+    ASSERT_NE(renamed, nullptr) << "Die Umbenennung wurde nicht erkannt.";
+    EXPECT_EQ(renamed->file, wxString::FromUTF8("alt.txt \xe2\x86\x92 neu.txt")) << "Alter und neuer Name fehlen.";
+    const ShownStep* deleted = step_with(steps, translation::translate("preview_delete_in_source"));
+    ASSERT_NE(deleted, nullptr) << "Die Löschung im Ziel wurde nicht als Löschung in der Quelle geplant.";
+    EXPECT_EQ(deleted->file, "weg.txt");
+    EXPECT_EQ(tree.entries(), before) << "Die Vorschau hat das Dateisystem verändert.";
 }
 
 }

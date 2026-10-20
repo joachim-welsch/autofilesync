@@ -32,3 +32,8 @@ date, and "how long ago" is what a question about a stale target needs.
 
 The first error stands for the rest, cut to a length that keeps thirty items within the
 context window. Compared by its start only, since the cut is the point of the test.
+
+## known-files
+
+The count comes from the LastRun (SyncItem.md#known_files) and is named only when there is
+one: an item without a state must not claim to track deletions.

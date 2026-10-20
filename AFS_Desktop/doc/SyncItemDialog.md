@@ -61,3 +61,19 @@ name_ is the original name (set in set_data(), still unchanged here since
 TransferDataFromWindow() only runs after Validate() succeeds). Comparing against it - not just
 checking name_.empty() - also catches renaming an existing item onto another item's name, not
 just brand-new items.
+
+## track-moves-implied
+
+A two-way item keeps a sync state anyway and recognises renames with it
+(SyncFile.md#renames), so the option is shown ticked and locked while two-way sync is on; it
+is the one-way item's choice (SyncItem.md#track_moves_). A file item has nothing to rename,
+so there the option is locked too.
+
+## two-way-hint
+
+Two-way synchronisation now carries deletions and renames across, which is more than the
+option's name says and the one thing a user must not be surprised by. A line under the options
+says so while the option is ticked, and hides when it is not, so the options page stays as short
+as before for everyone else. The text is wrapped to a fixed width in device-independent pixels,
+since a wxStaticText does not wrap by itself and the sizer would widen the dialog to the
+sentence instead.

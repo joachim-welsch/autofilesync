@@ -97,6 +97,7 @@
     <ClInclude Include="..\AFS_Core\include\CheckPath.h" />
     <ClInclude Include="..\AFS_Core\include\Config.h" />
     <ClInclude Include="..\AFS_Core\include\CopyLog.h" />
+    <ClInclude Include="..\AFS_Core\include\SyncState.h" />
     <ClInclude Include="..\AFS_Core\include\HelpKnowledge.h" />
     <ClInclude Include="..\AFS_Core\include\JsonText.h" />
     <ClInclude Include="..\AFS_Core\include\FileDelete.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
     <ClCompile Include="..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncState.cpp" />
     <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp" />
     <ClCompile Include="..\AFS_Core\src\JsonText.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />

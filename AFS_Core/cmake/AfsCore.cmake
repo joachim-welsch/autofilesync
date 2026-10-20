@@ -57,6 +57,7 @@ set(AFS_CORE_SOURCES
     SyncFileSsh.cpp
     SyncMessage.cpp
     SyncPlan.cpp
+    SyncState.cpp
     SyncTree.cpp
     Synchronize.cpp
     Config.cpp

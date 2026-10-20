@@ -70,3 +70,24 @@ A remote target is overwritten in place the next time the source changes, which
 a target without write permission would refuse. The owner therefore always keeps
 the right to write. A local target needs no such exception: SyncFile moves the
 old file aside and the download creates a new one.
+
+## ssh_rmdir
+
+Removes an empty remote directory, for a directory whose files a two-way sync deleted because
+the other side dropped it (SyncBase.md#remove_dir_if_empty). SFTP refuses a directory that is
+not empty, so the caller checks first and nothing with content is ever removed here. In the
+libssh2 build the connection dance of ssh_remove_file() is shared, since only the final SFTP
+call differs.
+
+## ssh_mkdir_p
+
+sftp_mkdir() makes one level. A copy back into a directory the source side no longer has
+(SyncFile.md#parent-of-a-kept-file) may need several, so this walks up to the first existing
+ancestor - never past the account's root - and creates the rest on the way down.
+
+## ssh_rename
+
+Renames or moves a file on the server, within the one account both paths name, for a file the
+other side renamed (SyncFile.md#renames). The new path's directory has to exist; the caller
+creates it (ssh_mkdir_p). SFTP's rename refuses an existing destination on most servers, and
+a rename is only attempted where the comparison found none, so that is never relied upon.

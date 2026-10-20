@@ -19,6 +19,7 @@
 #include "pch.h"
 #include "Config.h"
 #include "DirUtil.h"
+#include "ScopedDeleteMode.h"
 #include "FileUtil.h"
 #include "SshAccount.h"
 #include "SshFileInspector.h"
@@ -287,3 +288,123 @@ TEST_F(SyncSshTwoWayTest, RepeatedSshSyncCopiesNothingMore)  // [SyncSshTwoWayTe
 }
 
 } // namespace
+
+TEST_F(SyncSshTwoWayTest, LocalDeletionReachesTheRemoteTargetWhenTheStateKnowsIt)  // [SyncSshTwoWayTests.md#state]
+{
+    tu::write_text_file(source_dir_ / "gone.txt", "synced once", seconds(3600));
+    tu::write_text_file(source_dir_ / "kept.txt", "stays", seconds(3600));
+    const SyncItem si = ssh_target_item(SyncItemType::Dir, true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    ASSERT_TRUE(remote_exists("gone.txt"));
+    EXPECT_EQ(state.files().size(), 2u);
+    fs::remove(source_dir_ / "gone.txt");
+
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+
+    EXPECT_FALSE(remote_exists("gone.txt")) << "the deletion must reach the server instead of being undone from there";
+    EXPECT_TRUE(remote_exists("kept.txt"));
+    EXPECT_EQ(state.find(L"gone.txt"), nullptr);
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+}
+
+TEST_F(SyncSshTwoWayTest, RemoteDeletionReachesTheLocalSourceWhenTheStateKnowsIt)  // [SyncSshTwoWayTests.md#state]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "gone.txt", "synced once", seconds(3600));
+    tu::write_text_file(source_dir_ / "kept.txt", "stays", seconds(3600));
+    const SyncItem si = ssh_target_item(SyncItemType::Dir, true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    ASSERT_TRUE(ssh_remove_file(remote_path(L"gone.txt")));
+
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+
+    EXPECT_FALSE(fs::exists(source_dir_ / "gone.txt")) << "a deletion on the server must reach the local side";
+    EXPECT_TRUE(fs::exists(source_dir_ / "kept.txt"));
+    EXPECT_TRUE(remote_exists("kept.txt"));
+}
+
+TEST_F(SyncSshTwoWayTest, RemoteEditAfterLocalDeletionIsCopiedBackNotDeleted)
+{
+    tu::write_text_file(source_dir_ / "notes.txt", "v1", seconds(7200));
+    const SyncItem si = ssh_target_item(SyncItemType::Dir, true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    fs::remove(source_dir_ / "notes.txt");
+    tu::write_text_file(target_dir_ / "notes.txt", "edited on the server");
+    ASSERT_TRUE(ssh_remove_file(remote_path(L"notes.txt")));
+    tu::run_sync([&] { SyncItem upload = ssh_target_file_item(L"notes.txt", false); upload.source((target_dir_ / "notes.txt").wstring()); return upload; }());
+
+    EXPECT_EQ(tu::run_sync(si, state), 1u);
+
+    EXPECT_EQ(tu::read_text_file(source_dir_ / "notes.txt"), "edited on the server");
+}
+
+TEST_F(SyncSshTwoWayTest, RemoteOnlyDirectoryIsMirroredLocally)  // [SyncSshTwoWayTests.md#directories]
+{
+    tu::write_text_file(source_dir_ / "remote_only" / "inside.txt", "created on the remote side");
+    seed_remote(SyncItemType::Tree);
+    ASSERT_TRUE(remote_exists("remote_only/inside.txt"));
+    fs::remove_all(source_dir_ / "remote_only");
+
+    EXPECT_EQ(tu::run_sync(ssh_target_item(SyncItemType::Tree, true)), 1u);
+
+    EXPECT_EQ(tu::read_text_file(source_dir_ / "remote_only" / "inside.txt"), "created on the remote side");
+    EXPECT_TRUE(remote_exists("remote_only/inside.txt"));
+}
+
+TEST_F(SyncSshTwoWayTest, LocalDirectoryDeletionReachesTheRemoteTargetWhenTheStateKnowsIt)  // [SyncSshTwoWayTests.md#directories]
+{
+    tu::write_text_file(source_dir_ / "sub" / "a.txt", "synced once", seconds(3600));
+    tu::write_text_file(source_dir_ / "keep.txt", "stays", seconds(3600));
+    const SyncItem si = ssh_target_item(SyncItemType::Tree, true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    ASSERT_TRUE(remote_exists("sub/a.txt"));
+    fs::remove_all(source_dir_ / "sub");
+
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+
+    EXPECT_FALSE(remote_exists("sub/a.txt"));
+    EXPECT_FALSE(ssh_exists(remote_path(L"sub"))) << "the emptied remote directory must go too";
+    EXPECT_TRUE(remote_exists("keep.txt"));
+    EXPECT_FALSE(state.knows_below(L"sub"));
+}
+
+TEST_F(SyncSshTwoWayTest, RemoteDirectoryDeletionReachesTheLocalSourceWhenTheStateKnowsIt)  // [SyncSshTwoWayTests.md#directories]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "sub" / "a.txt", "synced once", seconds(3600));
+    tu::write_text_file(source_dir_ / "keep.txt", "stays", seconds(3600));
+    const SyncItem si = ssh_target_item(SyncItemType::Tree, true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    ASSERT_TRUE(ssh_remove_file(remote_path(L"sub/a.txt")));
+    ASSERT_TRUE(ssh_rmdir(remote_path(L"sub")));
+
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+
+    EXPECT_FALSE(fs::exists(source_dir_ / "sub")) << "a directory deleted on the server must leave the local side";
+    EXPECT_FALSE(ssh_exists(remote_path(L"sub"))) << "the pass must not recreate the deleted directory on the server";
+    EXPECT_TRUE(fs::exists(source_dir_ / "keep.txt"));
+}
+
+TEST_F(SyncSshTwoWayTest, RenamedLocalFileIsRenamedOnTheServer)  // [SyncSshTwoWayTests.md#renames]
+{
+    tu::write_text_file(source_dir_ / "old.txt", "renamed, not uploaded again", seconds(3600));
+    const SyncItem si = ssh_target_item(SyncItemType::Tree, true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    const std::time_t uploaded = remote_time("old.txt");
+    fs::create_directories(source_dir_ / "sub");
+    fs::rename(source_dir_ / "old.txt", source_dir_ / "sub" / "new.txt");
+
+    EXPECT_EQ(tu::run_sync(si, state), 1u);
+
+    EXPECT_TRUE(remote_exists("sub/new.txt"));
+    EXPECT_FALSE(remote_exists("old.txt"));
+    EXPECT_EQ(remote_time("sub/new.txt"), uploaded);
+    EXPECT_NE(state.find(L"sub/new.txt"), nullptr);
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+}

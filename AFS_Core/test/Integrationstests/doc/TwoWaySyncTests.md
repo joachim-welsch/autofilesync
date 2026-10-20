@@ -59,9 +59,70 @@ successful copy that file has no purpose left. It is currently not removed, whic
 the repeated-pass tests above fail: with two-way sync the leftover ".bak" is a source-only file
 for the next pass and gets copied to the other side.
 
-## TargetOnlyDirectoryIsLeftAloneByTwoWaySync
+## target-only-directories
 
-Pins the deliberate boundary that SyncTreeTests.md#DeleteInTargetLeavesTargetOnlyDirectoriesAlone
-describes for the deletion side: the target-only pass runs per file at each recursion level, and
-SyncTree never descends into a directory that exists only in the target. Nothing there is lost -
-it simply does not travel back.
+A directory that exists only in the target is mirrored into the source, every level of it
+(SyncTree.md#target-only-directories), while the target keeps what it has and an excluded
+directory stays where it is. Three copies: the source's root file out, the two target files
+back. A second pass is quiet.
+
+## deleted-directories
+
+With a state, a directory deleted on one side is removed on the other, down to the directory
+itself, in both directions, and the state forgets everything below it; a second pass must not
+bring it back, and the pass that carries the deletion must not recreate the directory on the
+side that dropped it (SyncTree.md#prepare-and-settle). A file edited since the deletion comes
+back with its directory while its untouched siblings go, and files added on the surviving side
+after the deletion still travel - the directory they live in is not deleted while it holds
+them.
+
+## state
+
+The tests with a SyncState (SyncRunner.md#run_sync-with-state) are the reason the state exists:
+a file deleted on one side is deleted on the other instead of coming back, in both directions
+and for a file item as well. DeleteMode::Permanent, because a recycle bin under the test
+directory would show up as a file the pass sees. The first-pass test pins down what enters the
+state - every file that was compared or copied, keyed relative to the item's source with '/',
+not the excluded file - and that a copy records the target's own write time.
+
+## edit-beats-deletion
+
+A deletion on one side and an edit on the other since the last pass: the edit wins and the
+file is copied, in either direction (FileDifference.md#three-way). Ages of two hours and then
+zero keep every write time apart by more than the tolerance.
+
+## both-modified
+
+Edited on both sides since the last pass, with the target the newer one: without the state the
+target would win and the source edit be lost. The state keeps the entry of the last agreed
+version (two bytes, "v1"), so the conflict is reported again on the next pass.
+
+## changed-side-wins
+
+The source is rewritten with a write time three hours back - older than the target's copy -
+as a restore from an archive would leave it. The plain comparison would call the target newer
+and copy it back over the edit; with the state the target is unchanged and the source is what
+changed, so the edit reaches the target, and a second pass is quiet.
+
+## renames
+
+A file renamed or moved on one side is renamed on the other (SyncFile.md#renames), in both
+directions and across directories. That it was renamed and not copied is read off the inode,
+which a copy cannot keep; on Windows the inode is 0 and only the contents are checked. The
+names are chosen so that the old name sorts before the new one in one test and after it in
+another, since the detection must not depend on which of the two the pass meets first
+(SyncFile.md#deferred-deletions).
+
+## renames-ambiguous
+
+Two files with the same size and write time: when one of them is renamed the state cannot say
+which, so the renamed file is copied and the old name deleted - nothing lost, nothing
+mistaken.
+
+## one-way-moves
+
+A one-way item that tracks moves (SyncItem.md#track_moves_) and deletes in the target renames
+there too. The state must not change what one-way means otherwise
+(FileDifference.md#base-only-two-way): a target the user deleted is copied again, a source
+file that disappears leaves the target alone without delete_in_target, and nothing in the
+source is ever deleted.

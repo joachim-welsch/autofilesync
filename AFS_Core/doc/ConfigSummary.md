@@ -60,3 +60,9 @@ program: a background service syncs in a process of its own.
 
 The first error of a run often carries a long path. Two hundred characters keep its meaning
 and thirty items within the context window.
+
+## known-files
+
+A two-way item that has run in this program says how many files its sync state knows, so the
+assistant can explain that a deletion on one side will be carried to the other, and that a
+first pass after an update cannot yet (SyncFile.md#state).

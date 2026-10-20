@@ -168,6 +168,8 @@
     <ClCompile Include="SyncItemTests.cpp" />
     <ClCompile Include="ConfigTests.cpp" />
     <ClCompile Include="CopyLogTests.cpp" />
+    <ClCompile Include="SyncStateTests.cpp" />
+    <ClCompile Include="SyncStateRunTests.cpp" />
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="PasswordCryptoTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
@@ -248,6 +250,7 @@
     <ClCompile Include="$(LibDir)\src\CheckPath.cpp" />
     <ClCompile Include="$(LibDir)\src\Config.cpp" />
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp" />
+    <ClCompile Include="$(LibDir)\src\SyncState.cpp" />
     <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp" />
     <ClCompile Include="$(LibDir)\src\JsonText.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
@@ -298,6 +301,7 @@
     <ClInclude Include="$(LibDir)\include\CheckPath.h" />
     <ClInclude Include="$(LibDir)\include\Config.h" />
     <ClInclude Include="$(LibDir)\include\CopyLog.h" />
+    <ClInclude Include="$(LibDir)\include\SyncState.h" />
     <ClInclude Include="$(LibDir)\include\HelpKnowledge.h" />
     <ClInclude Include="$(LibDir)\include\JsonText.h" />
     <ClInclude Include="$(LibDir)\include\FileDelete.h" />

@@ -71,6 +71,7 @@ class Synchronize {
     };
     std::map<std::wstring, SshTargetDirCacheEntry> ssh_target_dir_cache_;  // [Synchronize.md#ssh_target_dir_cache_]
     std::map<std::wstring, bool> item_reachable_;  // [Synchronize.md#item_reachable_]
+    std::map<std::wstring, std::size_t> known_files_;  // [Synchronize.md#sync-state]
 
     bool has_controler() const;
     bool is_ssh_target_dir(const std::wstring& target);

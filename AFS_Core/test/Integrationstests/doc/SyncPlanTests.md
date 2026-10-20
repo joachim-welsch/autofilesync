@@ -50,3 +50,17 @@ A target that cannot be reached. On Unix a missing directory is enough, because 
 for the path itself. On Windows CheckPath only asks for the drive, since a missing target is
 created (CheckPath.md#target-need-not-exist), so the target goes on a drive letter that is not
 assigned.
+
+## preview-with-state
+
+A preview over a two-way item plans the deletions its state reveals (SyncFile.md#state) -
+DeleteInTarget for a file gone from the source, DeleteInSource for one gone from the target -
+and, like every preview, changes neither the directories nor the state the run after it will
+need - not even for a directory that only one side has, where a run would create or remove
+the directory itself (SyncTree.md#prepare-and-settle).
+
+## preview-rename
+
+A rename is planned as one step with the old and the new path on the target side and no bytes,
+and the old name does not show up as a deletion as well, whichever of the two names the pass
+meets first (SyncState.md#renamed). The unrelated deleted file is still planned as a deletion.

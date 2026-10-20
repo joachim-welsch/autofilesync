@@ -22,6 +22,7 @@
 #include "SyncDir.h"
 #include "SyncFile.h"
 #include "SyncPlan.h"
+#include "SyncRunner.h"
 #include "SyncTree.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
@@ -108,6 +109,16 @@ protected:
     {
         std::size_t count = 0;
         return preview(si, count);
+    }
+
+    static SyncPlan preview(const SyncItem& si, SyncState& state)  // [SyncPlanTests.md#preview-with-state]
+    {
+        SyncPlan plan;
+        SyncPlanGuard guard(&plan);
+        std::size_t count = 0;
+        SyncTree tree(si, count, true, &state);
+        tree();
+        return plan;
     }
 };
 
@@ -279,4 +290,79 @@ TEST(SyncPlan, ListStopsAtMaxStepsWhileTheCountsGoOn)  // [SyncPlanTests.md#List
     EXPECT_EQ(plan.count(), SyncPlan::MAX_STEPS + 6);
     EXPECT_EQ(plan.not_listed(), 6u);
     EXPECT_EQ(plan.bytes(), 2 * (SyncPlan::MAX_STEPS + 5)) << "a deletion moves no bytes";
+}
+
+TEST_F(SyncPlanTest, PreviewPlansTheDeletionsTheStateRevealsAndTouchesNeither)  // [SyncPlanTests.md#preview-with-state]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "a", seconds(3600));
+    tu::write_text_file(source_dir_ / "sub" / "b.txt", "bb", seconds(3600));
+    SyncItem si = item(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    fs::remove(source_dir_ / "a.txt");
+    fs::remove(target_dir_ / "sub" / "b.txt");
+    const auto before = entries_below(root_);
+
+    const SyncPlan plan = preview(si, state);
+
+    EXPECT_EQ(entries_below(root_), before) << "the preview changed the filesystem";
+    EXPECT_EQ(plan.count(), 2u);
+    EXPECT_EQ(plan.count(PlannedAction::DeleteInTarget), 1u);
+    EXPECT_EQ(plan.count(PlannedAction::DeleteInSource), 1u);
+    EXPECT_EQ(plan.deletions(), 2u);
+    EXPECT_EQ(plan.bytes(), 0u) << "deletions move nothing";
+    ASSERT_NE(step_for(plan, "a.txt"), nullptr);
+    EXPECT_EQ(step_for(plan, "a.txt")->action, PlannedAction::DeleteInTarget);
+    ASSERT_NE(step_for(plan, "b.txt"), nullptr);
+    EXPECT_EQ(step_for(plan, "b.txt")->action, PlannedAction::DeleteInSource);
+    EXPECT_EQ(fs::path(step_for(plan, "b.txt")->source), source_dir_ / "sub" / "b.txt");
+    EXPECT_EQ(state.files().size(), 2u) << "the preview must leave the state as it found it";
+    EXPECT_FALSE(file_in_target(PlannedAction::DeleteInSource));
+}
+
+TEST_F(SyncPlanTest, PreviewOfDeletedAndNewDirectoriesPlansTheirFilesAndCreatesNothing)  // [SyncPlanTests.md#preview-with-state]
+{
+    tu::write_text_file(source_dir_ / "sub" / "a.txt", "a", seconds(3600));
+    tu::write_text_file(source_dir_ / "sub" / "b.txt", "bb", seconds(3600));
+    SyncItem si = item(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    fs::remove_all(target_dir_ / "sub");
+    tu::write_text_file(target_dir_ / "other" / "new.txt", "new");
+    const auto before = entries_below(root_);
+
+    const SyncPlan plan = preview(si, state);
+
+    EXPECT_EQ(entries_below(root_), before) << "the preview created or removed a directory";
+    EXPECT_EQ(plan.count(PlannedAction::DeleteInSource), 2u);
+    EXPECT_EQ(plan.count(PlannedAction::CopyToSource), 1u);
+    EXPECT_EQ(plan.count(), 3u);
+}
+
+TEST_F(SyncPlanTest, PreviewPlansARenameAndNoDeletionForTheOldName)  // [SyncPlanTests.md#preview-rename]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "renamed payload", seconds(3600));
+    tu::write_text_file(source_dir_ / "gone.txt", "gone", seconds(3600));
+    SyncItem si = item(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    fs::rename(source_dir_ / "a.txt", source_dir_ / "z.txt");
+    fs::remove(source_dir_ / "gone.txt");
+    const auto before = entries_below(root_);
+
+    const SyncPlan plan = preview(si, state);
+
+    EXPECT_EQ(entries_below(root_), before) << "the preview renamed something";
+    EXPECT_EQ(plan.count(PlannedAction::RenameInTarget), 1u);
+    EXPECT_EQ(plan.count(PlannedAction::DeleteInTarget), 1u);
+    EXPECT_EQ(plan.count(), 2u);
+    EXPECT_EQ(plan.bytes(), 0u) << "a rename moves nothing";
+    ASSERT_NE(step_for(plan, "z.txt"), nullptr);
+    EXPECT_EQ(fs::path(step_for(plan, "z.txt")->source), target_dir_ / "a.txt");
+    EXPECT_EQ(fs::path(step_for(plan, "z.txt")->target), target_dir_ / "z.txt");
+    EXPECT_TRUE(file_in_target(PlannedAction::RenameInTarget));
+    EXPECT_EQ(state.files().size(), 2u) << "the preview must leave the state as it found it";
 }

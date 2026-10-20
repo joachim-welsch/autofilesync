@@ -80,10 +80,13 @@ precisione.</p>
 
 <tr><td valign="top"><b>Sincronizzazione bidirezionale</b></td>
     <td>Conta anche la direzione opposta: ciò che esiste solo nella destinazione
-        viene copiato nell'origine, e una destinazione più recente prevale su
-        un'origine più vecchia. Insieme a <b>Elimina anche nella destinazione i
-        file eliminati</b> prevale l'eliminazione – attivarle entrambe raramente
-        ha senso. L'opzione si esclude a vicenda con <b>Elimina l'origine dopo la copia</b> e con <b>Copia anche se il file di destinazione è più recente</b>; quella attivata per prima blocca l'altra.</td></tr>
+        viene copiato nell'origine, ed eliminazioni, modifiche e rinomine vengono
+        riportate in entrambe le direzioni; vedere <a href="#twoway">La
+        sincronizzazione bidirezionale in dettaglio</a>. Insieme a <b>Elimina
+        anche nella destinazione i file eliminati</b> prevale l'eliminazione.
+        L'opzione si esclude a vicenda con <b>Elimina l'origine dopo la copia</b>
+        e con <b>Copia anche se il file di destinazione è più recente</b>; quella
+        attivata per prima blocca l'altra.</td></tr>
 
 <tr><td valign="top"><b>Copia anche se il file di destinazione è più recente</b></td>
     <td>Normalmente AutoFileSync non sovrascrive un file di destinazione più
@@ -129,11 +132,63 @@ precisione.</p>
         disattivare l'opzione: l'assenza viene allora annotata solo nel
         registro. In dettaglio: <a href="unreachable.html">Unità e connessioni non raggiungibili</a>.</td></tr>
 
+<tr><td valign="top"><b>Riconoscere rinomine e spostamenti</b></td>
+    <td>Un file rinominato o spostato nell'origine viene rinominato anche nella
+        destinazione, invece di essere trasferito di nuovo ed eliminato con il
+        vecchio nome. Per questo AutoFileSync tiene anche per questa
+        sincronizzazione uno <a href="#twoway">stato di sincronizzazione</a>.
+        L'opzione agisce solo insieme a <b>Elimina anche nella destinazione i
+        file eliminati</b>, perché la rinomina toglie il vecchio nome nella
+        destinazione. Con la sincronizzazione bidirezionale il riconoscimento è
+        sempre attivo; con il tipo File non c'è nulla da rinominare.</td></tr>
+
 <tr><td valign="top"><b>Secondi di pausa</b></td>
     <td>Tempo di attesa tra due esecuzioni della sincronizzazione continua,
         regolabile da 1 a 60 secondi. Pause brevi notano prima le modifiche e
         caricano di più unità e rete.</td></tr>
 </table>
+
+<h2><a name="twoway"></a>La sincronizzazione bidirezionale in dettaglio</h2>
+
+<p>Con la sincronizzazione bidirezionale AutoFileSync ricorda dopo ogni
+esecuzione in quale stato si trovava ogni file su entrambi i lati. Questo
+<b>stato di sincronizzazione</b> è un file accanto alla configurazione
+(sottocartella <tt>state</tt>, un file per sincronizzazione), condiviso dal
+programma e dal servizio in background. Con esso l'esecuzione successiva
+distingue se un file è nuovo o è stato eliminato da un lato:</p>
+
+<ul>
+<li><b>Eliminato da un lato</b>: il file viene eliminato anche dall'altro lato,
+    secondo la <a href="settings.html">modalità di eliminazione</a>, quindi di
+    norma nel cestino. Vale anche per le directory: una cartella eliminata da un
+    lato viene svuotata e rimossa dall'altro; una cartella che esiste solo nella
+    destinazione viene ripresa nell'origine.</li>
+<li><b>Eliminato da un lato, modificato dall'altro nel frattempo</b>: il file
+    modificato prevale e viene ricopiato; il registro contiene un avviso.</li>
+<li><b>Modificato da un solo lato</b>: prevale la versione modificata, anche se
+    la sua data di modifica è più vecchia di quella dell'altro lato, per esempio
+    dopo un ripristino da un archivio.</li>
+<li><b>Modificato da entrambi i lati</b>: nessun lato viene sovrascritto.
+    L'esecuzione segnala un errore finché non avete deciso quale versione vale:
+    copiate a mano il file desiderato sopra l'altro.</li>
+<li><b>Rinominato o spostato</b>: il file viene rinominato anche dall'altro lato
+    invece di essere trasferito di nuovo ed eliminato con il vecchio nome. Se ci
+    sono due file con la stessa dimensione e la stessa data di modifica, viene
+    copiato per sicurezza.</li>
+</ul>
+
+<p>La prima esecuzione dopo la configurazione, e la prima dopo l'aggiornamento
+alla versione con stato di sincronizzazione, non conosce ancora alcuno stato e
+si comporta come prima: ciò che esiste solo da un lato viene copiato dall'altro;
+un'eliminazione viene riconosciuta dalla seconda esecuzione in poi.
+L'<a href="preview.html">anteprima</a> mostra in anticipo quali eliminazioni e
+rinomine sono in arrivo.</p>
+
+<p><b>Attenzione:</b> una destinazione svuotata, per esempio un disco di backup
+appena formattato, conta come "tutto eliminato nella destinazione" e
+svuoterebbe anche l'origine alla prossima esecuzione (nel cestino). In tal caso
+eliminate la sincronizzazione e createla di nuovo; lo stato di sincronizzazione
+riparte da zero.</p>
 
 <h2><a name="deleteintarget"></a>Elimina anche nella destinazione i file eliminati</h2>
 

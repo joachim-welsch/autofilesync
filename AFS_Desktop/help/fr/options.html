@@ -79,10 +79,13 @@ enregistrent l'heure avec la même précision.</p>
 
 <tr><td valign="top"><b>Synchronisation bidirectionnelle</b></td>
     <td>Le sens inverse compte aussi : ce qui n'existe que dans la cible est
-        recopié dans la source, et une cible plus récente l'emporte sur une source
-        plus ancienne. Avec <b>Supprimer aussi dans la cible les fichiers
-        supprimés</b>, la suppression l'emporte – cocher les deux à la fois a
-        rarement un sens. L'option s'exclut mutuellement avec <b>Supprimer la source après la copie</b> et avec <b>Copier même si le fichier cible est plus récent</b> ; celle cochée en premier désactive l'autre.</td></tr>
+        recopié dans la source, et les suppressions, modifications et renommages
+        sont reportés dans les deux sens ; voir <a href="#twoway">La
+        synchronisation bidirectionnelle en détail</a>. Avec <b>Supprimer aussi
+        dans la cible les fichiers supprimés</b>, la suppression l'emporte.
+        L'option s'exclut mutuellement avec <b>Supprimer la source après la
+        copie</b> et avec <b>Copier même si le fichier cible est plus récent</b> ;
+        celle cochée en premier désactive l'autre.</td></tr>
 
 <tr><td valign="top"><b>Copier même si le fichier cible est plus récent</b></td>
     <td>Normalement, AutoFileSync n'écrase pas un fichier cible plus récent que
@@ -128,12 +131,64 @@ enregistrent l'heure avec la même précision.</p>
         en temps, désactivez l'option : l'absence n'est alors notée que dans le
         journal. En détail : <a href="unreachable.html">Lecteurs et connexions inaccessibles</a>.</td></tr>
 
+<tr><td valign="top"><b>Reconnaître les renommages et déplacements</b></td>
+    <td>Un fichier renommé ou déplacé dans la source est renommé aussi dans la
+        cible, au lieu d'être transféré à nouveau et supprimé sous son ancien nom.
+        Pour cela AutoFileSync tient aussi pour cette synchronisation un
+        <a href="#twoway">état de synchronisation</a>. L'option n'agit qu'avec
+        <b>Supprimer aussi dans la cible les fichiers supprimés</b>, parce que le
+        renommage retire l'ancien nom dans la cible. Avec la synchronisation
+        bidirectionnelle la reconnaissance est toujours active ; un élément de
+        type Fichier n'a rien à renommer.</td></tr>
+
 <tr><td valign="top"><b>Secondes de pause</b></td>
     <td>Temps d'attente entre deux passages en synchronisation continue,
         réglable de 1 à 60 secondes. Des pauses courtes détectent les
         modifications plus vite et sollicitent davantage disques et
         réseau.</td></tr>
 </table>
+
+<h2><a name="twoway"></a>La synchronisation bidirectionnelle en détail</h2>
+
+<p>Avec la synchronisation bidirectionnelle, AutoFileSync retient après chaque
+passage dans quel état se trouvait chaque fichier des deux côtés. Cet <b>état de
+synchronisation</b> est un fichier à côté de la configuration (sous-dossier
+<tt>state</tt>, un fichier par synchronisation), partagé par le programme et le
+service d'arrière-plan. Grâce à lui, le passage suivant distingue si un fichier
+est nouveau ou s'il a été supprimé d'un côté :</p>
+
+<ul>
+<li><b>Supprimé d'un côté</b> : le fichier est supprimé aussi de l'autre côté,
+    selon le <a href="settings.html">mode de suppression</a>, donc normalement
+    vers la corbeille. Cela vaut aussi pour les répertoires : un dossier supprimé
+    d'un côté est vidé et retiré de l'autre ; un dossier qui n'existe que dans la
+    cible est repris dans la source.</li>
+<li><b>Supprimé d'un côté, modifié depuis de l'autre</b> : le fichier modifié
+    l'emporte et est recopié ; le journal contient un avertissement.</li>
+<li><b>Modifié d'un seul côté</b> : la version modifiée l'emporte, même si sa
+    date de modification est plus ancienne que celle de l'autre côté, par exemple
+    après une restauration depuis une archive.</li>
+<li><b>Modifié des deux côtés</b> : aucun côté n'est écrasé. Le passage signale
+    une erreur jusqu'à ce que vous ayez décidé quelle version compte : copiez à
+    la main le fichier voulu par-dessus l'autre.</li>
+<li><b>Renommé ou déplacé</b> : le fichier est renommé aussi de l'autre côté au
+    lieu d'être transféré à nouveau et supprimé sous l'ancien nom. S'il existe
+    deux fichiers de même taille et de même date de modification, il est copié
+    par prudence.</li>
+</ul>
+
+<p>Le premier passage après la mise en place, et le premier après la mise à jour
+vers la version avec état de synchronisation, ne connaît encore aucun état et se
+comporte comme avant : ce qui n'existe que d'un côté est copié de l'autre ; une
+suppression n'est reconnue qu'à partir du deuxième passage. L'<a
+href="preview.html">aperçu</a> montre à l'avance les suppressions et renommages
+à venir.</p>
+
+<p><b>Attention :</b> une cible vidée, par exemple un disque de sauvegarde
+fraîchement formaté, compte comme « tout supprimé dans la cible » et viderait
+aussi la source au passage suivant (vers la corbeille). Dans ce cas, supprimez
+la synchronisation et recréez-la ; l'état de synchronisation repart alors de
+zéro.</p>
 
 <h2><a name="deleteintarget"></a>Supprimer aussi dans la cible les fichiers supprimés</h2>
 

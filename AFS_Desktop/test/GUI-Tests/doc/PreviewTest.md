@@ -53,3 +53,24 @@ pause a single run would show "nothing to do" for a different reason.
 A target that cannot be reached. On Unix a missing directory is enough. On Windows CheckPath only
 asks for the drive, since a missing target is created (CheckPath.md#target-need-not-exist), so
 the target goes on a drive letter that is not assigned.
+
+## step_with
+
+The order of the rows follows the directory listing, which differs between file systems, so a
+test looks a row up by its action instead of its position.
+
+## VorschauZeigtUmbenennungUndLoeschungInDerQuelleBeiZweiWege
+
+A two-way item after one run has a sync state (SyncFile.md#state); a rename in the source and
+a deletion in the target then show up as a rename in the target - old and new name in the file
+column (PreviewDialog.md#renames) - and a deletion in the source, and the preview still changes
+nothing. The arrow between the names is U+2192, written as UTF-8 bytes because the source files
+stay ASCII.
+
+## existing-target
+
+A target directory that does not exist yet counts as unreachable to CheckPath, so a run skips
+the item with a warning and a preview answers with a message box instead of the dialog - and a
+test that waits for the dialog waits for good, since the box is no dialog the watcher could
+close. Every test whose sandbox tree has no file on the target side therefore creates the empty
+target directory first, as a user would have an existing folder.

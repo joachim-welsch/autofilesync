@@ -76,9 +76,12 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
 
 <tr><td valign="top"><b>Two-way synchronisation</b></td>
     <td>The opposite direction counts as well: what exists only in the target is
-        copied back into the source, and a newer target wins against an older
-        source. Together with <b>Also delete deleted files in the target</b>,
-        deleting wins – setting both at once rarely makes sense. The option excludes <b>Delete the source after copying</b> and <b>Copy even if the target file is newer</b>; whichever is set first disables the other.</td></tr>
+        copied back into the source, and deletions, edits and renames are carried
+        over in both directions; see <a href="#twoway">Two-way synchronisation in
+        detail</a>. Together with <b>Also delete deleted files in the target</b>,
+        deleting wins. The option excludes <b>Delete the source after copying</b>
+        and <b>Copy even if the target file is newer</b>; whichever is set first
+        disables the other.</td></tr>
 
 <tr><td valign="top"><b>Copy even if the target file is newer</b></td>
     <td>Normally AutoFileSync does not overwrite a target file that is newer
@@ -121,11 +124,59 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
         disk that is plugged in only now and then, switch the option off: the
         absence is then only noted in the log. In detail: <a href="unreachable.html">Unreachable drives and connections</a>.</td></tr>
 
+<tr><td valign="top"><b>Recognise renames and moves</b></td>
+    <td>A file renamed or moved in the source is renamed in the target as well,
+        instead of being transferred again and deleted under its old name. For
+        this AutoFileSync keeps a <a href="#twoway">sync state</a> for this
+        synchronisation too. The option only takes effect together with <b>Also
+        delete deleted files in the target</b>, because the rename removes the
+        old name in the target. With two-way synchronisation the recognition is
+        always on; a file item has nothing to rename.</td></tr>
+
 <tr><td valign="top"><b>Seconds of pause</b></td>
     <td>Waiting time between two runs of a continuous synchronisation,
         adjustable from 1 to 60 seconds. Short pauses notice changes sooner and
         put more load on drives and network.</td></tr>
 </table>
+
+<h2><a name="twoway"></a>Two-way synchronisation in detail</h2>
+
+<p>With two-way synchronisation AutoFileSync remembers after every run what
+state each file was in on both sides. This <b>sync state</b> is a file next to
+the configuration (subfolder <tt>state</tt>, one file per synchronisation),
+shared by the program and the background service. With it the next run can
+tell whether a file is new or was deleted on one side:</p>
+
+<ul>
+<li><b>Deleted on one side</b>: the file is deleted on the other side too –
+    according to the <a href="settings.html">delete mode</a>, so normally into
+    the recycle bin. This includes directories: a folder deleted on one side is
+    emptied and removed on the other; a folder that exists only in the target
+    is taken over into the source.</li>
+<li><b>Deleted on one side, edited on the other since</b>: the edited file wins
+    and is copied back; the log contains a warning.</li>
+<li><b>Edited on one side only</b>: the edited version wins, even if its
+    modification time is older than the other side's, as after a restore from
+    an archive.</li>
+<li><b>Edited on both sides</b>: neither side is overwritten. The run reports an
+    error until you have decided which version counts – copy the wanted file
+    over the other one by hand.</li>
+<li><b>Renamed or moved</b>: the file is renamed on the other side as well
+    instead of being transferred again and deleted under the old name. If two
+    files share size and modification time, it is copied to be on the safe
+    side.</li>
+</ul>
+
+<p>The first run after setting up – and the first after updating to the version
+with the sync state – knows no state yet and behaves as before: what exists on
+one side only is copied to the other; a deletion is recognised from the second
+run on. The <a href="preview.html">preview</a> shows beforehand which deletions
+and renames are due.</p>
+
+<p><b>Caution:</b> a target that was emptied – a freshly formatted backup disk,
+say – counts as "everything deleted in the target" and would empty the source
+on the next run (into the recycle bin). In that case delete the synchronisation
+and create it again; the sync state then starts afresh.</p>
 
 <h2><a name="deleteintarget"></a>Also delete deleted files in the target</h2>
 

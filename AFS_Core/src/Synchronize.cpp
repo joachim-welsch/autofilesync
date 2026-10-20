@@ -36,6 +36,7 @@
 #include "SyncItem.h"
 #include "SyncFileSsh.h"
 #include "SyncFile.h"
+#include "SyncState.h"
 #include "SyncTree.h"
 #include "SyncDir.h"
 #include "SyncControler.h"
@@ -267,8 +268,42 @@ void Synchronize::report_unreachable(const SyncItem& i)
 LastRun Synchronize::last_run_of(const SyncItem& i, const SyncReport& report) const
 {
     const auto reachable = item_reachable_.find(i.name());
+    const auto known = known_files_.find(i.name());
     return {reachable == item_reachable_.end() || reachable->second, report.errors().size(),
-        report.errors().empty() ? wstring() : report.errors().front()};
+        report.errors().empty() ? wstring() : report.errors().front(),
+        known == known_files_.end() ? std::nullopt : std::optional(known->second)};
+}
+
+namespace {
+class SyncStateKeeper {  // [Synchronize.md#sync-state]
+    const SyncItem& item_;
+    const bool persist_;
+    std::optional<SyncState> state_;
+    fs::path file() const { return sync_state_file_path(sync_state_dir(), item_.name()); }
+public:
+    SyncStateKeeper(const SyncItem& item, bool load, bool persist)
+        : item_(item), persist_(persist)
+    {
+        if (!load)
+            return;
+        state_ = read_sync_state(file(), item.source(), item.target());
+        if (!state_)
+            state_.emplace(item.source(), item.target());
+    }
+    ~SyncStateKeeper()
+    {
+        if (state_ && persist_ && state_->changed())
+            write_sync_state(file(), *state_);
+    }
+    SyncStateKeeper(const SyncStateKeeper&) = delete;
+    SyncStateKeeper& operator=(const SyncStateKeeper&) = delete;
+    SyncState* state() { return state_ ? &*state_ : nullptr; }
+    void complete()  // [Synchronize.md#complete-pass]
+    {
+        if (state_)
+            state_->forget_unseen();
+    }
+};
 }
 
 void Synchronize::report_sync_item(SyncItem& i)
@@ -294,19 +329,24 @@ void Synchronize::run_sync_item(SyncItem& i)
             return;
         }
         item_reachable_[i.name()] = true;
+        SyncStateKeeper keeper(i, (i.two_way_sync() || i.track_moves()) && sync_type_ != SyncType::CountFiles, !touches_nothing());  // [Synchronize.md#sync-state]
         if (i.sync_item_type() == SyncItemType::Dir) {
-            SyncDir sd(i, count_files_, touches_nothing());
+            SyncDir sd(i, count_files_, touches_nothing(), keeper.state());
             sd();
         }
         else if (i.sync_item_type() == SyncItemType::File) {
             std::error_code ec;
             const bool is_target_dir = i.ssh_target() ? is_ssh_target_dir(i.target()) : fs::is_directory(without_volume_spec(i.target()), ec);
-            SyncFile(i, count_files_, touches_nothing(), is_target_dir)();
+            SyncFile(i, count_files_, touches_nothing(), is_target_dir, keeper.state())();
         }
         else if (i.sync_item_type() == SyncItemType::Tree) {
-            SyncTree sync(i, count_files_, touches_nothing());
+            SyncTree sync(i, count_files_, touches_nothing(), keeper.state());
             sync();
         }
+        if (!stopping() && !stop_requested())
+            keeper.complete();
+        if (keeper.state() != nullptr)
+            known_files_[i.name()] = keeper.state()->files().size();
     }
     catch (std::filesystem::filesystem_error const& ex) {
         handle_last_error(ex);

@@ -38,3 +38,33 @@ without the principle still handles a stray ".bak.1" like every other target-onl
 
 what() carries the UTF-8 encoded message, so the catch(std::exception&) handlers see the same
 diagnostic as get_message().
+
+## state_
+
+The sync state of the item's last pass (SyncState.md#SyncState), or null for every item that
+has none - a one-way item, a counting pass. Not owned: Synchronize keeps it for the duration of
+the pass and writes it afterwards; every SyncFile the pass creates gets the same pointer, so
+the entries one file records are there when the next file is compared.
+
+## state_key
+
+The entries of the state are keyed by the file's path relative to the item's source
+(SyncState.md#path). The root is taken once, as SyncFile::operator()() sees the paths it is
+given (without the volume specification, with the account prefix for SSH), and passed down
+unchanged to the SyncFiles of a directory or tree, whose own sync_item_ names a single file.
+A file item has no path below its root, so its key is the file name.
+
+## create_source_dir
+
+The counterpart of create_target_dir_if_not_exist() for a directory that exists only in the
+target of a two-way item (SyncTree.md#target-only-directories): it is new there and gets its
+mirror in the source, with every missing level. Like the target side, nothing is created on a
+counting pass.
+
+## remove_dir_if_empty
+
+A directory the other side deleted is emptied file by file (SyncTree.md#prepare-and-settle),
+and only then, if nothing is left, removed - a file that survived because it was edited, or a
+".bak" generation, keeps the directory on both sides. An empty directory holds nothing to
+recover, so it is removed outright rather than through the recycle bin; a non-empty one is
+simply left, without a message, because that is the ordinary outcome.

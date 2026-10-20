@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include "SyncState.h"
 #include "JsonText.h"
 #include "Util.h"
 #include "PasswordCrypto.h"
@@ -240,6 +241,7 @@ SyncFlags get_sync_flags(boost::property_tree::wptree& sf)
     retval.backup_proof(sf.get<wstring>(L"backupProof", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.sync_empty_files(sf.get<wstring>(L"syncEmptyFiles", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.warn_if_unreachable(sf.get<wstring>(L"warnIfUnreachable", L"true") == L"true");  // [Config.md#defaulted-flag-reads]
+    retval.track_moves(sf.get<wstring>(L"trackMoves", L"false") == L"true");  // [Config.md#defaulted-flag-reads]
     retval.enabled(sf.get<wstring>(L"enabled") == L"true");
     return retval;
 }
@@ -516,6 +518,7 @@ void Config::write_sync_item(const SyncItem& inode, boost::property_tree::wptree
     sync_flags_node.put(wstring(L"backupProof"), to_string(inode.backup_proof()));
     sync_flags_node.put(wstring(L"syncEmptyFiles"), to_string(inode.sync_empty_files()));
     sync_flags_node.put(wstring(L"warnIfUnreachable"), to_string(inode.warn_if_unreachable()));
+    sync_flags_node.put(wstring(L"trackMoves"), to_string(inode.track_moves()));
     sync_flags_node.put(wstring(L"enabled"), to_string(inode.enabled()));
     pt::wptree compare_items_node;
     write_compare_items(inode, compare_items_node);
@@ -691,6 +694,7 @@ void Config::remove(unsigned i)
     std::lock_guard<std::mutex> lock(syncitems_mutex_);
     auto iter=syncitems_.begin();
     std::advance(iter, i);
+    remove_sync_state(sync_state_file_path(sync_state_dir(), iter->name()));  // [Config.md#state-leaves-with-item]
     syncitems_.erase(iter);
     changed_ = true;
 }
@@ -700,6 +704,7 @@ bool Config::erase_by_name(const std::wstring& name)
     std::lock_guard<std::mutex> lock(syncitems_mutex_);
     for (auto iter = syncitems_.begin(); iter != syncitems_.end(); ++iter) {
         if (iter->name() == name) {
+            remove_sync_state(sync_state_file_path(sync_state_dir(), name));  // [Config.md#state-leaves-with-item]
             syncitems_.erase(iter);
             changed_ = true;
             return true;

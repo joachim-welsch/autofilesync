@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "SyncFileSsh.h"
+#include <functional>
 #include "Translation.h"
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
@@ -445,6 +446,31 @@ bool ssh_remove_file(const std::wstring& path)
         return false;
     if (sftp_unlink(connection.sftp(), remote_path->c_str()) != SSH_OK)
         return failed(translation::translate("remote_file_delete_error") + string_to_wstring(*remote_path));
+    return true;
+}
+
+bool ssh_rmdir(const std::wstring& path)  // [SyncFileSsh.md#ssh_rmdir]
+{
+    log_debug(L"ssh_rmdir: " + path);
+    SftpConnection connection;
+    const auto remote_path = connect_to(path, connection);
+    if (!remote_path)
+        return false;
+    if (sftp_rmdir(connection.sftp(), remote_path->c_str()) != SSH_OK)
+        return failed(translation::translate("remote_dir_delete_error") + string_to_wstring(*remote_path));
+    return true;
+}
+
+bool ssh_rename(const std::wstring& from, const std::wstring& to)  // [SyncFileSsh.md#ssh_rename]
+{
+    log_debug(L"ssh_rename: " + from + L" -> " + to);
+    SftpConnection connection;
+    const auto remote_from = connect_to(from, connection);
+    if (!remote_from)
+        return false;
+    const std::string remote_to = win_to_sftp_path(get_remote_path(to));
+    if (sftp_rename(connection.sftp(), remote_from->c_str(), remote_to.c_str()) != SSH_OK)
+        return failed(translation::translate("remote_rename_error") + string_to_wstring(*remote_from) + L" -> " + string_to_wstring(remote_to));
     return true;
 }
 
@@ -1226,9 +1252,8 @@ bool ssh_mkdir(const std::wstring& path)
     return success;
 }
 
-bool ssh_remove_file(const std::wstring& path)
+static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBSSH2_SFTP*, const std::string&)>& call, const char* error_msgid)  // [SyncFileSsh.md#ssh_rmdir]
 {
-    log_debug(L"ssh_remove_file: " + path);
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
         log_error(translation::translate("ssh_account_not_found_for") + path);
@@ -1296,11 +1321,9 @@ bool ssh_remove_file(const std::wstring& path)
         return false;
     }
 
-    int rc = libssh2_sftp_unlink(sftp_session, remote_path.c_str());
-    bool success = (rc == 0);
-    if (!success) {
-        log_error(translation::translate("remote_file_delete_error") + string_to_wstring(remote_path));
-    }
+    const bool success = call(sftp_session, remote_path) == 0;
+    if (!success)
+        log_error(translation::translate(error_msgid) + string_to_wstring(remote_path));
 
     libssh2_sftp_shutdown(sftp_session);
     libssh2_session_disconnect(session, "Normal Shutdown");
@@ -1308,6 +1331,25 @@ bool ssh_remove_file(const std::wstring& path)
     closesocket(sock);
 
     return success;
+}
+
+bool ssh_remove_file(const std::wstring& path)
+{
+    log_debug(L"ssh_remove_file: " + path);
+    return ssh_sftp_call(path, [](LIBSSH2_SFTP* sftp, const std::string& remote) { return libssh2_sftp_unlink(sftp, remote.c_str()); }, "remote_file_delete_error");
+}
+
+bool ssh_rmdir(const std::wstring& path)  // [SyncFileSsh.md#ssh_rmdir]
+{
+    log_debug(L"ssh_rmdir: " + path);
+    return ssh_sftp_call(path, [](LIBSSH2_SFTP* sftp, const std::string& remote) { return libssh2_sftp_rmdir(sftp, remote.c_str()); }, "remote_dir_delete_error");
+}
+
+bool ssh_rename(const std::wstring& from, const std::wstring& to)  // [SyncFileSsh.md#ssh_rename]
+{
+    log_debug(L"ssh_rename: " + from + L" -> " + to);
+    const std::string remote_to = win_to_sftp_path(get_remote_path(to));
+    return ssh_sftp_call(from, [&](LIBSSH2_SFTP* sftp, const std::string& remote) { return libssh2_sftp_rename(sftp, remote.c_str(), remote_to.c_str()); }, "remote_rename_error");
 }
 
 std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
@@ -1421,5 +1463,16 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 
 #endif
 #endif
+
+bool ssh_mkdir_p(const std::wstring& path)  // [SyncFileSsh.md#ssh_mkdir_p]
+{
+    if (ssh_exists(path))
+        return true;
+    const std::size_t slash = path.find_last_of(L'/');
+    const std::size_t root = path.find(L':') + 1;
+    if (slash != std::wstring::npos && slash > root && !ssh_mkdir_p(path.substr(0, slash)))
+        return false;
+    return ssh_mkdir(path);
+}
 
 } // namespace AFS_Core

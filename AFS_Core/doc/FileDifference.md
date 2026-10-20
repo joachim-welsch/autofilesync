@@ -61,3 +61,51 @@ Two-way sync copies the newer file over the older one. When time and size are
 equal but the content differs, neither side is the newer one, and copying in
 either direction would destroy an edit. The result is therefore its own value,
 which SyncFile leaves untouched and reports as an error.
+
+## three-way
+
+With a FileState from the last pass (SyncState.md#SyncState) the comparison has a third point
+of view and four more answers. A side that is missing now but was there last time was deleted
+there - SourceDeleted or DestDeleted - provided the other side is unchanged() since then; if
+the other side was edited in the meantime, the edit wins and the plain SourceNotExits or
+DestNotExists stands, which SyncFile copies as before and warns about. Both sides present:
+the side that differs from the state is the one that changed, whatever the two write times say
+about each other, so an edit that leaves an older write time (a restore from an archive, a
+`touch` on the other side) is still propagated; both changed is BothModified, which nothing
+copies. NeitherExists is the file that is gone on both sides: nothing to do, and the state
+entry is dropped. Without a state nothing changes - the first pass after an update compares
+the two sides as before.
+
+## unchanged
+
+A side is unchanged since the state when its size is the state's and its write time is the
+state's within the item's tolerance (time-tolerance above), whatever the comparison criteria
+say: the question is whether anybody touched this side, not how the two sides are compared,
+and a deletion must not rest on a criterion the user switched off.
+
+## both-changed-alike
+
+Both sides differ from the state but not from each other - the same file dropped into both
+directories, say - which is no conflict: with the same size and write time (within the
+tolerance, whatever the criteria say - an item comparing by content alone would otherwise
+call every pair of edits alike) the result is Equal, the content check runs if the item asks
+for it, and the state is updated.
+
+## absent
+
+Only a file the file system (or the SFTP server) confirms as missing may count as deleted; a
+file whose attributes cannot be read is still there and merely yields the old DestNotExists
+or SourceNotExits, as before, which copies instead of deleting.
+
+## observe_file
+
+Size and write time of one side as read_file_info() reads them for the comparison, so the
+FileState SyncFile records after a copy is measured the same way it is compared with next
+time - an SFTP time in whole seconds included.
+
+## base-only-two-way
+
+A one-way item may carry a state too, for the rename detection (SyncItem.md#track_moves_),
+but its comparison stays the plain one: the source is the master, a target the user deleted
+is copied again, a target they edited is handled by copy_when_target_newer as before, and
+nothing in the source is ever deleted. The state only answers where a new file came from.

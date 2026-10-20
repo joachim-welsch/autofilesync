@@ -77,3 +77,21 @@ A preview answers "what would a run do now", so it must not skip the items whose
 since the last run has not elapsed: right after a run the user would see "nothing to do"
 for an item that has plenty to do as soon as the pause is over. Only the real runs honour
 the pause.
+
+## sync-state
+
+A two-way item runs with the state of its last pass (SyncState.md#SyncState): the keeper
+reads it before the pass - or starts an empty one for the first pass - hands it to the sync
+classes and writes it back when it goes out of scope, which is also the way out when the pass
+throws, so what the pass recorded up to the exception is kept. Only passes that touch
+something write; the preview reads the state so that it plans the deletions a run would make,
+and the counting pass does not load it at all - the count is a range for the progress bar
+and must not pay for 100 000 entries. One-way items carry no state. The number of files the
+state knows goes into the item's LastRun, so the assistant can say that the two-way sync is
+tracking deletions (ConfigSummary.md#known-files).
+
+## complete-pass
+
+forget_unseen() drops every entry the pass did not visit, and that is only right after a pass
+that visited everything: a stopped pass or one that threw leaves the unvisited files in the
+state, or the next pass would take every one of them for new on both sides.

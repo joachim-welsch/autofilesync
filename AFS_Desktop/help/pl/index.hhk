@@ -79,6 +79,18 @@
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Synchronizacja dwukierunkowa (usuwanie, konflikty, zmiany nazw)">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Rozpoznawanie zmian nazw i przeniesień">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Stan synchronizacji">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Tryb usuwania i kosz">
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>

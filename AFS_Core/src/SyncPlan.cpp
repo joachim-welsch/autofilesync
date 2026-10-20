@@ -29,7 +29,7 @@ namespace {
 void SyncPlan::add(PlannedStep step)
 {
     ++counts_[static_cast<std::size_t>(step.action)];
-    if (step.action != PlannedAction::DeleteInTarget)
+    if (!deletion(step.action) && !rename(step.action))
         bytes_ += step.bytes;
     if (steps_.size() < MAX_STEPS)  // [SyncPlan.md#MAX_STEPS]
         steps_.push_back(std::move(step));

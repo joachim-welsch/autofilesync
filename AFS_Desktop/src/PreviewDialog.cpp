@@ -40,17 +40,24 @@ wxString human_size(uint64_t bytes)
     return wxFileName::GetHumanReadableSize(wxULongLong(bytes), translate("preview_no_bytes"), 1);
 }
 
+wstring relative_to_root(const wstring& path, const SyncItem& item, bool in_target)
+{
+    if (item.sync_item_type() == SyncItemType::File)
+        return std::filesystem::path(path).filename().wstring();
+    const bool ssh = in_target ? item.ssh_target() : item.ssh_source();
+    const wstring root = util::with_trailing_char(without_volume_spec(in_target ? item.target() : item.source()), ssh ? L'/' : DIR_SEPARATOR);
+    return path.starts_with(root) ? path.substr(root.size()) : path;
+}
+
 wstring shown_path(const PlannedStep& step)  // [PreviewDialog.md#shown_path]
 {
-    const wstring& path = file_in_target(step.action) ? step.target : step.source;
+    const bool in_target = file_in_target(step.action);
     const std::optional<SyncItem> item = Config::instance().find_by_name(step.item);
     if (!item)
-        return path;
-    if (item->sync_item_type() == SyncItemType::File)
-        return std::filesystem::path(path).filename().wstring();
-    const bool ssh = file_in_target(step.action) ? item->ssh_target() : item->ssh_source();
-    const wstring root = util::with_trailing_char(without_volume_spec(file_in_target(step.action) ? item->target() : item->source()), ssh ? L'/' : DIR_SEPARATOR);
-    return path.starts_with(root) ? path.substr(root.size()) : path;
+        return rename(step.action) ? step.source + L" \u2192 " + step.target : in_target ? step.target : step.source;
+    if (rename(step.action))  // [PreviewDialog.md#renames]
+        return relative_to_root(step.source, *item, in_target) + L" \u2192 " + relative_to_root(step.target, *item, in_target);
+    return relative_to_root(in_target ? step.target : step.source, *item, in_target);
 }
 }
 
@@ -96,8 +103,8 @@ void PreviewDialog::add_step(const PlannedStep& step)
     const long row = list_->InsertItem(list_->GetItemCount(), action_label(step.action));
     list_->SetItem(row, 1, step.item);
     list_->SetItem(row, 2, shown_path(step));
-    list_->SetItem(row, 3, step.action == PlannedAction::DeleteInTarget ? wxString() : human_size(step.bytes));
-    if (step.action == PlannedAction::DeleteInTarget)  // [PreviewDialog.md#deletions-in-red]
+    list_->SetItem(row, 3, deletion(step.action) || rename(step.action) ? wxString() : human_size(step.bytes));
+    if (deletion(step.action))  // [PreviewDialog.md#deletions-in-red]
         list_->SetItemTextColour(row, *wxRED);
 }
 
@@ -107,6 +114,9 @@ wxString PreviewDialog::action_label(PlannedAction action)
     case PlannedAction::CopyToTarget: return translate("preview_copy_to_target");
     case PlannedAction::MoveToTarget: return translate("preview_move_to_target");
     case PlannedAction::CopyToSource: return translate("preview_copy_to_source");
+    case PlannedAction::DeleteInSource: return translate("preview_delete_in_source");
+    case PlannedAction::RenameInTarget: return translate("preview_rename_in_target");
+    case PlannedAction::RenameInSource: return translate("preview_rename_in_source");
     case PlannedAction::DeleteInTarget: break;
     }
     return translate("preview_delete_in_target");
@@ -114,6 +124,6 @@ wxString PreviewDialog::action_label(PlannedAction action)
 
 wxString PreviewDialog::summary(const SyncPlan& plan)  // [PreviewDialog.md#summary]
 {
-    return translate("preview_summary", {std::to_wstring(plan.count()), std::to_wstring(plan.count(PlannedAction::DeleteInTarget)),
+    return translate("preview_summary", {std::to_wstring(plan.count()), std::to_wstring(plan.deletions()),
         human_size(plan.bytes()).ToStdWstring()});
 }

@@ -23,8 +23,9 @@ pass and dialog, say - falls back to the full path rather than hiding it.
 
 ## deletions-in-red
 
-The deletions are the reason the preview exists: they are the only steps that lose data, so
-they stand out in red and show no size - a deletion moves none.
+The deletions - in the target, and in the source for a two-way sync whose state saw the
+target side deleted - are the reason the preview exists: they are the only steps that lose
+data, so they stand out in red and show no size - a deletion moves none.
 
 ## close-is-the-default
 
@@ -43,3 +44,9 @@ The messages the preview pass logged - an unreachable source, a content conflict
 below the list as the single run shows them in its box afterwards
 (SyncInterface.md#show_run_messages). A box before the dialog would hide the context the
 messages belong to.
+
+## renames
+
+A rename step (SyncPlan.md#PlannedAction) names both paths, old and new, relative to the root
+of the side they are on, joined by an arrow, and shows no size: nothing is transferred. That is
+the point of the step - the user sees that the move was recognised and no copy is coming.

@@ -46,7 +46,10 @@ CopyResult copy_fs_to_ssh(const std::wstring& src, const std::wstring& dest);
 bool ssh_exists(const std::wstring& path);
 bool ssh_is_directory(const std::wstring& path);
 bool ssh_mkdir(const std::wstring& path);
+bool ssh_mkdir_p(const std::wstring& path);  // [SyncFileSsh.md#ssh_mkdir_p]
 bool ssh_remove_file(const std::wstring& path);
+bool ssh_rmdir(const std::wstring& path);  // [SyncFileSsh.md#ssh_rmdir]
+bool ssh_rename(const std::wstring& from, const std::wstring& to);  // [SyncFileSsh.md#ssh_rename]
 std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path);
 
 #ifdef _TEST

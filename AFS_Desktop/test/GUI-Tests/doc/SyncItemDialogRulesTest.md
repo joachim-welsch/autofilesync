@@ -28,3 +28,10 @@ The saving direction is covered by SyncOptionsTest; this test opens the edit dia
 item that already has exclusions and reads them back from the text box, one per line. The
 item goes straight into the configuration: the round trip through the dialog is what is
 under test, not the creation.
+
+## two-way-implies-moves
+
+Two-way sync ticks and locks "Umbenennen und Verschieben erkennen" and shows the hint line
+under the options (SyncItemDialog.md#track-moves-implied, #two-way-hint); unticking it frees
+the option and hides the hint again. The type Datei locks the option on its own, since a file
+item has nothing to rename.

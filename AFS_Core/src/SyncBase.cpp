@@ -37,9 +37,67 @@ using std::wstring;
 namespace fs = std::filesystem;
 using namespace util;
 
-SyncBase::SyncBase(const SyncItem& sync_item, std::size_t& copy_count, bool only_count)
-    : sync_item_(sync_item), copy_count_(copy_count), only_count_(only_count)
+namespace {
+    wstring root_of(const SyncItem& item)  // the item's source as SyncFile::operator()() sees its files
+    {
+        return item.ssh_source() ? item.source() : without_volume_spec(item.source());
+    }
+
+    wstring target_root_of(const SyncItem& item)
+    {
+        return item.ssh_target() ? item.target() : without_volume_spec(item.target());
+    }
+
+    bool below(const wstring& path, const wstring& root)
+    {
+        if (!path.starts_with(root))
+            return false;
+        return path.size() == root.size() || path[root.size()] == L'/' || path[root.size()] == L'\\' || root.ends_with(L'/') || root.ends_with(L'\\');
+    }
+}
+
+SyncBase::SyncBase(const SyncItem& sync_item, std::size_t& copy_count, bool only_count, SyncState* state, const wstring& state_root, const wstring& target_root)
+    : sync_item_(sync_item), copy_count_(copy_count), only_count_(only_count), state_(state)
+    , state_root_(state_root.empty() ? root_of(sync_item) : state_root)
+    , target_root_(target_root.empty() ? target_root_of(sync_item) : target_root)
 {}
+
+wstring SyncBase::side_path(const wstring& key, bool in_target) const  // [SyncBase.md#side_path]
+{
+    const wchar_t separator = (in_target ? sync_item_.ssh_target() : sync_item_.ssh_source()) ? L'/' : DIR_SEPARATOR;
+    wstring relative = key;
+    std::replace(relative.begin(), relative.end(), L'/', separator);
+    return with_trailing_char(in_target ? target_root_ : state_root_, separator) + relative;
+}
+
+void SyncBase::finish_pass()  // [SyncBase.md#finish_pass]
+{
+    if (state_ == nullptr)
+        return;
+    const std::vector<PendingDeletion> deletions = state_->take_deletions();
+    const std::vector<PendingDirRemoval> removals = state_->take_dir_removals();
+    for (const PendingDeletion& deletion : deletions) {
+        if (stop_requested())
+            return;
+        SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), deletion.source, deletion.target, sync_item_.wildcard(), Exclusions(),
+                          sync_item_.flags(), sync_item_.compare_items()),
+                 copy_count_, only_count_, false, state_, state_root_, target_root_).carry_out_deferred(deletion);
+    }
+    for (const PendingDirRemoval& removal : removals)
+        if (!stop_requested())
+            remove_dir_if_empty(removal.path, removal.ssh);
+}
+
+wstring SyncBase::state_key(const wstring& source) const  // [SyncBase.md#state_key]
+{
+    wstring key = below(source, state_root_) ? source.substr(state_root_.size()) : source;
+    const std::size_t start = key.find_first_not_of(L"/\\");
+    key = start == wstring::npos ? wstring() : key.substr(start);
+    if (key.empty())
+        key = source.substr(source.find_last_of(L"/\\") + 1);
+    std::replace(key.begin(), key.end(), L'\\', L'/');
+    return key;
+}
 
 bool SyncBase::drive_not_exist(const wstring& pathname, bool ssh)
 {
@@ -59,7 +117,7 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)
         return;
     const wstring destination = targetdir.empty() ? sync_item_.target() : targetdir;
     if (sync_item_.ssh_target()) {
-        if (!ssh_exists(destination) && !ssh_mkdir(destination)) {
+        if (!ssh_mkdir_p(destination)) {
             log_error(translation::translate("ssh_dir_create_error") + destination);
             report_sync_error(translation::translate("ssh_target_dir_not_creatable") + destination);
         }
@@ -73,6 +131,34 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)
     }
 }
 
+void SyncBase::create_source_dir(const wstring& dir)  // [SyncBase.md#create_source_dir]
+{
+    log_debug(L"create_source_dir: " + dir);
+    if (only_count_)
+        return;
+    std::error_code ec;
+    const bool created = sync_item_.ssh_source() ? ssh_mkdir_p(dir) : (fs::create_directories(dir, ec), !ec);
+    if (created)
+        return;
+    log_error(translation::translate("source_dir_create_error"), dir, string_to_wstring(ec.message()));
+    report_sync_error(translation::translate("source_dir_create_error") + dir);
+}
+
+void SyncBase::remove_dir_if_empty(const wstring& dir, bool ssh)  // [SyncBase.md#remove_dir_if_empty]
+{
+    if (only_count_)
+        return;
+    std::error_code ec;
+    if (ssh ? !ssh_list_dir(dir).empty() : !fs::is_empty(dir, ec) || ec)
+        return;
+    if (ssh ? ssh_rmdir(dir) : fs::remove(dir, ec) && !ec) {
+        log_info(translation::translate("empty_dir_removed"), dir);
+        return;
+    }
+    log_error(translation::translate("dir_delete_failed"), dir, string_to_wstring(ec.message()));
+    report_sync_error(translation::translate("dir_delete_failed") + dir);
+}
+
 void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstring& wildcard)
 {
     if (only_count_ && !planning()) {  // [SyncPlan.md#planning]
@@ -82,7 +168,7 @@ void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstri
     try {
         SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard, Exclusions(),
                           sync_item_.flags(), sync_item_.compare_items()),
-                 copy_count_, only_count_)();
+                 copy_count_, only_count_, false, state_, state_root_, target_root_)();
     } catch (const std::exception& e) {
         log_error(source, dest, string_to_wstring(e.what()));
         report_sync_error(source + L": " + string_to_wstring(e.what()));

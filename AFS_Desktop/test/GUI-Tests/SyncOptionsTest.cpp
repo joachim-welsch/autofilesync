@@ -242,4 +242,45 @@ TEST_F(GuiTest, AusschluesseHaltenDateienZurueck)
     EXPECT_FALSE(tree.exists("ziel/geheim.txt")) << "Eine per Namensmuster ausgeschlossene Datei wurde kopiert.";
 }
 
+
+TEST_F(GuiTest, ZweiWegeSyncUebernimmtLoeschungBeimZweitenLauf)  // [SyncOptionsTest.md#two-way-state]
+{
+    const EmptiedRecycleBin recycle_bin;
+    const SandboxTree tree(GuiTestSandbox::root() / "zweiwege-loeschen", {{"quelle/weg.txt", "wird gelöscht"}, {"quelle/bleibt.txt", "bleibt"}});
+    fs::create_directories(tree.path("ziel"));  // [PreviewTest.md#existing-target]
+    SyncItemInput input = dir_sync(tree, "guitest-zweiwege-loeschen");
+    input.options.two_way_sync = true;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ASSERT_TRUE(sync_once(main_window()));
+    ASSERT_TRUE(tree.exists("ziel/weg.txt"));
+    fs::remove(tree.path("quelle/weg.txt"));
+
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_FALSE(tree.exists("ziel/weg.txt")) << "Die in der Quelle gelöschte Datei kam aus dem Ziel zurück oder blieb dort.";
+    EXPECT_FALSE(tree.exists("quelle/weg.txt")) << "Die gelöschte Datei wurde aus dem Ziel zurückkopiert.";
+    EXPECT_EQ(tree.read("ziel/bleibt.txt"), "bleibt");
+    EXPECT_EQ(recycle_bin.items(), 1u) << "Die Zieldatei ging nicht in den Papierkorb.";
+}
+
+TEST_F(GuiTest, UmbenennenErkennenBenenntImZielUm)  // [SyncOptionsTest.md#two-way-state]
+{
+    const EmptiedRecycleBin recycle_bin;
+    const SandboxTree tree(GuiTestSandbox::root() / "umbenennen", {{"quelle/alt.txt", "umbenannt"}});
+    fs::create_directories(tree.path("ziel"));  // [PreviewTest.md#existing-target]
+    SyncItemInput input = dir_sync(tree, "guitest-umbenennen");
+    input.options.delete_in_target = true;
+    input.options.track_moves = true;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ASSERT_TRUE(sync_once(main_window()));
+    ASSERT_TRUE(tree.exists("ziel/alt.txt"));
+    fs::rename(tree.path("quelle/alt.txt"), tree.path("quelle/neu.txt"));
+
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_EQ(tree.read("ziel/neu.txt"), "umbenannt");
+    EXPECT_FALSE(tree.exists("ziel/alt.txt"));
+    EXPECT_EQ(recycle_bin.items(), 0u) << "Die Datei wurde gelöscht und neu kopiert statt umbenannt.";
+}
+
 }

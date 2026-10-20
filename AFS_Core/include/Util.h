@@ -41,6 +41,8 @@ namespace util {
 
     std::time_t to_time_t(const std::filesystem::file_time_type& ft);  // [Util.md#file-time-conversions]
     std::filesystem::file_time_type to_file_time(std::time_t tt);
+    int64_t to_unix_nanoseconds(const std::filesystem::file_time_type& ft);  // [Util.md#file-time-conversions]
+    std::filesystem::file_time_type from_unix_nanoseconds(int64_t ns);
 
     std::wstring with_trailing_char(const std::wstring& s, wchar_t c);
 
@@ -58,6 +60,7 @@ namespace util {
     bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
     std::wstring read_utf8_file(const std::filesystem::path& file);  // [Util.md#utf8-files]
     void write_utf8_file(const std::filesystem::path& file, const std::wstring& text);  // [Util.md#utf8-files]
+    std::wstring as_file_name(const std::wstring& name);  // [Util.md#as_file_name]
 } // namespace util
 
 } // namespace AFS_Core

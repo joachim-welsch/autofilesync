@@ -57,12 +57,7 @@ namespace {
 
     wstring as_file_name(const wstring& item_name)
     {
-        const wstring forbidden = L"<>:\"/\\|?*";
-        wstring retval;
-        for (wchar_t c : item_name)
-            retval += (c < 32 || forbidden.find(c) != wstring::npos) ? L'_' : c;
-        while (!retval.empty() && (retval.back() == L'.' || retval.back() == L' '))  // [CopyLog.md#trailing-dots-and-blanks]
-            retval.pop_back();
+        const wstring retval = util::as_file_name(item_name);
         return retval.empty() ? wstring(L"Sicherungsnachweis") : retval;  // [CopyLog.md#untranslated-file-name]
     }
 

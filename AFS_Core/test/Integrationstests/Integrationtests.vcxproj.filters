@@ -96,6 +96,9 @@
     <ClInclude Include="$(LibDir)\include\CopyLog.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\SyncState.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\HelpKnowledge.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -237,6 +240,12 @@
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="CopyLogTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncStateTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncStateRunTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="DifficultDirnameTests.cpp">
@@ -405,6 +414,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CopyLog.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\SyncState.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp">

@@ -115,6 +115,18 @@
       <PARAM name="Local" value="options.html#timetolerance">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sincronización bidireccional (eliminaciones, conflictos, cambios de nombre)">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Reconocer cambios de nombre y movimientos">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Estado de sincronización">
+      <PARAM name="Local" value="options.html#twoway">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Vista previa (simulación)">
       <PARAM name="Local" value="preview.html">
     </OBJECT></LI>
