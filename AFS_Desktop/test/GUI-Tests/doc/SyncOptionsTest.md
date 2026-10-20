@@ -58,3 +58,10 @@ A single run skips an item whose pause since its last run has not elapsed
 pause is one second. A second "Einmal synchronisieren" right after the first therefore counts
 nothing, answers with the "no files" box and never runs - which looks exactly like a refused
 deletion. Every test that runs twice pumps events for a little over a second in between.
+
+## conflict-copies
+
+A conflict through the GUI (SyncFile.md#conflict-copies): both sides edited, the target ten
+minutes later, so the target wins and the source's version turns up as a conflict copy on both
+sides - two entries whose name begins with "text (" - and the box after the run names the copy
+as a warning past the sandbox's switched-off message filter (Synchronize.md#notes).

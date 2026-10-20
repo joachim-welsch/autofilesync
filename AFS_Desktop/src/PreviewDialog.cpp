@@ -117,6 +117,8 @@ wxString PreviewDialog::action_label(PlannedAction action)
     case PlannedAction::DeleteInSource: return translate("preview_delete_in_source");
     case PlannedAction::RenameInTarget: return translate("preview_rename_in_target");
     case PlannedAction::RenameInSource: return translate("preview_rename_in_source");
+    case PlannedAction::ConflictCopyToTarget: return translate("preview_conflict_to_target");
+    case PlannedAction::ConflictCopyToSource: return translate("preview_conflict_to_source");
     case PlannedAction::DeleteInTarget: break;
     }
     return translate("preview_delete_in_target");

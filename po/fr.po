@@ -673,6 +673,14 @@ msgstr "%1 : %2 des %3 fichiers connus seraient supprimés. « Synchroniser main
 msgid "both_modified_not_copied"
 msgstr "Non synchronisé, car les deux côtés ont changé depuis la dernière synchronisation :"
 
+#: AFS_Core/src/SyncFile.cpp:530
+msgid "conflict_copy_marker"
+msgstr "conflit %1, %2"
+
+#: AFS_Core/src/SyncFile.cpp:549
+msgid "conflict_copy_made"
+msgstr "Modifié des deux côtés – la version perdante %1 est conservée sous %2"
+
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
 msgstr "Erreur : %1, lors du renommage de %2 en %3"
@@ -1762,6 +1770,10 @@ msgid "option_track_moves"
 msgstr "Reconnaître les renommages et déplacements"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "option_conflict_copies"
+msgstr "Conserver les deux versions en cas de conflit"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"
 msgstr "Les suppressions, modifications et renommages sont reportés dans les deux sens dès qu’un premier passage connaît les deux côtés. L’aperçu montre à l’avance ce qui serait supprimé."
 
@@ -2040,6 +2052,14 @@ msgstr "Supprimer dans la source"
 #: AFS_Desktop/src/PreviewDialog.cpp:118
 msgid "preview_rename_in_target"
 msgstr "Renommer dans la cible"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:120
+msgid "preview_conflict_to_target"
+msgstr "Créer une copie de conflit, la source l’emporte"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:121
+msgid "preview_conflict_to_source"
+msgstr "Créer une copie de conflit, la cible l’emporte"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:119
 msgid "preview_rename_in_source"

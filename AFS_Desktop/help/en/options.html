@@ -133,6 +133,13 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
         old name in the target. With two-way synchronisation the recognition is
         always on; a file item has nothing to rename.</td></tr>
 
+<tr><td valign="top"><b>Keep both versions on a conflict</b></td>
+    <td>If a file was changed on both sides since the last synchronisation, the
+        version written last wins and the other one survives next to it as a
+        conflict copy; see <a href="#twoway">Two-way synchronisation in detail</a>.
+        Default: on. Switched off, the run reports the conflict as an error and
+        leaves both sides as they are. Only available with two-way synchronisation.</td></tr>
+
 <tr><td valign="top"><b>Seconds of pause</b></td>
     <td>Waiting time between two runs of a continuous synchronisation,
         adjustable from 1 to 60 seconds. Short pauses notice changes sooner and
@@ -158,9 +165,13 @@ tell whether a file is new or was deleted on one side:</p>
 <li><b>Edited on one side only</b>: the edited version wins, even if its
     modification time is older than the other side's, as after a restore from
     an archive.</li>
-<li><b>Edited on both sides</b>: neither side is overwritten. The run reports an
-    error until you have decided which version counts – copy the wanted file
-    over the other one by hand.</li>
+<li><b>Edited on both sides</b>: the version written last wins (on a tie the
+    source) and is copied to the other side. The losing version survives next to
+    it as a conflict copy, say <tt>Report (conflict 2026-10-20, laptop).docx</tt>,
+    on both sides; the log and the message after the run name it, so that you can
+    merge the changes. With <b>Keep both versions on a conflict</b> switched off,
+    neither side is overwritten and the run reports an error until you have
+    decided by hand.</li>
 <li><b>Renamed or moved</b>: the file is renamed on the other side as well
     instead of being transferred again and deleted under the old name. If two
     files share size and modification time, it is copied to be on the safe

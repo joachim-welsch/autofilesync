@@ -61,6 +61,7 @@ public:
     Result result() const { return result_; }
     bool has_base() const { return base_ != nullptr; }
     bool same_time(std::filesystem::file_time_type a, std::filesystem::file_time_type b) const { return !newer(a, b) && !newer(b, a); }  // within the item's tolerance
+    bool dest_newer() const { return newer(desttime_, sourcetime_); }  // beyond the tolerance; a tie is not newer
     uint64_t source_size() const { return sourcesize_; }
     uint64_t dest_size() const { return destsize_; }
     std::filesystem::file_time_type source_time() const { return sourcetime_; }

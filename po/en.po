@@ -681,6 +681,14 @@ msgstr "%1: %2 of %3 known files would be deleted. \"Synchronise now\" carries t
 msgid "both_modified_not_copied"
 msgstr "Not synchronized because both sides changed since the last sync:"
 
+#: AFS_Core/src/SyncFile.cpp:530
+msgid "conflict_copy_marker"
+msgstr "conflict %1, %2"
+
+#: AFS_Core/src/SyncFile.cpp:549
+msgid "conflict_copy_made"
+msgstr "Changed on both sides - the losing version %1 is kept as %2"
+
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
 msgstr "Error: %1, while renaming %2 to %3"
@@ -1793,6 +1801,10 @@ msgid "option_track_moves"
 msgstr "Recognise renames and moves"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "option_conflict_copies"
+msgstr "Keep both versions on a conflict"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"
 msgstr "Deletions, edits and renames are carried over in both directions once a first run knows both sides. The preview shows beforehand what would be deleted."
 
@@ -2073,6 +2085,14 @@ msgstr "Delete in the source"
 #: AFS_Desktop/src/PreviewDialog.cpp:118
 msgid "preview_rename_in_target"
 msgstr "Rename in the target"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:120
+msgid "preview_conflict_to_target"
+msgstr "Keep a conflict copy, source wins"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:121
+msgid "preview_conflict_to_source"
+msgstr "Keep a conflict copy, target wins"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:119
 msgid "preview_rename_in_source"

@@ -50,3 +50,9 @@ messages belong to.
 A rename step (SyncPlan.md#PlannedAction) names both paths, old and new, relative to the root
 of the side they are on, joined by an arrow, and shows no size: nothing is transferred. That is
 the point of the step - the user sees that the move was recognised and no copy is coming.
+
+## conflict-copies
+
+A conflict step (SyncPlan.md#PlannedAction) names the winning side in its label, shows the
+file like a copy and the winner's size; that the other version survives as a conflict copy is
+the help's and the log's business, the preview only has to make clear that nothing is lost.

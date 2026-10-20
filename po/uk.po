@@ -673,6 +673,14 @@ msgstr "%1: було б видалено %2 з %3 відомих файлів. �
 msgid "both_modified_not_copied"
 msgstr "Не синхронізовано, оскільки обидві сторони змінилися з часу останньої синхронізації:"
 
+#: AFS_Core/src/SyncFile.cpp:530
+msgid "conflict_copy_marker"
+msgstr "конфлікт %1, %2"
+
+#: AFS_Core/src/SyncFile.cpp:549
+msgid "conflict_copy_made"
+msgstr "Змінено з обох боків – версія, що програла, %1 зберігається як %2"
+
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
 msgstr "Помилка: %1, під час перейменування %2 на %3"
@@ -1762,6 +1770,10 @@ msgid "option_track_moves"
 msgstr "Розпізнавати перейменування та переміщення"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "option_conflict_copies"
+msgstr "У разі конфлікту зберігати обидві версії"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"
 msgstr "Видалення, зміни та перейменування переносяться в обидва боки, щойно перший прохід дізнається про обидві сторони. Попередній перегляд показує заздалегідь, що було б видалено."
 
@@ -2040,6 +2052,14 @@ msgstr "Видалити в джерелі"
 #: AFS_Desktop/src/PreviewDialog.cpp:118
 msgid "preview_rename_in_target"
 msgstr "Перейменувати в цілі"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:120
+msgid "preview_conflict_to_target"
+msgstr "Створити конфліктну копію, перемагає джерело"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:121
+msgid "preview_conflict_to_source"
+msgstr "Створити конфліктну копію, перемагає призначення"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:119
 msgid "preview_rename_in_source"

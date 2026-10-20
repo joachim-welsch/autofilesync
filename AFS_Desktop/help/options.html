@@ -136,6 +136,14 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
         den alten Namen im Ziel entfernt. Bei Zwei-Wege-Synchronisation ist die
         Erkennung immer eingeschaltet; beim Typ Datei gibt es nichts umzubenennen.</td></tr>
 
+<tr><td valign="top"><b>Bei Konflikten beide Fassungen behalten</b></td>
+    <td>Wurde eine Datei seit dem letzten Abgleich auf beiden Seiten geändert,
+        gewinnt die zuletzt geänderte Fassung, und die andere bleibt als
+        Konfliktkopie neben ihr erhalten; siehe <a href="#twoway">Zwei-Wege-Synchronisation
+        im Einzelnen</a>. Voreinstellung: an. Abgeschaltet, meldet der Durchlauf
+        den Konflikt als Fehler und lässt beide Seiten unverändert. Nur bei
+        Zwei-Wege-Synchronisation wählbar.</td></tr>
+
 <tr><td valign="top"><b>Sekunden Pause</b></td>
     <td>Wartezeit zwischen zwei Durchläufen bei fortlaufender Synchronisation,
         einstellbar von 1 bis 60 Sekunden. Kurze Pausen erkennen Änderungen
@@ -163,9 +171,14 @@ Durchlauf, ob eine Datei neu ist oder auf einer Seite gelöscht wurde:</p>
 <li><b>Nur auf einer Seite bearbeitet</b>: Die bearbeitete Fassung gewinnt, auch
     wenn ihre Änderungszeit älter ist als die der anderen Seite, etwa nach dem
     Zurückspielen aus einem Archiv.</li>
-<li><b>Auf beiden Seiten bearbeitet</b>: Keine Seite wird überschrieben. Der
-    Durchlauf meldet einen Fehler, bis Sie entschieden haben, welche Fassung
-    gilt – kopieren Sie die gewünschte Datei von Hand über die andere.</li>
+<li><b>Auf beiden Seiten bearbeitet</b>: Die zuletzt geänderte Fassung gewinnt
+    (bei gleicher Zeit die Quelle) und wird auf die andere Seite kopiert. Die
+    unterlegene Fassung bleibt daneben als Konfliktkopie erhalten, etwa
+    <tt>Bericht (Konflikt 2026-10-20, laptop).docx</tt>, und zwar auf beiden
+    Seiten; das Protokoll und die Meldung nach dem Durchlauf nennen sie, damit Sie
+    die Änderungen zusammenführen können. Ist <b>Bei Konflikten beide Fassungen
+    behalten</b> abgeschaltet, wird keine Seite überschrieben, und der Durchlauf
+    meldet einen Fehler, bis Sie von Hand entschieden haben.</li>
 <li><b>Umbenannt oder verschoben</b>: Die Datei wird auf der anderen Seite
     ebenfalls umbenannt statt neu übertragen und unter dem alten Namen gelöscht.
     Gibt es zwei Dateien gleicher Größe und Änderungszeit, wird sicherheitshalber

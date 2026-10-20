@@ -681,6 +681,14 @@ msgstr "%1: %2 von %3 bekannten Dateien würden gelöscht. „Jetzt synchronisie
 msgid "both_modified_not_copied"
 msgstr "Nicht synchronisiert, weil beide Seiten seit dem letzten Abgleich geändert wurden:"
 
+#: AFS_Core/src/SyncFile.cpp:530
+msgid "conflict_copy_marker"
+msgstr "Konflikt %1, %2"
+
+#: AFS_Core/src/SyncFile.cpp:549
+msgid "conflict_copy_made"
+msgstr "Auf beiden Seiten geändert – die unterlegene Fassung %1 bleibt als %2 erhalten"
+
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
 msgstr "Fehler: %1, beim Umbenennen von %2 nach %3"
@@ -1793,6 +1801,10 @@ msgid "option_track_moves"
 msgstr "Umbenennen und Verschieben erkennen"
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "option_conflict_copies"
+msgstr "Bei Konflikten beide Fassungen behalten"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"
 msgstr "Löschungen, Änderungen und Umbenennungen werden in beide Richtungen übernommen, sobald ein erster Durchlauf beide Seiten kennt. Die Vorschau zeigt vorher, was gelöscht würde."
 
@@ -2073,6 +2085,14 @@ msgstr "In der Quelle löschen"
 #: AFS_Desktop/src/PreviewDialog.cpp:118
 msgid "preview_rename_in_target"
 msgstr "Im Ziel umbenennen"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:120
+msgid "preview_conflict_to_target"
+msgstr "Konfliktkopie anlegen, Quelle gewinnt"
+
+#: AFS_Desktop/src/PreviewDialog.cpp:121
+msgid "preview_conflict_to_source"
+msgstr "Konfliktkopie anlegen, Ziel gewinnt"
 
 #: AFS_Desktop/src/PreviewDialog.cpp:119
 msgid "preview_rename_in_source"

@@ -141,6 +141,15 @@ enregistrent l'heure avec la même précision.</p>
         bidirectionnelle la reconnaissance est toujours active ; un élément de
         type Fichier n'a rien à renommer.</td></tr>
 
+<tr><td valign="top"><b>Conserver les deux versions en cas de conflit</b></td>
+    <td>Si un fichier a été modifié des deux côtés depuis la dernière
+        synchronisation, la version écrite en dernier l'emporte et l'autre survit
+        à côté d'elle comme copie de conflit ; voir <a href="#twoway">La
+        synchronisation bidirectionnelle en détail</a>. Par défaut : activé.
+        Désactivé, le passage signale le conflit comme erreur et laisse les deux
+        côtés inchangés. Disponible seulement avec la synchronisation
+        bidirectionnelle.</td></tr>
+
 <tr><td valign="top"><b>Secondes de pause</b></td>
     <td>Temps d'attente entre deux passages en synchronisation continue,
         réglable de 1 à 60 secondes. Des pauses courtes détectent les
@@ -168,9 +177,14 @@ est nouveau ou s'il a été supprimé d'un côté :</p>
 <li><b>Modifié d'un seul côté</b> : la version modifiée l'emporte, même si sa
     date de modification est plus ancienne que celle de l'autre côté, par exemple
     après une restauration depuis une archive.</li>
-<li><b>Modifié des deux côtés</b> : aucun côté n'est écrasé. Le passage signale
-    une erreur jusqu'à ce que vous ayez décidé quelle version compte : copiez à
-    la main le fichier voulu par-dessus l'autre.</li>
+<li><b>Modifié des deux côtés</b> : la version écrite en dernier l'emporte (en
+    cas d'égalité, la source) et est copiée de l'autre côté. La version perdante
+    survit à côté d'elle comme copie de conflit, par exemple
+    <tt>Rapport (conflit 2026-10-20, laptop).docx</tt>, des deux côtés ; le
+    journal et le message après le passage la nomment, pour que vous puissiez
+    fusionner les modifications. Avec <b>Conserver les deux versions en cas de
+    conflit</b> désactivé, aucun côté n'est écrasé et le passage signale une
+    erreur jusqu'à ce que vous ayez décidé à la main.</li>
 <li><b>Renommé ou déplacé</b> : le fichier est renommé aussi de l'autre côté au
     lieu d'être transféré à nouveau et supprimé sous l'ancien nom. S'il existe
     deux fichiers de même taille et de même date de modification, il est copié

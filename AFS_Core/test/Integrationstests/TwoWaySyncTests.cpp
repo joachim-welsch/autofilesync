@@ -22,8 +22,10 @@
 #include "FileUtil.h"
 #include "SyncRunner.h"
 #include "Synchronize.h"
+#include "Translation.h"
 #include "TwoWaySyncTests.h"
 #include "Util.h"
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #ifndef _WIN32
@@ -373,7 +375,8 @@ TEST_F(TwoWaySyncTest, FileChangedAfterItsDeletionOnTheOtherSideIsCopiedNotDelet
 TEST_F(TwoWaySyncTest, FileChangedOnBothSidesSinceTheLastSyncIsLeftAlone)  // [TwoWaySyncTests.md#both-modified]
 {
     tu::write_text_file(source_dir_ / "c.txt", "v1", seconds(7200));
-    const SyncItem si = two_way_item(SyncItemType::Dir);
+    SyncItem si = two_way_item(SyncItemType::Dir);
+    si.conflict_copies(false);
     SyncState state = fresh_state(si);
     ASSERT_EQ(tu::run_sync(si, state), 1u);
     tu::write_text_file(source_dir_ / "c.txt", "source v2", seconds(3600));
@@ -711,4 +714,84 @@ TEST_F(TwoWaySyncTest, HalfOfTheFilesMayGoMoreMayNot)  // [TwoWaySyncTests.md#ma
     EXPECT_EQ(tu::run_sync(si, state), 0u);
     EXPECT_EQ(files_in(source_dir_), 1u) << "the source's last file would go with the target's nine: refused";
     EXPECT_EQ(files_in(target_dir_), 9u) << "the target's nine must stay too";
+}
+
+namespace {
+    std::vector<std::string> names_in(const fs::path& dir)
+    {
+        std::vector<std::string> names;
+        for (const fs::directory_entry& entry : fs::directory_iterator(dir))
+            names.push_back(entry.path().filename().string());
+        std::sort(names.begin(), names.end());
+        return names;
+    }
+    std::string conflict_name(const std::string& stem, const std::string& extension, int n = 1)  // [TwoWaySyncTests.md#conflict-copies]
+    {
+        const std::wstring host = util::string_to_wstring(util::host_name());
+        std::wstring marker = translation::translate("conflict_copy_marker", {util::local_date(), host});
+        if (marker == L"conflict_copy_marker")  // the test process binds no catalogue, see SyncFile.md#conflict-copy-name
+            marker = L"conflict " + util::local_date() + L", " + host;
+        return stem + " (" + util::wstring_to_string(marker) + (n == 1 ? "" : " " + std::to_string(n)) + ")" + extension;
+    }
+}
+
+TEST_F(TwoWaySyncTest, ConflictKeepsBothVersionsAndTheNewerOneWins)  // [TwoWaySyncTests.md#conflict-copies]
+{
+    tu::write_text_file(source_dir_ / "c.txt", "v1", seconds(7200));
+    const SyncItem si = two_way_item(SyncItemType::Dir);
+    SyncState state = fresh_state(si);
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    tu::write_text_file(source_dir_ / "c.txt", "source v2", seconds(3600));
+    tu::write_text_file(target_dir_ / "c.txt", "target version 2");
+
+    EXPECT_EQ(tu::run_sync(si, state), 2u) << "the winner over, the conflict copy back";
+
+    const std::string copy = conflict_name("c", ".txt");
+    EXPECT_EQ(names_in(source_dir_), (std::vector<std::string>{copy, "c.txt"}));
+    EXPECT_EQ(names_in(target_dir_), (std::vector<std::string>{copy, "c.txt"}));
+    EXPECT_EQ(tu::read_text_file(source_dir_ / "c.txt"), "target version 2") << "the version written last wins";
+    EXPECT_EQ(tu::read_text_file(source_dir_ / copy), "source v2") << "the losing version survives as the conflict copy";
+    EXPECT_EQ(tu::read_text_file(target_dir_ / copy), "source v2") << "the conflict copy reaches the winning side too";
+    EXPECT_EQ(state.files().size(), 2u);
+    EXPECT_EQ(tu::run_sync(si, state), 0u) << "a settled conflict must not stir again";
+}
+
+TEST_F(TwoWaySyncTest, ConflictWithEqualTimesLetsTheSourceWin)  // [TwoWaySyncTests.md#conflict-copies]
+{
+    tu::write_text_file(source_dir_ / "same.txt", "Stand A", seconds(3600));
+    tu::write_text_file(target_dir_ / "same.txt", "Stand B", seconds(3600));
+    fs::last_write_time(target_dir_ / "same.txt", fs::last_write_time(source_dir_ / "same.txt"));
+    SyncItem si = two_way_item(SyncItemType::Dir);
+    CompareItems all;
+    all.content(true);
+    all.size(true);
+    all.time(true);
+    si.compare_items(all);
+    SyncState state = fresh_state(si);
+
+    EXPECT_EQ(tu::run_sync(si, state), 2u);
+
+    const std::string copy = conflict_name("same", ".txt");
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "same.txt"), "Stand A") << "on a tie the source wins";
+    EXPECT_EQ(tu::read_text_file(source_dir_ / copy), "Stand B");
+    EXPECT_EQ(tu::read_text_file(target_dir_ / copy), "Stand B");
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+}
+
+TEST_F(TwoWaySyncTest, ConflictCopyNameSkipsATakenName)  // [TwoWaySyncTests.md#conflict-copies]
+{
+    tu::write_text_file(source_dir_ / "c", "v1", seconds(7200));
+    const SyncItem si = two_way_item(SyncItemType::Dir);
+    SyncState state = fresh_state(si);
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    tu::write_text_file(source_dir_ / "c", "source v2");
+    tu::write_text_file(target_dir_ / "c", "target v2", seconds(3600));
+    tu::write_text_file(target_dir_ / conflict_name("c", ""), "an earlier conflict", seconds(7200));
+    tu::write_text_file(source_dir_ / conflict_name("c", ""), "an earlier conflict", seconds(7200));
+
+    tu::run_sync(si, state);
+
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "c"), "source v2");
+    EXPECT_EQ(tu::read_text_file(target_dir_ / conflict_name("c", "", 2)), "target v2") << "a file without extension gets the marker at its end and a counter when the name is taken";
+    EXPECT_EQ(tu::read_text_file(target_dir_ / conflict_name("c", "")), "an earlier conflict") << "the earlier conflict copy is untouched";
 }

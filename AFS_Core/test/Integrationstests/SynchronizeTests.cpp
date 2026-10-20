@@ -211,6 +211,7 @@ TEST(SynchronizeTests, ContentConflictIsLoggedExactlyOnceAcrossPasses)  // [Sync
     SyncItem si(L"content conflict", SyncItemType::File, source.wstring(), target.wstring(), L"*");
     si.sync_cycle(0);
     si.two_way_sync(true);
+    si.conflict_copies(false);  // the test is about the report, not the resolution (TwoWaySyncTests.md#conflict-copies)
     CompareItems all;
     all.content(true);
     all.size(true);

@@ -140,6 +140,14 @@ ambos lados guardan la hora con la misma precisión.</p>
         sincronización bidireccional el reconocimiento está siempre activo; con el
         tipo Archivo no hay nada que renombrar.</td></tr>
 
+<tr><td valign="top"><b>Conservar ambas versiones en caso de conflicto</b></td>
+    <td>Si un archivo cambió en ambos lados desde la última sincronización, gana la
+        versión escrita en último lugar y la otra se conserva junto a ella como
+        copia de conflicto; véase <a href="#twoway">La sincronización bidireccional
+        en detalle</a>. Valor predeterminado: activado. Desactivado, la ejecución
+        informa del conflicto como error y deja ambos lados sin cambios. Solo
+        disponible con la sincronización bidireccional.</td></tr>
+
 <tr><td valign="top"><b>Segundos de pausa</b></td>
     <td>Tiempo de espera entre dos ejecuciones de una sincronización continua,
         ajustable de 1 a 60 segundos. Las pausas cortas detectan antes los
@@ -166,9 +174,14 @@ es nuevo o se eliminó en un lado:</p>
 <li><b>Modificado solo en un lado</b>: gana la versión modificada, aunque su hora
     de modificación sea anterior a la del otro lado, por ejemplo tras restaurar
     desde un archivo comprimido.</li>
-<li><b>Modificado en ambos lados</b>: no se sobrescribe ningún lado. La
-    ejecución informa de un error hasta que usted decida qué versión vale: copie
-    a mano el archivo deseado sobre el otro.</li>
+<li><b>Modificado en ambos lados</b>: gana la versión escrita en último lugar
+    (en caso de empate, el origen) y se copia al otro lado. La versión perdedora
+    se conserva junto a ella como copia de conflicto, por ejemplo
+    <tt>Informe (conflicto 2026-10-20, laptop).docx</tt>, en ambos lados; el
+    registro y el mensaje tras la ejecución la nombran para que pueda fusionar
+    los cambios. Con <b>Conservar ambas versiones en caso de conflicto</b>
+    desactivado, no se sobrescribe ningún lado y la ejecución informa de un error
+    hasta que usted decida a mano.</li>
 <li><b>Renombrado o movido</b>: el archivo se renombra también en el otro lado
     en lugar de transferirse de nuevo y eliminarse con el nombre antiguo. Si hay
     dos archivos con el mismo tamaño y la misma hora de modificación, se copia

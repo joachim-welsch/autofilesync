@@ -258,4 +258,23 @@ TEST_F(GuiTest, TypDateiSperrtUmbenennenErkennen)  // [SyncItemDialogRulesTest.m
     });
 }
 
+TEST_F(GuiTest, NurZweiWegeSyncGibtKonfliktkopienFrei)  // [SyncItemDialogRulesTest.md#conflict-copies]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* conflict_copies = find(dialog, ID_CONFLICT_COPIES_CHECK);
+        ASSERT_NE(conflict_copies, nullptr);
+        EXPECT_FALSE(conflict_copies->IsEnabled()) << "\"Bei Konflikten beide Fassungen behalten\" ist ohne Zwei-Wege-Sync bedienbar.";
+        EXPECT_TRUE(static_cast<wxCheckBox*>(conflict_copies)->GetValue()) << "Die Option ist nicht voreingestellt.";
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), true));
+        EXPECT_TRUE(conflict_copies->IsEnabled()) << "Zwei-Wege-Sync gibt die Option nicht frei.";
+        ASSERT_TRUE(set_check_box(conflict_copies, false));
+
+        ASSERT_TRUE(set_check_box(find(dialog, ID_TWO_WAY_SYNC_CHECK), false));
+        EXPECT_FALSE(conflict_copies->IsEnabled());
+        EXPECT_FALSE(static_cast<wxCheckBox*>(conflict_copies)->GetValue()) << "Das Sperren darf den Wert nicht zurücksetzen.";
+    });
+}
+
 }

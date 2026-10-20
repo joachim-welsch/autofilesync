@@ -688,6 +688,14 @@ msgstr ""
 msgid "both_modified_not_copied"
 msgstr ""
 
+#: AFS_Core/src/SyncFile.cpp:530
+msgid "conflict_copy_marker"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp:549
+msgid "conflict_copy_made"
+msgstr ""
+
 #: AFS_Core/src/SyncFile.cpp:101
 msgid "rename_error"
 msgstr ""
@@ -2053,6 +2061,10 @@ msgid "option_track_moves"
 msgstr ""
 
 #: AFS_Desktop/src/SyncItemDialog.cpp:174
+msgid "option_conflict_copies"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp:174
 msgid "two_way_hint"
 msgstr ""
 
@@ -2062,6 +2074,14 @@ msgstr ""
 
 #: AFS_Desktop/src/PreviewDialog.cpp
 msgid "preview_rename_in_target"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:120
+msgid "preview_conflict_to_target"
+msgstr ""
+
+#: AFS_Desktop/src/PreviewDialog.cpp:121
+msgid "preview_conflict_to_source"
 msgstr ""
 
 #: AFS_Core/src/SyncFile.cpp

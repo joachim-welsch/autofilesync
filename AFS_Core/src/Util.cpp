@@ -32,6 +32,7 @@
 #include <stdexcept>
 #ifdef _WIN32
 #  include <process.h>   // _getpid
+#  include <windows.h>   // GetComputerNameA
 #else
 #  include <unistd.h>    // getpid
 #endif
@@ -312,6 +313,29 @@ fs::file_time_type from_unix_nanoseconds(int64_t ns)  // [Util.md#file-time-conv
 #else
     return time_point_cast<fs::file_time_type::duration>(clock_cast<file_clock>(sys));
 #endif
+}
+
+string host_name()  // [Util.md#host_name]
+{
+    char name[256] = {};
+#ifdef _WIN32
+    DWORD size = sizeof name;
+    if (!GetComputerNameA(name, &size))
+        return "localhost";
+#else
+    if (gethostname(name, sizeof name) != 0)
+        return "localhost";
+    name[sizeof name - 1] = '\0';
+#endif
+    return name[0] == '\0' ? "localhost" : name;
+}
+
+wstring local_date()
+{
+    const std::tm tm = local_time(std::time(nullptr));
+    std::wstringstream out;
+    out << std::put_time(&tm, L"%Y-%m-%d");
+    return out.str();
 }
 
 wstring as_file_name(const wstring& name)  // [Util.md#as_file_name]

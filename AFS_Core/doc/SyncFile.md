@@ -138,9 +138,32 @@ so a preview never makes a later run think the sides were in sync.
 ## both-modified
 
 Both sides edited since the last pass (FileDifference.md#three-way): neither copy is safe.
-Reported like the content conflict, once per file and as an error in the proof, and left
-alone until the user settles it; the state keeps the old entry, so the conflict is noticed
-again on every pass until then.
+With conflict copies switched off (SyncItem.md#conflict_copies_) it is reported like the
+content conflict, once per file and as an error in the proof, and left alone until the user
+settles it; the state keeps the old entry, so the conflict is noticed again on every pass
+until then. With them on, see conflict-copies below.
+
+## conflict-copies
+
+A file edited on both sides (BothModified) or differing in content under equal time and size
+(ContentConflict) is settled the way every synchronisation tool the user may know settles
+it: the version written last wins and is copied over - on a tie the source, so that the
+outcome is the same on every pass - and the other version survives under a conflict name
+next to it, on both sides, so that neither place lacks anything and the user can merge where
+they like. The losing side's file is renamed first, then the winner copied, then the conflict
+copy carried to the winning side and recorded in the state like any file. The warning that
+names the copy goes into the log and the pass's notes (Synchronize.md#notes), since a conflict
+copy nobody notices is a merge nobody does. The copies count as copies of the run; the
+preview shows one step with the winner's size.
+
+## conflict-copy-name
+
+"<stem> (<marker>)<extension>", the marker being the translated word for conflict, the date
+and the name of the computer whose version lost - this computer for a local side, the server
+for an SSH side - so that a user with a laptop and a desktop sees whose edit was set aside.
+A name already taken gets a counter, checked on the side the copy is made. Without a message
+catalogue - a build without gettext, a test process that bound none - translate() hands the
+key back, and a key is no word for a file name, so the English marker takes over then.
 
 ## kept-instead-of-deleted
 

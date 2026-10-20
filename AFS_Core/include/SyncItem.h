@@ -40,6 +40,7 @@ class SyncFlags {
     bool    sync_empty_files_ = false;  // [SyncItem.md#sync_empty_files_]
     bool    warn_if_unreachable_ = true;  // [SyncItem.md#warn_if_unreachable_]
     bool    track_moves_ = false;  // [SyncItem.md#track_moves_]
+    bool    conflict_copies_ = true;  // [SyncItem.md#conflict_copies_]
     bool    enabled_ = true;
     uint16_t sync_cycle_ = 60;
 public:
@@ -63,6 +64,8 @@ public:
     void warn_if_unreachable(bool v);
     bool track_moves() const;
     void track_moves(bool v);
+    bool conflict_copies() const;
+    void conflict_copies(bool v);
     bool enabled() const;
     void enabled(bool v);
 };
@@ -204,6 +207,8 @@ public:
     void warn_if_unreachable(bool w);
     bool track_moves() const;  // [SyncItem.md#track_moves_]
     void track_moves(bool t);
+    bool conflict_copies() const;  // [SyncItem.md#conflict_copies_]
+    void conflict_copies(bool c);
     bool enabled() const;
     void enabled(bool e);
     SyncItemType sync_item_type() const;
@@ -247,6 +252,8 @@ inline bool SyncFlags::warn_if_unreachable() const { return warn_if_unreachable_
 inline void SyncFlags::warn_if_unreachable(bool v) { warn_if_unreachable_ = v; }
 inline bool SyncFlags::track_moves() const { return track_moves_; }
 inline void SyncFlags::track_moves(bool v) { track_moves_ = v; }
+inline bool SyncFlags::conflict_copies() const { return conflict_copies_; }
+inline void SyncFlags::conflict_copies(bool v) { conflict_copies_ = v; }
 inline bool SyncFlags::enabled() const { return enabled_; }
 inline void SyncFlags::enabled(bool v) { enabled_ = v; }
 
@@ -281,6 +288,8 @@ inline bool SyncItem::warn_if_unreachable() const { return flags_.warn_if_unreac
 inline void SyncItem::warn_if_unreachable(bool w) { flags_.warn_if_unreachable(w); }
 inline bool SyncItem::track_moves() const { return flags_.track_moves(); }
 inline void SyncItem::track_moves(bool t) { flags_.track_moves(t); }
+inline bool SyncItem::conflict_copies() const { return flags_.conflict_copies(); }
+inline void SyncItem::conflict_copies(bool c) { flags_.conflict_copies(c); }
 inline bool SyncItem::enabled() const { return flags_.enabled(); }
 inline void SyncItem::enabled(bool e) { flags_.enabled(e); }
 inline std::wstring SyncItem::item_type_str() const { return sync_item_type_to_str(type_); }

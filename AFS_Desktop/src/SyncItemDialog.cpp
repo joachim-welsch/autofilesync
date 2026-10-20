@@ -171,6 +171,7 @@ wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItem
     add_option(sync_empty_files_check_, ID_SYNC_EMPTY_FILES_CHECK, "option_sync_empty_files");
     add_option(warn_if_unreachable_check_, ID_WARN_IF_UNREACHABLE_CHECK, "option_warn_if_unreachable");
     add_option(track_moves_check_, ID_TRACK_MOVES_CHECK, "option_track_moves");
+    add_option(conflict_copies_check_, ID_CONFLICT_COPIES_CHECK, "option_conflict_copies");
     two_way_hint_ = new wxStaticText(page, ID_TWO_WAY_HINT, translation::translate("two_way_hint"));  // [SyncItemDialog.md#two-way-hint]
     two_way_hint_->Wrap(FromDIP(HINT_WRAP_WIDTH));
     behaviour_sizer->Add(two_way_hint_, 0, wxBOTTOM, 5);
@@ -219,6 +220,7 @@ void SyncItemDialog::update_option_locks()  // [SyncItemDialog.md#option-locks]
     if (two_way)  // [SyncItemDialog.md#track-moves-implied]
         track_moves_check_->SetValue(true);
     track_moves_check_->Enable(!two_way && act_sync_item_type(type_choice_) != SyncItemType::File);
+    conflict_copies_check_->Enable(two_way);  // [SyncItemDialog.md#conflict-copies-two-way-only]
     if (two_way_hint_->Show(two_way))  // [SyncItemDialog.md#two-way-hint]
         two_way_hint_->GetParent()->Layout();
 }
@@ -261,6 +263,7 @@ void SyncItemDialog::set_data(const SyncItem& si)
     sync_empty_files_ = si.sync_empty_files();
     warn_if_unreachable_ = si.warn_if_unreachable();
     track_moves_ = si.track_moves();
+    conflict_copies_ = si.conflict_copies();
     sync_cycle_ = si.sync_cycle();
     
 }
@@ -302,6 +305,7 @@ void SyncItemDialog::save_data(SyncItem& si)
     si.sync_empty_files(sync_empty_files_);
     si.warn_if_unreachable(warn_if_unreachable_);
     si.track_moves(track_moves_);
+    si.conflict_copies(conflict_copies_);
     si.sync_cycle(sync_cycle_);
 }
 
@@ -338,6 +342,7 @@ bool SyncItemDialog::TransferDataToWindow()
     sync_empty_files_check_->SetValue(sync_empty_files_);
     warn_if_unreachable_check_->SetValue(warn_if_unreachable_);
     track_moves_check_->SetValue(track_moves_);
+    conflict_copies_check_->SetValue(conflict_copies_);
     sync_cycle_spin_->SetValue(sync_cycle_);
     time_tolerance_spin_->SetValue(time_tolerance_seconds_);
     update_option_locks();
@@ -369,6 +374,7 @@ bool SyncItemDialog::TransferDataFromWindow()
     sync_empty_files_ = sync_empty_files_check_->GetValue();
     warn_if_unreachable_ = warn_if_unreachable_check_->GetValue();
     track_moves_ = track_moves_check_->GetValue();
+    conflict_copies_ = conflict_copies_check_->GetValue();
     sync_cycle_ = sync_cycle_spin_->GetValue();
     time_tolerance_seconds_ = static_cast<uint16_t>(time_tolerance_spin_->GetValue());
     return true;

@@ -29,6 +29,14 @@
 - Der Assistent weiß, wie viele Dateien der Abgleichszustand einer
   Zwei-Wege-Synchronisation kennt.
 - Wird eine Synchronisation gelöscht, verschwindet ihr Abgleichszustand mit.
+- Konflikte lösen sich selbst: Wurde eine Datei seit dem letzten Abgleich auf
+  beiden Seiten geändert, gewinnt die zuletzt geänderte Fassung (bei gleicher
+  Zeit die Quelle), und die andere bleibt auf beiden Seiten als Konfliktkopie
+  mit Datum und Rechnername erhalten, etwa `Bericht (Konflikt 2026-10-20,
+  laptop).docx`. Protokoll und die Meldung nach dem Lauf nennen die Kopie. Die
+  neue Option „Bei Konflikten beide Fassungen behalten“ (Vorgabe ein,
+  `conflictCopies`) schaltet auf das bisherige Verhalten zurück: nichts
+  überschreiben, Fehler melden.
 - Schutz vor Massenlöschung: Würde ein Durchlauf mehr als die Hälfte der
   bekannten Dateien einer Synchronisation löschen (mindestens zehn), etwa weil
   das Ziel geleert oder der Datenträger ausgetauscht wurde, verweigert er alle

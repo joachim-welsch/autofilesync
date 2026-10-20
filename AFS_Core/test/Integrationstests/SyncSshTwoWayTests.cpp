@@ -408,3 +408,29 @@ TEST_F(SyncSshTwoWayTest, RenamedLocalFileIsRenamedOnTheServer)  // [SyncSshTwoW
     EXPECT_NE(state.find(L"sub/new.txt"), nullptr);
     EXPECT_EQ(tu::run_sync(si, state), 0u);
 }
+
+TEST_F(SyncSshTwoWayTest, ConflictWithTheServerKeepsBothVersions)  // [SyncSshTwoWayTests.md#conflict-copies]
+{
+    tu::write_text_file(source_dir_ / "notes.txt", "v1", seconds(7200));
+    const SyncItem si = ssh_target_item(SyncItemType::Dir, true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    tu::write_text_file(target_dir_ / "notes.txt", "server v2", seconds(3600));
+    ASSERT_TRUE(ssh_remove_file(remote_path(L"notes.txt")));
+    tu::run_sync([&] { SyncItem upload = ssh_target_file_item(L"notes.txt", false); upload.source((target_dir_ / "notes.txt").wstring()); return upload; }());
+    tu::write_text_file(source_dir_ / "notes.txt", "local v2, written last");
+
+    EXPECT_EQ(tu::run_sync(si, state), 2u);
+
+    EXPECT_EQ(state.files().size(), 2u) << "the file and its conflict copy are both known";
+    std::size_t copies = 0;
+    for (const fs::directory_entry& entry : fs::directory_iterator(source_dir_))
+        if (entry.path().filename().string().find("notes (") == 0) {
+            ++copies;
+            EXPECT_EQ(tu::read_text_file(entry.path()), "server v2") << "the server's version survives as the conflict copy";
+            EXPECT_NE(entry.path().filename().string().find(SSH_HOST), std::string::npos) << "the copy names the server whose version lost: " << entry.path().filename().string();
+            EXPECT_TRUE(remote_exists(entry.path().filename().string())) << "the conflict copy reaches the server too";
+        }
+    EXPECT_EQ(copies, 1u);
+    EXPECT_EQ(tu::run_sync(si, state), 0u);
+}

@@ -324,6 +324,8 @@ std::optional<PlannedAction> SyncFile::decide(const FileDifference& fd) const  /
         return sync_item_.del_aftercopy() && !ssh_source() ? PlannedAction::MoveToTarget : PlannedAction::CopyToTarget;
     if (sync_item_.two_way_sync() && (fdiff == FDResult::SourceNotExits || fdiff == FDResult::DestModified))
         return PlannedAction::CopyToSource;
+    if (sync_item_.two_way_sync() && sync_item_.conflict_copies() && (fdiff == FDResult::BothModified || fdiff == FDResult::ContentConflict))  // [SyncFile.md#conflict-copies]
+        return fd.dest_newer() ? PlannedAction::ConflictCopyToSource : PlannedAction::ConflictCopyToTarget;
     return std::nullopt;
 }
 
@@ -331,7 +333,7 @@ bool SyncFile::empty_file_skipped(const FileDifference& fd, PlannedAction action
 {
     if (sync_item_.sync_empty_files() || deletion(action))
         return false;
-    return (action == PlannedAction::CopyToSource ? fd.dest_size() : fd.source_size()) == 0;
+    return (winner_in_target(action) ? fd.dest_size() : fd.source_size()) == 0;
 }
 
 void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, const wstring& destination, uint64_t filesize)
@@ -487,6 +489,8 @@ bool SyncFile::perform(PlannedAction action, const FileDifference& fd, const wst
     case PlannedAction::DeleteInTarget: return delete_target_file(source, destination);
     case PlannedAction::DeleteInSource: return delete_source_file(source, destination);
     case PlannedAction::CopyToSource: return copy_dest_to_source(destination, source, fd.dest_size());  // [SyncFile.md#volume-is-target-size]
+    case PlannedAction::ConflictCopyToTarget:
+    case PlannedAction::ConflictCopyToSource: return resolve_conflict(action, fd, source, destination);
     case PlannedAction::RenameInTarget:
     case PlannedAction::RenameInSource:  // carried out by rename_instead() before anything reaches here
     case PlannedAction::CopyToTarget:
@@ -503,10 +507,54 @@ void SyncFile::update_state(PlannedAction action, const wstring& source, const w
         state_->forget(state_key_);
         return;
     }
+    record_pair(state_key_, source, destination);
+}
+
+void SyncFile::record_pair(const wstring& key, const wstring& source, const wstring& destination)
+{
     const std::optional<ObservedFile> observed_source = observe_file(source, ssh_source());
     const std::optional<ObservedFile> observed_dest = observe_file(destination, ssh_dest());
-    if (observed_source && observed_dest)
-        state_->record(state_key_, {observed_source->size, observed_source->time, observed_dest->time});
+    if (state_ != nullptr && observed_source && observed_dest)
+        state_->record(key, {observed_source->size, observed_source->time, observed_dest->time});
+}
+
+wstring SyncFile::conflict_copy_name(const wstring& path, bool ssh) const  // [SyncFile.md#conflict-copy-name]
+{
+    const std::size_t slash = path.find_last_of(L"/\\") + 1;
+    const wstring dir = path.substr(0, slash), file = path.substr(slash);
+    const std::size_t dot = file.rfind(L'.');
+    const bool has_extension = dot != wstring::npos && dot != 0;
+    const wstring stem = has_extension ? file.substr(0, dot) : file, extension = has_extension ? file.substr(dot) : wstring();
+    const std::optional<SshAccount> account = ssh ? get_account_from_path(path) : std::nullopt;
+    const wstring host = string_to_wstring(account ? account->host() : util::host_name());
+    wstring marker = translation::translate("conflict_copy_marker", {util::local_date(), host});
+    if (marker == L"conflict_copy_marker")  // [SyncFile.md#conflict-copy-name] no catalogue bound: the key must not become a file name
+        marker = L"conflict " + util::local_date() + L", " + host;
+    for (int n = 1;; ++n) {
+        const wstring candidate = dir + stem + L" (" + marker + (n == 1 ? wstring() : L" " + std::to_wstring(n)) + L")" + extension;
+        if (!observe_file(candidate, ssh))
+            return candidate;
+    }
+}
+
+bool SyncFile::resolve_conflict(PlannedAction action, const FileDifference& fd, const wstring& source, const wstring& destination)  // [SyncFile.md#conflict-copies]
+{
+    const bool source_wins = action == PlannedAction::ConflictCopyToTarget;
+    const wstring& loser = source_wins ? destination : source;
+    const bool loser_ssh = source_wins ? ssh_dest() : ssh_source();
+    const wstring copy = conflict_copy_name(loser, loser_ssh);
+    if (!rename_path(loser, copy, loser_ssh, !source_wins))
+        return false;
+    const wstring copy_name = copy.substr(copy.find_last_of(L"/\\") + 1);
+    const wstring& winner = source_wins ? source : destination;
+    const wstring twin = winner.substr(0, winner.find_last_of(L"/\\") + 1) + copy_name;  // the conflict copy's place on the winning side
+    log_warning(translation::translate("conflict_copy_made", {loser, copy_name}));
+    Synchronize::note(LogLevel::Warning, translation::translate("conflict_copy_made", {loser, copy_name}));  // [Synchronize.md#notes]
+    const bool settled = source_wins ? copy_source_to_dest(source, destination, fd.source_size()) : copy_dest_to_source(destination, source, fd.dest_size());
+    const bool travelled = source_wins ? copy_dest_to_source(copy, twin, fd.dest_size()) : copy_source_to_dest(copy, twin, fd.source_size());
+    if (travelled)
+        record_pair(state_key(source_wins ? twin : copy), source_wins ? twin : copy, source_wins ? copy : twin);
+    return settled;
 }
 
 void SyncFile::settle_state(const FileDifference& fd)  // [SyncFile.md#state]

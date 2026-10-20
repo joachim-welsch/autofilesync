@@ -385,3 +385,22 @@ TEST_F(SyncPlanTest, PreviewStillPlansAMassDeletion)  // [SyncPlanTests.md#mass-
     EXPECT_EQ(entries_below(root_), before);
     EXPECT_EQ(state.files().size(), 12u);
 }
+
+TEST_F(SyncPlanTest, PreviewPlansAConflictCopyWithTheWinnersSize)  // [SyncPlanTests.md#conflict-copies]
+{
+    tu::write_text_file(source_dir_ / "c.txt", "v1", seconds(7200));
+    SyncItem si = item(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    tu::write_text_file(source_dir_ / "c.txt", "source v2, the longer one", seconds(3600));
+    tu::write_text_file(target_dir_ / "c.txt", "target v2");
+    const auto before = entries_below(root_);
+
+    const SyncPlan plan = preview(si, state);
+
+    EXPECT_EQ(entries_below(root_), before);
+    EXPECT_EQ(plan.count(PlannedAction::ConflictCopyToSource), 1u) << "the newer target wins";
+    EXPECT_EQ(plan.bytes(), std::string("target v2").size());
+    EXPECT_TRUE(file_in_target(PlannedAction::ConflictCopyToSource));
+}

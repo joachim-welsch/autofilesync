@@ -50,6 +50,9 @@ class SyncFile: public SyncBase {
     bool old_file_moved_away(const FileDifference& fd, const std::wstring& old_key, bool new_in_source, bool pending) const;
     bool rename_path(const std::wstring& from, const std::wstring& to, bool ssh, bool in_source);
     bool defer_deletion(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#deferred-deletions]
+    bool resolve_conflict(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#conflict-copies]
+    std::wstring conflict_copy_name(const std::wstring& path, bool ssh) const;  // [SyncFile.md#conflict-copy-name]
+    void record_pair(const std::wstring& key, const std::wstring& source, const std::wstring& destination);
     bool delete_target_file(const std::wstring& source, const std::wstring& destination);
     bool delete_source_file(const std::wstring& source, const std::wstring& destination);
     void set_ssh();

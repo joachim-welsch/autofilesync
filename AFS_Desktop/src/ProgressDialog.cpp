@@ -104,7 +104,8 @@ void ProgressDialog::on_timer_update(wxTimerEvent&)
     }
     if (!sm.file().empty())
         current_file_->SetLabelText(sm.file());
-    gauge_->SetValue(static_cast<int>(files_done_ * FILE_STEPS + file_steps_done()));  // [ProgressDialog.md#file-progress]
+    const uint32_t steps = files_done_ * FILE_STEPS + file_steps_done();  // [ProgressDialog.md#file-progress]
+    gauge_->SetValue(static_cast<int>(std::min(steps, range_)));  // [ProgressDialog.md#gauge-never-overflows]
 }
 
 uint32_t ProgressDialog::file_steps_done() const

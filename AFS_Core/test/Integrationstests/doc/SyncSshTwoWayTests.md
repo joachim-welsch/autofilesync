@@ -91,3 +91,10 @@ removed on the server leaves the local side without being recreated remotely.
 A local rename into a new subdirectory becomes an SFTP rename on the server (ssh_rename,
 SyncFileSsh.md#ssh_rename), directory created on the way; the server's write time of the file
 stays what the upload gave it, which an upload anew could not guarantee to the second.
+
+## conflict-copies
+
+A conflict whose losing version lies on the server: the copy is made there by an SFTP rename,
+carries the server's host name (SyncFile.md#conflict-copy-name) and comes back to the local
+side like any file. The server's version is planted through a one-way upload so that its write
+time stays older than the local edit.

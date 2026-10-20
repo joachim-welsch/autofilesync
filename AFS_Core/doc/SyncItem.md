@@ -88,3 +88,11 @@ renamed in the target instead of copied afresh and deleted (SyncFile.md#renames)
 item has the state anyway and tracks moves always; the flag is for the one-way item that
 wants the saving, at the price of the state file. Off by default, like every option that
 adds a file next to the configuration.
+
+## conflict_copies_
+
+Whether a two-way item settles a file edited on both sides by keeping both versions
+(SyncFile.md#conflict-copies) or, with the option off, leaves the file alone and reports the
+conflict as an error on every pass until the user has decided. On by default: nothing is lost
+either way, but a conflict that resolves itself into two files the user can see beats an error
+line that many never read. Meaningless for a one-way item, whose source always wins.

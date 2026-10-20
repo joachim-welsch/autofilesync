@@ -21,7 +21,12 @@ state says the target side was deleted, see SyncFile.md#state). The deletions ar
 that lose data, so they are kinds of their own rather than flags, and deletion() names them
 for the preview. A rename in the target or in the source (SyncFile.md#renames) is a sixth and
 seventh kind: the step's source is the old path and its target the new one, both on the same
-side, and it moves no bytes, which rename() tells the volume count and the preview.
+side, and it moves no bytes, which rename() tells the volume count and the preview. The
+conflict copies (SyncFile.md#conflict-copies) are the eighth and ninth kind, named after the
+side that wins: the winning version is copied over, the other survives under a conflict name
+on both sides. The step's bytes are the winner's; the conflict copy's own trip to the other
+side is not a step of its own, the preview would only count a file twice that the user sees
+once in the list.
 
 ## UnreachableItem
 

@@ -142,6 +142,15 @@ precisione.</p>
         destinazione. Con la sincronizzazione bidirezionale il riconoscimento è
         sempre attivo; con il tipo File non c'è nulla da rinominare.</td></tr>
 
+<tr><td valign="top"><b>In caso di conflitto conservare entrambe le versioni</b></td>
+    <td>Se un file è cambiato da entrambi i lati dall'ultima sincronizzazione,
+        vince la versione scritta per ultima e l'altra sopravvive accanto ad essa
+        come copia di conflitto; vedere <a href="#twoway">La sincronizzazione
+        bidirezionale in dettaglio</a>. Impostazione predefinita: attivo.
+        Disattivato, l'esecuzione segnala il conflitto come errore e lascia
+        entrambi i lati invariati. Disponibile solo con la sincronizzazione
+        bidirezionale.</td></tr>
+
 <tr><td valign="top"><b>Secondi di pausa</b></td>
     <td>Tempo di attesa tra due esecuzioni della sincronizzazione continua,
         regolabile da 1 a 60 secondi. Pause brevi notano prima le modifiche e
@@ -168,9 +177,14 @@ distingue se un file è nuovo o è stato eliminato da un lato:</p>
 <li><b>Modificato da un solo lato</b>: prevale la versione modificata, anche se
     la sua data di modifica è più vecchia di quella dell'altro lato, per esempio
     dopo un ripristino da un archivio.</li>
-<li><b>Modificato da entrambi i lati</b>: nessun lato viene sovrascritto.
-    L'esecuzione segnala un errore finché non avete deciso quale versione vale:
-    copiate a mano il file desiderato sopra l'altro.</li>
+<li><b>Modificato da entrambi i lati</b>: vince la versione scritta per ultima
+    (a parità, l'origine) e viene copiata dall'altro lato. La versione perdente
+    sopravvive accanto ad essa come copia di conflitto, per esempio
+    <tt>Relazione (conflitto 2026-10-20, laptop).docx</tt>, su entrambi i lati;
+    il registro e il messaggio dopo l'esecuzione la nominano, così potete unire
+    le modifiche. Con <b>In caso di conflitto conservare entrambe le versioni</b>
+    disattivato, nessun lato viene sovrascritto e l'esecuzione segnala un errore
+    finché non avete deciso a mano.</li>
 <li><b>Rinominato o spostato</b>: il file viene rinominato anche dall'altro lato
     invece di essere trasferito di nuovo ed eliminato con il vecchio nome. Se ci
     sono due file con la stessa dimensione e la stessa data di modifica, viene

@@ -77,3 +77,10 @@ says so while the option is ticked, and hides when it is not, so the options pag
 as before for everyone else. The text is wrapped to a fixed width in device-independent pixels,
 since a wxStaticText does not wrap by itself and the sizer would widen the dialog to the
 sentence instead.
+
+## conflict-copies-two-way-only
+
+"Bei Konflikten beide Fassungen behalten" (SyncItem.md#conflict_copies_) only means something
+when both sides may change, so it is enabled with two-way sync and greyed out without it. Its
+value is left alone when it is greyed out: a user who switches two-way sync off and on again
+finds the option as they had it.

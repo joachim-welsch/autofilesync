@@ -70,3 +70,8 @@ meets first (SyncState.md#renamed). The unrelated deleted file is still planned 
 A run refuses a mass deletion (SyncBase.md#mass-deletion), but the preview must still list it:
 it is the user's way to see what is about to happen and, through "Jetzt synchronisieren", to
 approve it.
+
+## conflict-copies
+
+A conflict is one step in the preview, named after the winning side and sized by the winner
+(SyncPlan.md#PlannedAction); the preview changes nothing, conflict copies included.

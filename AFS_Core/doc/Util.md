@@ -72,3 +72,10 @@ Turns a name the user chose into something every platform accepts as a file name
 Windows forbids become underscores, and trailing dots and blanks go because Windows does not
 preserve them. The result may be empty; the caller decides the fallback, since a backup proof and
 a sync state want different ones.
+
+## host_name
+
+The name of this computer, for the conflict copies a two-way sync leaves behind
+(SyncFile.md#conflict-copy-name): a user who syncs a laptop and a desktop wants to see which of
+them held the losing version. gethostname() on POSIX, GetComputerNameA() on Windows, where
+gethostname() would need Winsock started first; "localhost" when neither answers.

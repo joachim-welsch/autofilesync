@@ -93,9 +93,20 @@ zero keep every write time apart by more than the tolerance.
 
 ## both-modified
 
-Edited on both sides since the last pass, with the target the newer one: without the state the
-target would win and the source edit be lost. The state keeps the entry of the last agreed
-version (two bytes, "v1"), so the conflict is reported again on the next pass.
+Edited on both sides since the last pass, with the target the newer one and conflict copies
+switched off: without the state the target would win and the source edit be lost. The state
+keeps the entry of the last agreed version (two bytes, "v1"), so the conflict is reported again
+on the next pass.
+
+## conflict-copies
+
+With the option on (the default), the same conflict settles itself (SyncFile.md#conflict-copies):
+the newer target wins, the source's version survives under the conflict name on both sides,
+both files are in the state and a second pass is quiet. The name is built the way SyncFile
+builds it - marker, date, this computer - because the test cannot know today's date or the
+host name in advance. Equal times (a ContentConflict under the content criterion) let the
+source win, so that every pass would decide alike; a taken name gets a counter, and a file
+without an extension carries the marker at its end.
 
 ## changed-side-wins
 

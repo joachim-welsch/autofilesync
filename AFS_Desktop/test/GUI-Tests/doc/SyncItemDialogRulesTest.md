@@ -35,3 +35,8 @@ Two-way sync ticks and locks "Umbenennen und Verschieben erkennen" and shows the
 under the options (SyncItemDialog.md#track-moves-implied, #two-way-hint); unticking it frees
 the option and hides the hint again. The type Datei locks the option on its own, since a file
 item has nothing to rename.
+
+## conflict-copies
+
+"Bei Konflikten beide Fassungen behalten" is ticked by default and enabled only with two-way
+sync (SyncItemDialog.md#conflict-copies-two-way-only); greying it out keeps its value.

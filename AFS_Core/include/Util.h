@@ -61,6 +61,8 @@ namespace util {
     std::wstring read_utf8_file(const std::filesystem::path& file);  // [Util.md#utf8-files]
     void write_utf8_file(const std::filesystem::path& file, const std::wstring& text);  // [Util.md#utf8-files]
     std::wstring as_file_name(const std::wstring& name);  // [Util.md#as_file_name]
+    std::string host_name();  // [Util.md#host_name]
+    std::wstring local_date();  // today as YYYY-MM-DD in local time, for names a person reads
 } // namespace util
 
 } // namespace AFS_Core

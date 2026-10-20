@@ -131,6 +131,14 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
         nazwę w celu. Przy synchronizacji dwukierunkowej rozpoznawanie jest zawsze
         włączone; przy typie Plik nie ma czego przemianowywać.</td></tr>
 
+<tr><td valign="top"><b>W razie konfliktu zachowaj obie wersje</b></td>
+    <td>Jeśli plik zmienił się po obu stronach od ostatniej synchronizacji, wygrywa
+        wersja zapisana jako ostatnia, a druga pozostaje obok jako kopia
+        konfliktu; zobacz <a href="#twoway">Synchronizacja dwukierunkowa w
+        szczegółach</a>. Domyślnie: włączone. Wyłączone: przebieg zgłasza konflikt
+        jako błąd i pozostawia obie strony bez zmian. Dostępne tylko przy
+        synchronizacji dwukierunkowej.</td></tr>
+
 <tr><td valign="top"><b>Sekundy przerwy</b></td>
     <td>Czas oczekiwania między dwoma przebiegami synchronizacji ciągłej,
         ustawiany od 1 do 60 sekund. Krótkie przerwy szybciej wykrywają zmiany,
@@ -158,9 +166,13 @@ stronie:</p>
 <li><b>Zmieniony tylko po jednej stronie</b>: wygrywa zmieniona wersja, nawet
     jeśli jej czas modyfikacji jest starszy niż po drugiej stronie, na przykład
     po przywróceniu z archiwum.</li>
-<li><b>Zmieniony po obu stronach</b>: żadna strona nie jest nadpisywana.
-    Przebieg zgłasza błąd, dopóki nie zdecydujesz, która wersja obowiązuje –
-    skopiuj ręcznie właściwy plik na drugi.</li>
+<li><b>Zmieniony po obu stronach</b>: wygrywa wersja zapisana jako ostatnia (przy
+    remisie źródło) i jest kopiowana na drugą stronę. Przegrywająca wersja
+    pozostaje obok jako kopia konfliktu, na przykład
+    <tt>Raport (konflikt 2026-10-20, laptop).docx</tt>, po obu stronach; dziennik
+    i komunikat po przebiegu wymieniają ją, abyś mógł scalić zmiany. Gdy
+    <b>W razie konfliktu zachowaj obie wersje</b> jest wyłączone, żadna strona nie
+    jest nadpisywana, a przebieg zgłasza błąd, dopóki nie zdecydujesz ręcznie.</li>
 <li><b>Przemianowany lub przeniesiony</b>: plik otrzymuje nową nazwę także po
     drugiej stronie, zamiast być przesyłany ponownie i usuwany pod starą nazwą.
     Jeśli są dwa pliki o tym samym rozmiarze i czasie modyfikacji, dla

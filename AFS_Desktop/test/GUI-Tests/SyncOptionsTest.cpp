@@ -327,4 +327,31 @@ TEST_F(GuiTest, MassenloeschungWirdVerweigertUndAusDerVorschauAusgefuehrt)  // [
     EXPECT_EQ(recycle_bin.items(), 12u) << "Die gelöschten Dateien gingen nicht in den Papierkorb.";
 }
 
+TEST_F(GuiTest, ZweiWegeKonfliktBehaeltBeideFassungen)  // [SyncOptionsTest.md#conflict-copies]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "konflikt", {{"quelle/text.txt", "v1"}, {"ziel/", ""}});
+    age_file(tree, "quelle/text.txt");
+    SyncItemInput input = dir_sync(tree, "guitest-konflikt");
+    input.options.two_way_sync = true;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    ASSERT_TRUE(sync_once(main_window()));
+    ASSERT_EQ(tree.read("ziel/text.txt"), "v1");
+    tree.write("quelle/text.txt", "Quelle v2");
+    tree.write("ziel/text.txt", "Ziel v2, zuletzt");
+    write_time_apart(tree, "ziel/text.txt", "quelle/text.txt", std::chrono::seconds(600));
+    let_the_pause_elapse();
+
+    ModalDialogWatcher::instance().answer(translation::translate("synchronisation") + L": " + translation::translate("warning"), wxID_OK);
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_EQ(tree.read("quelle/text.txt"), "Ziel v2, zuletzt") << "Die zuletzt geänderte Fassung gewinnt.";
+    std::size_t copies = 0;
+    for (const std::string& entry : tree.entries())
+        if (entry.find("text (") != std::string::npos)
+            ++copies;
+    EXPECT_EQ(copies, 2u) << "Die Konfliktkopie fehlt auf einer Seite.";
+    EXPECT_FALSE(ModalDialogWatcher::instance().has_pending_expectations()) << "Die Warnbox, die die Konfliktkopie nennt, fehlt.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
+}
+
 }

@@ -43,3 +43,13 @@ instead of destroyed and recreated because on macOS destroying a top-level windo
 next one right after leaves that next window off the screen: AppKit holds it as visible and key,
 but the window server never lists it, and from then on every later window stays off screen too.
 See SyncInterface.md#reuse-progress-dialog.
+
+## gauge-never-overflows
+
+The range comes from the counting pass, the value from the run, and the run may do more than
+the count foresaw: files that appeared between the two passes, or a conflict that copies two
+files for one counted (SyncFile.md#conflict-copies). A wxGauge value past its range trips a
+wxWidgets assertion, and the assertion's dialog processes events while on_timer_update() holds
+mutex_ - SyncInterface's timer then fires, finishes the run and asks can_be_closed(), which
+takes the same mutex: a deadlock that showed as a run that never ended. The value is therefore
+clamped; a bar that stands at full while the last extra file copies is the honest picture.

@@ -25,12 +25,24 @@
 
 namespace AFS_Core {
 
-enum class PlannedAction { CopyToTarget, MoveToTarget, CopyToSource, DeleteInTarget, DeleteInSource, RenameInTarget, RenameInSource };  // [SyncPlan.md#PlannedAction]
-constexpr std::size_t PLANNED_ACTIONS = 7;
+enum class PlannedAction { CopyToTarget, MoveToTarget, CopyToSource, DeleteInTarget, DeleteInSource, RenameInTarget, RenameInSource,
+                           ConflictCopyToTarget, ConflictCopyToSource };  // [SyncPlan.md#PlannedAction]
+constexpr std::size_t PLANNED_ACTIONS = 9;
 
 inline bool file_in_target(PlannedAction action)  // the file the step handles lives in the target
 {
-    return action == PlannedAction::DeleteInTarget || action == PlannedAction::CopyToSource || action == PlannedAction::RenameInTarget;
+    return action == PlannedAction::DeleteInTarget || action == PlannedAction::CopyToSource || action == PlannedAction::RenameInTarget
+        || action == PlannedAction::ConflictCopyToSource;
+}
+
+inline bool conflict_copy(PlannedAction action)  // both versions survive, see [SyncPlan.md#PlannedAction]
+{
+    return action == PlannedAction::ConflictCopyToTarget || action == PlannedAction::ConflictCopyToSource;
+}
+
+inline bool winner_in_target(PlannedAction action)  // the file that is copied lives in the target
+{
+    return action == PlannedAction::CopyToSource || action == PlannedAction::ConflictCopyToSource;
 }
 
 inline bool rename(PlannedAction action)  // the file keeps its content and only changes its name, see [SyncPlan.md#PlannedAction]
