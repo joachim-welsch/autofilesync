@@ -47,5 +47,6 @@ private:
 };
 
 class SlowGuiTest: public GuiTest {};  // [GuiTest.md#SlowGuiTest]
+class ChatGuiTest: public GuiTest {};  // [GuiTest.md#ChatGuiTest]
 
 }

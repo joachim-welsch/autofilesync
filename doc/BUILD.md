@@ -367,6 +367,10 @@ scripts/run_GUI_Tests.sh
 cmake --build build --target GuiTests
 ./AFS_Desktop/test/GUI-Tests/run_gui_tests.sh build/GuiTests
 ```
+Die Tests des Assistenten (`ChatGuiTest.*` und `SlowGuiTest.*`) brauchen das
+lokale Sprachmodell und dauern Minuten; ohne eigenen Filter lässt der Lauf sie
+aus. Sie laufen mit
+`./AFS_Desktop/test/GUI-Tests/run_gui_tests.sh build/GuiTests --gtest_filter='ChatGuiTest.*:SlowGuiTest.*'`.
 Auf macOS steuern die Tests echte Maus- und Tastaturereignisse auf dem aktiven
 Desktop (`wxUIActionSimulator`); dafür braucht das ausführende Terminal die
 Berechtigung Systemeinstellungen → Datenschutz & Sicherheit → Bedienungshilfen.

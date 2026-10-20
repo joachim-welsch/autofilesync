@@ -97,7 +97,7 @@ bool press_control_enter(wxWindow* input)
 
 }
 
-TEST_F(GuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHatEinEigenesMenue]
+TEST_F(ChatGuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHatEinEigenesMenue]
 {
     wxMenuBar* menu_bar = main_window().GetMenuBar();
     const int assistant = menu_bar->FindMenu(AFS_Core::translation::translate("menu_assistant"));
@@ -105,7 +105,7 @@ TEST_F(GuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHat
     EXPECT_NE(menu_bar->GetMenu(static_cast<size_t>(assistant))->FindItem(tul(id::Chat)), nullptr) << "Der Chat steht nicht im Menü Assistent.";
 }
 
-TEST_F(GuiTest, HilfebuchLiefertDemAssistentenSeineAbschnitte)  // [ChatDialogTest.md#HilfebuchLiefertDemAssistentenSeineAbschnitte]
+TEST_F(ChatGuiTest, HilfebuchLiefertDemAssistentenSeineAbschnitte)  // [ChatDialogTest.md#HilfebuchLiefertDemAssistentenSeineAbschnitte]
 {
     wxFileName book(wxStandardPaths::Get().GetExecutablePath());
     book.AppendDir("help");
@@ -120,7 +120,7 @@ TEST_F(GuiTest, HilfebuchLiefertDemAssistentenSeineAbschnitte)  // [ChatDialogTe
     EXPECT_TRUE(read_help_book(book.GetPath() + "/fehlt.htb").empty()) << "Ein fehlendes Hilfebuch lieferte Abschnitte.";
 }
 
-TEST_F(GuiTest, ChatLeereEingabeTutNichts)
+TEST_F(ChatGuiTest, ChatLeereEingabeTutNichts)
 {
     ChatControls chat = open_chat(main_window());
     ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
@@ -134,7 +134,7 @@ TEST_F(GuiTest, ChatLeereEingabeTutNichts)
     EXPECT_TRUE(chat.send->IsEnabled()) << "Eine leere Eingabe hat den Dialog ins Warten versetzt.";
 }
 
-TEST_F(GuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#ChatNeuesGespraechLeertDenVerlauf]
+TEST_F(ChatGuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#ChatNeuesGespraechLeertDenVerlauf]
 {
     ChatControls chat = open_chat(main_window());
     ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
@@ -153,7 +153,7 @@ TEST_F(GuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#ChatNe
     EXPECT_TRUE(value_of(chat.transcript).Contains(LlamaClient::missing_model_hint())) << "Der Hinweis vom Start fehlt.";
 }
 
-TEST_F(GuiTest, ChatSchliessenVerstecktUndMenueZeigtWieder)  // [ChatDialogTest.md#hidden-not-destroyed]
+TEST_F(ChatGuiTest, ChatSchliessenVerstecktUndMenueZeigtWieder)  // [ChatDialogTest.md#hidden-not-destroyed]
 {
     ChatControls chat = open_chat(main_window());
     ASSERT_NE(chat.dialog, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";

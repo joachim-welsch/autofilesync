@@ -113,3 +113,9 @@ page name are German, and an answer in another language could translate the name
 
 The request names no path and no item, so only the command word triggers the extraction pass;
 the button must carry the menu's name for the command and run it like the menu does.
+
+## ChatGuiTest
+
+All tests of this file are chat tests, the quick ones under ChatGuiTest and the ones that wait
+for the model under SlowGuiTest, so that the GUI run leaves the chat out by default
+(GuiTest.md#ChatGuiTest).
