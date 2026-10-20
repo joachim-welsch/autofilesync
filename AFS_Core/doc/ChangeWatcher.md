@@ -49,7 +49,11 @@ first test.
 
 inotify watches single directories, not trees, so a tree item adds one watch per directory
 at the start and one more for every directory that appears while watching (IN_CREATE or
-IN_MOVED_TO with IN_ISDIR), from the thread that sees it appear. The kernel's limit on watches
+IN_MOVED_TO with IN_ISDIR), from the thread that sees it appear. The tree is listed in full
+before the first watch is added: listing a directory updates its access time, which a watch
+on it or on its parent reports as IN_ATTRIB, and a watcher that reports a change the moment
+it starts would trigger a pass for nothing. A directory that appears later is listed with its
+parent's watch already in place; the extra event is harmless, since its creation was one. The kernel's limit on watches
 (fs.inotify.max_user_watches) turns into "cannot be watched" for the item whose directory hits
 it; the items already watched keep working.
 

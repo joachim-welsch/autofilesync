@@ -135,20 +135,29 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
             close(stop_fd);
     }
 
-    bool add(const wstring& item, const fs::path& dir, bool recursive)  // [ChangeWatcher.md#inotify-per-directory]
+    static void collect(const fs::path& dir, std::vector<fs::path>& dirs)
     {
-        const int wd = inotify_add_watch(fd, dir.c_str(), EVENTS);
-        if (wd < 0) {
-            owner.lost(item, dir);
-            return false;
-        }
-        watches[wd] = {item, dir, recursive};
-        if (!recursive)
-            return true;
         std::error_code ec;
         for (fs::directory_iterator it(dir, fs::directory_options::skip_permission_denied, ec); !ec && it != fs::directory_iterator(); it.increment(ec))
-            if (it->is_directory(ec) && !it->is_symlink(ec) && !add(item, it->path(), true))
+            if (it->is_directory(ec) && !it->is_symlink(ec)) {
+                dirs.push_back(it->path());
+                collect(it->path(), dirs);
+            }
+    }
+
+    bool add(const wstring& item, const fs::path& dir, bool recursive)  // [ChangeWatcher.md#inotify-per-directory]
+    {
+        std::vector<fs::path> dirs{dir};
+        if (recursive)
+            collect(dir, dirs);  // listed before any watch exists: the listing itself updates access times, which a watch would report
+        for (const fs::path& watched : dirs) {
+            const int wd = inotify_add_watch(fd, watched.c_str(), EVENTS);
+            if (wd < 0) {
+                owner.lost(item, watched);
                 return false;
+            }
+            watches[wd] = {item, watched, recursive};
+        }
         return true;
     }
 
