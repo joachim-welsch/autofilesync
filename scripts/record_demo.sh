@@ -5,14 +5,16 @@
 # Recordly-Format. Das Video laesst sich in Recordly importieren; Cursor,
 # Auto-Zoom und Rahmen kommen dort hinzu.
 #
-#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en] [Optionen fuer afs_demo]
+#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en|fr] [Optionen fuer afs_demo]
 #
 #   --watch   zeigt den privaten X-Server als Fenster (Xephyr) statt unsichtbar (Xvfb)
 #   --out     Zielverzeichnis fuer Video, Cursor-Datei und Szenenmarken (Standard: demo-recording)
 #   --size    Bildschirmgroesse der Aufnahme (Standard 1920x1080)
 #   --lang    Sprache der Oberflaeche (Standard de). Bei en heissen Ordner und
 #             Synchronisation Pictures und Photos, die Frage an den Assistenten ist
-#             englisch, und die Dateien heissen autofilesync-demo-en-<Zeit>.*
+#             englisch, und die Dateien heissen autofilesync-demo-en-<Zeit>.*;
+#             bei fr entsprechend Images und Photos, franzoesische Frage,
+#             autofilesync-demo-fr-<Zeit>.*
 #
 # Beispiel: scripts/record_demo.sh --watch --scenes create,preview,start --cycle-seconds 5
 set -e
@@ -33,11 +35,14 @@ while [ $# -gt 0 ]; do
     esac
 done
 STAMP_PREFIX=autofilesync-demo
-if [ "$LANG_CODE" = en ]; then
-    # Voreinstellungen fuer die englische Aufnahme; eigene Optionen dahinter ueberschreiben sie.
-    DEMO_ARGS=(--source-name Pictures --sync-name Photos --question "What happens when I unplug the drive?" "${DEMO_ARGS[@]}")
-    STAMP_PREFIX=autofilesync-demo-en
-fi
+# Voreinstellungen fuer die fremdsprachigen Aufnahmen; eigene Optionen dahinter ueberschreiben sie.
+# Die Frage muss ohne Akzente auskommen: die Eingabesimulation tippt nur ASCII-Zeichen.
+case "$LANG_CODE" in
+    en) DEMO_ARGS=(--source-name Pictures --sync-name Photos --question "What happens when I unplug the drive?" "${DEMO_ARGS[@]}")
+        STAMP_PREFIX=autofilesync-demo-en ;;
+    fr) DEMO_ARGS=(--source-name Images --sync-name Photos --question "Que se passe-t-il si je retire le disque dur ?" --assistant-wait 180 "${DEMO_ARGS[@]}")
+        STAMP_PREFIX=autofilesync-demo-fr ;;
+esac
 
 for tool in ffmpeg Xvfb; do
     command -v "$tool" >/dev/null || { echo "$tool fehlt (sudo apt install ffmpeg xvfb)" >&2; exit 1; }
