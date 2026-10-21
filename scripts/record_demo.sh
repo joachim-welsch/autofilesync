@@ -5,7 +5,7 @@
 # Recordly-Format. Das Video laesst sich in Recordly importieren; Cursor,
 # Auto-Zoom und Rahmen kommen dort hinzu.
 #
-#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en|fr] [Optionen fuer afs_demo]
+#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en|fr|es] [Optionen fuer afs_demo]
 #
 #   --watch   zeigt den privaten X-Server als Fenster (Xephyr) statt unsichtbar (Xvfb)
 #   --out     Zielverzeichnis fuer Video, Cursor-Datei und Szenenmarken (Standard: demo-recording)
@@ -14,7 +14,8 @@
 #             Synchronisation Pictures und Photos, die Frage an den Assistenten ist
 #             englisch, und die Dateien heissen autofilesync-demo-en-<Zeit>.*;
 #             bei fr entsprechend Images und Photos, franzoesische Frage,
-#             autofilesync-demo-fr-<Zeit>.*
+#             autofilesync-demo-fr-<Zeit>.*; bei es Imágenes und Fotos, spanische
+#             Frage, autofilesync-demo-es-<Zeit>.*
 #
 # Beispiel: scripts/record_demo.sh --watch --scenes create,preview,start --cycle-seconds 5
 set -e
@@ -42,6 +43,8 @@ case "$LANG_CODE" in
         STAMP_PREFIX=autofilesync-demo-en ;;
     fr) DEMO_ARGS=(--source-name Images --sync-name Photos --question "Que se passe-t-il si je retire le disque dur ?" --assistant-wait 180 "${DEMO_ARGS[@]}")
         STAMP_PREFIX=autofilesync-demo-fr ;;
+    es) DEMO_ARGS=(--source-name Imágenes --sync-name Fotos --question "Dime si pierdo datos cuando desconecto el disco duro." --assistant-wait 180 "${DEMO_ARGS[@]}")
+        STAMP_PREFIX=autofilesync-demo-es ;;
 esac
 
 for tool in ffmpeg Xvfb; do
