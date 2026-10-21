@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "GridCtrl.h"
+#include "PhoneDirDialog.h"
 
 #include "AutoSave.h"
 #include "Config.h"
@@ -70,8 +71,8 @@ void GridCtrl::add_data_items()
 		SetCellEditor(index, 0, new wxGridCellBoolEditor);
 		SetCellValue(index, 0, i.enabled() ? L"1" : L"");
 
-		SetCellValue(index, 1, i.source());
-		SetCellValue(index, 2, i.target());
+		SetCellValue(index, 1, display_path(i.source()));  // [PhoneDirDialog.md#display_path]
+		SetCellValue(index, 2, display_path(i.target()));
 
 		index++;
 	}

@@ -72,6 +72,8 @@ ApplicationState capture_state()
         state.sync_item_names.push_back(util::wstring_to_string(item.name()));
     for (const auto& account : Config::instance().ssh_accounts_snapshot())
         state.ssh_account_names.push_back(account.name());
+    for (const auto& device : Config::instance().devices_snapshot())
+        state.device_ids.push_back(device.id);
     state.config_file = read_file(GuiTestSandbox::config_file());
     state.source_entries = entries_of(GuiTestSandbox::source_dir());
     state.target_entries = entries_of(GuiTestSandbox::target_dir());
@@ -99,6 +101,7 @@ void GuiTest::TearDown()
     const ApplicationState after = capture_state();
     EXPECT_EQ(before_.sync_item_names, after.sync_item_names) << "Die Konfiguration wurde verändert.";
     EXPECT_EQ(before_.ssh_account_names, after.ssh_account_names) << "Die SSH-Verbindungen wurden verändert.";
+    EXPECT_EQ(before_.device_ids, after.device_ids) << "Die verbundenen Handys wurden verändert.";
     EXPECT_EQ(before_.source_entries, after.source_entries) << "Das Quellverzeichnis wurde verändert.";
     EXPECT_EQ(before_.target_entries, after.target_entries) << "Das Zielverzeichnis wurde verändert.";
     ModalDialogWatcher& watcher = ModalDialogWatcher::instance();

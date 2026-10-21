@@ -66,6 +66,8 @@ class Synchronize {
     std::vector<UnreachableItem> unreachable_;  // [Synchronize.md#unreachable_]
     std::vector<LogMessage> notes_;  // [Synchronize.md#notes]
     std::unique_ptr<ChangeWatcher> watcher_;  // [Synchronize.md#watcher_]
+    std::string             device_filter_;  // [Synchronize.md#device-filter]
+    std::atomic_bool        finished_{false};  // [Synchronize.md#finished]
 #ifdef _TEST
     std::atomic<int>        loop_iterations_{0}; // counts do-while passes of operator()(), for race regression tests
 #endif
@@ -95,7 +97,8 @@ public:
     bool pause_elapsed(const SyncItem&);
     bool path_exists(const std::wstring& pathname) const;
     Synchronize() = default;
-    Synchronize(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground, bool mass_deletion_approved = false);
+    Synchronize(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground, bool mass_deletion_approved = false, const std::string& device_filter = {});
+    bool device_item(const SyncItem& i, std::string& device_id) const;  // [Synchronize.md#device-items]
     bool stop_requested() const;
     static void stop();  // [Synchronize.md#stop]
 protected:
@@ -106,7 +109,9 @@ public:
 #endif
     void operator()();
 public:
-    static Synchronize* create(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground, bool mass_deletion_approved = false);  // [Synchronize.md#mass-deletion-approved]
+    static Synchronize* create(SyncType sync_type, SyncControler* sc = nullptr, SyncRole role = SyncRole::Foreground, bool mass_deletion_approved = false, const std::string& device_filter = {});  // [Synchronize.md#mass-deletion-approved]
+    static void wake();  // [Synchronize.md#device-items] a serving phone need not wait for the tick
+    bool finished() const { return finished_; }  // [Synchronize.md#finished]
     static bool has_instance();
     static Synchronize& instance();
     static void destroy();

@@ -84,3 +84,10 @@ sentence instead.
 when both sides may change, so it is enabled with two-way sync and greyed out without it. Its
 value is left alone when it is greyed out: a user who switches two-way sync off and on again
 finds the option as they had it.
+
+## phone-buttons
+
+"Handy…" next to "SSH…" on both sides: a paired phone is a place like an SSH server, but the
+user should not have to know that, so it gets its own button and its own dialog
+(PhoneDirDialog.md). Without a paired phone the button explains where to pair one instead of
+opening an empty dialog.

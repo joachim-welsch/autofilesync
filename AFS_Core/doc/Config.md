@@ -119,3 +119,34 @@ into the live item under the lock, where the next snapshot and the assistant fin
 The sync state file belongs to the item it is named after; a deleted item would leave it
 behind for good, and an item created later under the same name would start with a foreign
 state - which read_sync_state() rejects only when the paths differ.
+
+## devices
+
+The phones paired with this configuration (Device.md), under "Devices" in the file, kept and
+guarded like the SSH accounts: DeviceLink's thread registers a device and looks one up while the
+GUI thread lists or unpairs them. Devices are keyed by their id, not by position, because the
+phone names itself by id in every message. Adding a device marks the configuration changed, so
+the GUI's autosave persists a pairing; the daemon, once it listens as well, must write the file
+itself.
+
+## ssh-port
+
+Read with a default of 22, like the other keys that did not exist in older configurations.
+Written always, so a file saved by this version names the port it uses.
+
+## device-accounts
+
+A phone is an SSH account whose name is the device id (Device.md#Device): the sync items
+refer to it as "<id>:/path", exactly like an account from the SSH connections list, and every
+SSH operation finds it through find_ssh_account_by_name(). The account's host, port, user and
+password change with every contact, so they are not persisted: DeviceLink sets them for the
+pass the phone is serving (Device.md#serving) and clears them afterwards. The lookup tries the
+configured accounts first, then the live device accounts, then a placeholder.
+
+## device-placeholder
+
+A device that is paired but not serving still needs an account, or SshPath would lose the
+prefix of the path (SyncItem.md#SshPath-strips-account-prefix) and CheckPath would report a
+missing account as an error. The placeholder has the id as name and the stored host key, but
+no host: every connection to it fails as unreachable, which is the truth while the phone is
+away, and Synchronize skips such items anyway (Synchronize.md#device-items).

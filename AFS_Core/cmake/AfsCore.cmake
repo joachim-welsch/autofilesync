@@ -29,6 +29,10 @@ get_filename_component(AFS_CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
 set(AFS_CORE_SOURCES
     ChangeWatcher.cpp
     CopyLog.cpp
+    Device.cpp
+    DeviceIdentity.cpp
+    DeviceLink.cpp
+    DevicePairing.cpp
     HelpKnowledge.cpp
     JsonText.cpp
     CheckPath.cpp

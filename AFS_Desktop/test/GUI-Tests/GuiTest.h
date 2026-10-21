@@ -30,6 +30,7 @@ namespace guitest {
 struct ApplicationState {  // snapshot of everything a GUI test is required to leave untouched
     std::vector<std::string> sync_item_names;
     std::vector<std::string> ssh_account_names;
+    std::vector<std::string> device_ids;
     std::string config_file;
     std::vector<std::string> source_entries;
     std::vector<std::string> target_entries;

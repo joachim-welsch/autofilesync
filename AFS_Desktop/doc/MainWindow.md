@@ -252,3 +252,11 @@ book is the last resort, so that an installation without the English book still 
 A help controller cannot drop the book it has; a new controller with the other book replaces it.
 The help provider, which the "?" buttons of dialogs ask, still points to the old controller and
 is handed the new one before the old is deleted.
+
+## phones
+
+The main window opens the pairing dialog and the device list and saves the configuration
+after either changed it, like the SSH accounts. The device link (DeviceLink.md) is started at
+start-up only when a phone is paired already - a PC that never paired one keeps no port
+open - and the pairing dialog starts it on demand. It is stopped first in the destructor,
+because its thread reads the configuration the window is about to let go.

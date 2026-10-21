@@ -49,5 +49,7 @@ enum class id {  // [id.md#id]
     BackgroundServiceState,
     BackgroundServiceStart,
     BackgroundServiceStop,
-    Chat
+    Chat,
+    File_connect_phone,
+    EditDevices
 };

@@ -135,6 +135,18 @@
     <ClInclude Include="..\..\..\AFS_Core\include\PasswordCrypto.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Device.h">
+      <Filter>AFS_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\DeviceIdentity.h">
+      <Filter>AFS_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\DeviceLink.h">
+      <Filter>AFS_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\DevicePairing.h">
+      <Filter>AFS_Core</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\pch.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -389,6 +401,9 @@
     <ClCompile Include="SshAccountsTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
+    <ClCompile Include="PairDeviceTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
     <ClCompile Include="SshDirDialogTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
@@ -501,6 +516,18 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Device.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\DeviceIdentity.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\DeviceLink.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\DevicePairing.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\RecycleBin.cpp">
@@ -631,6 +658,27 @@
     </ClCompile>
     <ClCompile Include="..\..\src\SshAccountsDialog.cpp">
       <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\DevicesDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\PairDeviceDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\PhoneDirDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\PhoneTemplatesDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\QrCode.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\third-party\qrcodegen\qrcodegen.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\test\Integrationstests\FakePhone.cpp">
+      <Filter>GuiTests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SshAccountSelectDialog.cpp">
       <Filter>AFS_Desktop</Filter>

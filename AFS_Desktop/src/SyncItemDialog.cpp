@@ -28,6 +28,7 @@
 #include "Logging.h"
 #include "SshAccountSelectDialog.h"
 #include "SshDirDialog.h"
+#include "PhoneDirDialog.h"
 #include "TextResources.h"
 #include "Translation.h"
 #include "utilwx.h"
@@ -101,6 +102,8 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
     source_dir_sizer->Add(btn_pick_source_dir_text, wxSizerFlags().Border(wxLEFT, 2));
     wxButton* btn_ssh_source = new wxButton(tab1, ID_BTN_SSH_SOURCE, L"SSH\u2026");
     source_dir_sizer->Add(btn_ssh_source, wxSizerFlags().Border(wxLEFT, 2));
+    wxButton* btn_phone_source = new wxButton(tab1, ID_BTN_PHONE_SOURCE, translation::translate("button_phone"));  // [SyncItemDialog.md#phone-buttons]
+    source_dir_sizer->Add(btn_phone_source, wxSizerFlags().Border(wxLEFT, 2));
 
     tab1_sizer->Add(source_dir_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
@@ -116,6 +119,8 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
     target_dir_sizer->Add(btn_pick_target_dir_text, wxSizerFlags().Border(wxLEFT, 2));
     wxButton* btn_ssh_target = new wxButton(tab1, ID_BTN_SSH_TARGET, L"SSH\u2026");
     target_dir_sizer->Add(btn_ssh_target, wxSizerFlags().Border(wxLEFT, 2));
+    wxButton* btn_phone_target = new wxButton(tab1, ID_BTN_PHONE_TARGET, translation::translate("button_phone"));
+    target_dir_sizer->Add(btn_phone_target, wxSizerFlags().Border(wxLEFT, 2));
 
     tab1_sizer->Add(target_dir_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
@@ -142,6 +147,8 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
     btn_pick_target_dir_text->Bind(wxEVT_BUTTON, &SyncItemDialog::on_pick_target_dir_text, this);
     btn_ssh_source->Bind(wxEVT_BUTTON, &SyncItemDialog::on_ssh_source, this);
     btn_ssh_target->Bind(wxEVT_BUTTON, &SyncItemDialog::on_ssh_target, this);
+    btn_phone_source->Bind(wxEVT_BUTTON, &SyncItemDialog::on_phone_source, this);
+    btn_phone_target->Bind(wxEVT_BUTTON, &SyncItemDialog::on_phone_target, this);
 
     SetSizer(main_sizer);
     SetMinSize(FromDIP(wxSize(300, 100)));
@@ -513,6 +520,27 @@ void SyncItemDialog::on_ssh_source(wxCommandEvent& event)
 void SyncItemDialog::on_ssh_target(wxCommandEvent& event)
 {
     handle_ssh_button(target_dir_box_);
+}
+
+void SyncItemDialog::on_phone_source(wxCommandEvent&)
+{
+    handle_phone_button(source_dir_box_);
+}
+
+void SyncItemDialog::on_phone_target(wxCommandEvent&)
+{
+    handle_phone_button(target_dir_box_);
+}
+
+void SyncItemDialog::handle_phone_button(wxTextCtrl* target_box)  // [SyncItemDialog.md#phone-buttons]
+{
+    if (Config::instance().devices_snapshot().empty()) {
+        wxMessageBox(translation::translate("no_devices_paired"), translation::translate("info"), wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+    PhoneDirDialog dlg(this, wxID_ANY, txt::phone_dir(), target_box->GetValue());
+    if (dlg.ShowModal() == wxID_OK)
+        target_box->SetValue(dlg.path());
 }
 
 void SyncItemDialog::handle_ssh_button(wxTextCtrl* target_box)

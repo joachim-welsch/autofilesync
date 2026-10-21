@@ -1881,6 +1881,206 @@ msgstr "Modifier la connexion SSH"
 msgid "title_ssh_connections"
 msgstr "Connexions SSH"
 
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_failed"
+msgstr "L'identité de l'appareil pour la connexion au téléphone n'a pas pu être créée : "
+
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_not_saved"
+msgstr "L'identité de l'appareil n'a pas pu être enregistrée ; après le prochain démarrage, les téléphones devront être reconnectés : "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_role_taken"
+msgstr "Un autre programme AutoFileSync accepte déjà les téléphones ; celui-ci n'écoute pas."
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listen_failed"
+msgstr "La connexion pour les téléphones n'a pas pu être ouverte, port "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listening"
+msgstr "Connexion pour les téléphones ouverte sur le port %1"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_handshake_failed"
+msgstr "Échec de la négociation TLS : "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pairing_rejected"
+msgstr "Appairage depuis %1 refusé : %2"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_paired"
+msgstr "Téléphone « %1 » connecté (%2)"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello_rejected"
+msgstr "Téléphone inconnu depuis %1 refusé"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello"
+msgstr "Le téléphone « %1 » s'est signalé (%2)"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_started"
+msgstr "Passage pour le téléphone « %1 » lancé, %2 entrées"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_finished"
+msgstr "Passage pour le téléphone « %1 » terminé, %2 erreurs"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_incomplete"
+msgstr "Passage pour le téléphone « %1 » incomplet, %2 erreurs"
+
+#: AFS_Core/src/Config.cpp
+msgid "device_entry_skipped"
+msgstr "Une entrée de téléphone dans la configuration a été ignorée : "
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_connect_phone"
+msgstr "Connecter un téléphone…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_devices"
+msgstr "Téléphones…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_connect_phone"
+msgstr "Connecter un téléphone"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_devices"
+msgstr "Téléphones connectés"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_install"
+msgstr "1. Installez AutoFileSync sur le téléphone – le code vous y mène."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_scan"
+msgstr "2. Scannez le code avec l'application ou l'appareil photo."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_waiting"
+msgstr "En attente du téléphone…"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_done"
+msgstr "%1 est connecté ✓"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_link_unavailable"
+msgstr "La connexion ne peut pas être proposée pour l'instant : un autre programme AutoFileSync accepte les téléphones, ou le port est occupé."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_details"
+msgstr "PC %1 · %2 · port %3"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_firewall_hint"
+msgstr "Rien n'arrive ? Un pare-feu bloque peut-être le port %1."
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_never_seen"
+msgstr "pas encore signalé"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_seen"
+msgstr "dernier contact %1 depuis %2"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "confirm_unpair_device"
+msgstr "Déconnecter « %1 » ? Le téléphone devra ensuite être reconnecté."
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_unpair"
+msgstr "Déconnecter"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "column_status"
+msgstr "État"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_name_empty"
+msgstr "Le nom ne doit pas être vide."
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_dir"
+msgstr "Dossier sur le téléphone"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_phone"
+msgstr "Téléphone…"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_phone"
+msgstr "Téléphone"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_folder"
+msgstr "Dossier"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_hint"
+msgstr "La liste nomme les dossiers habituels ; un autre peut être saisi. La synchronisation a lieu quand le téléphone se signale : touchez « Synchroniser maintenant » dans l'application."
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "no_devices_paired"
+msgstr "Aucun téléphone connecté pour l'instant. Connectez-en un d'abord via Fichier → Connecter un téléphone…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_templates"
+msgstr "Synchronisation avec le téléphone"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_question"
+msgstr "Que faire avec « %1 » ?"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_photos"
+msgstr "Sauvegarder photos et vidéos sur le PC"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_folder"
+msgstr "Garder un dossier identique sur les deux appareils"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_music"
+msgstr "Musique du PC vers le téléphone"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_none"
+msgstr "Configurer plus tard"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder"
+msgstr "Dossier sur le PC"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_phone_folder"
+msgstr "Dossier sur le téléphone"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder_missing"
+msgstr "Veuillez choisir un dossier sur le PC."
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_photos"
+msgstr "Photos de %1"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_folder"
+msgstr "Dossier avec %1"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_music"
+msgstr "Musique sur %1"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_setup_sync"
+msgstr "Configurer la synchronisation…"
+
 #: AFS_Desktop/include/TextResources.h:29
 msgid "title_select_ssh_connection"
 msgstr "Sélectionner une connexion SSH"

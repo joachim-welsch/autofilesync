@@ -168,7 +168,7 @@ SshDirInspector::SshDirInspector(const SshAccount& account)
     }
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(22);
+    sin.sin_port = htons(account_.port());
     sin.sin_addr.s_addr = inet_addr(account_.host().c_str());
     if (sin.sin_addr.s_addr == INADDR_NONE) {
         struct hostent* host = gethostbyname(account_.host().c_str());
@@ -202,7 +202,7 @@ SshDirInspector::SshDirInspector(const SshAccount& account)
         throw std::runtime_error(translation::translate_utf8("ssh_handshake_failed"));
     }
 
-    if (!verify_ssh_host_key(my_ssh_session_, account_.host())) {
+    if (!(account_.host_key().empty() ? verify_ssh_host_key(my_ssh_session_, account_.host(), account_.port()) : verify_pinned_host_key(my_ssh_session_, account_.host_key(), account_.host()))) {
         cleanup();
         throw std::runtime_error(translation::translate_utf8("host_key_verification_failed"));
     }

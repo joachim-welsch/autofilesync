@@ -121,11 +121,15 @@ void SftpConnection::open_session(const SshAccount& account)  // [SftpConnection
     if (!session_->ssh)
         fail(translation::translate_utf8("ssh_session_create_error"));
     ssh_options_set(session_->ssh, SSH_OPTIONS_HOST, account.host().c_str());
+    const unsigned int port = account.port();
+    ssh_options_set(session_->ssh, SSH_OPTIONS_PORT, &port);
     ssh_options_set(session_->ssh, SSH_OPTIONS_USER, account.user().c_str());
     apply_ssh_connect_timeout(session_->ssh);
     if (ssh_connect(session_->ssh) != SSH_OK)
         unreachable(translation::translate_utf8("libssh_connect_error") + error());
-    if (!verify_ssh_host_key(session_->ssh, account.host()))
+    const bool key_ok = account.host_key().empty() ? verify_ssh_host_key(session_->ssh, account.host())
+        : verify_pinned_host_key(session_->ssh, account.host_key(), account.host());  // [SshHostKeyVerification.md#verify_pinned_host_key]
+    if (!key_ok)
         fail(translation::translate_utf8("host_key_verification_failed"));
     if (ssh_userauth_password(session_->ssh, nullptr, account.password().c_str()) != SSH_AUTH_SUCCESS)
         fail(translation::translate_utf8("libssh_auth_error") + error());

@@ -12,6 +12,11 @@ set(AFS_DESKTOP_SOURCES
     BackgroundService.cpp
     Canvas.cpp
     ChatDialog.cpp
+    DevicesDialog.cpp
+    PairDeviceDialog.cpp
+    PhoneDirDialog.cpp
+    PhoneTemplatesDialog.cpp
+    QrCode.cpp
     HelpBook.cpp
     GridCtrl.cpp
     GridWindow.cpp
@@ -39,6 +44,7 @@ set(AFS_DESKTOP_SOURCES
     TreeItemData.cpp
 )
 list(TRANSFORM AFS_DESKTOP_SOURCES PREPEND ${AFS_DESKTOP_DIR}/src/)
+list(APPEND AFS_DESKTOP_SOURCES ${AFS_DESKTOP_DIR}/../third-party/qrcodegen/qrcodegen.cpp)  # QrCode.cpp draws the pairing code with it (MIT, see doc/THIRD-PARTY-NOTICES.md)
 
 if(APPLE)
     list(APPEND AFS_DESKTOP_SOURCES ${AFS_DESKTOP_DIR}/src/macutil.mm)
@@ -46,7 +52,7 @@ if(APPLE)
 endif()
 
 function(afs_desktop_configure_target target)
-    target_include_directories(${target} PRIVATE ${AFS_DESKTOP_DIR}/include)
+    target_include_directories(${target} PRIVATE ${AFS_DESKTOP_DIR}/include ${AFS_DESKTOP_DIR}/../third-party)
     target_link_libraries(${target} PRIVATE afs_core)
     if(APPLE)
         target_link_libraries(${target} PRIVATE "-framework Cocoa")

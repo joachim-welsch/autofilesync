@@ -28,6 +28,10 @@ inline wxString edit_ssh_connection() { return AFS_Core::translation::translate(
 inline wxString ssh_connections() { return AFS_Core::translation::translate("title_ssh_connections"); }
 inline wxString select_ssh_connection() { return AFS_Core::translation::translate("title_select_ssh_connection"); }
 inline wxString select_ssh_dir() { return AFS_Core::translation::translate("title_select_ssh_dir"); }
+inline wxString connect_phone() { return AFS_Core::translation::translate("title_connect_phone"); }
+inline wxString devices() { return AFS_Core::translation::translate("title_devices"); }
+inline wxString phone_dir() { return AFS_Core::translation::translate("title_phone_dir"); }
+inline wxString phone_templates() { return AFS_Core::translation::translate("title_phone_templates"); }
 inline wxString settings() { return AFS_Core::translation::translate("title_settings"); }
 inline wxString logging_settings() { return AFS_Core::translation::translate("title_logging_settings"); }
 inline wxString assistant() { return AFS_Core::translation::translate("title_assistant"); }

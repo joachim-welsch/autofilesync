@@ -30,6 +30,10 @@
 #include "LoggingDialog.h"
 #include "SshAccountDialog.h"
 #include "SshAccountsDialog.h"
+#include "PairDeviceDialog.h"
+#include "PhoneTemplatesDialog.h"
+#include "DevicesDialog.h"
+#include "DeviceLink.h"
 #include "ChatDialog.h"
 #include "Config.h"
 #include "Synchronize.h"
@@ -115,6 +119,8 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
     EVT_UPDATE_UI(tul(id::DeleteSync), MainWindow::on_update_sync_item_selected)
     EVT_MENU(tul(id::File_new_Synchronization), MainWindow::on_add_sync_item)
     EVT_MENU(tul(id::File_new_SshConnection), MainWindow::on_add_ssh_connection)
+    EVT_MENU(tul(id::File_connect_phone), MainWindow::on_connect_phone)
+    EVT_MENU(tul(id::EditDevices), MainWindow::on_edit_devices)
     EVT_MENU(tul(id::File_open), MainWindow::on_file_open)
     EVT_MENU(tul(id::File_save), MainWindow::on_file_save)
     EVT_UPDATE_UI(tul(id::File_save), MainWindow::on_update_file_save)
@@ -168,10 +174,13 @@ MainWindow::MainWindow(wxWindow *parent,
 		menu_.sync_menu()->Enable(tul(id::StopSync), false);
 	}
 	start_sync_timer();
+    if (!Config::instance().devices_snapshot().empty())
+        start_device_link();  // [MainWindow.md#phones]
 }
 
 MainWindow::~MainWindow()
 {
+    DeviceLink::instance().stop();  // before the configuration goes: the link's thread reads it
     delete html_help_controller_;
     delete task_bar_icon_;
 }
@@ -648,6 +657,27 @@ void MainWindow::on_edit_ssh_accounts(wxCommandEvent&)
     SshAccountsDialog dlg(this, wxID_ANY, txt::ssh_connections());
     dlg.ShowModal();
     autosave::after_change(this);
+}
+
+void MainWindow::on_connect_phone(wxCommandEvent&)  // [MainWindow.md#phones]
+{
+    PairDeviceDialog dlg(this, wxID_ANY, txt::connect_phone());
+    dlg.ShowModal();
+    if (!dlg.paired())
+        return;
+    PhoneTemplatesDialog templates(this, wxID_ANY, txt::phone_templates(), *dlg.paired());  // [MainWindow.md#phones] the second page of the pairing
+    templates.ShowModal();
+    autosave::after_change(this);
+    if (templates.created())
+        update();
+}
+
+void MainWindow::on_edit_devices(wxCommandEvent&)
+{
+    DevicesDialog dlg(this, wxID_ANY, txt::devices());
+    dlg.ShowModal();
+    if (dlg.changed())
+        autosave::after_change(this);
 }
 
 void MainWindow::on_edit_settings(wxCommandEvent&)

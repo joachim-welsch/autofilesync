@@ -33,6 +33,9 @@
     <ClInclude Include="ScopedLog.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
+    <ClInclude Include="FakePhone.h">
+      <Filter>Integrationtests</Filter>
+    </ClInclude>
     <ClInclude Include="ScopedRecycleBin.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
@@ -155,6 +158,18 @@
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\PasswordCrypto.h">
       <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\Device.h">
+      <Filter>AFS_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\DeviceIdentity.h">
+      <Filter>AFS_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\DeviceLink.h">
+      <Filter>AFS_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\DevicePairing.h">
+      <Filter>AFS_Core</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\pch.h">
       <Filter>AFS_Core\include</Filter>
@@ -312,6 +327,12 @@
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="PasswordCryptoTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="FakePhone.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -480,6 +501,18 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\Device.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\DeviceIdentity.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\DeviceLink.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\DevicePairing.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\RecycleBin.cpp">

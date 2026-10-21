@@ -23,11 +23,13 @@
 #include <set>
 #include <fstream>
 #include <optional>
+#include <map>
 #include <mutex>
 #include <filesystem>
 #include "SyncItem.h"
 #include "Settings.h"
 #include "SshAccount.h"
+#include "Device.h"
 #include <boost/property_tree/json_parser.hpp>
 
 namespace AFS_Core {
@@ -40,6 +42,9 @@ class Config {
     mutable std::mutex  syncitems_mutex_;    // [Config.md#syncitems_mutex_]
     SshAccounts         ssh_accounts_;
     mutable std::mutex  ssh_accounts_mutex_;  // [Config.md#ssh_accounts_mutex_]
+    Devices             devices_;
+    mutable std::mutex  devices_mutex_;  // [Config.md#devices]
+    std::map<std::string, SshAccount> device_accounts_;  // [Config.md#device-accounts]
     std::wstring        pathname_;
     std::filesystem::file_time_type disk_time_{};  // [Config.md#disk_time_]
     bool                changed_ = false;
@@ -54,6 +59,8 @@ class Config {
     bool read_logging_setup(boost::property_tree::wptree&);
     bool read_settings(boost::property_tree::wptree&);
     bool read_ssh_accounts(boost::property_tree::wptree&);
+    bool read_devices(boost::property_tree::wptree&);
+    void write_devices(boost::property_tree::wptree& root);
     void write_logging_setup(boost::property_tree::wptree& root);
     void write_settings(boost::property_tree::wptree& root);
     void write_ssh_accounts(boost::property_tree::wptree& root);
@@ -90,6 +97,14 @@ public:
     bool update_ssh_account(std::size_t index, const SshAccount& updated);
     bool update_ssh_account_references(const std::string& old_name, const SshAccount& new_account);  // [Config.md#update_ssh_account_references]
     bool ssh_account_referenced_by_any_item(const std::string& name) const;
+    void add(const Device&, bool loading = false);  // [Config.md#devices]
+    std::optional<Device> find_device(const std::string& id) const;
+    Devices devices_snapshot() const;
+    bool update_device(const Device& updated);
+    bool remove_device(const std::string& id);
+    void set_device_account(const SshAccount& account);  // [Config.md#device-accounts]
+    void clear_device_account(const std::string& id);
+    std::optional<SshAccount> device_account(const std::string& id) const;
     Settings& settings() { return settings_; }
     const Settings& settings() const { return settings_; }
     void reset();

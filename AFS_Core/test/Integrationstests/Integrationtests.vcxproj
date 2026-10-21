@@ -173,6 +173,8 @@
     <ClCompile Include="ChangeWatcherTests.cpp" />
     <ClCompile Include="FileDeleteTests.cpp" />
     <ClCompile Include="PasswordCryptoTests.cpp" />
+    <ClCompile Include="FakePhone.cpp" />
+    <ClCompile Include="DeviceTests.cpp" />
     <ClCompile Include="StrUtilTests.cpp" />
     <ClCompile Include="TranslationTests.cpp" />
     <ClCompile Include="JsonTextTests.cpp" />
@@ -256,6 +258,10 @@
     <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp" />
     <ClCompile Include="$(LibDir)\src\JsonText.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
+    <ClCompile Include="$(LibDir)\src\Device.cpp" />
+    <ClCompile Include="$(LibDir)\src\DeviceIdentity.cpp" />
+    <ClCompile Include="$(LibDir)\src\DeviceLink.cpp" />
+    <ClCompile Include="$(LibDir)\src\DevicePairing.cpp" />
     <ClCompile Include="$(LibDir)\src\SftpConnection.cpp" />
     <ClCompile Include="$(LibDir)\src\SshConnectTimeout.cpp" />
     <ClCompile Include="$(LibDir)\src\SshHostKeyVerification.cpp" />
@@ -323,6 +329,11 @@
     <ClInclude Include="$(LibDir)\include\ConfigSummary.h" />
     <ClInclude Include="$(LibDir)\include\MountedDrives.h" />
     <ClInclude Include="$(LibDir)\include\PasswordCrypto.h" />
+    <ClInclude Include="FakePhone.h" />
+    <ClInclude Include="$(LibDir)\include\Device.h" />
+    <ClInclude Include="$(LibDir)\include\DeviceIdentity.h" />
+    <ClInclude Include="$(LibDir)\include\DeviceLink.h" />
+    <ClInclude Include="$(LibDir)\include\DevicePairing.h" />
     <ClInclude Include="$(LibDir)\include\pch.h" />
     <ClInclude Include="$(LibDir)\include\RecycleBin.h" />
     <ClInclude Include="$(LibDir)\include\Settings.h" />

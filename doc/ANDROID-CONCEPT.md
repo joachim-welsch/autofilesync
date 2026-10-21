@@ -357,8 +357,8 @@ Verbindung ankommt („Eine Firewall blockiert vielleicht Port 52381“).
 | Phase | Inhalt | Ergebnis |
 |---|---|---|
 | 0 – Spikes ✓ | MINA-SFTP mit „Alle Dateien“; `setstat`/mtime im gemeinsamen Speicher; Durchsatz im WLAN; libssh (Linux) und libssh2 (Windows) gegen MINA. Erledigt am 21.10.2026 auf Android 13, Android 14/15 steht noch aus. | Ergebnisse in Abschnitt 13, Testprojekt `AFS_Android/spike/` |
-| 1 – Kopplung | `DevicePairing`, `DeviceRegistry`, `DeviceLink` (nur `hello`), QR-Dialog; App: Scannen, Koppeln, Statuskarte | Handy erscheint in AutoFileSync als gekoppelt |
-| 2 – Synchronisieren | parallele SFTP-Anfragen im Kern, `serve`/`done`, Port und Hostschlüssel in SSH, Ortsauswahl „Handy“, Vorlagen | Fotos sichern per **Jetzt synchronisieren** |
+| 1 – Kopplung ✓ | `DevicePairing`, Geräteliste in `Config`, `DeviceLink` (`pair`, `hello`), QR-Dialog, Handy-Liste; App: Scannen, Koppeln, Statuskarte. Umgesetzt am 21.10.2026, Abweichungen in Abschnitt 14. | Handy erscheint in AutoFileSync als gekoppelt |
+| 2 – Synchronisieren ✓ | parallele SFTP-Anfragen im Kern, `serve`/`done`, Port und Hostschlüssel in SSH, Ortsauswahl „Handy“, Vorlagen. Umgesetzt am 21.10.2026, Abweichungen in Abschnitt 15. | Fotos sichern per **Jetzt synchronisieren** |
 | 3 – Hintergrund | WorkManager-Auslöser, Vordergrundbenachrichtigung, mDNS, Medienscan, Daemon als Kopplungsdienst | Läuft ohne Zutun |
 | 4 – Fertigstellen | 7 Sprachen, Hilfe, Tests, F-Droid-Metadaten, signierte APK zum Herunterladen, App-Link (`assetlinks.json` auf welsch-software.com) | Veröffentlichung über F-Droid und APK |
 
@@ -437,3 +437,70 @@ damit das Handy das WLAN nicht abschaltet.
 - Der Standard-Hostschlüssel ist ECDSA P-521. Die App soll Ed25519 erzeugen.
 - OnePlus (ColorOS) erlaubt kein Setzen von App-Ops über adb. Die Freigabe
   „Alle Dateien“ muss auch für Tests von Hand erteilt werden.
+
+## 14. Stand nach Phase 1 (21.10.2026)
+
+Umgesetzt wie in Abschnitt 4 und 5 beschrieben, mit diesen Abweichungen:
+
+- **Geräteliste** liegt in `Config` (`Devices` in `autofilesync.json`) statt in einem
+  eigenen Modul `DeviceRegistry`, nach dem Muster der SSH-Konten.
+- **Adresse, Port und Zeitpunkt der letzten Meldung** eines Handys werden nicht
+  gespeichert, sondern nur im Speicher des laufenden Programms gehalten
+  (`DevicePresence`): Eine Konfiguration, die sich bei jedem `hello` ändert,
+  würde beim Beenden nach dem Speichern fragen.
+- **Nur IPv4** im QR-Code und beim Lauschen. IPv6 im Heimnetz braucht eine Scope-ID,
+  die das Handy nicht kennt.
+- **Hostschlüssel des Handys** ist ECDSA P-256 statt Ed25519: Java auf Android 13 hat
+  kein Ed25519 ohne Zusatzbibliothek, und libssh/libssh2 akzeptieren P-256.
+- **Wer lauscht:** nur das GUI-Programm. Es öffnet den Port beim Start, wenn ein Handy
+  gekoppelt ist, und im Dialog „Handy verbinden“. Ohne gekoppeltes Handy ist kein
+  Port offen. Der Hintergrunddienst kommt in Phase 3; die Rolle ist bereits über eine
+  Sperrdatei vergeben (`DeviceLink.md#role`).
+- **App-Link:** Der QR-Code öffnet die App über die Kamera-App erst, wenn
+  `https://welsch-software.com/.well-known/assetlinks.json` den Signaturschlüssel der
+  App nennt (Phase 4). Bis dahin scannt die App selbst.
+- **Sprachen der App:** Englisch und Deutsch; die übrigen fünf in Phase 4.
+- **Tests:** 16 Integrationstests (`DeviceTests.cpp`, mit dem simulierten Handy
+  `FakePhone`) und 3 GUI-Tests (`PairDeviceTest.cpp`).
+- **Ende-zu-Ende geprüft** am 21.10.2026 mit dem OnePlus DN2103 gegen den PC-Teil
+  ohne Oberfläche: Kopplung und `hello` kommen an, die Statuskarte zeigt „Verbunden
+  mit Laptop · Alles aktuell“. Zwei Erkenntnisse daraus:
+  - Der Schlüssel im Android-Keystore braucht `DIGEST_NONE` neben SHA-256, sonst
+    kann Conscrypt den TLS-Handshake nicht signieren (Fehlerbild: „Operation not
+    supported on transport endpoint“). Der TLS-Socket muss direkt von der
+    `SSLSocketFactory` kommen, nicht über einen bestehenden Socket gelegt werden.
+  - Unter Linux blockierte `ufw` den Port 52381; `ufw allow 52381/tcp` behebt es.
+    Der Dialog zeigt den Firewall-Hinweis nach einer Minute (7.2). Für Phase 4 ist zu
+    prüfen, ob das Debian-Paket eine ufw-Anwendungsdefinition
+    (`/etc/ufw/applications.d/autofilesync`) mitliefern soll.
+
+## 15. Stand nach Phase 2 (21.10.2026)
+
+Umgesetzt wie in Abschnitt 5 und 7 beschrieben, mit diesen Abweichungen:
+
+- **Handy als SSH-Konto:** Ein Handy ist für den Kern ein SSH-Konto mit der Geräte-ID als
+  Name (`Config.md#device-accounts`); `SyncPathType` blieb unverändert. Host, Port,
+  Benutzer und Einmalpasswort setzt der Steuerkanal nur für die Dauer des Durchlaufs.
+  Die Oberfläche zeigt statt der ID den Namen mit Handy-Symbol (`PhoneDirDialog.md#display_path`).
+- **Durchlauf:** `hello` mit `serving` und SFTP-Zugangsdaten → `items`, `serve`,
+  `progress` je Eintrag, `done` mit Fehlerzahl. Läuft eine fortlaufende Synchronisation
+  im GUI, übernimmt sie die Handy-Einträge beim nächsten Takt; sonst legt der Steuerkanal
+  einen Einzel-Durchlauf nur für dieses Handy an (`DeviceLink.md#serve`,
+  `Synchronize.md#device-items`). Handy-Einträge laufen ausschließlich, während das Handy
+  seinen Server anbietet; ein abwesendes Handy ist kein Fehler.
+- **Kein Ordner-Browsing auf dem Handy:** Der Dialog „Ordner auf dem Handy“ bietet die
+  üblichen Android-Ordner an oder nimmt einen Pfad entgegen. Live-Browsing bräuchte den
+  Server, der nur während eines Durchlaufs läuft.
+- **Parallele SFTP-Anfragen** nur mit libssh (Linux, macOS; `sftp_aio_*`, libssh ≥ 0.11).
+  libssh2 unter Windows sendet weiter eine Anfrage nach der anderen.
+- **Atomares Schreiben** auf dem Handy (temporärer Name + Umbenennen) ist nicht umgesetzt;
+  eine abgebrochene Übertragung hinterlässt eine unvollständige Datei, die der nächste
+  Durchlauf ersetzt. Ebenso offen: Medienscan nach dem Durchlauf (`changedPaths`), feste
+  Rechte 0644/0755 im Server der App, Port-Feld im SSH-Konten-Dialog.
+- **App:** Der SFTP-Server (Apache MINA SSHD) läuft nur während eines Durchlaufs, mit
+  neuem Passwort je Durchlauf. Der Durchlauf läuft im Vordergrund der App; Hintergrund,
+  Zeitplan und Benachrichtigungen kommen in Phase 3. Keystore-Schlüssel brauchen
+  `DIGEST_NONE` (Abschnitt 14).
+- **Tests:** 20 Gerätetests (darunter der `serve`-Durchlauf gegen den lokalen SSH-Server
+  und ein abgewiesener falscher Hostschlüssel), 99 SSH-Tests mit den parallelen Anfragen,
+  5 GUI-Tests (Kopplung, Handy-Liste, Vorlagen).

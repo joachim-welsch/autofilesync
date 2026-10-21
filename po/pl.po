@@ -1881,6 +1881,206 @@ msgstr "Edytuj połączenie SSH"
 msgid "title_ssh_connections"
 msgstr "Połączenia SSH"
 
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_failed"
+msgstr "Nie udało się utworzyć tożsamości urządzenia dla połączenia z telefonem: "
+
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_not_saved"
+msgstr "Nie udało się zapisać tożsamości urządzenia; po następnym uruchomieniu telefony trzeba będzie połączyć ponownie: "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_role_taken"
+msgstr "Inny program AutoFileSync już przyjmuje telefony; ten nie nasłuchuje."
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listen_failed"
+msgstr "Nie udało się otworzyć połączenia dla telefonów, port "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listening"
+msgstr "Połączenie dla telefonów otwarte na porcie %1"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_handshake_failed"
+msgstr "Uzgadnianie TLS nie powiodło się: "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pairing_rejected"
+msgstr "Parowanie z %1 odrzucone: %2"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_paired"
+msgstr "Telefon „%1” połączony (%2)"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello_rejected"
+msgstr "Nieznany telefon z %1 odrzucony"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello"
+msgstr "Telefon „%1” zgłosił się (%2)"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_started"
+msgstr "Przebieg dla telefonu „%1” rozpoczęty, %2 wpisów"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_finished"
+msgstr "Przebieg dla telefonu „%1” zakończony, błędów: %2"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_incomplete"
+msgstr "Przebieg dla telefonu „%1” niekompletny, błędów: %2"
+
+#: AFS_Core/src/Config.cpp
+msgid "device_entry_skipped"
+msgstr "Pominięto wpis telefonu w konfiguracji: "
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_connect_phone"
+msgstr "Połącz telefon…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_devices"
+msgstr "Telefony…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_connect_phone"
+msgstr "Połącz telefon"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_devices"
+msgstr "Połączone telefony"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_install"
+msgstr "1. Zainstaluj AutoFileSync na telefonie – kod prowadzi tam."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_scan"
+msgstr "2. Zeskanuj kod aplikacją lub aparatem."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_waiting"
+msgstr "Oczekiwanie na telefon…"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_done"
+msgstr "%1 jest połączony ✓"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_link_unavailable"
+msgstr "Nie można teraz zaoferować połączenia: inny program AutoFileSync przyjmuje telefony lub port jest zajęty."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_details"
+msgstr "PC %1 · %2 · port %3"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_firewall_hint"
+msgstr "Nic nie dociera? Być może zapora blokuje port %1."
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_never_seen"
+msgstr "jeszcze się nie zgłosił"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_seen"
+msgstr "ostatnio %1 z %2"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "confirm_unpair_device"
+msgstr "Rozłączyć „%1”? Potem telefon trzeba będzie połączyć ponownie."
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_unpair"
+msgstr "Rozłącz"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "column_status"
+msgstr "Stan"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_name_empty"
+msgstr "Nazwa nie może być pusta."
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_dir"
+msgstr "Folder na telefonie"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_phone"
+msgstr "Telefon…"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_phone"
+msgstr "Telefon"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_folder"
+msgstr "Folder"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_hint"
+msgstr "Lista zawiera typowe foldery; inny można wpisać. Synchronizacja następuje, gdy telefon się zgłosi: dotknij „Synchronizuj teraz” w aplikacji."
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "no_devices_paired"
+msgstr "Nie połączono jeszcze telefonu. Najpierw połącz go przez Plik → Połącz telefon…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_templates"
+msgstr "Synchronizacja z telefonem"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_question"
+msgstr "Co ma się dziać z „%1”?"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_photos"
+msgstr "Zabezpieczyć zdjęcia i filmy na PC"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_folder"
+msgstr "Utrzymywać folder jednakowy na obu urządzeniach"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_music"
+msgstr "Muzyka z PC na telefon"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_none"
+msgstr "Skonfigurować później"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder"
+msgstr "Folder na PC"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_phone_folder"
+msgstr "Folder na telefonie"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder_missing"
+msgstr "Wybierz folder na PC."
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_photos"
+msgstr "Zdjęcia z %1"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_folder"
+msgstr "Folder z %1"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_music"
+msgstr "Muzyka na %1"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_setup_sync"
+msgstr "Skonfiguruj synchronizację…"
+
 #: AFS_Desktop/include/TextResources.h:29
 msgid "title_select_ssh_connection"
 msgstr "Wybierz połączenie SSH"

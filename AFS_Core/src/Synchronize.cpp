@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "Synchronize.h"
+#include "DeviceLink.h"
 #ifdef _WXWIDGETS
     #ifdef WIN32
         #include <Windows.h>
@@ -76,12 +77,13 @@ Synchronize& Synchronize::instance()
     return *inst;
 }
 
-Synchronize::Synchronize(SyncType sync_type, SyncControler* sc, SyncRole role, bool mass_deletion_approved)
+Synchronize::Synchronize(SyncType sync_type, SyncControler* sc, SyncRole role, bool mass_deletion_approved, const std::string& device_filter)
   : sync_type_(sync_type),
     sync_controler_(sc),
     role_(role),
     mass_deletion_approved_(mass_deletion_approved),
-    arbiter_(role)
+    arbiter_(role),
+    device_filter_(device_filter)
 {
     stop_ = false;
     thread_ = std::thread([this]() { (*this)(); });
@@ -97,10 +99,10 @@ void Synchronize::destroy()
     }
 }
 
-Synchronize* Synchronize::create(SyncType sync_type, SyncControler* sc, SyncRole role, bool mass_deletion_approved)
+Synchronize* Synchronize::create(SyncType sync_type, SyncControler* sc, SyncRole role, bool mass_deletion_approved, const std::string& device_filter)
 {
     log_debug(L"Synchronize::create()");
-    Synchronize* retval = new Synchronize(sync_type, sc, role, mass_deletion_approved);  // [Synchronize.md#constructor-clears-stop]
+    Synchronize* retval = new Synchronize(sync_type, sc, role, mass_deletion_approved, device_filter);  // [Synchronize.md#constructor-clears-stop]
     this_.store(retval);
     return retval;
 }
@@ -277,7 +279,11 @@ void Synchronize::sync_item(SyncItem& i)
     if (!i.enabled())
         return;
     log_debug(L"Synchronize::operator()() Start of ", i.name());
-    if (sync_type_ != SyncType::Preview && !due(i))  // [Synchronize.md#preview-ignores-the-pause]
+    std::string device_id;
+    const bool of_device = device_item(i, device_id);  // [Synchronize.md#device-items]
+    if (of_device && !DeviceLink::instance().serving(device_id))
+        return;
+    if (!of_device && sync_type_ != SyncType::Preview && !due(i))  // [Synchronize.md#preview-ignores-the-pause]
         return;
     if (touches_nothing())  // [Synchronize.md#no-proof-for-counting-passes]
         run_sync_item(i);
@@ -285,6 +291,26 @@ void Synchronize::sync_item(SyncItem& i)
         report_sync_item(i);
     if (watcher_)
         watcher_->clear(i.name());  // [Synchronize.md#due] the pass's own writes are not a reason for the next one
+    if (of_device && !touches_nothing())
+        DeviceLink::instance().item_passed(device_id, i.name());
+}
+
+bool Synchronize::device_item(const SyncItem& i, std::string& device_id) const  // [Synchronize.md#device-items]
+{
+    for (const SyncPath* side : {i.source_path(), i.target_path()}) {
+        const auto* ssh = dynamic_cast<const SshPath*>(side);
+        if (ssh && Config::instance().find_device(ssh->account().name())) {
+            device_id = ssh->account().name();
+            return true;
+        }
+    }
+    return false;
+}
+
+void Synchronize::wake()
+{
+    if (Synchronize* inst = this_.load())
+        inst->cv_.notify_all();
 }
 
 void Synchronize::sync_items()
@@ -294,6 +320,9 @@ void Synchronize::sync_items()
     for (auto& i: Config::instance().syncitems()) {
         if (stop_request_.load())
             break;
+        std::string device_id;
+        if (!device_filter_.empty() && (!device_item(i, device_id) || device_id != device_filter_))
+            continue;  // [Synchronize.md#device-filter]
         sync_item(i);
     }
 }
@@ -463,6 +492,7 @@ void Synchronize::operator()()
         sync_controler_->set_sync_finished();
     }
 #endif
+    finished_ = true;  // [Synchronize.md#finished]
     log_debug(L"End of Synchronize::operator()()");
 }
 

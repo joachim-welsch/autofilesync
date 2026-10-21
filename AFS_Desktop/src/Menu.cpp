@@ -67,6 +67,7 @@ wxMenu* Menu::create_file_menu()
     wxMenu* file_menu = new wxMenu;  // [Menu.md#structure]
     file_menu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
     file_menu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
+    file_menu->Append(tul(id::File_connect_phone), translate("menu_connect_phone"));  // [Menu.md#phone-entries]
     file_menu->AppendSeparator();
     file_menu->Append(tul(id::File_open), with_shortcut(translate("menu_open"), "Ctrl+O"));
     file_menu->Append(tul(id::File_save), with_shortcut(translate("menu_save"), "Ctrl+S"));
@@ -98,6 +99,7 @@ wxMenu* Menu::create_edit_menu()
     edit_menu_->Append(tul(id::EditSync), translate("edit_synchronisation"));
     edit_menu_->Append(tul(id::DeleteSync), translate("delete_synchronisation"));
     edit_menu_->Append(tul(id::EditSshAccounts), translate("menu_ssh_connections"));
+    edit_menu_->Append(tul(id::EditDevices), translate("menu_devices"));  // [Menu.md#phone-entries]
     edit_menu_->Append(tul(id::EditSettings), with_shortcut(translate("menu_settings"), "Ctrl+,"));
     edit_menu_->AppendSeparator();
     edit_menu_->Append(tul(id::EditLogging), translate("menu_logging_settings"));

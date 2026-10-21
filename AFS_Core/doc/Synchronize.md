@@ -150,3 +150,24 @@ events too, and taken as a reason they would run the item again on every tick. A
 arrives during the pass is therefore left to the scan interval; the alternative, a pass after
 every pass, was worse. An unwatched item - no local side, the option off, the platform's limit
 reached - is due by its pause alone, as before.
+
+## device-items
+
+An item whose source or target is a phone (Config.md#device-accounts) runs only while the
+phone is serving its SFTP server (DeviceLink.md#serve): at any other time the phone is
+unreachable by design, not by fault, so the item is skipped silently rather than reported as
+unreachable on every tick. While the phone serves, the item ignores its pause - the phone
+decides when a pass happens, and it asked for one. After each such item the link is told
+(DeviceLink::item_passed), so that it can report progress and send the phone its "done".
+
+## device-filter
+
+A run created for one device (DeviceLink.md#serve, when no other run is active) passes that
+device's items only: the phone is waiting with its server open, and a full pass over a slow
+backup disk would make it wait for nothing of its own.
+
+## finished
+
+Set at the very end of operator()(): a run without a controller - the device pass - has no
+other way to tell its owner that the thread is done, and joining it would block the progress
+messages the link sends meanwhile.

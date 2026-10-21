@@ -1860,6 +1860,206 @@ msgstr ""
 msgid "title_ssh_connections"
 msgstr ""
 
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_failed"
+msgstr ""
+
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_not_saved"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_role_taken"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listen_failed"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listening"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_handshake_failed"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pairing_rejected"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_paired"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello_rejected"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_started"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_finished"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_incomplete"
+msgstr ""
+
+#: AFS_Core/src/Config.cpp
+msgid "device_entry_skipped"
+msgstr ""
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_connect_phone"
+msgstr ""
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_devices"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_connect_phone"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_devices"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_install"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_scan"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_waiting"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_done"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_link_unavailable"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_details"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_firewall_hint"
+msgstr ""
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_never_seen"
+msgstr ""
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_seen"
+msgstr ""
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "confirm_unpair_device"
+msgstr ""
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_unpair"
+msgstr ""
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "column_status"
+msgstr ""
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_name_empty"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_dir"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_phone"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_phone"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_folder"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_hint"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "no_devices_paired"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_templates"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_question"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_photos"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_folder"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_music"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_none"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_phone_folder"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder_missing"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_photos"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_folder"
+msgstr ""
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_music"
+msgstr ""
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_setup_sync"
+msgstr ""
+
 #: AFS_Desktop/include/TextResources.h:29
 msgid "title_select_ssh_connection"
 msgstr ""

@@ -110,7 +110,7 @@ SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspec
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if (getaddrinfo(account.host().c_str(), "22", &hints, &result) != 0) {
+    if (getaddrinfo(account.host().c_str(), std::to_string(account.port()).c_str(), &hints, &result) != 0) {
         throw SshUnreachable(translation::translate_utf8("host_name_not_resolvable") + account.host());
     }
 
@@ -142,7 +142,7 @@ SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspec
         throw std::runtime_error(translation::translate_utf8("ssh_handshake_failed"));
     }
 
-    if (!verify_ssh_host_key(my_ssh_session_, account.host())) {
+    if (!(account.host_key().empty() ? verify_ssh_host_key(my_ssh_session_, account.host(), account.port()) : verify_pinned_host_key(my_ssh_session_, account.host_key(), account.host()))) {
         cleanup();
         throw std::runtime_error(translation::translate_utf8("host_key_verification_failed"));
     }

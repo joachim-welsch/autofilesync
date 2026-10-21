@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <cstdint>
 #include <string>
 
 namespace AFS_Core {
@@ -26,16 +27,22 @@ class SshAccount {
     std::string user_;
     std::string host_;
     std::string password_;
+    uint16_t port_ = 22;
+    std::string host_key_;  // [SshAccount.md#host_key_]
 public:
     const std::string& name() const;
     const std::string& user() const;
     const std::string& host() const;
     const std::string& password() const;
+    uint16_t port() const { return port_; }
+    const std::string& host_key() const { return host_key_; }
 
     void set_name(const std::string& name);
     void set_user(const std::string& user);
     void set_host(const std::string& host);
     void set_password(const std::string& password);
+    void set_port(uint16_t port) { port_ = port; }
+    void set_host_key(const std::string& key) { host_key_ = key; }
 };
 
 } // namespace AFS_Core

@@ -67,6 +67,8 @@ set(TEST_SOURCES
     SettingsTest.cpp
     LoggingTest.cpp
     SshAccountsTest.cpp
+    PairDeviceTest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../AFS_Core/test/Integrationstests/FakePhone.cpp
     SshSyncTest.cpp
     WindowAndHelpTest.cpp
     ChatDialogTest.cpp
@@ -79,7 +81,7 @@ set(TEST_SOURCES
 add_executable(GuiTests ${TEST_SOURCES} ${AFS_DESKTOP_SOURCES})
 afs_desktop_configure_target(GuiTests)
 target_compile_definitions(GuiTests PRIVATE _GUITEST)
-target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../../AFS_Core/test/Integrationstests)  # FakePhone, the test phone of the integration tests
 target_link_libraries(GuiTests PRIVATE GTest::GTest)
 # Only libX11 and libXtst - ${X11_LIBRARIES} would also pull in libSM/libICE,
 # whose cached paths survive the removal of their -dev packages.

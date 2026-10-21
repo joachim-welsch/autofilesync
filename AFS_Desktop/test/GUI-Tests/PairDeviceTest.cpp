@@ -1,0 +1,196 @@
+/*
+ * Copyright (C) 2026 Joachim Welsch <https://welsch-software.com>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * This file is part of AFS_Desktop, the desktop program of AutoFileSync.
+ *
+ * AutoFileSync is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * AutoFileSync is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
+ */
+#include "GuiTest.h"
+#include "EventPump.h"
+#include "GuiTestSandbox.h"
+#include "ModalDialogWatcher.h"
+#include "UserActions.h"
+#include "Config.h"
+#include "DeviceLink.h"
+#include "DevicesDialog.h"
+#include "PhoneTemplatesDialog.h"
+#include "FakePhone.h"
+#include <wx/filepicker.h>
+#include "id.h"
+#include "TextResources.h"
+#include "Translation.h"
+#include "utilwx.h"
+#include <wx/listctrl.h>
+#include <wx/statbmp.h>
+
+using namespace AFS_Core;
+using utilwx::tul;
+
+namespace guitest {
+namespace {
+
+const std::string PHONE_ID = "fedcba9876543210fedcba9876543210";
+const wxString PHONE_NAME = "GUI-Test-Handy";
+
+template<class Control> Control* find_control(wxWindow& parent, const std::function<bool(Control&)>& wanted = [](Control&) { return true; })
+{
+    for (wxWindow* child : parent.GetChildren()) {
+        if (auto* control = dynamic_cast<Control*>(child); control && wanted(*control))
+            return control;
+        if (Control* found = find_control<Control>(*child, wanted))
+            return found;
+    }
+    return nullptr;
+}
+
+bool label_shown(wxWindow& dialog, const wxString& text)
+{
+    return find_control<wxStaticText>(dialog, [&](wxStaticText& label) { return label.IsShown() && label.GetLabel().Contains(text); }) != nullptr;
+}
+
+class PairDeviceTest : public GuiTest {  // [PairDeviceTest.md#PairDeviceTest]
+protected:
+    void TearDown() override
+    {
+        DeviceLink::instance().stop();
+        Config::instance().remove_device(PHONE_ID);
+        GuiTest::TearDown();
+    }
+};
+
+}
+
+TEST_F(PairDeviceTest, HandyVerbindenZeigtCodeUndNimmtKopplungAn)  // [PairDeviceTest.md#pairing]
+{
+    ModalDialogWatcher::instance().expect(txt::connect_phone(), [](wxDialog& dialog) {
+        DeviceLink& link = DeviceLink::instance();
+        ASSERT_TRUE(link.running()) << "Der Dialog muss die Verbindung für Handys öffnen.";
+        EXPECT_TRUE(link.pairing().open()) << "Mit dem Dialog muss ein Kopplungs-Token offen sein.";
+        wxStaticBitmap* code = find_control<wxStaticBitmap>(dialog);
+        ASSERT_NE(code, nullptr);
+        EXPECT_TRUE(code->IsShown());
+        EXPECT_GT(code->GetBitmap().GetWidth(), 100) << "Der QR-Code wurde nicht gezeichnet.";
+        EXPECT_TRUE(label_shown(dialog, translation::translate("pair_waiting")));
+        const tu::FakePhone phone(GuiTestSandbox::root() / "phone");
+        const auto reply = phone.send(link.port(), tu::FakePhone::pair_line(link.pairing().token(), PHONE_ID, std::string(PHONE_NAME.ToUTF8())));
+        EXPECT_EQ(reply.type(), "paired") << (reply.lines.empty() ? std::string("keine Antwort") : reply.lines[0]);
+        EXPECT_TRUE(wait_until([&] { return label_shown(dialog, PHONE_NAME); })) << "Der Dialog zeigt das verbundene Handy nicht an.";
+        EXPECT_FALSE(code->IsShown()) << "Nach der Kopplung hat der Code nichts mehr zu suchen.";
+        dialog.EndModal(wxID_CLOSE);
+    });
+    ModalDialogWatcher::instance().expect(txt::phone_templates(), [](wxDialog& dialog) { dialog.EndModal(wxID_CANCEL); });  // the second page follows a pairing
+
+    activate_menu_item(main_window(), tul(id::File_connect_phone));
+    pump();
+
+    const auto device = Config::instance().find_device(PHONE_ID);
+    ASSERT_TRUE(device.has_value()) << "Das Handy kam nicht in die Konfiguration.";
+    EXPECT_EQ(wxString::FromUTF8(device->name), PHONE_NAME);
+    EXPECT_FALSE(DeviceLink::instance().pairing().open()) << "Nach dem Dialog darf kein Token mehr offen sein.";
+    EXPECT_TRUE(DeviceLink::instance().running()) << "Mit einem verbundenen Handy bleibt die Verbindung offen.";
+}
+
+TEST_F(PairDeviceTest, DialogOhneHandySchliesstDieVerbindungWieder)  // [PairDeviceTest.md#no-port-without-phone]
+{
+    ModalDialogWatcher::instance().expect(txt::connect_phone(), [](wxDialog& dialog) {
+        EXPECT_TRUE(DeviceLink::instance().running());
+        dialog.EndModal(wxID_CLOSE);
+    });
+
+    activate_menu_item(main_window(), tul(id::File_connect_phone));
+    pump();
+
+    EXPECT_FALSE(DeviceLink::instance().running()) << "Ohne verbundenes Handy darf kein Port offen bleiben.";
+}
+
+TEST_F(PairDeviceTest, HandysDialogListetUndTrennt)  // [PairDeviceTest.md#unpair]
+{
+    Config::instance().add(Device{PHONE_ID, std::string(PHONE_NAME.ToUTF8()), std::string(64, 'a'), "ssh-ed25519 AAAA"});
+    ModalDialogWatcher::instance().expect(txt::devices(), [](wxDialog& dialog) {  // expectations are matched in order: the list dialog opens before the question
+        auto* list = dynamic_cast<wxListCtrl*>(find(dialog, ID_DEVICES_LIST));
+        ASSERT_NE(list, nullptr);
+        ASSERT_EQ(list->GetItemCount(), 1);
+        EXPECT_EQ(list->GetItemText(0), PHONE_NAME);
+        EXPECT_EQ(list->GetItemText(0, 1), translation::translate("device_never_seen"));
+        EXPECT_TRUE(click_on(*list, 0));
+        EXPECT_TRUE(click_when_enabled(find(dialog, ID_DEVICES_UNPAIR)));
+        EXPECT_TRUE(wait_until([] { return !Config::instance().find_device(PHONE_ID).has_value(); })) << "Das Handy wurde nicht getrennt.";
+        EXPECT_EQ(list->GetItemCount(), 0);
+        dialog.EndModal(wxID_CLOSE);
+    });
+    ModalDialogWatcher::instance().answer(translation::translate("confirm_delete_title"), wxID_YES);
+
+    activate_menu_item(main_window(), tul(id::EditDevices));
+    pump();
+
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Das Trennen muss nachfragen.";
+    EXPECT_TRUE(ModalDialogWatcher::instance().answered_messages().front().Contains(PHONE_NAME));
+    EXPECT_FALSE(Config::instance().find_device(PHONE_ID).has_value());
+}
+
+TEST_F(PairDeviceTest, VorlagenSetzenSichereOptionen)  // [PairDeviceTest.md#templates]
+{
+    const Device device{PHONE_ID, std::string(PHONE_NAME.ToUTF8()), std::string(64, 'a'), "ssh-ed25519 AAAA"};
+    const wxString pc = GuiTestSandbox::target_dir().string();
+
+    const auto photos = phone_template_item(PhoneTemplate::Photos, device, pc, "");
+    ASSERT_TRUE(photos.has_value());
+    EXPECT_EQ(photos->source(), wxString::FromUTF8(PHONE_ID) + ":/DCIM/Camera");
+    EXPECT_EQ(photos->target(), pc);
+    EXPECT_EQ(photos->sync_item_type(), SyncItemType::Tree);
+    EXPECT_FALSE(photos->delete_in_target()) << "Ein auf dem Handy gelöschtes Foto darf auf dem PC nicht verschwinden.";
+    EXPECT_FALSE(photos->two_way_sync());
+    EXPECT_FALSE(photos->warn_if_unreachable()) << "Ein abwesendes Handy ist der Normalfall.";
+
+    const auto folder = phone_template_item(PhoneTemplate::Folder, device, pc, "/Documents");
+    ASSERT_TRUE(folder.has_value());
+    EXPECT_TRUE(folder->two_way_sync());
+    EXPECT_TRUE(folder->conflict_copies());
+    EXPECT_TRUE(folder->track_moves());
+
+    const auto music = phone_template_item(PhoneTemplate::Music, device, pc, "");
+    ASSERT_TRUE(music.has_value());
+    EXPECT_EQ(music->source(), pc);
+    EXPECT_EQ(music->target(), wxString::FromUTF8(PHONE_ID) + ":/Music");
+    EXPECT_TRUE(music->delete_in_target()) << "Musik, die der PC nicht mehr hat, soll das Handy nicht füllen.";
+
+    EXPECT_FALSE(phone_template_item(PhoneTemplate::None, device, pc, "").has_value());
+    EXPECT_FALSE(phone_template_item(PhoneTemplate::Photos, device, "", "").has_value()) << "Ohne PC-Ordner gibt es keine Synchronisation.";
+}
+
+TEST_F(PairDeviceTest, HandysDialogRichtetSynchronisationEin)  // [PairDeviceTest.md#templates]
+{
+    Config::instance().add(Device{PHONE_ID, std::string(PHONE_NAME.ToUTF8()), std::string(64, 'a'), "ssh-ed25519 AAAA"});
+    const std::wstring expected_name = translation::translate("item_name_photos", {PHONE_NAME.ToStdWstring()});
+    ModalDialogWatcher::instance().expect(txt::devices(), [](wxDialog& dialog) {
+        EXPECT_TRUE(click_on(find(dialog, ID_DEVICES_SETUP)));
+        dialog.EndModal(wxID_CLOSE);
+    });
+    ModalDialogWatcher::instance().expect(txt::phone_templates(), [&](wxDialog& dialog) {
+        auto* pc_folder = dynamic_cast<wxDirPickerCtrl*>(find(dialog, ID_TEMPLATES_PC_FOLDER));
+        ASSERT_NE(pc_folder, nullptr);
+        pc_folder->SetPath(GuiTestSandbox::target_dir().string());
+        EXPECT_TRUE(click_on(find(dialog, wxID_OK)));
+    });
+
+    activate_menu_item(main_window(), tul(id::EditDevices));
+    pump();
+
+    const auto item = Config::instance().find_by_name(expected_name);
+    ASSERT_TRUE(item.has_value()) << "Die Vorlage hat keine Synchronisation angelegt.";
+    EXPECT_EQ(item->source(), wxString::FromUTF8(PHONE_ID) + ":/DCIM/Camera");
+    Config::instance().erase_by_name(expected_name);
+}
+
+}

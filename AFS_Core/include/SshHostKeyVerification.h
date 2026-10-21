@@ -32,9 +32,11 @@ namespace AFS_Core {
 
 #ifdef _UNIX
 bool verify_ssh_host_key(ssh_session session, const std::string& host);  // [SshHostKeyVerification.md#verify_ssh_host_key]
+bool verify_pinned_host_key(ssh_session session, const std::string& expected_line, const std::string& host);  // [SshHostKeyVerification.md#verify_pinned_host_key]
 #else
     #ifdef _WIN32
 bool verify_ssh_host_key(LIBSSH2_SESSION* session, const std::string& host, unsigned short port = 22);
+bool verify_pinned_host_key(LIBSSH2_SESSION* session, const std::string& expected_line, const std::string& host);  // [SshHostKeyVerification.md#verify_pinned_host_key]
     #endif
 #endif
 

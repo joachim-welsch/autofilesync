@@ -1881,6 +1881,206 @@ msgstr "Редагувати з'єднання SSH"
 msgid "title_ssh_connections"
 msgstr "З'єднання SSH"
 
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_failed"
+msgstr "Не вдалося створити ідентичність пристрою для з'єднання з телефоном: "
+
+#: AFS_Core/src/DeviceIdentity.cpp
+msgid "device_identity_not_saved"
+msgstr "Не вдалося зберегти ідентичність пристрою; після наступного запуску телефони доведеться під'єднати знову: "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_role_taken"
+msgstr "Інша програма AutoFileSync вже приймає телефони; ця не слухає."
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listen_failed"
+msgstr "Не вдалося відкрити з'єднання для телефонів, порт "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_listening"
+msgstr "З'єднання для телефонів відкрито на порту %1"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_link_handshake_failed"
+msgstr "Помилка TLS-рукостискання: "
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pairing_rejected"
+msgstr "Прив'язку з %1 відхилено: %2"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_paired"
+msgstr "Телефон «%1» під'єднано (%2)"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello_rejected"
+msgstr "Невідомий телефон з %1 відхилено"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_hello"
+msgstr "Телефон «%1» вийшов на зв'язок (%2)"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_started"
+msgstr "Прохід для телефону «%1» розпочато, записів: %2"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_finished"
+msgstr "Прохід для телефону «%1» завершено, помилок: %2"
+
+#: AFS_Core/src/DeviceLink.cpp
+msgid "device_pass_incomplete"
+msgstr "Прохід для телефону «%1» не завершено, помилок: %2"
+
+#: AFS_Core/src/Config.cpp
+msgid "device_entry_skipped"
+msgstr "Запис телефону в конфігурації пропущено: "
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_connect_phone"
+msgstr "Під'єднати телефон…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_devices"
+msgstr "Телефони…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_connect_phone"
+msgstr "Під'єднати телефон"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_devices"
+msgstr "Під'єднані телефони"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_install"
+msgstr "1. Установіть AutoFileSync на телефон – код веде туди."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_step_scan"
+msgstr "2. Відскануйте код застосунком або камерою."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_waiting"
+msgstr "Очікування телефону…"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_done"
+msgstr "%1 під'єднано ✓"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_link_unavailable"
+msgstr "Зараз з'єднання запропонувати неможливо: інша програма AutoFileSync приймає телефони або порт зайнятий."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_details"
+msgstr "ПК %1 · %2 · порт %3"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_firewall_hint"
+msgstr "Нічого не надходить? Можливо, брандмауер блокує порт %1."
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_never_seen"
+msgstr "ще не виходив на зв'язок"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_seen"
+msgstr "востаннє %1 з %2"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "confirm_unpair_device"
+msgstr "Від'єднати «%1»? Після цього телефон доведеться під'єднати знову."
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_unpair"
+msgstr "Від'єднати"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "column_status"
+msgstr "Стан"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "device_name_empty"
+msgstr "Назва не може бути порожньою."
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_dir"
+msgstr "Тека на телефоні"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_phone"
+msgstr "Телефон…"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_phone"
+msgstr "Телефон"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_folder"
+msgstr "Тека"
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "phone_dir_hint"
+msgstr "У списку звичайні теки; іншу можна ввести. Синхронізація відбувається, коли телефон виходить на зв'язок: торкніться «Синхронізувати зараз» у застосунку."
+
+#: AFS_Desktop/src/PhoneDirDialog.cpp
+msgid "no_devices_paired"
+msgstr "Телефон ще не під'єднано. Спершу під'єднайте його через Файл → Під'єднати телефон…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_phone_templates"
+msgstr "Синхронізація з телефоном"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_question"
+msgstr "Що робити з «%1»?"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_photos"
+msgstr "Зберігати фото й відео на ПК"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_folder"
+msgstr "Тримати теку однаковою на обох пристроях"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_music"
+msgstr "Музика з ПК на телефон"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_none"
+msgstr "Налаштувати пізніше"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder"
+msgstr "Тека на ПК"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_phone_folder"
+msgstr "Тека на телефоні"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "template_pc_folder_missing"
+msgstr "Виберіть теку на ПК."
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_photos"
+msgstr "Фото з %1"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_folder"
+msgstr "Тека з %1"
+
+#: AFS_Desktop/src/PhoneTemplatesDialog.cpp
+msgid "item_name_music"
+msgstr "Музика на %1"
+
+#: AFS_Desktop/src/DevicesDialog.cpp
+msgid "button_setup_sync"
+msgstr "Налаштувати синхронізацію…"
+
 #: AFS_Desktop/include/TextResources.h:29
 msgid "title_select_ssh_connection"
 msgstr "Вибрати з'єднання SSH"

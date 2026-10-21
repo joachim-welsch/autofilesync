@@ -92,3 +92,16 @@ Renames or moves a file on the server, within the one account both paths name, f
 other side renamed (SyncFile.md#renames). The new path's directory has to exist; the caller
 creates it (ssh_mkdir_p). SFTP's rename refuses an existing destination on most servers, and
 a rename is only attempted where the comparison found none, so that is never relied upon.
+
+## pipelined-requests
+
+One SFTP request per 64 KiB block, each waiting for its answer, made a copy over WLAN crawl at
+about 1 MiB/s against a phone whose round trip is 20-50 ms (ANDROID-CONCEPT.md section 13).
+libssh 0.11's sftp_aio_* calls let several requests travel at once: ReadPipeline keeps
+REQUESTS_IN_FLIGHT reads outstanding and hands the blocks back in order, WritePipeline sends
+blocks ahead and collects the answers, at the end or when the window is full. Sixteen requests
+of 64 KiB are a megabyte in flight, enough for a home network and small enough for the
+server's window. A write request may be shortened by the server's limit; the remainder goes as
+a request of its own, with its data kept alive until its answer arrives. Order is preserved on
+both sides, so a stop between two blocks leaves the file as a sequential copy would have. The
+libssh2 branch (Windows) still sends one request at a time.

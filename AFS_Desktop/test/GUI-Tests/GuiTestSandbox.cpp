@@ -18,6 +18,7 @@
  */
 #include "GuiTestSandbox.h"
 #include "SyncArbiter.h"
+#include "DeviceLink.h"
 #include <wx/config.h>
 #include <wx/fileconf.h>
 #include <cstdlib>
@@ -107,6 +108,7 @@ void GuiTestSandbox::create()
     redirect_user_directories();
     isolate_input_method();
     AFS_Core::SyncArbiter::use_private_scope();  // [GuiTestSandbox.md#use_private_scope]
+    AFS_Core::DeviceLink::use_private_scope();  // same reason: the device link must not take the user program's role
     write_file(config_file(), minimal_config());
     write_file(source_dir() / "beispiel.txt", "Inhalt der Quelldatei\n");
     fs::create_directories(target_dir());

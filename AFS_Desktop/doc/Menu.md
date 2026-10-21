@@ -25,3 +25,9 @@ ask for confirmation carry an ellipsis in the catalogue text; the toolbar strips
 Which of the two commands is available already tells whether the service runs, but only once it
 is installed at all. The permanently disabled first entry says so outright and also covers the
 not installed case.
+
+## phone-entries
+
+"Handy verbinden…" stands in the File menu next to "Neue SSH-Verbindung…": pairing a phone
+is, for the user, adding a place to synchronise with, and that is where new places are added.
+The paired phones are listed under Edit next to the SSH connections for the same reason.

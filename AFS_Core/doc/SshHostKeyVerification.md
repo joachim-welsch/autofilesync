@@ -12,3 +12,12 @@ attacks. Call once right after the SSH handshake, before authenticating.
 
 Maps libssh2's hostkey type to the matching LIBSSH2_KNOWNHOST_KEY_* flag so
 libssh2_knownhost_checkp compares against the right key type.
+
+## verify_pinned_host_key
+
+For an account whose expected key is known in advance - a phone sends its SFTP host key when
+it pairs (DeviceLink.md#pair) - the known_hosts store is the wrong tool: it files keys under
+addresses, and a phone's address changes with every lease. The presented key is compared
+with the stored OpenSSH line (type and base64 blob; a comment after the blob is ignored), and a
+mismatch is reported like a changed key. On Windows libssh2 hands over the raw blob, whose
+base64 form is the second token of the stored line, so no type mapping is needed there.

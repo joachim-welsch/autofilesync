@@ -28,6 +28,7 @@
 #include <fstream>
 #include <optional>
 #include <cstring>
+#include <deque>
 #include <memory>
 #include <vector>
 #include <fcntl.h>
@@ -125,11 +126,16 @@ namespace {
 
     static WinsockInit winsock_init;
 
-    bool resolve_host(const std::string& host, sockaddr_in& sin)  // [SyncFileSsh.md#resolve_host]
+    bool verify_host_key(LIBSSH2_SESSION* session, const SshAccount& account)  // [SshHostKeyVerification.md#verify_pinned_host_key]
+    {
+        return account.host_key().empty() ? verify_ssh_host_key(session, account.host(), account.port()) : verify_pinned_host_key(session, account.host_key(), account.host());
+    }
+
+    bool resolve_host(const std::string& host, uint16_t port, sockaddr_in& sin)  // [SyncFileSsh.md#resolve_host]
     {
         sin = {};
         sin.sin_family = AF_INET;
-        sin.sin_port = htons(22);
+        sin.sin_port = htons(port);
 #ifdef _WIN32
         int pton_result = inet_pton(AF_INET, host.c_str(), &sin.sin_addr);
         if (pton_result == 1) {
@@ -146,7 +152,7 @@ namespace {
         hints.ai_socktype = SOCK_STREAM;
 
         addrinfo* result = nullptr;
-        int rc = getaddrinfo(host.c_str(), "22", &hints, &result);
+        int rc = getaddrinfo(host.c_str(), std::to_string(port).c_str(), &hints, &result);
         if (rc != 0 || result == nullptr) {
             return false;
         }
@@ -226,12 +232,97 @@ namespace {
         return true;
     }
 
+    constexpr size_t REQUESTS_IN_FLIGHT = 16;  // [SyncFileSsh.md#pipelined-requests]
+
+    class ReadPipeline {  // [SyncFileSsh.md#pipelined-requests]
+        sftp_file file_;
+        std::deque<sftp_aio> pending_;
+        bool eof_ = false;
+        bool fill()
+        {
+            while (!eof_ && pending_.size() < REQUESTS_IN_FLIGHT) {
+                sftp_aio aio = nullptr;
+                if (sftp_aio_begin_read(file_, SFTP_BUFFER_SIZE, &aio) < 0)
+                    return false;
+                pending_.push_back(aio);
+            }
+            return true;
+        }
+    public:
+        explicit ReadPipeline(sftp_file file): file_(file) {}
+        ~ReadPipeline()
+        {
+            for (sftp_aio aio : pending_)
+                sftp_aio_free(aio);
+        }
+        ReadPipeline(const ReadPipeline&) = delete;
+        ReadPipeline& operator=(const ReadPipeline&) = delete;
+        ssize_t next(std::vector<char>& buffer)  // bytes of the next block in order, 0 at the end, negative on error
+        {
+            if (!fill())
+                return -1;
+            if (pending_.empty())
+                return 0;
+            const ssize_t n = sftp_aio_wait_read(&pending_.front(), buffer.data(), buffer.size());
+            pending_.pop_front();
+            eof_ = eof_ || n == 0;
+            return n;
+        }
+    };
+
+    class WritePipeline {  // [SyncFileSsh.md#pipelined-requests]
+        sftp_file file_;
+        std::deque<sftp_aio> pending_;
+        std::deque<std::vector<char>> blocks_;  // the data of a request must stay until its answer arrived
+        bool drain_one()
+        {
+            const ssize_t n = sftp_aio_wait_write(&pending_.front());
+            pending_.pop_front();
+            blocks_.pop_front();
+            return n >= 0;
+        }
+    public:
+        explicit WritePipeline(sftp_file file): file_(file) {}
+        ~WritePipeline()
+        {
+            for (sftp_aio aio : pending_)
+                sftp_aio_free(aio);
+        }
+        WritePipeline(const WritePipeline&) = delete;
+        WritePipeline& operator=(const WritePipeline&) = delete;
+        bool write(std::vector<char> block)
+        {
+            if (pending_.size() >= REQUESTS_IN_FLIGHT && !drain_one())
+                return false;
+            blocks_.push_back(std::move(block));
+            for (size_t done = 0; done < blocks_.back().size();) {  // [SyncFileSsh.md#short-write]
+                sftp_aio aio = nullptr;
+                const ssize_t n = sftp_aio_begin_write(file_, blocks_.back().data() + done, blocks_.back().size() - done, &aio);
+                if (n < 0)
+                    return false;
+                pending_.push_back(aio);
+                done += static_cast<size_t>(n);
+                if (done < blocks_.back().size())
+                    blocks_.push_back(blocks_.back());  // keep one block per request alive
+            }
+            return true;
+        }
+        bool finish()
+        {
+            while (!pending_.empty())
+                if (!drain_one())
+                    return false;
+            return true;
+        }
+    };
+
     CopyResult download(sftp_file remote_file, std::ofstream& local_file)
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
+        ReadPipeline reads(remote_file);
         ssize_t bytes_read;
         uint64_t copied = 0;
-        while ((bytes_read = sftp_read(remote_file, buffer.data(), buffer.size())) > 0) {
+        while ((bytes_read = reads.next(buffer)) > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
             if (!local_file.write(buffer.data(), bytes_read))
@@ -244,30 +335,37 @@ namespace {
     CopyResult upload(std::ifstream& local_file, sftp_file remote_file)
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
+        WritePipeline writes(remote_file);
         uint64_t copied = 0;
         while (local_file.read(buffer.data(), buffer.size()) || local_file.gcount() > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
-            if (!sftp_write_all(remote_file, buffer.data(), static_cast<size_t>(local_file.gcount())))
+            if (!writes.write(std::vector<char>(buffer.begin(), buffer.begin() + local_file.gcount())))
                 return copy_failed(translation::translate("remote_file_write_error"));
             Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(local_file.gcount()));
         }
-        return local_file.bad() ? copy_failed(translation::translate("local_file_read_error")) : CopyResult::OK;
+        if (local_file.bad())
+            return copy_failed(translation::translate("local_file_read_error"));
+        return writes.finish() ? CopyResult::OK : copy_failed(translation::translate("remote_file_write_error"));
     }
 
     CopyResult transfer(sftp_file src_file, sftp_file dest_file)
     {
         std::vector<char> buffer(SFTP_BUFFER_SIZE);
+        ReadPipeline reads(src_file);
+        WritePipeline writes(dest_file);
         ssize_t bytes_read;
         uint64_t copied = 0;
-        while ((bytes_read = sftp_read(src_file, buffer.data(), buffer.size())) > 0) {
+        while ((bytes_read = reads.next(buffer)) > 0) {
             if (Synchronize::stopping())
                 return CopyResult::Stopped;
-            if (!sftp_write_all(dest_file, buffer.data(), static_cast<size_t>(bytes_read)))
+            if (!writes.write(std::vector<char>(buffer.begin(), buffer.begin() + bytes_read)))
                 return copy_failed(translation::translate("target_file_write_error"));
             Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(bytes_read));
         }
-        return bytes_read < 0 ? copy_failed(translation::translate("source_file_read_error")) : CopyResult::OK;
+        if (bytes_read < 0)
+            return copy_failed(translation::translate("source_file_read_error"));
+        return writes.finish() ? CopyResult::OK : copy_failed(translation::translate("target_file_write_error"));
     }
 
     constexpr uint32_t PERMISSION_BITS = 0777;  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
@@ -516,7 +614,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     }
 
     sockaddr_in sin{};
-    if (!resolve_host(account.host(), sin)) {
+    if (!resolve_host(account.host(), account.port(), sin)) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return CopyResult::Error;
@@ -543,7 +641,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    if (!verify_ssh_host_key(session, account.host())) {
+    if (!verify_host_key(session, account)) {
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -658,7 +756,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     }
 
     sockaddr_in src_sin{};
-    if (!resolve_host(src_account.host(), src_sin)) {
+    if (!resolve_host(src_account.host(), src_account.port(), src_sin)) {
         log_warning(translation::translate("source_host_name_resolve_error") + string_to_wstring(src_account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(src_sock);
         return CopyResult::Error;
@@ -685,7 +783,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    if (!verify_ssh_host_key(src_session, src_account.host())) {
+    if (!verify_host_key(src_session, src_account)) {
         libssh2_session_disconnect(src_session, "Normal Shutdown");
         libssh2_session_free(src_session);
         closesocket(src_sock);
@@ -720,7 +818,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     }
 
     sockaddr_in dest_sin{};
-    if (!resolve_host(dest_account.host(), dest_sin)) {
+    if (!resolve_host(dest_account.host(), dest_account.port(), dest_sin)) {
         log_warning(translation::translate("target_host_name_resolve_error") + string_to_wstring(dest_account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
@@ -763,7 +861,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    if (!verify_ssh_host_key(dest_session, dest_account.host())) {
+    if (!verify_host_key(dest_session, dest_account)) {
         libssh2_session_disconnect(dest_session, "Normal Shutdown");
         libssh2_session_free(dest_session);
         closesocket(dest_sock);
@@ -901,7 +999,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     }
 
     sockaddr_in sin{};
-    if (!resolve_host(account.host(), sin)) {
+    if (!resolve_host(account.host(), account.port(), sin)) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return CopyResult::Error;
@@ -928,7 +1026,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    if (!verify_ssh_host_key(session, account.host())) {
+    if (!verify_host_key(session, account)) {
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1019,7 +1117,7 @@ bool ssh_exists(const std::wstring& path)
     }
 
     sockaddr_in sin{};
-    if (!resolve_host(account.host(), sin)) {
+    if (!resolve_host(account.host(), account.port(), sin)) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
@@ -1046,7 +1144,7 @@ bool ssh_exists(const std::wstring& path)
         return false;
     }
 
-    if (!verify_ssh_host_key(session, account.host())) {
+    if (!verify_host_key(session, account)) {
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1105,7 +1203,7 @@ bool ssh_is_directory(const std::wstring& path)
     }
 
     sockaddr_in sin{};
-    if (!resolve_host(account.host(), sin)) {
+    if (!resolve_host(account.host(), account.port(), sin)) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
@@ -1132,7 +1230,7 @@ bool ssh_is_directory(const std::wstring& path)
         return false;
     }
 
-    if (!verify_ssh_host_key(session, account.host())) {
+    if (!verify_host_key(session, account)) {
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1187,7 +1285,7 @@ bool ssh_mkdir(const std::wstring& path)
     }
 
     sockaddr_in sin{};
-    if (!resolve_host(account.host(), sin)) {
+    if (!resolve_host(account.host(), account.port(), sin)) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
@@ -1214,7 +1312,7 @@ bool ssh_mkdir(const std::wstring& path)
         return false;
     }
 
-    if (!verify_ssh_host_key(session, account.host())) {
+    if (!verify_host_key(session, account)) {
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1270,7 +1368,7 @@ static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBS
     }
 
     sockaddr_in sin{};
-    if (!resolve_host(account.host(), sin)) {
+    if (!resolve_host(account.host(), account.port(), sin)) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return false;
@@ -1297,7 +1395,7 @@ static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBS
         return false;
     }
 
-    if (!verify_ssh_host_key(session, account.host())) {
+    if (!verify_host_key(session, account)) {
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);
@@ -1373,7 +1471,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     }
 
     sockaddr_in sin{};
-    if (!resolve_host(account.host(), sin)) {
+    if (!resolve_host(account.host(), account.port(), sin)) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         closesocket(sock);
         return entries;
@@ -1400,7 +1498,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         return entries;
     }
 
-    if (!verify_ssh_host_key(session, account.host())) {
+    if (!verify_host_key(session, account)) {
         libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
         closesocket(sock);

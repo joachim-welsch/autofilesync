@@ -16,7 +16,17 @@ ausgeliefert. Die Lizenzen sind mit der GPL von AutoFileSync verträglich
 | GNU gettext (libintl) | Übersetzungen | LGPL 2.1 | `gettext-libintl-LGPL-2.1.txt` |
 | GNU libiconv | Zeichensatzumwandlung für gettext | LGPL 2.1 | `libiconv-LICENSE.txt` |
 | llama.cpp / ggml | Chat-Assistent (lokales Sprachmodell) | MIT | `llama.cpp-LICENSE.txt`, `ggml-LICENSE.txt` |
+| qrcodegen (Project Nayuki) | QR-Code im Dialog „Handy verbinden“, Quelltext in `third-party/qrcodegen/` | MIT | `qrcodegen-LICENSE.txt` |
 | Google Test | nur Tests, nicht ausgeliefert | BSD-3-Clause | – |
+
+## Android-App (`AFS_Android/`)
+
+| Komponente | Verwendung | Lizenz |
+|---|---|---|
+| AndroidX (Compose, CameraX, Activity, Lifecycle, Core) | Oberfläche, Kamera | Apache License 2.0 |
+| ZXing core | QR-Code erkennen | Apache License 2.0 |
+| Kotlin, kotlinx.coroutines | Sprache, Nebenläufigkeit | Apache License 2.0 |
+| Apache MINA SSHD (nur Prototyp `spike/`, später die App) | SFTP-Server auf dem Handy | Apache License 2.0 |
 
 ## Grafiken
 

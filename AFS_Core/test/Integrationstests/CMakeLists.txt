@@ -49,6 +49,8 @@ set(SOURCES
     CopyLogTests.cpp
     FileDeleteTests.cpp
     PasswordCryptoTests.cpp
+    FakePhone.cpp
+    DeviceTests.cpp
     StrUtilTests.cpp
     TranslationTests.cpp
     JsonTextTests.cpp

@@ -2,6 +2,21 @@
 
 ## 0.4.0 – in Arbeit
 
+- Handys lassen sich mit AutoFileSync verbinden: „Datei → Handy verbinden…“
+  zeigt einen QR-Code, die Android-App scannt ihn, und das Handy erscheint
+  unter „Bearbeiten → Handys…“. PC und Handy prüfen sich danach gegenseitig
+  über Zertifikate; der Code ist zehn Minuten und nur einmal gültig. Die App
+  (`AFS_Android/`) zeigt vorerst nur den Stand der Verbindung; Synchronisationen
+  mit dem Handy folgen in einer späteren Version (`doc/ANDROID-CONCEPT.md`).
+- Synchronisation mit dem Handy: Ein verbundenes Handy steht im Dialog einer
+  Synchronisation als Ort zur Wahl („Handy…“, mit den üblichen Ordnern wie
+  DCIM/Camera), und nach dem Verbinden bietet eine Seite Vorlagen an: Fotos
+  auf dem PC sichern, einen Ordner gleich halten, Musik aufs Handy. Der
+  Durchlauf läuft, wenn die App sich meldet („Jetzt synchronisieren“); sie
+  öffnet dafür kurz einen Dateiserver mit Einmalpasswort, dessen Schlüssel
+  beim Verbinden festgelegt wurde. SSH-Verbindungen kennen jetzt einen Port
+  (`port` in der Konfiguration, Standard 22). Übertragungen über SSH schicken
+  mehrere Anfragen gleichzeitig und sind im WLAN um ein Vielfaches schneller.
 - Zwei-Wege-Synchronisation merkt sich nach jedem Durchlauf den Stand beider
   Seiten (Abgleichszustand, eine Datei je Synchronisation im Unterordner
   `state` neben der Konfiguration, gemeinsam für Programm und

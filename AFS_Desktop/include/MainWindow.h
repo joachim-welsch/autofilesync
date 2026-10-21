@@ -118,6 +118,8 @@ private:
     void on_update_sync_item_selected(wxUpdateUIEvent& event);  // [MainWindow.md#on_update_sync_item_selected]
     void on_update_file_save(wxUpdateUIEvent& event);  // [MainWindow.md#autosave]
     void on_edit_ssh_accounts(wxCommandEvent& event);
+    void on_connect_phone(wxCommandEvent& event);  // [MainWindow.md#phones]
+    void on_edit_devices(wxCommandEvent& event);
     void on_edit_settings(wxCommandEvent& event);
     void on_edit_logging(wxCommandEvent& event);
     void on_delete_sync(wxCommandEvent&);

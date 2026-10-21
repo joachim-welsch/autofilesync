@@ -46,7 +46,7 @@
            to /MD, and linking mixes the two, leaving wx's internal debug-heap calls
            (_CrtDbgReport, _calloc_dbg) unresolved. -->
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\third-party;..\..\..\AFS_Core\test\Integrationstests;packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -63,7 +63,7 @@
       <PreprocessorDefinitions>_GUITEST;wxUSE_HELP;_WXWIDGETS;WIN32;X64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\third-party;..\..\..\AFS_Core\test\Integrationstests;packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
@@ -115,6 +115,10 @@
     <ClInclude Include="..\..\..\AFS_Core\include\ConfigSummary.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\MountedDrives.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\PasswordCrypto.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\Device.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\DeviceIdentity.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\DeviceLink.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\DevicePairing.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\pch.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\RecycleBin.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Settings.h" />
@@ -164,6 +168,11 @@
     <ClInclude Include="..\..\include\SplitterWindow.h" />
     <ClInclude Include="..\..\include\SshAccountDialog.h" />
     <ClInclude Include="..\..\include\SshAccountsDialog.h" />
+    <ClInclude Include="..\..\include\DevicesDialog.h" />
+    <ClInclude Include="..\..\include\PairDeviceDialog.h" />
+    <ClInclude Include="..\..\include\PhoneDirDialog.h" />
+    <ClInclude Include="..\..\include\PhoneTemplatesDialog.h" />
+    <ClInclude Include="..\..\include\QrCode.h" />
     <ClInclude Include="..\..\include\SshAccountSelectDialog.h" />
     <ClInclude Include="..\..\include\SshDirDialog.h" />
     <ClInclude Include="..\..\include\SyncInterface.h" />
@@ -214,6 +223,7 @@
     <ClCompile Include="SettingsTest.cpp" />
     <ClCompile Include="LoggingTest.cpp" />
     <ClCompile Include="SshAccountsTest.cpp" />
+    <ClCompile Include="PairDeviceTest.cpp" />
     <ClCompile Include="SshSyncTest.cpp" />
     <ClCompile Include="WindowAndHelpTest.cpp" />
     <ClCompile Include="ChatDialogTest.cpp" />
@@ -236,6 +246,10 @@
     <ClCompile Include="..\..\..\AFS_Core\src\HelpKnowledge.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\JsonText.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\Device.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\DeviceIdentity.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\DeviceLink.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\DevicePairing.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\FileDifference.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Global.cpp" />
     <ClCompile Include="..\..\src\GridCtrl.cpp" />
@@ -257,6 +271,13 @@
     <ClCompile Include="..\..\src\SshAccountDialog.cpp" />
     <ClCompile Include="..\..\src\SshAccountSelectDialog.cpp" />
     <ClCompile Include="..\..\src\SshAccountsDialog.cpp" />
+    <ClCompile Include="..\..\src\DevicesDialog.cpp" />
+    <ClCompile Include="..\..\src\PairDeviceDialog.cpp" />
+    <ClCompile Include="..\..\src\PhoneDirDialog.cpp" />
+    <ClCompile Include="..\..\src\PhoneTemplatesDialog.cpp" />
+    <ClCompile Include="..\..\src\QrCode.cpp" />
+    <ClCompile Include="..\..\..\third-party\qrcodegen\qrcodegen.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\test\Integrationstests\FakePhone.cpp" />
     <ClCompile Include="..\..\src\SshDirDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SshDirInspector.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SshFileInspector.cpp" />

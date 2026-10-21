@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include <algorithm>
 #include "SyncState.h"
 #include "JsonText.h"
 #include "Util.h"
@@ -189,8 +190,12 @@ void Config::reset()
         std::lock_guard<std::mutex> lock(syncitems_mutex_);
         syncitems_.clear();
     }
-    std::lock_guard<std::mutex> lock(ssh_accounts_mutex_);
-    ssh_accounts_.clear();
+    {
+        std::lock_guard<std::mutex> lock(ssh_accounts_mutex_);
+        ssh_accounts_.clear();
+    }
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    devices_.clear();
 }
 
 wstring getline(std::wfstream& in)
@@ -416,6 +421,7 @@ bool Config::read_ssh_accounts(boost::property_tree::wptree& root)
             account.set_name(util::wstring_to_string(iter->second.get<wstring>(L"name")));
             account.set_host(util::wstring_to_string(iter->second.get<wstring>(L"host")));
             account.set_user(util::wstring_to_string(iter->second.get<wstring>(L"user")));
+            account.set_port(static_cast<uint16_t>(iter->second.get<int>(L"port", 22)));  // [Config.md#ssh-port]
             const std::string stored_password = util::wstring_to_string(iter->second.get<wstring>(L"password"));
             if (!passwordcrypto::is_encrypted(stored_password)) {
                 account.set_password(stored_password); // genuine legacy plaintext, predates encryption
@@ -443,6 +449,7 @@ bool Config::interpret_json(boost::property_tree::wptree&& root)
     read_settings(root);
     read_logging_setup(root);
     read_ssh_accounts(root);
+    read_devices(root);
     auto syncitems = root.get_child_optional(L"Syncitems");
     if (syncitems == boost::none)
         return true;
@@ -486,6 +493,7 @@ void Config::write_ssh_accounts(boost::property_tree::wptree& root)
         account_node.put(wstring(L"name"), string_to_wstring(account.name()));
         account_node.put(wstring(L"host"), string_to_wstring(account.host()));
         account_node.put(wstring(L"user"), string_to_wstring(account.user()));
+        account_node.put(wstring(L"port"), std::to_wstring(account.port()));
         account_node.put(wstring(L"password"), string_to_wstring(passwordcrypto::encrypt(account.password(), password_key_file_path())));
         ssh_accounts_node.push_back(make_pair(wstring(L"SshAccount"), account_node));
     }
@@ -581,6 +589,7 @@ bool Config::write(const std::wstring& pathname)
     write_settings(root);
     write_logging_setup(root);
     write_ssh_accounts(root);
+    write_devices(root);
     write_sync_items(root);
     std::error_code ec;
     std::filesystem::create_directories(std::filesystem::path(pathname).parent_path(), ec);
@@ -644,12 +653,13 @@ void Config::add(const SshAccount& account, bool loading)
 
 std::optional<SshAccount> Config::find_ssh_account_by_name(const std::string& name) const
 {
-    std::lock_guard<std::mutex> lock(ssh_accounts_mutex_);
-    for (const auto& acc : ssh_accounts_) {
-        if (acc.name() == name)
-            return acc;
+    {
+        std::lock_guard<std::mutex> lock(ssh_accounts_mutex_);
+        for (const auto& acc : ssh_accounts_)
+            if (acc.name() == name)
+                return acc;
     }
-    return std::nullopt;
+    return device_account(name);  // [Config.md#device-accounts]
 }
 
 std::optional<SshAccount> Config::ssh_account_at(std::size_t index) const
@@ -684,6 +694,116 @@ bool Config::update_ssh_account(std::size_t index, const SshAccount& updated)
     ssh_accounts_[index] = updated;
     changed_ = true;
     return true;
+}
+
+bool Config::read_devices(boost::property_tree::wptree& root)  // [Config.md#devices]
+{
+    const auto devices_node = root.get_child_optional(L"Devices");
+    if (devices_node == boost::none)
+        return true;
+    bool all_ok = true;
+    for (const auto& [key, node] : devices_node.value()) {
+        try {  // [Config.md#per-account-error-handling]
+            Device device;
+            device.id = util::wstring_to_string(node.get<wstring>(L"id"));
+            device.name = util::wstring_to_string(node.get<wstring>(L"name"));
+            device.cert_fingerprint = util::wstring_to_string(node.get<wstring>(L"certFingerprint"));
+            device.ssh_host_key = util::wstring_to_string(node.get<wstring>(L"sshHostKey", L""));
+            if (!valid_device_id(device.id))
+                throw std::runtime_error("invalid device id");
+            add(device, true);
+        }
+        catch (std::exception& ex) {
+            log_error(translation::translate_utf8("device_entry_skipped"), ex.what());
+            all_ok = false;
+        }
+    }
+    return all_ok;
+}
+
+void Config::write_devices(boost::property_tree::wptree& root)
+{
+    pt::wptree devices_node;
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    for (const auto& device : devices_) {
+        pt::wptree node;
+        node.put(wstring(L"id"), string_to_wstring(device.id));
+        node.put(wstring(L"name"), string_to_wstring(device.name));
+        node.put(wstring(L"certFingerprint"), string_to_wstring(device.cert_fingerprint));
+        node.put(wstring(L"sshHostKey"), string_to_wstring(device.ssh_host_key));
+        devices_node.push_back(make_pair(wstring(L"Device"), node));
+    }
+    root.push_back(make_pair(wstring(L"Devices"), devices_node));
+}
+
+void Config::add(const Device& device, bool loading)
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    devices_.push_back(device);
+    if (!loading)
+        changed_ = true;
+}
+
+std::optional<Device> Config::find_device(const std::string& id) const
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    const auto found = std::ranges::find(devices_, id, &Device::id);
+    return found == devices_.end() ? std::nullopt : std::optional<Device>(*found);
+}
+
+Devices Config::devices_snapshot() const
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    return devices_;
+}
+
+bool Config::update_device(const Device& updated)
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    const auto found = std::ranges::find(devices_, updated.id, &Device::id);
+    if (found == devices_.end())
+        return false;
+    *found = updated;
+    changed_ = true;
+    return true;
+}
+
+bool Config::remove_device(const std::string& id)
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    const auto found = std::ranges::find(devices_, id, &Device::id);
+    if (found == devices_.end())
+        return false;
+    devices_.erase(found);
+    changed_ = true;
+    return true;
+}
+
+void Config::set_device_account(const SshAccount& account)  // [Config.md#device-accounts]
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    device_accounts_[account.name()] = account;
+}
+
+void Config::clear_device_account(const std::string& id)
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    device_accounts_.erase(id);
+}
+
+std::optional<SshAccount> Config::device_account(const std::string& id) const
+{
+    std::lock_guard<std::mutex> lock(devices_mutex_);
+    const auto live = device_accounts_.find(id);
+    if (live != device_accounts_.end())
+        return live->second;
+    const auto device = std::ranges::find(devices_, id, &Device::id);
+    if (device == devices_.end())
+        return std::nullopt;
+    SshAccount placeholder;  // [Config.md#device-placeholder]
+    placeholder.set_name(device->id);
+    placeholder.set_host_key(device->ssh_host_key);
+    return placeholder;
 }
 
 void Config::set(unsigned i, const SyncItem& si)
