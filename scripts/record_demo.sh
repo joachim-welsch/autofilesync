@@ -5,7 +5,7 @@
 # Recordly-Format. Das Video laesst sich in Recordly importieren; Cursor,
 # Auto-Zoom und Rahmen kommen dort hinzu.
 #
-#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en|fr|es|it|pl] [Optionen fuer afs_demo]
+#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en|fr|es|it|pl|uk] [Optionen fuer afs_demo]
 #
 #   --watch   zeigt den privaten X-Server als Fenster (Xephyr) statt unsichtbar (Xvfb)
 #   --out     Zielverzeichnis fuer Video, Cursor-Datei und Szenenmarken (Standard: demo-recording)
@@ -17,7 +17,8 @@
 #             autofilesync-demo-fr-<Zeit>.*; bei es Imágenes und Fotos, spanische
 #             Frage, autofilesync-demo-es-<Zeit>.*; bei it Immagini und Foto,
 #             italienische Frage, autofilesync-demo-it-<Zeit>.*; bei pl Obrazy und
-#             Fotografie, polnische Frage, autofilesync-demo-pl-<Zeit>.*
+#             Fotografie, polnische Frage, autofilesync-demo-pl-<Zeit>.*; bei uk
+#             Зображення und Фото, ukrainische Frage, autofilesync-demo-uk-<Zeit>.*
 #
 # Beispiel: scripts/record_demo.sh --watch --scenes create,preview,start --cycle-seconds 5
 set -e
@@ -39,7 +40,8 @@ while [ $# -gt 0 ]; do
 done
 STAMP_PREFIX=autofilesync-demo
 # Voreinstellungen fuer die fremdsprachigen Aufnahmen; eigene Optionen dahinter ueberschreiben sie.
-# Die Frage muss ohne Akzente auskommen: die Eingabesimulation tippt nur ASCII-Zeichen.
+# Zeichen ausserhalb des Tastaturlayouts (Akzente, Kyrillisch) tippt die Eingabesimulation
+# ueber geliehene Keycodes; die aelteren Fragen blieben trotzdem bei ASCII.
 case "$LANG_CODE" in
     en) DEMO_ARGS=(--source-name Pictures --sync-name Photos --question "What happens when I unplug the drive?" "${DEMO_ARGS[@]}")
         STAMP_PREFIX=autofilesync-demo-en ;;
@@ -51,6 +53,8 @@ case "$LANG_CODE" in
         STAMP_PREFIX=autofilesync-demo-it ;;
     pl) DEMO_ARGS=(--source-name Obrazy --sync-name Fotografie --question "Co robi AutoFileSync, gdy dysk USB zniknie?" --assistant-wait 180 "${DEMO_ARGS[@]}")
         STAMP_PREFIX=autofilesync-demo-pl ;;
+    uk) DEMO_ARGS=(--source-name Зображення --sync-name Фото --question "Що буде, якщо я від'єднаю диск?" --assistant-wait 240 "${DEMO_ARGS[@]}")
+        STAMP_PREFIX=autofilesync-demo-uk ;;
 esac
 
 for tool in ffmpeg Xvfb; do
