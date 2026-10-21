@@ -31,8 +31,10 @@
 #include <wx/textctrl.h>
 #include <wx/toolbar.h>
 #include <wx/uiaction.h>
+#include <algorithm>
 #include <cctype>
 #include <functional>
+#include <map>
 #include <optional>
 #include <string_view>
 #include <vector>
@@ -175,6 +177,7 @@ public:
 private:
     struct Key { KeyCode code = 0; unsigned modifiers = 0; };
     Key key_of(KeySym keysym) const;
+    Key borrow(KeySym keysym) const;  // [UserActions.md#x11-borrowed-keycodes]
     std::optional<unsigned> modifiers_of(int code, int group, int level) const;  // [UserActions.md#x11-level-modifiers]
     std::optional<std::vector<KeyCode>> modifier_keys_of(unsigned modifiers) const;
     KeyCode modifier_key_of(unsigned bit) const;
@@ -183,6 +186,7 @@ private:
     Display* display_;
     XkbDescPtr keymap_ = nullptr;
     int group_ = 0;
+    mutable std::map<KeySym, KeyCode> borrowed_;
 };
 
 Keyboard::Keyboard(): display_(XOpenDisplay(nullptr))
@@ -197,6 +201,12 @@ Keyboard::Keyboard(): display_(XOpenDisplay(nullptr))
 
 Keyboard::~Keyboard()
 {
+    for (const auto& [keysym, code] : borrowed_) {  // [UserActions.md#x11-borrowed-keycodes]
+        KeySym none = NoSymbol;
+        XChangeKeyboardMapping(display_, code, 1, &none, 1);
+    }
+    if (!borrowed_.empty())
+        XSync(display_, False);
     if (keymap_ != nullptr)
         XkbFreeKeyboard(keymap_, XkbAllComponentsMask, True);
     if (display_ != nullptr)
@@ -211,7 +221,27 @@ bool Keyboard::type(wxUniChar character) const
     if (const Key key = key_of(keysym); key.code != 0)
         return press(key);
     const Key dead_key = key_of(dead_key_of(keysym));  // [UserActions.md#x11-dead-keys]
-    return dead_key.code != 0 && press(dead_key) && press(key_of(XK_space));
+    if (dead_key.code != 0)
+        return press(dead_key) && press(key_of(XK_space));
+    return press(borrow(keysym));
+}
+
+Keyboard::Key Keyboard::borrow(KeySym keysym) const  // [UserActions.md#x11-borrowed-keycodes]
+{
+    if (const auto found = borrowed_.find(keysym); found != borrowed_.end())
+        return {found->second, 0};
+    for (int code = keymap_->max_key_code; code >= keymap_->min_key_code; --code) {
+        const bool spare = XkbKeyNumGroups(keymap_, code) == 0 && keymap_->map->modmap[code] == 0
+                           && std::none_of(borrowed_.begin(), borrowed_.end(), [code](const auto& entry) { return entry.second == code; });
+        if (!spare)
+            continue;
+        KeySym symbol = keysym;
+        XChangeKeyboardMapping(display_, code, 1, &symbol, 1);
+        XSync(display_, False);
+        borrowed_[keysym] = static_cast<KeyCode>(code);
+        return {static_cast<KeyCode>(code), 0};
+    }
+    return {};
 }
 
 Keyboard::Key Keyboard::key_of(KeySym keysym) const

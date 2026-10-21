@@ -75,6 +75,18 @@ nothing until the following key decides what to combine into. Typed as the dead 
 a space, which is how a user gets the plain character, and what GTK's own input context
 composes it to.
 
+## x11-borrowed-keycodes
+
+A character whose keysym no key of the layout carries, neither directly nor through a dead
+key - an accented letter on a US layout, any Cyrillic letter - is typed through a borrowed
+keycode: an unused one (no symbols in any group, not in the modifier map) is mapped to the
+keysym with XChangeKeyboardMapping and pressed like any other key. The application learns the
+new mapping from the MappingNotify that precedes the key press in its event queue. Each
+keysym keeps its own keycode for the lifetime of the Keyboard, since nothing guarantees the
+application has translated one key press before the next is faked, and the destructor
+restores the keycodes only after type_text has pumped the key events: GTK re-reads the
+mapping from the server when it translates the press, so the symbol must still be there.
+
 ## x11-level-modifiers
 
 The modifiers of a level come from the key's type, not from a fixed table: a two-level key
