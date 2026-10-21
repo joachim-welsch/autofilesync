@@ -36,3 +36,4 @@ __pycache__/
 # Finder metadata, written whenever a folder is opened in the Finder
 .DS_Store
 Internet/
+demo-recording/

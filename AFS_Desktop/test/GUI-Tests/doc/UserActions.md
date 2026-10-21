@@ -287,3 +287,15 @@ covers another, and on Windows the check is not implemented.
 Everything the check needs from the dialog - its window number and its title - is read before
 the first wait, and after a wait only the number is used: the dialog may be gone by then
 (ForegroundApp.md#window-number), and the failure then says so instead of crashing.
+
+## set_typing_delay
+
+Zero by default: the tests type as fast as the X server takes the events. The demo recorder
+(AFS_Desktop/demo) raises it so that the typing is readable on video; the delay is idle time
+between two characters, pumped so the field repaints after each one.
+
+## set_click_observer
+
+Every simulated click passes through click_at(), so one observer there sees them all. The demo
+recorder uses it to note each click in the cursor telemetry it writes for the video editor;
+the tests leave it unset.

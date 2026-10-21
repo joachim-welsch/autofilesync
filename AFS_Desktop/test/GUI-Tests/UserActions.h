@@ -25,6 +25,7 @@
 #include <wx/listctrl.h>
 #include <wx/treectrl.h>
 #include <filesystem>
+#include <functional>
 
 namespace guitest {  // [UserActions.md#UserActions]
 
@@ -49,5 +50,8 @@ bool click_when_enabled(wxWindow* control, int timeout_milliseconds = 5000);
 void activate_menu_item(wxFrame& frame, int menu_item_id);
 bool activate_toolbar_tool(wxFrame& frame, int tool_id);  // [UserActions.md#activate_toolbar_tool]
 wxTreeItemId find_tree_item_for_path(wxTreeCtrl& tree, const std::filesystem::path& path);  // [UserActions.md#find_tree_item_for_path]
+void set_typing_delay(int milliseconds);  // [UserActions.md#set_typing_delay]
+using ClickObserver = std::function<void(const wxPoint& screen_point, bool double_click)>;
+void set_click_observer(ClickObserver observer);  // [UserActions.md#set_click_observer]
 
 }

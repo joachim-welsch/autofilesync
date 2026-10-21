@@ -52,6 +52,8 @@ namespace {
 
 constexpr int SETTLE_MILLISECONDS = 30;  // [UserActions.md#wait-until-settled]
 constexpr int SETTLE_TIMEOUT_MILLISECONDS = 1000;
+int typing_delay_milliseconds = 0;  // [UserActions.md#set_typing_delay]
+ClickObserver click_observer;  // [UserActions.md#set_click_observer]
 
 bool settled(wxWindow& window)
 {
@@ -337,6 +339,8 @@ bool click_at(wxWindow& target, const wxPoint& screen_point, bool double_click =
         return false;
     if (!(double_click ? simulator.MouseDblClick() : simulator.MouseClick()))
         return false;
+    if (click_observer)
+        click_observer(screen_point, double_click);  // [UserActions.md#set_click_observer]
     pump(20);
     return true;
 }
@@ -412,9 +416,12 @@ namespace {
 bool type_text(const wxString& text)
 {
     Keyboard keyboard;  // [UserActions.md#keyboard-per-text]
-    for (const wxUniChar character : text)
+    for (const wxUniChar character : text) {
         if (!keyboard.type(character))
             return false;
+        if (typing_delay_milliseconds > 0)
+            pump(typing_delay_milliseconds);  // [UserActions.md#set_typing_delay]
+    }
     pump();
     return true;
 }
@@ -577,6 +584,16 @@ bool click_when_enabled(wxWindow* control, int timeout_milliseconds)
     if (!wait_until([control] { return control->IsEnabled(); }, timeout_milliseconds))  // [UserActions.md#update-ui-needs-idle]
         return false;
     return click_on(control);
+}
+
+void set_typing_delay(int milliseconds)
+{
+    typing_delay_milliseconds = milliseconds;
+}
+
+void set_click_observer(ClickObserver observer)
+{
+    click_observer = std::move(observer);
 }
 
 void activate_menu_item(wxFrame& frame, int menu_item_id)

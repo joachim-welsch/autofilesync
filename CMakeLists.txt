@@ -10,6 +10,7 @@ project(autofilesync LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(AFS_BUILD_TESTS "Build the integration tests (AFS_Core) and GUI tests (AFS_Desktop)" OFF)
+option(AFS_BUILD_DEMO "Build afs_demo, the scripted demo for the introduction video (AFS_Desktop/demo)" OFF)
 
 # All programs land directly in the build directory (build/autofilesync,
 # build/Release/autofilesync ...): the scripts, IDE configurations and install

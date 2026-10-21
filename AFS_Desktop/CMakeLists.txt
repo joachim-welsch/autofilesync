@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(AFS_Desktop LANGUAGES CXX)
 
 option(AFS_BUILD_TESTS "Build the GUI tests" OFF)
+option(AFS_BUILD_DEMO "Build afs_demo, the scripted demo for the introduction video" OFF)
 
 # Standalone build: pull the core in ourselves. It must carry its wxWidgets
 # hooks, which is what the application talks to.
@@ -140,4 +141,8 @@ endif()
 if(AFS_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test/GUI-Tests)
+endif()
+
+if(AFS_BUILD_DEMO)
+    add_subdirectory(demo)
 endif()
