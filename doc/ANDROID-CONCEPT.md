@@ -225,14 +225,15 @@ spätestens nach einem Zeitplanintervall, sofort beim Öffnen der App.
 - **Medienscan:** Dateien, die der PC aufs Handy kopiert (Musik), sieht die
   Galerie- oder Musik-App erst nach `MediaScannerConnection.scanFile()`. Die App
   scannt die `changed_paths` aus `done`.
-- **Zeitstempel:** Der PC setzt die Änderungszeit über SFTP-`setstat`. Ob
-  `File.setLastModified()` im gemeinsamen Speicher (FUSE) auf allen
-  unterstützten Android-Versionen greift, klärt ein Spike (R1). Falls nicht,
-  reicht die vorhandene Zeittoleranz nicht aus, und der Vergleich muss für
-  Handy-Orte auf Größe plus Zwei-Wege-Zustand ausweichen.
-- **Berechtigungen:** Der gemeinsame Speicher kennt keine POSIX-Rechte. Der
-  MINA-Server meldet feste Werte (Dateien 0644, Ordner 0755). So bekommen Dateien
-  vom Handy auf dem PC normale Rechte (`copy-from-ssh-keeps-the-permissions`).
+- **Zeitstempel:** Der PC setzt die Änderungszeit über SFTP-`setstat`. Unter
+  Android 13 funktioniert das im gemeinsamen Speicher sekundengenau, in allen
+  geprüften Ordnern, für Dateien und Ordner, auch nach dem Umbenennen
+  (Abschnitt 13). Android 14/15 ist noch offen (R1).
+- **Berechtigungen:** Der gemeinsame Speicher kennt keine POSIX-Rechte. `chmod`
+  meldet Erfolg, ändert aber nichts. MINA meldet unverändert 0660 (gemessen).
+  Der Server der App muss deshalb feste Werte melden (Dateien 0644, Ordner
+  0755), sonst übernimmt der PC 0660 für jede Datei vom Handy
+  (`copy-from-ssh-keeps-the-permissions`).
 - **Akku:** Kein Durchlauf unter 15 % Akku ohne Ladegerät. Ein laufender
   Durchlauf wird sauber beendet; der Kern behandelt den Abbruch wie eine
   abgebrochene Sitzung.
@@ -262,6 +263,10 @@ Anpassungen an bestehendem Code:
   Geräts umfasst und von außen (`hello`) angestoßen wird. Einträge mit Handy
   werden vom normalen Zeittakt übersprungen: Ist das Handy nicht da, ist das der
   Normalfall und keine Warnung (vgl. `warn_if_unreachable_`).
+- **Mehrere SFTP-Anfragen gleichzeitig** in `SyncFileSsh` (Voraussetzung für
+  Phase 2, siehe Abschnitt 13): libssh mit `sftp_aio_begin_read/write` (ab
+  0.11), libssh2 mit größeren Puffern pro Aufruf, damit es selbst mehrere
+  Anfragen unterwegs hält. Davon profitieren auch NAS und Server über SSH.
 - Schreiben aufs Handy über temporären Namen plus Umbenennen (prüfen, ob
   `SyncFileSsh` das heute schon tut, siehe `remote-target-stays-writable`). Eine
   abgebrochene Übertragung darf auf dem Handy keine halbe Datei unter dem
@@ -351,9 +356,9 @@ Verbindung ankommt („Eine Firewall blockiert vielleicht Port 52381“).
 
 | Phase | Inhalt | Ergebnis |
 |---|---|---|
-| 0 – Spikes | MINA-SFTP auf Android 14/15 mit „Alle Dateien“; `setstat`/mtime im gemeinsamen Speicher; Durchsatz im WLAN; libssh (Linux) und libssh2 (Windows) gegen MINA | Entscheidung zu R1/R3, Messwerte |
+| 0 – Spikes ✓ | MINA-SFTP mit „Alle Dateien“; `setstat`/mtime im gemeinsamen Speicher; Durchsatz im WLAN; libssh (Linux) und libssh2 (Windows) gegen MINA. Erledigt am 21.10.2026 auf Android 13, Android 14/15 steht noch aus. | Ergebnisse in Abschnitt 13, Testprojekt `AFS_Android/spike/` |
 | 1 – Kopplung | `DevicePairing`, `DeviceRegistry`, `DeviceLink` (nur `hello`), QR-Dialog; App: Scannen, Koppeln, Statuskarte | Handy erscheint in AutoFileSync als gekoppelt |
-| 2 – Synchronisieren | `serve`/`done`, Port und Hostschlüssel in SSH, Ortsauswahl „Handy“, Vorlagen | Fotos sichern per **Jetzt synchronisieren** |
+| 2 – Synchronisieren | parallele SFTP-Anfragen im Kern, `serve`/`done`, Port und Hostschlüssel in SSH, Ortsauswahl „Handy“, Vorlagen | Fotos sichern per **Jetzt synchronisieren** |
 | 3 – Hintergrund | WorkManager-Auslöser, Vordergrundbenachrichtigung, mDNS, Medienscan, Daemon als Kopplungsdienst | Läuft ohne Zutun |
 | 4 – Fertigstellen | 7 Sprachen, Hilfe, Tests, F-Droid-Metadaten, signierte APK zum Herunterladen, App-Link (`assetlinks.json` auf welsch-software.com) | Veröffentlichung über F-Droid und APK |
 
@@ -368,14 +373,21 @@ Spätere Erweiterungen, nicht in v1:
 
 ## 12. Risiken und offene Fragen
 
-- **R1 Zeitstempel:** Lässt sich die Änderungszeit im gemeinsamen Speicher
-  zuverlässig setzen? Falls nicht: für Handy-Orte nach Größe plus Zustand
-  vergleichen. Phase 0 klärt das.
+- **R1 Zeitstempel:** Unter Android 13 geklärt (funktioniert). Android 14/15
+  sowie andere Hersteller sind noch zu prüfen, sobald ein Gerät verfügbar ist
+  (Emulator-Abbild reicht; die Test-App läuft unverändert). Falls dort nicht:
+  für Handy-Orte nach Größe plus Zustand vergleichen.
 - **R2 Google Play:** Wird `MANAGE_EXTERNAL_STORAGE` genehmigt? Betrifft v1
   nicht mehr (nur F-Droid und APK). Falls Play später ablehnt:
   SAF-Ausweichlösung (6.2) nur für die Play-Version.
-- **R3 Windows:** Unter Windows nutzt der Kern libssh2. Sind Passwortanmeldung
-  und `setstat` gegen MINA dort genauso zuverlässig?
+- **R3 Windows:** Funktional geklärt: libssh2 beherrscht alle Aufrufe des
+  Kerns gegen MINA (unter Linux geprüft, dieselbe Bibliothek). Umbenennen auf
+  eine vorhandene Datei lehnt MINA bei libssh2 ab, das nutzt der Kern aber nie
+  (SyncFileSsh.md#ssh_rename). Offen bleibt nur die Geschwindigkeit
+  (Abschnitt 13).
+- **R5 Durchsatz:** Ohne parallele Anfragen schafft der Kern über WLAN nur etwa
+  1 MiB/s. Die erste Sicherung von 4 GB Fotos würde über eine Stunde dauern.
+  Gegenmaßnahme siehe 7.1, gemessen 5-fach schneller.
 - **R4 Netze mit Client-Isolation** (Gäste-WLAN, manche Mesh-Systeme):
   PC und Handy sehen sich nicht. Die App erkennt das (mDNS ohne Antwort, TCP
   abgewiesen) und sagt es in einem Satz.
@@ -385,3 +397,43 @@ Spätere Erweiterungen, nicht in v1:
   Windows-Firewallregel gilt für das Programm, nicht für den Port, damit sie
   auch beim Ausweichen greift.
 - **Entschieden:** v1 nur über F-Droid und APK (6.2).
+
+## 13. Ergebnisse Phase 0 (21.10.2026)
+
+Testgerät: OnePlus DN2103, Android 13 (API 33). Gegenseite: Linux-PC im selben
+WLAN, libssh 0.11.3 und libssh2 1.11.1. Server: Apache MINA SSHD 2.14.0 in der
+Test-App `AFS_Android/spike/`, Wurzel `/storage/emulated/0`, Berechtigung
+„Zugriff auf alle Dateien“. Das Prüfprogramm `AFS_Android/spike/pc-probe/`
+führt dieselbe Aufruffolge aus wie `SyncFileSsh`: 64-KiB-Blöcke, `setstat` für
+Zeit und Rechte, `rename`, `readdir`, `mkdir`, `rmdir`, `unlink`.
+
+**Funktion:** Beide Bibliotheken bestehen alle Aufrufe des Kerns. Der Inhalt
+nach Hin- und Rückweg ist byte-gleich. Die mtime ist über SFTP sekundengenau
+setzbar und bleibt nach `chmod` erhalten. Direkt auf dem Handy gelingt
+`setLastModified` in `/`, `DCIM`, `Download`, `Music` und `Pictures`, auch für
+Ordner und nach dem Umbenennen.
+
+**Rechte:** `chmod` meldet Erfolg und ändert nichts. Gemeldet wird immer 0660
+(siehe 6.4).
+
+**Durchsatz (32 MiB, MiB/s):**
+
+| Variante | USB (adb forward) hoch / runter | WLAN hoch / runter |
+|---|---|---|
+| libssh wie im Kern (ein Block nach dem anderen) | 1,2 / 0,9 | 0,8–1,5 / 0,9 |
+| libssh mit 16 Anfragen gleichzeitig (`sftp_aio_*`) | – | 3,4–5,2 / 7,2–8,0 |
+| libssh2 wie im Kern | 8,3 / 13,9 | 1,1 / 3,2–3,5 |
+
+Die Antwortzeit des Handys im WLAN schwankt stark (Ping 3–110 ms, im Mittel
+18–55 ms). Bei einem Block pro Hin- und Rückweg begrenzt das den Kern auf etwa
+1 MiB/s. Mehrere Anfragen gleichzeitig sind deshalb Voraussetzung für Phase 2
+(7.1). Eine WLAN-Sperre (`WIFI_MODE_FULL_LOW_LATENCY`) hat die Werte nicht
+messbar verbessert. Sie kann trotzdem während eines Durchlaufs gehalten werden,
+damit das Handy das WLAN nicht abschaltet.
+
+**Sonstiges:**
+- MINA läuft auf Android ohne Anpassungen. Einzige Ausnahme ist das
+  Home-Verzeichnis (`PathUtils.setUserHomeFolderResolver`).
+- Der Standard-Hostschlüssel ist ECDSA P-521. Die App soll Ed25519 erzeugen.
+- OnePlus (ColorOS) erlaubt kein Setzen von App-Ops über adb. Die Freigabe
+  „Alle Dateien“ muss auch für Tests von Hand erteilt werden.
