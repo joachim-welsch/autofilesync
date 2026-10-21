@@ -18,6 +18,17 @@ the dialog is gone is dropped instead of being posted to a destroyed window.
 Runs call() on a worker thread and posts its ChatReply back to on_reply(); the pieces of the
 answer that call() passes to its ChatPieceSink go to on_piece() while it runs.
 
+## worker-joined
+
+The worker is kept, not detached: a detached thread outlived the dialog and the process when
+the window was closed mid-answer, and the generation then ran in ggml's thread pool while the
+program tore down its statics - a crash at exit, or an X connection dropped from under GTK.
+The destructor first clears the dialog pointer under the lock, so that the worker posts
+nothing to a dying window, then cancels the client (LlamaClient.md#cancel) and joins; the
+join waits at most for the token in progress. The lock is not held during the join, because
+the worker takes it to post its result. A send while the previous worker has finished but
+was never joined joins it first, which is immediate.
+
 ## answer_streaming_
 
 Set once the first piece of an answer is in the transcript: the speaker line is written then,

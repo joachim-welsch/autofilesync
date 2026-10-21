@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -45,6 +46,9 @@ class LlamaClient {  // [LlamaClient.md#LlamaClient]
     std::unique_ptr<llama_context, ContextDeleter>  context_;
     const llama_vocab*                              vocab_ = nullptr;
     std::vector<std::int32_t>                       cached_tokens_;  // [LlamaClient.md#cached_tokens_]
+    std::atomic<bool>                               cancelled_ = false;  // [LlamaClient.md#cancel]
+
+    static bool abort_requested(void* client);
 
     bool ensure_loaded(std::wstring& error);
     std::wstring build_prompt(const ChatHistory& history) const;  // [LlamaClient.md#build_prompt]
@@ -64,6 +68,7 @@ public:
     LlamaClient(const LlamaClient&) = delete;
     LlamaClient& operator=(const LlamaClient&) = delete;
     void situation(const std::wstring& text);  // [LlamaClient.md#situation_]
+    void cancel();  // [LlamaClient.md#cancel]
     ChatReply send(const ChatHistory& history, const ChatPieceSink& on_piece = {});  // [LlamaClient.md#send]
     ChatReply analyze_log(const ChatHistory& history, const std::wstring& log_excerpt,
         const ChatPieceSink& on_piece = {});  // [LlamaClient.md#analyze_log]

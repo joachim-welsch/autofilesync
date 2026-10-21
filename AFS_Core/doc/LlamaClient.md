@@ -207,3 +207,14 @@ each request and written into the system prompt after the configuration. The cal
 it on the main thread - the service state runs systemctl, which wxWidgets does not allow from
 the thread that generates the answer. A mutex of its own, so that setting it never waits for a
 generation that holds mutex_.
+
+## cancel
+
+Ends a running answer as soon as possible and keeps the client from starting the next token:
+the flag stops the generation loop, and as the context's abort callback it also interrupts a
+llama_decode that is in the middle of a batch, where a long prompt spends most of its time.
+Meant for shutdown, so the flag is never cleared: the dialog that owns the client cancels and
+joins its worker before the client is destroyed (ChatDialog.md#worker-joined). Without it the
+worker kept computing in ggml's thread pool while the process tore down its statics, which
+crashed at exit or took the X connection down with it.
+

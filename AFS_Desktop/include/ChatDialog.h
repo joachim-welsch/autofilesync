@@ -25,6 +25,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <thread>
 #include <vector>
 #include "LlamaClient.h"
 #include "HelpKnowledge.h"
@@ -43,6 +44,7 @@ private:
     struct Pending {  // [ChatDialog.md#Pending]
         std::mutex  mutex;
         ChatDialog* dialog = nullptr;
+        std::thread worker;  // [ChatDialog.md#worker-joined]
     };
 
     void on_send(wxCommandEvent&);

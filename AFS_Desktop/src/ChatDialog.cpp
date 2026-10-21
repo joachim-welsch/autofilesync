@@ -106,8 +106,13 @@ void ChatDialog::show_start()
 
 ChatDialog::~ChatDialog()
 {
-    std::lock_guard<std::mutex> lock(pending_->mutex);
-    pending_->dialog = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(pending_->mutex);
+        pending_->dialog = nullptr;
+    }
+    client_->cancel();  // [ChatDialog.md#worker-joined]
+    if (pending_->worker.joinable())
+        pending_->worker.join();
 }
 
 void ChatDialog::append_speaker(const wxString& speaker)
@@ -163,7 +168,9 @@ void ChatDialog::set_waiting(bool waiting)
 void ChatDialog::run_async(std::function<ChatReply(const ChatPieceSink&)> call)
 {
     set_waiting(true);
-    std::thread([call = std::move(call), pending = pending_]() {
+    if (pending_->worker.joinable())
+        pending_->worker.join();  // [ChatDialog.md#worker-joined]
+    pending_->worker = std::thread([call = std::move(call), pending = pending_]() {
         const ChatReply reply = call([&pending](const std::wstring& piece) {
             std::lock_guard<std::mutex> lock(pending->mutex);
             if (pending->dialog == nullptr)
@@ -179,7 +186,7 @@ void ChatDialog::run_async(std::function<ChatReply(const ChatPieceSink&)> call)
         event->SetInt(reply.ok ? 1 : 0);
         event->SetString(reply.text);
         wxQueueEvent(pending->dialog, event);
-    }).detach();
+    });
 }
 
 void ChatDialog::on_send(wxCommandEvent&)

@@ -105,6 +105,8 @@ bool LlamaClient::ensure_loaded(wstring& error)
     const auto threads = static_cast<int32_t>(cpu_topology::physical_cores());  // [CpuTopology.md#physical_cores]
     ctx_params.n_threads = threads;
     ctx_params.n_threads_batch = threads;
+    ctx_params.abort_callback = abort_requested;  // [LlamaClient.md#cancel]
+    ctx_params.abort_callback_data = this;
     llama_context* ctx = llama_init_from_model(model, ctx_params);
     if (ctx == nullptr) {
         llama_model_free(model);
@@ -206,7 +208,7 @@ string LlamaClient::generate(const ChatPieceSink& on_piece, const string& gramma
 
     string answer;
     std::size_t passed_on = 0;
-    for (int i = 0; i < MAX_NEW_TOKENS; ++i) {
+    for (int i = 0; i < MAX_NEW_TOKENS && !cancelled_; ++i) {  // [LlamaClient.md#cancel]
         llama_token token = llama_sampler_sample(sampler.get(), context_.get(), -1);  // [LlamaClient.md#sample-accepts]
         if (llama_vocab_is_eog(vocab_, token))
             break;
@@ -225,6 +227,16 @@ string LlamaClient::generate(const ChatPieceSink& on_piece, const string& gramma
         cached_tokens_.push_back(token);
     }
     return answer;
+}
+
+bool LlamaClient::abort_requested(void* client)  // [LlamaClient.md#cancel]
+{
+    return static_cast<LlamaClient*>(client)->cancelled_;
+}
+
+void LlamaClient::cancel()
+{
+    cancelled_ = true;
 }
 
 void LlamaClient::situation(const wstring& text)
