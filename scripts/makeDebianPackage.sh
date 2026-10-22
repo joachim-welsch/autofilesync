@@ -10,9 +10,11 @@ BUILD_DIR="${SOURCE_DIR}/build/Debian"
 STAGING="${BUILD_DIR}/debian/autofilesync"  # the layout dpkg-shlibdeps expects
 OUTPUT_DIR="${SOURCE_DIR}/build"
 SKIP_BUILD=false
-RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
+VERSION_HEADER="${SOURCE_DIR}/AFS_Desktop/include/Version.h"
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; NC='\033[0m'
 
 info() { echo -e "${GREEN}$*${NC}"; }
+warn() { echo -e "${YELLOW}$*${NC}" >&2; }
 fail() { echo -e "${RED}$*${NC}" >&2; exit 1; }
 
 while [[ $# -gt 0 ]]; do
@@ -21,9 +23,11 @@ while [[ $# -gt 0 ]]; do
         --output) OUTPUT_DIR="$2"; shift 2 ;;
         -h|--help)
             echo "Aufruf: $0 [OPTIONEN]"
-            echo "  --no-build      Vorhandenen Build in build/Debian verwenden"
+            echo "  --no-build      Vorhandenen Build in build/Debian verwenden (muss die gesetzte Version enthalten)"
             echo "  --output DIR    Ablageort des Pakets (Vorgabe: build/)"
             echo "  -h, --help      Diese Hilfe"
+            echo ""
+            echo "Paketiert wird die Version aus AFS_Desktop/include/Version.h (setzen mit scripts/setVersion.sh)."
             echo ""
             echo "Umgebung:"
             echo "  AFS_MAINTAINER  Maintainer-Feld (Vorgabe: git user.name <user.email>)"
@@ -32,7 +36,15 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-version() { sed -n 's/^#define afsVERSION_TEXT "\(.*\)".*/\1/p' "${SOURCE_DIR}/AFS_Desktop/include/Version.h"; }
+version_macro() { sed -n "s/^#define afsVERSION_$1 \\(\"\\?\\)\\([^\" ]*\\)\\1.*/\\2/p" "${VERSION_HEADER}"; }
+
+check_version()
+{
+    [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "Version „${VERSION}“ aus AFS_Desktop/include/Version.h ist nicht major.minor.patch - mit scripts/setVersion.sh setzen."
+    [ "${VERSION}" = "$(version_macro MAJOR).$(version_macro MINOR).$(version_macro PATCH)" ] \
+        || fail "afsVERSION_MAJOR/MINOR/PATCH passen nicht zu afsVERSION_TEXT ${VERSION} - mit scripts/setVersion.sh setzen."
+    grep -q "^## ${VERSION} " "${SOURCE_DIR}/doc/CHANGELOG.md" || warn "doc/CHANGELOG.md hat keinen Abschnitt für ${VERSION}."
+}
 
 maintainer()
 {
@@ -44,7 +56,7 @@ check_dependencies()
 {
     info "=== Abhängigkeiten prüfen ==="
     local missing=() cmd
-    for cmd in cmake msgfmt dpkg-deb dpkg-shlibdeps dpkg-architecture identify convert strip git; do
+    for cmd in cmake msgfmt dpkg-deb dpkg-shlibdeps dpkg-architecture identify convert strip strings git; do
         command -v "$cmd" &>/dev/null || missing+=("$cmd")
     done
     [ ${#missing[@]} -eq 0 ] || fail "Fehlt: ${missing[*]} (sudo apt install cmake gettext dpkg-dev imagemagick binutils git)"
@@ -85,6 +97,8 @@ verify_build()
     for file in autofilesync backgroundsync; do
         [ -x "${BUILD_DIR}/${file}" ] || fail "${BUILD_DIR}/${file} fehlt - ohne --no-build aufrufen."
     done
+    strings "${BUILD_DIR}/autofilesync" | grep -qxF "${VERSION}" \
+        || fail "${BUILD_DIR}/autofilesync ist nicht mit Version ${VERSION} gebaut - ohne --no-build aufrufen."  # the About box shows AFS_VERSION_STRING, so a stale build would lie about its version
     for file in "${SOURCE_DIR}"/po/*.po; do
         local language; language="$(basename "${file}" .po)"
         [ -f "${BUILD_DIR}/locale/${language}/LC_MESSAGES/autofilesync.mo" ] || fail "Übersetzung ${language} fehlt im Build."
@@ -135,7 +149,7 @@ stage_documentation()
     mkdir -p "${doc}/third-party"
     install -m 644 "${DEBIAN_DIR}/copyright" "${doc}/copyright"
     install -m 644 "${SOURCE_DIR}"/doc/{LICENSING.md,THIRD-PARTY-NOTICES.md} "${doc}/"
-    install -m 644 "${SOURCE_DIR}"/third-party/* "${doc}/third-party/"
+    find "${SOURCE_DIR}/third-party" -maxdepth 1 -type f -exec install -m 644 -t "${doc}/third-party/" {} +  # subdirectories hold vendored sources, not licences
     {
         printf 'autofilesync (%s) unstable; urgency=medium\n\n  * Siehe CHANGELOG.md.\n\n -- %s  %s\n' \
             "${VERSION}" "${MAINTAINER}" "$(date -R)"
@@ -160,6 +174,7 @@ stage_desktop_integration()
     done
     install -D -m 644 "${DEBIAN_DIR}/autofilesync.desktop" "${STAGING}/usr/share/applications/autofilesync.desktop"
     install -D -m 644 "${DEBIAN_DIR}/backgroundsync.service" "${STAGING}/usr/lib/systemd/system/backgroundsync.service"
+    install -D -m 644 "${DEBIAN_DIR}/ufw-autofilesync" "${STAGING}/etc/ufw/applications.d/autofilesync"  # the rule itself stays the user's decision: sudo ufw allow AutoFileSync
 }
 
 shared_library_depends()
@@ -174,14 +189,15 @@ write_control()
     local depends; depends="$(shared_library_depends)"
     [ -n "${depends}" ] || fail "Paketabhängigkeiten nicht ermittelbar (dpkg-shlibdeps) - jede gelinkte Bibliothek muss aus einem Paket stammen."
     mkdir -p "${STAGING}/DEBIAN"
-    sed -e "s|@VERSION@|$(version)|" \
-        -e "s|@ARCHITECTURE@|$(dpkg-architecture -qDEB_HOST_ARCH)|" \
-        -e "s|@MAINTAINER@|$(maintainer)|" \
+    sed -e "s|@VERSION@|${VERSION}|" \
+        -e "s|@ARCHITECTURE@|${ARCHITECTURE}|" \
+        -e "s|@MAINTAINER@|${MAINTAINER}|" \
         -e "s|@INSTALLED_SIZE@|$(du -sk --exclude=DEBIAN "${STAGING}" | cut -f1)|" \
         -e "s|@DEPENDS@|${depends}, systemd|" \
         "${DEBIAN_DIR}/control.in" > "${STAGING}/DEBIAN/control"
     install -m 755 "${DEBIAN_DIR}/postinst" "${DEBIAN_DIR}/prerm" "${DEBIAN_DIR}/postrm" "${STAGING}/DEBIAN/"
     (cd "${STAGING}" && find usr -type f -exec md5sum {} + | sort -k2) > "${STAGING}/DEBIAN/md5sums"
+    echo /etc/ufw/applications.d/autofilesync > "${STAGING}/DEBIAN/conffiles"  # files under /etc are the administrator's once installed
 }
 
 readable_by_apt()
@@ -203,8 +219,12 @@ install_hint()
     fi
 }
 
-[ -n "$(version)" ] || fail "Version aus AFS_Desktop/include/Version.h nicht lesbar."
 check_dependencies
+VERSION="$(version_macro TEXT)"  # read once so that the binary, control file, changelog and file name agree
+check_version
+MAINTAINER="$(maintainer)"
+ARCHITECTURE="$(dpkg-architecture -qDEB_HOST_ARCH)"
+info "=== Version ${VERSION} ==="
 [ "${SKIP_BUILD}" = true ] || build_release
 verify_build
 
@@ -219,7 +239,7 @@ write_control
 
 info "=== Paket bauen ==="
 mkdir -p "${OUTPUT_DIR}"
-PACKAGE="${OUTPUT_DIR}/autofilesync_$(version)_$(dpkg-architecture -qDEB_HOST_ARCH).deb"
+PACKAGE="${OUTPUT_DIR}/autofilesync_${VERSION}_${ARCHITECTURE}.deb"
 dpkg-deb --root-owner-group -Zxz --build "${STAGING}" "${PACKAGE}" >/dev/null
 
 info "=== Fertig ==="
