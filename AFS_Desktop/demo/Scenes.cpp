@@ -24,7 +24,9 @@
 #include "ModalDialogWatcher.h"
 #include "SyncActions.h"
 #include "UserActions.h"
+#include "ViewActions.h"
 #include "ChatDialog.h"
+#include "GridCtrl.h"
 #include "Config.h"
 #include "ListCtrl.h"
 #include "MainWindow.h"
@@ -36,6 +38,8 @@
 #include "id.h"
 #include "utilwx.h"
 #include <wx/dirdlg.h>
+#include <wx/statusbr.h>
+#include <wx/treectrl.h>
 #include <wx/notebook.h>
 #include <wx/toolbar.h>
 #include <filesystem>
@@ -57,7 +61,7 @@ constexpr int COPY_TIMEOUT_MILLISECONDS = 120000;
 constexpr int DIALOG_TIMEOUT_MILLISECONDS = 4000;
 constexpr int CYCLE_GRACE_MILLISECONDS = 15000;
 constexpr int MENU_TIMEOUT_MILLISECONDS = 1500;
-constexpr int MENU_FILE = 0, MENU_SYNC = 2, MENU_BACKGROUND_SERVICE = 3, MENU_ASSISTANT = 5;  // [Scenes.md#menu-by-keyboard]
+constexpr int MENU_FILE = 0, MENU_SYNC = 2, MENU_BACKGROUND_SERVICE = 3, MENU_VIEW = 4, MENU_ASSISTANT = 5;  // [Scenes.md#menu-by-keyboard]
 
 wxString tr(const char* msgid)
 {
@@ -426,11 +430,186 @@ bool scene_finale(MainWindow& window, const Options&)
     return true;
 }
 
+
+ListCtrl* list_of(MainWindow& window)
+{
+    return dynamic_cast<ListCtrl*>(find(window, tul(id::ListCtrl)));
+}
+
+bool glide_to_row(ListCtrl& list, long row)
+{
+    wxRect rect;
+    if (row < 0 || !list.GetItemRect(row, rect))
+        return false;
+    return glide_to(list.ClientToScreen(wxPoint(rect.x + rect.width / 3, rect.y + rect.height / 2)));
+}
+
+bool hover_tool(MainWindow& window, int tool_id, int milliseconds)  // [Scenes.md#hover_tool]
+{
+    wxToolBar* toolbar = window.GetToolBar();
+    const std::optional<wxRect> rect = toolbar != nullptr ? tool_rect(*toolbar, tool_id) : std::nullopt;
+    if (!rect)
+        return false;
+    glide_to(toolbar->ClientToScreen(wxPoint(rect->x + rect->width / 2, rect->y + rect->height / 2)));
+    dwell(milliseconds);
+    return true;
+}
+
+template <typename Shown>
+bool choose_view(MainWindow& window, id view, Shown shown)  // [Scenes.md#choose_view]
+{
+    if (!(open_menu(window, MENU_VIEW) && choose_menu_entry(window, MENU_VIEW, tul(view)) && wait_until(shown, MENU_TIMEOUT_MILLISECONDS))) {
+        close_menu();
+        report("Das Menue Ansicht liess sich nicht per Tastatur bedienen, die Ansicht wird direkt umgeschaltet.");
+        guitest::show_view(window, view);
+    }
+    pump();
+    return shown();
+}
+
+bool scene_tour_window(MainWindow& window, const Options&)
+{
+    mark("Folge 1: Hauptfenster mit drei Synchronisationen");
+    ListCtrl* list = list_of(window);
+    if (list == nullptr || list->GetItemCount() < 3)
+        return false;
+    for (long row = 0; row < list->GetItemCount(); ++row) {
+        mark("Zeile " + list->GetItemText(row));
+        glide_to_row(*list, row);
+        dwell(DWELL);
+    }
+    guitest::click_on(*list, row_of(*list, L"Fotos"));
+    dwell(SHORT_DWELL);
+    return true;
+}
+
+bool scene_tour_toolbar(MainWindow& window, const Options&)
+{
+    const std::pair<id, const char*> tools[] = {
+        {id::File_new_Synchronization, "Neue Synchronisation"}, {id::EditSync, "Bearbeiten"}, {id::File_save, "Speichern"},
+        {id::DeleteSync, "Loeschen"}, {id::StartSync, "Start"}, {id::Help, "Hilfe"}, {id::EditSettings, "Einstellungen"}};
+    bool all = true;
+    for (const auto& [tool, label] : tools) {
+        mark(wxString("Werkzeug: ") + label);
+        all = hover_tool(window, tul(tool), DWELL) && all;
+    }
+    return all;
+}
+
+bool scene_tour_status(MainWindow& window, const Options&)
+{
+    mark("Statuszeile");
+    wxStatusBar* bar = window.GetStatusBar();
+    wxRect field;
+    if (bar == nullptr || !bar->GetFieldRect(bar->GetFieldsCount() - 1, field))
+        return false;
+    glide_to(bar->ClientToScreen(wxPoint(field.x + field.width / 3, field.y + field.height / 2)));
+    dwell(LONG_DWELL);
+    return true;
+}
+
+bool scene_tour_views(MainWindow& window, const Options&)
+{
+    mark("Ansicht Baum");
+    const bool tree = choose_view(window, id::View_Tree, [&window] { return guitest::source_tree(window) != nullptr; });
+    for (wxTreeCtrl* side : {guitest::source_tree(window), guitest::target_tree(window)})  // [Scenes.md#expanded-trees]
+        if (side != nullptr)
+            side->ExpandAll();
+    glide_to(center_of(window));
+    dwell(LONG_DWELL);
+    mark("Ansicht Tabelle");
+    const bool grid = choose_view(window, id::View_Grid, [&window] { return guitest::grid_view(window) != nullptr; });
+    glide_to(center_of(window));
+    dwell(LONG_DWELL);
+    return tree && grid;
+}
+
+bool scene_tour_active(MainWindow& window, const Options&)  // [Scenes.md#tour_active]
+{
+    GridCtrl* grid = guitest::grid_view(window);
+    int row = -1;
+    for (int r = 0; grid != nullptr && r < grid->GetNumberRows(); ++r)
+        if (grid->GetRowLabelValue(r) == L"Dokumente")
+            row = r;
+    if (row < 0)
+        return false;
+    mark("Haekchen Aktiv bei Dokumente wegnehmen");
+    const wxRect cell = grid->CellToRect(row, 0);
+    int x = 0, y = 0;
+    grid->CalcScrolledPosition(cell.x + cell.width / 2, cell.y + cell.height / 2, &x, &y);
+    wxWindow* cells = grid->GetGridWindow();
+    grid->SetGridCursor(row, 0);  // [Scenes.md#tour_active]
+    glide_to(cells->ClientToScreen(wxPoint(x, y)));
+    dwell(SHORT_DWELL);
+    const auto inactive = [] { const auto item = Config::instance().find_by_name(L"Dokumente"); return item && !item->enabled(); };
+    guitest::click_on(*cells, wxPoint(x, y));
+    if (!wait_until(inactive, SHORT_DWELL)) {
+        report("Klick auf das Haekchen hat nicht umgeschaltet, der Wert wird direkt gesetzt.");
+        guitest::change_grid_cell(*grid, row, 0, wxEmptyString);
+    }
+    mark(inactive() ? "Dokumente ist inaktiv" : "FEHLER: Dokumente ist noch aktiv");
+    dwell(LONG_DWELL);
+    return inactive();
+}
+
+bool scene_tour_edit(MainWindow& window, const Options&)
+{
+    mark("Ansicht Liste");
+    choose_view(window, id::View_List, [&window] { return list_of(window) != nullptr; });
+    dwell(SHORT_DWELL);
+    ListCtrl* list = list_of(window);
+    const long row = list != nullptr ? row_of(*list, L"Fotos") : -1;
+    if (row < 0)
+        return false;
+    mark("Doppelklick auf Fotos");
+    ModalDialogWatcher::instance().expect(txt::edit_synchronisation(), [](wxDialog& dialog) {
+        if (!wait_shown(dialog))
+            return;
+        dwell(LONG_DWELL + DWELL);
+        glide_click(find(dialog, wxID_CANCEL));
+    });
+    glide_to_row(*list, row);
+    dwell(SHORT_DWELL);
+    guitest::click_on(*list, row, true);
+    pump();
+    mark("Dialog geschlossen");
+    dwell(SHORT_DWELL);
+    return true;
+}
+
+bool scene_tour_delete(MainWindow& window, const Options&)  // [Scenes.md#tour_delete]
+{
+    ListCtrl* list = list_of(window);
+    const long row = list != nullptr ? row_of(*list, L"Haushaltsbuch") : -1;
+    if (row < 0)
+        return false;
+    mark("Haushaltsbuch auswaehlen");
+    glide_to_row(*list, row);
+    guitest::click_on(*list, row);
+    dwell(DWELL);
+    mark("Loeschen-Symbol");
+    ModalDialogWatcher::instance().expect(tr("confirm_delete_title"), [](wxDialog& dialog) {
+        dwell(LONG_DWELL);
+        if (!click_message_button(dialog, wxID_YES))
+            report("Knopf der Sicherheitsabfrage nicht gefunden, die Abfrage wird direkt bestaetigt.");
+    });
+    click_tool(window, tul(id::DeleteSync));
+    pump();
+    const bool deleted = !Config::instance().find_by_name(L"Haushaltsbuch").has_value();
+    mark(deleted ? "Haushaltsbuch geloescht" : "FEHLER: Haushaltsbuch nicht geloescht");
+    glide_to(center_of(window));
+    dwell(DWELL);
+    return deleted;
+}
+
 using Scene = bool (*)(MainWindow&, const Options&);
 
 const std::map<std::string, Scene> SCENES = {
     {"create", scene_create}, {"preview", scene_preview}, {"start", scene_start}, {"background", scene_background},
     {"options", scene_options}, {"ssh", scene_ssh}, {"assistant", scene_assistant}, {"finale", scene_finale},
+    {"tour_window", scene_tour_window}, {"tour_toolbar", scene_tour_toolbar}, {"tour_status", scene_tour_status},
+    {"tour_views", scene_tour_views}, {"tour_active", scene_tour_active}, {"tour_edit", scene_tour_edit},
+    {"tour_delete", scene_tour_delete},
 };
 
 }

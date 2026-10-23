@@ -25,14 +25,27 @@
 namespace demo {
 namespace {
 
-const std::vector<std::string> SCENES = {"create", "preview", "start", "background", "options", "ssh", "assistant", "finale"};
+const std::vector<std::string> INTRO_SCENES = {"create", "preview", "start", "background", "options", "ssh", "assistant", "finale"};
+const std::vector<std::string> TOUR_SCENES = {"tour_window", "tour_toolbar", "tour_status", "tour_views", "tour_active", "tour_edit",
+    "tour_delete", "finale"};  // [Options.md#sandbox]
+const std::vector<std::string> SCENES = [] {
+    std::vector<std::string> all = INTRO_SCENES;
+    for (const std::string& scene : TOUR_SCENES)
+        if (std::find(all.begin(), all.end(), scene) == all.end())
+            all.push_back(scene);
+    return all;
+}();
 
 void usage()
 {
     std::cout <<
         "afs_demo - fuehrt AutoFileSync wie im Sprecherskript vor, fuer eine Bildschirmaufnahme\n\n"
-        "  --scenes a,b,c        Szenen in dieser Reihenfolge (Standard: alle):\n"
-        "                        create preview start background options ssh assistant finale\n"
+        "  --scenes a,b,c        Szenen in dieser Reihenfolge (Standard: alle der Sandbox):\n"
+        "                        photos: create preview start background options ssh assistant finale\n"
+        "                        tour:   tour_window tour_toolbar tour_status tour_views tour_active\n"
+        "                                tour_edit tour_delete finale\n"
+        "  --sandbox NAME        photos (Einfuehrungsvideo, Standard) oder tour (Folge 1: drei fertige\n"
+        "                        Synchronisationen fuer den Rundgang durchs Hauptfenster)\n"
         "  --root DIR            Sandbox mit Bildern, Konfiguration und Protokoll (Standard: <temp>/autofilesync-demo)\n"
         "  --target DIR          Zielverzeichnis der Synchronisation (Standard: <root>/USB-Backup)\n"
         "  --telemetry FILE      Cursor-Telemetrie im Recordly-Format (<video>.cursor.json)\n"
@@ -78,17 +91,23 @@ const std::vector<std::string>& all_scenes()
     return SCENES;
 }
 
+const std::vector<std::string>& default_scenes(const std::string& sandbox)  // [Options.md#sandbox]
+{
+    return sandbox == "tour" ? TOUR_SCENES : INTRO_SCENES;
+}
+
 std::optional<Options> parse_options(int argc, char** argv)  // [Options.md#parse_options]
 {
     Options options;
-    options.scenes = SCENES;
+    bool scenes_given = false;
     options.root = std::filesystem::temp_directory_path() / "autofilesync-demo";
     for (int i = 1; i < argc; ++i) {
         const std::string arg = argv[i];
         const auto value = [&]() -> std::string { return i + 1 < argc ? argv[++i] : std::string(); };
         bool ok = true;
         if (arg == "--help" || arg == "-h") { usage(); return std::nullopt; }
-        else if (arg == "--scenes") options.scenes = split(value());
+        else if (arg == "--scenes") { options.scenes = split(value()); scenes_given = true; }
+        else if (arg == "--sandbox") { options.sandbox = value(); ok = options.sandbox == "photos" || options.sandbox == "tour"; }
         else if (arg == "--root") options.root = value();
         else if (arg == "--target") options.target = value();
         else if (arg == "--telemetry") options.telemetry_file = value();
@@ -111,6 +130,8 @@ std::optional<Options> parse_options(int argc, char** argv)  // [Options.md#pars
             return std::nullopt;
         }
     }
+    if (!scenes_given)
+        options.scenes = default_scenes(options.sandbox);
     for (const std::string& scene : options.scenes)
         if (std::find(SCENES.begin(), SCENES.end(), scene) == SCENES.end()) {
             std::cerr << "Unbekannte Szene: " << scene << "\n";

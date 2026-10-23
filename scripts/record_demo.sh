@@ -5,7 +5,7 @@
 # Recordly-Format. Das Video laesst sich in Recordly importieren; Cursor,
 # Auto-Zoom und Rahmen kommen dort hinzu.
 #
-#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en|fr|es|it|pl|uk] [Optionen fuer afs_demo]
+#   scripts/record_demo.sh [--watch] [--out DIR] [--size WxH] [--lang de|en|fr|es|it|pl|uk] [--folge NN] [Optionen fuer afs_demo]
 #
 #   --watch   zeigt den privaten X-Server als Fenster (Xephyr) statt unsichtbar (Xvfb)
 #   --out     Zielverzeichnis fuer Video, Cursor-Datei und Szenenmarken (Standard: demo-recording)
@@ -19,6 +19,10 @@
 #             italienische Frage, autofilesync-demo-it-<Zeit>.*; bei pl Obrazy und
 #             Fotografie, polnische Frage, autofilesync-demo-pl-<Zeit>.*; bei uk
 #             Зображення und Фото, ukrainische Frage, autofilesync-demo-uk-<Zeit>.*
+#   --folge   Aufnahme fuer eine Folge der Lernvideo-Reihe statt fuer das
+#             Einfuehrungsvideo: 01 = Rundgang durch das Hauptfenster (Sandbox tour).
+#             Die Dateien heissen autofilesync-folgeNN-<Zeit>.* bzw. bei einer anderen
+#             Sprache autofilesync-folgeNN-<Sprache>-<Zeit>.*
 #
 # Beispiel: scripts/record_demo.sh --watch --scenes create,preview,start --cycle-seconds 5
 set -e
@@ -28,6 +32,7 @@ OUT=demo-recording
 SIZE=1920x1080
 WATCH=0
 LANG_CODE=de
+FOLGE=
 DEMO_ARGS=()
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -35,6 +40,7 @@ while [ $# -gt 0 ]; do
         --out) OUT="$2"; shift 2 ;;
         --size) SIZE="$2"; shift 2 ;;
         --lang) LANG_CODE="$2"; shift 2 ;;
+        --folge) FOLGE="$2"; shift 2 ;;
         *) DEMO_ARGS+=("$1"); shift ;;
     esac
 done
@@ -56,6 +62,15 @@ case "$LANG_CODE" in
     uk) DEMO_ARGS=(--source-name Зображення --sync-name Фото --question "Що буде, якщо я від'єднаю диск?" --assistant-wait 240 "${DEMO_ARGS[@]}")
         STAMP_PREFIX=autofilesync-demo-uk ;;
 esac
+
+if [ -n "$FOLGE" ]; then
+    case "$FOLGE" in
+        01) DEMO_ARGS=(--sandbox tour "${DEMO_ARGS[@]}") ;;
+        *) echo "Fuer Folge $FOLGE gibt es noch keine Szenen." >&2; exit 1 ;;
+    esac
+    STAMP_PREFIX=autofilesync-folge$FOLGE
+    [ "$LANG_CODE" = de ] || STAMP_PREFIX=$STAMP_PREFIX-$LANG_CODE
+fi
 
 for tool in ffmpeg Xvfb; do
     command -v "$tool" >/dev/null || { echo "$tool fehlt (sudo apt install ffmpeg xvfb)" >&2; exit 1; }

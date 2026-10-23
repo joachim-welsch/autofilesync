@@ -50,3 +50,19 @@ toolbar's middle line in 2 px steps gives the horizontal extent of the tool.
 
 Same idea for notebook tabs with HitTest: the label area of the page is scanned in the top
 quarter of the notebook, where the tab row is on every platform the demo runs on.
+
+## message_button_center
+
+wxMessageDialog on GTK is a native GtkMessageDialog: its buttons are no wxWindows, so neither
+find() nor the harness's click_on reaches them. GTK knows the button for a response id; its
+allocation, translated to the dialog and offset by the dialog's GdkWindow origin, is the screen
+point a person would click. The widget exists only once ShowModal has created it, which is why
+the scenes ask from inside a ModalDialogWatcher action (queued, ModalDialogWatcher.md#queued-not-called).
+
+## click_message_button
+
+A real click through the XTest simulator, so that the button shows its pressed state in the
+recording, and a click sample for the telemetry, which the harness's click observer does not
+see because the click does not go through click_at. If the button cannot be located the
+response is sent to the dialog directly - the recording then lacks the click, but the scene goes
+on.

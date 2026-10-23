@@ -27,6 +27,7 @@ namespace demo {
 
 struct Options {  // [Options.md#Options]
     std::vector<std::string> scenes;  // [Options.md#scenes]
+    std::string sandbox = "photos";  // [Options.md#sandbox]
     std::filesystem::path root;  // [Options.md#root]
     std::filesystem::path target;
     std::filesystem::path telemetry_file;
@@ -46,6 +47,7 @@ struct Options {  // [Options.md#Options]
 };
 
 const std::vector<std::string>& all_scenes();
+const std::vector<std::string>& default_scenes(const std::string& sandbox);  // [Options.md#sandbox]
 std::optional<Options> parse_options(int argc, char** argv);  // [Options.md#parse_options]
 
 }

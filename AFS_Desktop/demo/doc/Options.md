@@ -46,3 +46,11 @@ wide string that follows the locale without a codecvt facet of its own.
 
 Hand-written rather than wxCmdLineParser because it runs before wxWidgets is initialised: the
 sandbox has to redirect HOME before wxEntryStart reads any preference file.
+
+## sandbox
+
+Which starting state the sandbox gets, and with it which scenes run when --scenes is not given.
+"photos" is the introduction video: an empty configuration, the photo tree and an empty backup
+drive. "tour" is episode 1 of the tutorial series: three synchronisations already in the
+configuration, so that the scenes can walk through a main window that has something in it. Scene
+names stay unique across sandboxes, so --scenes can still mix them.

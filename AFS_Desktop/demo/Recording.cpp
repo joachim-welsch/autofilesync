@@ -56,10 +56,7 @@ void Recording::start(const std::filesystem::path& markers_file, const std::file
     clock_.Start();
     timer_.SetOwner(this);
     Bind(wxEVT_TIMER, &Recording::on_timer, this);
-    guitest::set_click_observer([this](const wxPoint& point, bool double_click) {
-        sample(point, double_click ? "double-click" : "click");
-        sample(point, "mouseup");
-    });
+    guitest::set_click_observer([this](const wxPoint& point, bool double_click) { click(point, double_click); });
     if (!telemetry_file_.empty())
         timer_.Start(SAMPLE_INTERVAL_MILLISECONDS);
 }
@@ -70,6 +67,12 @@ void Recording::mark(const wxString& label)  // [Recording.md#mark]
     std::cout << line << std::endl;
     if (markers_.is_open())
         markers_ << line << '\n' << std::flush;
+}
+
+void Recording::click(const wxPoint& screen_point, bool double_click)  // [Recording.md#click]
+{
+    sample(screen_point, double_click ? "double-click" : "click");
+    sample(screen_point, "mouseup");
 }
 
 void Recording::on_timer(wxTimerEvent&)

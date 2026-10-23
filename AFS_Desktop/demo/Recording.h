@@ -35,6 +35,7 @@ public:
     static Recording& instance();
     void start(const std::filesystem::path& markers_file, const std::filesystem::path& telemetry_file);
     void mark(const wxString& label);  // [Recording.md#mark]
+    void click(const wxPoint& screen_point, bool double_click = false);  // [Recording.md#click]
     void finish();  // [Recording.md#finish]
     long elapsed_milliseconds() const { return clock_.Time(); }
 private:

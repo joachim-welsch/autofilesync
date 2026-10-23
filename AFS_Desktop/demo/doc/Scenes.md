@@ -83,3 +83,34 @@ minute on a CPU, which the editor cuts. "Answered" means the whole answer: the f
 arrive while the model is still generating, and the scene is done only when the Send button is
 enabled again, so that the recording shows the complete text and nothing is still computing
 when the program exits.
+
+## hover_tool
+
+The tour names every tool in turn, so the pointer rests on each long enough for GTK to show its
+tooltip; nothing is clicked.
+
+## choose_view
+
+The view menu holds radio items that open no dialog, so menu-fallback cannot tell from the dialog
+watcher whether the keyboard reached the entry. The caller passes what the new view looks like
+instead (a tree, a grid or the list exists), and the view is switched directly if that does not
+show up.
+
+## expanded-trees
+
+The tree view starts collapsed at "Dieser Computer"; expanded, it shows the point of the view -
+the synchronisations ordered by the folders of source and target.
+
+## tour_active
+
+wxGrid toggles a check box cell on a click only when that cell is already the current one; the
+first click on another cell just moves the cursor there. The cursor is therefore set before the
+pointer arrives, so that the one visible click toggles. Should it still not toggle, the value is
+set through the grid event the harness uses, and the recording only lacks the effect of the
+click.
+
+## tour_delete
+
+The delete confirmation is a native message box (utilwx.md#confirm). The tests answer it before
+it is shown (ModalDialogWatcher.md#answer); here it stays open while the narration explains it,
+and the pointer clicks its "Löschen" button (Pacing.md#click_message_button).

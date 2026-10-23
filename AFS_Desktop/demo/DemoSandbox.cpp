@@ -70,9 +70,47 @@ void write_file(const fs::path& pathname, const std::string& content)
     std::ofstream(pathname) << content;
 }
 
-std::string demo_config()  // [DemoSandbox.md#demo_config]
+std::string json_string(const fs::path& path)
+{
+    std::string escaped;
+    for (const char c : path.generic_string()) {
+        if (c == '"' || c == '\\')
+            escaped += '\\';
+        escaped += c;
+    }
+    return '"' + escaped + '"';
+}
+
+std::string sync_item(const std::string& name, const char* type, const fs::path& source, const fs::path& target)  // [DemoSandbox.md#tour-items]
+{
+    return std::string("    \"Syncitem\": {\"compareitems\": {\"size\": \"false\", \"time\": \"true\", \"content\": \"false\"},")
+        + " \"syncflags\": {\"delAftercopy\": \"false\", \"twoWaySync\": \"false\", \"copyWhenTargetNewer\": \"false\","
+          " \"fatherSonPrinciple\": \"false\", \"watchChanges\": \"true\", \"enabled\": \"true\"},"
+        + " \"name\": \"" + name + "\", \"type\": \"" + type + "\", \"source\": " + json_string(source)
+        + ", \"target\": " + json_string(target) + ", \"wildcard\": \"" + (std::string(type) == "Datei" ? "" : "*.*")
+        + "\", \"SyncCycle\": \"60\"}";
+}
+
+std::string tour_items()  // [DemoSandbox.md#tour-items]
+{
+    return "  \"Syncitems\": {\n"
+        + sync_item("Fotos", "Verzeichnisbaum", DemoSandbox::source_dir(), DemoSandbox::target_dir() / "Fotos") + ",\n"
+        + sync_item("Dokumente", "Verzeichnisbaum", sandbox_root / "Dokumente", DemoSandbox::target_dir() / "Dokumente") + ",\n"
+        + sync_item("Haushaltsbuch", "Datei", sandbox_root / "Haushaltsbuch.xlsx", DemoSandbox::target_dir() / "Haushaltsbuch.xlsx")
+        + "\n  },\n";
+}
+
+void write_documents(std::mt19937& random)  // [DemoSandbox.md#tour-items]
+{
+    for (const char* name : {"Mietvertrag.pdf", "Steuer 2025.pdf", "Lebenslauf.docx", "Rechnungen/Strom 2026-09.pdf", "Rechnungen/Internet 2026-09.pdf"})
+        write_random_file(sandbox_root / "Dokumente" / name, 40 * 1024 + random() % (200 * 1024), random);
+    write_random_file(sandbox_root / "Haushaltsbuch.xlsx", 60 * 1024, random);
+}
+
+std::string demo_config(bool with_tour_items)  // [DemoSandbox.md#demo_config]
 {
     return std::string("{\n")
+        + (with_tour_items ? tour_items() : std::string())
         + "  \"Settings\": {\"StartMinimzed\": \"false\", \"MinimizeInsteadOfClose\": \"true\","
           " \"Autostart\": \"false\", \"StartSyncAtStart\": \"false\","
           " \"ShowErrors\": \"true\", \"ShowWarnings\": \"false\", \"ShowInfos\": \"false\"},\n"
@@ -115,8 +153,13 @@ void DemoSandbox::create(const Options& options)
     fs::create_directories(sandbox_root);
     redirect_user_directories();
     AFS_Core::SyncArbiter::use_private_scope();
-    write_file(config_file(), demo_config());
+    const bool tour = options.sandbox == "tour";
+    write_file(config_file(), demo_config(tour));
     write_photos();
+    if (tour) {
+        std::mt19937 random(1);
+        write_documents(random);
+    }
     fs::create_directories(target_dir());
 }
 

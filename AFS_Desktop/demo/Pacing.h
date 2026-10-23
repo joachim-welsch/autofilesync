@@ -25,6 +25,7 @@
 class wxWindow;
 class wxToolBar;
 class wxNotebook;
+class wxDialog;
 
 namespace demo {  // [Pacing.md#Pacing]
 
@@ -45,5 +46,7 @@ bool type_slowly(wxWindow* field, const wxString& text);  // [Pacing.md#type_slo
 std::optional<wxRect> tool_rect(wxToolBar& toolbar, int tool_id);  // [Pacing.md#tool_rect]
 std::optional<wxRect> tab_rect(wxNotebook& notebook, size_t page);  // [Pacing.md#tab_rect]
 wxNotebook* notebook_of(wxWindow& dialog);
+std::optional<wxPoint> message_button_center(wxDialog& message_dialog, int button_id);  // [Pacing.md#message_button_center]
+bool click_message_button(wxDialog& message_dialog, int button_id);  // [Pacing.md#click_message_button]
 
 }

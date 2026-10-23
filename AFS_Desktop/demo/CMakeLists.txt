@@ -32,6 +32,7 @@ set(HARNESS_SOURCES
     ModalDialogWatcher.cpp
     SyncActions.cpp
     SyncItemDialogDriver.cpp
+    ViewActions.cpp
 )
 list(TRANSFORM HARNESS_SOURCES PREPEND ${HARNESS_DIR}/)
 
@@ -51,11 +52,12 @@ target_compile_definitions(afs_demo PRIVATE _GUITEST)
 target_include_directories(afs_demo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${HARNESS_DIR})
 target_link_libraries(afs_demo PRIVATE GTest::GTest)
 if(NOT APPLE)
-    # Pacing.cpp asks GTK for the toolbar item rectangles (wxGTK has no API for
-    # them) through its own declarations, so only the library is needed, not
-    # the GTK headers.
+    # Pacing.cpp asks GTK for the toolbar item rectangles and the buttons of
+    # native message boxes (wxGTK has no API for them) through its own
+    # declarations, so only the libraries are needed, not the GTK headers.
     find_library(GTK3_LIBRARY NAMES gtk-3 libgtk-3.so.0 REQUIRED)
-    target_link_libraries(afs_demo PRIVATE X11::X11 X11::Xtst ${GTK3_LIBRARY})
+    find_library(GDK3_LIBRARY NAMES gdk-3 libgdk-3.so.0 REQUIRED)
+    target_link_libraries(afs_demo PRIVATE X11::X11 X11::Xtst ${GTK3_LIBRARY} ${GDK3_LIBRARY})
 endif()
 if(APPLE)
     target_sources(afs_demo PRIVATE ${HARNESS_DIR}/ForegroundApp.mm)

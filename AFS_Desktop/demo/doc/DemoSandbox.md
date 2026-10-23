@@ -40,3 +40,14 @@ developer last left it.
 
 Kept outside the source tree until the scene copies it in: that is the moment the narration
 calls "a new photo arrives".
+
+## tour-items
+
+The configuration for the "tour" sandbox (Options.md#sandbox) is written as JSON text before the
+application starts, like the rest of demo_config: Config is not usable before wxWidgets is
+initialised, and adding the items after the start would need the private MainWindow::update to
+show them. The keys are the ones Config reads without a default (Config.md#defaulted-flag-reads);
+the type keys are the untranslated ones (Config.md#untranslated-type-key). Three items cover what
+the tour shows: two directory trees and a single file, all pointing at the backup drive.
+Documents and the single file get random content of plausible sizes, so that a later scene could
+synchronise them.

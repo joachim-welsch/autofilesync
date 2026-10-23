@@ -18,7 +18,9 @@
  */
 #include "Pacing.h"
 #include "EventPump.h"
+#include "Recording.h"
 #include "UserActions.h"
+#include <wx/dialog.h>
 #include <wx/notebook.h>
 #include <wx/toolbar.h>
 #include <wx/uiaction.h>
@@ -115,6 +117,57 @@ struct GtkAllocation { int x, y, width, height; };
 void* gtk_toolbar_get_nth_item(void* toolbar, int n);
 void gtk_widget_get_allocation(void* widget, GtkAllocation* allocation);
 int gtk_widget_translate_coordinates(void* source, void* destination, int x, int y, int* dest_x, int* dest_y);
+void* gtk_dialog_get_widget_for_response(void* dialog, int response_id);
+void gtk_dialog_response(void* dialog, int response_id);
+void* gtk_widget_get_window(void* widget);
+int gdk_window_get_origin(void* window, int* x, int* y);
+}
+
+namespace {
+constexpr int GTK_RESPONSE_YES = -8, GTK_RESPONSE_NO = -9, GTK_RESPONSE_OK = -5, GTK_RESPONSE_CANCEL = -6;
+
+int gtk_response(int button_id)
+{
+    switch (button_id) {
+    case wxID_YES: return GTK_RESPONSE_YES;
+    case wxID_NO: return GTK_RESPONSE_NO;
+    case wxID_CANCEL: return GTK_RESPONSE_CANCEL;
+    default: return GTK_RESPONSE_OK;
+    }
+}
+}
+
+std::optional<wxPoint> message_button_center(wxDialog& message_dialog, int button_id)  // [Pacing.md#message_button_center]
+{
+    void* dialog = message_dialog.GetHandle();
+    void* button = dialog != nullptr ? gtk_dialog_get_widget_for_response(dialog, gtk_response(button_id)) : nullptr;
+    void* window = dialog != nullptr ? gtk_widget_get_window(dialog) : nullptr;
+    if (button == nullptr || window == nullptr)
+        return std::nullopt;
+    GtkAllocation allocation{};
+    gtk_widget_get_allocation(button, &allocation);
+    int x = 0, y = 0, origin_x = 0, origin_y = 0;
+    if (!gtk_widget_translate_coordinates(button, dialog, 0, 0, &x, &y))
+        return std::nullopt;
+    gdk_window_get_origin(window, &origin_x, &origin_y);
+    return wxPoint(origin_x + x + allocation.width / 2, origin_y + y + allocation.height / 2);
+}
+
+bool click_message_button(wxDialog& message_dialog, int button_id)  // [Pacing.md#click_message_button]
+{
+    const std::optional<wxPoint> center = message_button_center(message_dialog, button_id);
+    if (!center) {
+        if (message_dialog.GetHandle() != nullptr)
+            gtk_dialog_response(message_dialog.GetHandle(), gtk_response(button_id));
+        return false;
+    }
+    glide_to(*center);
+    dwell(SHORT_DWELL);
+    wxUIActionSimulator simulator;
+    const bool clicked = simulator.MouseClick();
+    Recording::instance().click(*center);
+    guitest::pump(20);
+    return clicked;
 }
 
 std::optional<wxRect> tool_rect(wxToolBar& toolbar, int tool_id)  // [Pacing.md#tool_rect]
@@ -131,6 +184,17 @@ std::optional<wxRect> tool_rect(wxToolBar& toolbar, int tool_id)  // [Pacing.md#
     return wxRect(x, y, allocation.width, allocation.height);
 }
 #else
+std::optional<wxPoint> message_button_center(wxDialog&, int)  // [Pacing.md#message_button_center]
+{
+    return std::nullopt;
+}
+
+bool click_message_button(wxDialog& message_dialog, int button_id)  // [Pacing.md#click_message_button]
+{
+    message_dialog.EndModal(button_id);
+    return false;
+}
+
 std::optional<wxRect> tool_rect(wxToolBar& toolbar, int tool_id)  // [Pacing.md#tool_rect]
 {
     const wxSize size = toolbar.GetClientSize();

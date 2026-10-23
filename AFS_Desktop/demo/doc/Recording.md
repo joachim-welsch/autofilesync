@@ -28,3 +28,9 @@ mouseup, the way Recordly's own capture records them.
 
 Writes the file in one go at the end: a recording is short, and a partial file would be
 mistaken for a complete one.
+
+## click
+
+One click in the telemetry: a click sample followed by a mouseup, as Recordly records them.
+The harness's click observer uses it, and so do the scenes for clicks that do not go through the
+harness (Pacing.md#click_message_button).
