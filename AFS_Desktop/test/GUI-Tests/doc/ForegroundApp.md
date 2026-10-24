@@ -13,6 +13,19 @@ goes nowhere. activateIgnoringOtherApps is the call that makes this process the 
 same as a user clicking its Dock icon; the "ignoring others" part is what lets a background
 process take the activation away from the terminal.
 
+## disable_window_animations
+
+macOS fades a window out when it is ordered out, and the fade is driven by the main run loop at
+the top level. The tests drive the dialogs from nested loops (EventPump.md#idle-time-not-wall-time)
+and destroy each one the moment it is done, so its fade never runs to the end: the window server
+keeps a transparent copy of every closed dialog, and after a handful of them a new dialog of the
+process is created, visible and key for AppKit, but never ordered on screen - window_at_point
+finds the main window under the click, and nothing brings the dialog up, not another orderFront,
+not hiding and unhiding the application. Without the fades the dialogs come and go in one step
+and the next one appears as it should. NSAutomaticWindowAnimationsEnabled is registered as a
+default of this process before the first window exists; the user's preferences stay untouched.
+Called next to bring_to_foreground, before the main window is placed.
+
 ## window_at_point
 
 Asks the window server for its on-screen windows, front to back, and takes the first one that

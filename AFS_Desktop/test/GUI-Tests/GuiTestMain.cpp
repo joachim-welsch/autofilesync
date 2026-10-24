@@ -58,6 +58,7 @@ int main(int argc, char** argv)
         wxEventLoop main_loop;  // [GuiTestMain.md#active-event-loop-needed]
         wxEventLoopActivator activate_main_loop(&main_loop);
 #ifdef _MACOS
+        guitest::disable_window_animations();  // [ForegroundApp.md#disable_window_animations]
         guitest::bring_to_foreground();  // [ForegroundApp.md#bring_to_foreground]
 #endif
         wait_until_placed(*wxTheApp->GetTopWindow());

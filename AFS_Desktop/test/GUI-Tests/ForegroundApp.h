@@ -23,6 +23,7 @@
 namespace guitest {
 
 void bring_to_foreground();  // [ForegroundApp.md#bring_to_foreground]
+void disable_window_animations();  // [ForegroundApp.md#disable_window_animations]
 void settle_window_server();  // [ForegroundApp.md#settle_window_server]
 long window_number(void* ns_window);  // [ForegroundApp.md#window-number]
 bool window_exists(long number);

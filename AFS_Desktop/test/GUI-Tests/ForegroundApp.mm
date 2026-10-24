@@ -27,6 +27,11 @@ void bring_to_foreground()
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 }
 
+void disable_window_animations()  // [ForegroundApp.md#disable_window_animations]
+{
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"NSAutomaticWindowAnimationsEnabled": @NO}];
+}
+
 void settle_window_server()  // [ForegroundApp.md#settle_window_server]
 {
     for (int i = 0; i < 5; ++i)
