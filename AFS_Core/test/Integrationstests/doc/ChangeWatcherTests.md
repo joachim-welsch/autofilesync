@@ -13,6 +13,16 @@ missing-directory test leaves nothing behind.
 The logging guard is reset in TearDown before the directory is removed: as a plain member it
 would restore the log file only after TearDown, and Windows refuses to remove the open file.
 
+## watch
+
+Every test builds its watcher through watch(), which first lets the file system catch up with
+the directories the test just created: FSEvents assigns its event IDs when fseventsd reads the
+kernel's queue, a few milliseconds after the change, so a stream started "since now" right
+after a mkdir still delivers that mkdir (ChangeWatcher.md#fsevents-paths). A pause of 100 ms
+is ten times what was measured; without it the flat and the two-item test see a change before
+anything happened. The watcher lives in the fixture and goes in TearDown before the logging
+guard, so that a watch lost during the removal still logs into the test directory.
+
 ## noticed
 
 Events arrive on the watcher's thread a few milliseconds after the write, so every test polls

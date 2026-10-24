@@ -41,9 +41,20 @@ Synchronize catches the rest.
 The platform part behind the one interface: a thread that blocks on the system's handle and
 reports into the owner through changed() and lost(). Linux uses inotify, macOS FSEvents on a
 run loop thread, Windows ReadDirectoryChangesW with overlapped I/O; a platform without one of
-them gets a backend that declares every item unwatched. The macOS and Windows backends were
-written against the documented APIs without a compiler at hand - the first build there is the
-first test.
+them gets a backend that declares every item unwatched.
+
+## fsevents-paths
+
+FSEvents reports resolved paths - /private/var/... for a directory given as /var/... - so the
+watched directory is made canonical before the stream is created and before any path is
+compared with it; a flat item compares the reported path and its parent with the directory,
+which is the only way to tell "in the directory" from "below it", since a stream always
+watches the whole tree. A reported directory may end in a slash, which the comparison drops
+first. The stream is created only for a directory that exists, because
+FSEventStreamCreate and FSEventStreamStart accept any path and would leave a missing one
+"watched" with no event ever coming. Events from a few milliseconds before the start can
+still be delivered after it, because fseventsd numbers them when it reads the kernel's queue,
+not when they happen; the run does not mind, since its first pass clears the record anyway.
 
 ## inotify-per-directory
 

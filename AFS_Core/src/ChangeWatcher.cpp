@@ -227,16 +227,28 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
                 stream->owner->changed_everywhere();  // [ChangeWatcher.md#overflow]
                 continue;
             }
-            const fs::path path(changed[i]);
-            if (stream->watched.recursive || path == stream->watched.dir || path.parent_path() == stream->watched.dir)
+            if (stream->watched.recursive || inside(changed[i], stream->watched.dir))
                 stream->owner->changed(stream->watched.item);
         }
+    }
+
+    static bool inside(const char* reported, const fs::path& dir)  // [ChangeWatcher.md#fsevents-paths]
+    {
+        const fs::path raw(reported);
+        const fs::path path = raw.has_filename() ? raw : raw.parent_path();
+        return path == dir || path.parent_path() == dir;
     }
 
     Backend(ChangeWatcher& watcher, const std::vector<WatchedDir>& dirs)
         : owner(watcher)
     {
-        for (const WatchedDir& watched : dirs) {
+        for (const WatchedDir& configured : dirs) {
+            std::error_code ec;
+            const WatchedDir watched{configured.item, fs::canonical(configured.dir, ec), configured.recursive};  // [ChangeWatcher.md#fsevents-paths]
+            if (ec || !fs::is_directory(watched.dir, ec)) {
+                owner.lost(configured.item, configured.dir);
+                continue;
+            }
             auto stream = std::make_unique<Stream>(Stream{&owner, watched});
             CFStringRef path = CFStringCreateWithCString(nullptr, watched.dir.c_str(), kCFStringEncodingUTF8);
             CFArrayRef paths = CFArrayCreate(nullptr, reinterpret_cast<const void**>(&path), 1, &kCFTypeArrayCallBacks);

@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <optional>
 #include <thread>
+#include <vector>
 
 using namespace AFS_Core;
 
@@ -35,6 +36,7 @@ namespace {
     protected:
         const fs::path root_ = fs::temp_directory_path() / "autofilesync_changewatcher_test";
         std::optional<tu::ScopedLoggingSetup> logging_;  // [ChangeWatcherTests.md#log-in-test-dir]
+        std::optional<ChangeWatcher> watcher_;
         void SetUp() override
         {
             fs::remove_all(root_);
@@ -45,8 +47,15 @@ namespace {
         }
         void TearDown() override
         {
+            watcher_.reset();
             logging_.reset();
             fs::remove_all(root_);
+        }
+
+        ChangeWatcher& watch(const std::vector<WatchedDir>& dirs)  // [ChangeWatcherTests.md#watch]
+        {
+            std::this_thread::sleep_for(milliseconds(100));
+            return watcher_.emplace(dirs);
         }
 
         static bool noticed(const ChangeWatcher& watcher, const std::wstring& item, int timeout_ms = 3000)  // [ChangeWatcherTests.md#noticed]
@@ -63,7 +72,7 @@ namespace {
 
 TEST_F(ChangeWatcherTest, AFileWrittenBelowAWatchedTreeIsNoticed)
 {
-    ChangeWatcher watcher({{L"baum", root_ / "tree", true}});
+    ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true}});
     ASSERT_TRUE(ChangeWatcher::available());
     ASSERT_TRUE(watcher.watching(L"baum"));
     EXPECT_FALSE(watcher.last_change(L"baum").has_value()) << "nothing happened yet";
@@ -77,7 +86,7 @@ TEST_F(ChangeWatcherTest, AFileWrittenBelowAWatchedTreeIsNoticed)
 
 TEST_F(ChangeWatcherTest, ADirectoryCreatedLaterIsWatchedToo)  // [ChangeWatcherTests.md#ADirectoryCreatedLaterIsWatchedToo]
 {
-    ChangeWatcher watcher({{L"baum", root_ / "tree", true}});
+    ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true}});
     fs::create_directories(root_ / "tree" / "spaeter" / "tief");
     ASSERT_TRUE(noticed(watcher, L"baum"));
     std::this_thread::sleep_for(milliseconds(200));
@@ -91,7 +100,7 @@ TEST_F(ChangeWatcherTest, ADirectoryCreatedLaterIsWatchedToo)  // [ChangeWatcher
 TEST_F(ChangeWatcherTest, AFlatWatchIgnoresSubdirectories)
 {
     fs::create_directories(root_ / "flat" / "sub");
-    ChangeWatcher watcher({{L"flach", root_ / "flat", false}});
+    ChangeWatcher& watcher = watch({{L"flach", root_ / "flat", false}});
     tu::write_text_file(root_ / "flat" / "sub" / "tief.txt", "x");
     EXPECT_FALSE(noticed(watcher, L"flach", 1000)) << "a directory item has no subdirectories";
 
@@ -102,7 +111,7 @@ TEST_F(ChangeWatcherTest, AFlatWatchIgnoresSubdirectories)
 TEST_F(ChangeWatcherTest, DeletionsAndRenamesCountAsChanges)
 {
     tu::write_text_file(root_ / "tree" / "a.txt", "x");
-    ChangeWatcher watcher({{L"baum", root_ / "tree", true}});
+    ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true}});
     fs::rename(root_ / "tree" / "a.txt", root_ / "tree" / "b.txt");
     EXPECT_TRUE(noticed(watcher, L"baum"));
     watcher.clear(L"baum");
@@ -112,7 +121,7 @@ TEST_F(ChangeWatcherTest, DeletionsAndRenamesCountAsChanges)
 
 TEST_F(ChangeWatcherTest, AMissingDirectoryIsNotWatched)  // [ChangeWatcherTests.md#AMissingDirectoryIsNotWatched]
 {
-    ChangeWatcher watcher({{L"weg", root_ / "gibt-es-nicht", true}, {L"da", root_ / "flat", false}});
+    ChangeWatcher& watcher = watch({{L"weg", root_ / "gibt-es-nicht", true}, {L"da", root_ / "flat", false}});
     EXPECT_FALSE(watcher.watching(L"weg"));
     EXPECT_TRUE(watcher.watching(L"da"));
     EXPECT_FALSE(watcher.watching(L"unbekannt"));
@@ -120,7 +129,7 @@ TEST_F(ChangeWatcherTest, AMissingDirectoryIsNotWatched)  // [ChangeWatcherTests
 
 TEST_F(ChangeWatcherTest, TwoItemsAreKeptApart)
 {
-    ChangeWatcher watcher({{L"baum", root_ / "tree", true}, {L"flach", root_ / "flat", false}});
+    ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true}, {L"flach", root_ / "flat", false}});
     tu::write_text_file(root_ / "flat" / "x.txt", "x");
     EXPECT_TRUE(noticed(watcher, L"flach"));
     EXPECT_FALSE(watcher.last_change(L"baum").has_value()) << "a change in one item's directory must not mark the other";
