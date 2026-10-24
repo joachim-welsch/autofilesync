@@ -316,7 +316,7 @@ void Synchronize::wake()
 void Synchronize::sync_items()
 {
     SyncPlanGuard guard(sync_type_ == SyncType::Preview ? &plan_ : nullptr);  // [Synchronize.md#preview]
-    SshSessionScope ssh_sessions;  // [Synchronize.md#ssh-sessions]
+    [[maybe_unused]] SshSessionScope ssh_sessions;  // [Synchronize.md#ssh-sessions]
     for (auto& i: Config::instance().syncitems()) {
         if (stop_request_.load())
             break;

@@ -124,7 +124,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(VcpkgLibDirCli);$(VcpkgLibDirIde);$(LlamaPkgDir)\$(LlamaCfgDir)lib;$(GgmlPkgDir)\$(LlamaCfgDir)lib;$(BoostLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gtest.lib;gtest_main.lib;libssh2.lib;libcrypto.lib;ws2_32.lib;crypt32.lib;bcrypt.lib;advapi32.lib;user32.lib;shlwapi.lib;intl.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtest.lib;gtest_main.lib;libssh2.lib;libcrypto.lib;ws2_32.lib;iphlpapi.lib;crypt32.lib;bcrypt.lib;advapi32.lib;user32.lib;shlwapi.lib;intl.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(LlamaPkgDir)\$(LlamaCfgDir)bin\*.dll" "$(OutDir)" &gt;nul &amp;&amp; xcopy /y /d "$(GgmlPkgDir)\$(LlamaCfgDir)bin\*.dll" "$(OutDir)" &gt;nul</Command>

@@ -60,7 +60,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOMINMAX;_WINDOWS;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\third-party;..	hird-party;$(VcpkgRoot)\installed\$(VcpkgTriplet)\include;..\AFS_Core\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud; C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -68,7 +68,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -78,7 +78,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>wxUSE_HELP;_WXWIDGETS;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOMINMAX;_WINDOWS;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\third-party;..	hird-party;$(VcpkgRoot)\installed\$(VcpkgTriplet)\include;..\AFS_Core\include;.\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -88,7 +88,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Entwicklung\extlib\vcpkg\installed\x64-windows\lib;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -175,9 +175,6 @@
     <ClInclude Include="include\PhoneDirDialog.h" />
     <ClInclude Include="include\PhoneTemplatesDialog.h" />
     <ClInclude Include="include\QrCode.h" />
-    <ClInclude Include="include\DevicesDialog.h" />
-    <ClInclude Include="include\PairDeviceDialog.h" />
-    <ClInclude Include="include\QrCode.h" />
     <ClInclude Include="include\SshAccountSelectDialog.h" />
     <ClInclude Include="include\SshDirDialog.h" />
     <ClInclude Include="include\SyncInterface.h" />
@@ -252,10 +249,6 @@
     <ClCompile Include="src\PairDeviceDialog.cpp" />
     <ClCompile Include="src\PhoneDirDialog.cpp" />
     <ClCompile Include="src\PhoneTemplatesDialog.cpp" />
-    <ClCompile Include="src\QrCode.cpp" />
-    <ClCompile Include="..\third-party\qrcodegen\qrcodegen.cpp" />
-    <ClCompile Include="src\DevicesDialog.cpp" />
-    <ClCompile Include="src\PairDeviceDialog.cpp" />
     <ClCompile Include="src\QrCode.cpp" />
     <ClCompile Include="..\third-party\qrcodegen\qrcodegen.cpp" />
     <ClCompile Include="src\SshAccountSelectDialog.cpp" />

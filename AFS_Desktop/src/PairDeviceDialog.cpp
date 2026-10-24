@@ -53,7 +53,7 @@ PairDeviceDialog::PairDeviceDialog(wxWindow* parent, wxWindowID id, const wxStri
     wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
     code_ = new wxStaticBitmap(this, wxID_ANY, wxBitmap(FromDIP(CODE_PIXELS), FromDIP(CODE_PIXELS)));
     main_sizer->Add(code_, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
-    steps_ = new wxStaticText(this, wxID_ANY, translate("pair_step_install") + "\n" + translate("pair_step_scan"));
+    steps_ = new wxStaticText(this, wxID_ANY, translate("pair_step_install") + L"\n" + translate("pair_step_scan"));
     main_sizer->Add(steps_, 0, wxLEFT | wxRIGHT, 10);
     status_ = new wxStaticText(this, wxID_ANY, translate("pair_waiting"));
     status_->SetFont(status_->GetFont().Bold());
@@ -114,7 +114,7 @@ void PairDeviceDialog::on_timer(wxTimerEvent&)
         return;
     }
     if (++ticks_ == FIREWALL_HINT_AFTER_TICKS) {
-        status_->SetLabel(translate("pair_waiting") + "\n" + translate("pair_firewall_hint", {std::to_wstring(link.port())}));
+        status_->SetLabel(translate("pair_waiting") + L"\n" + translate("pair_firewall_hint", {std::to_wstring(link.port())}));
         Fit();
     }
 }

@@ -123,13 +123,14 @@ if (-not $NoBuild) {
     # Fenster die Message-IDs statt der Texte, die der Benutzer sieht.
     $defines = '_GUITEST', 'wxUSE_HELP', '_WXWIDGETS', 'WIN32', 'X64', '_CONSOLE',
                '_CRT_SECURE_NO_DEPRECATE=1', '_CRT_NON_CONFORMING_SWPRINTFS=1',
-               '_SCL_SECURE_NO_WARNINGS=1', '__WXMSW__', '_UNICODE', 'UNICODE', 'NOPCH',
+               '_SCL_SECURE_NO_WARNINGS=1', '__WXMSW__', '_UNICODE', 'UNICODE', 'NOMINMAX', 'NOPCH',
                'AFS_WITH_GETTEXT'
     if ($debug) { $defines += '_DEBUG' } else { $defines += 'NDEBUG' }
     $includes = $guiDir, (Join-Path $root 'AFS_Desktop\include'), (Join-Path $root 'AFS_Core\include'),
                 (Join-Path $GTestDir 'include'), (Join-Path $VcpkgDir 'include'), $BoostDir,
                 (Join-Path $wxLibDir $wxSetupDir), (Join-Path $WxDir 'include'),
-                (Join-Path $llamaPkgDir 'include'), (Join-Path $ggmlPkgDir 'include')
+                (Join-Path $llamaPkgDir 'include'), (Join-Path $ggmlPkgDir 'include'),
+                (Join-Path $root 'third-party'), (Join-Path $root 'AFS_Core\test\Integrationstests')
 
     # /utf-8 wie in den vcxproj-Dateien: die Quellen sind UTF-8 ohne BOM, sonst
     # liest cl sie in der ANSI-Codepage und Umlaute in L"..."-Literalen werden
@@ -170,7 +171,7 @@ if (-not $NoBuild) {
                   "/LIBPATH:`"$llamaLibDir`"", "/LIBPATH:`"$ggmlLibDir`"")
     foreach ($o in (Get-ChildItem "$buildDir\*.obj")) { $linkArgs += "`"$($o.FullName)`"" }
     $linkArgs += "`"$res`""
-    $linkArgs += 'gtest.lib', 'libssh2.lib', 'libssl.lib', 'libcrypto.lib', 'ws2_32.lib', 'crypt32.lib', 'intl.lib'
+    $linkArgs += 'gtest.lib', 'libssh2.lib', 'libssl.lib', 'libcrypto.lib', 'ws2_32.lib', 'iphlpapi.lib', 'crypt32.lib', 'intl.lib'
     $linkArgs += 'llama.lib', 'ggml.lib', 'ggml-cpu.lib', 'ggml-base.lib'
     $linkArgs += $wxLibs
     $linkArgs += 'kernel32.lib', 'user32.lib', 'gdi32.lib', 'comdlg32.lib', 'winspool.lib', 'winmm.lib',

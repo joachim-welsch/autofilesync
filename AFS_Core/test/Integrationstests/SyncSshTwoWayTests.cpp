@@ -438,6 +438,7 @@ TEST_F(SyncSshTwoWayTest, ConflictWithTheServerKeepsBothVersions)  // [SyncSshTw
     EXPECT_EQ(tu::run_sync(si, state), 0u);
 }
 
+#ifdef _UNIX  // sftp_connect_count exists in the libssh build only
 TEST_F(SyncSshTwoWayTest, APassSharesOneSessionPerAccount)  // [SyncSshTwoWayTests.md#sessions]
 {
     for (int dir = 0; dir < 3; ++dir)
@@ -505,3 +506,4 @@ TEST_F(SyncSshTwoWayTest, ASinglePassOfSynchronizeLogsInOnce)  // [SyncSshTwoWay
     EXPECT_TRUE(remote_exists("datei4.txt"));
     EXPECT_TRUE(Config::instance().erase_by_name(L"ssh session test"));
 }
+#endif

@@ -264,15 +264,6 @@
     <ClInclude Include="include\QrCode.h">
       <Filter>AFS_Desktop</Filter>
     </ClInclude>
-    <ClInclude Include="include\DevicesDialog.h">
-      <Filter>AFS_Desktop</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PairDeviceDialog.h">
-      <Filter>AFS_Desktop</Filter>
-    </ClInclude>
-    <ClInclude Include="include\QrCode.h">
-      <Filter>AFS_Desktop</Filter>
-    </ClInclude>
     <ClInclude Include="include\SshAccountSelectDialog.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
@@ -534,18 +525,6 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\PhoneTemplatesDialog.cpp">
-      <Filter>AFS_Desktop</Filter>
-    </ClCompile>
-    <ClCompile Include="src\QrCode.cpp">
-      <Filter>AFS_Desktop</Filter>
-    </ClCompile>
-    <ClCompile Include="..\third-party\qrcodegen\qrcodegen.cpp">
-      <Filter>AFS_Desktop</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DevicesDialog.cpp">
-      <Filter>AFS_Desktop</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PairDeviceDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\QrCode.cpp">

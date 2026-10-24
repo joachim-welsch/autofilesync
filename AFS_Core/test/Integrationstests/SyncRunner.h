@@ -30,7 +30,7 @@ namespace tu {
 inline std::size_t run_sync(const AFS_Core::SyncItem& si, AFS_Core::SyncState* state)  // [SyncRunner.md#run_sync]
 {
 	using namespace AFS_Core;
-	SshSessionScope ssh_sessions;  // [SyncRunner.md#ssh-sessions]
+	[[maybe_unused]] SshSessionScope ssh_sessions;  // [SyncRunner.md#ssh-sessions]
 	std::size_t copy_count = 0;
 	switch (si.sync_item_type()) {
 	case SyncItemType::Tree: { SyncTree tree(si, copy_count, false, state); tree(); break; }

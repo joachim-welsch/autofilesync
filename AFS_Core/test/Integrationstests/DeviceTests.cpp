@@ -30,7 +30,9 @@
 #include "TestPaths.h"
 #include <filesystem>
 #include <fstream>
+#ifdef _UNIX
 #include <libssh/libssh.h>
+#endif
 
 using namespace AFS_Core;
 namespace fs = std::filesystem;
@@ -41,6 +43,7 @@ const std::string PHONE_ID = "0123456789abcdef0123456789abcdef";
 const std::string PHONE_NAME = "Pixel 8 Test";
 const std::wstring ITEM_NAME = L"phone-item-test";
 
+#ifdef _UNIX
 std::string local_sshd_host_key()  // [DeviceTests.md#local-sshd-key]
 {
     ssh_session session = ssh_new();
@@ -63,6 +66,7 @@ std::string local_sshd_host_key()  // [DeviceTests.md#local-sshd-key]
     ssh_free(session);
     return line;
 }
+#endif
 
 std::string read_file(const fs::path& path)
 {
@@ -331,6 +335,7 @@ TEST_F(DeviceLinkTest, HelloListsTheDeviceItems)  // [DeviceTests.md#serve]
     EXPECT_EQ(reply.type(1), "idle") << "A hello without serving lists the items and asks for nothing.";
 }
 
+#ifdef _UNIX  // local_sshd_host_key reads the key through libssh
 TEST_F(DeviceLinkTest, ServingPhoneGetsItsPass)  // [DeviceTests.md#serve]
 {
     SKIP_WITHOUT_SSH_SERVER();
@@ -365,6 +370,7 @@ TEST_F(DeviceLinkTest, ServingPhoneGetsItsPass)  // [DeviceTests.md#serve]
     EXPECT_TRUE(account->password().empty());
     EXPECT_FALSE(Synchronize::has_instance()) << "The run the link created must be destroyed.";
 }
+#endif
 
 TEST_F(DeviceLinkTest, WrongHostKeyStopsThePass)  // [DeviceTests.md#serve]
 {
