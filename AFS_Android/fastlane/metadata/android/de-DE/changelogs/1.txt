@@ -1,0 +1,1 @@
+Erste Version: Handy per QR-Code mit AutoFileSync auf dem PC verbinden, Fotos sichern, Ordner abgleichen, Musik aufs Handy, Synchronisation im Hintergrund.

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronising with a phone</title>
+</head>
+<body>
+<h1>Synchronising with a phone</h1>
+
+<p>AutoFileSync also keeps folders on an Android phone in step with the PC:
+photos reach the PC by themselves, a folder stays the same on both devices, or
+music goes from the PC to the phone. The phone needs the AutoFileSync app for
+this, and phone and PC must be on the same Wi-Fi.</p>
+
+<h2>Connecting a phone</h2>
+
+<ol>
+<li><b>File &rarr; Connect phone…</b> shows a QR code. It is valid for ten
+    minutes and for one phone only.</li>
+<li>Install the app on the phone – from F-Droid or as an APK from
+    <tt>welsch-software.com</tt>. The QR code takes you there as well.</li>
+<li>In the app, tap <b>Scan QR code</b>, point the camera at the code and
+    confirm with <b>Connect</b>.</li>
+<li>The app asks for access to all files: <b>Allow access</b> leads to the
+    Android setting where it is switched on. Without this access the PC can
+    neither read nor write the phone's folders.</li>
+</ol>
+
+<p>The PC then shows “… is connected ✓”. From now on PC and phone recognise
+each other by their certificates; a foreign device cannot pass itself off as
+either of them.</p>
+
+<h2>What is synchronised</h2>
+
+<p>Right after connecting, AutoFileSync asks what should happen with the phone.
+Folders on the PC and on the phone are suggested and can be changed.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Back up photos and videos to the PC</b></td>
+    <td>Copies the photos and videos from <tt>DCIM/Camera</tt> to the PC.
+        Photos deleted on the phone stay on the PC – so space can be freed on
+        the phone.</td></tr>
+<tr><td valign="top"><b>Keep a folder the same on both devices</b></td>
+    <td>Changes on one side reach the other, deletions and renames included.
+        If a file was changed on both sides, both versions are kept; see
+        <a href="options.html#twoway">Two-way synchronisation</a>.</td></tr>
+<tr><td valign="top"><b>Music from the PC to the phone</b></td>
+    <td>Copies the PC's music folder to the phone. Whatever disappears from
+        that folder is removed from the phone as well.</td></tr>
+<tr><td valign="top"><b>Set up later</b></td>
+    <td>Creates nothing. This can still be done later.</td></tr>
+</table>
+
+<p>Each template creates an entirely ordinary synchronisation. Like any other,
+it can be edited, looked at in the preview and followed in the log.</p>
+
+<p>A synchronisation of your own with the phone is created in the dialog of a
+synchronisation: the <b>Phone…</b> button next to <b>SSH…</b> picks the phone
+and a folder on it. The list names the usual folders such as
+<tt>DCIM/Camera</tt>, <tt>Download</tt> or <tt>Music</tt>; another one can be
+typed in.</p>
+
+<h2>When synchronisation happens</h2>
+
+<p>A pass with the phone starts when the phone reports to the PC:</p>
+
+<ul>
+<li>every 30 minutes,</li>
+<li>one minute after new photos or videos,</li>
+<li>immediately with <b>Synchronise now</b> in the app.</li>
+</ul>
+
+<p>Two switches in the app decide when the phone reports in: <b>Only on
+Wi-Fi</b> (on at first) and <b>Only while charging</b> (off at first). Below
+15 % battery the phone waits until it is on the charger. During a pass the
+phone shows the progress as a notification.</p>
+
+<p>A phone that is away is not an error: AutoFileSync simply waits until it
+reports in again. If the phone cannot reach the PC for a whole day, it reminds
+you once with a notification.</p>
+
+<p>If the PC gets a new address in the home network, the phone finds it again
+by itself. If the <a href="service.html">background service</a> is running, it
+accepts phones even when nobody is logged in to the PC.</p>
+
+<p>The phone's files are reachable for the PC only during a pass, and only with
+a password that is generated anew for every pass.</p>
+
+<h2>Connected phones</h2>
+
+<p><b>Edit &rarr; Phones…</b> lists all connected phones.</p>
+
+<ul>
+<li>A click on the name renames the phone.</li>
+<li><b>Set up synchronisation…</b> opens the templates again.</li>
+<li><b>Disconnect</b> removes the phone. It can no longer report in; to connect
+    it again, scan a new code. In the app, <b>Disconnect from PC</b> ends the
+    connection from the other side.</li>
+</ul>
+
+<h2><a name="firewall"></a>Firewall</h2>
+
+<p>The phone reaches the PC through port <b>52381</b>. A firewall on the PC must
+open this port for <b>TCP and UDP</b>. On Linux with <tt>ufw</tt> this is
+enough:</p>
+
+<blockquote><tt>sudo ufw allow 52381</tt></blockquote>
+
+<p>If nothing arrives within a minute while connecting, the dialog itself points
+to the firewall.</p>
+
+<h2>If it does not work</h2>
+
+<ul>
+<li><b>The app reports “PC not reachable”.</b> Is the PC switched on and on
+    the same Wi-Fi as the phone? A guest Wi-Fi or a Wi-Fi that shields the
+    devices from each other does not allow a connection.</li>
+<li><b>The code has expired.</b> Open <b>File &rarr; Connect phone…</b> again
+    and scan the new code.</li>
+<li><b>The dialog keeps waiting.</b> Most likely the firewall is blocking (see
+    above).</li>
+<li><b>Nothing is transferred.</b> Does the app have access to all files? Is
+    “Only on Wi-Fi” or “Only while charging” switched on while the phone is
+    away or not charging?</li>
+</ul>
+
+</body>
+</html>

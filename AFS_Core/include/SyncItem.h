@@ -131,6 +131,7 @@ class Exclusions: public std::vector<std::wstring> {
 public:
 };
 
+inline constexpr const wchar_t* PART_SUFFIX = L".afs-part";  // [SyncFileSsh.md#part-files]
 bool is_excluded(const std::wstring& name, const Exclusions& exclusions);  // [SyncItem.md#is_excluded]
 
 enum class SyncItemType {

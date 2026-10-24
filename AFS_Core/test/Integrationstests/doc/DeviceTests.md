@@ -56,3 +56,21 @@ without items ends in idle. The host key the phone sent at pairing is pinned
 
 Read with libssh itself rather than from /etc/ssh, so the test pins the key type the client
 actually negotiates with this server.
+
+## shared-files
+
+A second DevicePairing on the same directory stands in for the other process: the token it
+opens is the link's token, the pairing result lands in pairing.done and is taken once, and the
+port file appears with the link and goes with it (DeviceLink.md#shared-files). A stale port
+file left by a crashed process loses against the port this process actually listens on.
+
+## discovery
+
+The discovery socket answers its own fingerprint with the TCP port and ignores every other
+one (DeviceLink.md#discovery), checked over loopback on an ephemeral port.
+
+## part-files
+
+A copy to a phone account (pinned host key, live account pointing at the local sshd) replaces
+an existing file completely and leaves no part file behind; a leftover part file is excluded
+from every synchronisation (SyncFileSsh.md#part-files).

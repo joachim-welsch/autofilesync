@@ -7,6 +7,10 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Android">
+      <PARAM name="Local" value="phone.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Anteprima (prova)">
       <PARAM name="Local" value="preview.html">
     </OBJECT></LI>
@@ -29,6 +33,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Chat con l'assistente">
       <PARAM name="Local" value="assistant.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Codice QR">
+      <PARAM name="Local" value="phone.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Condizioni di licenza (GPL)">
@@ -57,6 +65,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="File di configurazione">
       <PARAM name="Local" value="config.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Firewall (porta 52381)">
+      <PARAM name="Local" value="phone.html#firewall">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Lingua">
@@ -109,6 +121,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Sincronizzazione bidirezionale">
       <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Telefono, collegare">
+      <PARAM name="Local" value="phone.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Tipo (file, cartella, albero di cartelle)">

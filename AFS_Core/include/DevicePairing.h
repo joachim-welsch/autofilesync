@@ -18,6 +18,8 @@
  */
 #pragma once
 #include <chrono>
+#include <filesystem>
+#include <utility>
 #include <cstdint>
 #include <ctime>
 #include <mutex>
@@ -27,15 +29,17 @@
 namespace AFS_Core {
 
 class DevicePairing {  // [DevicePairing.md#DevicePairing]
+    std::filesystem::path dir_;
     mutable std::mutex mutex_;
-    std::string token_;
-    std::chrono::steady_clock::time_point deadline_{};
-    std::time_t expires_ = 0;
     int failures_ = 0;
-    bool open_unlocked() const;
+    std::filesystem::path token_file() const { return dir_ / "pairing.token"; }
+    std::pair<std::string, std::time_t> read() const;
 public:
     static constexpr std::chrono::minutes TOKEN_LIFETIME{10};
     static constexpr int FAILURE_LIMIT = 5;  // [DevicePairing.md#FAILURE_LIMIT]
+    DevicePairing() = default;
+    explicit DevicePairing(std::filesystem::path dir): dir_(std::move(dir)) {}
+    void set_dir(const std::filesystem::path& dir);
     std::string begin();  // [DevicePairing.md#begin]
     void end();
     bool open() const;

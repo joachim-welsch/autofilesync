@@ -26,6 +26,7 @@
 #include "StrUtil.h"
 #include "Translation.h"
 #include <cstring>
+#include <fstream>
 #include <sstream>
 #include <boost/property_tree/json_parser.hpp>
 #include <openssl/err.h>
@@ -86,15 +87,6 @@ void set_timeouts(Socket s)
 #endif
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, value, size);
     setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, value, size);
-}
-
-bool readable_within(Socket s, int milliseconds)
-{
-    fd_set set;
-    FD_ZERO(&set);
-    FD_SET(s, &set);
-    timeval wait{milliseconds / 1000, (milliseconds % 1000) * 1000};
-    return select(static_cast<int>(s) + 1, &set, nullptr, nullptr, &wait) > 0;
 }
 
 std::string json_string(const std::string& text)  // [DeviceLink.md#json-output]
@@ -158,6 +150,35 @@ std::string role_path()  // [DeviceLink.md#role]
     return dir + "/autofilesync-" + std::to_string(getuid()) + (private_scope ? "-test-devicelink.lock" : "-devicelink.lock");
 #endif
 }
+
+
+constexpr const char* PORT_FILE = "devicelink.port";  // [DeviceLink.md#shared-files]
+constexpr const char* PAIRED_FILE = "pairing.done";
+constexpr const char* PRESENCE_FILE = "devices.presence";
+constexpr const char* DISCOVER = "AFS-DISCOVER 1 ";  // [DeviceLink.md#discovery]
+constexpr const char* HERE = "AFS-HERE 1 ";
+
+void write_file(const std::filesystem::path& file, const std::string& text)
+{
+    const std::filesystem::path temporary = file.string() + ".tmp";
+    {
+        std::ofstream out(temporary, std::ios::binary | std::ios::trunc);
+        out << text;
+    }
+    std::error_code ec;
+    std::filesystem::rename(temporary, file, ec);
+}
+
+std::vector<std::string> read_lines(const std::filesystem::path& file)
+{
+    std::vector<std::string> lines;
+    std::ifstream in(file);
+    for (std::string line; std::getline(in, line);)
+        lines.push_back(line);
+    return lines;
+}
+
+bool role_taken_logged = false;  // [DeviceLink.md#role] the daemon retries every minute
 
 int accept_any_client_certificate(int, X509_STORE_CTX*)  // [DeviceLink.md#client-certificates]
 {
@@ -276,17 +297,26 @@ bool DeviceLink::prepare_tls()  // [DeviceLink.md#tls]
     return true;
 }
 
-bool DeviceLink::start(const std::filesystem::path& identity_dir, uint16_t port)  // [DeviceLink.md#start]
+std::filesystem::path DeviceLink::default_dir()  // [DeviceLink.md#shared-files]
+{
+    return std::filesystem::path(Config::get_root_pathname()).parent_path();
+}
+
+bool DeviceLink::start(const std::filesystem::path& dir, uint16_t port, uint16_t discovery_port)  // [DeviceLink.md#start]
 {
     if (running_)
         return true;
-    identity_ = DeviceIdentity::load_or_create(identity_dir);
+    dir_ = dir;
+    pairing_.set_dir(dir);  // the pairing works through files even when another process listens
+    identity_ = DeviceIdentity::load_or_create(dir);
     if (!identity_)
         return false;
     if (!take_role()) {
-        log_info(translation::translate("device_link_role_taken"));
+        if (!std::exchange(role_taken_logged, true))
+            log_info(translation::translate("device_link_role_taken"));
         return false;
     }
+    role_taken_logged = false;
 #ifdef _WIN32
     WSADATA data;
     WSAStartup(MAKEWORD(2, 2), &data);
@@ -296,11 +326,56 @@ bool DeviceLink::start(const std::filesystem::path& identity_dir, uint16_t port)
         stop();
         return false;
     }
+    if (!open_discovery(discovery_port))
+        log_warning(translation::translate("device_discovery_unavailable", {std::to_wstring(discovery_port)}));
+    write_file(dir_ / PORT_FILE, std::to_string(port_) + "\n");
     stop_ = false;
     running_ = true;
     thread_ = std::thread(&DeviceLink::accept_loop, this);
     log_info(translation::translate("device_link_listening", {std::to_wstring(port_)}));
     return true;
+}
+
+bool DeviceLink::hosted_elsewhere() const  // [DeviceLink.md#shared-files]
+{
+    if (running_ || dir_.empty())
+        return false;
+    const auto lines = read_lines(dir_ / PORT_FILE);
+    return !lines.empty() && std::atoi(lines.front().c_str()) > 0;
+}
+
+bool DeviceLink::open_discovery(uint16_t port)  // [DeviceLink.md#discovery]
+{
+    const Socket s = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s == NO_SOCKET)
+        return false;
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_port = htons(port);
+    socklen_t length = sizeof address;
+    if (bind(s, reinterpret_cast<sockaddr*>(&address), sizeof address) != 0 || getsockname(s, reinterpret_cast<sockaddr*>(&address), &length) != 0) {
+        close_socket(s);
+        return false;
+    }
+    discovery_ = static_cast<std::intptr_t>(s);
+    discovery_port_ = ntohs(address.sin_port);
+    return true;
+}
+
+void DeviceLink::answer_discovery()  // [DeviceLink.md#discovery]
+{
+    char buffer[256];
+    sockaddr_in peer{};
+    socklen_t length = sizeof peer;
+    const auto n = recvfrom(static_cast<Socket>(discovery_), buffer, sizeof buffer - 1, 0, reinterpret_cast<sockaddr*>(&peer), &length);
+    if (n <= 0)
+        return;
+    const std::string request(buffer, static_cast<size_t>(n));
+    if (request.rfind(DISCOVER, 0) != 0 || request.substr(std::strlen(DISCOVER), 64) != fingerprint())
+        return;  // only a phone that already knows this PC gets an answer
+    const std::string reply = HERE + fingerprint() + " " + std::to_string(port_);
+    sendto(static_cast<Socket>(discovery_), reply.data(), static_cast<int>(reply.size()), 0, reinterpret_cast<sockaddr*>(&peer), length);
 }
 
 void DeviceLink::stop()
@@ -312,27 +387,47 @@ void DeviceLink::stop()
         close_socket(static_cast<Socket>(listener_));
         listener_ = -1;
     }
+    if (discovery_ >= 0) {
+        close_socket(static_cast<Socket>(discovery_));
+        discovery_ = -1;
+    }
+    if (running_ && !dir_.empty()) {
+        std::error_code ec;
+        std::filesystem::remove(dir_ / PORT_FILE, ec);
+        std::filesystem::remove(dir_ / PRESENCE_FILE, ec);
+    }
     if (ctx_) {
         SSL_CTX_free(ctx_);
         ctx_ = nullptr;
     }
     release_role();
-    pairing_.end();
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        paired_.reset();
         pending_items_.clear();
         presence_.clear();  // presence describes this run of the link [Device.md#DevicePresence]
     }
     running_ = false;
     port_ = 0;
+    discovery_port_ = 0;
 }
 
 void DeviceLink::accept_loop()
 {
     const Socket listener = static_cast<Socket>(listener_);
+    const Socket discovery = static_cast<Socket>(discovery_);
     while (!stop_) {
-        if (!readable_within(listener, ACCEPT_POLL_MILLISECONDS))
+        fd_set set;
+        FD_ZERO(&set);
+        FD_SET(listener, &set);
+        if (discovery_ >= 0)
+            FD_SET(discovery, &set);
+        timeval wait{0, ACCEPT_POLL_MILLISECONDS * 1000};
+        const int highest = static_cast<int>(discovery_ >= 0 && discovery > listener ? discovery : listener);
+        if (select(highest + 1, &set, nullptr, nullptr, &wait) <= 0)
+            continue;
+        if (discovery_ >= 0 && FD_ISSET(discovery, &set))
+            answer_discovery();
+        if (!FD_ISSET(listener, &set))
             continue;
         sockaddr_in peer{};
         socklen_t length = sizeof peer;
@@ -452,11 +547,12 @@ std::string DeviceLink::pair(const PairRequest& request, const std::string& peer
         config.update_device(device);  // [DeviceLink.md#repaired-device]
     else
         config.add(device);
+    write_file(dir_ / PAIRED_FILE, device.id + "\n" + device.name + "\n" + device.cert_fingerprint + "\n" + device.ssh_host_key + "\n");  // [DeviceLink.md#shared-files]
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        paired_ = device;
         presence_[device.id] = DevicePresence{peer_address, request.sftp_port, "", "", request.app_version, std::time(nullptr), false};
     }
+    write_presence_file();
     log_info(translation::translate("device_paired", {string_to_wstring(device.name), string_to_wstring(peer_address)}));
     return "{\"type\":\"paired\",\"pc\":" + pc_json() + "}\n";
 }
@@ -534,6 +630,7 @@ void DeviceLink::hello(const HelloRequest& request, const std::string& peer_fing
         std::lock_guard<std::mutex> lock(mutex_);
         presence_[device->id] = DevicePresence{peer_address, request.sftp_port, request.sftp_user, request.sftp_password, request.app_version, std::time(nullptr), false};
     }
+    write_presence_file();
     log_debug(translation::translate("device_hello", {string_to_wstring(device->name), string_to_wstring(peer_address)}));
     const std::vector<DeviceItem> items = items_of(device->id);
     if (!send(items_line(items)))
@@ -614,26 +711,69 @@ PairingOffer DeviceLink::offer()  // [DeviceLink.md#offer]
     PairingOffer offer;
     offer.pc_name = pc_name();
     offer.addresses = local_ipv4_addresses();
-    offer.port = port_;
+    if (running_)
+        offer.port = port_;
+    else if (const auto lines = read_lines(dir_ / PORT_FILE); !lines.empty())
+        offer.port = static_cast<uint16_t>(std::atoi(lines.front().c_str()));  // [DeviceLink.md#shared-files]
     offer.fingerprint = fingerprint();
     offer.token = pairing_.token().empty() ? pairing_.begin() : pairing_.token();
     offer.expires = pairing_.expires();
     return offer;
 }
 
-std::optional<Device> DeviceLink::take_paired()
+std::optional<Device> DeviceLink::take_paired()  // [DeviceLink.md#take_paired]
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    std::optional<Device> device;
-    device.swap(paired_);
+    if (dir_.empty())
+        return std::nullopt;
+    const auto lines = read_lines(dir_ / PAIRED_FILE);
+    if (lines.size() < 4)
+        return std::nullopt;
+    std::error_code ec;
+    std::filesystem::remove(dir_ / PAIRED_FILE, ec);
+    Device device{lines[0], lines[1], lines[2], lines[3]};
+    if (!valid_device_id(device.id))
+        return std::nullopt;
+    if (!Config::instance().find_device(device.id))
+        Config::instance().add(device);  // the device paired in another process [DeviceLink.md#shared-files]
+    else
+        Config::instance().update_device(device);
     return device;
+}
+
+void DeviceLink::write_presence_file() const  // [DeviceLink.md#shared-files]
+{
+    std::string text;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (const auto& [id, presence] : presence_)
+            text += id + " " + presence.address + " " + std::to_string(presence.sftp_port) + " " + std::to_string(presence.last_seen) + "\n";
+    }
+    if (!dir_.empty())
+        write_file(dir_ / PRESENCE_FILE, text);
 }
 
 std::optional<DevicePresence> DeviceLink::presence(const std::string& device_id) const
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    const auto found = presence_.find(device_id);
-    return found == presence_.end() ? std::nullopt : std::optional<DevicePresence>(found->second);
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        const auto found = presence_.find(device_id);
+        if (found != presence_.end())
+            return found->second;
+    }
+    if (running_ || dir_.empty())
+        return std::nullopt;
+    for (const auto& line : read_lines(dir_ / PRESENCE_FILE)) {  // another process hosts the link
+        std::istringstream in(line);
+        std::string id;
+        DevicePresence presence;
+        long long seen = 0;
+        if (in >> id >> presence.address >> presence.sftp_port >> seen && id == device_id) {
+            presence.last_seen = static_cast<std::time_t>(seen);
+            return presence;
+        }
+    }
+    return std::nullopt;
 }
 
 } // namespace AFS_Core

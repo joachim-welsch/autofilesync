@@ -1,0 +1,19 @@
+Die Android-App zu AutoFileSync, dem freien Programm für Windows, macOS und Linux, das Dateien an zwei Orten auf demselben Stand hält.
+
+<b>So geht's</b>
+<ul>
+<li>In AutoFileSync auf dem PC <i>Datei → Handy verbinden…</i> wählen.</li>
+<li>Den QR-Code mit der App scannen und „Verbinden“ antippen.</li>
+<li>Auf dem PC auswählen, was passieren soll: Fotos und Videos sichern, einen Ordner auf beiden Geräten gleich halten oder Musik aufs Handy bringen.</li>
+</ul>
+
+Danach synchronisiert das Handy von selbst: alle 30 Minuten, kurz nach neuen Fotos und auf Knopfdruck – wahlweise nur im WLAN und nur beim Laden. Eingestellt wird alles am PC.
+
+<b>Sicher</b>
+<ul>
+<li>PC und Handy prüfen sich gegenseitig über Zertifikate, der QR-Code gilt zehn Minuten und nur einmal.</li>
+<li>Der Dateiserver auf dem Handy ist nur während eines Abgleichs offen, mit einem Einmalpasswort.</li>
+<li>Kein Cloud-Dienst, kein Konto: Die Daten gehen nur im eigenen Netz vom Handy zum PC.</li>
+</ul>
+
+Die App braucht Zugriff auf alle Dateien, damit der PC die eingerichteten Ordner lesen und schreiben kann.

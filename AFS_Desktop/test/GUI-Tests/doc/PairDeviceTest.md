@@ -34,3 +34,10 @@ shared folder, delete_in_target on for music, warn_if_unreachable off for all
 (PhoneTemplatesDialog.md#templates). The dialog itself is driven once from the phone list:
 "Synchronisation einrichten…" opens it, OK with the default template creates the photo item,
 which the test removes again before the base class compares the configuration.
+
+## hosted-elsewhere
+
+The background service is simulated by holding the role lock and writing its port file: the
+dialog must then show a code with the service's port and open the token in the shared
+directory, without taking the role itself (PairDeviceDialog.md#hosted-elsewhere). Linux and
+macOS only; the role is a named mutex on Windows.

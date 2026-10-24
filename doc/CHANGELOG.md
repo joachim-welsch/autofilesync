@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.4.0 – in Arbeit
+## 0.4.0 – 2026-10-22
 
 - Handys lassen sich mit AutoFileSync verbinden: „Datei → Handy verbinden…“
   zeigt einen QR-Code, die Android-App scannt ihn, und das Handy erscheint
@@ -17,6 +17,20 @@
   beim Verbinden festgelegt wurde. SSH-Verbindungen kennen jetzt einen Port
   (`port` in der Konfiguration, Standard 22). Übertragungen über SSH schicken
   mehrere Anfragen gleichzeitig und sind im WLAN um ein Vielfaches schneller.
+- Das Handy synchronisiert im Hintergrund: alle 30 Minuten, kurz nach neuen
+  Fotos und auf Knopfdruck, wahlweise nur im WLAN und nur beim Laden, mit
+  Fortschritt in der Benachrichtigung. Neue Dateien erscheinen danach gleich in
+  Galerie und Musik-App. Hat der PC eine neue Adresse bekommen, findet das
+  Handy ihn selbst wieder (UDP-Port 52381 muss in der Firewall offen sein).
+- Der Hintergrunddienst nimmt Handys an, sobald eines verbunden ist, auch ohne
+  angemeldeten Benutzer; „Handy verbinden…“ funktioniert auch, während er läuft.
+- Aufs Handy kopierte Dateien entstehen zuerst unter einem vorläufigen Namen und
+  sind erst vollständig sichtbar; ein abgebrochener Abgleich hinterlässt keine
+  halben Fotos oder Lieder mehr. SSH-Verbindungen haben im Dialog ein Feld für
+  den Port. Die Android-App gibt es in allen sieben Sprachen, die Hilfe hat
+  eine Seite zum Handy. Der Windows-Installer gibt den Handy-Port in der
+  Firewall frei (nur im lokalen Netz), das Debian-Paket bringt ein ufw-Profil
+  mit (`sudo ufw allow AutoFileSync`).
 - Zwei-Wege-Synchronisation merkt sich nach jedem Durchlauf den Stand beider
   Seiten (Abgleichszustand, eine Datei je Synchronisation im Unterordner
   `state` neben der Konfiguration, gemeinsam für Programm und

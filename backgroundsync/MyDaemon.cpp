@@ -18,6 +18,7 @@
  */
 #include "MyDaemon.h"
 #include "Config.h"
+#include "DeviceLink.h"
 #include "Logging.h"
 #include "Synchronize.h"
 #include "Translation.h"
@@ -43,6 +44,7 @@ void MyDaemon::stop()
 {
     if (!running_.load())
         return;
+    DeviceLink::instance().stop();  // first: a pass it waits for needs the worker's run
     running_.store(false);
     if (worker_thread_.joinable())
         worker_thread_.join();
@@ -72,7 +74,17 @@ void MyDaemon::run()
         cut_log_daily_();
         if (Config::instance().file_changed_on_disk())
             reload_config();
+        keep_device_link();
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     Synchronize::destroy();
+}
+
+void MyDaemon::keep_device_link()  // [MyDaemon.md#device-link]
+{
+    DeviceLink& link = DeviceLink::instance();
+    if (link.running() || Config::instance().devices_snapshot().empty() || std::chrono::steady_clock::now() < next_link_try_)
+        return;
+    next_link_try_ = std::chrono::steady_clock::now() + std::chrono::minutes(1);
+    link.start(DeviceLink::default_dir());
 }

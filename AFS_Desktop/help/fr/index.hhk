@@ -7,6 +7,10 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Android">
+      <PARAM name="Local" value="phone.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Aperçu (simulation)">
       <PARAM name="Local" value="preview.html">
     </OBJECT></LI>
@@ -17,6 +21,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Caractère générique">
       <PARAM name="Local" value="syncitems.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Code QR">
+      <PARAM name="Local" value="phone.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Comparaison des fichiers (date, taille, contenu)">
@@ -75,6 +83,10 @@
       <PARAM name="Local" value="logging.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Pare-feu (port 52381)">
+      <PARAM name="Local" value="phone.html#firewall">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Preuve de sauvegarde">
       <PARAM name="Local" value="backupproof.html">
     </OBJECT></LI>
@@ -109,6 +121,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Synchroniser une fois">
       <PARAM name="Local" value="synconce.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Téléphone, connecter">
+      <PARAM name="Local" value="phone.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Tolérance de la date de modification (NTFS, FAT, exFAT)">

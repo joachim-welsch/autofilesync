@@ -1,0 +1,4 @@
+[AutoFileSync]
+title=AutoFileSync phone link
+description=Pairing and synchronisation with the AutoFileSync Android app (TCP) and finding the PC again (UDP)
+ports=52381

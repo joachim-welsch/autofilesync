@@ -1881,6 +1881,10 @@ msgid "device_link_listening"
 msgstr ""
 
 #: AFS_Core/src/DeviceLink.cpp
+msgid "device_discovery_unavailable"
+msgstr ""
+
+#: AFS_Core/src/DeviceLink.cpp
 msgid "device_link_handshake_failed"
 msgstr ""
 

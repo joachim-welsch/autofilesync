@@ -36,6 +36,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -157,12 +158,23 @@ private fun Status(state: AppState) {
             Text(stringResource(R.string.items_none), style = MaterialTheme.typography.bodyMedium)
         else
             state.items.forEach { ItemRow(it) }
+        Spacer(Modifier.height(16.dp))
+        SettingRow(stringResource(R.string.setting_wifi_only), state.wifiOnly, state::changeWifiOnly)
+        SettingRow(stringResource(R.string.setting_charging_only), state.chargingOnly, state::changeChargingOnly)
         Spacer(Modifier.weight(1f))
         Button(onClick = state::syncNow, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.sync_now)) }
         Spacer(Modifier.height(8.dp))
         Text(stringResource(R.string.settings_on_pc), style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = state::forgetPc, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.forget_pc)) }
+    }
+}
+
+@Composable
+private fun SettingRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+        Switch(checked = checked, onCheckedChange = onChange)
     }
 }
 

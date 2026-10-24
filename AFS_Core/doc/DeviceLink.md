@@ -14,8 +14,9 @@ against the server the phone opens for a pass.
 Only one process may listen - the GUI and the background service share the configuration and
 would otherwise both answer the phone. The role is a lock file per user (a named mutex on
 Windows), taken for as long as the link runs, after the pattern of SyncArbiter.md#SyncArbiter.
-The process that finds the role taken simply does not listen and says so in the log; the
-first version leaves the role to the GUI, the daemon learns the channel in phase 3.
+The process that finds the role taken simply does not listen and says so in the log, once:
+the background service retries every minute (MyDaemon.md#device-link) and would otherwise
+fill the log while the GUI holds the role.
 
 ## use_private_scope
 
@@ -118,10 +119,38 @@ app reports and the user fixes by opening the dialog again.
 ## take_paired
 
 The device that paired since the last call, for the dialog's timer: the link's thread must not
-touch the GUI, so the dialog polls instead of being called back.
+touch the GUI, so the dialog polls instead of being called back. The device is read from the
+shared file (see shared-files), so it reaches the GUI also when the background service paired
+it; take_paired() then adds it to this process's configuration, and the GUI's autosave writes
+it to the file the service reloads.
+
+## shared-files
+
+The GUI and the background service each run a link, but only one holds the role. The other
+one must still be able to pair a phone and show when a phone last reported, so the pieces that
+cross the process boundary live as small files in the configuration directory (default_dir(),
+the same for both processes since both run as the user): `pairing.token` (token and expiry,
+owner-only, DevicePairing.md#files), `pairing.done` (the device a pairing produced, until the
+GUI takes it), `devicelink.port` (the port the hosting process listens on, for the QR code) and
+`devices.presence` (the last contact of each phone). The hosting link removes the port and
+presence files when it stops; a stale port file after a crash is harmless, because a process
+that can take the role overwrites it.
+
+## discovery
+
+A phone whose stored addresses no longer reach the PC - the PC got a new address from the
+router - broadcasts "AFS-DISCOVER 1 <fingerprint>" over UDP to port 52381. The link answers
+with "AFS-HERE 1 <fingerprint> <port>" to the sender, but only when the fingerprint is its own,
+so a stranger learns nothing about the PC. The phone takes the address the answer came from.
+Plain UDP rather than mDNS: it needs no Avahi or Bonjour library on any platform, and the
+firewall rule for the port (TCP and UDP) is the one the pairing already needs. Tests bind an
+ephemeral discovery port so they never meet a running program.
 
 ## start
 
-Loads or creates the identity, takes the role, prepares TLS and listens; false when any step
-fails, with the role released again. Calling it while running is harmless and returns true, so
+Sets the shared directory, loads or creates the identity, takes the role, prepares TLS,
+listens and opens the discovery socket; false when any step fails, with the role released
+again. The directory is set even when the role is taken, so the pairing still works through
+the shared files (hosted_elsewhere()). A discovery port that is taken costs only the
+discovery, not the link. Calling it while running is harmless and returns true, so
 every place that needs the link may just call it.

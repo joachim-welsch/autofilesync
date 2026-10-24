@@ -45,4 +45,9 @@
     <string name="minutes_ago">vor %1$d Min.</string>
     <string name="hours_ago">vor %1$d Std.</string>
     <string name="days_ago">vor %1$d Tagen</string>
+    <string name="setting_wifi_only">Nur im WLAN</string>
+    <string name="setting_charging_only">Nur beim Laden</string>
+    <string name="channel_progress">Laufende Synchronisation</string>
+    <string name="channel_problems">Probleme</string>
+    <string name="notify_unreachable">Der PC ist seit einem Tag nicht erreichbar. Ist er eingeschaltet und im selben WLAN?</string>
 </resources>

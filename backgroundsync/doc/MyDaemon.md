@@ -30,3 +30,12 @@ Catalogues of another version (Translation.md#catalogue_mismatch) are reported a
 configuration is read, in its language and into the log file it names - earlier the file is
 not open yet and the line would be dropped. Repeated on every reload, which is when an
 updated installation's catalogues would start to match again.
+
+## device-link
+
+The service listens for phones (DeviceLink.md) as soon as one is paired, so a phone is served
+while nobody is logged in. Only one process of the user may listen; when the GUI holds the
+role, the service tries again once a minute and takes over when the GUI quits. A phone paired
+in the GUI meanwhile reaches the service through the configuration file, which the service
+reloads when it changes. The link is stopped before the worker, because a pass the link waits
+for needs the worker's synchronisation run.

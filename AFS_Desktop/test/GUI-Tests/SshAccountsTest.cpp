@@ -210,4 +210,15 @@ TEST_F(GuiTest, SshOkNurMitHostUndBenutzer)
     EXPECT_TRUE(Config::instance().ssh_accounts_snapshot().empty());
 }
 
+
+TEST_F(GuiTest, SshVerbindungMitEigenemPort)  // [SshAccountsTest.md#port]
+{
+    SshAccountInput input = account();
+    input.port = 2222;
+    ASSERT_TRUE(add_account(main_window(), input));
+    const auto added = account_named(ACCOUNT);
+    ASSERT_TRUE(added.has_value());
+    EXPECT_EQ(added->port(), 2222) << "Der Port kam nicht in die Konfiguration.";
+}
+
 }

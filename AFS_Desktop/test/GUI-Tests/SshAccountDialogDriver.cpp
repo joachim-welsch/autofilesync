@@ -44,6 +44,10 @@ bool enter_values(wxDialog& dialog, const SshAccountInput& input)  // [SshAccoun
             return false;
         }
     }
+    if (!set_spin_value(find(dialog, ID_SSH_PORT_BOX), input.port)) {
+        ADD_FAILURE() << "Port konnte nicht eingegeben werden.";
+        return false;
+    }
     return true;
 }
 

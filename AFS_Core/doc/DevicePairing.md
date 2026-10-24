@@ -10,13 +10,20 @@ code photographed earlier is worthless once the dialog has been closed.
 
 ## begin
 
-Sixteen random bytes as hex and a ten minute deadline, measured on the steady clock so that a
-clock change on the PC neither extends nor cuts the window. The wall-clock expiry is kept
-alongside only for the QR code, where the app shows the user how long the code is still good.
+Sixteen random bytes as hex and a ten minute deadline, written to the token file. The deadline
+is wall-clock time, because the file is read by another process (the background service may
+host the link); a clock change on the PC can therefore stretch or cut the window, which is
+harmless for ten minutes.
+
+## files
+
+The token lives in `pairing.token` in the configuration directory, owner-only and replaced
+atomically, so the GUI can open a pairing that the background service redeems
+(DeviceLink.md#shared-files). The failure count stays in the memory of the redeeming process.
 
 ## redeem
 
-Consumes the token on the first match. A wrong token counts as a failure; after FAILURE_LIMIT
+Consumes the token on the first match by deleting the file. A wrong token counts as a failure; after FAILURE_LIMIT
 of them the token is dropped altogether, so that guessing it over the network - 128 bits, but
 still - gets five tries and then needs the user to open the dialog again.
 

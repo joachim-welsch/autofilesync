@@ -196,7 +196,7 @@ function Invoke-Sign([string]$file) {
 # UI fuer die Dialoge, Util fuer das Anmelderecht des Dienstkontos. Ihre Version
 # muss die von wix selbst sein: ohne Angabe laedt "extension add" die neueste
 # (derzeit 7.x), und wix 5 kann die nicht laden.
-$wixExtensions = 'WixToolset.UI.wixext', 'WixToolset.Util.wixext'
+$wixExtensions = 'WixToolset.UI.wixext', 'WixToolset.Util.wixext', 'WixToolset.Firewall.wixext'
 
 function Install-WixExtensions {
     if (-not (Get-Command wix -ErrorAction SilentlyContinue)) {

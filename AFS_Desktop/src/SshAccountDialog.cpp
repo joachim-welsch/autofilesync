@@ -53,6 +53,9 @@ SshAccountDialog::SshAccountDialog(SshAccount* ssh_account, wxWindow* parent, wx
     host_sizer->Add(host_label, 0, wxALIGN_CENTER_VERTICAL);
     host_box_ = new wxTextCtrl(this, ID_SSH_HOST_BOX);
     host_sizer->Add(host_box_, 1);
+    host_sizer->Add(new wxStaticText(this, wxID_STATIC, utilwx::field_label("port")), 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 8);  // [SshAccountDialog.md#port]
+    port_box_ = new wxSpinCtrl(this, ID_SSH_PORT_BOX, "22", wxDefaultPosition, wxSize(FromDIP(90), -1), wxSP_ARROW_KEYS, 1, 65535, 22);
+    host_sizer->Add(port_box_, 0, wxLEFT, 4);
     main_sizer->Add(host_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     wxBoxSizer* user_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -98,6 +101,7 @@ void SshAccountDialog::set_data(const SshAccount& account)
     name_ = wxString::FromUTF8(account.name());  // [SshAccountDialog.md#utf8-fields]
     user_ = wxString::FromUTF8(account.user());
     host_ = wxString::FromUTF8(account.host());
+    port_ = account.port();
     password_ = password_from_account(account.password());
 }
 
@@ -106,6 +110,7 @@ void SshAccountDialog::save_data(SshAccount& account)
     account.set_name(std::string(name_.ToUTF8()));  // [SshAccountDialog.md#utf8-on-the-wire]
     account.set_user(std::string(user_.ToUTF8()));
     account.set_host(std::string(host_.ToUTF8()));
+    account.set_port(static_cast<uint16_t>(port_));
     account.set_password(std::string(password_.ToUTF8()));
 }
 
@@ -114,6 +119,7 @@ bool SshAccountDialog::TransferDataToWindow()
     name_box_->SetValue(name_);
     user_box_->SetValue(user_);
     host_box_->SetValue(host_);
+    port_box_->SetValue(port_);
     password_box_->SetValue(password_);
     return true;
 }
@@ -123,6 +129,7 @@ bool SshAccountDialog::TransferDataFromWindow()
     name_ = name_box_->GetValue();
     user_ = user_box_->GetValue();
     host_ = host_box_->GetValue();
+    port_ = port_box_->GetValue();
     password_ = password_box_->GetValue();
     return true;
 }

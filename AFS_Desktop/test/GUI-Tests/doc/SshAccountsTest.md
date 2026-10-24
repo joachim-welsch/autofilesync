@@ -27,3 +27,8 @@ underscore and dash, and a duplicate, each with a "Validierungsfehler" box that 
 dialog open; the driver cancels it (SshAccountDialogDriver.md#rejected-input-keeps-the-dialog-open).
 The colon gets its own message because it is the separator of "name:/path"
 (SshAccountDialog.md#colon-first); the space stands for every other rejected character.
+
+## port
+
+A port typed into the dialog reaches the account (SshAccountDialog.md#port); the default of 22
+is covered by every other test, which leaves the field alone.

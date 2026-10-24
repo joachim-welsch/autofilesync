@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Mit dem Handy synchronisieren</title>
+</head>
+<body>
+<h1>Mit dem Handy synchronisieren</h1>
+
+<p>AutoFileSync gleicht auch Ordner auf einem Android-Handy mit dem PC ab:
+Fotos landen von selbst auf dem PC, ein Ordner bleibt auf beiden Geräten gleich,
+oder Musik kommt vom PC aufs Handy. Dafür braucht das Handy die App
+AutoFileSync, und Handy und PC müssen im selben WLAN sein.</p>
+
+<h2>Handy verbinden</h2>
+
+<ol>
+<li><b>Datei &rarr; Handy verbinden…</b> zeigt einen QR-Code. Er gilt zehn
+    Minuten und nur für ein Handy.</li>
+<li>Die App wird auf dem Handy installiert – über F-Droid oder als APK von
+    <tt>welsch-software.com</tt>. Der QR-Code führt ebenfalls dorthin.</li>
+<li>In der App auf <b>QR-Code scannen</b> tippen, die Kamera auf den Code
+    richten und mit <b>Verbinden</b> bestätigen.</li>
+<li>Die App bittet um Zugriff auf alle Dateien: <b>Zugriff erlauben</b> führt
+    zur Android-Einstellung, wo er eingeschaltet wird. Ohne diesen Zugriff kann
+    der PC die Ordner des Handys weder lesen noch schreiben.</li>
+</ol>
+
+<p>Auf dem PC erscheint dann „… ist verbunden ✓“. PC und Handy erkennen sich
+ab jetzt gegenseitig an ihren Zertifikaten; ein fremdes Gerät kann sich nicht als
+eines von beiden ausgeben.</p>
+
+<h2>Was synchronisiert wird</h2>
+
+<p>Gleich nach dem Verbinden fragt AutoFileSync, was mit dem Handy passieren
+soll. Ordner auf dem PC und auf dem Handy sind vorgeschlagen und lassen sich
+ändern.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Fotos und Videos auf dem PC sichern</b></td>
+    <td>Kopiert die Fotos und Videos aus <tt>DCIM/Camera</tt> auf den PC.
+        Fotos, die auf dem Handy gelöscht werden, bleiben auf dem PC erhalten –
+        so lässt sich auf dem Handy Platz schaffen.</td></tr>
+<tr><td valign="top"><b>Einen Ordner auf beiden Geräten gleich halten</b></td>
+    <td>Änderungen auf einer Seite kommen auf die andere, auch Löschungen und
+        Umbenennungen. Wurde eine Datei auf beiden Seiten geändert, bleiben
+        beide Fassungen erhalten; siehe
+        <a href="options.html#twoway">Zwei-Wege-Synchronisation</a>.</td></tr>
+<tr><td valign="top"><b>Musik vom PC aufs Handy</b></td>
+    <td>Kopiert den Musikordner des PCs aufs Handy. Was dort aus dem
+        Ordner verschwindet, wird auch vom Handy entfernt.</td></tr>
+<tr><td valign="top"><b>Später einrichten</b></td>
+    <td>Legt nichts an. Das geht auch später noch.</td></tr>
+</table>
+
+<p>Jede Vorlage legt eine ganz normale Synchronisation an. Sie lässt sich wie
+jede andere bearbeiten, in der Vorschau ansehen und im Protokoll verfolgen.</p>
+
+<p>Eine eigene Synchronisation mit dem Handy entsteht im Dialog einer
+Synchronisation: Die Schaltfläche <b>Handy…</b> neben <b>SSH…</b> wählt
+das Handy und einen Ordner darauf. Die Liste nennt die üblichen Ordner wie
+<tt>DCIM/Camera</tt>, <tt>Download</tt> oder <tt>Music</tt>; ein anderer
+lässt sich eintippen.</p>
+
+<h2>Wann synchronisiert wird</h2>
+
+<p>Ein Durchlauf mit dem Handy beginnt, wenn sich das Handy beim PC meldet:</p>
+
+<ul>
+<li>alle 30 Minuten,</li>
+<li>eine Minute nach neuen Fotos oder Videos,</li>
+<li>sofort mit <b>Jetzt synchronisieren</b> in der App.</li>
+</ul>
+
+<p>In der App bestimmen zwei Schalter, wann das Handy sich meldet: <b>Nur im
+WLAN</b> (anfangs an) und <b>Nur beim Laden</b> (anfangs aus). Unter 15 %
+Akku wartet das Handy, bis es am Ladegerät hängt. Während eines Durchlaufs zeigt
+das Handy den Fortschritt als Benachrichtigung.</p>
+
+<p>Ist das Handy unterwegs, ist das kein Fehler: AutoFileSync wartet einfach,
+bis es sich wieder meldet. Erreicht das Handy den PC einen ganzen Tag lang
+nicht, erinnert es einmal mit einer Benachrichtigung daran.</p>
+
+<p>Bekommt der PC eine neue Adresse im Heimnetz, findet das Handy ihn von
+selbst wieder. Läuft der <a href="service.html">Hintergrunddienst</a>, nimmt
+er Handys auch an, wenn niemand am PC angemeldet ist.</p>
+
+<p>Die Dateien des Handys sind nur während eines Durchlaufs für den PC
+erreichbar, und zwar mit einem Passwort, das für jeden Durchlauf neu erzeugt
+wird.</p>
+
+<h2>Verbundene Handys</h2>
+
+<p><b>Bearbeiten &rarr; Handys…</b> listet alle verbundenen Handys.</p>
+
+<ul>
+<li>Ein Klick auf den Namen benennt das Handy um.</li>
+<li><b>Synchronisation einrichten…</b> öffnet wieder die Vorlagen.</li>
+<li><b>Trennen</b> entfernt das Handy. Es kann sich danach nicht mehr
+    melden; zum erneuten Verbinden wird ein neuer Code gescannt. In der App
+    trennt <b>Verbindung zum PC trennen</b> die Verbindung von der anderen
+    Seite.</li>
+</ul>
+
+<h2><a name="firewall"></a>Firewall</h2>
+
+<p>Das Handy erreicht den PC über Port <b>52381</b>. Eine Firewall auf dem PC
+muss diesen Port für <b>TCP und UDP</b> freigeben. Unter Linux mit
+<tt>ufw</tt> genügt:</p>
+
+<blockquote><tt>sudo ufw allow 52381</tt></blockquote>
+
+<p>Kommt beim Verbinden nach einer Minute nichts an, weist der Dialog selbst
+auf die Firewall hin.</p>
+
+<h2>Wenn es nicht klappt</h2>
+
+<ul>
+<li><b>Die App meldet „PC nicht erreichbar“.</b> Ist der PC eingeschaltet und
+    im selben WLAN wie das Handy? Ein Gäste-WLAN oder ein WLAN, das die Geräte
+    voneinander abschirmt, lässt keine Verbindung zu.</li>
+<li><b>Der Code ist abgelaufen.</b> <b>Datei &rarr; Handy verbinden…</b>
+    erneut öffnen und den neuen Code scannen.</li>
+<li><b>Der Dialog wartet und wartet.</b> Vermutlich blockiert die Firewall
+    (siehe oben).</li>
+<li><b>Es wird nichts übertragen.</b> Hat die App den Zugriff auf alle Dateien?
+    Ist „Nur im WLAN“ oder „Nur beim Laden“ eingeschaltet, während das Handy
+    unterwegs ist oder nicht lädt?</li>
+</ul>
+
+</body>
+</html>

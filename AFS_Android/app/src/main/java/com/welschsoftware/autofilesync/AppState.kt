@@ -22,24 +22,22 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.welschsoftware.autofilesync.link.FileAccess
 import com.welschsoftware.autofilesync.link.PairedPc
 import com.welschsoftware.autofilesync.link.PairingOffer
 import com.welschsoftware.autofilesync.link.PcLink
 import com.welschsoftware.autofilesync.link.PcStore
-import com.welschsoftware.autofilesync.link.SftpServer
 import com.welschsoftware.autofilesync.link.SshHostKey
 import com.welschsoftware.autofilesync.link.SyncItemInfo
-import kotlinx.coroutines.Dispatchers
+import com.welschsoftware.autofilesync.work.Outcome
+import com.welschsoftware.autofilesync.work.Pass
+import com.welschsoftware.autofilesync.work.Scheduler
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
 
 sealed class Screen {
     data object Welcome : Screen()
@@ -53,9 +51,7 @@ enum class Health { UNKNOWN, UP_TO_DATE, SYNCING, DONE, DONE_WITH_ERRORS, INCOMP
 
 class AppState(application: Application) : AndroidViewModel(application) {  // everything the screens show, and the actions behind their buttons
     private val store = PcStore(application)
-    private val hostKey = SshHostKey(application)
-    private val link = PcLink(store, hostKey, "${Build.MANUFACTURER} ${Build.MODEL}".trim())
-    private val sftp = SftpServer(application, hostKey)
+    private val link = PcLink(store, SshHostKey(application), "${Build.MANUFACTURER} ${Build.MODEL}".trim())
 
     var screen by mutableStateOf<Screen>(if (store.pc == null) Screen.Welcome else Screen.Status)
         private set
@@ -75,20 +71,59 @@ class AppState(application: Application) : AndroidViewModel(application) {  // e
         private set
     var busy by mutableStateOf(false)
         private set
-    var allFilesAccess by mutableStateOf(Environment.isExternalStorageManager())
+    var allFilesAccess by mutableStateOf(FileAccess.granted(application))
         private set
+    var wifiOnly by mutableStateOf(store.wifiOnly)
+        private set
+    var chargingOnly by mutableStateOf(store.chargingOnly)
+        private set
+
+    init {
+        viewModelScope.launch { Pass.state.collect(::show) }  // the background passes report here as well
+    }
+
+    private fun show(state: com.welschsoftware.autofilesync.work.PassState) {
+        progressDone = state.done
+        progressTotal = state.total
+        errors = state.errors
+        busy = state.outcome == Outcome.RUNNING
+        items = store.items
+        lastContact = store.lastContact
+        health = when (state.outcome) {
+            Outcome.NONE -> health
+            Outcome.RUNNING -> Health.SYNCING
+            Outcome.CONTACTED -> Health.UP_TO_DATE
+            Outcome.DONE -> Health.DONE
+            Outcome.DONE_WITH_ERRORS -> Health.DONE_WITH_ERRORS
+            Outcome.INCOMPLETE -> Health.INCOMPLETE
+            Outcome.UNREACHABLE -> Health.UNREACHABLE
+            Outcome.REJECTED -> Health.REJECTED
+            Outcome.NO_FILE_ACCESS -> health.also { message = "error_no_file_access" }
+            Outcome.SERVER_FAILED -> health.also { message = "error_server" }
+        }
+    }
+
+    fun changeWifiOnly(value: Boolean) {
+        store.wifiOnly = value
+        wifiOnly = value
+        Scheduler.ensure(getApplication())
+    }
+
+    fun changeChargingOnly(value: Boolean) {
+        store.chargingOnly = value
+        chargingOnly = value
+        Scheduler.ensure(getApplication())
+    }
     var message by mutableStateOf<String?>(null)  // a transient error for the snackbar, as a string resource name or reason
         private set
 
     fun startScan() { screen = Screen.Scan }
     fun cancel() { screen = if (store.pc == null) Screen.Welcome else Screen.Status }
     fun messageShown() { message = null }
-    fun refreshAccess() { allFilesAccess = Environment.isExternalStorageManager() }
+    fun refreshAccess() { allFilesAccess = FileAccess.granted(getApplication()) }
 
-    fun openAccessSettings() {  // the system page where the user grants access to all files; there is no runtime prompt for it
-        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:${getApplication<Application>().packageName}"))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        getApplication<Application>().startActivity(intent)
+    fun openAccessSettings() {  // a system page; Android has no in-app prompt for access to all files
+        getApplication<Application>().startActivity(FileAccess.settingsIntent(getApplication()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     fun onLink(uri: Uri?) {  // an app link from the camera app, or the scanner's text
@@ -123,6 +158,7 @@ class AppState(application: Application) : AndroidViewModel(application) {  // e
                     lastContact = store.lastContact
                     health = Health.UP_TO_DATE
                     screen = Screen.Status
+                    Scheduler.ensure(getApplication())
                 }
                 is PcLink.Result.Failed -> {
                     message = when (result.reason) {
@@ -139,49 +175,19 @@ class AppState(application: Application) : AndroidViewModel(application) {  // e
         }
     }
 
-    fun syncNow(serve: Boolean = true) {  // report in; with the file server open the PC runs the pass and reports progress
+    fun syncNow() {  // a pass at once, in the background so it continues when the app is left
         if (store.pc == null || busy) return
         refreshAccess()
-        if (serve && !allFilesAccess) {
+        if (!allFilesAccess) {
             message = "error_no_file_access"
             return
         }
-        busy = true
-        progressDone = 0
-        progressTotal = 0
-        viewModelScope.launch {
-            val access = if (serve) withContext(Dispatchers.IO) { sftp.start() } else null
-            if (serve && access == null) {
-                message = "error_server"
-                busy = false
-                return@launch
-            }
-            var done: JSONObject? = null
-            val result = link.hello(access) { line ->
-                when (line.optString("type")) {
-                    "items" -> items = itemsOf(line).also { store.items = it }
-                    "serve" -> health = Health.SYNCING
-                    "progress" -> { progressDone = line.optInt("done"); progressTotal = line.optInt("total"); health = Health.SYNCING }
-                    "done" -> done = line
-                }
-            }
-            withContext(Dispatchers.IO) { sftp.stop() }
-            when (result) {
-                is PcLink.Result.Ok -> {
-                    store.lastContact = System.currentTimeMillis()
-                    lastContact = store.lastContact
-                    errors = done?.optInt("errors") ?: 0
-                    health = when {
-                        done == null -> Health.UP_TO_DATE
-                        done?.optString("completed") != "true" -> Health.INCOMPLETE
-                        errors > 0 -> Health.DONE_WITH_ERRORS
-                        else -> Health.DONE
-                    }
-                }
-                is PcLink.Result.Failed -> health = if (result.reason == "unknown_device") Health.REJECTED else Health.UNREACHABLE
-            }
-            busy = false
-        }
+        Scheduler.runNow(getApplication())
+    }
+
+    fun reportIn() {  // when the user looks: fetch the item list without a pass
+        if (store.pc == null || busy) return
+        viewModelScope.launch { Pass.run(getApplication(), serve = false) }
     }
 
     fun forgetPc() {
@@ -191,10 +197,6 @@ class AppState(application: Application) : AndroidViewModel(application) {  // e
         lastContact = 0L
         health = Health.UNKNOWN
         screen = Screen.Welcome
-    }
-
-    private fun itemsOf(line: JSONObject): List<SyncItemInfo> {
-        val array = line.optJSONArray("items") ?: return emptyList()
-        return (0 until array.length()).map { array.getJSONObject(it) }.map { SyncItemInfo(it.optString("name"), it.optString("direction", "toPc")) }
+        Scheduler.ensure(getApplication())  // cancels the background passes
     }
 }

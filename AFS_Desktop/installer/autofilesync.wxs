@@ -7,7 +7,8 @@
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
-     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
+     xmlns:fire="http://wixtoolset.org/schemas/v4/wxs/firewall">
 
   <Package Name="AutoFileSync"
            Manufacturer="Joachim Welsch"
@@ -59,6 +60,7 @@
       <ComponentGroupRef Id="Payload" />
       <ComponentGroupRef Id="Shortcuts" />
       <ComponentGroupRef Id="Service" />
+      <ComponentGroupRef Id="Firewall" />
     </Feature>
 
     <!-- Gestartet wird ueber sc.exe statt ueber ServiceControl Start="install":
@@ -105,6 +107,21 @@
   <Fragment>
     <ComponentGroup Id="Payload" Directory="INSTALLFOLDER">
       <Files Include="$(PayloadDir)\**" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Phones connect to the program and the service on port 52381, TCP for the
+       pairing and the passes, UDP for finding the PC again. The exception is per
+       program and for every protocol, so it holds also when the port falls back to
+       a free one; the local subnet only, because a phone is always in the home
+       network. All profiles: Windows files a newly joined Wi-Fi as public. -->
+  <Fragment>
+    <ComponentGroup Id="Firewall" Directory="INSTALLFOLDER">
+      <Component Id="PhoneLinkFirewall" Guid="{5E0B7C2D-91A4-4F3E-8B6D-2C7A9E14F083}">
+        <RegistryValue Root="HKLM" Key="Software\AutoFileSync" Name="PhoneLinkFirewall" Type="integer" Value="1" KeyPath="yes" />
+        <fire:FirewallException Id="PhoneLinkProgram" Name="AutoFileSync (Handy)"
+                                Program="[INSTALLFOLDER]autofilesync.exe" Scope="localSubnet" Profile="all" />
+      </Component>
     </ComponentGroup>
   </Fragment>
 
@@ -177,6 +194,8 @@
                              ServiceQueryStatus="yes" ServiceStart="yes" ServiceStop="yes" ServiceInterrogate="yes" />
         </ServiceInstall>
         <ServiceControl Id="BackgroundServiceControl" Name="backgroundsync" Stop="both" Remove="both" Wait="yes" />
+        <fire:FirewallException Id="PhoneLinkService" Name="AutoFileSync Hintergrunddienst (Handy)"
+                                Program="[#backgroundsync.exe]" Scope="localSubnet" Profile="all" />
         <util:User Id="ServiceAccount" Name="[SERVICEUSER]" Domain="[SERVICEDOMAIN]"
                    CreateUser="no" LogonAsService="yes" RemoveOnUninstall="no" />
       </Component>

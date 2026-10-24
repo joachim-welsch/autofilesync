@@ -1,0 +1,19 @@
+The Android app for AutoFileSync, the free program for Windows, macOS and Linux that keeps files in two places the same.
+
+<b>How it works</b>
+<ul>
+<li>In AutoFileSync on the PC, choose <i>File → Connect phone…</i>.</li>
+<li>Scan the QR code with the app and tap “Connect”.</li>
+<li>On the PC, choose what should happen: back up photos and videos, keep a folder the same on both devices, or bring music to the phone.</li>
+</ul>
+
+From then on the phone synchronises by itself: every 30 minutes, shortly after new photos and at the tap of a button – optionally only on Wi-Fi and only while charging. Everything is set up on the PC.
+
+<b>Safe</b>
+<ul>
+<li>PC and phone check each other with certificates; the QR code is valid for ten minutes and only once.</li>
+<li>The file server on the phone is open only during a synchronisation, with a one-time password.</li>
+<li>No cloud service, no account: the data only travels within your own network from the phone to the PC.</li>
+</ul>
+
+The app needs access to all files so that the PC can read and write the folders that were set up.

@@ -13,7 +13,7 @@ timer because the link's thread must not touch the GUI (DeviceLink.md#take_paire
 
 The directory of the configuration file, so that the PC's key and certificate live next to
 the configuration they belong to (DeviceIdentity.md#load_or_create), in the GUI test sandbox as
-in the user's profile.
+in the user's profile; the background service uses the same directory (DeviceLink::default_dir).
 
 ## start_device_link
 
@@ -29,6 +29,16 @@ a code nobody can use (pair_link_unavailable), with the QR code and the steps hi
 
 The token lives ten minutes (DevicePairing.md#begin). A dialog left open longer shows a new
 code by itself when the old one expires, rather than a code the phone will report as expired.
+The token disappears a moment before the pairing result appears (DeviceLink.md#pair), so a
+closed pairing is only taken for expiry when it is still closed one tick later; otherwise a
+successful pairing would flash a fresh code first.
+
+## hosted-elsewhere
+
+When the background service listens for phones, this process cannot take the role, but the
+dialog still works: the token, the port and the result are files in the configuration
+directory (DeviceLink.md#shared-files), so the code shows the service's port and the paired
+phone arrives through take_paired() as before.
 
 ## firewall-hint
 

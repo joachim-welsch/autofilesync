@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sincronizar con el móvil</title>
+</head>
+<body>
+<h1>Sincronizar con el móvil</h1>
+
+<p>AutoFileSync también mantiene al día carpetas de un móvil Android con el PC:
+las fotos llegan solas al PC, una carpeta queda igual en ambos dispositivos o
+la música pasa del PC al móvil. Para ello el móvil necesita la app AutoFileSync,
+y el móvil y el PC deben estar en la misma red Wi-Fi.</p>
+
+<h2>Conectar el móvil</h2>
+
+<ol>
+<li><b>Archivo &rarr; Conectar móvil…</b> muestra un código QR. Vale diez
+    minutos y solo para un móvil.</li>
+<li>Se instala la app en el móvil: desde F-Droid o como APK de
+    <tt>welsch-software.com</tt>. El código QR también lleva allí.</li>
+<li>En la app se toca <b>Escanear código QR</b>, se apunta la cámara al código
+    y se confirma con <b>Conectar</b>.</li>
+<li>La app pide acceso a todos los archivos: <b>Permitir acceso</b> lleva al
+    ajuste de Android donde se activa. Sin este acceso el PC no puede leer ni
+    escribir las carpetas del móvil.</li>
+</ol>
+
+<p>En el PC aparece entonces «… está conectado ✓». A partir de ahora el PC y el
+móvil se reconocen mutuamente por sus certificados; ningún dispositivo ajeno
+puede hacerse pasar por uno de ellos.</p>
+
+<h2>Qué se sincroniza</h2>
+
+<p>Justo después de conectar, AutoFileSync pregunta qué debe pasar con el
+móvil. Las carpetas del PC y del móvil vienen propuestas y se pueden
+cambiar.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Guardar fotos y vídeos en el PC</b></td>
+    <td>Copia las fotos y vídeos de <tt>DCIM/Camera</tt> al PC. Las fotos
+        que se borran en el móvil se conservan en el PC; así se puede liberar
+        espacio en el móvil.</td></tr>
+<tr><td valign="top"><b>Mantener una carpeta igual en ambos dispositivos</b></td>
+    <td>Los cambios de un lado llegan al otro, también borrados y cambios de
+        nombre. Si un archivo se modificó en ambos lados, se conservan las dos
+        versiones; véase
+        <a href="options.html#twoway">Sincronización bidireccional</a>.</td></tr>
+<tr><td valign="top"><b>Música del PC al móvil</b></td>
+    <td>Copia la carpeta de música del PC al móvil. Lo que desaparece de esa
+        carpeta se elimina también del móvil.</td></tr>
+<tr><td valign="top"><b>Configurar más tarde</b></td>
+    <td>No crea nada. Se puede hacer más adelante.</td></tr>
+</table>
+
+<p>Cada plantilla crea una sincronización completamente normal. Como cualquier
+otra, se puede editar, ver en la vista previa y seguir en el registro.</p>
+
+<p>Una sincronización propia con el móvil se crea en el diálogo de una
+sincronización: el botón <b>Móvil…</b> junto a <b>SSH…</b> elige el móvil y
+una carpeta en él. La lista nombra las carpetas habituales como
+<tt>DCIM/Camera</tt>, <tt>Download</tt> o <tt>Music</tt>; se puede escribir
+otra.</p>
+
+<h2>Cuándo se sincroniza</h2>
+
+<p>Una pasada con el móvil empieza cuando el móvil se comunica con el PC:</p>
+
+<ul>
+<li>cada 30 minutos,</li>
+<li>un minuto después de nuevas fotos o vídeos,</li>
+<li>de inmediato con <b>Sincronizar ahora</b> en la app.</li>
+</ul>
+
+<p>Dos interruptores de la app deciden cuándo se comunica el móvil: <b>Solo con
+Wi-Fi</b> (activado al principio) y <b>Solo mientras se carga</b> (desactivado al
+principio). Por debajo del 15 % de batería el móvil espera hasta estar en el
+cargador. Durante una pasada el móvil muestra el progreso como
+notificación.</p>
+
+<p>Que el móvil esté fuera no es un error: AutoFileSync simplemente espera a que
+vuelva a comunicarse. Si el móvil no alcanza el PC durante un día entero, avisa
+una vez con una notificación.</p>
+
+<p>Si el PC recibe una nueva dirección en la red doméstica, el móvil lo vuelve
+a encontrar por sí solo. Si el <a href="service.html">servicio en segundo
+plano</a> está en marcha, acepta móviles aunque nadie haya iniciado sesión en
+el PC.</p>
+
+<p>Los archivos del móvil solo son accesibles para el PC durante una pasada, y
+solo con una contraseña que se genera de nuevo en cada pasada.</p>
+
+<h2>Móviles conectados</h2>
+
+<p><b>Edición &rarr; Móviles…</b> lista todos los móviles conectados.</p>
+
+<ul>
+<li>Un clic en el nombre cambia el nombre del móvil.</li>
+<li><b>Configurar sincronización…</b> vuelve a abrir las plantillas.</li>
+<li><b>Desconectar</b> elimina el móvil. Ya no puede comunicarse; para volver a
+    conectarlo se escanea un código nuevo. En la app, <b>Desconectar del
+    PC</b> corta la conexión desde el otro lado.</li>
+</ul>
+
+<h2><a name="firewall"></a>Cortafuegos</h2>
+
+<p>El móvil llega al PC por el puerto <b>52381</b>. Un cortafuegos en el PC
+debe abrir este puerto para <b>TCP y UDP</b>. En Linux con <tt>ufw</tt>
+basta:</p>
+
+<blockquote><tt>sudo ufw allow 52381</tt></blockquote>
+
+<p>Si al conectar no llega nada en un minuto, el propio diálogo menciona el
+cortafuegos.</p>
+
+<h2>Si no funciona</h2>
+
+<ul>
+<li><b>La app indica «PC no accesible».</b> ¿Está el PC encendido y en la misma
+    Wi-Fi que el móvil? Una Wi-Fi de invitados o una Wi-Fi que aísla los
+    dispositivos entre sí no permite la conexión.</li>
+<li><b>El código ha caducado.</b> Abrir de nuevo <b>Archivo &rarr; Conectar
+    móvil…</b> y escanear el código nuevo.</li>
+<li><b>El diálogo sigue esperando.</b> Probablemente bloquea el cortafuegos
+    (véase arriba).</li>
+<li><b>No se transfiere nada.</b> ¿Tiene la app acceso a todos los archivos?
+    ¿Está activado «Solo con Wi-Fi» o «Solo mientras se carga» cuando el móvil está
+    fuera o no se carga?</li>
+</ul>
+
+</body>
+</html>

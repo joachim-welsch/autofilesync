@@ -32,7 +32,9 @@ Deep copy for SyncItem's value semantics; the concrete type stays intact.
 
 True if `name` (a filename or directory name, not a full path - matching how the existing
 wildcard field is applied) matches any exclusion pattern. Patterns use the same */? wildcard
-syntax as the wildcard field itself.
+syntax as the wildcard field itself. A name ending in PART_SUFFIX is always excluded: it is a
+copy to a phone that was interrupted (SyncFileSsh.md#part-files) and must not travel back to the
+PC in a two-way item.
 
 ## rename_ssh_account_reference
 

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sincronizzare con il telefono</title>
+</head>
+<body>
+<h1>Sincronizzare con il telefono</h1>
+
+<p>AutoFileSync allinea anche cartelle di un telefono Android con il PC: le foto
+arrivano da sole sul PC, una cartella resta uguale su entrambi i dispositivi,
+oppure la musica passa dal PC al telefono. Per questo il telefono ha bisogno
+dell'app AutoFileSync, e telefono e PC devono essere sulla stessa rete
+Wi-Fi.</p>
+
+<h2>Collegare il telefono</h2>
+
+<ol>
+<li><b>File &rarr; Collega telefono…</b> mostra un codice QR. Vale dieci minuti
+    e per un solo telefono.</li>
+<li>Si installa l'app sul telefono – da F-Droid o come APK da
+    <tt>welsch-software.com</tt>. Anche il codice QR porta lì.</li>
+<li>Nell'app si tocca <b>Scansiona codice QR</b>, si punta la fotocamera sul
+    codice e si conferma con <b>Collega</b>.</li>
+<li>L'app chiede l'accesso a tutti i file: <b>Consenti accesso</b> porta
+    all'impostazione di Android dove lo si attiva. Senza questo accesso il PC
+    non può né leggere né scrivere le cartelle del telefono.</li>
+</ol>
+
+<p>Sul PC compare quindi «… è collegato ✓». D'ora in poi PC e telefono si
+riconoscono a vicenda dai loro certificati; un dispositivo estraneo non può
+spacciarsi per uno dei due.</p>
+
+<h2>Che cosa viene sincronizzato</h2>
+
+<p>Subito dopo il collegamento AutoFileSync chiede che cosa fare con il
+telefono. Le cartelle sul PC e sul telefono sono proposte e si possono
+cambiare.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Salvare foto e video sul PC</b></td>
+    <td>Copia le foto e i video da <tt>DCIM/Camera</tt> sul PC. Le foto
+        eliminate sul telefono restano sul PC – così si può liberare spazio sul
+        telefono.</td></tr>
+<tr><td valign="top"><b>Mantenere una cartella uguale su entrambi i dispositivi</b></td>
+    <td>Le modifiche su un lato arrivano sull'altro, comprese eliminazioni e
+        ridenominazioni. Se un file è stato modificato su entrambi i lati,
+        vengono conservate tutte e due le versioni; vedi
+        <a href="options.html#twoway">Sincronizzazione bidirezionale</a>.</td></tr>
+<tr><td valign="top"><b>Musica dal PC al telefono</b></td>
+    <td>Copia la cartella della musica del PC sul telefono. Ciò che scompare da
+        quella cartella viene rimosso anche dal telefono.</td></tr>
+<tr><td valign="top"><b>Configurare più tardi</b></td>
+    <td>Non crea nulla. Si può fare anche in seguito.</td></tr>
+</table>
+
+<p>Ogni modello crea una sincronizzazione del tutto normale. Come ogni altra, si
+può modificare, vedere nell'anteprima e seguire nel registro.</p>
+
+<p>Una sincronizzazione propria con il telefono si crea nella finestra di una
+sincronizzazione: il pulsante <b>Telefono…</b> accanto a <b>SSH…</b> sceglie
+il telefono e una cartella su di esso. L'elenco nomina le cartelle consuete come
+<tt>DCIM/Camera</tt>, <tt>Download</tt> o <tt>Music</tt>; un'altra può essere
+digitata.</p>
+
+<h2>Quando si sincronizza</h2>
+
+<p>Un passaggio con il telefono inizia quando il telefono si collega al PC:</p>
+
+<ul>
+<li>ogni 30 minuti,</li>
+<li>un minuto dopo nuove foto o nuovi video,</li>
+<li>subito con <b>Sincronizza ora</b> nell'app.</li>
+</ul>
+
+<p>Due interruttori nell'app decidono quando il telefono si collega: <b>Solo
+con Wi-Fi</b> (attivo all'inizio) e <b>Solo durante la ricarica</b> (spento all'inizio).
+Sotto il 15 % di batteria il telefono aspetta di essere sul caricatore. Durante
+un passaggio il telefono mostra l'avanzamento come notifica.</p>
+
+<p>Un telefono lontano non è un errore: AutoFileSync aspetta semplicemente che
+si colleghi di nuovo. Se il telefono non raggiunge il PC per un giorno intero,
+lo ricorda una volta con una notifica.</p>
+
+<p>Se il PC riceve un nuovo indirizzo nella rete di casa, il telefono lo ritrova
+da solo. Se il <a href="service.html">servizio in background</a> è in
+esecuzione, accetta i telefoni anche quando nessuno ha effettuato l'accesso al
+PC.</p>
+
+<p>I file del telefono sono raggiungibili per il PC solo durante un passaggio, e
+solo con una password generata di nuovo per ogni passaggio.</p>
+
+<h2>Telefoni collegati</h2>
+
+<p><b>Modifica &rarr; Telefoni…</b> elenca tutti i telefoni collegati.</p>
+
+<ul>
+<li>Un clic sul nome rinomina il telefono.</li>
+<li><b>Configura sincronizzazione…</b> riapre i modelli.</li>
+<li><b>Scollega</b> rimuove il telefono. Non può più collegarsi; per collegarlo
+    di nuovo si scansiona un codice nuovo. Nell'app, <b>Scollega dal PC</b>
+    chiude la connessione dall'altro lato.</li>
+</ul>
+
+<h2><a name="firewall"></a>Firewall</h2>
+
+<p>Il telefono raggiunge il PC attraverso la porta <b>52381</b>. Un firewall sul
+PC deve aprire questa porta per <b>TCP e UDP</b>. Su Linux con <tt>ufw</tt>
+basta:</p>
+
+<blockquote><tt>sudo ufw allow 52381</tt></blockquote>
+
+<p>Se durante il collegamento non arriva nulla entro un minuto, la finestra
+stessa segnala il firewall.</p>
+
+<h2>Se non funziona</h2>
+
+<ul>
+<li><b>L'app segnala «PC non raggiungibile».</b> Il PC è acceso e sulla stessa
+    rete Wi-Fi del telefono? Una rete Wi-Fi per ospiti o una rete che isola i
+    dispositivi tra loro non consente la connessione.</li>
+<li><b>Il codice è scaduto.</b> Riaprire <b>File &rarr; Collega telefono…</b>
+    e scansionare il nuovo codice.</li>
+<li><b>La finestra continua ad aspettare.</b> Probabilmente blocca il firewall
+    (vedi sopra).</li>
+<li><b>Non viene trasferito nulla.</b> L'app ha accesso a tutti i file? «Solo
+    con Wi-Fi» o «Solo durante la ricarica» è attivo mentre il telefono è lontano o non è
+    in carica?</li>
+</ul>
+
+</body>
+</html>

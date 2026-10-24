@@ -1902,6 +1902,10 @@ msgid "device_link_listening"
 msgstr "З'єднання для телефонів відкрито на порту %1"
 
 #: AFS_Core/src/DeviceLink.cpp
+msgid "device_discovery_unavailable"
+msgstr "Пошук ПК недоступний, UDP-порт %1 зайнятий."
+
+#: AFS_Core/src/DeviceLink.cpp
 msgid "device_link_handshake_failed"
 msgstr "Помилка TLS-рукостискання: "
 

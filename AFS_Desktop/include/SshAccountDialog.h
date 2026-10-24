@@ -24,6 +24,7 @@
 #include "wx/wx.h"
 #endif
 #include <optional>
+#include <wx/spinctrl.h>
 
 namespace AFS_Core { class SshAccount; }
 
@@ -60,11 +61,13 @@ private:
     wxString name_;
     wxString user_;
     wxString host_;
+    int port_ = 22;
     wxString password_;
 
     wxTextCtrl* name_box_ = nullptr;
     wxTextCtrl* user_box_ = nullptr;
     wxTextCtrl* host_box_ = nullptr;
+    wxSpinCtrl* port_box_ = nullptr;
     wxTextCtrl* password_box_ = nullptr;
 
     DECLARE_EVENT_TABLE()
@@ -74,5 +77,6 @@ enum {
     ID_SSH_NAME_BOX = wxID_HIGHEST + 100,
     ID_SSH_USER_BOX,
     ID_SSH_HOST_BOX,
-    ID_SSH_PASSWORD_BOX
+    ID_SSH_PASSWORD_BOX,
+    ID_SSH_PORT_BOX
 };

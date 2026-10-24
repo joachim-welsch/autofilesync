@@ -47,6 +47,7 @@ private:
     wxStaticText* details_ = nullptr;
     wxTimer timer_;
     int ticks_ = 0;
+    int closed_ticks_ = 0;
     std::optional<AFS_Core::Device> paired_;
 
     DECLARE_EVENT_TABLE()

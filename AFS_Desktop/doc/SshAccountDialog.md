@@ -38,3 +38,9 @@ would silently be lost on Windows. UTF-8 keeps every character, is what SSH expe
 name_ still holds the original name at Validate() time (set_data() set it,
 TransferDataFromWindow() only runs after Validate() succeeds) - comparing against it, not just
 checking for any existing match, also allows leaving an existing account's own name unchanged.
+
+## port
+
+The port sits in the host's row, small and preset to 22: most users never change it, and
+whoever runs SSH on another port knows the number belongs next to the host
+(Config.md#ssh-port).

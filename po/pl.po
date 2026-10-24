@@ -1902,6 +1902,10 @@ msgid "device_link_listening"
 msgstr "Połączenie dla telefonów otwarte na porcie %1"
 
 #: AFS_Core/src/DeviceLink.cpp
+msgid "device_discovery_unavailable"
+msgstr "Wyszukiwanie PC jest niedostępne, port UDP %1 jest zajęty."
+
+#: AFS_Core/src/DeviceLink.cpp
 msgid "device_link_handshake_failed"
 msgstr "Uzgadnianie TLS nie powiodło się: "
 

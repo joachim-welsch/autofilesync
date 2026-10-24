@@ -1,0 +1,1 @@
+First version: connect the phone to AutoFileSync on the PC by QR code, back up photos, sync folders, music to the phone, background synchronisation.

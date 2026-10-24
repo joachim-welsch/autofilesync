@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,10 +16,27 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
+    val keystoreFile = rootProject.file("keystore.properties")  // never committed; tools/make-release-key.sh writes it
+    signingConfigs {
+        if (keystoreFile.exists()) {
+            val keystore = Properties().apply { keystoreFile.inputStream().use(::load) }
+            create("release") {
+                storeFile = file(keystore.getProperty("storeFile"))
+                storePassword = keystore.getProperty("storePassword")
+                keyAlias = keystore.getProperty("keyAlias")
+                keyPassword = keystore.getProperty("keyPassword")
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")  // unsigned without keystore.properties, as F-Droid builds it
         }
+    }
+    dependenciesInfo {
+        includeInApk = false  // F-Droid rejects the Google-encrypted dependency block
+        includeInBundle = false
     }
     buildFeatures { compose = true }
     compileOptions {
@@ -47,4 +66,5 @@ dependencies {
     implementation("org.apache.sshd:sshd-sftp:2.14.0")
     implementation("org.slf4j:slf4j-nop:1.7.36")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 }

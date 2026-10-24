@@ -27,11 +27,18 @@
 #include "StrUtil.h"
 #include "SyncItem.h"
 #include "Synchronize.h"
+#include "SyncFileSsh.h"
 #include "TestPaths.h"
 #include <filesystem>
 #include <fstream>
 #ifdef _UNIX
 #include <libssh/libssh.h>
+#endif
+#ifndef _WIN32
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 using namespace AFS_Core;
@@ -101,7 +108,7 @@ protected:
     DeviceLink& link()
     {
         DeviceLink& link = DeviceLink::instance();
-        EXPECT_TRUE(link.start(dir_ / "pc", 0));
+        EXPECT_TRUE(link.start(dir_ / "pc", 0, 0));  // [DeviceTests.md#DeviceLinkTest] ephemeral ports for both sockets
         return link;
     }
 
@@ -138,7 +145,7 @@ TEST_F(DeviceLinkTest, LostKeyMakesANewIdentity)
 
 TEST_F(DeviceLinkTest, PairingTokenIsSingleUse)  // [DeviceTests.md#token]
 {
-    DevicePairing pairing;
+    DevicePairing pairing(dir_);
     EXPECT_FALSE(pairing.open());
     const std::string token = pairing.begin();
     EXPECT_EQ(token.size(), 32u);
@@ -151,7 +158,7 @@ TEST_F(DeviceLinkTest, PairingTokenIsSingleUse)  // [DeviceTests.md#token]
 
 TEST_F(DeviceLinkTest, FiveWrongTokensCloseThePairing)
 {
-    DevicePairing pairing;
+    DevicePairing pairing(dir_);
     const std::string token = pairing.begin();
     for (int i = 0; i < DevicePairing::FAILURE_LIMIT; ++i)
         EXPECT_FALSE(pairing.redeem("wrong"));
@@ -171,7 +178,7 @@ TEST_F(DeviceLinkTest, StartListensOnAFreePortAndIsIdempotent)
     DeviceLink& link = this->link();
     const uint16_t port = link.port();
     EXPECT_NE(port, 0);
-    EXPECT_TRUE(link.start(dir_ / "pc", 0));
+    EXPECT_TRUE(link.start(dir_ / "pc", 0, 0));  // [DeviceTests.md#DeviceLinkTest] ephemeral ports for both sockets
     EXPECT_EQ(link.port(), port);
     EXPECT_EQ(link.fingerprint().size(), 64u);
 }
@@ -389,4 +396,95 @@ TEST_F(DeviceLinkTest, WrongHostKeyStopsThePass)  // [DeviceTests.md#serve]
 
     EXPECT_EQ(reply.type(reply.lines.size() - 1), "done");
     EXPECT_FALSE(fs::exists(target / "secret.txt")) << "A server with another host key must not be used.";
+}
+
+TEST_F(DeviceLinkTest, PairingIsSharedThroughTheDirectory)  // [DeviceTests.md#shared-files]
+{
+    DeviceLink& link = this->link();
+    DevicePairing other_process(dir_ / "pc");
+    const std::string token = other_process.begin();
+    EXPECT_EQ(link.pairing().token(), token) << "The link must see a token another process opened.";
+
+    const auto reply = phone().send(link.port(), tu::FakePhone::pair_line(token, PHONE_ID, PHONE_NAME));
+
+    EXPECT_EQ(reply.type(), "paired");
+    EXPECT_FALSE(other_process.open()) << "The token is consumed for every process.";
+    EXPECT_TRUE(fs::exists(dir_ / "pc" / "pairing.done"));
+    EXPECT_TRUE(fs::exists(dir_ / "pc" / "devicelink.port"));
+    const auto paired = link.take_paired();
+    ASSERT_TRUE(paired.has_value());
+    EXPECT_EQ(paired->name, PHONE_NAME);
+    EXPECT_FALSE(fs::exists(dir_ / "pc" / "pairing.done")) << "The result is taken once.";
+    link.stop();
+    EXPECT_FALSE(fs::exists(dir_ / "pc" / "devicelink.port")) << "A stopped link must not announce its port.";
+}
+
+TEST_F(DeviceLinkTest, OfferUsesThePortOfTheHostingProcess)  // [DeviceTests.md#shared-files]
+{
+    DeviceLink& link = DeviceLink::instance();
+    fs::create_directories(dir_ / "pc");
+    std::ofstream(dir_ / "pc" / "devicelink.port") << "41234\n";
+    ASSERT_FALSE(link.running());
+    EXPECT_TRUE(link.start(dir_ / "pc", 0, 0));  // this process takes the role; the stale port file is overwritten
+    EXPECT_NE(link.offer().port, 41234) << "A stale port file must not win over the port this process listens on.";
+}
+
+#ifndef _WIN32  // the probe below uses POSIX sockets
+TEST_F(DeviceLinkTest, DiscoveryAnswersOnlyItsOwnFingerprint)  // [DeviceTests.md#discovery]
+{
+    DeviceLink& link = this->link();
+    ASSERT_NE(link.discovery_port(), 0);
+    auto ask = [&](const std::string& fingerprint) {
+        const int s = socket(AF_INET, SOCK_DGRAM, 0);
+        timeval timeout{1, 0};
+        setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout);
+        sockaddr_in to{};
+        to.sin_family = AF_INET;
+        to.sin_port = htons(link.discovery_port());
+        to.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        const std::string request = "AFS-DISCOVER 1 " + fingerprint;
+        sendto(s, request.data(), request.size(), 0, reinterpret_cast<sockaddr*>(&to), sizeof to);
+        char buffer[256] = {};
+        const auto n = recv(s, buffer, sizeof buffer - 1, 0);
+        close(s);
+        return n > 0 ? std::string(buffer, static_cast<size_t>(n)) : std::string();
+    };
+    EXPECT_EQ(ask(link.fingerprint()), "AFS-HERE 1 " + link.fingerprint() + " " + std::to_string(link.port()));
+    EXPECT_EQ(ask(std::string(64, '0')), "") << "A stranger's fingerprint gets no answer.";
+}
+#endif
+
+TEST_F(DeviceLinkTest, CopyToPhoneGoesThroughAPartFile)  // [DeviceTests.md#part-files]
+{
+    SKIP_WITHOUT_SSH_SERVER();
+    const std::string host_key = local_sshd_host_key();
+    ASSERT_FALSE(host_key.empty());
+    Config::instance().add(Device{PHONE_ID, PHONE_NAME, std::string(64, 'a'), host_key});
+    SshAccount live;
+    live.set_name(PHONE_ID);
+    live.set_host("127.0.0.1");
+    live.set_port(22);
+    live.set_user(SSHTest::SSH_USER);
+    live.set_password(SSHTest::SSH_PASSWORD);
+    live.set_host_key(host_key);
+    Config::instance().set_device_account(live);
+    const fs::path phone_dir = dir_ / "phone-music";
+    fs::create_directories(phone_dir);
+    std::ofstream(phone_dir / "song.mp3") << "old version";
+    fs::permissions(phone_dir, fs::perms::all);  // the SSH test account is another user and must write here
+    std::ofstream(dir_ / "song.mp3") << std::string(300000, 'm');
+
+    Synchronize::start();  // a copy outside a run sees the stop flag the previous run left set
+    const CopyResult result = copy_fs_to_ssh((dir_ / "song.mp3").wstring(), util::string_to_wstring(PHONE_ID) + L":" + (phone_dir / "song.mp3").wstring());
+
+    Config::instance().clear_device_account(PHONE_ID);
+    EXPECT_EQ(result, CopyResult::OK) << read_file(log_->path());  // the log names the failing step
+    EXPECT_EQ(read_file(phone_dir / "song.mp3"), std::string(300000, 'm')) << "The existing file must be replaced by the complete copy.";
+    EXPECT_FALSE(fs::exists(phone_dir / "song.mp3.afs-part")) << "No part file may remain after a complete copy.";
+}
+
+TEST_F(DeviceLinkTest, LeftoverPartFilesAreNeverSynchronised)  // [DeviceTests.md#part-files]
+{
+    EXPECT_TRUE(is_excluded(L"song.mp3.afs-part", {}));
+    EXPECT_FALSE(is_excluded(L"song.mp3", {}));
 }

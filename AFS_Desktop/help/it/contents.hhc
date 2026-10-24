@@ -51,6 +51,11 @@
     </OBJECT>
     </LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Sincronizzare con il telefono">
+      <PARAM name="Local" value="phone.html">
+    </OBJECT>
+    </LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Impostazioni generali">
       <PARAM name="Local" value="settings.html">
     </OBJECT>

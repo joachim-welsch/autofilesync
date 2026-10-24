@@ -34,7 +34,7 @@ constexpr int CODE_PIXELS = 280;
 
 std::filesystem::path device_identity_dir()  // [PairDeviceDialog.md#device_identity_dir]
 {
-    return std::filesystem::path(Config::get_root_pathname()).parent_path();
+    return DeviceLink::default_dir();
 }
 
 bool start_device_link()  // [PairDeviceDialog.md#start_device_link]
@@ -75,13 +75,13 @@ PairDeviceDialog::~PairDeviceDialog()
     timer_.Stop();
     DeviceLink& link = DeviceLink::instance();
     link.pairing().end();  // [PairDeviceDialog.md#token-ends-with-the-dialog]
-    if (Config::instance().devices_snapshot().empty())
+    if (Config::instance().devices_snapshot().empty() && link.running())
         link.stop();  // [PairDeviceDialog.md#link-lifetime]
 }
 
 void PairDeviceDialog::show_offer()  // [PairDeviceDialog.md#show_offer]
 {
-    if (!start_device_link()) {
+    if (!start_device_link() && !DeviceLink::instance().hosted_elsewhere()) {  // [PairDeviceDialog.md#hosted-elsewhere]
         status_->SetLabel(translate("pair_link_unavailable"));
         status_->Wrap(FromDIP(CODE_PIXELS + 20));
         code_->Hide();
@@ -110,9 +110,11 @@ void PairDeviceDialog::on_timer(wxTimerEvent&)
         return;
     }
     if (!link.pairing().open()) {
-        show_offer();  // [PairDeviceDialog.md#renewed-code]
+        if (++closed_ticks_ >= 2)  // [PairDeviceDialog.md#renewed-code]
+            show_offer();
         return;
     }
+    closed_ticks_ = 0;
     if (++ticks_ == FIREWALL_HINT_AFTER_TICKS) {
         status_->SetLabel(translate("pair_waiting") + L"\n" + translate("pair_firewall_hint", {std::to_wstring(link.port())}));
         Fit();

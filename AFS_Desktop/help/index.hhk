@@ -7,6 +7,10 @@
 <BODY>
   <UL>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Android-Handy">
+      <PARAM name="Local" value="phone.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Ansichten (Liste, Baum, Tabelle)">
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
@@ -39,12 +43,20 @@
       <PARAM name="Local" value="logging.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Firewall (Port 52381)">
+      <PARAM name="Local" value="phone.html#firewall">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Generationenprinzip">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Gelöschte Dateien im Ziel löschen">
       <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Handy verbinden">
+      <PARAM name="Local" value="phone.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Hintergrunddienst">
@@ -81,6 +93,10 @@
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Quelle nach dem Kopieren löschen">
       <PARAM name="Local" value="options.html">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="QR-Code">
+      <PARAM name="Local" value="phone.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Sicherungsnachweis">

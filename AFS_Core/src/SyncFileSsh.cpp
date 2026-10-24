@@ -406,6 +406,27 @@ namespace {
             log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
     }
 
+    bool writes_through_part(const wstring& dest)  // [SyncFileSsh.md#part-files]
+    {
+        const auto account = get_account_from_path(dest);
+        return account && !account->host_key().empty();
+    }
+
+    CopyResult publish_part(const SftpConnection& connection, const std::string& part, const std::string& final_path, CopyResult result)  // [SyncFileSsh.md#part-files]
+    {
+        if (result != CopyResult::OK) {
+            sftp_unlink(connection.sftp(), part.c_str());
+            return result;
+        }
+        if (sftp_rename(connection.sftp(), part.c_str(), final_path.c_str()) == SSH_OK)
+            return result;
+        sftp_unlink(connection.sftp(), final_path.c_str());  // SFTP version 3 refuses to rename onto an existing file
+        if (sftp_rename(connection.sftp(), part.c_str(), final_path.c_str()) == SSH_OK)
+            return result;
+        sftp_unlink(connection.sftp(), part.c_str());
+        return copy_failed(translation::translate("remote_rename_error") + string_to_wstring(part) + L" -> " + string_to_wstring(final_path));
+    }
+
     SshDirEntry to_dir_entry(const sftp_attributes_struct& attr)
     {
         SshDirEntry entry;
@@ -462,18 +483,20 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     if (!src_file)
         return copy_failed(translation::translate("source_file_open_error") + string_to_wstring(*src_path));
     const SftpAttributes attributes = source.stat(*src_path);
+    const bool through_part = writes_through_part(dest);
+    const std::string write_path = through_part ? *dest_path + wstring_to_string(PART_SUFFIX) : *dest_path;
     CopyResult result = CopyResult::Error;
     {
-        const SftpFile dest_file = target.open(*dest_path, WRITE_FLAGS, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        const SftpFile dest_file = target.open(write_path, WRITE_FLAGS, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (!dest_file)
-            return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(*dest_path));
+            return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(write_path));
         result = transfer(src_file.get(), dest_file.get());
     }
     if (result == CopyResult::OK && attributes) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
-        keep_remote_permissions(target, *dest_path, attributes->permissions);
-        keep_remote_time(target, *dest_path, attributes->mtime);
+        keep_remote_permissions(target, write_path, attributes->permissions);
+        keep_remote_time(target, write_path, attributes->mtime);
     }
-    return result;
+    return through_part ? publish_part(target, write_path, *dest_path, result) : result;
 }
 
 CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
@@ -483,22 +506,24 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     if (!local_file.is_open())
         return copy_failed(translation::translate("local_file_open_error") + src);
     SftpConnection connection;
-    const auto remote_path = connect_to(dest, connection);
-    if (!remote_path)
+    const auto final_path = connect_to(dest, connection);
+    if (!final_path)
         return CopyResult::Error;
+    const bool through_part = writes_through_part(dest);
+    const std::string remote_path = through_part ? *final_path + wstring_to_string(PART_SUFFIX) : *final_path;
     CopyResult result = CopyResult::Error;
     {
-        const SftpFile remote_file = connection.open(*remote_path, WRITE_FLAGS, S_IRUSR | S_IWUSR);
+        const SftpFile remote_file = connection.open(remote_path, WRITE_FLAGS, S_IRUSR | S_IWUSR);
         if (!remote_file)
-            return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(*remote_path));
+            return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(remote_path));
         result = upload(local_file, remote_file.get());
     }
     if (result == CopyResult::OK) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
         if (const auto permissions = local_permissions_of(src))  // [SyncFileSsh.md#upload-keeps-the-permissions]
-            keep_remote_permissions(connection, *remote_path, *permissions);
-        keep_remote_time(connection, *remote_path, local_time_of(src));
+            keep_remote_permissions(connection, remote_path, *permissions);
+        keep_remote_time(connection, remote_path, local_time_of(src));
     }
-    return result;
+    return through_part ? publish_part(connection, remote_path, *final_path, result) : result;
 }
 
 bool ssh_exists(const std::wstring& path)

@@ -1935,6 +1935,10 @@ msgid "device_link_listening"
 msgstr "Verbindung für Handys geöffnet auf Port %1"
 
 #: AFS_Core/src/DeviceLink.cpp
+msgid "device_discovery_unavailable"
+msgstr "Die Suche nach dem PC ist nicht verfügbar, UDP-Port %1 ist belegt."
+
+#: AFS_Core/src/DeviceLink.cpp
 msgid "device_link_handshake_failed"
 msgstr "TLS-Handshake fehlgeschlagen: "
 

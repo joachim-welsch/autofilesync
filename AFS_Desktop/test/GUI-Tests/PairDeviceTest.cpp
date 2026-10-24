@@ -27,6 +27,10 @@
 #include "PhoneTemplatesDialog.h"
 #include "FakePhone.h"
 #include <wx/filepicker.h>
+#include <fcntl.h>
+#include <fstream>
+#include <sys/file.h>
+#include <unistd.h>
 #include "id.h"
 #include "TextResources.h"
 #include "Translation.h"
@@ -192,5 +196,34 @@ TEST_F(PairDeviceTest, HandysDialogRichtetSynchronisationEin)  // [PairDeviceTes
     EXPECT_EQ(item->source(), wxString::FromUTF8(PHONE_ID) + ":/DCIM/Camera");
     Config::instance().erase_by_name(expected_name);
 }
+
+
+#ifndef _WIN32
+TEST_F(PairDeviceTest, DialogZeigtCodeAuchWennDerDienstLauscht)  // [PairDeviceTest.md#hosted-elsewhere]
+{
+    const std::string lock = (std::filesystem::temp_directory_path() / ("autofilesync-" + std::to_string(getuid()) + "-test-devicelink.lock")).string();
+    const int held = open(lock.c_str(), O_RDWR | O_CREAT, 0600);  // the background service holds the role
+    ASSERT_EQ(flock(held, LOCK_EX | LOCK_NB), 0);
+    const std::filesystem::path port_file = DeviceLink::default_dir() / "devicelink.port";
+    std::ofstream(port_file) << "47111\n";
+    ModalDialogWatcher::instance().expect(txt::connect_phone(), [](wxDialog& dialog) {
+        EXPECT_FALSE(DeviceLink::instance().running()) << "Der Dialog darf dem Dienst die Rolle nicht nehmen.";
+        wxStaticBitmap* code = find_control<wxStaticBitmap>(dialog);
+        ASSERT_NE(code, nullptr);
+        EXPECT_TRUE(code->IsShown()) << "Auch ohne eigenen Port muss der Code erscheinen.";
+        EXPECT_TRUE(label_shown(dialog, "47111")) << "Der Code muss den Port des Dienstes nennen.";
+        EXPECT_TRUE(DeviceLink::instance().pairing().open()) << "Der Token muss für den Dienst bereitliegen.";
+        dialog.EndModal(wxID_CLOSE);
+    });
+
+    activate_menu_item(main_window(), tul(id::File_connect_phone));
+    pump();
+
+    EXPECT_FALSE(DeviceLink::instance().pairing().open()) << "Mit dem Dialog endet der Token auch für den Dienst.";
+    std::filesystem::remove(port_file);
+    flock(held, LOCK_UN);
+    close(held);
+}
+#endif
 
 }

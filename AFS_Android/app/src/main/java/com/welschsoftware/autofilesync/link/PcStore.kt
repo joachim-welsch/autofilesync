@@ -53,6 +53,23 @@ class PcStore(context: Context) {  // what the app remembers between starts: its
             }
         }
 
+    var wifiOnly: Boolean  // run passes in the background only on an unmetered network
+        get() = prefs.getBoolean("wifiOnly", true)
+        set(value) = prefs.edit { putBoolean("wifiOnly", value) }
+
+    var chargingOnly: Boolean
+        get() = prefs.getBoolean("chargingOnly", false)
+        set(value) = prefs.edit { putBoolean("chargingOnly", value) }
+
+    var unreachableNotified: Long  // epoch millis of the last "PC not reachable" notification
+        get() = prefs.getLong("unreachableNotified", 0L)
+        set(value) = prefs.edit { putLong("unreachableNotified", value) }
+
+    fun moveTo(address: String, port: Int) {  // the PC was found under a new address (Discovery)
+        val known = pc ?: return
+        pc = known.copy(addresses = listOf(address) + known.addresses.filter { it != address }, port = port)
+    }
+
     var lastContact: Long  // epoch millis, 0 = never
         get() = prefs.getLong("lastContact", 0L)
         set(value) = prefs.edit { putLong("lastContact", value) }

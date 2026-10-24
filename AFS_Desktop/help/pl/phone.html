@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchronizacja z telefonem</title>
+</head>
+<body>
+<h1>Synchronizacja z telefonem</h1>
+
+<p>AutoFileSync uzgadnia także foldery na telefonie z Androidem z PC: zdjęcia
+same trafiają na PC, folder pozostaje jednakowy na obu urządzeniach albo muzyka
+przechodzi z PC na telefon. Telefon potrzebuje do tego aplikacji AutoFileSync,
+a telefon i PC muszą być w tej samej sieci Wi-Fi.</p>
+
+<h2>Łączenie telefonu</h2>
+
+<ol>
+<li><b>Plik &rarr; Połącz telefon…</b> pokazuje kod QR. Jest ważny dziesięć
+    minut i tylko dla jednego telefonu.</li>
+<li>Aplikację instaluje się na telefonie – z F-Droid albo jako APK z
+    <tt>welsch-software.com</tt>. Kod QR także tam prowadzi.</li>
+<li>W aplikacji dotyka się <b>Skanuj kod QR</b>, kieruje aparat na kod i
+    potwierdza przyciskiem <b>Połącz</b>.</li>
+<li>Aplikacja prosi o dostęp do wszystkich plików: <b>Zezwól na dostęp</b>
+    prowadzi do ustawienia Androida, w którym się go włącza. Bez tego dostępu
+    PC nie może ani czytać, ani zapisywać folderów telefonu.</li>
+</ol>
+
+<p>Na PC pojawia się wtedy „… jest połączony ✓”. Od tej chwili PC i telefon
+rozpoznają się nawzajem po certyfikatach; obce urządzenie nie może podać się za
+żadne z nich.</p>
+
+<h2>Co jest synchronizowane</h2>
+
+<p>Zaraz po połączeniu AutoFileSync pyta, co ma się dziać z telefonem. Foldery
+na PC i na telefonie są zaproponowane i można je zmienić.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Zabezpieczyć zdjęcia i filmy na PC</b></td>
+    <td>Kopiuje zdjęcia i filmy z <tt>DCIM/Camera</tt> na PC. Zdjęcia
+        usunięte na telefonie pozostają na PC – tak można zwolnić miejsce na
+        telefonie.</td></tr>
+<tr><td valign="top"><b>Utrzymywać folder jednakowy na obu urządzeniach</b></td>
+    <td>Zmiany po jednej stronie trafiają na drugą, łącznie z usunięciami i
+        zmianami nazw. Jeśli plik zmieniono po obu stronach, zachowywane są obie
+        wersje; zob.
+        <a href="options.html#twoway">Synchronizacja dwukierunkowa</a>.</td></tr>
+<tr><td valign="top"><b>Muzyka z PC na telefon</b></td>
+    <td>Kopiuje folder muzyki z PC na telefon. To, co zniknie z tego folderu,
+        zostaje usunięte także z telefonu.</td></tr>
+<tr><td valign="top"><b>Skonfigurować później</b></td>
+    <td>Niczego nie zakłada. Można to zrobić także później.</td></tr>
+</table>
+
+<p>Każdy szablon zakłada całkiem zwykłą synchronizację. Jak każdą inną można ją
+edytować, obejrzeć w podglądzie i śledzić w dzienniku.</p>
+
+<p>Własną synchronizację z telefonem zakłada się w oknie synchronizacji:
+przycisk <b>Telefon…</b> obok <b>SSH…</b> wybiera telefon i folder na nim.
+Lista zawiera typowe foldery, takie jak <tt>DCIM/Camera</tt>,
+<tt>Download</tt> czy <tt>Music</tt>; inny można wpisać.</p>
+
+<h2>Kiedy następuje synchronizacja</h2>
+
+<p>Przebieg z telefonem zaczyna się, gdy telefon zgłosi się do PC:</p>
+
+<ul>
+<li>co 30 minut,</li>
+<li>minutę po nowych zdjęciach lub filmach,</li>
+<li>od razu po dotknięciu <b>Synchronizuj teraz</b> w aplikacji.</li>
+</ul>
+
+<p>Dwa przełączniki w aplikacji decydują, kiedy telefon się zgłasza: <b>Tylko
+przez Wi-Fi</b> (na początku włączony) i <b>Tylko podczas ładowania</b> (na
+początku wyłączony). Poniżej 15 % baterii telefon czeka, aż zostanie podłączony
+do ładowarki. W trakcie przebiegu telefon pokazuje postęp w powiadomieniu.</p>
+
+<p>Nieobecny telefon to nie błąd: AutoFileSync po prostu czeka, aż znów się
+zgłosi. Jeśli telefon przez cały dzień nie może dotrzeć do PC, przypomina o tym
+jednym powiadomieniem.</p>
+
+<p>Gdy PC dostanie nowy adres w sieci domowej, telefon sam go odnajdzie. Jeśli
+działa <a href="service.html">usługa w tle</a>, przyjmuje ona telefony także
+wtedy, gdy nikt nie jest zalogowany na PC.</p>
+
+<p>Pliki telefonu są dostępne dla PC tylko w trakcie przebiegu i tylko z hasłem
+generowanym od nowa dla każdego przebiegu.</p>
+
+<h2>Połączone telefony</h2>
+
+<p><b>Edycja &rarr; Telefony…</b> wyświetla wszystkie połączone telefony.</p>
+
+<ul>
+<li>Kliknięcie nazwy zmienia nazwę telefonu.</li>
+<li><b>Skonfiguruj synchronizację…</b> ponownie otwiera szablony.</li>
+<li><b>Rozłącz</b> usuwa telefon. Nie może się on już zgłaszać; aby połączyć go
+    ponownie, skanuje się nowy kod. W aplikacji <b>Odłącz od komputera</b> kończy
+    połączenie z drugiej strony.</li>
+</ul>
+
+<h2><a name="firewall"></a>Zapora sieciowa</h2>
+
+<p>Telefon łączy się z PC przez port <b>52381</b>. Zapora na PC musi otworzyć
+ten port dla <b>TCP i UDP</b>. W Linuksie z <tt>ufw</tt> wystarczy:</p>
+
+<blockquote><tt>sudo ufw allow 52381</tt></blockquote>
+
+<p>Jeśli podczas łączenia przez minutę nic nie dotrze, okno samo wskaże na
+zaporę.</p>
+
+<h2>Gdy coś nie działa</h2>
+
+<ul>
+<li><b>Aplikacja zgłasza „Komputer niedostępny”.</b> Czy PC jest włączony i w tej
+    samej sieci Wi-Fi co telefon? Sieć dla gości albo sieć, która izoluje
+    urządzenia od siebie, nie pozwala na połączenie.</li>
+<li><b>Kod wygasł.</b> Ponownie otworzyć <b>Plik &rarr; Połącz telefon…</b> i
+    zeskanować nowy kod.</li>
+<li><b>Okno wciąż czeka.</b> Prawdopodobnie blokuje zapora (zob. wyżej).</li>
+<li><b>Nic nie jest przesyłane.</b> Czy aplikacja ma dostęp do wszystkich
+    plików? Czy „Tylko przez Wi-Fi” albo „Tylko podczas ładowania” jest
+    włączone, gdy telefon jest poza domem lub się nie ładuje?</li>
+</ul>
+
+</body>
+</html>

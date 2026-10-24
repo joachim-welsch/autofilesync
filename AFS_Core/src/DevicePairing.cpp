@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "DevicePairing.h"
+#include <fstream>
 #include <openssl/rand.h>
 #ifdef _WIN32
 #include <winsock2.h>
@@ -32,57 +33,97 @@
 
 namespace AFS_Core {
 
-bool DevicePairing::open_unlocked() const
+namespace {
+
+bool write_private(const std::filesystem::path& file, const std::string& text)  // [DevicePairing.md#files]
 {
-    return !token_.empty() && std::chrono::steady_clock::now() < deadline_;
+    std::error_code ec;
+    std::filesystem::create_directories(file.parent_path(), ec);
+    const std::filesystem::path temporary = file.string() + ".tmp";
+    {
+        std::ofstream out(temporary, std::ios::binary | std::ios::trunc);
+        out << text;
+        if (!out)
+            return false;
+    }
+#ifndef _WIN32
+    std::filesystem::permissions(temporary, std::filesystem::perms::owner_read | std::filesystem::perms::owner_write, ec);
+#endif
+    std::filesystem::rename(temporary, file, ec);
+    return !ec;
+}
+
+}
+
+void DevicePairing::set_dir(const std::filesystem::path& dir)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    dir_ = dir;
+}
+
+std::pair<std::string, std::time_t> DevicePairing::read() const  // [DevicePairing.md#files]
+{
+    if (dir_.empty())
+        return {};
+    std::ifstream in(token_file());
+    std::string token;
+    std::time_t expires = 0;
+    if (!(in >> token >> expires) || std::time(nullptr) >= expires)
+        return {};
+    return {token, expires};
 }
 
 std::string DevicePairing::begin()  // [DevicePairing.md#begin]
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    token_ = random_hex(16);
-    deadline_ = std::chrono::steady_clock::now() + TOKEN_LIFETIME;
-    expires_ = std::time(nullptr) + std::chrono::duration_cast<std::chrono::seconds>(TOKEN_LIFETIME).count();
+    const std::string token = random_hex(16);
+    const std::time_t expires = std::time(nullptr) + std::chrono::duration_cast<std::chrono::seconds>(TOKEN_LIFETIME).count();
     failures_ = 0;
-    return token_;
+    write_private(token_file(), token + " " + std::to_string(expires) + "\n");
+    return token;
 }
 
 void DevicePairing::end()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    token_.clear();
+    if (dir_.empty())
+        return;
+    std::error_code ec;
+    std::filesystem::remove(token_file(), ec);
 }
 
 bool DevicePairing::open() const
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    return open_unlocked();
+    return !read().first.empty();
 }
 
 bool DevicePairing::redeem(const std::string& token)  // [DevicePairing.md#redeem]
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!open_unlocked())
+    const auto [expected, expires] = read();
+    if (expected.empty())
         return false;
-    if (token != token_) {
+    std::error_code ec;
+    if (token != expected) {
         if (++failures_ >= FAILURE_LIMIT)
-            token_.clear();
+            std::filesystem::remove(token_file(), ec);
         return false;
     }
-    token_.clear();
+    std::filesystem::remove(token_file(), ec);
     return true;
 }
 
 std::string DevicePairing::token() const
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    return open_unlocked() ? token_ : std::string();
+    return read().first;
 }
 
 std::time_t DevicePairing::expires() const
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    return expires_;
+    return read().second;
 }
 
 std::string random_hex(size_t bytes)

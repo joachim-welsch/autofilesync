@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AutoFileSync</string>
+    <string name="app_name" translatable="false">AutoFileSync</string>
     <string name="welcome_title">Connect this phone to your PC</string>
     <string name="welcome_text">In AutoFileSync on the PC, open File → Connect phone… and scan the code that appears.</string>
     <string name="scan_button">Scan QR code</string>
@@ -46,4 +46,9 @@
     <string name="minutes_ago">%1$d min ago</string>
     <string name="hours_ago">%1$d h ago</string>
     <string name="days_ago">%1$d days ago</string>
+    <string name="setting_wifi_only">Only on Wi-Fi</string>
+    <string name="setting_charging_only">Only while charging</string>
+    <string name="channel_progress">Synchronisation in progress</string>
+    <string name="channel_problems">Problems</string>
+    <string name="notify_unreachable">The PC has not been reachable for a day. Is it switched on and in the same Wi-Fi?</string>
 </resources>

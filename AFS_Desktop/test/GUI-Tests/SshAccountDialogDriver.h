@@ -28,6 +28,7 @@ struct SshAccountInput {
     wxString host;
     wxString user;
     wxString password;
+    int port = 22;
 };
 
 DialogAction fill_ssh_account_dialog(const SshAccountInput& input);  // [SshAccountDialogDriver.md#fill_ssh_account_dialog]

@@ -1,6 +1,7 @@
-Aktuell ist Version 0.3.0
+Aktuell ist Version 0.4.0
 
 wird eingetragen in: AFS_Desktop/include/Version.h (afsVERSION_MAJOR/MINOR/PATCH und afsVERSION_TEXT)
+scripts/setVersion.sh <Version> setzt sie dort, in dieser Datei und in der Überschrift von doc/CHANGELOG.md.
 
 Schema: Semantic Versioning, major.minor.patch
 

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Synchroniser avec un téléphone</title>
+</head>
+<body>
+<h1>Synchroniser avec un téléphone</h1>
+
+<p>AutoFileSync accorde aussi des dossiers d'un téléphone Android avec le PC :
+les photos arrivent d'elles-mêmes sur le PC, un dossier reste identique sur les
+deux appareils, ou la musique passe du PC au téléphone. Le téléphone a besoin
+pour cela de l'application AutoFileSync, et le téléphone et le PC doivent être
+sur le même Wi-Fi.</p>
+
+<h2>Connecter un téléphone</h2>
+
+<ol>
+<li><b>Fichier &rarr; Connecter un téléphone…</b> affiche un code QR. Il est
+    valable dix minutes et pour un seul téléphone.</li>
+<li>Installez l'application sur le téléphone – depuis F-Droid ou en APK depuis
+    <tt>welsch-software.com</tt>. Le code QR y mène également.</li>
+<li>Dans l'application, touchez <b>Scanner le code QR</b>, dirigez l'appareil
+    photo vers le code et confirmez avec <b>Connecter</b>.</li>
+<li>L'application demande l'accès à tous les fichiers : <b>Autoriser
+    l'accès</b> ouvre le réglage Android où il s'active. Sans cet accès, le PC
+    ne peut ni lire ni écrire les dossiers du téléphone.</li>
+</ol>
+
+<p>Le PC affiche alors « … est connecté ✓ ». Dès lors, le PC et le téléphone se
+reconnaissent mutuellement par leurs certificats ; un appareil étranger ne peut
+pas se faire passer pour l'un d'eux.</p>
+
+<h2>Ce qui est synchronisé</h2>
+
+<p>Juste après la connexion, AutoFileSync demande ce qu'il faut faire avec le
+téléphone. Des dossiers sur le PC et sur le téléphone sont proposés et peuvent
+être modifiés.</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><td valign="top"><b>Sauvegarder photos et vidéos sur le PC</b></td>
+    <td>Copie les photos et vidéos de <tt>DCIM/Camera</tt> sur le PC. Les
+        photos supprimées sur le téléphone restent sur le PC – on peut ainsi
+        libérer de la place sur le téléphone.</td></tr>
+<tr><td valign="top"><b>Garder un dossier identique sur les deux appareils</b></td>
+    <td>Les modifications d'un côté arrivent de l'autre, suppressions et
+        renommages compris. Si un fichier a été modifié des deux côtés, les deux
+        versions sont conservées ; voir
+        <a href="options.html#twoway">Synchronisation bidirectionnelle</a>.</td></tr>
+<tr><td valign="top"><b>Musique du PC vers le téléphone</b></td>
+    <td>Copie le dossier de musique du PC sur le téléphone. Ce qui disparaît de
+        ce dossier est aussi retiré du téléphone.</td></tr>
+<tr><td valign="top"><b>Configurer plus tard</b></td>
+    <td>Ne crée rien. Cela reste possible plus tard.</td></tr>
+</table>
+
+<p>Chaque modèle crée une synchronisation tout à fait ordinaire. Comme toute
+autre, elle peut être modifiée, examinée dans l'aperçu et suivie dans le
+journal.</p>
+
+<p>Une synchronisation personnelle avec le téléphone se crée dans le dialogue
+d'une synchronisation : le bouton <b>Téléphone…</b> à côté de <b>SSH…</b>
+choisit le téléphone et un dossier sur celui-ci. La liste nomme les dossiers
+habituels comme <tt>DCIM/Camera</tt>, <tt>Download</tt> ou <tt>Music</tt> ; un
+autre peut être saisi.</p>
+
+<h2>Quand la synchronisation a lieu</h2>
+
+<p>Un passage avec le téléphone commence quand le téléphone se signale au
+PC :</p>
+
+<ul>
+<li>toutes les 30 minutes,</li>
+<li>une minute après de nouvelles photos ou vidéos,</li>
+<li>immédiatement avec <b>Synchroniser maintenant</b> dans l'application.</li>
+</ul>
+
+<p>Deux interrupteurs dans l'application décident quand le téléphone se
+signale : <b>Uniquement en Wi-Fi</b> (activé au départ) et <b>Uniquement pendant
+la charge</b> (désactivé au départ). Sous 15 % de batterie, le téléphone attend
+d'être branché au chargeur. Pendant un passage, le téléphone affiche la
+progression dans une notification.</p>
+
+<p>Un téléphone absent n'est pas une erreur : AutoFileSync attend simplement
+qu'il se signale de nouveau. Si le téléphone n'atteint pas le PC pendant toute
+une journée, il le rappelle une fois par une notification.</p>
+
+<p>Si le PC obtient une nouvelle adresse dans le réseau domestique, le
+téléphone le retrouve de lui-même. Si le <a href="service.html">service en
+arrière-plan</a> tourne, il accepte les téléphones même quand personne n'est
+connecté au PC.</p>
+
+<p>Les fichiers du téléphone ne sont accessibles au PC que pendant un passage,
+et seulement avec un mot de passe généré à nouveau pour chaque passage.</p>
+
+<h2>Téléphones connectés</h2>
+
+<p><b>Édition &rarr; Téléphones…</b> liste tous les téléphones connectés.</p>
+
+<ul>
+<li>Un clic sur le nom renomme le téléphone.</li>
+<li><b>Configurer la synchronisation…</b> rouvre les modèles.</li>
+<li><b>Déconnecter</b> retire le téléphone. Il ne peut plus se signaler ; pour
+    le connecter à nouveau, scannez un nouveau code. Dans l'application,
+    <b>Se déconnecter du PC</b> coupe la connexion de l'autre côté.</li>
+</ul>
+
+<h2><a name="firewall"></a>Pare-feu</h2>
+
+<p>Le téléphone joint le PC par le port <b>52381</b>. Un pare-feu sur le PC doit
+ouvrir ce port pour <b>TCP et UDP</b>. Sous Linux avec <tt>ufw</tt>, ceci
+suffit :</p>
+
+<blockquote><tt>sudo ufw allow 52381</tt></blockquote>
+
+<p>Si rien n'arrive dans la minute pendant la connexion, le dialogue signale
+lui-même le pare-feu.</p>
+
+<h2>Si cela ne fonctionne pas</h2>
+
+<ul>
+<li><b>L'application indique « PC injoignable ».</b> Le PC est-il allumé et sur
+    le même Wi-Fi que le téléphone ? Un Wi-Fi invité ou un Wi-Fi qui isole les
+    appareils les uns des autres ne permet pas de connexion.</li>
+<li><b>Le code a expiré.</b> Rouvrez <b>Fichier &rarr; Connecter un
+    téléphone…</b> et scannez le nouveau code.</li>
+<li><b>Le dialogue attend sans fin.</b> Le pare-feu bloque probablement (voir
+    plus haut).</li>
+<li><b>Rien n'est transféré.</b> L'application a-t-elle accès à tous les
+    fichiers ? « Uniquement en Wi-Fi » ou « Uniquement pendant la charge » est-il
+    activé alors que le téléphone est absent ou ne charge pas ?</li>
+</ul>
+
+</body>
+</html>

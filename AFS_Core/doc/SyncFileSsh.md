@@ -105,3 +105,17 @@ server's window. A write request may be shortened by the server's limit; the rem
 a request of its own, with its data kept alive until its answer arrives. Order is preserved on
 both sides, so a stop between two blocks leaves the file as a sequential copy would have. The
 libssh2 branch (Windows) still sends one request at a time.
+
+## part-files
+
+A copy to a phone (an account with a pinned host key, Config.md#device-accounts) is written
+under the final name plus PART_SUFFIX and renamed when it is complete, with time and
+permissions already set. A pass that is interrupted - the phone leaves the Wi-Fi, the battery
+saver stops the app - then leaves the old file untouched instead of a truncated one that the
+gallery or music app would show as broken; the part file is removed on error or stop, and a
+part file that survived a crash is excluded from every listing (SyncItem.md#is_excluded). The
+rename falls back to unlink and rename, because SFTP version 3 refuses to rename onto an
+existing file; between the two calls the file is briefly missing, never half written. Other
+SSH targets keep writing in place, as before (remote-target-stays-writable), so that a server's
+ownership, hard links and ACLs on existing files are not replaced by a new file. The libssh2
+branch (Windows) writes in place for phones as well.

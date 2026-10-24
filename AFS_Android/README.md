@@ -8,6 +8,9 @@ Die Android-App von AutoFileSync (GPLv3), Konzept in `doc/ANDROID-CONCEPT.md`.
     `SshHostKey` der Schlüssel des späteren SFTP-Servers, `PcLink` die
     TLS-Verbindung mit Fingerabdruck-Pinning, `PcStore` das Gespeicherte).
   - `ui/`: Bildschirme (`AppUi`) und QR-Scanner (`QrScanner`, CameraX + ZXing).
+  - `work/`: Durchläufe im Hintergrund (`SyncWorker` über WorkManager, `Scheduler` für
+    Zeitplan, neue Fotos und den Knopf, `Pass` als gemeinsamer Ablauf, `Notifications`).
+  - `link/Discovery`: findet den PC per UDP-Rundruf, wenn sich seine Adresse geändert hat.
   - `AppState`: Zustand und Aktionen hinter den Knöpfen.
 - `spike/`: der Prototyp aus Phase 0 (SFTP-Server, Zeitstempel-Test), eigenständiges
   Gradle-Projekt.
@@ -33,3 +36,16 @@ Braucht das Android SDK (Plattform 34, build-tools 34) in `local.properties`
 Ohne `assetlinks.json` auf welsch-software.com öffnet die Kamera-App den Code
 noch nicht direkt in der App (Phase 4); der Scanner in der App funktioniert
 unabhängig davon.
+
+## Release
+
+- Einmalig: `tools/make-release-key.sh` erzeugt den Signaturschlüssel (Standard:
+  `~/.android/autofilesync-release.jks`) und `keystore.properties` (beides nie ins Repo).
+  Schlüssel und Passwort sichern: ohne sie lässt sich kein Update mehr installieren.
+- `./gradlew assembleRelease` baut die signierte APK, ohne `keystore.properties` eine
+  unsignierte (so baut F-Droid selbst).
+- `tools/assetlinks.sh` gibt die `assetlinks.json` für
+  `https://welsch-software.com/.well-known/assetlinks.json` aus; erst damit öffnet die
+  Kamera-App den QR-Code direkt in der App.
+- F-Droid-Metadaten: `fastlane/metadata/android/<Sprache>/`, Änderungen je Version in
+  `changelogs/<versionCode>.txt`.

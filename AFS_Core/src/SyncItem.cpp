@@ -201,6 +201,8 @@ void CompareItems::content(bool is_set)
 
 bool is_excluded(const wstring& name, const Exclusions& exclusions)
 {
+    if (name.ends_with(PART_SUFFIX))  // [SyncItem.md#is_excluded] a copy to a phone that did not finish
+        return true;
     for (const auto& pattern : exclusions)
         if (util::wildmatch(name, pattern))
             return true;

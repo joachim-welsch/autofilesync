@@ -18,13 +18,18 @@
  */
 package com.welschsoftware.autofilesync
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import com.welschsoftware.autofilesync.ui.AppRoot
+import com.welschsoftware.autofilesync.work.Notifications
+import com.welschsoftware.autofilesync.work.Scheduler
 
 class MainActivity : ComponentActivity() {
     private val state: AppState by viewModels()
@@ -32,6 +37,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent { MaterialTheme { AppRoot(state) } }
+        Notifications.createChannels(this)
+        Scheduler.ensure(this)  // also after an update or a reboot that dropped the schedule
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 0)  // the progress of a background pass is shown as a notification
         if (savedInstanceState == null) state.onLink(intent?.data)  // a scanned link from the camera app opened the app
     }
 
@@ -43,6 +52,6 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         state.refreshAccess()  // the user may just have come back from the system's permission page
-        if (state.screen == Screen.Status) state.syncNow(serve = false)  // report in whenever the user looks, so the card is current; a pass needs the button
+        if (state.screen == Screen.Status) state.reportIn()  // report in whenever the user looks, so the card is current
     }
 }

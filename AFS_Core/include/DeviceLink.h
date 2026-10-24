@@ -66,13 +66,16 @@ public:
     ~DeviceLink();
     DeviceLink(const DeviceLink&) = delete;
     DeviceLink& operator=(const DeviceLink&) = delete;
-    bool start(const std::filesystem::path& identity_dir, uint16_t port = DEFAULT_PORT);  // [DeviceLink.md#start]
+    static std::filesystem::path default_dir();  // [DeviceLink.md#shared-files]
+    bool start(const std::filesystem::path& dir, uint16_t port = DEFAULT_PORT, uint16_t discovery_port = DEFAULT_PORT);  // [DeviceLink.md#start]
+    bool hosted_elsewhere() const;  // [DeviceLink.md#shared-files] another process of this user listens
+    uint16_t discovery_port() const { return discovery_port_; }
     void stop();
     bool running() const { return running_; }
     uint16_t port() const { return port_; }
     std::string fingerprint() const;
     DevicePairing& pairing() { return pairing_; }
-    PairingOffer offer();  // [DeviceLink.md#offer]
+    PairingOffer offer();  // [DeviceLink.md#offer] works also when another process hosts the link
     std::optional<Device> take_paired();  // [DeviceLink.md#take_paired]
     std::optional<DevicePresence> presence(const std::string& device_id) const;
     bool serving(const std::string& device_id) const;  // [Device.md#serving]
@@ -87,6 +90,9 @@ private:
     bool listen_on(uint16_t port);
     bool prepare_tls();
     void accept_loop();
+    void answer_discovery();  // [DeviceLink.md#discovery]
+    bool open_discovery(uint16_t port);
+    void write_presence_file() const;
     void session(std::intptr_t client, const std::string& peer_address);
     void handle(const std::string& line, const std::string& peer_fingerprint, const std::string& peer_address, const Send& send);
     std::string pair(const PairRequest& request, const std::string& peer_fingerprint, const std::string& peer_address);
@@ -97,6 +103,9 @@ private:
     std::optional<DeviceIdentity> identity_;
     ssl_ctx_st* ctx_ = nullptr;
     std::intptr_t listener_ = -1;
+    std::intptr_t discovery_ = -1;
+    uint16_t discovery_port_ = 0;
+    std::filesystem::path dir_;
     std::intptr_t role_handle_ = -1;
     uint16_t port_ = 0;
     std::atomic_bool running_{false};
@@ -106,7 +115,6 @@ private:
     mutable std::mutex mutex_;
     std::condition_variable passed_;  // [DeviceLink.md#serve]
     std::set<std::wstring> pending_items_;
-    std::optional<Device> paired_;
     std::map<std::string, DevicePresence> presence_;
 };
 

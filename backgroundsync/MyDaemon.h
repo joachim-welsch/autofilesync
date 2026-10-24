@@ -19,6 +19,7 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <thread>
 #include "LogCut.h"
 
@@ -33,8 +34,10 @@ private:
     void run();
     void load_config();
     void reload_config();  // [MyDaemon.md#reload_config]
+    void keep_device_link();  // [MyDaemon.md#device-link]
 
     std::atomic<bool> running_ = false;
     std::thread worker_thread_;
     AFS_Core::DailyLogCut cut_log_daily_;
+    std::chrono::steady_clock::time_point next_link_try_{};
 };

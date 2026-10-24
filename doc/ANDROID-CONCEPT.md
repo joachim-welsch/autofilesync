@@ -359,8 +359,8 @@ Verbindung ankommt („Eine Firewall blockiert vielleicht Port 52381“).
 | 0 – Spikes ✓ | MINA-SFTP mit „Alle Dateien“; `setstat`/mtime im gemeinsamen Speicher; Durchsatz im WLAN; libssh (Linux) und libssh2 (Windows) gegen MINA. Erledigt am 21.10.2026 auf Android 13, Android 14/15 steht noch aus. | Ergebnisse in Abschnitt 13, Testprojekt `AFS_Android/spike/` |
 | 1 – Kopplung ✓ | `DevicePairing`, Geräteliste in `Config`, `DeviceLink` (`pair`, `hello`), QR-Dialog, Handy-Liste; App: Scannen, Koppeln, Statuskarte. Umgesetzt am 21.10.2026, Abweichungen in Abschnitt 14. | Handy erscheint in AutoFileSync als gekoppelt |
 | 2 – Synchronisieren ✓ | parallele SFTP-Anfragen im Kern, `serve`/`done`, Port und Hostschlüssel in SSH, Ortsauswahl „Handy“, Vorlagen. Umgesetzt am 21.10.2026, Abweichungen in Abschnitt 15. | Fotos sichern per **Jetzt synchronisieren** |
-| 3 – Hintergrund | WorkManager-Auslöser, Vordergrundbenachrichtigung, mDNS, Medienscan, Daemon als Kopplungsdienst | Läuft ohne Zutun |
-| 4 – Fertigstellen | 7 Sprachen, Hilfe, Tests, F-Droid-Metadaten, signierte APK zum Herunterladen, App-Link (`assetlinks.json` auf welsch-software.com) | Veröffentlichung über F-Droid und APK |
+| 3 – Hintergrund ✓ | WorkManager-Auslöser, Vordergrundbenachrichtigung, PC-Suche (UDP statt mDNS), Medienscan, Daemon als Kopplungsdienst. Umgesetzt am 21.10.2026, Abweichungen in Abschnitt 16. | Läuft ohne Zutun |
+| 4 – Fertigstellen ✓ | 7 Sprachen, Hilfe, Tests, F-Droid-Metadaten, Release-Signatur vorbereitet, App-Link vorbereitet, Firewall in den Installern, atomares Schreiben aufs Handy, Port-Feld. Umgesetzt am 21.10.2026, offene Schritte in Abschnitt 17. | Veröffentlichung über F-Droid und APK |
 
 Spätere Erweiterungen, nicht in v1:
 
@@ -504,3 +504,74 @@ Umgesetzt wie in Abschnitt 5 und 7 beschrieben, mit diesen Abweichungen:
 - **Tests:** 20 Gerätetests (darunter der `serve`-Durchlauf gegen den lokalen SSH-Server
   und ein abgewiesener falscher Hostschlüssel), 99 SSH-Tests mit den parallelen Anfragen,
   5 GUI-Tests (Kopplung, Handy-Liste, Vorlagen).
+
+## 16. Stand nach Phase 3 (21.10.2026)
+
+- **Hintergrund in der App:** Ein `SyncWorker` (WorkManager) führt jeden Durchlauf aus,
+  auch den von „Jetzt synchronisieren“; er läuft als Vordergrunddienst vom Typ
+  `dataSync` mit Fortschrittsbenachrichtigung. Auslöser: alle 30 Minuten, eine Minute
+  nach neuen Fotos oder Videos (Content-URI-Trigger auf MediaStore) und der Knopf.
+  „Nur im WLAN“ (Standard an) und „Nur beim Laden“ (aus) sind Schalter auf der
+  Statuskarte. Unter 15 % Akku ohne Ladegerät läuft kein Durchlauf. Ist der PC seit einem
+  Tag nicht erreichbar, kommt eine Benachrichtigung, höchstens einmal am Tag.
+- **PC wiederfinden:** statt mDNS ein UDP-Rundruf an Port 52381 mit dem Fingerabdruck
+  des PCs; nur der passende PC antwortet mit seinem TCP-Port (`DeviceLink.md#discovery`).
+  Kein Avahi/Bonjour nötig. Die Firewall muss Port 52381 für TCP **und UDP** freigeben.
+- **Hintergrunddienst als Kopplungsstelle:** `backgroundsync` lauscht, sobald ein Handy
+  gekoppelt ist; hält die GUI die Rolle, versucht er es jede Minute erneut. Kopplungs-Token,
+  Ergebnis, Port und „zuletzt gemeldet“ liegen als kleine Dateien im
+  Konfigurationsverzeichnis (`DeviceLink.md#shared-files`), sodass „Handy verbinden…“
+  auch funktioniert, wenn der Dienst den Port hat. Läuft in der GUI zugleich eine
+  fortlaufende Synchronisation, wartet ein Durchlauf des Dienstes, bis die GUI pausiert
+  (SyncArbiter), höchstens 60 Minuten.
+- **Medienscan:** Der SFTP-Server der App merkt sich geschriebene, verschobene und
+  gelöschte Dateien und meldet sie nach dem Durchlauf an `MediaScannerConnection`.
+- **Feste Rechte:** Der Server meldet Dateien als 0644 und Ordner als 0755.
+- **Ende-zu-Ende geprüft** am 21.10.2026 mit dem OnePlus DN2103 gegen den PC-Teil ohne
+  Oberfläche: Vorlage „Fotos sichern“, 126 Dateien aus DCIM/Camera (515 MB) in rund
+  100 s (≈ 5 MB/s) ohne Fehler, Inhalt und Änderungszeit gleich, Rechte 0644. Der
+  Durchlauf startete von selbst kurz nach der Kopplung (WorkManager). Mit einer
+  absichtlich falschen PC-Adresse fand die App den PC per UDP-Rundruf nach gut 3 s und
+  trug die richtige Adresse wieder vorne ein.
+- **Offen für Phase 4:** atomares Schreiben auf dem Handy, Port-Feld im SSH-Dialog,
+  übrige fünf Sprachen der App, Hilfe, F-Droid, `assetlinks.json`, Firewall-Regel im
+  Installer (TCP und UDP).
+
+## 17. Stand nach Phase 4 (21.10.2026)
+
+Umgesetzt:
+- **Atomares Schreiben aufs Handy:** Kopien auf ein Handy entstehen unter `<Name>.afs-part`
+  und werden erst vollständig umbenannt (`SyncFileSsh.md#part-files`); übrig gebliebene
+  Teildateien werden nie synchronisiert. Nur libssh (Linux, macOS), nur Handy-Ziele.
+- **Port-Feld** im Dialog „SSH-Verbindung“, neben dem Host, Standard 22.
+- **App in 7 Sprachen** (de, en, es, fr, it, pl, uk); `app_name` nicht übersetzbar.
+  Behoben: `isExternalStorageManager` gibt es erst ab Android 11 – vor Android 11 nutzt
+  die App jetzt die alten Speicherberechtigungen (`FileAccess`), sonst wäre sie auf
+  Android 8–10 abgestürzt.
+- **Hilfe:** neue Seite „Mit dem Handy synchronisieren“ (`phone.html`, Kontext-ID 6014) in
+  allen sieben Sprachen, mit Inhaltsverzeichnis- und Stichworteinträgen.
+- **Firewall in den Installern:** Windows-MSI mit Programm-Ausnahme (WiX Firewall-Extension)
+  für `autofilesync.exe` und `backgroundsync.exe`, nur lokales Subnetz, alle Profile, alle
+  Protokolle. Debian-Paket mit ufw-Anwendungsprofil `AutoFileSync` (Port 52381 TCP/UDP);
+  die Regel selbst bleibt Sache des Benutzers: `sudo ufw allow AutoFileSync`.
+- **Release:** `AFS_Android/app/build.gradle.kts` signiert mit `keystore.properties`, wenn
+  vorhanden, sonst unsigniert (wie F-Droid baut); kein Google-Abhängigkeitsblock im APK.
+  `tools/make-release-key.sh` erzeugt Schlüssel und `keystore.properties`,
+  `tools/assetlinks.sh` gibt daraus `assetlinks.json` aus. F-Droid-Metadaten (fastlane,
+  de-DE und en-US) liegen unter `AFS_Android/fastlane/`.
+- **Website** (`~/Entwicklung/Websites/AFS`, nicht deployt): Seite `/pair` in sieben
+  Sprachen für Telefone ohne App, nginx leitet `/pair` sprachabhängig weiter und behält
+  das Fragment; Ort für `/.well-known/assetlinks.json` vorbereitet.
+
+Offen, braucht Entscheidungen oder Zugang des Inhabers:
+1. Release-Schlüssel erzeugen (`AFS_Android/tools/make-release-key.sh`) und sichern.
+2. `assetlinks.json` mit `tools/assetlinks.sh` erzeugen und unter
+   `www/.well-known/assetlinks.json` im Website-Projekt ablegen; signierte APK
+   (`./gradlew assembleRelease`) auf die Download-Seite (Name, Größe, SHA-256 in allen
+   sieben Sprachen); dann `tools/deploy.sh`.
+3. F-Droid: Aufnahmeantrag (Merge Request auf fdroiddata) mit Verweis auf das Repository,
+   Unterverzeichnis `AFS_Android`, Paket `com.welschsoftware.autofilesync`.
+4. Test auf Android 14/15 (R1) und auf einem zweiten Hersteller.
+5. Windows: Installer und libssh2-Pfad (Port, gepinnter Hostschlüssel) erstmals unter
+   Windows bauen und testen; die parallelen SFTP-Anfragen und das atomare Schreiben gibt
+   es dort noch nicht.
