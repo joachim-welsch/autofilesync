@@ -454,6 +454,7 @@ TEST_F(DeviceLinkTest, DiscoveryAnswersOnlyItsOwnFingerprint)  // [DeviceTests.m
 }
 #endif
 
+#ifdef _UNIX  // local_sshd_host_key reads the key through libssh, and the copy lands in a Unix path on the local sshd
 TEST_F(DeviceLinkTest, CopyToPhoneGoesThroughAPartFile)  // [DeviceTests.md#part-files]
 {
     SKIP_WITHOUT_SSH_SERVER();
@@ -482,6 +483,7 @@ TEST_F(DeviceLinkTest, CopyToPhoneGoesThroughAPartFile)  // [DeviceTests.md#part
     EXPECT_EQ(read_file(phone_dir / "song.mp3"), std::string(300000, 'm')) << "The existing file must be replaced by the complete copy.";
     EXPECT_FALSE(fs::exists(phone_dir / "song.mp3.afs-part")) << "No part file may remain after a complete copy.";
 }
+#endif
 
 TEST_F(DeviceLinkTest, LeftoverPartFilesAreNeverSynchronised)  // [DeviceTests.md#part-files]
 {
