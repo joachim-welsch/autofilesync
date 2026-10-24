@@ -42,6 +42,9 @@
     <ClInclude Include="ScopedDeleteMode.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
+    <ClInclude Include="ScopedConfigHome.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
     <ClInclude Include="ScopedLoggingSetup.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>

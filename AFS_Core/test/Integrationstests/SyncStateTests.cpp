@@ -20,12 +20,13 @@
 #include "SyncState.h"
 #include "Config.h"
 #include "Util.h"
-#include "ScopedEnv.h"
+#include "ScopedConfigHome.h"
 #include "ScopedLoggingSetup.h"
 #include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <optional>
 
 using namespace AFS_Core;
 
@@ -49,18 +50,20 @@ namespace {
         const wstring source_ = L"/home/x/Dokumente";
         const wstring target_ = L"/media/backup/Dokumente";
         const fs::path test_dir_ = fs::temp_directory_path() / "autofilesync_syncstate_test";
-        tu::ScopedLoggingSetup logging_;
-        std::unique_ptr<ScopedEnv> config_home_;  // [SyncStateTests.md#config-dir-in-temp]
+        std::optional<tu::ScopedLoggingSetup> logging_;  // [SyncStateTests.md#config-dir-in-temp]
+        std::optional<tu::ScopedConfigHome> config_home_;
 
         void SetUp() override
         {
             fs::remove_all(test_dir_);
             fs::create_directories(test_dir_);
-            config_home_ = std::make_unique<ScopedEnv>("XDG_CONFIG_HOME", test_dir_.string().c_str());
+            config_home_.emplace(test_dir_);
+            logging_.emplace();
             Logging::instance().set_log_file_path_name((test_dir_ / "test.log").wstring());
         }
         void TearDown() override
         {
+            logging_.reset();
             config_home_.reset();
             fs::remove_all(test_dir_);
         }

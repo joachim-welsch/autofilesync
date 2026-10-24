@@ -286,6 +286,7 @@
     <ClInclude Include="FileUtil.h" />
     <ClInclude Include="MountedDrivesTests.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ScopedConfigHome.h" />
     <ClInclude Include="ScopedEnv.h" />
     <ClInclude Include="ScopedLog.h" />
     <ClInclude Include="ScopedRecycleBin.h" />

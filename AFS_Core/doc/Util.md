@@ -50,6 +50,13 @@ to_unix_nanoseconds()/from_unix_nanoseconds() are the lossless pair for a timest
 survive a round trip through a file (SyncState): to_time_t() drops the fraction of a second,
 and the sync state has to tell an unchanged file from one written a moment later.
 
+## file-time-overflow
+
+from_unix_nanoseconds() narrows to the resolution of file_time_type before it changes the clock.
+On Windows the file clock counts from 1601, and 1601 to today in nanoseconds does not fit into
+64 bits: converting in nanoseconds overflowed and put every stored time centuries off, so the
+sync state saw every file as changed.
+
 ## utf8-files
 
 The configuration and the backup proofs are JSON, once written by boost's write_json() into a
@@ -65,6 +72,12 @@ those files keep their umlauts. Elsewhere an old file could only ever be ASCII.
 write_utf8_file() refuses an empty conversion of a non-empty text - WideCharToMultiByte() returns
 nothing for an unpaired surrogate - because the caller renames the result over the real file,
 and an empty configuration would replace the user's synchronisations.
+
+## utf8-line-ends
+
+write_utf8_file() writes binary, so a line ends in "\n" on every platform and a file is the same
+bytes wherever it was written; in text mode Windows turned every "\n" into "\r\n".
+read_utf8_file() stays in text mode, which still reads files written that way.
 
 ## as_file_name
 

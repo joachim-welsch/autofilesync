@@ -4,10 +4,10 @@ Module comment for SyncStateTests.cpp.
 
 ## config-dir-in-temp
 
-sync_state_dir() derives from the configuration path, which on Linux follows XDG_CONFIG_HOME.
-Pointing that at the test directory keeps the test from touching the user's real configuration
-directory; the ScopedEnv restores the variable before the directory is removed. The log goes to
-the same directory, so it disappears with it.
+sync_state_dir() derives from the configuration path, which ScopedConfigHome points at the
+test directory, so the test never touches the user's real configuration directory. The log goes
+to the same directory, so it disappears with it; the logging guard is reset in TearDown before
+the directory is removed, because Windows refuses to remove an open log file.
 
 ## RoundTripKeepsEveryEntry
 

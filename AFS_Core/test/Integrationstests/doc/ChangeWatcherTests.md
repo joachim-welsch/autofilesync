@@ -8,6 +8,11 @@ Drives the ChangeWatcher (ChangeWatcher.md#ChangeWatcher) on a temporary tree an
 directory; the log goes into the same directory so that the "cannot be watched" line of the
 missing-directory test leaves nothing behind.
 
+## log-in-test-dir
+
+The logging guard is reset in TearDown before the directory is removed: as a plain member it
+would restore the log file only after TearDown, and Windows refuses to remove the open file.
+
 ## noticed
 
 Events arrive on the watcher's thread a few milliseconds after the write, so every test polls

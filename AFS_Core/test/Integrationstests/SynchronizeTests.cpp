@@ -176,9 +176,8 @@ TEST(SynchronizeTests, NewerTargetIsLoggedExactlyOnceAcrossPasses)  // [Synchron
     EXPECT_GE(passes, 3) << "the message must have had several passes to repeat itself";
     EXPECT_EQ(count_lines_containing(log, util::wstring_to_string(translation::translate("target_newer_not_copied"))), 1);
     EXPECT_EQ(count_lines_containing(log, target.string()), 1) << "no other message may name the untouched target";
-    std::ifstream kept(target);
     std::string content;
-    std::getline(kept, content);
+    std::getline(std::ifstream(target), content);
     EXPECT_EQ(content, "neuer Stand");
 
     Logging::instance().set_log_level(previous_level);

@@ -20,7 +20,7 @@
 #include "Config.h"
 #include "FileUtil.h"
 #include "ScopedDeleteMode.h"
-#include "ScopedEnv.h"
+#include "ScopedConfigHome.h"
 #include "ScopedLoggingSetup.h"
 #include "SyncState.h"
 #include "Synchronize.h"
@@ -29,6 +29,7 @@
 #include <chrono>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <thread>
 
 using namespace AFS_Core;
@@ -42,11 +43,10 @@ using std::chrono::milliseconds;
 class SyncStateRunTest: public ::testing::Test {  // [SyncStateRunTests.md#SyncStateRunTest]
 protected:
     const fs::path root_ = fs::temp_directory_path() / "autofilesync_syncstate_run_test";
-    const fs::path config_home_ = root_ / "config";
     const fs::path source_dir_ = root_ / "source";
     const fs::path target_dir_ = root_ / "target";
-    tu::ScopedLoggingSetup logging_;
-    std::unique_ptr<ScopedEnv> env_;
+    std::optional<tu::ScopedLoggingSetup> logging_;  // [SyncStateRunTests.md#SyncStateRunTest]
+    std::optional<tu::ScopedConfigHome> config_home_;
     std::unique_ptr<tu::ScopedDeleteMode> delete_mode_;  // after the reset, which would bring the recycle bin back
 
     void SetUp() override
@@ -54,7 +54,8 @@ protected:
         fs::remove_all(root_);
         fs::create_directories(source_dir_);
         fs::create_directories(target_dir_);
-        env_ = std::make_unique<ScopedEnv>("XDG_CONFIG_HOME", config_home_.string().c_str());
+        config_home_.emplace(root_ / "config");
+        logging_.emplace();
         Logging::instance().set_log_file_path_name((root_ / "test.log").wstring());
         Config::instance().reset();
         delete_mode_ = std::make_unique<tu::ScopedDeleteMode>(DeleteMode::Permanent);
@@ -64,7 +65,8 @@ protected:
         Synchronize::destroy();
         delete_mode_.reset();
         Config::instance().reset();
-        env_.reset();
+        config_home_.reset();
+        logging_.reset();
         fs::remove_all(root_);
     }
     SyncItem two_way_tree(bool two_way = true) const
@@ -101,7 +103,7 @@ TEST_F(SyncStateRunTest, ARunWritesTheStateNextToTheConfigurationAndTheNextRunUs
     run_pass(SyncType::Single);
 
     ASSERT_TRUE(fs::exists(state_file())) << state_file();
-    EXPECT_EQ(state_file().parent_path(), config_home_ / "autofilesync" / "state");
+    EXPECT_EQ(state_file().parent_path(), config_home_->config_dir() / "state");
     std::optional<SyncState> state = stored_state();
     ASSERT_TRUE(state.has_value());
     EXPECT_EQ(state->files().size(), 2u);

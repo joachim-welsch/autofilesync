@@ -307,11 +307,11 @@ int64_t to_unix_nanoseconds(const fs::file_time_type& ft)  // [Util.md#file-time
 fs::file_time_type from_unix_nanoseconds(int64_t ns)  // [Util.md#file-time-conversions]
 {
     using namespace std::chrono;
-    const sys_time<nanoseconds> sys{nanoseconds(ns)};
+    const auto sys = time_point_cast<fs::file_time_type::duration>(sys_time<nanoseconds>{nanoseconds(ns)});  // [Util.md#file-time-overflow]
 #ifdef _MACOS
-    return time_point_cast<fs::file_time_type::duration>(file_clock::from_sys(sys));
+    return file_clock::from_sys(sys);
 #else
-    return time_point_cast<fs::file_time_type::duration>(clock_cast<file_clock>(sys));
+    return clock_cast<file_clock>(sys);
 #endif
 }
 
@@ -437,7 +437,7 @@ void write_utf8_file(const fs::path& file, const std::wstring& text)
     const std::string bytes = wstring_to_string(text);
     if (bytes.empty() && !text.empty())
         throw std::runtime_error("text not convertible to UTF-8: " + file.string());  // [Util.md#utf8-files]
-    std::ofstream os(file, std::ios_base::out | std::ios_base::trunc);
+    std::ofstream os(file, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);  // [Util.md#utf8-line-ends]
     os.exceptions(std::ios::failbit | std::ios::badbit);
     os.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
 }

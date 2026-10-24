@@ -22,6 +22,7 @@
 #include "ScopedLoggingSetup.h"
 #include <chrono>
 #include <filesystem>
+#include <optional>
 #include <thread>
 
 using namespace AFS_Core;
@@ -33,15 +34,20 @@ namespace {
     class ChangeWatcherTest: public ::testing::Test {  // [ChangeWatcherTests.md#ChangeWatcherTest]
     protected:
         const fs::path root_ = fs::temp_directory_path() / "autofilesync_changewatcher_test";
-        tu::ScopedLoggingSetup logging_;
+        std::optional<tu::ScopedLoggingSetup> logging_;  // [ChangeWatcherTests.md#log-in-test-dir]
         void SetUp() override
         {
             fs::remove_all(root_);
             fs::create_directories(root_ / "tree" / "sub");
             fs::create_directories(root_ / "flat");
+            logging_.emplace();
             Logging::instance().set_log_file_path_name((root_ / "test.log").wstring());
         }
-        void TearDown() override { fs::remove_all(root_); }
+        void TearDown() override
+        {
+            logging_.reset();
+            fs::remove_all(root_);
+        }
 
         static bool noticed(const ChangeWatcher& watcher, const std::wstring& item, int timeout_ms = 3000)  // [ChangeWatcherTests.md#noticed]
         {

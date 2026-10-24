@@ -92,6 +92,16 @@ TEST(UtilTests, FileTimeRoundTripsThroughTimeT)  // [UtilTests.md#FileTimeRoundT
     EXPECT_EQ(util::to_time_t(util::to_file_time(0)), 0);
 }
 
+TEST(UtilTests, FileTimeRoundTripsThroughUnixNanoseconds)  // [UtilTests.md#FileTimeRoundTripsThroughUnixNanoseconds]
+{
+    const fs::file_time_type now = fs::file_time_type::clock::now();
+    constexpr int64_t MOMENT = 1'700'000'000'123'456'700;
+
+    EXPECT_EQ(util::from_unix_nanoseconds(util::to_unix_nanoseconds(now)), now);
+    EXPECT_EQ(util::to_unix_nanoseconds(util::from_unix_nanoseconds(MOMENT)), MOMENT);
+    EXPECT_EQ(util::to_unix_nanoseconds(util::from_unix_nanoseconds(0)), 0);
+}
+
 TEST(UtilTests, FileTimeIsPrintedAsUtc)
 {
     EXPECT_EQ(util::to_string(util::to_file_time(0)), "Thursday, 01 January 1970 00:00");

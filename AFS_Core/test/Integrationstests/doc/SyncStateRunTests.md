@@ -7,9 +7,10 @@ Module comment for SyncStateRunTests.cpp.
 The sync state as Synchronize handles it (Synchronize.md#sync-state), where TwoWaySyncTests
 only drive the sync classes with a state in hand: here the state is found next to the
 configuration, read before the pass, written after it and dropped with the item. The
-configuration directory is redirected through XDG_CONFIG_HOME into the test directory, so no
+configuration directory is redirected into the test directory (ScopedConfigHome.md), so no
 state file reaches the user's real configuration, and the log goes there too; everything
-vanishes with the directory. Deletions are permanent, because a recycle bin inside the test
+vanishes with the directory. The logging guard is reset in TearDown, because Windows refuses
+to remove the directory while the log file in it is open. Deletions are permanent, because a recycle bin inside the test
 tree would be synchronised like any other directory.
 
 ## run_pass
