@@ -27,10 +27,12 @@
 #include "PhoneTemplatesDialog.h"
 #include "FakePhone.h"
 #include <wx/filepicker.h>
-#include <fcntl.h>
 #include <fstream>
+#ifndef _WIN32  // the lock-holding test below uses flock
+#include <fcntl.h>
 #include <sys/file.h>
 #include <unistd.h>
+#endif
 #include "id.h"
 #include "TextResources.h"
 #include "Translation.h"
