@@ -17,6 +17,9 @@ The chat is a modeless dialog owned by the main window, created on the first "As
 and re-shown afterwards; its controls are looked up by id across all windows because the dialog
 is not a child of the main window's client area.
 
+Every test starts a new conversation: the hidden dialog keeps its history from test to test,
+and after "Antworte nur mit dem Wort ja" the model answered "ja" to every later question.
+
 ## HiddenChat
 
 Waits for a pending answer before it hides the dialog: a reply that arrives while the next
@@ -37,7 +40,9 @@ SlowGuiTest.
 ## ChatAntwortErscheintWaehrendSieEntsteht
 
 The answer shows up in the transcript while the dialog still waits, and grows afterwards; a
-counting answer is long enough that its first piece arrives well before the last. The speaker
+list of the weekdays is long enough that its first piece arrives well before the last, and it
+ends by itself. A counting request ("1 bis 40") ran on in a fresh conversation up to the token
+budget and outlasted the reply timeout. The speaker
 line is counted because on_reply() must close the streamed turn, not append the answer again.
 Skipped without a model: the sandbox moves HOME, so only AUTOFILESYNC_LLAMA_MODEL can name one.
 

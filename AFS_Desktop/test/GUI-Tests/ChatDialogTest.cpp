@@ -61,6 +61,7 @@ ChatControls open_chat(MainWindow& window)  // [ChatDialogTest.md#open_chat]
     chat.dialog = dynamic_cast<wxDialog*>(chat.input->GetParent());
     chat.send = wxWindow::FindWindowById(ID_CHAT_SEND);
     chat.transcript = wxWindow::FindWindowById(ID_CHAT_TRANSCRIPT);
+    EXPECT_TRUE(click_when_enabled(wxWindow::FindWindowById(ID_CHAT_NEW), REPLY_TIMEOUT_MILLISECONDS)) << "Kein neues Gespräch möglich.";  // [ChatDialogTest.md#open_chat]
     return chat;
 }
 
@@ -195,7 +196,7 @@ TEST_F(SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest
     ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
     const HiddenChat hidden(chat);
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
-    ASSERT_TRUE(replace_text(chat.input, "Zaehle von 1 bis 40, jede Zahl in einer eigenen Zeile"));
+    ASSERT_TRUE(replace_text(chat.input, "Nenne die sieben Wochentage, jeden in einer eigenen Zeile"));
     const wxString speaker = AFS_Core::translation::translate("chat_assistant") + L":";
     const std::size_t answers_before = count_of(value_of(chat.transcript), speaker);
 

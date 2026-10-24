@@ -236,7 +236,7 @@ bool DeviceLink::listen_on(uint16_t port)  // [DeviceLink.md#port]
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&on), sizeof on);
     sockaddr_in address{};
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_addr.s_addr = htonl(private_scope ? INADDR_LOOPBACK : INADDR_ANY);  // [DeviceLink.md#loopback-in-tests]
     address.sin_port = htons(port);
     if (bind(s, reinterpret_cast<sockaddr*>(&address), sizeof address) != 0 && port != 0) {
         address.sin_port = 0;

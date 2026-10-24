@@ -23,6 +23,13 @@ The test build takes the role under a name of its own and in the process's temp 
 the same reason SyncArbiter.md#TEST_SCOPE gives: a test must never wait for, or lock out, the
 user's running program. GUI tests link the shipped library and switch at run time.
 
+## loopback-in-tests
+
+In the private scope the link listens on 127.0.0.1 only. Listening on every interface makes the
+Windows firewall ask the user whether to allow the test program; the question takes the focus,
+and every GUI test after it clicked and typed into the wrong window. The fake phone of the tests
+connects through loopback anyway.
+
 ## port
 
 52381 by default, chosen at random from the unassigned range; when it is taken the link falls
