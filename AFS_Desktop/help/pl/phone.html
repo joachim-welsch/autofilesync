@@ -10,7 +10,8 @@
 <p>AutoFileSync uzgadnia także foldery na telefonie z Androidem z PC: zdjęcia
 same trafiają na PC, folder pozostaje jednakowy na obu urządzeniach albo muzyka
 przechodzi z PC na telefon. Telefon potrzebuje do tego aplikacji AutoFileSync,
-a telefon i PC muszą być w tej samej sieci Wi-Fi.</p>
+a telefon i PC muszą być w tej samej sieci: telefon przez Wi-Fi, PC przez
+Wi-Fi albo kablem do tego samego routera.</p>
 
 <h2>Łączenie telefonu</h2>
 
@@ -111,9 +112,13 @@ zaporę.</p>
 <h2>Gdy coś nie działa</h2>
 
 <ul>
-<li><b>Aplikacja zgłasza „Komputer niedostępny”.</b> Czy PC jest włączony i w tej
-    samej sieci Wi-Fi co telefon? Sieć dla gości albo sieć, która izoluje
-    urządzenia od siebie, nie pozwala na połączenie.</li>
+<li><b>Aplikacja zgłasza „Komputer niedostępny”.</b> Czy PC jest włączony i
+    podłączony do tego samego routera co telefon, przez Wi-Fi albo kablem? Sieć
+    dla gości albo sieć, która izoluje urządzenia od siebie, nie pozwala na
+    połączenie. Jeśli AutoFileSync działa w maszynie wirtualnej, potrzebuje ona
+    sieci mostkowanej: za zwykłą siecią NAT (adresy takie jak 192.168.122.x) PC
+    jest dla telefonu niewidoczny. Wiersz pod kodem pokazuje adresy PC; muszą
+    należeć do sieci domowej.</li>
 <li><b>Telefon zgłasza, że komputer odrzucił kod albo nie czeka.</b> Kod jest
     ważny tylko, dopóki okno jest otwarte, i przez dziesięć minut. Ponownie
     otworzyć <b>Plik &rarr; Połącz telefon…</b> i zeskanować nowy kod.</li>

@@ -10,7 +10,8 @@
 <p>AutoFileSync also keeps folders on an Android phone in step with the PC:
 photos reach the PC by themselves, a folder stays the same on both devices, or
 music goes from the PC to the phone. The phone needs the AutoFileSync app for
-this, and phone and PC must be on the same Wi-Fi.</p>
+this, and phone and PC must be on the same network: the phone on Wi-Fi, the
+PC on Wi-Fi or by cable on the same router.</p>
 
 <h2>Connecting a phone</h2>
 
@@ -113,8 +114,12 @@ to the firewall.</p>
 
 <ul>
 <li><b>The app reports “PC not reachable”.</b> Is the PC switched on and on
-    the same Wi-Fi as the phone? A guest Wi-Fi or a Wi-Fi that shields the
-    devices from each other does not allow a connection.</li>
+    the same router as the phone, by Wi-Fi or cable? A guest Wi-Fi or a Wi-Fi
+    that shields the devices from each other does not allow a connection. If
+    AutoFileSync runs in a virtual machine, that machine needs a bridged
+    network: behind the usual NAT network (addresses like 192.168.122.x) the
+    PC is invisible to the phone. The line below the code shows the PC's
+    addresses; they must belong to the home network.</li>
 <li><b>The phone says the PC refused the code or is not waiting.</b> A code
     is valid only while the dialog is open, and for ten minutes. Open
     <b>File &rarr; Connect phone…</b> again and scan the new code.</li>

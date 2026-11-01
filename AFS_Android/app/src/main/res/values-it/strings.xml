@@ -14,7 +14,7 @@
     <string name="status_last_contact">Ultimo contatto: %1$s</string>
     <string name="status_never">Ancora nessun contatto</string>
     <string name="status_up_to_date">Tutto aggiornato</string>
-    <string name="status_unreachable">PC non raggiungibile: è acceso e nella stessa rete Wi-Fi?</string>
+    <string name="status_unreachable">PC non raggiungibile: è acceso e nella stessa rete del telefono?</string>
     <string name="status_rejected">Il PC non riconosce più questo telefono. Collegalo di nuovo.</string>
     <string name="items_none">Nessuna sincronizzazione impostata. Impostane una in AutoFileSync sul PC.</string>
     <string name="items_title">Sincronizzazioni</string>
@@ -22,7 +22,7 @@
     <string name="settings_on_pc">Le impostazioni si modificano in AutoFileSync sul PC.</string>
     <string name="forget_pc">Scollega dal PC</string>
     <string name="error_code_invalid">Questo non è un codice AutoFileSync.</string>
-    <string name="error_unreachable">PC non raggiungibile: è acceso e nella stessa rete Wi-Fi?</string>
+    <string name="error_unreachable">PC non raggiungibile: è acceso e nella stessa rete del telefono?</string>
     <string name="error_handshake">Il PC non ha presentato il certificato previsto. Scansiona un codice nuovo.</string>
     <string name="error_token_invalid">Il PC ha rifiutato il codice. Apri di nuovo «Collega telefono…» sul PC e scansiona il nuovo codice.</string>
     <string name="error_pairing_closed">Il PC non sta aspettando nessun telefono. Apri prima «Collega telefono…» sul PC.</string>
@@ -48,5 +48,5 @@
     <string name="setting_charging_only">Solo durante la ricarica</string>
     <string name="channel_progress">Sincronizzazione in corso</string>
     <string name="channel_problems">Problemi</string>
-    <string name="notify_unreachable">Il PC non è raggiungibile da un giorno. È acceso e nella stessa rete Wi-Fi?</string>
+    <string name="notify_unreachable">Il PC non è raggiungibile da un giorno. È acceso e nella stessa rete?</string>
 </resources>

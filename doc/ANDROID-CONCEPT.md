@@ -93,7 +93,8 @@ Der QR-Code ist eine normale HTTPS-Adresse
   - den Hinweis „Einstellungen änderst du in AutoFileSync auf dem PC.“
   - zwei Schalter: „Nur im WLAN“ (an) und „Nur beim Laden“ (aus)
 - Fehler stehen in verständlichen Worten in der App, zum Beispiel „PC nicht
-  erreichbar: Ist er eingeschaltet und im selben WLAN?“
+  erreichbar: Ist er eingeschaltet und im selben Netzwerk wie das Handy?“ (nicht
+  „WLAN“: der PC hängt oft per Kabel am Router)
 
 ### 3.3 Ordner auf dem Handy auswählen
 

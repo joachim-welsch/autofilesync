@@ -14,7 +14,7 @@
     <string name="status_last_contact">Último contacto: %1$s</string>
     <string name="status_never">Todavía sin contacto</string>
     <string name="status_up_to_date">Todo al día</string>
-    <string name="status_unreachable">PC no accesible: ¿está encendido y en la misma red Wi-Fi?</string>
+    <string name="status_unreachable">PC no accesible: ¿está encendido y en la misma red que el móvil?</string>
     <string name="status_rejected">El PC ya no reconoce este móvil. Vuelve a conectarlo.</string>
     <string name="items_none">Aún no hay ninguna sincronización. Configura una en AutoFileSync en el PC.</string>
     <string name="items_title">Sincronizaciones</string>
@@ -22,7 +22,7 @@
     <string name="settings_on_pc">Los ajustes se cambian en AutoFileSync en el PC.</string>
     <string name="forget_pc">Desconectar del PC</string>
     <string name="error_code_invalid">Ese no es un código de AutoFileSync.</string>
-    <string name="error_unreachable">PC no accesible: ¿está encendido y en la misma red Wi-Fi?</string>
+    <string name="error_unreachable">PC no accesible: ¿está encendido y en la misma red que el móvil?</string>
     <string name="error_handshake">El PC no presentó el certificado esperado. Escanea un código nuevo.</string>
     <string name="error_token_invalid">El PC rechazó el código. Vuelve a abrir «Conectar móvil…» en el PC y escanea el código nuevo.</string>
     <string name="error_pairing_closed">El PC no está esperando ningún móvil. Abre primero «Conectar móvil…» en el PC.</string>
@@ -48,5 +48,5 @@
     <string name="setting_charging_only">Solo mientras se carga</string>
     <string name="channel_progress">Sincronización en curso</string>
     <string name="channel_problems">Problemas</string>
-    <string name="notify_unreachable">El PC lleva un día sin estar accesible. ¿Está encendido y en la misma red Wi-Fi?</string>
+    <string name="notify_unreachable">El PC lleva un día sin estar accesible. ¿Está encendido y en la misma red?</string>
 </resources>

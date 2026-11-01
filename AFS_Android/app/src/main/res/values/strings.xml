@@ -15,7 +15,7 @@
     <string name="status_last_contact">Last contact %1$s</string>
     <string name="status_never">No contact yet</string>
     <string name="status_up_to_date">Everything up to date</string>
-    <string name="status_unreachable">PC not reachable: is it switched on and in the same Wi-Fi?</string>
+    <string name="status_unreachable">PC not reachable: is it switched on and in the same network as the phone?</string>
     <string name="status_rejected">The PC no longer knows this phone. Connect it again.</string>
     <string name="items_none">No synchronisation set up yet. Set one up in AutoFileSync on the PC.</string>
     <string name="items_title">Synchronisations</string>
@@ -23,7 +23,7 @@
     <string name="settings_on_pc">You change settings in AutoFileSync on the PC.</string>
     <string name="forget_pc">Disconnect from PC</string>
     <string name="error_code_invalid">That is not an AutoFileSync code.</string>
-    <string name="error_unreachable">PC not reachable: is it switched on and in the same Wi-Fi?</string>
+    <string name="error_unreachable">PC not reachable: is it switched on and in the same network as the phone?</string>
     <string name="error_handshake">The PC did not present the expected certificate. Scan a fresh code.</string>
     <string name="error_token_invalid">The PC refused the code. Open “Connect phone…” on the PC again and scan the new code.</string>
     <string name="error_pairing_closed">The PC is not waiting for a phone. Open “Connect phone…” on the PC first.</string>
@@ -49,5 +49,5 @@
     <string name="setting_charging_only">Only while charging</string>
     <string name="channel_progress">Synchronisation in progress</string>
     <string name="channel_problems">Problems</string>
-    <string name="notify_unreachable">The PC has not been reachable for a day. Is it switched on and in the same Wi-Fi?</string>
+    <string name="notify_unreachable">The PC has not been reachable for a day. Is it switched on and in the same network?</string>
 </resources>
