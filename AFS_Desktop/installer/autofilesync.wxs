@@ -3,7 +3,9 @@
   Windows installation package. Built by makeWindowsInstaller.ps1, which stages
   the payload and passes PayloadDir, ServiceDir and Version in; nothing here
   reaches into the build tree, so the package always describes exactly what was
-  staged.
+  staged. The one exception is DevBuildRoot (the script's -DevFirewallRules):
+  a package for the developer's own machine also opens the firewall for the
+  programs in the build tree, which Windows blocks by program path.
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
@@ -61,6 +63,9 @@
       <ComponentGroupRef Id="Shortcuts" />
       <ComponentGroupRef Id="Service" />
       <ComponentGroupRef Id="Firewall" />
+<?ifdef DevBuildRoot ?>
+      <ComponentGroupRef Id="DevFirewall" />
+<?endif ?>
     </Feature>
 
     <!-- Gestartet wird ueber sc.exe statt ueber ServiceControl Start="install":
@@ -124,6 +129,27 @@
       </Component>
     </ComponentGroup>
   </Fragment>
+
+<?ifdef DevBuildRoot ?>
+  <!-- The same exception for the programs in the developer's build tree, Release
+       and Debug, so that a program started from Visual Studio reaches the phone
+       without the firewall prompt (a dismissed prompt leaves a block rule). -->
+  <Fragment>
+    <ComponentGroup Id="DevFirewall" Directory="INSTALLFOLDER">
+      <Component Id="DevFirewall" Guid="{3B9E6D72-5C14-4A0F-9E8B-7D2F61A4C5E8}">
+        <RegistryValue Root="HKLM" Key="Software\AutoFileSync" Name="DevFirewall" Type="integer" Value="1" KeyPath="yes" />
+        <fire:FirewallException Id="DevProgramRelease" Name="AutoFileSync Entwicklungsbuild Release (Handy)"
+                                Program="$(DevBuildRoot)\AFS_Desktop\x64\Release\autofilesync.exe" Scope="localSubnet" Profile="all" />
+        <fire:FirewallException Id="DevProgramDebug" Name="AutoFileSync Entwicklungsbuild Debug (Handy)"
+                                Program="$(DevBuildRoot)\AFS_Desktop\x64\Debug\autofilesync.exe" Scope="localSubnet" Profile="all" />
+        <fire:FirewallException Id="DevServiceRelease" Name="AutoFileSync Hintergrunddienst Entwicklungsbuild Release (Handy)"
+                                Program="$(DevBuildRoot)\backgroundsync\x64\Release\backgroundsync.exe" Scope="localSubnet" Profile="all" />
+        <fire:FirewallException Id="DevServiceDebug" Name="AutoFileSync Hintergrunddienst Entwicklungsbuild Debug (Handy)"
+                                Program="$(DevBuildRoot)\backgroundsync\x64\Debug\backgroundsync.exe" Scope="localSubnet" Profile="all" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+<?endif ?>
 
   <Fragment>
     <StandardDirectory Id="ProgramMenuFolder" />

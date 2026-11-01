@@ -11,6 +11,11 @@
     .\makeWindowsInstaller.ps1
 .EXAMPLE
     .\makeWindowsInstaller.ps1 -NoBuild -Output C:\Temp
+.EXAMPLE
+    .\makeWindowsInstaller.ps1 -DevFirewallRules
+    Paket fuer den eigenen Rechner: oeffnet die Firewall zusaetzlich fuer die
+    Programme im Build-Verzeichnis (Release und Debug), damit ein aus Visual
+    Studio gestartetes Programm das Handy ohne Firewall-Abfrage erreicht.
 .NOTES
     Signiert wird mit dem Zertifikat aus AFS_SIGN_THUMBPRINT (Speicher CurrentUser\My)
     oder AFS_SIGN_PFX + AFS_SIGN_PFX_PASSWORD; ohne beides entsteht ein unsigniertes
@@ -20,6 +25,7 @@ param(
     [ValidateSet('Release', 'Debug')][string]$Configuration = 'Release',
     [switch]$NoBuild,
     [switch]$NoSigning,
+    [switch]$DevFirewallRules,
     [string]$Output
 )
 
@@ -235,7 +241,9 @@ $version = Get-Version
 New-Item -ItemType Directory -Force $Output | Out-Null
 $msi = Join-Path $Output "AutoFileSync-$version.msi"
 $extensionArguments = $wixExtensions | ForEach-Object { '-ext', $_ }
-& wix build -arch x64 -culture de-DE @extensionArguments `
+$defineArguments = @()
+if ($DevFirewallRules) { $defineArguments = '-d', "DevBuildRoot=$root" }
+& wix build -arch x64 -culture de-DE @extensionArguments @defineArguments `
     -d "PayloadDir=$payloadDir" -d "ServiceDir=$serviceDir" -d "Version=$(ConvertTo-MsiVersion $version)" -d "IconFile=$icon" -d "LicenseRtf=$licenseRtf" `
     -o $msi $wxs
 if ($LASTEXITCODE -ne 0) { throw "wix build fehlgeschlagen." }

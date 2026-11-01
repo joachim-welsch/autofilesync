@@ -135,6 +135,7 @@ sich nicht laden lässt.
 scripts\makeWindowsInstaller.cmd              :: Release bauen und paketieren
 scripts\makeWindowsInstaller.cmd -NoBuild     :: vorhandenen Build verwenden
 scripts\makeWindowsInstaller.cmd -Output C:\Temp
+scripts\makeWindowsInstaller.cmd -DevFirewallRules  :: Paket für den eigenen Rechner
 ```
 
 Das Skript stellt die Nutzlast in `build\windows_installer\payload` zusammen –
@@ -171,6 +172,17 @@ msiexec /i build\AutoFileSync-<Version>.msi INSTALLSERVICE="" /qn
 
 Ein falsches Passwort lässt die Installation nicht scheitern: der Dienst bleibt
 dann gestoppt, und das Menü **Hintergrunddienst** nennt beim Start den Grund.
+
+Für die Handy-Verbindung legt das Paket zwei Firewall-Ausnahmen an, „AutoFileSync
+(Handy)“ für das Programm und „AutoFileSync Hintergrunddienst (Handy)“ für den
+Dienst: eingehend, alle Profile, nur aus dem lokalen Subnetz, TCP und UDP.
+Windows filtert nach Programmpfad, deshalb gelten sie nur für die installierten
+Dateien unter `%ProgramFiles%\AutoFileSync`. Ein Paket, das mit
+`-DevFirewallRules` gebaut wurde, legt dieselben Ausnahmen zusätzlich für
+`autofilesync.exe` und `backgroundsync.exe` im Build-Verzeichnis an (Release
+und Debug, Namen mit „Entwicklungsbuild“), damit ein aus Visual Studio
+gestartetes Programm das Handy ohne Firewall-Abfrage erreicht. Ein solches
+Paket gehört nur auf den Entwicklungsrechner, weil es dessen Pfade enthält.
 
 Die Produktdefinition steht in `AFS_Desktop/installer/autofilesync.wxs`, die
 Versionsnummer kommt wie beim macOS-Bündel aus `AFS_Desktop/include/Version.h`.
