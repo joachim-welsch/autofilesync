@@ -22,7 +22,6 @@
     <string name="settings_on_pc">Le impostazioni si modificano in AutoFileSync sul PC.</string>
     <string name="forget_pc">Scollega dal PC</string>
     <string name="error_code_invalid">Questo non è un codice AutoFileSync.</string>
-    <string name="error_code_expired">Il codice è scaduto. Apri di nuovo «Collega telefono…» sul PC.</string>
     <string name="error_unreachable">PC non raggiungibile: è acceso e nella stessa rete Wi-Fi?</string>
     <string name="error_handshake">Il PC non ha presentato il certificato previsto. Scansiona un codice nuovo.</string>
     <string name="error_token_invalid">Il PC ha rifiutato il codice. Apri di nuovo «Collega telefono…» sul PC e scansiona il nuovo codice.</string>

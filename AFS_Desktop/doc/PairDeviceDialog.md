@@ -28,7 +28,7 @@ a code nobody can use (pair_link_unavailable), with the QR code and the steps hi
 ## renewed-code
 
 The token lives ten minutes (DevicePairing.md#begin). A dialog left open longer shows a new
-code by itself when the old one expires, rather than a code the phone will report as expired.
+code by itself when the old one expires, rather than a code the PC would refuse as pairing_closed.
 The token disappears a moment before the pairing result appears (DeviceLink.md#pair), so a
 closed pairing is only taken for expiry when it is still closed one tick later; otherwise a
 successful pairing would flash a fresh code first.

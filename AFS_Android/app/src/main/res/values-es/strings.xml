@@ -22,7 +22,6 @@
     <string name="settings_on_pc">Los ajustes se cambian en AutoFileSync en el PC.</string>
     <string name="forget_pc">Desconectar del PC</string>
     <string name="error_code_invalid">Ese no es un código de AutoFileSync.</string>
-    <string name="error_code_expired">El código ha caducado. Vuelve a abrir «Conectar móvil…» en el PC.</string>
     <string name="error_unreachable">PC no accesible: ¿está encendido y en la misma red Wi-Fi?</string>
     <string name="error_handshake">El PC no presentó el certificado esperado. Escanea un código nuevo.</string>
     <string name="error_token_invalid">El PC rechazó el código. Vuelve a abrir «Conectar móvil…» en el PC y escanea el código nuevo.</string>

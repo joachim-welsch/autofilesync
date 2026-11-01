@@ -22,7 +22,6 @@
     <string name="settings_on_pc">Einstellungen änderst du in AutoFileSync auf dem PC.</string>
     <string name="forget_pc">Verbindung zum PC trennen</string>
     <string name="error_code_invalid">Das ist kein AutoFileSync-Code.</string>
-    <string name="error_code_expired">Der Code ist abgelaufen. Öffne auf dem PC erneut „Handy verbinden…“.</string>
     <string name="error_unreachable">PC nicht erreichbar: Ist er eingeschaltet und im selben WLAN?</string>
     <string name="error_handshake">Der PC hat nicht das erwartete Zertifikat gezeigt. Scanne einen neuen Code.</string>
     <string name="error_token_invalid">Der PC hat den Code abgelehnt. Öffne auf dem PC erneut „Handy verbinden…“ und scanne den neuen Code.</string>

@@ -22,7 +22,6 @@
     <string name="settings_on_pc">Les réglages se modifient dans AutoFileSync sur le PC.</string>
     <string name="forget_pc">Se déconnecter du PC</string>
     <string name="error_code_invalid">Ce n\'est pas un code AutoFileSync.</string>
-    <string name="error_code_expired">Le code a expiré. Ouvrez à nouveau « Connecter un téléphone… » sur le PC.</string>
     <string name="error_unreachable">PC injoignable : est-il allumé et sur le même réseau Wi-Fi ?</string>
     <string name="error_handshake">Le PC n\'a pas présenté le certificat attendu. Scannez un nouveau code.</string>
     <string name="error_token_invalid">Le PC a refusé le code. Ouvrez à nouveau « Connecter un téléphone… » sur le PC et scannez le nouveau code.</string>

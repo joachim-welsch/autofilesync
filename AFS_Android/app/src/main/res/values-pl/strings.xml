@@ -22,7 +22,6 @@
     <string name="settings_on_pc">Ustawienia zmieniasz w AutoFileSync na komputerze.</string>
     <string name="forget_pc">Odłącz od komputera</string>
     <string name="error_code_invalid">To nie jest kod AutoFileSync.</string>
-    <string name="error_code_expired">Kod wygasł. Otwórz ponownie „Połącz telefon…” na komputerze.</string>
     <string name="error_unreachable">Komputer niedostępny: czy jest włączony i w tej samej sieci Wi-Fi?</string>
     <string name="error_handshake">Komputer nie przedstawił oczekiwanego certyfikatu. Zeskanuj nowy kod.</string>
     <string name="error_token_invalid">Komputer odrzucił kod. Otwórz ponownie „Połącz telefon…” na komputerze i zeskanuj nowy kod.</string>

@@ -43,6 +43,11 @@ the server, so the token and fingerprint stay between the two devices even when 
 app opens the link; the site shows the app's install links to a phone without the app, and
 Android hands the link to the app once it is installed (an app link on the /pair path). The
 name is percent-encoded because it is the one free-text field; the rest is hex and digits.
+The expiry `e` is the PC's wall-clock deadline (see begin) and only the PC judges it: the
+phone's clock may be hours off (a dual-boot PC whose hardware clock runs on UTC is an hour or
+two behind under Windows), and an expired token is refused as pairing_closed anyway
+(DeviceLink.md#protocol), which the app reports with the same advice. The field stays in the
+code for app versions up to 0.1.0, which compared it with their own clock.
 
 ## local_ipv4_addresses
 
