@@ -39,5 +39,13 @@ succeeding, which is why that failure is logged.
 
 ## key-file-permissions
 
-O_EXCL makes the file owner-only (mode 0600) from the moment it exists, avoiding the window a
-separate chmod() call after creation would leave.
+Written through Util.md#private-files, so the key is owner-only (mode 0600) from the moment the
+file exists.
+
+## random-failure
+
+RAND_bytes() reports when OpenSSL has no seeded generator. A key that stayed at its zero
+initialisation would protect nothing and, once persisted, would do so for good; a repeated
+nonce under the same key breaks GCM's confidentiality and authenticity for both messages. So
+either failure refuses to encrypt or decrypt: encrypt() returns an empty string, which the
+configuration writes as "no password", and the log says why.

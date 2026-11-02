@@ -131,3 +131,10 @@ existing file; between the two calls the file is briefly missing, never half wri
 SSH targets keep writing in place, as before (remote-target-stays-writable), so that a server's
 ownership, hard links and ACLs on existing files are not replaced by a new file. The libssh2
 branch (Windows) writes in place for phones as well.
+
+## entry-names
+
+ssh_list_dir() is the only way a remote name reaches SyncTree, which appends it to the local
+and the remote directory path. A name FilesystemUtil.md#plain_entry_name rejects is left out
+of the listing with an error in the log, so a lying server can neither write outside the target
+tree nor, in a two-way item, make the source tree lose a directory it never had.

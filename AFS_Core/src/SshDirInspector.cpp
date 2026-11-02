@@ -26,6 +26,9 @@
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
 #include "Translation.h"
+#include "FilesystemUtil.h"
+#include "Logging.h"
+#include "Util.h"
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -39,13 +42,20 @@
 
 namespace AFS_Core {
 
+namespace {
+    bool listed(const std::string& name, const std::string& remote_path)  // [SshDirInspector.md#entry-names]
+    {
+        if (name == "." || name == "..")
+            return false;
+        if (fsu::plain_entry_name(name))
+            return true;
+        log_error(translation::translate("remote_entry_name_rejected"), util::string_to_wstring(remote_path), util::string_to_wstring(name));
+        return false;
+    }
+}
+
 #ifdef _UNIX
 namespace {
-    bool is_dot_entry(const char* name)
-    {
-        return std::strcmp(name, ".") == 0 || std::strcmp(name, "..") == 0;
-    }
-
     std::string joined(const std::string& dir, const std::string& name)
     {
         return dir.empty() || dir.back() == '/' ? dir + name : dir + '/' + name;
@@ -98,7 +108,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
         return info;
     }
     while (const auto attr = connection_.read_dir(dir.get()))
-        if (!is_dot_entry(attr->name))
+        if (listed(attr->name, remote_path))
             info.entries.push_back(to_entry(*attr, attr->name));
     if (!sftp_dir_eof(dir.get()))
         info.error_message = translation::translate_utf8("dir_read_error") + connection_.error();
@@ -131,7 +141,7 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
         return;
     }
     while (const auto attr = connection_.read_dir(dir.get())) {
-        if (is_dot_entry(attr->name))
+        if (!listed(attr->name, remote_path))
             continue;
         const std::string full_path = joined(remote_path, attr->name);
         result.entries.push_back(to_entry(*attr, full_path));
@@ -279,10 +289,8 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 
     while ((read_rc = libssh2_sftp_readdir(dir_handle, buffer, sizeof(buffer), &entry_attrs)) > 0) {
         std::string name = buffer;
-
-        if (name == "." || name == "..") {
+        if (!listed(name, remote_path))
             continue;
-        }
 
         RemoteDirEntry entry{};
         entry.name = name;
@@ -357,10 +365,8 @@ void SshDirInspector::inspect_dir_recursive_impl(const std::string& remote_path,
 
     while ((read_rc = libssh2_sftp_readdir(dir_handle, buffer, sizeof(buffer), &entry_attrs)) > 0) {
         std::string name = buffer;
-
-        if (name == "." || name == "..") {
+        if (!listed(name, remote_path))
             continue;
-        }
 
         std::string full_path = remote_path;
         if (!full_path.empty() && full_path.back() != '/') {

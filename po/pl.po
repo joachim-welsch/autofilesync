@@ -2316,3 +2316,11 @@ msgstr "Trwa ustalanie podglądu …"
 #: AFS_Desktop/src/PreviewDialog.cpp:66
 msgid "preview_column_file"
 msgstr "Plik"
+
+#: AFS_Core/src/SshDirInspector.cpp AFS_Core/src/SyncFileSsh.cpp
+msgid "remote_entry_name_rejected"
+msgstr "Wpis zdalnego katalogu odrzucony, nazwa zawiera separator ścieżki: "
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_nonce_generation_failed"
+msgstr "Brak losowego nonce, hasło nie zostaje zapisane"

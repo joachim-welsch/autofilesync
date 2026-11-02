@@ -19,6 +19,7 @@
 #pragma once
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <optional>
 
 namespace AFS_Core {
@@ -34,6 +35,7 @@ namespace FilesystemUtil
     std::optional<std::filesystem::path> is_mountpoint(const std::filesystem::path& path);
     std::optional<std::filesystem::path> get_mount_root(const std::filesystem::path& in);
 	std::string home_dir();
+    bool plain_entry_name(std::string_view name);  // [FilesystemUtil.md#plain_entry_name]
 }
 namespace fsu = FilesystemUtil;
 

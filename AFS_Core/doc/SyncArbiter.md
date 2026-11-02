@@ -22,8 +22,12 @@ a plain pointer so that no Windows header leaks into everything that synchronise
 
 ## per-user-lock-path
 
-Per user: /tmp is shared, and daemon and GUI only need to meet when they run under the same
-account - which they must anyway to share the configuration under the user's profile.
+The lock files live in the configuration directory (`sync-foreground.lock`,
+`sync-background.lock`): daemon and GUI only need to meet when they run under the same account,
+which they must anyway to share the configuration there. An earlier version kept them under a
+predictable name in /tmp, where any other account could create the file first and the arbiter
+would then see the other side as inactive. The directory is created on demand because the lock
+may be taken before the configuration was ever saved.
 
 ## TEST_SCOPE
 
@@ -31,8 +35,7 @@ The test build announces itself under names of its own. With the shared names ev
 synchronises would wait for the passes of a daemon installed on the same machine, and the tests
 of the arbiter itself would arbitrate against that daemon instead of against each other.
 The test build also keeps its lock files in the temp directory of the process, which the test
-run owns and removes, while the programs need the fixed /tmp: daemon and GUI may run with
-different TMPDIR values and would otherwise never meet.
+run owns and removes, so a test never touches the user's configuration directory.
 
 ## use_private_scope
 

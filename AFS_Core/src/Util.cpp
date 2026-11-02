@@ -34,6 +34,8 @@
 #  include <process.h>   // _getpid
 #  include <windows.h>   // GetComputerNameA
 #else
+#  include <fcntl.h>
+#  include <sys/stat.h>
 #  include <unistd.h>    // getpid
 #endif
 #ifdef _MACOS
@@ -440,6 +442,21 @@ void write_utf8_file(const fs::path& file, const std::wstring& text)
     std::ofstream os(file, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);  // [Util.md#utf8-line-ends]
     os.exceptions(std::ios::failbit | std::ios::badbit);
     os.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+}
+
+bool write_private_file(const fs::path& file, std::string_view bytes)  // [Util.md#private-files]
+{
+#ifdef _WIN32
+    std::ofstream os(file, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+    os.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+    return static_cast<bool>(os);
+#else
+    const int fd = open(file.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
+    if (fd < 0)
+        return false;
+    const bool written = fchmod(fd, 0600) == 0 && write(fd, bytes.data(), bytes.size()) == static_cast<ssize_t>(bytes.size());
+    return close(fd) == 0 && written;
+#endif
 }
 
 } // namespace util

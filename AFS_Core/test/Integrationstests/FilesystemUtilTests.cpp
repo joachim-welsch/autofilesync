@@ -193,3 +193,17 @@ TEST(FilesystemUtilTests, ASiblingWithTheSamePrefixIsNotCovered)  // [Filesystem
 #endif
 
 } // namespace
+
+TEST(FilesystemUtilTests, PlainEntryNameRefusesSeparatorsAndDotEntries)  // [FilesystemUtilTests.md#PlainEntryNameRefusesSeparatorsAndDotEntries]
+{
+    EXPECT_TRUE(fsu::plain_entry_name("photo.jpg"));
+    EXPECT_TRUE(fsu::plain_entry_name("..hidden"));
+    EXPECT_TRUE(fsu::plain_entry_name("Umlaut \xc3\xa4.txt"));
+    EXPECT_FALSE(fsu::plain_entry_name(""));
+    EXPECT_FALSE(fsu::plain_entry_name("."));
+    EXPECT_FALSE(fsu::plain_entry_name(".."));
+    EXPECT_FALSE(fsu::plain_entry_name("../../.ssh/authorized_keys"));
+    EXPECT_FALSE(fsu::plain_entry_name("a/b"));
+    EXPECT_FALSE(fsu::plain_entry_name("..\\..\\x"));
+    EXPECT_FALSE(fsu::plain_entry_name(std::string_view("a\0b", 3)));
+}

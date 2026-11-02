@@ -92,3 +92,12 @@ The name of this computer, for the conflict copies a two-way sync leaves behind
 (SyncFile.md#conflict-copy-name): a user who syncs a laptop and a desktop wants to see which of
 them held the losing version. gethostname() on POSIX, GetComputerNameA() on Windows, where
 gethostname() would need Winsock started first; "localhost" when neither answers.
+
+## private-files
+
+write_private_file() creates a file that only its owner may read: the password key, the
+device's TLS private key and the pairing token. On POSIX the file is opened with mode 0600, so
+it is owner-only from the moment it exists; a chmod() after an ordinary ofstream would leave
+a window in which the umask, usually 022, made the secret readable for every account on the
+machine. fchmod() also narrows a file that an earlier version left wider. On Windows the file
+inherits the ACL of the user's profile directory, which already excludes other users.

@@ -2316,3 +2316,11 @@ msgstr "Визначається попередній перегляд …"
 #: AFS_Desktop/src/PreviewDialog.cpp:66
 msgid "preview_column_file"
 msgstr "Файл"
+
+#: AFS_Core/src/SshDirInspector.cpp AFS_Core/src/SyncFileSsh.cpp
+msgid "remote_entry_name_rejected"
+msgstr "Запис віддаленого каталогу відхилено, його назва містить роздільник шляху: "
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_nonce_generation_failed"
+msgstr "Випадковий nonce недоступний, пароль не збережено"

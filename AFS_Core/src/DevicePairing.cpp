@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "DevicePairing.h"
+#include "Util.h"
 #include <fstream>
 #include <openssl/rand.h>
 #ifdef _WIN32
@@ -40,15 +41,8 @@ bool write_private(const std::filesystem::path& file, const std::string& text)  
     std::error_code ec;
     std::filesystem::create_directories(file.parent_path(), ec);
     const std::filesystem::path temporary = file.string() + ".tmp";
-    {
-        std::ofstream out(temporary, std::ios::binary | std::ios::trunc);
-        out << text;
-        if (!out)
-            return false;
-    }
-#ifndef _WIN32
-    std::filesystem::permissions(temporary, std::filesystem::perms::owner_read | std::filesystem::perms::owner_write, ec);
-#endif
+    if (!util::write_private_file(temporary, text))
+        return false;
     std::filesystem::rename(temporary, file, ec);
     return !ec;
 }

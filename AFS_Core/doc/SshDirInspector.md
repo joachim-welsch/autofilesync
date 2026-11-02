@@ -20,3 +20,9 @@ listing must not pass as complete.
 
 The entry's time text comes from SshFileInspector's time_to_iso() so that every SSH listing
 in the GUI shows the same format (SshFileInspector.md#time_to_iso).
+
+## entry-names
+
+Every listing drops "." and "..", and refuses with an error in the log any name
+FilesystemUtil.md#plain_entry_name rejects. The dialog then shows the rest of the directory;
+the error names the directory and the entry so the user can see what the server sent.

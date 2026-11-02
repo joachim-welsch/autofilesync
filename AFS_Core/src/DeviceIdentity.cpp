@@ -53,20 +53,6 @@ std::string read_text(const std::filesystem::path& file)
     return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
-bool write_private_text(const std::filesystem::path& file, const std::string& text)  // [DeviceIdentity.md#private-files]
-{
-    std::ofstream out(file, std::ios::binary | std::ios::trunc);
-    out << text;
-    if (!out)
-        return false;
-    out.close();
-#ifndef _WIN32
-    std::error_code ec;
-    std::filesystem::permissions(file, std::filesystem::perms::owner_read | std::filesystem::perms::owner_write, ec);
-#endif
-    return true;
-}
-
 std::string pem_of(const std::function<int(BIO*)>& write)
 {
     BioPtr bio(BIO_new(BIO_s_mem()), BIO_free);
@@ -156,7 +142,7 @@ std::optional<DeviceIdentity> DeviceIdentity::load_or_create(const std::filesyst
         identity.certificate_pem_ = pem_of([&](BIO* bio) { return PEM_write_bio_X509(bio, certificate.get()); });
         std::error_code ec;
         std::filesystem::create_directories(dir, ec);
-        if (!write_private_text(dir / KEY_FILE, identity.key_pem_) || !write_private_text(dir / CERTIFICATE_FILE, identity.certificate_pem_))
+        if (!util::write_private_file(dir / KEY_FILE, identity.key_pem_) || !util::write_private_file(dir / CERTIFICATE_FILE, identity.certificate_pem_))  // [DeviceIdentity.md#private-files]
             log_error(translation::translate("device_identity_not_saved"), dir.wstring());  // [DeviceIdentity.md#unsaved-identity]
     }
     identity.fingerprint_ = certificate_fingerprint(certificate.get());

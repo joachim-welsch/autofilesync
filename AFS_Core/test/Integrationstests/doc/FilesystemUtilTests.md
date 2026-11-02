@@ -36,3 +36,10 @@ containers and build servers, so the test does not depend on the machine's parti
 
 A mount point covers a path only at a component boundary: a plain prefix comparison would assign
 /procfoo to /proc, and "/media/usb2" to a drive mounted at "/media/usb".
+
+## PlainEntryNameRefusesSeparatorsAndDotEntries
+
+The names an SFTP server may list (FilesystemUtil.md#plain_entry_name): ordinary names pass,
+also one that merely starts with two dots; the dot entries, an empty name and every name with a
+slash, a backslash or a NUL are refused, since each of them would leave the directory it was
+listed in once appended to a path.

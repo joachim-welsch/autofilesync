@@ -2316,3 +2316,11 @@ msgstr "Calcolo dell'anteprima …"
 #: AFS_Desktop/src/PreviewDialog.cpp:66
 msgid "preview_column_file"
 msgstr "File"
+
+#: AFS_Core/src/SshDirInspector.cpp AFS_Core/src/SyncFileSsh.cpp
+msgid "remote_entry_name_rejected"
+msgstr "La voce della directory remota è rifiutata, il nome contiene un separatore di percorso: "
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_nonce_generation_failed"
+msgstr "Nessun nonce casuale disponibile, la password non viene salvata"

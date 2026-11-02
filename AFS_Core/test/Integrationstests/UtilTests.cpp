@@ -283,3 +283,22 @@ TEST(UtilTests, VolumeExistsLooksForTheVolumeInTheMountTable)  // [UtilTests.md#
     EXPECT_FALSE(util::volume_exists(L"", L"afx-no-such-volume"));
 }
 #endif
+
+TEST_F(UtilTest, WritePrivateFileIsOwnerOnlyFromTheStart)  // [UtilTests.md#WritePrivateFileIsOwnerOnlyFromTheStart]
+{
+    const fs::path secret = root_ / "secret.key";
+    const fs::path wide = create_file("wide.key", "old");
+    fs::permissions(wide, fs::perms::owner_all | fs::perms::group_read | fs::perms::others_read);
+
+    ASSERT_TRUE(util::write_private_file(secret, std::string_view("k\0y", 3)));
+    ASSERT_TRUE(util::write_private_file(wide, "new"));
+
+    std::ifstream in(secret, std::ios::binary);
+    const std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    EXPECT_EQ(bytes, std::string("k\0y", 3));
+#ifndef _WIN32
+    EXPECT_EQ(fs::status(secret).permissions(), fs::perms::owner_read | fs::perms::owner_write);
+    EXPECT_EQ(fs::status(wide).permissions(), fs::perms::owner_read | fs::perms::owner_write);
+#endif
+    EXPECT_FALSE(util::write_private_file(root_ / "missing" / "secret.key", "x"));
+}

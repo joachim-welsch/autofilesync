@@ -141,13 +141,14 @@ std::string pc_json()
         + ",\"version\":" + json_string(PROTOCOL_VERSION) + "}";
 }
 
-std::string role_path()  // [DeviceLink.md#role]
+std::string role_path([[maybe_unused]] const std::filesystem::path& dir)  // [DeviceLink.md#role]
 {
 #ifdef _WIN32
     return private_scope ? "Local\\AutoFileSyncDeviceLinkTest" : "Global\\AutoFileSyncDeviceLink";
 #else
-    const std::string dir = private_scope ? std::filesystem::temp_directory_path().string() : "/tmp";
-    return dir + "/autofilesync-" + std::to_string(getuid()) + (private_scope ? "-test-devicelink.lock" : "-devicelink.lock");
+    if (private_scope)
+        return (std::filesystem::temp_directory_path() / ("autofilesync-" + std::to_string(getuid()) + "-test-devicelink.lock")).string();
+    return (dir / "devicelink.lock").string();
 #endif
 }
 
@@ -211,7 +212,7 @@ std::string DeviceLink::fingerprint() const
 bool DeviceLink::take_role()  // [DeviceLink.md#role]
 {
 #ifdef _WIN32
-    HANDLE handle = CreateMutexA(nullptr, TRUE, role_path().c_str());
+    HANDLE handle = CreateMutexA(nullptr, TRUE, role_path(dir_).c_str());
     if (!handle)
         return false;
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
@@ -221,7 +222,7 @@ bool DeviceLink::take_role()  // [DeviceLink.md#role]
     role_handle_ = reinterpret_cast<std::intptr_t>(handle);
     return true;
 #else
-    const int fd = open(role_path().c_str(), O_RDWR | O_CREAT, 0600);
+    const int fd = open(role_path(dir_).c_str(), O_RDWR | O_CREAT, 0600);
     if (fd < 0)
         return false;
     if (flock(fd, LOCK_EX | LOCK_NB) != 0) {

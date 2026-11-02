@@ -50,3 +50,10 @@ On Unix the volume name is searched in the mount table as a substring of a devic
 point and the drive name is ignored. Linux reads /proc/mounts, macOS asks getmntinfo() because
 it has no /proc; /proc is mounted on every Linux system, devfs on /dev on every macOS system,
 the made-up name on none.
+
+## WritePrivateFileIsOwnerOnlyFromTheStart
+
+The secrets of the program (Util.md#private-files) are written with the bytes as given, NUL
+included, and on POSIX with mode 0600 - also when the file existed before with wider
+permissions, which an earlier version could have left behind. A missing directory is a plain
+false, so the caller logs it as PasswordCrypto and DeviceIdentity do.

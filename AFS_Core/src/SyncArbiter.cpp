@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "SyncArbiter.h"
+#include "Config.h"
 #include <chrono>
 #include <thread>
 #include <Logging.h>
@@ -53,11 +54,20 @@ std::wstring event_name(SyncRole role)
     return private_scope ? name + L"Test" : name;
 }
 #else
+std::filesystem::path lock_dir()  // [SyncArbiter.md#per-user-lock-path]
+{
+    const std::filesystem::path dir = std::filesystem::path(Config::get_root_pathname()).parent_path();
+    std::error_code ec;
+    std::filesystem::create_directories(dir, ec);
+    return dir;
+}
+
 std::string lock_path(SyncRole role)
 {
     const std::string suffix = role == SyncRole::Foreground ? "foreground" : "background";
-    const std::string dir = private_scope ? std::filesystem::temp_directory_path().string() : "/tmp";  // [SyncArbiter.md#TEST_SCOPE]
-    return dir + "/autofilesync-" + std::to_string(getuid()) + (private_scope ? "-test-" : "-") + suffix + ".lock";  // [SyncArbiter.md#per-user-lock-path]
+    if (private_scope)
+        return (std::filesystem::temp_directory_path() / ("autofilesync-" + std::to_string(getuid()) + "-test-" + suffix + ".lock")).string();  // [SyncArbiter.md#TEST_SCOPE]
+    return (lock_dir() / ("sync-" + suffix + ".lock")).string();
 }
 #endif
 

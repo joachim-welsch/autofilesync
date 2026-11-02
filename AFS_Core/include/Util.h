@@ -19,6 +19,7 @@
 #pragma once
 #include <concepts>
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <chrono>
 #include <filesystem>
@@ -60,6 +61,7 @@ namespace util {
     bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
     std::wstring read_utf8_file(const std::filesystem::path& file);  // [Util.md#utf8-files]
     void write_utf8_file(const std::filesystem::path& file, const std::wstring& text);  // [Util.md#utf8-files]
+    bool write_private_file(const std::filesystem::path& file, std::string_view bytes);  // [Util.md#private-files]
     std::wstring as_file_name(const std::wstring& name);  // [Util.md#as_file_name]
     std::string host_name();  // [Util.md#host_name]
     std::wstring local_date();  // today as YYYY-MM-DD in local time, for names a person reads

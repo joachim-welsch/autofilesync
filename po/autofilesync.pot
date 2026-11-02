@@ -2315,3 +2315,11 @@ msgstr ""
 #: AFS_Core/src/SyncFileSsh.cpp
 msgid "remote_rename_error"
 msgstr ""
+
+#: AFS_Core/src/SshDirInspector.cpp AFS_Core/src/SyncFileSsh.cpp
+msgid "remote_entry_name_rejected"
+msgstr ""
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_nonce_generation_failed"
+msgstr ""

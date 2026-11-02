@@ -274,6 +274,12 @@ std::optional<fs::path> get_mount_root(const fs::path& in)
 #endif
 }
 
+bool plain_entry_name(std::string_view name)  // [FilesystemUtil.md#plain_entry_name]
+{
+    constexpr std::string_view SEPARATORS("/\\\0", 3);
+    return !name.empty() && name != "." && name != ".." && name.find_first_of(SEPARATORS) == std::string_view::npos;
+}
+
 } // namespace FilesystemUtil
 
 } // namespace AFS_Core

@@ -47,6 +47,7 @@
 #endif
 #endif
 #include "Config.h"
+#include "FilesystemUtil.h"
 #include "Util.h"
 #include "Logging.h"
 #include "Synchronize.h"
@@ -56,6 +57,18 @@ namespace AFS_Core {
 using std::wstring;
 using util::string_to_wstring;
 using util::wstring_to_string;
+
+namespace {
+    bool listed(const std::string& name, const std::string& remote_path)  // [SyncFileSsh.md#entry-names]
+    {
+        if (name == "." || name == "..")
+            return false;
+        if (fsu::plain_entry_name(name))
+            return true;
+        log_error(translation::translate("remote_entry_name_rejected"), string_to_wstring(remote_path), string_to_wstring(name));
+        return false;
+    }
+}
 
 #ifdef _TEST
 std::atomic<int> ssh_is_directory_call_count{0};
@@ -473,11 +486,6 @@ namespace {
         entry.size = attr.size;
         return entry;
     }
-
-    bool is_dot_entry(const char* name)
-    {
-        return std::strcmp(name, ".") == 0 || std::strcmp(name, "..") == 0;
-    }
 }
 
 CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
@@ -647,7 +655,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         return entries;
     }
     while (const auto attr = connection.read_dir(dir.get()))
-        if (!is_dot_entry(attr->name))
+        if (listed(attr->name, *remote_path))
             entries.push_back(to_dir_entry(*attr));
     if (!sftp_dir_eof(dir.get()))  // [SyncFileSsh.md#readdir-eof-vs-error]
         log_error(translation::translate("remote_dir_read_incomplete") + string_to_wstring(*remote_path) + L" - " + string_to_wstring(connection.error()));
@@ -1596,7 +1604,7 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     int rc = 0;
     while ((rc = libssh2_sftp_readdir(dir, buffer, sizeof(buffer), &attrs)) > 0) {
         std::string name = buffer;
-        if (name != "." && name != "..") {
+        if (listed(name, remote_path)) {
             SshDirEntry entry;
             entry.name = string_to_wstring(name);
             entry.is_directory = LIBSSH2_SFTP_S_ISDIR(attrs.permissions);

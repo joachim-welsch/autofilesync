@@ -2349,3 +2349,11 @@ msgstr "Vorschau wird ermittelt …"
 #: AFS_Desktop/src/PreviewDialog.cpp:66
 msgid "preview_column_file"
 msgstr "Datei"
+
+#: AFS_Core/src/SshDirInspector.cpp AFS_Core/src/SyncFileSsh.cpp
+msgid "remote_entry_name_rejected"
+msgstr "Eintrag des Remote-Verzeichnisses abgewiesen, der Name enthält ein Pfadtrennzeichen: "
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_nonce_generation_failed"
+msgstr "Keine Zufalls-Nonce verfügbar, das Passwort wird nicht gespeichert"
