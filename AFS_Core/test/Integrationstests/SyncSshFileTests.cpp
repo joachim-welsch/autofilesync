@@ -559,6 +559,30 @@ TEST_F(SyncSshFlagTest, MoveLeavesTheSshSourceInPlace)  // [SyncSshFileTests.md#
     EXPECT_TRUE(ssh_exists(remote(source))) << "eine SSH-Quelle wird nicht geloescht - das Verschieben endet als Kopie";
 }
 
+TEST_F(SyncSshFlagTest, FatherSonKeepsEveryGenerationOnTheSshTarget)  // [SyncSshFileTests.md#FatherSonKeepsEveryGenerationOnTheSshTarget]
+{
+    const std::filesystem::path source = local_dir_ / "daten.txt";
+    const std::filesystem::path target = shared_dir_ / "daten.txt";
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source(source.wstring());
+    si.target(remote(target));
+    si.father_son_principle(true);
+    tu::write_text_file(source, "Vater", std::chrono::seconds(10));
+    EXPECT_EQ(tu::run_sync(si), 1u);
+    tu::write_text_file(source, "Sohn", std::chrono::seconds(5));
+    EXPECT_EQ(tu::run_sync(si), 1u);
+    tu::write_text_file(source, "Enkel");
+
+    EXPECT_EQ(tu::run_sync(si), 1u);
+
+    EXPECT_EQ(tu::read_text_file(target), "Enkel");
+    EXPECT_EQ(tu::read_text_file(target.string() + ".bak.1"), "Vater") << "die erste Generation bleibt, wie sie war";
+    EXPECT_EQ(tu::read_text_file(target.string() + ".bak.2"), "Sohn");
+    EXPECT_EQ(tu::run_sync(si), 0u) << "die Generationen gelten nicht als Aenderung";
+}
+
 namespace {
 
 class SyncSshFileToDirTest : public SyncSshStopTest {  // [SyncSshFileTests.md#SyncSshFileToDirTest]

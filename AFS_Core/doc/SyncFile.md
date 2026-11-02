@@ -54,14 +54,32 @@ save_copy_file()'s Stopped path removes the partial target. The source's permiss
 set afterwards as fs::copy_file did; a failure there is no failed copy, and the file time
 follows separately in copy_source_to_dest().
 
+## move_file_to_backup
+
+The father-son principle keeps the replaced target as "<name>.bak.<n>" with the first free n,
+so every generation survives (SyncBase.md#father_son_backup). first_free_generation() only
+knows how to ask whether a name is taken; the local variant asks the filesystem, the remote one
+(below) a directory listing fetched once.
+
+## remote-father-son
+
+A remote target is moved aside through SFTP: one listing of its directory answers both whether
+the target exists and which generations are taken, so a file with many generations costs two
+round trips instead of one stat per generation plus the rename. ssh_rename() refuses an existing
+destination on most servers (SyncFileSsh.md#ssh_rename), which is why a free name is chosen from
+the listing rather than relied upon. A failed rename stops the copy like the local variant: the
+upload would otherwise overwrite the generation the user asked to keep. The name begins after the
+last separator of either kind, because a Windows-side target path may still carry backslashes
+that get_remote_path() translates later.
+
 ## pre_copy
 
 Makes an existing target replaceable before the copy: the owner gets all rights so a read-only
 target no longer refuses the backup rename, and the father-son principle moves the old target
-aside. Both are local operations, so only a remote target skips them - a download from an SSH
-source to a local target used to skip them too, which silently dropped the father-son
-generations the user had asked for. A remote target still keeps neither (TODO): the upload
-truncates it in place, see SyncFileSsh.md#remote-target-stays-writable.
+aside. The chmod is a local operation, so a remote target skips it (TODO, the upload truncates
+it in place, see SyncFileSsh.md#remote-target-stays-writable) and only gets the father-son
+backup (remote-father-son). A download from an SSH source to a local target used to skip both,
+which silently dropped the father-son generations the user had asked for.
 
 ## ssh-skips-verification-only
 

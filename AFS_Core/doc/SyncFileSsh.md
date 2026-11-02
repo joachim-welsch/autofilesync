@@ -70,7 +70,9 @@ a Windows source has no POSIX bits, and the libssh2 branch leaves the remote def
 A remote target is overwritten in place the next time the source changes, which
 a target without write permission would refuse. The owner therefore always keeps
 the right to write. A local target needs no such exception: SyncFile moves the
-old file aside and the download creates a new one.
+old file aside and the download creates a new one. A remote target under the father-son
+principle is moved aside the same way (SyncFile.md#remote-father-son); every other one is
+overwritten in place.
 
 ## ssh_rmdir
 

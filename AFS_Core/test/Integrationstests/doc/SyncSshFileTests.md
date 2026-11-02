@@ -107,6 +107,16 @@ SyncFile::decide() and copy_source_to_dest() exclude an SSH source from "delete 
 because the source cannot be deleted through the local filesystem. That is a documented limit,
 not an accident, so the test pins it: the copy happens, the remote source stays.
 
+## FatherSonKeepsEveryGenerationOnTheSshTarget
+
+The remote counterpart of SyncFlagTests' FatherSonNumbersEveryGeneration: pre_copy() used to
+skip the father-son backup for every SSH item, so the option was silently ignored
+(SyncFile.md#remote-father-son). The three source versions lie more than the default time
+tolerance of two seconds apart (FileDifference.md#time-tolerance): the SFTP modification time
+has whole seconds, and a version written within the tolerance would look unchanged. The generations are read through the local filesystem, the server being
+localhost. A fourth pass copies nothing: the generations live only in the target and must not
+count as a difference.
+
 ## SyncSshFileToDirTest
 
 A File item whose target is a directory gets the source's file name appended

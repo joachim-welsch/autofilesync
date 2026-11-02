@@ -22,7 +22,6 @@
 #include <fstream>
 #include <mutex>
 #include <set>
-#include <sstream>
 #include <thread>
 #include <vector>
 #include "Global.h"
@@ -101,17 +100,19 @@ void report_kept_instead_of_deleted(const wstring& source, const wstring& destin
 std::atomic<int> wait_for_updated_filetime_call_count{0};  // [SyncFile.md#wait_for_updated_filetime_call_count]
 #endif
 
-static void move_file_to_backup(const wstring& dest_filename)
+static wstring first_free_generation(const wstring& dest_filename, const auto& exists)  // [SyncFile.md#move_file_to_backup]
+{
+    for (int i = 1;; ++i) {
+        const wstring candidate = dest_filename + FATHER_SON_SUFFIX + std::to_wstring(i);
+        if (!exists(candidate))
+            return candidate;
+    }
+}
+
+static void move_file_to_backup(const wstring& dest_filename)  // [SyncFile.md#move_file_to_backup]
 {
     log_debug(L"move_file_to_backup: " + dest_filename);
-    int i = 1;
-    wstring new_dest_filename;
-    do {
-        std::wstringstream os;
-        os << dest_filename << FATHER_SON_SUFFIX << i;
-        new_dest_filename = os.str();
-        ++i;
-    } while (file_exists(new_dest_filename));
+    const wstring new_dest_filename = first_free_generation(dest_filename, file_exists);
     try {
         fs::rename(dest_filename, new_dest_filename);
     }
@@ -119,6 +120,21 @@ static void move_file_to_backup(const wstring& dest_filename)
         throw SyncException(translation::translate("rename_error",
             {string_to_wstring(err.what()), dest_filename, new_dest_filename}));
     }
+}
+
+static void move_remote_file_to_backup(const wstring& dest_filename)  // [SyncFile.md#remote-father-son]
+{
+    log_debug(L"move_remote_file_to_backup: " + dest_filename);
+    const std::size_t name_begin = dest_filename.find_last_of(L"/\\") + 1;
+    std::set<wstring> siblings;
+    for (const SshDirEntry& entry : ssh_list_dir(dest_filename.substr(0, name_begin)))
+        siblings.insert(entry.name);
+    if (!siblings.contains(dest_filename.substr(name_begin)))
+        return;
+    const wstring new_dest_filename = first_free_generation(dest_filename, [&](const wstring& candidate) { return siblings.contains(candidate.substr(name_begin)); });
+    if (!ssh_rename(dest_filename, new_dest_filename))
+        throw SyncException(translation::translate("rename_error",
+            {translation::translate("remote_rename_error"), dest_filename, new_dest_filename}));
 }
 
 static void transfer_filename(const wstring& source, wstring& dest)
@@ -299,7 +315,12 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
 
 void SyncFile::pre_copy(const wstring& src, const wstring& dest)  // [SyncFile.md#pre_copy]
 {
-    if (get_account_from_path(dest).has_value() || !file_exists(dest))
+    if (get_account_from_path(dest).has_value()) {
+        if (sync_item_.father_son_principle())
+            move_remote_file_to_backup(dest);
+        return;
+    }
+    if (!file_exists(dest))
         return;
     std::error_code ec;
     fs::permissions(dest, fs::perms::owner_all, ec);
