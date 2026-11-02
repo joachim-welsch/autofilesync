@@ -76,10 +76,10 @@ that get_remote_path() translates later.
 
 Makes an existing target replaceable before the copy: the owner gets all rights so a read-only
 target no longer refuses the backup rename, and the father-son principle moves the old target
-aside. The chmod is a local operation, so a remote target skips it (TODO, the upload truncates
-it in place, see SyncFileSsh.md#remote-target-stays-writable) and only gets the father-son
-backup (remote-father-son). A download from an SSH source to a local target used to skip both,
-which silently dropped the father-son generations the user had asked for.
+aside. The chmod is a local operation, so a remote target only gets the father-son backup here
+(remote-father-son); its write bit is restored by the upload itself when the open is refused
+(SyncFileSsh.md#read-only-target-made-writable). A download from an SSH source to a local target
+used to skip both, which silently dropped the father-son generations the user had asked for.
 
 ## ssh-skips-verification-only
 

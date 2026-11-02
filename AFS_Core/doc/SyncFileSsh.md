@@ -72,7 +72,17 @@ a target without write permission would refuse. The owner therefore always keeps
 the right to write. A local target needs no such exception: SyncFile moves the
 old file aside and the download creates a new one. A remote target under the father-son
 principle is moved aside the same way (SyncFile.md#remote-father-son); every other one is
-overwritten in place.
+overwritten in place. A target that lost its write bit by other means is handled below.
+
+## read-only-target-made-writable
+
+The local counterpart is SyncFile::pre_copy(), which gives the owner all rights before the
+copy. Doing the same up front over SFTP would cost a stat and a setstat per file for a case
+that is rare, since AFS keeps its own targets writable (above). So the open for writing is
+tried first, and only a permission-denied answer leads to the setstat with the owner's write
+bit and a second open. The permission check reads the file's own bits, so a denial that comes
+from the directory keeps failing on the second open and is reported as before. In the libssh2
+branch the SFTP status is only meaningful after a protocol error, hence the errno check first.
 
 ## ssh_rmdir
 

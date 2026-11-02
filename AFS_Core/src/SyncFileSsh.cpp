@@ -111,6 +111,30 @@ namespace {
             log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
     }
 
+    constexpr unsigned long WRITE_FLAGS = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC;
+    constexpr unsigned long PERMISSION_BITS = 0777;
+
+    bool permission_denied(LIBSSH2_SESSION* session, LIBSSH2_SFTP* sftp)  // [SyncFileSsh.md#read-only-target-made-writable]
+    {
+        return libssh2_session_last_errno(session) == LIBSSH2_ERROR_SFTP_PROTOCOL
+            && libssh2_sftp_last_error(sftp) == LIBSSH2_FX_PERMISSION_DENIED;
+    }
+
+    LIBSSH2_SFTP_HANDLE* open_for_write(LIBSSH2_SESSION* session, LIBSSH2_SFTP* sftp, const std::string& remote_path, long mode)  // [SyncFileSsh.md#read-only-target-made-writable]
+    {
+        LIBSSH2_SFTP_HANDLE* file = libssh2_sftp_open(sftp, remote_path.c_str(), WRITE_FLAGS, mode);
+        if (file || !permission_denied(session, sftp))
+            return file;
+        LIBSSH2_SFTP_ATTRIBUTES attributes{};
+        if (libssh2_sftp_stat(sftp, remote_path.c_str(), &attributes) != 0)
+            return nullptr;
+        attributes.flags = LIBSSH2_SFTP_ATTR_PERMISSIONS;
+        attributes.permissions = (attributes.permissions & PERMISSION_BITS) | LIBSSH2_SFTP_S_IWUSR;
+        if (libssh2_sftp_setstat(sftp, remote_path.c_str(), &attributes) != 0)
+            return nullptr;
+        return libssh2_sftp_open(sftp, remote_path.c_str(), WRITE_FLAGS, mode);
+    }
+
     class WinsockInit {
     public:
         WinsockInit()
@@ -396,6 +420,18 @@ namespace {
             log_error(translation::translate("file_attributes_change"), string_to_wstring(remote_path), string_to_wstring(connection.error()));
     }
 
+    SftpFile open_for_write(const SftpConnection& connection, const std::string& remote_path, mode_t mode)  // [SyncFileSsh.md#read-only-target-made-writable]
+    {
+        SftpFile file = connection.open(remote_path, WRITE_FLAGS, mode);
+        if (file || sftp_get_error(connection.sftp()) != SSH_FX_PERMISSION_DENIED)
+            return file;
+        const SftpAttributes attributes = connection.stat(remote_path);
+        if (!attributes)
+            return file;
+        keep_remote_permissions(connection, remote_path, attributes->permissions);
+        return connection.open(remote_path, WRITE_FLAGS, mode);
+    }
+
     void keep_remote_time(const SftpConnection& connection, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
     {
         sftp_attributes_struct attributes{};
@@ -487,7 +523,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     const std::string write_path = through_part ? *dest_path + wstring_to_string(PART_SUFFIX) : *dest_path;
     CopyResult result = CopyResult::Error;
     {
-        const SftpFile dest_file = target.open(write_path, WRITE_FLAGS, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        const SftpFile dest_file = open_for_write(target, write_path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (!dest_file)
             return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(write_path));
         result = transfer(src_file.get(), dest_file.get());
@@ -513,7 +549,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     const std::string remote_path = through_part ? *final_path + wstring_to_string(PART_SUFFIX) : *final_path;
     CopyResult result = CopyResult::Error;
     {
-        const SftpFile remote_file = connection.open(remote_path, WRITE_FLAGS, S_IRUSR | S_IWUSR);
+        const SftpFile remote_file = open_for_write(connection, remote_path, S_IRUSR | S_IWUSR);
         if (!remote_file)
             return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(remote_path));
         result = upload(local_file, remote_file.get());
@@ -937,8 +973,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    LIBSSH2_SFTP_HANDLE* dest_file = libssh2_sftp_open(dest_sftp_session, dest_remote_path.c_str(),
-        LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC,
+    LIBSSH2_SFTP_HANDLE* dest_file = open_for_write(dest_session, dest_sftp_session, dest_remote_path,
         LIBSSH2_SFTP_S_IRUSR | LIBSSH2_SFTP_S_IWUSR | LIBSSH2_SFTP_S_IRGRP | LIBSSH2_SFTP_S_IROTH);
     if (!dest_file) {
         log_error(translation::translate("target_file_open_error") + string_to_wstring(dest_remote_path));
@@ -1075,8 +1110,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    LIBSSH2_SFTP_HANDLE* remote_file = libssh2_sftp_open(sftp_session, remote_path.c_str(),
-        LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC,
+    LIBSSH2_SFTP_HANDLE* remote_file = open_for_write(session, sftp_session, remote_path,
         LIBSSH2_SFTP_S_IRUSR | LIBSSH2_SFTP_S_IWUSR);
     if (!remote_file) {
         log_error(translation::translate("remote_file_open_write_error") + string_to_wstring(remote_path));

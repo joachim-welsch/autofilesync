@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "SshFileInspector.h"
+#include "SftpConnection.h"
 #include "SshAccount.h"
 #include "SyncFileSsh.h"
 #include "Config.h"
@@ -582,6 +583,39 @@ TEST_F(SyncSshFlagTest, FatherSonKeepsEveryGenerationOnTheSshTarget)  // [SyncSs
     EXPECT_EQ(tu::read_text_file(target.string() + ".bak.2"), "Sohn");
     EXPECT_EQ(tu::run_sync(si), 0u) << "die Generationen gelten nicht als Aenderung";
 }
+
+#ifdef _UNIX
+namespace {
+void make_remote_read_only(const std::filesystem::path& file)  // [SyncSshFileTests.md#make_remote_read_only]
+{
+    SftpConnection connection(SyncSshFileTestConfig::create_test_account());
+    sftp_attributes_struct attributes{};
+    attributes.flags = SSH_FILEXFER_ATTR_PERMISSIONS;
+    attributes.permissions = S_IRUSR | S_IRGRP | S_IROTH;
+    ASSERT_EQ(sftp_setstat(connection.sftp(), file.string().c_str(), &attributes), SSH_OK) << connection.error();
+}
+}
+
+TEST_F(SyncSshFlagTest, ReadOnlySshTargetIsReplaced)  // [SyncSshFileTests.md#ReadOnlySshTargetIsReplaced]
+{
+    const std::filesystem::path source = local_dir_ / "daten.txt";
+    const std::filesystem::path target = shared_dir_ / "daten.txt";
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source(source.wstring());
+    si.target(remote(target));
+    tu::write_text_file(source, "alt", std::chrono::seconds(10));
+    ASSERT_EQ(tu::run_sync(si), 1u);
+    make_remote_read_only(target);
+    ASSERT_EQ(std::filesystem::status(target).permissions() & std::filesystem::perms::owner_write, std::filesystem::perms::none);
+    tu::write_text_file(source, "neu");
+
+    EXPECT_EQ(tu::run_sync(si), 1u);
+
+    EXPECT_EQ(tu::read_text_file(target), "neu") << "ein schreibgeschuetztes SSH-Ziel muss trotzdem ersetzt werden";
+}
+#endif
 
 namespace {
 

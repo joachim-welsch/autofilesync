@@ -117,6 +117,20 @@ has whole seconds, and a version written within the tolerance would look unchang
 localhost. A fourth pass copies nothing: the generations live only in the target and must not
 count as a difference.
 
+## make_remote_read_only
+
+The write bit is removed through SFTP as the SSH test user, because the upload created the
+file under that user and the test process, a different one, may not chmod it. A read-only
+source would not do: the upload always keeps the owner's write bit
+(SyncFileSsh.md#remote-target-stays-writable). Unix only, like SftpConnection.
+
+## ReadOnlySshTargetIsReplaced
+
+A remote target whose write bit was removed by other means refused the in-place upload with
+permission denied, while a local target got its rights back in pre_copy(). The upload now
+restores the owner's write bit on that answer (SyncFileSsh.md#read-only-target-made-writable);
+the test pins that the second pass still replaces the content.
+
 ## SyncSshFileToDirTest
 
 A File item whose target is a directory gets the source's file name appended
