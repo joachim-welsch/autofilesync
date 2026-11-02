@@ -2323,3 +2323,31 @@ msgstr ""
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr ""
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr ""
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr ""
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr ""
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr ""
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr ""
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr ""
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr ""

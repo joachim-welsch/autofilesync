@@ -2357,3 +2357,31 @@ msgstr "Eintrag des Remote-Verzeichnisses abgewiesen, der Name enthält ein Pfad
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr "Keine Zufalls-Nonce verfügbar, das Passwort wird nicht gespeichert"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr "Identität des Servers"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr "Vertrauen"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr "Trotzdem speichern"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr "%1 weist sich mit einem Host-Key mit dem Fingerabdruck\n%2\naus. Diesem Server vertrauen? Vergleiche den Fingerabdruck mit dem, den der Administrator des Servers genannt hat."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr "Der Host-Key von %1 hat sich geändert. Neuer Fingerabdruck:\n%2\nDas passiert nach einer Neuinstallation des Servers, aber auch bei einem Angriff auf die Verbindung. Dem neuen Schlüssel nur vertrauen, wenn der Grund der Änderung bekannt ist."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr "%1 ist nicht erreichbar: %2\nDie Verbindung trotzdem speichern? Ihr Host-Key wird dann beim ersten Kontakt ungeprüft übernommen."
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr "%1 bietet kein TLS an, die Benachrichtigung ging unverschlüsselt"

@@ -134,6 +134,12 @@ itself.
 Read with a default of 22, like the other keys that did not exist in older configurations.
 Written always, so a file saved by this version names the port it uses.
 
+## ssh-host-key
+
+`hostKey` holds the OpenSSH line the user confirmed in the account dialog
+(SshAccount.md#host_key_); empty in older files and for accounts saved unreachable, which
+keeps them on the known_hosts check. Written always so the pinned key survives every save.
+
 ## device-accounts
 
 A phone is an SSH account whose name is the device id (Device.md#Device): the sync items

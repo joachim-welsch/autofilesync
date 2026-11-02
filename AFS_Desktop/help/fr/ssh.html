@@ -59,9 +59,16 @@ de modification, pour trouver le bon endroit sans rien taper.</p>
 <li><b>Si le serveur est injoignable</b>, AutoFileSync le distingue de « il n'y
     a plus rien là-bas » et ne touche pas à la cible. Une panne de connexion ne
     provoque donc jamais de suppressions.</li>
-<li>Lors de la première connexion, la clé du serveur est enregistrée. Si elle
-    change plus tard, AutoFileSync interrompt la connexion et signale une
-    possible attaque de l'homme du milieu.</li>
+<li><b>La clé du serveur</b> est récupérée à l'enregistrement de la connexion
+    et affichée sous forme d'empreinte. Elle doit correspondre à celle indiquée
+    par l'exploitant du serveur (<tt>ssh-keygen -l</tt> l'affiche là-bas) ; ce
+    n'est qu'après <b>Faire confiance</b> que la connexion est enregistrée et
+    liée à cette clé. Si elle change plus tard, AutoFileSync interrompt la
+    connexion et signale une possible attaque de l'homme du milieu ; après une
+    réinstallation du serveur, il suffit de modifier la connexion et de
+    confirmer la nouvelle empreinte. Si le serveur est injoignable à
+    l'enregistrement, la connexion peut tout de même être créée ; la clé est
+    alors reprise au premier contact.</li>
 </ul>
 
 <h2>La vérification avant chaque passage</h2>

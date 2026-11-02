@@ -59,9 +59,15 @@ that the right place can be found without typing.</p>
 <li><b>If the server cannot be reached</b>, AutoFileSync tells this apart from
     “there is nothing there any more” and leaves the target alone. A failed
     connection therefore never leads to deletions.</li>
-<li>On the first connection the server's key is stored. If it changes later,
-    AutoFileSync aborts the connection and reports a suspected man-in-the-middle
-    attack.</li>
+<li><b>The server's key</b> is fetched when the connection is saved and shown
+    as a fingerprint. It should match the one the server's operator names
+    (<tt>ssh-keygen -l</tt> prints it there); only after <b>Trust</b> is the
+    connection saved and bound to that key. If it changes later, AutoFileSync
+    aborts the connection and reports a suspected man-in-the-middle attack;
+    after a reinstallation of the server it is enough to edit the connection
+    and confirm the new fingerprint. If the server cannot be reached while
+    saving, the connection can still be created; the key is then taken at the
+    first contact.</li>
 </ul>
 
 <h2>The check before every run</h2>

@@ -532,6 +532,28 @@ TEST_F(ConfigPathTest, MalformedSyncItemIsSkippedNotHalfLoaded)  // [ConfigTests
     Config::instance().reset();
 }
 
+TEST_F(ConfigPathTest, SshAccountHostKeyRoundTrips)  // [ConfigTests.md#SshAccountHostKeyRoundTrips]
+{
+    Config::instance().reset();
+    SshAccount acc;
+    acc.set_name("pinned");
+    acc.set_host("host1");
+    acc.set_user("user1");
+    acc.set_password("pw1");
+    acc.set_host_key("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGb0b1pQ8iKNvjN0VcTq6Yj9Bqz2m7u5K8fNvHq6Lk3z");
+    Config::instance().add(acc, true);
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    Config::instance().reset();
+
+    ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+    const auto read_back = Config::instance().find_ssh_account_by_name("pinned");
+    ASSERT_TRUE(read_back.has_value());
+    EXPECT_EQ(read_back->host_key(), acc.host_key());
+    Config::instance().reset();
+}
+
 TEST_F(ConfigPathTest, RenamingSshAccountUpdatesReferencingSyncItems)  // [ConfigTests.md#RenamingSshAccountUpdatesReferencingSyncItems]
 {
     Config::instance().reset();

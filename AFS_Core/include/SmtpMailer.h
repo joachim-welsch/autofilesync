@@ -32,7 +32,12 @@ struct SmtpAccount {  // [SmtpMailer.md#SmtpAccount]
 	bool operator==(const SmtpAccount&) const = default;
 };
 
-std::string send_mail(const SmtpAccount& account, const std::wstring& recipient,
+struct MailResult {  // [SmtpMailer.md#send_mail]
+	std::string error;	// empty when the mail was accepted
+	bool unencrypted = false;	// accepted over a plain connection [SmtpMailer.md#plaintext-without-password]
+};
+
+MailResult send_mail(const SmtpAccount& account, const std::wstring& recipient,
 	const std::wstring& subject, const std::string& body);  // [SmtpMailer.md#send_mail]
 
 } // namespace AFS_Core

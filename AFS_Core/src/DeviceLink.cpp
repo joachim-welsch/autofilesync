@@ -53,6 +53,7 @@ using util::string_to_wstring;
 namespace pt = boost::property_tree;
 
 constexpr int ACCEPT_POLL_MILLISECONDS = 500;
+constexpr int HANDSHAKE_TIMEOUT_SECONDS = 3;  // [DeviceLink.md#one-session-at-a-time]
 constexpr int SESSION_TIMEOUT_SECONDS = 10;
 constexpr size_t LINE_LIMIT = 64 * 1024;
 constexpr const char* PROTOCOL_VERSION = "1";
@@ -74,14 +75,14 @@ constexpr bool TEST_SCOPE = false;
 #endif
 std::atomic_bool private_scope = TEST_SCOPE;  // [DeviceLink.md#use_private_scope]
 
-void set_timeouts(Socket s)
+void set_timeouts(Socket s, int seconds)
 {
 #ifdef _WIN32
-    DWORD timeout = SESSION_TIMEOUT_SECONDS * 1000;
+    DWORD timeout = seconds * 1000;
     const char* value = reinterpret_cast<const char*>(&timeout);
     const int size = sizeof timeout;
 #else
-    timeval timeout{SESSION_TIMEOUT_SECONDS, 0};
+    timeval timeout{seconds, 0};
     const void* value = &timeout;
     const socklen_t size = sizeof timeout;
 #endif
@@ -472,7 +473,7 @@ bool write_all(SSL* ssl, const std::string& text)
 void DeviceLink::session(std::intptr_t client_handle, const std::string& peer_address)
 {
     const Socket client = static_cast<Socket>(client_handle);
-    set_timeouts(client);
+    set_timeouts(client, HANDSHAKE_TIMEOUT_SECONDS);  // [DeviceLink.md#one-session-at-a-time]
     SSL* ssl = SSL_new(ctx_);
     SSL_set_fd(ssl, static_cast<int>(client));
     if (SSL_accept(ssl) == 1) {
@@ -480,8 +481,10 @@ void DeviceLink::session(std::intptr_t client_handle, const std::string& peer_ad
         const std::string peer_fingerprint = certificate_fingerprint(peer);
         X509_free(peer);
         std::string line;
-        if (read_line(ssl, line))
+        if (read_line(ssl, line)) {
+            set_timeouts(client, SESSION_TIMEOUT_SECONDS);
             handle(line, peer_fingerprint, peer_address, [ssl](const std::string& text) { return write_all(ssl, text); });
+        }
         SSL_shutdown(ssl);
     } else {
         char reason[256] = {};
@@ -536,7 +539,7 @@ std::string DeviceLink::pair(const PairRequest& request, const std::string& peer
         log_warning(translation::translate("device_pairing_rejected", {string_to_wstring(peer_address), L"pairing_closed"}));
         return error_line("pairing_closed");
     }
-    if (!valid_device_id(request.device.id) || request.device.name.empty())
+    if (!valid_device_id(request.device.id) || !valid_device_name(request.device.name))
         return error_line("bad_request");
     if (!pairing_.redeem(request.token)) {
         log_warning(translation::translate("device_pairing_rejected", {string_to_wstring(peer_address), L"token_invalid"}));

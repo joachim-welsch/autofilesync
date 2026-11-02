@@ -14,3 +14,10 @@ are returned instead of logged because the only caller is the logger itself - lo
 would recurse. The body is UTF-8 and stays a narrow string on purpose: it comes from the log
 line, which is UTF-8 already, and the detour through wstring loses every non-ASCII character on
 Windows.
+
+## plaintext-without-password
+
+A server that refuses STARTTLS still gets the mail when the account has no password: a relay on
+the local network often has no certificate, and a notification that never arrives helps nobody.
+The session remembers that it went unencrypted and send_mail() reports it in MailResult, so the
+caller can say so in the log - the mailer itself must not log (see send_mail).

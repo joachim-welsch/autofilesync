@@ -43,6 +43,7 @@ TEST_F(GuiTest, SshPasswortMitSonderzeichenWirdUebernommen)
     const SshAccountInput input{account_name, "localhost", "pi", PASSWORD_WITH_SPECIAL_CHARACTERS};
     ModalDialogWatcher::instance().expect(txt::ssh_connections(), add_ssh_account_and_close());
     ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fill_ssh_account_dialog(input));
+    ModalDialogWatcher::instance().answer(translation::translate("ssh_host_identity"), wxID_YES);  // [SshAccountDialogDriver.md#host-key-question]
 
     activate_menu_item(main_window(), tul(id::EditSshAccounts));
     pump();

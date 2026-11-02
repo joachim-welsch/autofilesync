@@ -44,5 +44,6 @@ struct DevicePresence {  // [Device.md#DevicePresence]
 };
 
 bool valid_device_id(const std::string& id);  // [Device.md#valid_device_id]
+bool valid_device_name(const std::string& name);  // [Device.md#valid_device_name]
 
 } // namespace AFS_Core

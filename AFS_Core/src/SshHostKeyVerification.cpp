@@ -18,10 +18,18 @@
  */
 #include "pch.h"
 #include "SshHostKeyVerification.h"
+#include "SshConnectTimeout.h"
 #include "Logging.h"
 #include "Translation.h"
 #include "Util.h"
+#include <openssl/evp.h>
 #include <utility>
+#include <vector>
+#ifdef _WIN32
+    #include "Libssh2Init.h"
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#endif
 
 namespace AFS_Core {
 
@@ -36,7 +44,42 @@ std::pair<std::string, std::string> type_and_blob(const std::string& line)  // [
     const size_t second = line.find(' ', first + 1);
     return {line.substr(0, first), line.substr(first + 1, second == std::string::npos ? std::string::npos : second - first - 1)};
 }
+
+std::vector<unsigned char> decoded_base64(const std::string& text)
+{
+    std::vector<unsigned char> out(3 * (text.size() / 4) + 3);
+    const int len = EVP_DecodeBlock(out.data(), reinterpret_cast<const unsigned char*>(text.data()), static_cast<int>(text.size()));
+    if (len < 0)
+        return {};
+    size_t padding = 0;
+    for (auto it = text.rbegin(); it != text.rend() && *it == '='; ++it)
+        ++padding;
+    out.resize(static_cast<size_t>(len) - padding);
+    return out;
+}
+
+std::string unpadded_base64(const unsigned char* data, size_t length)
+{
+    std::vector<unsigned char> out(4 * ((length + 2) / 3) + 1);
+    const int len = EVP_EncodeBlock(out.data(), data, static_cast<int>(length));
+    std::string text(reinterpret_cast<char*>(out.data()), static_cast<size_t>(len));
+    while (!text.empty() && text.back() == '=')
+        text.pop_back();
+    return text;
+}
 } // namespace
+
+std::string host_key_fingerprint(const std::string& host_key_line)  // [SshHostKeyVerification.md#host_key_fingerprint]
+{
+    const std::vector<unsigned char> blob = decoded_base64(type_and_blob(host_key_line).second);
+    if (blob.empty())
+        return {};
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int length = 0;
+    if (EVP_Digest(blob.data(), blob.size(), digest, &length, EVP_sha256(), nullptr) != 1)
+        return {};
+    return "SHA256:" + unpadded_base64(digest, length);
+}
 
 #ifdef _UNIX
 
@@ -81,6 +124,35 @@ bool verify_pinned_host_key(ssh_session session, const std::string& expected_lin
         return true;
     log_error(translation::translate("host_key_changed") + string_to_wstring(host));
     return false;
+}
+
+std::optional<std::string> fetch_ssh_host_key(const SshAccount& account, std::string& error)  // [SshHostKeyVerification.md#fetch_ssh_host_key]
+{
+    ssh_session session = ssh_new();
+    if (!session) {
+        error = translation::translate_utf8("ssh_session_create_error");
+        return std::nullopt;
+    }
+    ssh_options_set(session, SSH_OPTIONS_HOST, account.host().c_str());
+    const unsigned int port = account.port();
+    ssh_options_set(session, SSH_OPTIONS_PORT, &port);
+    apply_ssh_connect_timeout(session);
+    std::optional<std::string> line;
+    if (ssh_connect(session) == SSH_OK) {
+        ssh_key key = nullptr;
+        if (ssh_get_server_publickey(session, &key) == SSH_OK) {
+            char* base64 = nullptr;
+            if (ssh_pki_export_pubkey_base64(key, &base64) == SSH_OK)
+                line = std::string(ssh_key_type_to_char(ssh_key_type(key))) + " " + base64;
+            ssh_string_free_char(base64);
+            ssh_key_free(key);
+        }
+        ssh_disconnect(session);
+    }
+    if (!line)
+        error = ssh_get_error(session);
+    ssh_free(session);
+    return line;
 }
 
 #else
@@ -186,6 +258,76 @@ bool verify_pinned_host_key(LIBSSH2_SESSION* session, const std::string& expecte
         return true;  // the blob names its own type, so the type needs no separate mapping
     log_error(translation::translate("host_key_changed") + string_to_wstring(host));
     return false;
+}
+
+namespace {
+const char* host_key_type_name(int hostkey_type)  // [SshHostKeyVerification.md#fetch_ssh_host_key]
+{
+    switch (hostkey_type) {
+    case LIBSSH2_HOSTKEY_TYPE_RSA: return "ssh-rsa";
+    case LIBSSH2_HOSTKEY_TYPE_DSS: return "ssh-dss";
+    case LIBSSH2_HOSTKEY_TYPE_ECDSA_256: return "ecdsa-sha2-nistp256";
+    case LIBSSH2_HOSTKEY_TYPE_ECDSA_384: return "ecdsa-sha2-nistp384";
+    case LIBSSH2_HOSTKEY_TYPE_ECDSA_521: return "ecdsa-sha2-nistp521";
+    case LIBSSH2_HOSTKEY_TYPE_ED25519: return "ssh-ed25519";
+    default: return "unknown";
+    }
+}
+
+SOCKET connected_socket(const SshAccount& account, std::string& error)
+{
+    addrinfo hints{};
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    addrinfo* result = nullptr;
+    if (getaddrinfo(account.host().c_str(), std::to_string(account.port()).c_str(), &hints, &result) != 0) {
+        error = translation::translate_utf8("host_name_not_resolvable") + account.host();
+        return INVALID_SOCKET;
+    }
+    SOCKET sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    if (sock != INVALID_SOCKET && connect(sock, result->ai_addr, static_cast<int>(result->ai_addrlen)) != 0) {
+        closesocket(sock);
+        sock = INVALID_SOCKET;
+    }
+    freeaddrinfo(result);
+    if (sock == INVALID_SOCKET)
+        error = translation::translate_utf8("server_connect_failed");
+    return sock;
+}
+} // namespace
+
+std::optional<std::string> fetch_ssh_host_key(const SshAccount& account, std::string& error)  // [SshHostKeyVerification.md#fetch_ssh_host_key]
+{
+    WSADATA wsa_data;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+        error = translation::translate_utf8("wsastartup_failed");
+        return std::nullopt;
+    }
+    ensure_libssh2_initialized();
+    const SOCKET sock = connected_socket(account, error);
+    if (sock == INVALID_SOCKET)
+        return std::nullopt;
+    std::optional<std::string> line;
+    LIBSSH2_SESSION* session = libssh2_session_init();
+    if (session) {
+        apply_ssh_connect_timeout(session);
+        if (libssh2_session_handshake(session, sock) == 0) {
+            size_t key_len = 0;
+            int key_type = 0;
+            if (const char* key = libssh2_session_hostkey(session, &key_len, &key_type))
+                line = std::string(host_key_type_name(key_type)) + " " + base64_of(reinterpret_cast<const unsigned char*>(key), key_len);
+            libssh2_session_disconnect(session, "Normal Shutdown");
+        }
+        if (!line) {
+            char* message = nullptr;
+            libssh2_session_last_error(session, &message, nullptr, 0);
+            error = message ? message : "";
+        }
+        libssh2_session_free(session);
+    } else
+        error = translation::translate_utf8("ssh_session_create_error");
+    closesocket(sock);
+    return line;
 }
 #endif
 #endif

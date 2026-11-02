@@ -2324,3 +2324,31 @@ msgstr "Wpis zdalnego katalogu odrzucony, nazwa zawiera separator ścieżki: "
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr "Brak losowego nonce, hasło nie zostaje zapisane"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr "Tożsamość serwera"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr "Zaufaj"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr "Zapisz mimo to"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr "%1 przedstawia klucz hosta o odcisku\n%2\nZaufać temu serwerowi? Porównaj odcisk z tym, który podał administrator serwera."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr "Klucz hosta %1 uległ zmianie. Nowy odcisk:\n%2\nZdarza się to po ponownej instalacji serwera, ale także podczas ataku na połączenie. Zaufaj nowemu kluczowi tylko wtedy, gdy znasz powód zmiany."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr "%1 jest nieosiągalny: %2\nZapisać połączenie mimo to? Jego klucz hosta zostanie wtedy przyjęty bez sprawdzenia przy pierwszym kontakcie."
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr "%1 nie oferuje TLS, powiadomienie wysłano bez szyfrowania"

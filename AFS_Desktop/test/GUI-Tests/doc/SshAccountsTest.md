@@ -32,3 +32,9 @@ The colon gets its own message because it is the separator of "name:/path"
 
 A port typed into the dialog reaches the account (SshAccountDialog.md#port); the default of 22
 is covered by every other test, which leaves the field alone.
+
+## host-key-answer-counts
+
+add_account() answers the dialog's host key question (SshAccountDialogDriver.md#host-key-question),
+and the watcher records that answer like any other. A test that then counts the answered
+messages sees that one first; the message under test is the last one.

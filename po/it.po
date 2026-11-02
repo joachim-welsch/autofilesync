@@ -2324,3 +2324,31 @@ msgstr "La voce della directory remota è rifiutata, il nome contiene un separat
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr "Nessun nonce casuale disponibile, la password non viene salvata"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr "Identità del server"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr "Fidati"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr "Salva comunque"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr "%1 presenta una chiave host con l'impronta\n%2\nFidarsi di questo server? Confronta l'impronta con quella comunicata dall'amministratore del server."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr "La chiave host di %1 è cambiata. Nuova impronta:\n%2\nSuccede dopo una reinstallazione del server, ma anche durante un attacco alla connessione. Fidati della nuova chiave solo se conosci il motivo del cambiamento."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr "%1 non è raggiungibile: %2\nSalvare comunque la connessione? La sua chiave host verrà accettata senza verifica al primo contatto."
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr "%1 non offre TLS, la notifica è partita in chiaro"

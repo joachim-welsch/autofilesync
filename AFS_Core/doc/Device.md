@@ -36,3 +36,10 @@ A phone opens its SFTP server only for a pass it asked for (DeviceLink.md#serve)
 brings the port, the user and a one-time password, and serving stays true until the link has
 sent "done". The password lives here, in memory, for exactly that long; it is never written
 anywhere, and the next hello brings a new one.
+
+## valid_device_name
+
+Not empty, at most 128 bytes and without control characters. The name comes from the phone
+and is written to the log, the configuration and the pairing.done file, where a line break
+would move the lines the other process reads as fingerprint and host key
+(DeviceLink.md#shared-files).

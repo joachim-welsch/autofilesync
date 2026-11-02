@@ -27,7 +27,9 @@ must be a conscious one on both sides.
 
 The end-to-end path of a pairing with a real TLS client: the device lands in the configuration
 with the fingerprint from the handshake, the dialog gets it from take_paired once, and the
-phone saw the certificate the QR code promised.
+phone saw the certificate the QR code promised. A name with a line break is a bad request
+(Device.md#valid_device_name): it would otherwise split the pairing.done file into lines the
+other process reads as fingerprint and host key.
 
 ## hello
 

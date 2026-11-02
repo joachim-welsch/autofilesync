@@ -29,4 +29,10 @@ bool valid_device_id(const std::string& id)  // [Device.md#valid_device_id]
     return id.size() == LENGTH && std::ranges::all_of(id, [](unsigned char c) { return std::isxdigit(c) && !std::isupper(c); });
 }
 
+bool valid_device_name(const std::string& name)  // [Device.md#valid_device_name]
+{
+    constexpr size_t MAX_LENGTH = 128;
+    return !name.empty() && name.size() <= MAX_LENGTH && std::ranges::none_of(name, [](unsigned char c) { return c < 0x20 || c == 0x7f; });
+}
+
 } // namespace AFS_Core

@@ -131,6 +131,7 @@ public:
 	SmtpSession(const SmtpSession&) = delete;
 	SmtpSession& operator=(const SmtpSession&) = delete;
 	string send(const wstring& recipient, const wstring& subject, const string& body);
+	bool unencrypted() const { return unencrypted_; }
 private:
 	bool connect();
 	void set_timeouts();
@@ -152,6 +153,7 @@ private:
 	SSL_CTX* ctx_ = nullptr;
 	string	 error_;
 	string	 last_reply_;
+	bool	 unencrypted_ = false;
 };
 
 SmtpSession::~SmtpSession()
@@ -236,9 +238,12 @@ bool SmtpSession::upgrade_to_tls()
 	int code = 0;
 	if (!read_reply(code))
 		return false;
-	if (code != 220)
-		return account_.password.empty() ? true : fail(translation::translate_utf8("smtp_no_starttls", {host_}) + last_reply_);
-	return enable_tls() && ehlo();
+	if (code == 220)
+		return enable_tls() && ehlo();
+	if (!account_.password.empty())
+		return fail(translation::translate_utf8("smtp_no_starttls", {host_}) + last_reply_);
+	unencrypted_ = true;  // [SmtpMailer.md#plaintext-without-password]
+	return true;
 }
 
 bool SmtpSession::ehlo()
@@ -362,19 +367,20 @@ bool SmtpSession::reply_ok()
 
 } // namespace
 
-std::string send_mail(const SmtpAccount& account, const std::wstring& recipient,
+MailResult send_mail(const SmtpAccount& account, const std::wstring& recipient,
 	const std::wstring& subject, const std::string& body)
 {
 	if (!account.complete())
-		return translation::translate_utf8("smtp_not_configured");
+		return {translation::translate_utf8("smtp_not_configured")};
 	if (recipient.empty())
-		return translation::translate_utf8("smtp_no_recipient");
+		return {translation::translate_utf8("smtp_no_recipient")};
 	try {
 		SmtpSession session(account);
-		return session.send(recipient, subject, body);
+		const string error = session.send(recipient, subject, body);
+		return {error, error.empty() && session.unencrypted()};
 	}
 	catch (const std::exception& ex) {
-		return ex.what();
+		return {ex.what()};
 	}
 }
 

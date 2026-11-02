@@ -58,9 +58,15 @@ lugar correcto se encuentra sin escribir.</p>
 <li><b>Si el servidor no es accesible</b>, AutoFileSync lo distingue de «allí ya
     no hay nada» y no toca el destino. Por tanto, un fallo de la conexión nunca
     provoca eliminaciones.</li>
-<li>En la primera conexión se guarda la clave del servidor. Si cambia más
-    adelante, AutoFileSync interrumpe la conexión y avisa de un posible ataque de
-    intermediario.</li>
+<li><b>La clave del servidor</b> se obtiene al guardar la conexión y se muestra
+    como huella. Debe coincidir con la que indica el operador del servidor
+    (<tt>ssh-keygen -l</tt> la muestra allí); solo tras <b>Confiar</b> la
+    conexión queda guardada y ligada a esa clave. Si cambia más adelante,
+    AutoFileSync interrumpe la conexión y avisa de un posible ataque de
+    intermediario; tras una reinstalación del servidor basta con editar la
+    conexión y confirmar la nueva huella. Si el servidor no es accesible al
+    guardar, la conexión puede crearse igualmente; la clave se toma entonces en
+    el primer contacto.</li>
 </ul>
 
 <h2>La comprobación antes de cada ejecución</h2>

@@ -73,7 +73,7 @@ TEST(SmtpMailerTests, IncompleteAccountIsRefusedBeforeAnyConnection)  // [SmtpMa
     SmtpAccount account = sink.account();
     account.server.clear();
 
-    EXPECT_EQ(send_mail(account, L"admin@example.org", L"Betreff", "Text"), translation::translate_utf8("smtp_not_configured"));
+    EXPECT_EQ(send_mail(account, L"admin@example.org", L"Betreff", "Text").error, translation::translate_utf8("smtp_not_configured"));
 
     EXPECT_FALSE(sink.wait_for_connections(1, 100ms));
 }
@@ -82,7 +82,7 @@ TEST(SmtpMailerTests, EmptyRecipientIsRefusedBeforeAnyConnection)
 {
     tu::SmtpSink sink;
 
-    EXPECT_EQ(send_mail(sink.account(), L"", L"Betreff", "Text"), translation::translate_utf8("smtp_no_recipient"));
+    EXPECT_EQ(send_mail(sink.account(), L"", L"Betreff", "Text").error, translation::translate_utf8("smtp_no_recipient"));
 
     EXPECT_FALSE(sink.wait_for_connections(1, 100ms));
 }
@@ -94,7 +94,7 @@ TEST(SmtpMailerTests, UnreachableServerIsReportedNotThrown)
     account.port = port_nobody_listens_on();
     account.from = L"afs@example.org";
 
-    const std::string error = send_mail(account, L"admin@example.org", L"Betreff", "Text");
+    const std::string error = send_mail(account, L"admin@example.org", L"Betreff", "Text").error;
 
     EXPECT_NE(error.find("127.0.0.1"), std::string::npos) << error;
 }
@@ -104,7 +104,10 @@ TEST(SmtpMailerTests, MailReachesAPlainServerWithoutPassword)  // [SmtpMailerTes
     tu::SmtpSink sink;
     const std::string body = "Erste Zeile\nZweite Zeile mit Umlauten: äöü ß\n";
 
-    EXPECT_EQ(send_mail(sink.account(), L"admin@example.org", L"Fehler im Größenvergleich", body), "");
+    const MailResult result = send_mail(sink.account(), L"admin@example.org", L"Fehler im Größenvergleich", body);
+
+    EXPECT_EQ(result.error, "");
+    EXPECT_TRUE(result.unencrypted) << "the caller must learn that the mail went over a plain connection";
 
     ASSERT_TRUE(sink.wait_for_connections(1, 2s));
     const auto mails = sink.mails();
@@ -125,7 +128,7 @@ TEST(SmtpMailerTests, PasswordIsNeverSentWithoutTls)  // [SmtpMailerTests.md#Pas
     account.user = L"afs";
     account.password = L"testonly-smtp-secret";
 
-    const std::string error = send_mail(account, L"admin@example.org", L"Betreff", "Text");
+    const std::string error = send_mail(account, L"admin@example.org", L"Betreff", "Text").error;
 
     EXPECT_FALSE(error.empty());
     ASSERT_TRUE(sink.wait_for_connections(1, 2s));
@@ -139,7 +142,7 @@ TEST(SmtpMailerTests, RejectedRecipientIsReportedWithTheServersAnswer)
     tu::SmtpSink sink;
     sink.reply_to_rcpt("550 no such user here");
 
-    const std::string error = send_mail(sink.account(), L"niemand@example.org", L"Betreff", "Text");
+    const std::string error = send_mail(sink.account(), L"niemand@example.org", L"Betreff", "Text").error;
 
     EXPECT_NE(error.find("550 no such user here"), std::string::npos) << error;
     ASSERT_TRUE(sink.wait_for_connections(1, 2s));

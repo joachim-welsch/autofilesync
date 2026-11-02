@@ -18,8 +18,10 @@
  */
 #include "SshAccountDialog.h"
 #include "SshAccount.h"
+#include "SshHostKeyVerification.h"
 #include "Config.h"
 #include "Translation.h"
+#include "Util.h"
 #include "utilwx.h"
 
 using namespace AFS_Core;
@@ -103,6 +105,7 @@ void SshAccountDialog::set_data(const SshAccount& account)
     host_ = wxString::FromUTF8(account.host());
     port_ = account.port();
     password_ = password_from_account(account.password());
+    host_key_ = account.host_key();
 }
 
 void SshAccountDialog::save_data(SshAccount& account)
@@ -112,6 +115,7 @@ void SshAccountDialog::save_data(SshAccount& account)
     account.set_host(std::string(host_.ToUTF8()));
     account.set_port(static_cast<uint16_t>(port_));
     account.set_password(std::string(password_.ToUTF8()));
+    account.set_host_key(host_key_);
 }
 
 bool SshAccountDialog::TransferDataToWindow()
@@ -176,6 +180,31 @@ bool SshAccountDialog::Validate()
         user_box_->SetFocus();
         return false;
     }
+    return host_key_confirmed();
+}
+
+bool SshAccountDialog::host_key_confirmed()  // [SshAccountDialog.md#host-key-confirmation]
+{
+    const wxString host = host_box_->GetValue();
+    const auto port = static_cast<uint16_t>(port_box_->GetValue());
+    if (!host_key_.empty() && host == host_ && port == port_)
+        return true;
+    SshAccount probe;
+    probe.set_host(std::string(host.ToUTF8()));
+    probe.set_port(port);
+    std::string error;
+    const std::optional<std::string> presented = [&] { wxBusyCursor wait; return fetch_ssh_host_key(probe, error); }();
+    const wxString caption = translation::translate("ssh_host_identity");
+    if (!presented)
+        return utilwx::confirm(this, translation::translate("ssh_host_unreachable_save_anyway", {host.ToStdWstring(), util::string_to_wstring(error)}),
+            caption, translation::translate("button_save_anyway"));
+    if (*presented == host_key_)
+        return true;
+    const wxString fingerprint = wxString::FromUTF8(host_key_fingerprint(*presented));
+    const char* question = host_key_.empty() ? "ssh_host_key_new" : "ssh_host_key_changed_confirm";
+    if (!utilwx::confirm(this, translation::translate(question, {host.ToStdWstring(), fingerprint.ToStdWstring()}), caption, translation::translate("button_trust")))
+        return false;
+    host_key_ = *presented;
     return true;
 }
 

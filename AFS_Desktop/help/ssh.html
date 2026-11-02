@@ -59,9 +59,16 @@ Verzeichnisse auf dem entfernten Rechner durchblättert – mit Größe und
 <li><b>Ist der Server nicht erreichbar</b>, unterscheidet AutoFileSync das von
     „dort ist nichts mehr“ und lässt das Ziel unangetastet. Ein Ausfall der
     Verbindung führt also nicht zu Löschungen.</li>
-<li>Beim ersten Verbindungsaufbau wird der Schlüssel des Servers gespeichert.
-    Ändert er sich später, bricht AutoFileSync die Verbindung ab und meldet den
-    Verdacht auf einen Man-in-the-Middle-Angriff.</li>
+<li><b>Der Schlüssel des Servers</b> wird beim Speichern der Verbindung
+    abgerufen und als Fingerabdruck angezeigt. Er sollte mit dem übereinstimmen,
+    den der Betreiber des Servers nennt (<tt>ssh-keygen -l</tt> zeigt ihn dort
+    an); erst nach <b>Vertrauen</b> ist die Verbindung gespeichert und an diesen
+    Schlüssel gebunden. Ändert er sich später, bricht AutoFileSync die
+    Verbindung ab und meldet den Verdacht auf einen Man-in-the-Middle-Angriff;
+    nach einer Neuinstallation des Servers genügt es, die Verbindung zu
+    bearbeiten und den neuen Fingerabdruck zu bestätigen. Ist der Server beim
+    Speichern nicht erreichbar, kann die Verbindung trotzdem angelegt werden;
+    der Schlüssel wird dann beim ersten Kontakt übernommen.</li>
 </ul>
 
 <h2>Die Prüfung vor jedem Durchlauf</h2>

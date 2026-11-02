@@ -8,6 +8,11 @@ ConditionPathExists=/etc/systemd/system/backgroundsync.service.d/user.conf
 ExecStartPre=/usr/lib/autofilesync/wait-network-mounts
 ExecStart=/usr/sbin/backgroundsync
 Restart=on-failure
+# The daemon needs no privileges beyond the user's own and never writes below
+# /usr, /boot, /efi or /etc. Not ProtectHome or PrivateTmp: the configuration
+# and the sync trees live in the user's home, and a target may be anywhere.
+NoNewPrivileges=yes
+ProtectSystem=full
 WorkingDirectory=~
 StandardOutput=journal
 StandardError=journal

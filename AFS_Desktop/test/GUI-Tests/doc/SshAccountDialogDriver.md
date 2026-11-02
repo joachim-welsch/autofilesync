@@ -50,3 +50,11 @@ test can check its text and try both answers.
 The in-place rename is the list control's own label editor: EditLabel() opens it on the
 row, the new name is typed into it and Return ends the edit, which is what fires
 EVT_LIST_END_LABEL_EDIT and the dialog's rename handling.
+
+## host-key-question
+
+OK fetches the server's host key and asks the user to trust its fingerprint, or, when the host
+is unreachable, whether to save anyway (SshAccountDialog.md#host-key-confirmation). Every test
+that fills the dialog announces that question with answer(..., wxID_YES) right after the fill
+expectation: the watcher answers an unannounced box with cancel, which keeps the dialog open
+and the account out of the configuration.

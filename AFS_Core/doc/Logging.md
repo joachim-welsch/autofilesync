@@ -111,6 +111,12 @@ recognised as the same error.
 Sent synchronously although it delays the caller: a fatal error is often followed by the process
 going down, and a detached thread would be killed with it before the mail is on its way.
 
+## unencrypted-mail
+
+A notification that went over a plain connection is logged as a warning naming the server: the
+mail carries file names and error texts, and the user should know they left the machine
+readable (SmtpMailer.md#plaintext-without-password). A warning, not an error: nothing failed.
+
 ## notify_again
 
 Identical errors repeat: the daemon retries the same failing sync every cycle and would

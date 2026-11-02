@@ -18,6 +18,8 @@
  */
 #pragma once
 
+#include "SshAccount.h"
+#include <optional>
 #include <string>
 
 #ifdef _UNIX
@@ -39,5 +41,8 @@ bool verify_ssh_host_key(LIBSSH2_SESSION* session, const std::string& host, unsi
 bool verify_pinned_host_key(LIBSSH2_SESSION* session, const std::string& expected_line, const std::string& host);  // [SshHostKeyVerification.md#verify_pinned_host_key]
     #endif
 #endif
+
+std::optional<std::string> fetch_ssh_host_key(const SshAccount& account, std::string& error);  // [SshHostKeyVerification.md#fetch_ssh_host_key]
+std::string host_key_fingerprint(const std::string& host_key_line);  // [SshHostKeyVerification.md#host_key_fingerprint]
 
 } // namespace AFS_Core

@@ -53,10 +53,12 @@ certificate gets certificate_missing and nothing else.
 
 ## one-session-at-a-time
 
-A session is one line in, one or two lines out, with ten second socket timeouts; the accept
-loop handles it inline and polls the listener every half second so that stop() is prompt. A
-second phone that arrives meanwhile waits in the backlog for a moment, which is cheaper than a
-thread per connection and cannot be abused to hold the link busy for long.
+A session is one line in, one or two lines out; the accept loop handles it inline and polls
+the listener every half second so that stop() is prompt. A second phone that arrives meanwhile
+waits in the backlog for a moment, which is cheaper than a thread per connection. Until the
+first line is in, the socket timeouts are three seconds: that is what any peer on the network
+can hold the link for with a connection it never finishes, since the fingerprint is checked
+only after that line. A known phone then gets the ten second timeouts of a real session.
 
 ## protocol
 
@@ -78,7 +80,8 @@ number, and the few reply shapes are simpler to write than to coerce.
 
 Pairing needs the dialog open (DevicePairing.md#DevicePairing) and a valid token; the device
 takes the fingerprint of the certificate it just presented. The phone's id and name come from
-the request, so the user sees the name the phone chose for itself.
+the request, so the user sees the name the phone chose for itself; both are checked
+(Device.md#valid_device_id, Device.md#valid_device_name) before the token is spent.
 
 ## repaired-device
 

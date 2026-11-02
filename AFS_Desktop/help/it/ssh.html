@@ -59,9 +59,15 @@ così il posto giusto si trova senza digitare.</p>
 <li><b>Se il server non è raggiungibile</b>, AutoFileSync lo distingue da «lì non
     c'è più niente» e non tocca la destinazione. Un'interruzione della
     connessione non porta quindi a eliminazioni.</li>
-<li>Alla prima connessione viene memorizzata la chiave del server. Se in seguito
-    cambia, AutoFileSync interrompe la connessione e segnala il sospetto di un
-    attacco man-in-the-middle.</li>
+<li><b>La chiave del server</b> viene recuperata al salvataggio della
+    connessione e mostrata come impronta. Deve corrispondere a quella indicata
+    dal gestore del server (<tt>ssh-keygen -l</tt> la mostra lì); solo dopo
+    <b>Fidati</b> la connessione è salvata e legata a quella chiave. Se in
+    seguito cambia, AutoFileSync interrompe la connessione e segnala il sospetto
+    di un attacco man-in-the-middle; dopo una reinstallazione del server basta
+    modificare la connessione e confermare la nuova impronta. Se il server non è
+    raggiungibile al salvataggio, la connessione può comunque essere creata; la
+    chiave viene presa al primo contatto.</li>
 </ul>
 
 <h2>Il controllo prima di ogni esecuzione</h2>

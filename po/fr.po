@@ -2324,3 +2324,31 @@ msgstr "L'entrée du répertoire distant est rejetée, son nom contient un sépa
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr "Aucun nonce aléatoire disponible, le mot de passe n'est pas enregistré"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr "Identité du serveur"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr "Faire confiance"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr "Enregistrer quand même"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr "%1 présente une clé d'hôte avec l'empreinte\n%2\nFaire confiance à ce serveur ? Comparez l'empreinte avec celle communiquée par l'administrateur du serveur."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr "La clé d'hôte de %1 a changé. Nouvelle empreinte :\n%2\nCela arrive après une réinstallation du serveur, mais aussi lors d'une attaque sur la connexion. Ne faites confiance à la nouvelle clé que si vous connaissez la raison du changement."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr "%1 n'est pas joignable : %2\nEnregistrer quand même la connexion ? Sa clé d'hôte sera alors reprise sans vérification au premier contact."
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr "%1 ne propose pas TLS, la notification est partie en clair"

@@ -2324,3 +2324,31 @@ msgstr "La entrada del directorio remoto se rechaza, su nombre contiene un separ
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr "No hay nonce aleatorio disponible, la contraseña no se guarda"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr "Identidad del servidor"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr "Confiar"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr "Guardar de todos modos"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr "%1 presenta una clave de host con la huella\n%2\n¿Confiar en este servidor? Compare la huella con la que le dio el administrador del servidor."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr "La clave de host de %1 ha cambiado. Nueva huella:\n%2\nEsto ocurre tras una reinstalación del servidor, pero también durante un ataque a la conexión. Confíe en la nueva clave solo si conoce el motivo del cambio."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr "%1 no es accesible: %2\n¿Guardar la conexión de todos modos? Su clave de host se aceptará sin comprobación en el primer contacto."
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr "%1 no ofrece TLS, la notificación se envió sin cifrar"

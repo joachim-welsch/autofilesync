@@ -52,6 +52,7 @@ SshAccountInput account(const wxString& name = ACCOUNT)
 bool add_account(MainWindow& window, const SshAccountInput& input)  // [SshAccountsTest.md#add_account]
 {
     ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fill_ssh_account_dialog(input));
+    ModalDialogWatcher::instance().answer(translation::translate("ssh_host_identity"), wxID_YES);  // [SshAccountDialogDriver.md#host-key-question]
     activate_menu_item(window, tul(id::File_new_SshConnection));
     pump();
     return Config::instance().find_ssh_account_by_name(std::string(input.name.ToUTF8())).has_value();
@@ -77,6 +78,7 @@ TEST_F(GuiTest, SshVerbindungBearbeitenAendertHost)
     edited.host = "anderer.example.org";
     ModalDialogWatcher::instance().expect(txt::ssh_connections(), edit_ssh_account_and_close(ACCOUNT));
     ModalDialogWatcher::instance().expect(txt::edit_ssh_connection(), fill_ssh_account_dialog(edited));
+    ModalDialogWatcher::instance().answer(translation::translate("ssh_host_identity"), wxID_YES);  // [SshAccountDialogDriver.md#host-key-question]
 
     open_accounts_dialog(main_window());
 
@@ -97,8 +99,8 @@ TEST_F(GuiTest, SshVerbindungLoeschenFragtNachUndWarntBeiVerwendung)  // [SshAcc
 
     open_accounts_dialog(main_window());
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Es wurde ohne Rückfrage gelöscht.";
-    const wxString& question = ModalDialogWatcher::instance().answered_messages().front();
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 2u) << "Es wurde ohne Rückfrage gelöscht.";  // [SshAccountsTest.md#host-key-answer-counts]
+    const wxString& question = ModalDialogWatcher::instance().answered_messages().back();
     EXPECT_TRUE(question.Contains(ACCOUNT)) << question;
     EXPECT_TRUE(question.Contains(translation::translate("ssh_account_in_use_warning"))) << "Die Rückfrage warnt nicht vor der Verwendung: " << question;
     EXPECT_FALSE(account_named(ACCOUNT).has_value()) << "Die Verbindung steht noch in der Konfiguration.";
@@ -112,8 +114,8 @@ TEST_F(GuiTest, SshVerbindungLoeschenOhneVerwendungWarntNicht)  // [SshAccountsT
 
     open_accounts_dialog(main_window());
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u);
-    EXPECT_FALSE(ModalDialogWatcher::instance().answered_messages().front().Contains(translation::translate("ssh_account_in_use_warning")));
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 2u);  // [SshAccountsTest.md#host-key-answer-counts]
+    EXPECT_FALSE(ModalDialogWatcher::instance().answered_messages().back().Contains(translation::translate("ssh_account_in_use_warning")));
     EXPECT_TRUE(account_named(ACCOUNT).has_value()) << "Trotz Nein wurde gelöscht.";
 }
 
@@ -182,8 +184,8 @@ TEST_F(GuiTest, SshDoppelterNameWirdAbgelehnt)  // [SshAccountsTest.md#rejected-
     activate_menu_item(main_window(), tul(id::File_new_SshConnection));
     pump();
 
-    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der doppelte Name wurde angenommen.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), translation::translate("ssh_account_exists", {ACCOUNT.ToStdWstring()}));
+    ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 2u) << "Der doppelte Name wurde angenommen.";  // [SshAccountsTest.md#host-key-answer-counts]
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().back(), translation::translate("ssh_account_exists", {ACCOUNT.ToStdWstring()}));
     EXPECT_EQ(Config::instance().ssh_accounts_snapshot().size(), 1u);
 }
 

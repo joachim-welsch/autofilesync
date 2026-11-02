@@ -2324,3 +2324,31 @@ msgstr "Запис віддаленого каталогу відхилено, �
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr "Випадковий nonce недоступний, пароль не збережено"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr "Ідентичність сервера"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr "Довіряти"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr "Все одно зберегти"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr "%1 пред'являє ключ хоста з відбитком\n%2\nДовіряти цьому серверу? Порівняйте відбиток з тим, який надав адміністратор сервера."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr "Ключ хоста %1 змінився. Новий відбиток:\n%2\nТаке трапляється після перевстановлення сервера, але також під час атаки на з'єднання. Довіряйте новому ключу лише тоді, коли знаєте причину зміни."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr "%1 недоступний: %2\nВсе одно зберегти з'єднання? Його ключ хоста буде прийнято без перевірки при першому контакті."
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr "%1 не пропонує TLS, сповіщення надіслано без шифрування"

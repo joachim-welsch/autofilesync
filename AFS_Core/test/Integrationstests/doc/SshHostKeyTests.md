@@ -48,3 +48,10 @@ must not silently replace the old key.
 
 A key that cannot be stored is not trusted either: otherwise an attacker who can keep the file
 unwritable would get a fresh "first use" every time.
+
+## FetchedHostKeyIsTheOneTheServerPresents
+
+fetch_ssh_host_key() is what the account dialog shows the user before the first real contact
+(SshAccountDialog.md#host-key-confirmation): the line it returns has to be the one
+verify_pinned_host_key() later accepts, its fingerprint has OpenSSH's form, and fetching
+touches no known_hosts file - the decision stays with the user.

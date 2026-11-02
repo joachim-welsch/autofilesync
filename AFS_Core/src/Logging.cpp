@@ -384,10 +384,12 @@ void Logging::notify_fatal(const string& log_line)
 		return;
 	if (!notify_again(error_text(log_line)))
 		return;
-	const string error = send_mail(account, recipient, translation::translate("fatal_error_mail_subject"), log_line);  // [Logging.md#mail-sent-synchronously]
-	if (!error.empty())
+	const MailResult result = send_mail(account, recipient, translation::translate("fatal_error_mail_subject"), log_line);  // [Logging.md#mail-sent-synchronously]
+	if (!result.error.empty())
 		log(LogLevel::Error, translation::translate_utf8("notification_failed",
-			{wstring_to_string(recipient)}), error);
+			{wstring_to_string(recipient)}), result.error);
+	else if (result.unencrypted)
+		log(LogLevel::Warning, translation::translate_utf8("smtp_unencrypted", {wstring_to_string(account.server)}));  // [Logging.md#unencrypted-mail]
 }
 
 bool Logging::notify_again(const string& message)  // [Logging.md#notify_again]

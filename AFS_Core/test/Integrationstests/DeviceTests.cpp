@@ -242,6 +242,16 @@ TEST_F(DeviceLinkTest, PairWithBadDeviceIdIsRefused)
     EXPECT_TRUE(link.pairing().open()) << "A malformed request must not consume the token.";
 }
 
+TEST_F(DeviceLinkTest, PairWithControlCharactersInNameIsRefused)  // [DeviceTests.md#pair]
+{
+    DeviceLink& link = this->link();
+    const std::string token = link.offer().token;
+    const auto reply = phone().send(link.port(), tu::FakePhone::pair_line(token, PHONE_ID, "Pixel\n0123456789abcdef0123456789abcdef"));
+    EXPECT_EQ(reply.field("reason"), "bad_request");
+    EXPECT_FALSE(Config::instance().find_device(PHONE_ID).has_value());
+    EXPECT_TRUE(link.pairing().open()) << "A malformed request must not consume the token.";
+}
+
 TEST_F(DeviceLinkTest, HelloFromPairedPhoneIsAnswered)  // [DeviceTests.md#hello]
 {
     DeviceLink& link = this->link();

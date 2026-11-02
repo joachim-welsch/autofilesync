@@ -2357,3 +2357,31 @@ msgstr "The entry of the remote directory is rejected, its name contains a path 
 #: AFS_Core/src/PasswordCrypto.cpp
 msgid "crypto_nonce_generation_failed"
 msgstr "No random nonce available, the password is not saved"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_identity"
+msgstr "Server identity"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_trust"
+msgstr "Trust"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "button_save_anyway"
+msgstr "Save anyway"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_new"
+msgstr "%1 presents a host key with the fingerprint\n%2\nTrust this server? Compare the fingerprint with the one the server's administrator gave you."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_key_changed_confirm"
+msgstr "The host key of %1 has changed. New fingerprint:\n%2\nThis happens after a reinstallation of the server, but also during an attack on the connection. Trust the new key only if you know why it changed."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "ssh_host_unreachable_save_anyway"
+msgstr "%1 is not reachable: %2\nSave the connection anyway? Its host key is then stored at the first contact without a check."
+
+#: AFS_Core/src/Logging.cpp
+msgid "smtp_unencrypted"
+msgstr "%1 offers no TLS, the notification went unencrypted"

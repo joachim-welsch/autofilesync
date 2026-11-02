@@ -282,3 +282,8 @@ erased the answer is no.
 unload() is the application's last call; the next instance() after it has to work (the
 once_flag has fired already, so instance() recreates the object itself) and must not carry
 anything over.
+
+## SshAccountHostKeyRoundTrips
+
+The host key the account dialog pins (Config.md#ssh-host-key) must survive a save and a reload,
+otherwise every restart would fall back to trust-on-first-use.

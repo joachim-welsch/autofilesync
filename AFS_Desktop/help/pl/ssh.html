@@ -59,9 +59,15 @@ bez wpisywania.</p>
 <li><b>Gdy serwer jest nieosiągalny</b>, AutoFileSync odróżnia to od sytuacji
     „nic już tam nie ma” i nie dotyka celu. Awaria połączenia nie prowadzi więc
     do usuwania.</li>
-<li>Przy pierwszym połączeniu zapisywany jest klucz serwera. Jeśli później się
-    zmieni, AutoFileSync przerywa połączenie i zgłasza podejrzenie ataku typu
-    man-in-the-middle.</li>
+<li><b>Klucz serwera</b> jest pobierany przy zapisie połączenia i pokazywany
+    jako odcisk. Powinien zgadzać się z tym, który podaje administrator serwera
+    (<tt>ssh-keygen -l</tt> wyświetla go tam); dopiero po <b>Zaufaj</b>
+    połączenie jest zapisane i związane z tym kluczem. Jeśli później się zmieni,
+    AutoFileSync przerywa połączenie i zgłasza podejrzenie ataku typu
+    man-in-the-middle; po ponownej instalacji serwera wystarczy edytować
+    połączenie i potwierdzić nowy odcisk. Jeśli serwer jest nieosiągalny podczas
+    zapisu, połączenie można mimo to utworzyć; klucz zostanie przyjęty przy
+    pierwszym kontakcie.</li>
 </ul>
 
 <h2>Sprawdzenie przed każdym przebiegiem</h2>

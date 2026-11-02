@@ -56,6 +56,7 @@ bool add_test_account(MainWindow& window)
 {
     const SshAccountInput input{ACCOUNT, SSH_TEST_HOST, SSH_TEST_USER, SSH_TEST_PASSWORD};
     ModalDialogWatcher::instance().expect(txt::add_ssh_connection(), fill_ssh_account_dialog(input));
+    ModalDialogWatcher::instance().answer(translation::translate("ssh_host_identity"), wxID_YES);  // [SshAccountDialogDriver.md#host-key-question]
     activate_menu_item(window, tul(id::File_new_SshConnection));
     pump();
     return Config::instance().find_ssh_account_by_name(std::string(ACCOUNT.ToUTF8())).has_value();

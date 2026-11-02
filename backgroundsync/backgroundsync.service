@@ -12,6 +12,11 @@ After=network-online.target remote-fs.target
 [Service]
 ExecStart=/usr/sbin/backgroundsync
 Restart=on-failure
+# The daemon needs no privileges beyond the user's own and never writes below
+# /usr, /boot, /efi or /etc. Not ProtectHome or PrivateTmp: the configuration
+# and the sync trees live in the user's home, and a target may be anywhere.
+NoNewPrivileges=yes
+ProtectSystem=full
 # The daemon reads the configuration of this user
 # (~/.config/autofilesync/autofilesync.json) and logs to that user's log file.
 User=CHANGEME

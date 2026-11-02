@@ -44,3 +44,15 @@ checking for any existing match, also allows leaving an existing account's own n
 The port sits in the host's row, small and preset to 22: most users never change it, and
 whoever runs SSH on another port knows the number belongs next to the host
 (Config.md#ssh-port).
+
+## host-key-confirmation
+
+OK fetches the host key of the server the user typed, before anything is saved, and shows its
+fingerprint in OpenSSH's form; the user trusts it or stays in the dialog. The key then travels
+with the account (Config.md#ssh-host-key), and every later connection, in the GUI and in the
+background service alike, pins it (SshHostKeyVerification.md#verify_pinned_host_key). Without
+this step the first contact would store whatever key the network presented, unseen, possibly
+from a process with no user to ask at all. A changed key for an account that already has one
+gets the alarming wording: a reinstalled server is the harmless reason, an attack the other one.
+When the server cannot be reached the user may still save: a connection is often set up before
+the NAS is switched on, and the key is then taken at the first contact as before.

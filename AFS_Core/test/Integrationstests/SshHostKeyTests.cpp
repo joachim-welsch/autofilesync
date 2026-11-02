@@ -171,4 +171,42 @@ TEST_F(SshHostKeyTest, UnwritableKnownHostsFailsClosed)  // [SshHostKeyTests.md#
     EXPECT_FALSE(fs::exists(locked_dir / "known_hosts"));
     EXPECT_TRUE(logged("host_key_not_storable"));
 }
+
+TEST_F(SshHostKeyTest, FetchedHostKeyIsTheOneTheServerPresents)  // [SshHostKeyTests.md#FetchedHostKeyIsTheOneTheServerPresents]
+{
+    SshAccount account;
+    account.set_host(SSH_HOST);
+    std::string error;
+
+    const auto line = fetch_ssh_host_key(account, error);
+
+    ASSERT_TRUE(line.has_value()) << error;
+    EXPECT_NE(line->find(' '), std::string::npos) << *line;
+    EXPECT_EQ(host_key_fingerprint(*line).rfind("SHA256:", 0), 0u) << host_key_fingerprint(*line);
+    EXPECT_EQ(host_key_fingerprint(*line).find('='), std::string::npos) << "OpenSSH prints the fingerprint without padding";
+    Session session(known_hosts_);
+    ASSERT_TRUE(session.connected_);
+    EXPECT_TRUE(verify_pinned_host_key(session.get(), *line, SSH_HOST)) << "the fetched line must pass the pinning check";
+    EXPECT_FALSE(fs::exists(known_hosts_)) << "fetching a key must not store it";
+}
+
+TEST_F(SshHostKeyTest, FetchFromAClosedPortReportsTheReason)
+{
+    SshAccount account;
+    account.set_host(SSH_HOST);
+    account.set_port(1);
+    std::string error;
+
+    EXPECT_FALSE(fetch_ssh_host_key(account, error).has_value());
+
+    EXPECT_FALSE(error.empty());
+}
+
+TEST(SshHostKeyFingerprint, MalformedLineHasNoFingerprint)
+{
+    EXPECT_EQ(host_key_fingerprint(""), "");
+    EXPECT_EQ(host_key_fingerprint("ssh-ed25519"), "");
+    EXPECT_EQ(host_key_fingerprint("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGb0b1pQ8iKNvjN0VcTq6Yj9Bqz2m7u5K8fNvHq6Lk3z"),
+        "SHA256:" + host_key_fingerprint("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGb0b1pQ8iKNvjN0VcTq6Yj9Bqz2m7u5K8fNvHq6Lk3z comment").substr(7));
+}
 #endif

@@ -24,6 +24,7 @@
 #include "wx/wx.h"
 #endif
 #include <optional>
+#include <string>
 #include <wx/spinctrl.h>
 
 namespace AFS_Core { class SshAccount; }
@@ -57,12 +58,14 @@ private:
 
     void on_update_ok_button(wxUpdateUIEvent& event);
     void set_data(const SshAccount& account);
+    bool host_key_confirmed();  // [SshAccountDialog.md#host-key-confirmation]
 
     wxString name_;
     wxString user_;
     wxString host_;
     int port_ = 22;
     wxString password_;
+    std::string host_key_;  // [SshAccountDialog.md#host-key-confirmation]
 
     wxTextCtrl* name_box_ = nullptr;
     wxTextCtrl* user_box_ = nullptr;
