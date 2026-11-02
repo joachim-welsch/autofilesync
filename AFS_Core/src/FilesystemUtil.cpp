@@ -252,26 +252,22 @@ std::optional<fs::path> get_mount_root(const fs::path& in)
     return std::nullopt;
 #else
     fs::path current = normalize_best_effort(in);
-
     struct stat st_cur{};  // climb up until something exists
     while (!lstat_ok(current, st_cur)) {
         if (!current.has_parent_path()) return std::nullopt;
         current = current.parent_path();
     }
-
     for (;;) {
         fs::path parent = current.has_parent_path() ? current.parent_path() : fs::path("/");
         struct stat st_par{};
-        if (!lstat_ok(parent, st_par)) return std::nullopt;
+        if (!lstat_ok(parent, st_par))
+            return std::nullopt;
 
-        if (st_cur.st_dev != st_par.st_dev) {
+        if (st_cur.st_dev != st_par.st_dev)
             return current.empty() ? fs::path("/") : current;  // the device changes here, so 'current' is the mount point
-        }
-
         if (current == "/") {
             return fs::path("/");
         }
-
         current = parent;
         st_cur = st_par;
     }
