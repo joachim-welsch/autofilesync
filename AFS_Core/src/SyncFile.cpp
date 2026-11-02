@@ -297,11 +297,9 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
     return true;
 }
 
-void SyncFile::pre_copy(const wstring& src, const wstring& dest)
+void SyncFile::pre_copy(const wstring& src, const wstring& dest)  // [SyncFile.md#pre_copy]
 {
-    if (ssh_ != SSHPATH::none)
-        return; // TODO: file attributes are not adjusted over SSH yet
-    if (!file_exists(dest))
+    if (get_account_from_path(dest).has_value() || !file_exists(dest))
         return;
     std::error_code ec;
     fs::permissions(dest, fs::perms::owner_all, ec);

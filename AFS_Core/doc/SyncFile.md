@@ -54,6 +54,15 @@ save_copy_file()'s Stopped path removes the partial target. The source's permiss
 set afterwards as fs::copy_file did; a failure there is no failed copy, and the file time
 follows separately in copy_source_to_dest().
 
+## pre_copy
+
+Makes an existing target replaceable before the copy: the owner gets all rights so a read-only
+target no longer refuses the backup rename, and the father-son principle moves the old target
+aside. Both are local operations, so only a remote target skips them - a download from an SSH
+source to a local target used to skip them too, which silently dropped the father-son
+generations the user had asked for. A remote target still keeps neither (TODO): the upload
+truncates it in place, see SyncFileSsh.md#remote-target-stays-writable.
+
 ## ssh-skips-verification-only
 
 SSH skips only the content verification below (TODO); Error/Stopped must still run the
