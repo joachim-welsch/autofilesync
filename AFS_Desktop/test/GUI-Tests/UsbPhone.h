@@ -38,12 +38,20 @@ public:
     bool forward(uint16_t port);  // [UsbPhone.md#forward]
     bool open_link(const std::string& url);  // [UsbPhone.md#open_link]
     bool tap(const std::string& string_name, std::chrono::seconds timeout);  // [UsbPhone.md#tap]
+    bool shows(const std::string& string_name);  // [UsbPhone.md#shows]
+    bool shows_text(const std::string& text);
+    bool start_pass();  // [UsbPhone.md#pass]
+    bool pass_finished();
     bool write_file(const std::string& path, const std::string& content);
     std::optional<std::string> read_file(const std::string& path);
+    std::vector<std::string> list_dir(const std::string& path);
+    bool remove_file(const std::string& path);
+    bool move_file(const std::string& from, const std::string& to);
     void remove_dir(const std::string& path);
 private:
     std::string check();
     bool unlocked();
+    std::string screen_texts();
     bool backup_pairing();
     bool restore_pairing();  // [UsbPhone.md#pairing-backup]
     std::string adb(const std::string& arguments) const;

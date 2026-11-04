@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "UsbPhone.h"
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <filesystem>
@@ -106,6 +107,22 @@ std::vector<std::string> translations_of(const std::string& string_name)  // [Us
         if (std::smatch match; std::regex_search(xml, match, entry))
             texts.push_back(unescaped(match[1]));
     }
+    return texts;
+}
+
+std::regex pattern_of(const std::string& text)  // [UsbPhone.md#shows]
+{
+    static const std::regex special(R"re([.^$|()\[\]{}*+?\\])re");
+    static const std::regex placeholder(R"re(%\d\\\$[sd])re");
+    return std::regex(std::regex_replace(std::regex_replace(text, special, "\\$&"), placeholder, ".*"));
+}
+
+std::vector<std::string> texts_of(const std::string& ui)
+{
+    static const std::regex node(R"re(<node [^>]*?text="([^"]*)")re");
+    std::vector<std::string> texts;
+    for (std::sregex_iterator it(ui.begin(), ui.end(), node), end; it != end; ++it)
+        texts.push_back(unescaped((*it)[1]));
     return texts;
 }
 
@@ -253,13 +270,46 @@ bool UsbPhone::open_link(const std::string& url)  // [UsbPhone.md#open_link]
     return status == 0 && text.find("Error") == std::string::npos;
 }
 
+std::string UsbPhone::screen_texts()
+{
+    shell(std::string("uiautomator dump ") + UI_DUMP);
+    return run(adb("exec-out", std::string("cat ") + UI_DUMP)).text;
+}
+
+bool UsbPhone::shows(const std::string& string_name)  // [UsbPhone.md#shows]
+{
+    const auto texts = texts_of(screen_texts());
+    for (const auto& translation : translations_of(string_name)) {
+        const std::regex wanted = pattern_of(translation);
+        if (std::ranges::any_of(texts, [&](const std::string& text) { return std::regex_match(text, wanted); }))
+            return true;
+    }
+    return false;
+}
+
+bool UsbPhone::shows_text(const std::string& text)
+{
+    const auto texts = texts_of(screen_texts());
+    return std::ranges::find(texts, text) != texts.end();
+}
+
+bool UsbPhone::start_pass()  // [UsbPhone.md#pass]
+{
+    run(adb("logcat -c"));
+    return tap("sync_now", std::chrono::seconds(20));
+}
+
+bool UsbPhone::pass_finished()
+{
+    const std::string log = run(adb("logcat -d -s WM-WorkerWrapper:I")).text;
+    return log.find("Worker result") != std::string::npos && log.find("SyncWorker") != std::string::npos;
+}
+
 bool UsbPhone::tap(const std::string& string_name, std::chrono::seconds timeout)  // [UsbPhone.md#tap]
 {
     const auto texts = translations_of(string_name);
     for (const auto end = std::chrono::steady_clock::now() + timeout; std::chrono::steady_clock::now() < end; std::this_thread::sleep_for(std::chrono::milliseconds(500))) {
-        shell(std::string("uiautomator dump ") + UI_DUMP);
-        const Output ui = run(adb("exec-out", std::string("cat ") + UI_DUMP));
-        if (const auto centre = centre_of(ui.text, texts)) {
+        if (const auto centre = centre_of(screen_texts(), texts)) {
             shell("input tap " + std::to_string(centre->first) + " " + std::to_string(centre->second));
             return true;
         }
@@ -280,6 +330,32 @@ std::optional<std::string> UsbPhone::read_file(const std::string& path)
     if (status != 0)
         return std::nullopt;
     return run(adb("exec-out", "cat " + shell_quoted(path))).text;
+}
+
+std::vector<std::string> UsbPhone::list_dir(const std::string& path)
+{
+    int status = -1;
+    std::istringstream lines(shell("ls -1 " + shell_quoted(path), &status));
+    std::vector<std::string> names;
+    for (std::string line; status == 0 && std::getline(lines, line);)
+        if (!line.empty())
+            names.push_back(line);
+    std::ranges::sort(names);
+    return names;
+}
+
+bool UsbPhone::remove_file(const std::string& path)
+{
+    int status = -1;
+    shell("rm " + shell_quoted(path), &status);
+    return status == 0;
+}
+
+bool UsbPhone::move_file(const std::string& from, const std::string& to)
+{
+    int status = -1;
+    shell("mv " + shell_quoted(from) + " " + shell_quoted(to), &status);
+    return status == 0;
 }
 
 void UsbPhone::remove_dir(const std::string& path)

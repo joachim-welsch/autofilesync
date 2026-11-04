@@ -58,6 +58,18 @@ The texts of an app string in every language of the app, read from the app's res
 source tree, so the test works whatever language the phone is set to. The screen is read with
 uiautomator until a node with one of the texts appears.
 
+## shows
+
+Whether the screen shows one of the texts of an app string, in any of the app's languages; a
+placeholder like %1$s matches anything, so "Synchronised %1$s" is found whatever time it names.
+
+## pass
+
+A pass ends inside the app's worker, which WorkManager logs as "Worker result … SyncWorker".
+The log is cleared before the tap, so the line found afterwards belongs to a pass after the
+tap. A periodic background worker that happens to finish first would end the wait early; the
+test's checks after the pass would then fail rather than pass wrongly.
+
 ## quoting
 
 Every phone command passes two shells: the host's, which popen starts, and the phone's, which
