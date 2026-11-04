@@ -358,20 +358,32 @@ LastRun Synchronize::last_run_of(const SyncItem& i, const SyncReport& report) co
 }
 
 namespace {
+enum class StateKind { None, PassOnly, Kept };  // [Synchronize.md#sync-state]
+
+StateKind state_kind(const SyncItem& item, SyncType type)
+{
+    if (type == SyncType::CountFiles)
+        return StateKind::None;
+    if (item.two_way_sync() || item.track_moves())
+        return StateKind::Kept;
+    return item.delete_in_target() ? StateKind::PassOnly : StateKind::None;  // [Synchronize.md#pass-only-state]
+}
+
 class SyncStateKeeper {  // [Synchronize.md#sync-state]
     const SyncItem& item_;
     const bool persist_;
     std::optional<SyncState> state_;
     fs::path file() const { return sync_state_file_path(sync_state_dir(), item_.name()); }
 public:
-    SyncStateKeeper(const SyncItem& item, bool load, bool persist)
-        : item_(item), persist_(persist)
+    SyncStateKeeper(const SyncItem& item, StateKind kind, bool persist)
+        : item_(item), persist_(persist && kind == StateKind::Kept)
     {
-        if (!load)
-            return;
-        state_ = read_sync_state(file(), item.source(), item.target());
-        if (!state_)
+        if (kind == StateKind::Kept)
+            state_ = read_sync_state(file(), item.source(), item.target());
+        if (kind != StateKind::None && !state_)
             state_.emplace(item.source(), item.target());
+        if (state_)
+            state_->pass_only(kind == StateKind::PassOnly);
     }
     ~SyncStateKeeper()
     {
@@ -412,7 +424,7 @@ void Synchronize::run_sync_item(SyncItem& i)
             return;
         }
         item_reachable_[i.name()] = true;
-        SyncStateKeeper keeper(i, (i.two_way_sync() || i.track_moves()) && sync_type_ != SyncType::CountFiles, !touches_nothing());  // [Synchronize.md#sync-state]
+        SyncStateKeeper keeper(i, state_kind(i, sync_type_), !touches_nothing());  // [Synchronize.md#sync-state]
         if (keeper.state() != nullptr && mass_deletion_approved_)  // [Synchronize.md#mass-deletion-approved]
             keeper.state()->approve_mass_deletion();
         if (i.sync_item_type() == SyncItemType::Dir) {
@@ -430,7 +442,7 @@ void Synchronize::run_sync_item(SyncItem& i)
         }
         if (!stopping() && !stop_requested())
             keeper.complete();
-        if (keeper.state() != nullptr)
+        if (keeper.state() != nullptr && !keeper.state()->pass_only())
             known_files_[i.name()] = keeper.state()->files().size();
     }
     catch (std::filesystem::filesystem_error const& ex) {

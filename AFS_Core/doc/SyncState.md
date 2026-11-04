@@ -137,6 +137,21 @@ empty (SyncTree.md#prepare-and-settle). They live here because every SyncFile of
 shares this object already; claim() is how a file that turns out to be the renamed one takes
 its old entry out of the deletions before they run.
 
+## renamed
+
+The keys whose file the pass already renamed. The traversal can reach the new name before the
+old one: the rename then happens first, and when the old name comes up later it looks deleted
+on one side and would be noted as a deletion of the file that has just moved there. defer()
+drops a deletion for such a key. In the other order the deletion is already noted, and the
+rename takes it back with claim().
+
+## pass-only
+
+Marks a state that lives for one pass of a one-way item (Synchronize.md#pass-only-state): it
+collects the pass's deletions and the files the pass saw, but it is never stored and remembers
+nothing of an earlier pass. Rename detection is off for it (SyncFile.md#renames), because its
+entries would offer a file the pass has just seen in place as the old name of a new one.
+
 ## mass-deletion-approval
 
 Part of the pass notebook, not of the stored state: whether this pass may carry out a mass

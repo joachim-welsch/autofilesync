@@ -213,6 +213,50 @@ TEST_F(SyncStateRunTest, AOneWayItemTrackingMovesHasAStateAndRenames)
     EXPECT_EQ(Config::instance().syncitems()[0].last_run()->known_files, 1u);
 }
 
+TEST_F(SyncStateRunTest, AOneWayItemThatDeletesRefusesAMassDeletion)  // [SyncStateRunTests.md#one-way-mass-deletion]
+{
+    const auto files_in = [](const fs::path& dir) { return std::distance(fs::directory_iterator(dir), fs::directory_iterator()); };
+    for (int i = 0; i < 12; ++i)
+        tu::write_text_file(source_dir_ / ("datei" + std::to_string(i) + ".txt"), "x", seconds(3600));
+    SyncItem si = two_way_tree(false);
+    si.delete_in_target(true);
+    Config::instance().add(si);
+    run_pass(SyncType::Single);
+    ASSERT_EQ(files_in(target_dir_), 12);
+
+    fs::remove(source_dir_ / "datei0.txt");
+    run_pass(SyncType::Single);
+    EXPECT_EQ(files_in(target_dir_), 11) << "a single deletion goes through as before";
+
+    fs::remove_all(source_dir_);
+    fs::create_directories(source_dir_);
+    run_pass(SyncType::Single);
+    EXPECT_EQ(files_in(target_dir_), 11) << "an ordinary run must refuse to empty the target";
+    EXPECT_EQ(Config::instance().syncitems()[0].last_run()->errors, 1u) << "the refusal is an error of the run";
+    EXPECT_FALSE(fs::exists(state_file())) << "the notebook of a one-way item is never written";
+    EXPECT_FALSE(Config::instance().syncitems()[0].last_run()->known_files.has_value()) << "a one-way item tracks no deletions between runs";
+
+    run_pass(SyncType::Single, true);
+    EXPECT_EQ(files_in(target_dir_), 0) << "the approved run deletes";
+}
+
+TEST_F(SyncStateRunTest, AOneWayItemThatDeletesTakesNoCopyForARename)  // [SyncStateRunTests.md#one-way-no-renames]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "same", seconds(3600));
+    SyncItem si = two_way_tree(false);
+    si.delete_in_target(true);
+    Config::instance().add(si);
+    run_pass(SyncType::Single);
+    ASSERT_TRUE(fs::exists(target_dir_ / "a.txt"));
+    fs::copy_file(source_dir_ / "a.txt", source_dir_ / "b.txt");
+    fs::last_write_time(source_dir_ / "b.txt", fs::last_write_time(source_dir_ / "a.txt"));
+
+    run_pass(SyncType::Single);
+
+    EXPECT_TRUE(fs::exists(target_dir_ / "a.txt")) << "a.txt is still in the source; it must not be renamed to b.txt";
+    EXPECT_TRUE(fs::exists(target_dir_ / "b.txt"));
+}
+
 TEST_F(SyncStateRunTest, AMassDeletionWaitsForTheApprovedRun)  // [SyncStateRunTests.md#mass-deletion]
 {
     for (int i = 0; i < 12; ++i)

@@ -41,8 +41,9 @@ diagnostic as get_message().
 
 ## state_
 
-The sync state of the item's last pass (SyncState.md#SyncState), or null for every item that
-has none - a one-way item, a counting pass. Not owned: Synchronize keeps it for the duration of
+The sync state of the item's last pass (SyncState.md#SyncState), a state for this pass only
+for a one-way item that deletes in the target (Synchronize.md#pass-only-state), or null for
+every item that has none - any other one-way item, a counting pass. Not owned: Synchronize keeps it for the duration of
 the pass and writes it afterwards; every SyncFile the pass creates gets the same pointer, so
 the entries one file records are there when the next file is compared.
 
@@ -53,6 +54,23 @@ The entries of the state are keyed by the file's path relative to the item's sou
 given (without the volume specification, with the account prefix for SSH), and passed down
 unchanged to the SyncFiles of a directory or tree, whose own sync_item_ names a single file.
 A file item has no path below its root, so its key is the file name.
+
+## side_path
+
+The full path of a state entry on one side: the key is relative to the item's roots with "/"
+between its parts (SyncState.md#path), so it gets the root of the side it is wanted on and that
+side's separator - "/" for an SSH side, the platform's own for a local one. A rename uses it to
+look at the old name on both sides (SyncFile.md#renames).
+
+## finish_pass
+
+The end of a pass, run once by the SyncDir or SyncTree that started it, after the whole tree
+was compared; without a state there is nothing to finish. With one: first the deletions the
+pass put off (SyncFile.md#deferred-deletions), all of them or - after a refused mass deletion -
+none, then the directories that were to be removed once empty (SyncTree.md#prepare-and-settle).
+The directories come last because they are only empty after the deletions; when the deletions
+were refused, they stay as well. A stop request ends the loop between two files, and what was
+not deleted is found again by the next pass.
 
 ## create_source_dir
 
@@ -83,3 +101,11 @@ through normally. The way out is deliberate: the preview still plans the deletio
 notes, and the run started from the preview carries the pass's approval
 (SyncState.md#mass-deletion-approval), because the user has then seen the list. The daemon
 can never approve; it keeps refusing until the user has looked.
+
+## known-files
+
+The files the state knows plus the deletions it does not know. For a kept state every
+deletion is one of its entries, so the sum is just its size; a pass-only state knows only the
+files this pass found in place or copied (SyncFile.md#state), never the ones it is about to
+delete, so those are added - otherwise twelve deletions next to twelve kept files would count
+as twelve out of twelve.

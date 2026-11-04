@@ -88,11 +88,12 @@ bool mass_deletion(std::size_t deletions, std::size_t known_files)  // [SyncBase
     return deletions >= MASS_DELETION_MIN_FILES && deletions * 100 > known_files * MASS_DELETION_PERCENT;
 }
 
-bool SyncBase::deletions_refused(std::size_t deletions)  // [SyncBase.md#mass-deletion]
+bool SyncBase::deletions_refused(const std::vector<PendingDeletion>& deletions)  // [SyncBase.md#mass-deletion]
 {
-    const std::size_t known = state_->files().size();
-    const bool exceeded = mass_deletion(deletions, known) && !state_->mass_deletion_approved();
-    const std::initializer_list<wstring> values{sync_item_.name(), std::to_wstring(deletions), std::to_wstring(known)};
+    const std::size_t known = state_->files().size()
+        + std::ranges::count_if(deletions, [this](const PendingDeletion& deletion) { return state_->find(deletion.key) == nullptr; });  // [SyncBase.md#known-files]
+    const bool exceeded = mass_deletion(deletions.size(), known) && !state_->mass_deletion_approved();
+    const std::initializer_list<wstring> values{sync_item_.name(), std::to_wstring(deletions.size()), std::to_wstring(known)};
     if (exceeded && only_count_) {
         log_warning(translation::translate("mass_deletion_planned", values));
         Synchronize::note(LogLevel::Warning, translation::translate("mass_deletion_planned", values));  // [Synchronize.md#notes]
@@ -111,7 +112,7 @@ void SyncBase::finish_pass()  // [SyncBase.md#finish_pass]
         return;
     const std::vector<PendingDeletion> deletions = state_->take_deletions();
     const std::vector<PendingDirRemoval> removals = state_->take_dir_removals();
-    if (deletions_refused(deletions.size()))
+    if (deletions_refused(deletions))
         return;
     for (const PendingDeletion& deletion : deletions) {
         if (stop_requested())

@@ -473,7 +473,7 @@ bool SyncFile::rename_path(const wstring& from, const wstring& to, bool ssh, boo
 bool SyncFile::rename_instead(PlannedAction action, const FileDifference& fd, const wstring& source, const wstring& destination)  // [SyncFile.md#renames]
 {
     const bool new_in_source = action == PlannedAction::CopyToTarget;
-    if (state_ == nullptr || !(new_in_source || action == PlannedAction::CopyToSource) || state_->find(state_key_) != nullptr
+    if (state_ == nullptr || state_->pass_only() || !(new_in_source || action == PlannedAction::CopyToSource) || state_->find(state_key_) != nullptr  // [SyncFile.md#renames]
         || fd.result() != (new_in_source ? FDResult::DestNotExists : FDResult::SourceNotExits)
         || (new_in_source && !sync_item_.two_way_sync() && !sync_item_.delete_in_target()))  // without deletions the old target stays, as asked
         return false;

@@ -242,24 +242,32 @@ TEST_F(UsbPhoneSyncTest, FotosSichernBehaeltAufDemHandyGeloeschte)  // [UsbPhone
     EXPECT_EQ(read_text(on_pc("fotos/bild-1.jpg")), "Bild 1") << "Ein auf dem Handy gelöschtes Foto darf auf dem PC nicht verschwinden.";
 }
 
-TEST_F(UsbPhoneSyncTest, MusikAufsHandyUebernimmtLoeschungen)  // [UsbPhoneSyncTest.md#music]
+TEST_F(UsbPhoneSyncTest, MusikAufsHandyUebernimmtLoeschungenAberKeineMassenloeschung)  // [UsbPhoneSyncTest.md#music]
 {
-    for (const char* song : {"lied-1.mp3", "lied-2.mp3", "lied-3.mp3"})
-        write_text(on_pc(std::string("musik/") + song), song);
+    std::vector<std::string> songs;
+    for (int n = 1; n <= MASS_DELETION_FILES; ++n)
+        songs.push_back("lied-" + std::to_string(n + 10) + ".mp3");
+    for (const auto& song : songs)
+        write_text(on_pc("musik/" + song), song);
     ASSERT_TRUE(phone_->write_file(on_phone("musik/nur-am-handy.mp3"), "nur am Handy"));
     ASSERT_TRUE(pair().has_value());
     ASSERT_TRUE(set_up(PhoneTemplate::Music, "musik").has_value()) << "Die Vorlage hat nicht genau die Testordner verbunden.";
 
     ASSERT_TRUE(sync());
-    EXPECT_EQ(phone_->list_dir(on_phone("musik")), (std::vector<std::string>{"lied-1.mp3", "lied-2.mp3", "lied-3.mp3"}))
-        << "Das Handy soll genau die Musik des PCs haben.";
+    EXPECT_EQ(phone_->list_dir(on_phone("musik")), songs) << "Das Handy soll genau die Musik des PCs haben.";
     EXPECT_TRUE(phone_->shows("direction_to_phone"));
     EXPECT_FALSE(std::filesystem::exists(on_pc("musik/nur-am-handy.mp3"))) << "Die Musik geht nur vom PC zum Handy.";
 
-    std::filesystem::remove(on_pc("musik/lied-1.mp3"));
+    std::filesystem::remove(on_pc("musik/" + songs.front()));
+    songs.erase(songs.begin());
     ASSERT_TRUE(sync());
-    EXPECT_EQ(phone_->list_dir(on_phone("musik")), (std::vector<std::string>{"lied-2.mp3", "lied-3.mp3"}))
-        << "Musik, die der PC nicht mehr hat, verschwindet vom Handy.";
+    EXPECT_EQ(phone_->list_dir(on_phone("musik")), songs) << "Musik, die der PC nicht mehr hat, verschwindet vom Handy.";
+
+    std::filesystem::remove_all(on_pc("musik"));
+    std::filesystem::create_directories(on_pc("musik"));
+    ASSERT_TRUE(sync());
+    EXPECT_EQ(phone_->list_dir(on_phone("musik")), songs) << "Ein leerer Musikordner auf dem PC darf die Musik auf dem Handy nicht löschen.";
+    EXPECT_TRUE(phone_->shows("status_done_errors")) << "Die App muss zeigen, dass der Durchlauf nicht alles erledigt hat.";
 }
 
 TEST_F(UsbPhoneSyncTest, MassenloeschungWirdVerweigert)  // [UsbPhoneSyncTest.md#mass-deletion]

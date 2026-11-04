@@ -205,3 +205,20 @@ A file edited on one side after its directory was deleted on the other is copied
 not recreate a deleted directory (SyncTree.md#prepare-and-settle), only the file's own copy
 does, with every missing level. Only this case pays for the check; the ordinary copy relies on
 the directory the tree pass created.
+
+## deferred-deletions
+
+With a state, a deletion is not carried out where it is found but noted in the pass's notebook
+(SyncState.md#pass-notebook) and carried out by SyncBase::finish_pass once the whole tree was
+compared: a file that turns up later under a new name can still claim its old entry (renames),
+and the mass-deletion check sees all deletions of the pass at once (SyncBase.md#mass-deletion).
+A file item has nothing to wait for and deletes at once. In a counting or preview pass the
+deferred deletion becomes a planned step instead.
+
+## renames
+
+A file new on one side whose size and time match an entry of the state whose file has gone
+from that side is the same file under a new name: it is renamed on the other side instead of
+copied and the old one deleted. A one-way item renames only when it deletes in the target,
+since otherwise the old name stays there anyway; a pass-only state never renames
+(SyncState.md#pass-only).

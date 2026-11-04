@@ -48,3 +48,16 @@ of files copied before the stop is printed, so a run that never gets stopped is 
 The approval travels from Synchronize::create() into the pass (Synchronize.md#mass-deletion-approved):
 without it the run refuses and records the refusal as its one error, with it the same situation
 is carried out.
+
+## one-way-mass-deletion
+
+A one-way item that deletes in the target has no state between runs, but each run keeps a
+notebook of its deletions (Synchronize.md#pass-only-state): a single deletion still goes through,
+an emptied source does not empty the target, the refusal counts as an error, nothing is written
+to the state directory and LastRun claims no tracked files; the run started from the preview
+carries out the deletions.
+
+## one-way-no-renames
+
+The notebook must not switch on the rename detection: a new file that equals a kept one in
+size and time is a copy, not a move, when the kept one is still in the source.

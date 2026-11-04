@@ -75,9 +75,11 @@ concept (ANDROID-CONCEPT.md, aim).
 ## music
 
 "Music to the phone": the phone ends up with exactly the PC's music - a file that exists only on
-the phone is removed, as delete_in_target asks - and a song removed on the PC disappears from the phone with the next pass.
-One-way items carry no state (Synchronize.md#sync-state), so the mass-deletion guard does not
-apply here; see mass-deletion.
+the phone is removed, as delete_in_target asks - and a song removed on the PC disappears from the
+phone with the next pass. A music folder on the PC that turns up empty - a disk that is not
+mounted - must not empty the phone: the one-way item refuses the mass deletion like a two-way
+one (Synchronize.md#pass-only-state), and the app reports the pass with errors. The songs are
+numbered from 11 so that their names sort the same way on the phone and in the test.
 
 ## mass-deletion
 

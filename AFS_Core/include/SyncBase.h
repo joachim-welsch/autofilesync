@@ -41,7 +41,7 @@ protected:
 	std::wstring state_key(const std::wstring& source) const;  // [SyncBase.md#state_key]
 	std::wstring side_path(const std::wstring& key, bool in_target) const;  // [SyncBase.md#side_path]
 	void finish_pass();  // [SyncBase.md#finish_pass]
-	bool deletions_refused(std::size_t deletions);  // [SyncBase.md#mass-deletion]
+	bool deletions_refused(const std::vector<PendingDeletion>& deletions);  // [SyncBase.md#mass-deletion]
 	void create_target_dir_if_not_exist(const std::wstring& targetdir = L"");
 	void create_source_dir(const std::wstring& dir);  // [SyncBase.md#create_source_dir]
 	void remove_dir_if_empty(const std::wstring& dir, bool ssh);  // [SyncBase.md#remove_dir_if_empty]

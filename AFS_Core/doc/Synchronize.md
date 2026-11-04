@@ -86,9 +86,21 @@ classes and writes it back when it goes out of scope, which is also the way out 
 throws, so what the pass recorded up to the exception is kept. Only passes that touch
 something write; the preview reads the state so that it plans the deletions a run would make,
 and the counting pass does not load it at all - the count is a range for the progress bar
-and must not pay for 100 000 entries. One-way items carry no state. The number of files the
-state knows goes into the item's LastRun, so the assistant can say that the two-way sync is
-tracking deletions (ConfigSummary.md#known-files).
+and must not pay for 100 000 entries. One-way items carry no state between passes; one that
+deletes in the target gets a state for the pass only (pass-only-state). The number of files a
+kept state knows goes into the item's LastRun, so the assistant can say that the two-way sync is
+tracking deletions (ConfigSummary.md#known-files); a pass-only state tracks nothing between
+passes and leaves LastRun without that number.
+
+## pass-only-state
+
+A one-way item with delete_in_target empties its target as readily as a two-way item when the
+source turns up empty - a music folder on a disk that is not mounted, mirrored to the phone. So
+it runs with an empty state that is never read or written (SyncState.md#pass-only): its
+deletions are put off to the end of the pass like those of a two-way item
+(SyncFile.md#deferred-deletions) and pass the same mass-deletion check, approval from the
+preview included (SyncBase.md#mass-deletion). Without delete_in_target a one-way pass deletes
+nothing and needs no state.
 
 ## complete-pass
 
