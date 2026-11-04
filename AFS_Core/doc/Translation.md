@@ -117,6 +117,14 @@ about every message.
 Logging translates its own messages ("log_message_repeated"), so the report guards against
 re-entering itself on the same thread.
 
+## catalogue_language
+
+The language of the catalogue gettext actually bound, read from the "Language:" field of its
+header (the translation of the empty msgid) - not the language that was asked for, which may
+have fallen back to English (fall_back_to_english). The help picks its book by it
+(MainWindow.md#help_language), so that menu texts and help speak the same language. Empty when
+no catalogue is bound or the program was built without libintl.
+
 ## catalogue_mismatch
 
 The message, if the catalogues gettext found were not built with this program: every catalogue

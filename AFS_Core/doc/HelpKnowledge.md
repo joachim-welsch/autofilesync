@@ -37,6 +37,13 @@ references. Anything else stays as written.
 Every character above ASCII counts as a letter, so that German words are not torn apart at
 their umlauts in a locale where iswalnum() knows only ASCII.
 
+## excerpt_for
+
+The help text the chat hands the language model along with a question (ChatDialog): the best
+scoring section, labelled with its page and subheading so the model can name where the answer
+is, and cut at a line end to max_chars. Empty when no section reaches MIN_SCORE - then the
+question is not about the help, and an unrelated section would only lead the model astray.
+
 ## stems_of
 
 Words of five letters and more - shorter ones such as "geht" or "dir" are mostly filler and
