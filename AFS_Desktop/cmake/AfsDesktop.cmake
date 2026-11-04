@@ -13,6 +13,7 @@ set(AFS_DESKTOP_SOURCES
     Canvas.cpp
     ChatDialog.cpp
     DevicesDialog.cpp
+    FirewallHint.cpp
     PairDeviceDialog.cpp
     PhoneDirDialog.cpp
     PhoneTemplatesDialog.cpp

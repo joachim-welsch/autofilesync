@@ -171,6 +171,7 @@
     <ClInclude Include="include\SshAccountDialog.h" />
     <ClInclude Include="include\SshAccountsDialog.h" />
     <ClInclude Include="include\DevicesDialog.h" />
+    <ClInclude Include="include\FirewallHint.h" />
     <ClInclude Include="include\PairDeviceDialog.h" />
     <ClInclude Include="include\PhoneDirDialog.h" />
     <ClInclude Include="include\PhoneTemplatesDialog.h" />
@@ -246,6 +247,7 @@
     <ClCompile Include="src\SshAccountDialog.cpp" />
     <ClCompile Include="src\SshAccountsDialog.cpp" />
     <ClCompile Include="src\DevicesDialog.cpp" />
+    <ClCompile Include="src\FirewallHint.cpp" />
     <ClCompile Include="src\PairDeviceDialog.cpp" />
     <ClCompile Include="src\PhoneDirDialog.cpp" />
     <ClCompile Include="src\PhoneTemplatesDialog.cpp" />

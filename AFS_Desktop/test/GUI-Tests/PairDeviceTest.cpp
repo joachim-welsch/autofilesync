@@ -24,6 +24,8 @@
 #include "Config.h"
 #include "DeviceLink.h"
 #include "DevicesDialog.h"
+#include "FirewallHint.h"
+#include "PairDeviceDialog.h"
 #include "PhoneTemplatesDialog.h"
 #include "FakePhone.h"
 #include <wx/filepicker.h>
@@ -88,6 +90,7 @@ TEST_F(PairDeviceTest, HandyVerbindenZeigtCodeUndNimmtKopplungAn)  // [PairDevic
         EXPECT_TRUE(code->IsShown());
         EXPECT_GT(code->GetBitmap().GetWidth(), 100) << "Der QR-Code wurde nicht gezeichnet.";
         EXPECT_TRUE(label_shown(dialog, translation::translate("pair_waiting")));
+        EXPECT_TRUE(label_shown(dialog, translation::translate("pair_same_network"))) << "Der Dialog muss sagen, dass kein USB-Kabel gebraucht wird.";
         const tu::FakePhone phone(GuiTestSandbox::root() / "phone");
         const auto reply = phone.send(link.port(), tu::FakePhone::pair_line(link.pairing().token(), PHONE_ID, std::string(PHONE_NAME.ToUTF8())));
         EXPECT_EQ(reply.type(), "paired") << (reply.lines.empty() ? std::string("keine Antwort") : reply.lines[0]);
@@ -118,6 +121,49 @@ TEST_F(PairDeviceTest, DialogOhneHandySchliesstDieVerbindungWieder)  // [PairDev
     pump();
 
     EXPECT_FALSE(DeviceLink::instance().running()) << "Ohne verbundenes Handy darf kein Port offen bleiben.";
+}
+
+TEST_F(PairDeviceTest, FirewallHinweisErscheintOhneHandy)  // [PairDeviceTest.md#firewall-hint]
+{
+    ModalDialogWatcher::instance().expect(txt::connect_phone(), [](wxDialog& dialog) {
+        auto* command = dynamic_cast<wxTextCtrl*>(find(dialog, ID_PAIRDEVICE_FIREWALL_COMMAND));
+        ASSERT_NE(command, nullptr);
+        EXPECT_FALSE(command->IsShown()) << "Der Befehl gehört erst zum Hinweis.";
+        const std::wstring port = std::to_wstring(DeviceLink::instance().port());
+        const wxString hint = ufw_blocks_incoming() ? translation::translate("pair_ufw_hint", {port}) : translation::translate("pair_firewall_hint", {port});
+        EXPECT_TRUE(wait_until([&] { return label_shown(dialog, hint.BeforeFirst(' ')); }, 20000)) << "Nach 15 Sekunden ohne Handy fehlt der Firewall-Hinweis.";
+        if (ufw_blocks_incoming()) {
+            EXPECT_TRUE(command->IsShown());
+            EXPECT_TRUE(command->GetValue().Contains("sudo ufw allow") && command->GetValue().Contains(wxString(port))) << command->GetValue();
+        }
+        dialog.EndModal(wxID_CLOSE);
+    });
+
+    activate_menu_item(main_window(), tul(id::File_connect_phone));
+    pump();
+}
+
+TEST(FirewallHint, ErkenntUfwAusSeinenEinstellungen)  // [PairDeviceTest.md#ufw-settings]
+{
+    const auto etc = std::filesystem::temp_directory_path() / "afs-firewallhint-test";
+    std::filesystem::create_directories(etc / "ufw");
+    std::filesystem::create_directories(etc / "default");
+    const auto write = [](const std::filesystem::path& file, const std::string& text) { std::ofstream(file) << text; };
+    EXPECT_FALSE(ufw_blocks_incoming(etc)) << "Ohne ufw blockiert ufw nichts.";
+    write(etc / "ufw" / "ufw.conf", "# comment\nENABLED=yes\nLOGLEVEL=low\n");
+    write(etc / "default" / "ufw", "DEFAULT_INPUT_POLICY=\"DROP\"\n");
+    EXPECT_TRUE(ufw_blocks_incoming(etc));
+    write(etc / "default" / "ufw", "DEFAULT_INPUT_POLICY=\"ACCEPT\"\n");
+    EXPECT_FALSE(ufw_blocks_incoming(etc)) << "Alles erlaubt: nichts zu tun.";
+    write(etc / "ufw" / "ufw.conf", "ENABLED=no\n");
+    EXPECT_FALSE(ufw_blocks_incoming(etc));
+    std::filesystem::remove_all(etc);
+
+    EXPECT_EQ(ufw_allow_command({}, 52381), "sudo ufw allow 52381");
+    EXPECT_EQ(ufw_allow_command({"192.168.1.0/24", "10.0.0.0/8"}, 52381),
+              "sudo ufw allow from 192.168.1.0/24 to any port 52381 && sudo ufw allow from 10.0.0.0/8 to any port 52381");
+    for (const auto& network : local_ipv4_networks())
+        EXPECT_NE(network.find('/'), std::string::npos) << network;
 }
 
 TEST_F(PairDeviceTest, HandysDialogListetUndTrennt)  // [PairDeviceTest.md#unpair]

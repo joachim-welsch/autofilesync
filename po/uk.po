@@ -1985,6 +1985,18 @@ msgstr "ПК %1 · %2 · порт %3"
 msgid "pair_firewall_hint"
 msgstr "Нічого не надходить? Можливо, брандмауер блокує порт %1."
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr "Телефон і ПК мають бути в одній мережі, наприклад у домашньому Wi-Fi, – USB-кабель не потрібен."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr "Нічого не надходить? Брандмауер ufw увімкнено, і він, імовірно, блокує порт %1. Дозвольте його цією командою в терміналі:"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr "Копіювати команду"
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr "ще не виходив на зв'язок"

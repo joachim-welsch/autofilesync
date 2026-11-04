@@ -2018,6 +2018,18 @@ msgstr "PC %1 · %2 · Port %3"
 msgid "pair_firewall_hint"
 msgstr "Kommt nichts an? Vielleicht blockiert eine Firewall Port %1."
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr "Handy und PC müssen im selben Netzwerk sein, etwa im Heim-WLAN – ein USB-Kabel wird nicht gebraucht."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr "Kommt nichts an? Die Firewall ufw ist eingeschaltet und blockiert vermutlich Port %1. Gib ihn mit diesem Befehl im Terminal frei:"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr "Befehl kopieren"
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr "noch nicht gemeldet"

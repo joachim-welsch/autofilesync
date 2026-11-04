@@ -25,6 +25,7 @@
 #endif
 
 #include "Device.h"
+#include <cstdint>
 #include <filesystem>
 #include <optional>
 
@@ -37,14 +38,19 @@ public:
     ~PairDeviceDialog() override;
     const std::optional<AFS_Core::Device>& paired() const { return paired_; }
 private:
+    void add_firewall_row(wxBoxSizer* main_sizer);
     void show_offer();
+    void show_firewall_hint(uint16_t port);
     void on_timer(wxTimerEvent& event);
     void on_close_button(wxCommandEvent& event);
+    void on_copy_command(wxCommandEvent& event);
 
     wxStaticBitmap* code_ = nullptr;
     wxStaticText* steps_ = nullptr;
     wxStaticText* status_ = nullptr;
     wxStaticText* details_ = nullptr;
+    wxBoxSizer* firewall_row_ = nullptr;
+    wxTextCtrl* firewall_command_ = nullptr;
     wxTimer timer_;
     int ticks_ = 0;
     int closed_ticks_ = 0;
@@ -54,5 +60,7 @@ private:
 };
 
 enum {
-    ID_PAIRDEVICE_TIMER = wxID_HIGHEST + 300
+    ID_PAIRDEVICE_TIMER = wxID_HIGHEST + 300,
+    ID_PAIRDEVICE_FIREWALL_COMMAND,
+    ID_PAIRDEVICE_COPY_COMMAND
 };

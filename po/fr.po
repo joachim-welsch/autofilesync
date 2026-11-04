@@ -1985,6 +1985,18 @@ msgstr "PC %1 · %2 · port %3"
 msgid "pair_firewall_hint"
 msgstr "Rien n'arrive ? Un pare-feu bloque peut-être le port %1."
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr "Le téléphone et le PC doivent être sur le même réseau, par exemple le Wi-Fi de la maison – aucun câble USB n'est nécessaire."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr "Rien n'arrive ? Le pare-feu ufw est activé et bloque probablement le port %1. Autorisez-le avec cette commande dans un terminal :"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr "Copier la commande"
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr "pas encore signalé"

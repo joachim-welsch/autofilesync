@@ -1964,6 +1964,18 @@ msgstr ""
 msgid "pair_firewall_hint"
 msgstr ""
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr ""
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr ""
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr ""

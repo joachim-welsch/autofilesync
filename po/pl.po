@@ -1985,6 +1985,18 @@ msgstr "PC %1 · %2 · port %3"
 msgid "pair_firewall_hint"
 msgstr "Nic nie dociera? Być może zapora blokuje port %1."
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr "Telefon i komputer muszą być w tej samej sieci, np. domowym Wi-Fi – kabel USB nie jest potrzebny."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr "Nic nie dociera? Zapora ufw jest włączona i prawdopodobnie blokuje port %1. Odblokuj go tym poleceniem w terminalu:"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr "Kopiuj polecenie"
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr "jeszcze się nie zgłosił"

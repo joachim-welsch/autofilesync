@@ -2018,6 +2018,18 @@ msgstr "PC %1 · %2 · port %3"
 msgid "pair_firewall_hint"
 msgstr "Nothing arriving? A firewall may be blocking port %1."
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr "The phone and the PC must be on the same network, such as your home Wi-Fi – no USB cable is needed."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr "Nothing arriving? The ufw firewall is on and probably blocks port %1. Allow it with this command in a terminal:"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr "Copy command"
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr "not reported yet"

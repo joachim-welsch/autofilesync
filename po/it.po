@@ -1985,6 +1985,18 @@ msgstr "PC %1 · %2 · porta %3"
 msgid "pair_firewall_hint"
 msgstr "Non arriva nulla? Forse un firewall blocca la porta %1."
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr "Telefono e PC devono essere sulla stessa rete, per esempio il Wi-Fi di casa: non serve un cavo USB."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr "Non arriva nulla? Il firewall ufw è attivo e probabilmente blocca la porta %1. Sbloccala con questo comando in un terminale:"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr "Copia comando"
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr "non ancora collegato"

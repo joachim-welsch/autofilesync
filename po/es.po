@@ -1985,6 +1985,18 @@ msgstr "PC %1 · %2 · puerto %3"
 msgid "pair_firewall_hint"
 msgstr "¿No llega nada? Quizá un cortafuegos bloquea el puerto %1."
 
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_same_network"
+msgstr "El móvil y el PC deben estar en la misma red, por ejemplo la wifi de casa: no hace falta cable USB."
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_ufw_hint"
+msgstr "¿No llega nada? El cortafuegos ufw está activado y probablemente bloquea el puerto %1. Permítelo con este comando en una terminal:"
+
+#: AFS_Desktop/src/PairDeviceDialog.cpp
+msgid "pair_copy_command"
+msgstr "Copiar comando"
+
 #: AFS_Desktop/src/DevicesDialog.cpp
 msgid "device_never_seen"
 msgstr "aún no se ha comunicado"

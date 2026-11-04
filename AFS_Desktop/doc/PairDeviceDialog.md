@@ -40,11 +40,27 @@ dialog still works: the token, the port and the result are files in the configur
 directory (DeviceLink.md#shared-files), so the code shows the service's port and the paired
 phone arrives through take_paired() as before.
 
+## same-network
+
+The steps say that phone and PC must share a network and that no USB cable is needed: pairing
+and synchronisation run over the network only, and a user who plugs the phone in expects the
+cable to be the connection.
+
 ## firewall-hint
 
-After a minute without any phone the status adds the hint about a firewall and the port: a
+After 15 seconds without any phone the status adds the hint about a firewall and the port: a
 user who scanned the code sees "waiting" forever otherwise, and a blocked port is the usual
-cause on Linux, where the installer adds no rule.
+cause on Linux, where the installer adds no rule. 15 seconds are enough to scan a code with
+the app installed; a user who gives up after half a minute must already have seen the hint.
+When ufw is on with a blocking default (FirewallHint.md#ufw_blocks_incoming), the hint names
+ufw and shows the command that opens the port (firewall-row) instead of only the port.
+
+## firewall-row
+
+The command sits in a read-only text field with a copy button, because the user has to paste
+it into a terminal and a typo there helps nobody. The row is hidden until the ufw hint
+appears. The clipboard is flushed so that the command survives when the dialog or the program
+is closed before pasting.
 
 ## token-ends-with-the-dialog
 

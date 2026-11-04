@@ -662,6 +662,9 @@
     <ClCompile Include="..\..\src\DevicesDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\FirewallHint.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\PairDeviceDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
