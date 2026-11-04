@@ -57,6 +57,9 @@
     <ClInclude Include="SshTestServer.h">
       <Filter>GuiTests\include</Filter>
     </ClInclude>
+    <ClInclude Include="UsbPhone.h">
+      <Filter>GuiTests\include</Filter>
+    </ClInclude>
     <ClInclude Include="SyncActions.h">
       <Filter>GuiTests\include</Filter>
     </ClInclude>
@@ -402,6 +405,12 @@
       <Filter>GuiTests</Filter>
     </ClCompile>
     <ClCompile Include="PairDeviceTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="UsbPhone.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="UsbPhoneSyncTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
     <ClCompile Include="SshDirDialogTest.cpp">

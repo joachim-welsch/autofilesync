@@ -187,6 +187,12 @@ Clicks the tree item's on-screen position, the way a user would - unlike
 wxTreeCtrl::SelectItem() this goes through the real mouse event handlers
 (TreeCtrl::on_mouse_left_down and whatever it triggers).
 
+## text_entry_of
+
+type_into and replace_text serve single-line text fields and editable combo boxes alike: both
+take typed text the same way, and a combo box whose value a test could not type must fail the
+step instead of leaving the preset value standing.
+
 ## replace_text
 
 For a field that already holds a value: selects it first, the way a user overwrites an entry

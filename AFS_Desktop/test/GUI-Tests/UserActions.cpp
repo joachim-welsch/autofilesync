@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "UserActions.h"
+#include <wx/combobox.h>
 #include "EventPump.h"
 #include "ForegroundApp.h"
 #include "ModalDialogWatcher.h"
@@ -472,7 +473,7 @@ bool type_lines(const wxString& lines)  // [UserActions.md#replace_lines]
 constexpr int CLICK_ATTEMPTS = 3;
 constexpr int FOCUS_TIMEOUT_MILLISECONDS = 200;
 
-bool click_into_field(wxTextCtrl& field)  // [UserActions.md#click-until-focused]
+bool click_into_field(wxWindow& field)  // [UserActions.md#click-until-focused]
 {
     for (int attempt = 0; attempt < CLICK_ATTEMPTS; ++attempt) {
         if (!click_on(&field))
@@ -488,7 +489,7 @@ bool click_into_field(wxTextCtrl& field)  // [UserActions.md#click-until-focused
     return true;
 }
 
-bool typed_and_shown(wxTextCtrl& field, const wxString& wanted, const std::function<bool()>& type)  // [UserActions.md#retype-once]
+bool typed_and_shown(wxTextEntry& field, const wxString& wanted, const std::function<bool()>& type)  // [UserActions.md#retype-once]
 {
     if (!type())
         return false;
@@ -509,21 +510,28 @@ bool press_return(int modifiers)  // [UserActions.md#press_return]
 #endif
 }
 
+wxTextEntry* text_entry_of(wxWindow* field)  // [UserActions.md#text_entry_of]
+{
+    if (auto* text_ctrl = dynamic_cast<wxTextCtrl*>(field))
+        return text_ctrl;
+    return dynamic_cast<wxComboBox*>(field);
+}
+
 bool type_into(wxWindow* field, const wxString& text)
 {
-    wxTextCtrl* text_ctrl = dynamic_cast<wxTextCtrl*>(field);
-    if (text_ctrl == nullptr || !click_into_field(*text_ctrl))
+    wxTextEntry* entry = text_entry_of(field);
+    if (entry == nullptr || !click_into_field(*field))
         return false;
-    return typed_and_shown(*text_ctrl, text, [&text] { return type_text(text); });
+    return typed_and_shown(*entry, text, [&text] { return type_text(text); });
 }
 
 bool replace_text(wxWindow* field, const wxString& text)
 {
-    wxTextCtrl* text_ctrl = dynamic_cast<wxTextCtrl*>(field);
-    if (text_ctrl == nullptr || !click_into_field(*text_ctrl))
+    wxTextEntry* entry = text_entry_of(field);
+    if (entry == nullptr || !click_into_field(*field))
         return false;
-    text_ctrl->SelectAll();  // [UserActions.md#select-after-the-click]
-    return typed_and_shown(*text_ctrl, text, [&text] { return type_text(text); });
+    entry->SelectAll();  // [UserActions.md#select-after-the-click]
+    return typed_and_shown(*entry, text, [&text] { return type_text(text); });
 }
 
 bool replace_lines(wxWindow* field, const wxString& lines)  // [UserActions.md#replace_lines]

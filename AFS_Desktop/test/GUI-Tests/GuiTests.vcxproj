@@ -89,6 +89,7 @@
     <ClInclude Include="SettingsDialogDriver.h" />
     <ClInclude Include="SshAccountDialogDriver.h" />
     <ClInclude Include="SshTestServer.h" />
+    <ClInclude Include="UsbPhone.h" />
     <ClInclude Include="SyncActions.h" />
     <ClInclude Include="SyncItemDialogDriver.h" />
     <ClInclude Include="UserActions.h" />
@@ -227,6 +228,8 @@
     <ClCompile Include="LoggingTest.cpp" />
     <ClCompile Include="SshAccountsTest.cpp" />
     <ClCompile Include="PairDeviceTest.cpp" />
+    <ClCompile Include="UsbPhone.cpp" />
+    <ClCompile Include="UsbPhoneSyncTest.cpp" />
     <ClCompile Include="SshSyncTest.cpp" />
     <ClCompile Include="WindowAndHelpTest.cpp" />
     <ClCompile Include="ChatDialogTest.cpp" />

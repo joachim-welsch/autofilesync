@@ -68,6 +68,8 @@ set(TEST_SOURCES
     LoggingTest.cpp
     SshAccountsTest.cpp
     PairDeviceTest.cpp
+    UsbPhone.cpp
+    UsbPhoneSyncTest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../AFS_Core/test/Integrationstests/FakePhone.cpp
     SshSyncTest.cpp
     WindowAndHelpTest.cpp
@@ -80,7 +82,7 @@ set(TEST_SOURCES
 # the application's main() by the one of the test binary; see App.cpp.
 add_executable(GuiTests ${TEST_SOURCES} ${AFS_DESKTOP_SOURCES})
 afs_desktop_configure_target(GuiTests)
-target_compile_definitions(GuiTests PRIVATE _GUITEST)
+target_compile_definitions(GuiTests PRIVATE _GUITEST AFS_ANDROID_RES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../../AFS_Android/app/src/main/res")  # UsbPhone finds the app's button texts there [UsbPhone.md#translations_of]
 target_include_directories(GuiTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../../AFS_Core/test/Integrationstests)  # FakePhone, the test phone of the integration tests
 target_link_libraries(GuiTests PRIVATE GTest::GTest)
 # Only libX11 and libXtst - ${X11_LIBRARIES} would also pull in libSM/libICE,
