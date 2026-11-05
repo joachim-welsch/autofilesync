@@ -81,7 +81,7 @@ das Projekt (`doc/LICENSING.md`). Code-Stil und Ablauf stehen in `doc/CONTRIBUTI
 ## Unterstützung
 
 AutoFileSync ist und bleibt kostenlos. Wer die Entwicklung unterstützen möchte,
-kann per PayPal an `joachim.welsch@posteo.de` spenden. Eigene Erweiterungs- und
+kann per PayPal an `contact@welsch-software.com` spenden. Eigene Erweiterungs- und
 Anpassungswünsche werden gerne gegen Bezahlung umgesetzt; Anfragen an dieselbe
 Adresse.
 
