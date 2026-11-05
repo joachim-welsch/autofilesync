@@ -9,7 +9,8 @@ Einrichten, starten, vergessen.
 AutoFileSync ist freie Software unter der GNU General Public License,
 Version 3 oder neuer, und läuft unter Windows, macOS und Linux.
 
-Website, Quelltext und Fehlermeldungen: <https://welsch-software.com>
+Website: <https://welsch-software.com>
+Quelltext und Fehlermeldungen: <https://github.com/joachim-welsch/autofilesync>
 
 ## Funktionen
 
@@ -73,8 +74,8 @@ Oberfläche; Einzelheiten in `doc/BUILD.md`.
 
 ## Mitmachen
 
-Fehlerberichte und Wünsche gehen über <https://welsch-software.com>,
-Änderungen kommen als Patch. Beiträge stehen unter derselben Lizenz wie
+Fehlerberichte und Wünsche gehen als Issue an
+<https://github.com/joachim-welsch/autofilesync/issues>, Änderungen kommen als Pull Request. Beiträge stehen unter derselben Lizenz wie
 das Projekt (`doc/LICENSING.md`). Code-Stil und Ablauf stehen in `doc/CONTRIBUTING.md`.
 
 ## Unterstützung

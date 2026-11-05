@@ -1,8 +1,8 @@
 # Mitmachen bei AutoFileSync
 
 Fehlerberichte, Wünsche und Änderungen sind willkommen. Alles läuft über
-<https://welsch-software.com>: Fehler und Wünsche als Nachricht,
-Änderungen als Patch gegen den aktuellen Quelltext.
+GitHub: Fehler und Wünsche als Issue unter <https://github.com/joachim-welsch/autofilesync/issues>,
+Änderungen als Pull Request gegen `master`.
 
 ## Lizenz der Beiträge
 
@@ -66,8 +66,8 @@ ohne Dokumentation herausfinden.
 
 ---
 
-*English summary: contributions are welcome as reports and patches via
-<https://welsch-software.com> and are licensed under the GNU GPL v3 or later by submission. Code is
+*English summary: contributions are welcome as issues and pull requests on
+<https://github.com/joachim-welsch/autofilesync> and are licensed under the GNU GPL v3 or later by submission. Code is
 modern C++20 following the C++ Core Guidelines: `PascalCase` types,
 `snake_case` members and functions with a trailing underscore for member
 variables, compact code, small single-purpose functions, English comments
