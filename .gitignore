@@ -1,39 +1,64 @@
-0.*
-temp.txt
-autofilesync
-/.vs
-*.vcxproj.user
-AFS_Core/test/Integrationstests/.vs
-AFS_Core/test/Integrationstests/Integrat.*
-AFS_Core/test/Integrationstests/x64
-AFS_Core/test/Integrationstests/packages
-packages
-build
-xcode
-CMakeLists.txt.user.*
+# Build output
+build/
+/autofilesync
 /Debug
 /Release
-/*.user
+x64/
 /vc_mswud_x64
+/xcode
 /test/test
-/*.aps
-*~
-x64
-vcpkg_installed
-/#!#
-Directory.Build.props
-/AFS_Desktop/help/help.htb
-/AFS_Desktop/help/*/help.htb
-/AFS_Desktop/bitmaps/delete-old.bmp
-/AFS_Core/test/Integrationstests/*.bak
-/AFS_Core/test/Integrationstests/Integrationstests_backup.vcxproj
-/AFS_Desktop/test/GUI-Tests/nuget.exe
-/AFS_Desktop/test/GUI-Tests/.wix/extensions/WixToolset.UI.wixext/5.0.2/wixext5/*.dll
-.cache
-# Python bytecode from the icon generator
-__pycache__/
+.cache/
+compile_commands.json
+CMakeUserPresets.json
+CMakeLists.txt.user*
 
-# Finder metadata, written whenever a folder is opened in the Finder
+# Generated help books
+/AFS_Desktop/help/**/help.htb
+
+# Release staging and packages
+/0.*/
+*.deb
+*.dmg
+*.msi
+*.apk
+*.aab
+
+# Dependencies fetched by vcpkg, NuGet and WiX
+vcpkg_installed/
+packages/
+/AFS_Desktop/test/GUI-Tests/nuget.exe
+/AFS_Desktop/test/GUI-Tests/.wix/
+
+# Visual Studio and other IDEs
+.vs/
+*.user
+*.aps
+Directory.Build.props
+.idea/
+
+# Keys, signing data and machine-specific settings
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+keystore.properties
+local.properties
+.env
+
+# Leftovers of editors, tools and the operating system
+*~
+*.bak
+*.swp
+__pycache__/
 .DS_Store
-Internet/
-demo-recording/
+Thumbs.db
+desktop.ini
+/AFS_Desktop/bitmaps/delete-old.bmp
+/AFS_Core/test/Integrationstests/Integrat.*
+/AFS_Core/test/Integrationstests/Integrationstests_backup.vcxproj
+
+# Kept outside the repository
+/Internet/
+/demo-recording/
