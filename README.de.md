@@ -1,6 +1,6 @@
 # AutoFileSync
 
-[English](README.md) | **Deutsch**
+[English](README.md) | **Deutsch** | [Español](README.es.md) | [Français](README.fr.md) | [Italiano](README.it.md) | [Polski](README.pl.md) | [Українська](README.uk.md)
 
 AutoFileSync hält Dateien an zwei Orten auf demselben Stand: eine einzelne
 Datei, ein Verzeichnis oder ein ganzer Verzeichnisbaum. Ein Ort kann ein

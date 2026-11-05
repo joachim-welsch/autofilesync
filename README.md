@@ -1,6 +1,6 @@
 # AutoFileSync
 
-**English** | [Deutsch](README.de.md)
+**English** | [Deutsch](README.de.md) | [Español](README.es.md) | [Français](README.fr.md) | [Italiano](README.it.md) | [Polski](README.pl.md) | [Українська](README.uk.md)
 
 AutoFileSync keeps files in two places in sync: a single file, a directory or
 a whole directory tree. Each place can be a directory on your own computer, a
