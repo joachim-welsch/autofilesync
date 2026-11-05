@@ -1,55 +1,57 @@
 # AutoFileSync
 
-AutoFileSync hält Dateien an zwei Orten auf demselben Stand: eine einzelne
-Datei, ein Verzeichnis oder ein ganzer Verzeichnisbaum. Ein Ort kann ein
-Verzeichnis auf dem eigenen Rechner sein, ein Netzlaufwerk, ein USB-Datenträger,
-ein Rechner, der über SSH erreichbar ist, oder ein Android-Handy.
-Einrichten, starten, vergessen.
+**English** | [Deutsch](README.de.md)
 
-AutoFileSync ist freie Software unter der GNU General Public License,
-Version 3 oder neuer, und läuft unter Windows, macOS und Linux.
+AutoFileSync keeps files in two places in sync: a single file, a directory or
+a whole directory tree. Each place can be a directory on your own computer, a
+network drive, a USB drive, a computer reachable over SSH or an Android phone.
+Set it up, start it, forget it.
+
+AutoFileSync is free software under the GNU General Public License, version 3
+or later, and runs on Windows, macOS and Linux.
 
 Website: <https://welsch-software.com>
-Quelltext und Fehlermeldungen: <https://github.com/joachim-welsch/autofilesync>
+Source code and bug reports: <https://github.com/joachim-welsch/autofilesync>
 
-## Funktionen
+## Features
 
-- Synchronisation von Dateien, Verzeichnissen und Verzeichnisbäumen, mit
-  Platzhaltern zum Eingrenzen.
-- Vergleich nach Datum, Größe oder Inhalt; Verschieben statt Kopieren;
-  wählbarer Umgang mit gelöschten und neueren Zieldateien.
-- Zwei-Wege-Synchronisation, die sich den letzten Stand merkt: Löschungen und
-  Umbenennungen werden übernommen, auf beiden Seiten geänderte Dateien bleiben
-  als Konfliktkopie erhalten.
-- Vorschau, die zeigt, was ein Lauf tun würde, bevor sich etwas ändert.
-- Nichts geht verloren: Generationenprinzip für ältere Stände, Papierkorb für
-  Löschungen, ein abgezogenes Laufwerk wird nie als „alles gelöscht“ gedeutet,
-  und Massenlöschungen werden erst nach Bestätigung in der Vorschau ausgeführt.
-- Quelle oder Ziel über SSH auf einem NAS, Server oder Rechner im Heimnetz;
-  Passwörter werden verschlüsselt abgelegt.
-- Android-Handys werden per QR-Code verbunden; Vorlagen sichern Fotos auf dem
-  PC, halten Ordner gleich oder bringen Musik aufs Handy. Die App
-  (`AFS_Android/`) synchronisiert im Hintergrund, wahlweise nur im WLAN und
-  beim Laden.
-- Änderungen werden sofort übernommen: lokale Verzeichnisse werden beobachtet,
-  statt nur in festen Abständen geprüft.
-- Hintergrunddienst, der mit derselben Konfiguration synchronisiert, auch ohne
-  angemeldeten Benutzer.
-- Eingebauter Assistent, der Fragen zur Bedienung mit der Hilfe beantwortet,
-  erklärt, warum ein Ziel nicht aktuell ist, und passende Befehle vorschlägt.
-- Protokoll mit wählbarer Stufe, E-Mail-Benachrichtigung bei schweren Fehlern
-  und ein Sicherungsnachweis im JSON-Format.
-- Oberfläche und Hilfe auf Deutsch, Englisch, Spanisch, Französisch, Italienisch,
-  Polnisch und Ukrainisch; die Sprache lässt sich in den Einstellungen wählen.
+- Synchronisation of files, directories and directory trees, narrowed down
+  with wildcards.
+- Comparison by date, size or content; move instead of copy; configurable
+  handling of deleted files and of newer files in the target.
+- Two-way sync that remembers the last state: deletions and renames are
+  carried over, and files changed on both sides are kept as conflict copies.
+- A preview that shows what a run would do before anything changes.
+- Nothing gets lost: generations keep older versions, deletions go to the
+  trash, a disconnected drive is never taken for "everything deleted", and
+  mass deletions only run after they have been confirmed in the preview.
+- Source or target over SSH on a NAS, a server or a computer in your home
+  network; passwords are stored encrypted.
+- Android phones are paired with a QR code; templates back up photos to the
+  PC, keep a folder in sync or put music on the phone. The app
+  (`AFS_Android/`) syncs in the background, optionally only on Wi-Fi and while
+  charging.
+- Changes are picked up at once: local directories are watched instead of
+  only being checked at fixed intervals.
+- A background service that syncs with the same configuration, even when no
+  user is logged in.
+- A built-in assistant that answers questions about the program from the
+  help, explains why a target is not up to date and suggests matching
+  commands.
+- A log with selectable level, e-mail notification on serious errors and a
+  backup report in JSON format.
+- User interface and help in English, German, Spanish, French, Italian,
+  Polish and Ukrainian; the language can be chosen in the settings.
 
 ## Installation
 
-Fertige Pakete für Windows, macOS und Linux stehen auf
-<https://welsch-software.com> bereit. Wer selbst baut, findet den Weg in `doc/BUILD.md`, die vollständige
-Einrichtung samt Hintergrunddienst in `doc/INSTALL-Linux.md` und
-`doc/INSTALL-macOS.md`.
+Ready-made packages for Windows, macOS and Linux are available at
+<https://welsch-software.com>. To build it yourself, see `doc/BUILD.md`; the
+complete setup including the background service is described in
+`doc/INSTALL-Linux.md` and `doc/INSTALL-macOS.md` (these documents are in
+German).
 
-Kurzfassung für Linux:
+Quick start on Linux:
 
 ```bash
 sudo apt install build-essential cmake git pkg-config libwxgtk3.2-dev \
@@ -58,46 +60,37 @@ scripts/build.sh
 scripts/run_autofilesync.sh
 ```
 
-## Aufbau
+## Structure
 
-| Verzeichnis | Inhalt |
+| Directory | Contents |
 |---|---|
-| `AFS_Core/` | Synchronisationskern als statische Bibliothek, ohne Oberfläche |
-| `AFS_Desktop/` | Programm mit wxWidgets-Oberfläche, Hilfe und Installer-Vorlagen |
-| `backgroundsync/` | Hintergrunddienst für Linux, macOS und Windows |
-| `AFS_Android/` | Android-App (Kotlin), Bauanleitung in `AFS_Android/README.md` |
-| `po/` | Sprachkataloge |
-| `third-party/` | Lizenztexte der verwendeten Bibliotheken |
+| `AFS_Core/` | Synchronisation engine as a static library, without user interface |
+| `AFS_Desktop/` | Program with wxWidgets user interface, help and installer templates |
+| `backgroundsync/` | Background service for Linux, macOS and Windows |
+| `AFS_Android/` | Android app (Kotlin), build instructions in `AFS_Android/README.md` |
+| `po/` | Translation catalogues |
+| `third-party/` | Licence texts of the libraries used |
 
-Tests: `scripts/run_Integrationtests.sh` für den Kern, `scripts/run_GUI_Tests.sh` für die
-Oberfläche; Einzelheiten in `doc/BUILD.md`.
+Tests: `scripts/run_Integrationtests.sh` for the engine,
+`scripts/run_GUI_Tests.sh` for the user interface; details in `doc/BUILD.md`.
 
-## Mitmachen
+## Contributing
 
-Fehlerberichte und Wünsche gehen als Issue an
-<https://github.com/joachim-welsch/autofilesync/issues>, Änderungen kommen als Pull Request. Beiträge stehen unter derselben Lizenz wie
-das Projekt (`doc/LICENSING.md`). Code-Stil und Ablauf stehen in `doc/CONTRIBUTING.md`.
+Bug reports and feature requests go to
+<https://github.com/joachim-welsch/autofilesync/issues>, changes come as pull
+requests. Contributions are licensed under the same licence as the project
+(`doc/LICENSING.md`). Code style and workflow are described in
+`doc/CONTRIBUTING.md`.
 
-## Unterstützung
+## Support
 
-AutoFileSync ist und bleibt kostenlos. Wer die Entwicklung unterstützen möchte,
-kann per PayPal an `joachim.welsch@posteo.de` spenden. Eigene Erweiterungs- und
-Anpassungswünsche werden gerne gegen Bezahlung umgesetzt; Anfragen an
-`contact@welsch-software.com`.
+AutoFileSync is and remains free of charge. If you would like to support its
+development, you can donate via PayPal to `joachim.welsch@posteo.de`. Custom
+extensions and adaptations are gladly implemented for a fee; please send
+enquiries to `contact@welsch-software.com`.
 
-## Lizenz
+## License
 
-GNU General Public License v3 oder neuer, siehe `LICENSE` und `doc/LICENSING.md`.
-Copyright © 2026 Joachim Welsch. Komponenten Dritter und ihre Lizenzen stehen
-in `doc/THIRD-PARTY-NOTICES.md`.
-
----
-
-*English: AutoFileSync keeps files, directories and whole directory trees in
-sync between two places: local folders, USB and network drives, computers
-reachable over SSH and Android phones, on Windows, macOS and Linux. It offers
-one-way and two-way sync with conflict copies, a preview before each run,
-generations of older versions, protection against mass deletions and a
-background service. It is free software under the GNU GPL v3 or later. Build
-instructions are in `doc/BUILD.md`; the user interface and help are available in
-English.*
+GNU General Public License v3 or later, see `LICENSE` and `doc/LICENSING.md`.
+Copyright © 2026 Joachim Welsch. Third-party components and their licences
+are listed in `doc/THIRD-PARTY-NOTICES.md`.
