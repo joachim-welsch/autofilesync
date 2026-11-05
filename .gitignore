@@ -58,7 +58,3 @@ desktop.ini
 /AFS_Desktop/bitmaps/delete-old.bmp
 /AFS_Core/test/Integrationstests/Integrat.*
 /AFS_Core/test/Integrationstests/Integrationstests_backup.vcxproj
-
-# Kept outside the repository
-/Internet/
-/demo-recording/
