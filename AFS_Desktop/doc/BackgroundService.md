@@ -48,6 +48,15 @@ exit code can be read.
 sc.exe passes the error of the control it forwarded on as its exit code, so 1069 here is the
 SCM's "logon failed" for the service account.
 
+## start-pending
+
+A service reports START_PENDING until the daemon has loaded the configuration and accepts no
+control before then: a Stop right after a Start would fail with "cannot accept control" (1061),
+an error the user did nothing wrong for. The control therefore waits for that short phase to
+pass. STOP_PENDING is not waited for: it lasts until the running synchronisation pass has
+reached its next item, which can take long, and a Start during it fails with a message that
+says the service is still running - the right answer in that case.
+
 ## with_service
 
 Opened with the least access that still allows the requested control, so that a member of the
@@ -72,7 +81,8 @@ The exit code of sc.exe after the UAC detour ends up here as well.
 ## query_state-access
 
 SERVICE_QUERY_STATUS is granted to every user, so the state is available without the
-administrator rights that starting and stopping require.
+administrator rights that starting and stopping require; adding it to the access of a start or
+stop therefore cannot be what makes them fail.
 
 ## LAUNCH_AGENT_LABEL
 

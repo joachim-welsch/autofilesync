@@ -47,6 +47,7 @@ constexpr wchar_t SERVICE_NAME[] = L"backgroundsync";  // [BackgroundService.md#
 
 #ifdef WIN32
 constexpr DWORD ELEVATION_TIMEOUT = 30000;  // [BackgroundService.md#ELEVATION_TIMEOUT]
+constexpr DWORD START_PENDING_TIMEOUT = 10000, START_PENDING_POLL = 100;  // [BackgroundService.md#start-pending]
 
 class ScHandle {  // CloseServiceHandle is not CloseHandle, so util::AutoHandle does not fit
     SC_HANDLE handle_;
@@ -119,14 +120,25 @@ wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundServi
     return failure(action, exit_code);
 }
 
+void wait_while_starting(SC_HANDLE service)  // [BackgroundService.md#start-pending]
+{
+    SERVICE_STATUS status{};
+    for (DWORD waited = 0; waited < START_PENDING_TIMEOUT; waited += START_PENDING_POLL) {
+        if (!QueryServiceStatus(service, &status) || status.dwCurrentState != SERVICE_START_PENDING)
+            return;
+        Sleep(START_PENDING_POLL);
+    }
+}
+
 wstring with_service(DWORD access, const wstring& verb, const wstring& action, bool (*control)(SC_HANDLE))  // [BackgroundService.md#with_service]
 {
     ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
     if (manager == nullptr)
         return failure(action, GetLastError());
-    ScHandle service(OpenServiceW(manager, SERVICE_NAME, access));
+    ScHandle service(OpenServiceW(manager, SERVICE_NAME, access | SERVICE_QUERY_STATUS));
     if (service == nullptr)
         return GetLastError() == ERROR_ACCESS_DENIED ? elevate(verb, action) : failure(action, GetLastError());
+    wait_while_starting(service);
     if (control(service))
         return L"";
     return GetLastError() == ERROR_ACCESS_DENIED ? elevate(verb, action) : failure(action, GetLastError());

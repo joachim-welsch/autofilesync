@@ -47,6 +47,13 @@ void open_menu(wxFrame& frame, wxMenu* menu)  // [BackgroundServiceMenuTest.md#o
     frame.GetEventHandler()->ProcessEvent(opening);
 }
 
+constexpr int SWITCH_TIMEOUT_MILLISECONDS = 60000;  // [BackgroundServiceMenuTest.md#switched_to]
+
+bool switched_to(BackgroundService::State expected)  // [BackgroundServiceMenuTest.md#switched_to]
+{
+    return wait_until([expected] { return BackgroundService::state() == expected; }, SWITCH_TIMEOUT_MILLISECONDS);
+}
+
 }
 
 TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)  // [BackgroundServiceMenuTest.md#HintergrunddienstmenueZeigtObDerDienstLaeuft]
@@ -98,12 +105,10 @@ TEST_F(GuiTest, HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStar
     const bool was_running = BackgroundService::state() == State::Running;
 
     activate_menu_item(main_window(), tul(was_running ? id::BackgroundServiceStop : id::BackgroundServiceStart));
-    pump();
-    EXPECT_EQ(BackgroundService::state(), was_running ? State::Stopped : State::Running) << "Der erste Befehl hat den Dienst nicht umgeschaltet.";
+    EXPECT_TRUE(switched_to(was_running ? State::Stopped : State::Running)) << "Der erste Befehl hat den Dienst nicht umgeschaltet.";
 
     activate_menu_item(main_window(), tul(was_running ? id::BackgroundServiceStart : id::BackgroundServiceStop));
-    pump();
-    EXPECT_EQ(BackgroundService::state(), was_running ? State::Running : State::Stopped) << "Der zweite Befehl hat den Dienst nicht zurückgeschaltet.";
+    EXPECT_TRUE(switched_to(was_running ? State::Running : State::Stopped)) << "Der zweite Befehl hat den Dienst nicht zurückgeschaltet.";
     EXPECT_TRUE(ModalDialogWatcher::instance().answered_messages().empty()) << "Start oder Stopp zeigten eine Meldung.";
 }
 

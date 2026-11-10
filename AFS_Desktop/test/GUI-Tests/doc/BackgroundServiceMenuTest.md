@@ -36,6 +36,14 @@ the undeterminable state that leads to it.
 The state line carries the answer where neither command does: a service that is not installed
 offers neither of them.
 
+## switched_to
+
+Start and Stop return once the service manager has accepted the command, not once the service
+has arrived in the new state: a stop ends the running synchronisation pass at its next item
+first (WindowsService.md#STOP_WAIT_HINT), which took several seconds on the real configuration
+of the development PC, and both pending states count as running. The check therefore waits
+for the state, with a timeout generous enough for a pass that is in the middle of a large file.
+
 ## HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten
 
 The installer lets the service user start and stop the service without a password: polkit rule
