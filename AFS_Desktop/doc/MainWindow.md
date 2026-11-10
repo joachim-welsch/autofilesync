@@ -260,3 +260,20 @@ after either changed it, like the SSH accounts. The device link (DeviceLink.md) 
 start-up only when a phone is paired already - a PC that never paired one keeps no port
 open - and the pairing dialog starts it on demand. It is stopped first in the destructor,
 because its thread reads the configuration the window is about to let go.
+
+## renew_service_password
+
+A background service that cannot log on has an outdated password of its account, usually after
+the user changed their Windows password (BackgroundService.md#logon-failure). Naming the cause
+leaves the user with the services console to find their way through, so the start asks for the
+current password, sets it and tries again - for as long as the logon keeps failing and the
+user keeps answering, since a typing error only shows at the next start. After Cancel, or when
+the password could not be set, nothing more is reported: the dialog said what is wrong, and a
+failed setting has shown its own message.
+
+## set_run_entry
+
+The command is written in quotes and with its terminating zero. Unquoted, a path with a blank
+in it - "C:\Program Files\..." - is ambiguous to Windows, which tries "C:\Program.exe" first;
+without the zero the value is not a valid string. The path comes from wxStandardPaths, which
+has no length limit. Deleting an entry that is not there counts as done.

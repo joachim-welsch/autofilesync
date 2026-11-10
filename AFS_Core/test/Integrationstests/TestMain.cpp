@@ -21,6 +21,7 @@
 #include "TestPaths.h"
 #include "FileUtil.h"
 #include "SshTest.h"
+#include "SshHostKeyVerification.h"
 #include <cstdlib>
 #include <filesystem>
 #include <set>
@@ -138,6 +139,7 @@ public:
 int run_tests(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
+    AFS_Core::on_unknown_host_key([](const std::string&, const std::string&) { return true; });  // [TestMain.md#unknown-host-keys]
     const fs::path temp_dir = fs::temp_directory_path();
     ::testing::AddGlobalTestEnvironment(new ScratchLogEnvironment(temp_dir / "autofilesync_integrationtests.log"));
     ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();

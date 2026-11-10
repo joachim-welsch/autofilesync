@@ -58,3 +58,8 @@ libvirt bridge without a client is administratively up but has no carrier. IPv6 
 network reaches the PC over IPv4, and link-local IPv6 addresses need a scope the phone cannot
 know. Written for Windows against the documented API without a compiler at hand, like the
 watcher backends (ChangeWatcher.md#Backend).
+
+## random_hex
+
+Empty when the random generator fails: the buffer would hold zeros, and a token of zeros is one
+anybody can guess. Without a token no pairing is opened.

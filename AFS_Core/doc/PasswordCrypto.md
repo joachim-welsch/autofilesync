@@ -7,7 +7,9 @@ Module comment for PasswordCrypto.h / PasswordCrypto.cpp.
 Encrypts secrets (SSH passwords) at rest so they no longer sit in plaintext inside the JSON
 config file - protects against casual disclosure (support files, backups, accidental paste of
 the config) but not against an attacker with full read access to the user account, since the key
-lives next to the config in a file only readable by the owner.
+lives next to the config in a file only readable by the owner. On Windows the key file is sealed
+for the user in addition (SecretBlob.md#secretblob), so that a copy of the directory does not
+carry a usable key.
 
 ## is_encrypted
 
@@ -41,3 +43,20 @@ succeeding, which is why that failure is logged.
 
 O_EXCL makes the file owner-only (mode 0600) from the moment it exists, avoiding the window a
 separate chmod() call after creation would leave.
+
+## unusable-key
+
+A key file that exists but cannot be read - locked by another program for a moment, sealed for
+another user, damaged - is not a missing one. Generating a new key in its place would overwrite
+the only key that opens the stored passwords. The call fails instead and is not cached, so the
+next one tries again; only a file that is absent or empty leads to a new key.
+
+## no-key-without-randomness
+
+When the random generator fails the buffers still hold zeros. A key or nonce of zeros would look
+like working encryption and protect nothing, so nothing is encrypted with them.
+
+## key-file-replaced-whole
+
+Written beside the key file and renamed over it: a crash in between leaves either the old key
+or the new one, never a truncated file that the next start could not read.

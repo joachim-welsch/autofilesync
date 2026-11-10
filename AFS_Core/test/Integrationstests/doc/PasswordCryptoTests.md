@@ -5,9 +5,23 @@ Module comment for PasswordCryptoTests.cpp.
 ## windows-has-no-posix-bits
 
 Windows has no POSIX permission bits: std::filesystem synthesises them and always reports full
-access for group and others, regardless of the actual ACL. The assertion is therefore not
-verifiable here - and passwordcrypto sets no restricting ACL on Windows either, the key file
-merely lives in the user profile.
+access for group and others, regardless of the actual ACL. There the protection is the seal of
+SecretBlob.md#secretblob, so the test checks that the file does not hold the raw key and that
+its content is sealed.
+
+## UnreadableKeyFileIsNotReplaced
+
+A key file with content that is no key stands for every file that is there but cannot be used.
+The old code generated a new key over it, which made every stored password undecryptable for
+good. Nothing may be encrypted, the file must stay as it is, and - second test - the failure
+must not stick once the file is readable again, because a file locked by a virus scanner is
+readable a moment later.
+
+## KeyFileOfAnOlderVersionKeepsItsKey
+
+A raw 32-byte file is what versions before the seal wrote. It must keep working and carry the
+same key afterwards, or an update would cost every stored password; on Windows it is sealed in
+passing, on the other platforms outdated() is never true.
 
 ## decrypt-after-reload
 

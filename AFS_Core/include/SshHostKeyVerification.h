@@ -18,6 +18,7 @@
  */
 #pragma once
 
+#include <functional>
 #include <string>
 
 #ifdef _UNIX
@@ -29,6 +30,9 @@
 #endif
 
 namespace AFS_Core {
+
+using UnknownHostKeyDecision = std::function<bool(const std::string& host, const std::string& fingerprint)>;
+void on_unknown_host_key(UnknownHostKeyDecision decision);  // [SshHostKeyVerification.md#unknown-host-key]
 
 #ifdef _UNIX
 bool verify_ssh_host_key(ssh_session session, const std::string& host);  // [SshHostKeyVerification.md#verify_ssh_host_key]

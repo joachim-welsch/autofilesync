@@ -17,7 +17,8 @@ whatever the other process is doing.
 
 ## active_event_
 
-A HANDLE to the Global\ event announcing that this side synchronises. It is deliberately kept as
+A HANDLE to the event announcing that this side synchronises; it lives in the user's private
+namespace (UserObject.md#userobject). It is deliberately kept as
 a plain pointer so that no Windows header leaks into everything that synchronises.
 
 ## per-user-lock-path

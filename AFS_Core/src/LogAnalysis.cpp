@@ -20,6 +20,7 @@
 #include "LogAnalysis.h"
 #include <algorithm>
 #include <cwctype>
+#include <filesystem>
 #include <fstream>
 #include <Logging.h>
 #include "Translation.h"
@@ -35,7 +36,7 @@ using util::wstring_to_string;
 std::wstring read_recent_log_entries(std::size_t max_chars)
 {
     const std::wstring path = Logging::instance().get_log_file_path_name();
-    std::ifstream is(wstring_to_string(path), std::ios::in | std::ios::binary);
+    std::ifstream is(std::filesystem::path(path), std::ios::in | std::ios::binary);  // [Logging.md#wide-file-names]
     if (!is.is_open())
         return {};
     is.seekg(0, std::ios::end);

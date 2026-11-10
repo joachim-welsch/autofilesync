@@ -43,6 +43,19 @@ everything it ran into afterwards - a failed logon of the service account, for o
 invisible and the start looked successful. SEE_MASK_NOCLOSEPROCESS keeps the handle so that its
 exit code can be read.
 
+## sc_path
+
+sc.exe is named with its full path in the system directory. A bare name is looked up in the
+working directory first, and since the command runs with administrator rights after the UAC
+prompt, a file of that name lying wherever the program happened to be started from would run
+elevated in its place.
+
+## quoted
+
+The password travels to sc.exe on its command line and may contain anything. The rules are
+those of the C runtime's argument parser: a quote is escaped with a backslash, and backslashes
+count as themselves unless a quote follows, in which case each of them is doubled.
+
 ## sc-exit-code
 
 sc.exe passes the error of the control it forwarded on as its exit code, so 1069 here is the
@@ -152,3 +165,17 @@ polkit's password prompt.
 "is-active" cannot distinguish from a stopped service. wxEXEC_NOEVENTS keeps this out of a
 nested event loop: the query runs while the menu is opening, where re-entrant event dispatch
 would be unsafe.
+
+## logon_failed
+
+Whether the last command failed because Windows could not log the service account on. The
+menu command reads it to offer the way out - asking for the current password - rather than
+only naming the cause. The value belongs to the last start, stop or set_password and is used
+from the GUI thread only.
+
+## set_password
+
+Hands the service the current password of its account (logon-failure above explains why it
+goes stale). Changing the service configuration needs administrator rights, so this always goes
+through the UAC prompt. Whether the password is right only shows at the next start: the service
+manager stores it unchecked.

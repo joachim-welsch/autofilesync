@@ -363,7 +363,9 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
     static void release(Watch& watch)
     {
         if (watch.dir != INVALID_HANDLE_VALUE) {
-            CancelIo(watch.dir);
+            DWORD ignored = 0;
+            if (CancelIoEx(watch.dir, &watch.overlapped) || GetLastError() != ERROR_NOT_FOUND)
+                GetOverlappedResult(watch.dir, &watch.overlapped, &ignored, TRUE);  // [ChangeWatcher.md#cancel-before-free]
             CloseHandle(watch.dir);
             watch.dir = INVALID_HANDLE_VALUE;
         }

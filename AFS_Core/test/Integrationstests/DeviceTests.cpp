@@ -131,6 +131,10 @@ TEST_F(DeviceLinkTest, IdentityIsCreatedOnceAndReloaded)  // [DeviceTests.md#ide
 #ifndef _WIN32
     const auto permissions = fs::status(dir_ / "pc" / "device.key").permissions();
     EXPECT_EQ(permissions & (fs::perms::group_all | fs::perms::others_all), fs::perms::none) << "The private key must be readable by the owner only.";
+#else
+    std::ifstream key_file(dir_ / "pc" / "device.key", std::ios::binary);
+    const std::string stored{std::istreambuf_iterator<char>(key_file), std::istreambuf_iterator<char>()};
+    EXPECT_EQ(stored.find("PRIVATE KEY"), std::string::npos) << "The private key must be sealed for the user, not stored as PEM text.";
 #endif
 }
 

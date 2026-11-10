@@ -135,6 +135,15 @@
     <ClInclude Include="..\..\..\AFS_Core\include\PasswordCrypto.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SecretBlob.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\UserObject.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\HostConnect.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\Device.h">
       <Filter>AFS_Core</Filter>
     </ClInclude>
@@ -232,6 +241,9 @@
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\BackgroundService.h">
+      <Filter>AFS_Desktop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\HostKeyPrompt.h">
       <Filter>AFS_Desktop\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\Canvas.h">
@@ -518,6 +530,15 @@
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SecretBlob.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\UserObject.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\HostConnect.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\Device.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
@@ -606,6 +627,9 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\BackgroundService.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\HostKeyPrompt.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\Canvas.cpp">

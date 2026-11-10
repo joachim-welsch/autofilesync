@@ -19,11 +19,14 @@
 #include "pch.h"
 #include "PasswordCrypto.h"
 #include "Logging.h"
+#include "SecretBlob.h"
 #include "Translation.h"
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <algorithm>
 #include <fstream>
 #include <array>
+#include <iterator>
 #include <vector>
 #include <map>
 #include <mutex>
@@ -47,44 +50,72 @@ constexpr size_t KEY_LEN = 32;
 constexpr size_t NONCE_LEN = 12;
 constexpr size_t TAG_LEN = 16;
 
-std::mutex key_cache_mutex;  // [PasswordCrypto.md#key-cache]
-std::map<std::filesystem::path, std::array<unsigned char, KEY_LEN>> key_cache;
+using Key = std::array<unsigned char, KEY_LEN>;
+enum class Stored { Missing, Unusable, Outdated, Current };
 
-std::array<unsigned char, KEY_LEN> load_or_create_key(const std::filesystem::path& key_file)
+std::mutex key_cache_mutex;  // [PasswordCrypto.md#key-cache]
+std::map<std::filesystem::path, Key> key_cache;
+
+Stored read_key(const std::filesystem::path& key_file, Key& key)  // [PasswordCrypto.md#unusable-key]
+{
+    std::error_code ec;
+    const bool exists = std::filesystem::exists(key_file, ec);
+    if (ec)
+        return Stored::Unusable;
+    if (!exists || std::filesystem::file_size(key_file, ec) == 0)
+        return Stored::Missing;
+    std::ifstream in(key_file, std::ios::binary);
+    const std::string stored{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
+    const auto plain = secretblob::unprotect(stored);
+    if (!plain || plain->size() != KEY_LEN)
+        return Stored::Unusable;
+    std::copy(plain->begin(), plain->end(), key.begin());
+    return secretblob::outdated(stored) ? Stored::Outdated : Stored::Current;
+}
+
+bool persist(const std::filesystem::path& key_file, const Key& key)
+{
+    const auto stored = secretblob::protect(std::string(key.begin(), key.end()));
+    if (!stored)
+        return false;
+#ifdef _WIN32
+    const std::filesystem::path temporary = key_file.wstring() + L".tmp";  // [PasswordCrypto.md#key-file-replaced-whole]
+    std::ofstream out(temporary, std::ios::binary | std::ios::trunc);
+    out.write(stored->data(), static_cast<std::streamsize>(stored->size()));
+    out.close();
+    std::error_code ec;
+    if (out)
+        std::filesystem::rename(temporary, key_file, ec);
+    return out && !ec;
+#else
+    int fd = open(key_file.string().c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);  // [PasswordCrypto.md#key-file-permissions]
+    if (fd < 0)
+        return false;
+    const bool written = write(fd, stored->data(), stored->size()) == static_cast<ssize_t>(stored->size());
+    close(fd);
+    return written;
+#endif
+}
+
+std::optional<Key> load_or_create_key(const std::filesystem::path& key_file)
 {
     std::lock_guard<std::mutex> cache_lock(key_cache_mutex);
     if (auto cached = key_cache.find(key_file); cached != key_cache.end())
         return cached->second;
-
-    std::array<unsigned char, KEY_LEN> key{};
-    std::ifstream in(key_file, std::ios::binary);
-    if (in && in.read(reinterpret_cast<char*>(key.data()), key.size()) && in.gcount() == static_cast<std::streamsize>(key.size())) {
-        key_cache.emplace(key_file, key);
-        return key;
+    Key key{};
+    const Stored stored = read_key(key_file, key);
+    if (stored == Stored::Unusable) {
+        log_error(translation::translate("crypto_key_unreadable"), key_file.wstring());
+        return std::nullopt;
     }
-
-    if (RAND_bytes(key.data(), static_cast<int>(key.size())) != 1)
+    if (stored == Stored::Missing && RAND_bytes(key.data(), static_cast<int>(key.size())) != 1) {  // [PasswordCrypto.md#no-key-without-randomness]
         log_error(translation::translate("crypto_key_generation_failed"));
+        return std::nullopt;
+    }
     std::error_code ec;
     std::filesystem::create_directories(key_file.parent_path(), ec);
-
-    bool persisted = false;
-#ifdef _WIN32
-    std::ofstream out(key_file, std::ios::binary | std::ios::trunc);
-    if (out) {
-        out.write(reinterpret_cast<const char*>(key.data()), key.size());
-        persisted = static_cast<bool>(out);
-    }
-#else
-    int fd = open(key_file.string().c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);  // [PasswordCrypto.md#key-file-permissions]
-    if (fd >= 0) {
-        persisted = write(fd, key.data(), key.size()) == static_cast<ssize_t>(key.size());
-        close(fd);
-    }
-#endif
-    if (!persisted)
+    if (stored != Stored::Current && !persist(key_file, key))
         log_error(translation::translate("crypto_key_not_storable"), key_file.wstring());
-
     key_cache.emplace(key_file, key);
     return key;
 }
@@ -115,9 +146,12 @@ std::vector<unsigned char> from_base64(const std::string& text)
 
 std::string encrypt(const std::string& plaintext, const std::filesystem::path& key_file)
 {
-    auto key = load_or_create_key(key_file);
+    const auto key = load_or_create_key(key_file);
     std::array<unsigned char, NONCE_LEN> nonce{};
-    RAND_bytes(nonce.data(), static_cast<int>(nonce.size()));
+    if (!key || RAND_bytes(nonce.data(), static_cast<int>(nonce.size())) != 1) {  // [PasswordCrypto.md#no-key-without-randomness]
+        log_error(translation::translate("crypto_encryption_unavailable"));
+        return {};
+    }
 
     std::vector<unsigned char> ciphertext(plaintext.size());
     std::array<unsigned char, TAG_LEN> tag{};
@@ -130,7 +164,7 @@ std::string encrypt(const std::string& plaintext, const std::filesystem::path& k
     }
     EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr);
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_LEN, nullptr);
-    EVP_EncryptInit_ex(ctx, nullptr, nullptr, key.data(), nonce.data());
+    EVP_EncryptInit_ex(ctx, nullptr, nullptr, key->data(), nonce.data());
     EVP_EncryptUpdate(ctx, ciphertext.data(), &out_len, reinterpret_cast<const unsigned char*>(plaintext.data()), static_cast<int>(plaintext.size()));
     EVP_EncryptFinal_ex(ctx, ciphertext.data() + out_len, &final_len);
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, TAG_LEN, tag.data());
@@ -159,7 +193,9 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
         log_error(translation::translate("crypto_password_corrupted"));
         return std::nullopt;
     }
-    auto key = load_or_create_key(key_file);
+    const auto key = load_or_create_key(key_file);
+    if (!key)
+        return std::nullopt;
     const unsigned char* nonce = blob.data();
     const unsigned char* ciphertext = blob.data() + NONCE_LEN;
     const size_t ciphertext_len = blob.size() - NONCE_LEN - TAG_LEN;
@@ -175,7 +211,7 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
     }
     EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr);
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_LEN, nullptr);
-    EVP_DecryptInit_ex(ctx, nullptr, nullptr, key.data(), nonce);
+    EVP_DecryptInit_ex(ctx, nullptr, nullptr, key->data(), nonce);
     EVP_DecryptUpdate(ctx, plaintext.data(), &out_len, ciphertext, static_cast<int>(ciphertext_len));
     EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, TAG_LEN, tag);
     const int auth_ok = EVP_DecryptFinal_ex(ctx, plaintext.data() + out_len, &final_len);

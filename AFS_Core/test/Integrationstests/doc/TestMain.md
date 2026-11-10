@@ -78,3 +78,9 @@ foreign owner are removed through SFTP (SshTest.md#remove_remote_tree).
 SyncArbiter never unlinks its lock files, since removing a lock file another
 process may be about to lock would let both hold it. The files of the test scope
 are removed here.
+
+## unknown-host-keys
+
+Without a registered decision the Windows build refuses an SSH server whose key known_hosts
+does not hold (SshHostKeyVerification.md#unknown-host-key). The tests accept such keys, which
+is what every build did before the decision existed.

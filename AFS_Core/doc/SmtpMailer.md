@@ -14,3 +14,9 @@ are returned instead of logged because the only caller is the logger itself - lo
 would recurse. The body is UTF-8 and stays a narrow string on purpose: it comes from the log
 line, which is UTF-8 already, and the detour through wstring loses every non-ASCII character on
 Windows.
+
+## sealed_password
+
+The stored ciphertext of a password that could not be decrypted, kept so that a save does not
+replace it with an empty one; see SshAccount.md#sealed_password_. A dialog that builds a new
+account leaves it empty, so a password typed in again takes its place.

@@ -48,6 +48,9 @@ set(AFS_CORE_SOURCES
     SyncProposal.cpp
     ConfigSummary.cpp
     PasswordCrypto.cpp
+    SecretBlob.cpp
+    UserObject.cpp
+    HostConnect.cpp
     SshAccount.cpp
     SftpConnection.cpp
     SshConnectTimeout.cpp

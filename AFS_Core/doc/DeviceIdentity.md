@@ -30,8 +30,9 @@ unpair every phone one day. The fingerprint pinning makes the lifetime irrelevan
 
 ## private-files
 
-Owner-only permissions on the key file, like an SSH private key. On Windows the file inherits
-the user profile's ACL, as the password key file does (PasswordCrypto.md#key-file-permissions).
+Owner-only permissions on the key file, like an SSH private key. On Windows the private key is
+sealed for the user instead (SecretBlob.md#secretblob); a key file written before sealing
+existed is read as it is and written again sealed.
 
 ## unsaved-identity
 

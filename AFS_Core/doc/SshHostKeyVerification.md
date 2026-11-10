@@ -4,9 +4,37 @@ Module comment for SshHostKeyVerification.h / SshHostKeyVerification.cpp.
 
 ## verify_ssh_host_key
 
-Verifies the server's host key against the known_hosts store (trust-on-first-use), rejecting the
-connection when a previously stored key no longer matches to guard against man-in-the-middle
-attacks. Call once right after the SSH handshake, before authenticating.
+Verifies the server's host key against the known_hosts store, rejecting the connection when a
+previously stored key no longer matches to guard against man-in-the-middle attacks. Call once
+right after the SSH handshake, before authenticating.
+
+## unknown-host-key
+
+A key that known_hosts does not hold yet is the one moment at which somebody in the network can
+pose as the server: whoever answers first is believed, and gets the password in the next step.
+On Windows such a key is therefore only stored when the registered decision accepts it. The
+program registers a question to the user that shows the fingerprint (HostKeyPrompt.md); the
+background service registers nothing, so it refuses the connection and says in the log that the
+key has to be confirmed in the program once. The tests register an acceptance, which is the
+former behaviour.
+
+The decision is called without the lock held: it may wait for the user, and a second connection
+that asks meanwhile must not block the thread that shows the question.
+
+The libssh build of the other platforms still stores an unknown key on first use; the decision
+is registered there too but not asked yet.
+
+## fingerprint_of
+
+The form OpenSSH prints - "SHA256:" and the unpadded base64 of the hash - so that the user can
+compare it with what ssh-keygen -lf or the server's administrator shows.
+
+## known_host_name
+
+known_hosts files a server on a port other than 22 as "[host]:port". The lookup tries that form
+first and the bare host name second. The key used to be stored under the bare name whatever the
+port, so a second SSH server on another port of the same host was compared with the key of the
+first and rejected as changed. Entries stored that way are still found through the second try.
 
 ## known_host_key_type_mask
 

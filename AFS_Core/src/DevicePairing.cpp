@@ -77,6 +77,8 @@ std::string DevicePairing::begin()  // [DevicePairing.md#begin]
 {
     std::lock_guard<std::mutex> lock(mutex_);
     const std::string token = random_hex(16);
+    if (token.empty())
+        return token;  // [DevicePairing.md#random_hex]
     const std::time_t expires = std::time(nullptr) + std::chrono::duration_cast<std::chrono::seconds>(TOKEN_LIFETIME).count();
     failures_ = 0;
     write_private(token_file(), token + " " + std::to_string(expires) + "\n");
@@ -129,7 +131,8 @@ std::time_t DevicePairing::expires() const
 std::string random_hex(size_t bytes)
 {
     std::vector<unsigned char> buffer(bytes);
-    RAND_bytes(buffer.data(), static_cast<int>(buffer.size()));
+    if (RAND_bytes(buffer.data(), static_cast<int>(buffer.size())) != 1)
+        return {};  // [DevicePairing.md#random_hex]
     static constexpr char HEX[] = "0123456789abcdef";
     std::string hex;
     for (const unsigned char b : buffer) {

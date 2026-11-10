@@ -132,8 +132,9 @@ Skript selbst nach, und zwar in der Version von `wix` selbst, weil eine neuere
 sich nicht laden lässt.
 
 ```cmd
-scripts\makeWindowsInstaller.cmd              :: Release bauen und paketieren
+scripts\makeWindowsInstaller.cmd              :: Release bauen, signieren und paketieren
 scripts\makeWindowsInstaller.cmd -NoBuild     :: vorhandenen Build verwenden
+scripts\makeWindowsInstaller.cmd -NoSigning   :: unsigniertes Paket (Entwicklerbuild)
 scripts\makeWindowsInstaller.cmd -Output C:\Temp
 scripts\makeWindowsInstaller.cmd -DevFirewallRules  :: Paket für den eigenen Rechner
 ```
@@ -448,8 +449,8 @@ Log-Level kann in der GUI konfiguriert werden:
     # oder
     $env:AFS_SIGN_PFX = 'C:\pfad\zertifikat.pfx'; $env:AFS_SIGN_PFX_PASSWORD = '...'
 
-Ohne Zertifikat entsteht ein unsigniertes Paket mit Warnung; `-NoSigning` lässt
-die Signierung bewusst aus. Für eine Auslieferung braucht es ein Code-Signing-
+Ohne Zertifikat bricht das Skript ab, damit kein unsigniertes Paket unbemerkt
+entsteht; `-NoSigning` baut bewusst ein unsigniertes Paket (Entwicklerbuild). Für eine Auslieferung braucht es ein Code-Signing-
 Zertifikat einer öffentlichen CA (OV oder EV); ein selbst ausgestelltes
 Zertifikat ergibt zwar eine gültige Signatur, aber keine Vertrauensstellung bei
 den Kunden. Die Versionsangaben der Programmdatei (Eigenschaften-Dialog,

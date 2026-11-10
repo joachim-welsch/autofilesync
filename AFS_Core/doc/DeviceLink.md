@@ -12,8 +12,8 @@ against the server the phone opens for a pass.
 ## role
 
 Only one process may listen - the GUI and the background service share the configuration and
-would otherwise both answer the phone. The role is a lock file per user (a named mutex on
-Windows), taken for as long as the link runs, after the pattern of SyncArbiter.md#SyncArbiter.
+would otherwise both answer the phone. The role is a lock file per user (on Windows a mutex in
+the user's private namespace, UserObject.md#userobject), taken for as long as the link runs, after the pattern of SyncArbiter.md#SyncArbiter.
 The process that finds the role taken simply does not listen and says so in the log, once:
 the background service retries every minute (MyDaemon.md#device-link) and would otherwise
 fill the log while the GUI holds the role.

@@ -148,7 +148,11 @@ void Logging::open_file_locked()
 	if (fos_ != nullptr)
 		return;
 	create_dir(file_path_name_);
+#ifdef WIN32
+	fos_ = _wfopen(file_path_name_.c_str(), L"a");  // [Logging.md#wide-file-names]
+#else
 	fos_=std::fopen(wstring_to_string(file_path_name_).c_str(), "a");  // [Logging.md#open_file-never-throws]
+#endif
 }
 
 bool Logging::file_replaced() const  // [Logging.md#follow_replaced_file]

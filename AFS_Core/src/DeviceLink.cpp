@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "DeviceLink.h"
+#include "UserObject.h"
 #include "Config.h"
 #include "Synchronize.h"
 #include "SyncItem.h"
@@ -141,15 +142,18 @@ std::string pc_json()
         + ",\"version\":" + json_string(PROTOCOL_VERSION) + "}";
 }
 
+#ifdef _WIN32
+std::wstring role_name()  // [DeviceLink.md#role]
+{
+    return private_scope ? L"AutoFileSyncDeviceLinkTest" : L"AutoFileSyncDeviceLink";
+}
+#else
 std::string role_path()  // [DeviceLink.md#role]
 {
-#ifdef _WIN32
-    return private_scope ? "Local\\AutoFileSyncDeviceLinkTest" : "Global\\AutoFileSyncDeviceLink";
-#else
     const std::string dir = private_scope ? std::filesystem::temp_directory_path().string() : "/tmp";
     return dir + "/autofilesync-" + std::to_string(getuid()) + (private_scope ? "-test-devicelink.lock" : "-devicelink.lock");
-#endif
 }
+#endif
 
 
 constexpr const char* PORT_FILE = "devicelink.port";  // [DeviceLink.md#shared-files]
@@ -211,13 +215,9 @@ std::string DeviceLink::fingerprint() const
 bool DeviceLink::take_role()  // [DeviceLink.md#role]
 {
 #ifdef _WIN32
-    HANDLE handle = CreateMutexA(nullptr, TRUE, role_path().c_str());
-    if (!handle)
+    void* handle = userobject::acquire_mutex(role_name());
+    if (handle == nullptr)
         return false;
-    if (GetLastError() == ERROR_ALREADY_EXISTS) {
-        CloseHandle(handle);
-        return false;
-    }
     role_handle_ = reinterpret_cast<std::intptr_t>(handle);
     return true;
 #else

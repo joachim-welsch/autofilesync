@@ -137,8 +137,7 @@ TEST_F(FilesystemUtilTest, TouchDoesNotCreateAMissingFile)
 TEST(FilesystemUtilTests, HomeDirFollowsTheEnvironment)
 {
 #ifdef _WIN32
-    ScopedEnv drive("HOMEDRIVE", "C:");
-    ScopedEnv path("HOMEPATH", R"(\afx_fake_home)");
+    ScopedEnv profile("USERPROFILE", R"(C:\afx_fake_home)");
 
     EXPECT_EQ(fsu::home_dir(), R"(C:\afx_fake_home)");
 #else

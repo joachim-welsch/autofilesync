@@ -44,8 +44,10 @@ namespace fs = std::filesystem;
 namespace FilesystemUtil {
 
 #ifdef _WIN32
-    std::string home_dir()
+    std::string home_dir()  // [FilesystemUtil.md#home_dir-windows]
     {
+        if (const char* profile = getenv("USERPROFILE"))
+            return profile;
         const char* home_drive = getenv("HOMEDRIVE");
         const char* home_path = getenv("HOMEPATH");
         return home_drive && home_path ? std::string(home_drive) + home_path : std::string();

@@ -1003,6 +1003,34 @@ msgstr "Il servizio in background non è installato. Eseguire prima install.ps1 
 msgid "bs_logon_failed"
 msgstr "Il servizio in background non può essere avviato: Windows non è riuscito ad accedere con l'account di servizio %1. La password memorizzata durante la configurazione non è più valida, ad esempio dopo un cambio di password. Inserire la password attuale nella console dei servizi (services.msc), in «AutoFileSync Hintergrunddienst» → Proprietà → Connessione."
 
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_key_unreadable"
+msgstr "Impossibile leggere il file della chiave per le password salvate. Non viene sostituito, affinché le password non vadano perse: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp
+msgid "host_key_unconfirmed"
+msgstr "La chiave del server SSH %1 non è confermata; la connessione non viene stabilita. Il servizio in background non può chiedere conferma: avviare una volta la sincronizzazione nel programma AutoFileSync e confermare lì la chiave."
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question_title"
+msgstr "Server SSH sconosciuto"
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question"
+msgstr "AutoFileSync si connette per la prima volta al server %1.\n\nImpronta della sua chiave:\n%2\n\nLa connessione è sicura solo se questa impronta appartiene al server. In caso di dubbio, l'amministratore del server può comunicarla.\n\nConsiderare attendibile questo server d'ora in poi?"
+
+#: AFS_Desktop/src/BackgroundService.cpp
+msgid "bs_action_configured"
+msgstr "configurato"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "bs_password_prompt"
+msgstr "Windows non è riuscito ad accedere con l'account di servizio %1. La password memorizzata per il servizio in background non è più valida, ad esempio dopo un cambio di password.\n\nPassword di Windows attuale di questo account:"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "autostart_registry_failed"
+msgstr "Impossibile modificare l'avvio automatico nel registro di Windows, errore "
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

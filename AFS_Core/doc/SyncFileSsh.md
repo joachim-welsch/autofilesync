@@ -13,10 +13,6 @@ SFTP write calls may legitimately write fewer bytes than requested (short write)
 negative return is an error. Treating a short write as failure made large uploads abort
 sporadically.
 
-## resolve_host
-
-Resolves hostname or IP address to sockaddr_in Returns true on success, false on failure
-
 ## connect_to
 
 Resolves "account:/path", connects - or shares the pass's session, see
@@ -119,3 +115,9 @@ existing file; between the two calls the file is briefly missing, never half wri
 SSH targets keep writing in place, as before (remote-target-stays-writable), so that a server's
 ownership, hard links and ACLs on existing files are not replaced by a new file. The libssh2
 branch (Windows) writes in place for phones as well.
+
+## wide-file-names
+
+The local file is opened through std::filesystem::path, which keeps the wide name on Windows.
+A narrow UTF-8 name would be read there in the ANSI code page, and a file with an umlaut in its
+name would arrive under a garbled one - see Logging.md#wide-file-names.

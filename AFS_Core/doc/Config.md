@@ -81,7 +81,8 @@ what actually went wrong (lost/changed key).
 ## smtp-password-encryption
 
 Encrypted like the SSH passwords; an empty password stays empty so that read_stored_password()
-does not have to tell "unset" from "undecryptable".
+does not have to tell "unset" from "undecryptable". Where the stored one could not be decrypted,
+its ciphertext is written back unchanged (SmtpMailer.md#sealed_password).
 
 ## untranslated-type-key
 

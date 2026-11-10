@@ -23,3 +23,9 @@ Started from a console it fails with ERROR_FAILED_SERVICE_CONTROLLER_CONNECT, an
 then runs in the foreground until Ctrl+C - the way to try it out or debug it without
 registering a service first. Any other error means the process was started as a service and
 could not become one, so it is logged and the exit code tells the service control manager.
+
+## stop_event
+
+Without the event the wait for a stop would return at once and the service would end right
+after its start, looking to the service manager like a clean stop. It ends with an error
+instead, which the manager reports.

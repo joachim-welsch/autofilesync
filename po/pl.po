@@ -1003,6 +1003,34 @@ msgstr "Usługa w tle nie jest zainstalowana. Najpierw uruchom install.ps1 z pro
 msgid "bs_logon_failed"
 msgstr "Usługa w tle nie mogła zostać uruchomiona: system Windows nie mógł zalogować konta usługi %1. Hasło zapisane podczas konfiguracji nie jest już ważne, na przykład po zmianie hasła. Wprowadź aktualne hasło w konsoli usług (services.msc), w „AutoFileSync Hintergrunddienst” → Właściwości → Logowanie."
 
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_key_unreadable"
+msgstr "Nie można odczytać pliku klucza zapisanych haseł. Nie jest on zastępowany, aby hasła nie zostały utracone: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp
+msgid "host_key_unconfirmed"
+msgstr "Klucz serwera SSH %1 nie został potwierdzony, połączenie nie zostanie nawiązane. Usługa w tle nie może zapytać: uruchom synchronizację raz w programie AutoFileSync i potwierdź tam klucz."
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question_title"
+msgstr "Nieznany serwer SSH"
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question"
+msgstr "AutoFileSync łączy się z serwerem %1 po raz pierwszy.\n\nOdcisk jego klucza:\n%2\n\nPołączenie jest bezpieczne tylko wtedy, gdy ten odcisk należy do serwera. W razie wątpliwości poda go administrator serwera.\n\nCzy odtąd ufać temu serwerowi?"
+
+#: AFS_Desktop/src/BackgroundService.cpp
+msgid "bs_action_configured"
+msgstr "skonfigurowana"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "bs_password_prompt"
+msgstr "System Windows nie mógł zalogować konta usługi %1. Hasło zapisane dla usługi w tle nie jest już ważne, na przykład po zmianie hasła.\n\nAktualne hasło systemu Windows tego konta:"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "autostart_registry_failed"
+msgstr "Nie udało się zmienić automatycznego uruchamiania w rejestrze systemu Windows, błąd "
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223
