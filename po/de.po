@@ -1011,6 +1011,10 @@ msgstr "Fehler %1"
 msgid "bs_not_installed_windows"
 msgstr "Der Hintergrunddienst ist nicht installiert. Bitte zuerst install.ps1 des Projektes backgroundsync ausführen."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "Der Hintergrunddienst konnte nicht gestartet werden: Windows konnte das Dienstkonto %1 nicht anmelden. Das beim Einrichten hinterlegte Kennwort gilt nicht mehr, zum Beispiel nach einer Kennwortänderung. Tragen Sie in der Diensteverwaltung (services.msc) unter „AutoFileSync Hintergrunddienst“ → Eigenschaften → Anmelden das aktuelle Kennwort ein."
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

@@ -1011,6 +1011,10 @@ msgstr "Error %1"
 msgid "bs_not_installed_windows"
 msgstr "The background service is not installed. Please run install.ps1 of the backgroundsync project first."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "The background service could not be started: Windows could not log on the service account %1. The password stored when the service was set up is no longer valid, for example after a password change. Enter the current password in the Services console (services.msc) under \"AutoFileSync Hintergrunddienst\" → Properties → Log On."
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

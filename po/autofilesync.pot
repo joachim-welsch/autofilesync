@@ -998,6 +998,10 @@ msgstr ""
 msgid "bs_not_installed_windows"
 msgstr ""
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr ""
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

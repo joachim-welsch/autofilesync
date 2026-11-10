@@ -21,6 +21,8 @@
 #ifdef WIN32
     #include <Windows.h>
     #include <shellapi.h>
+    #include <cstddef>
+    #include <vector>
 #elif _UNIX
     #include <wx/wxprec.h>
     #ifndef WX_PRECOMP
@@ -66,10 +68,27 @@ wstring system_message(DWORD error)
     return text;
 }
 
+wstring service_account()  // [BackgroundService.md#service_account]
+{
+    ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
+    ScHandle service(manager != nullptr ? OpenServiceW(manager, SERVICE_NAME, SERVICE_QUERY_CONFIG) : nullptr);
+    DWORD needed = 0;
+    if (service == nullptr || QueryServiceConfigW(service, nullptr, 0, &needed) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        return L"";
+    std::vector<std::byte> buffer(needed);
+    auto* config = reinterpret_cast<QUERY_SERVICE_CONFIGW*>(buffer.data());
+    if (!QueryServiceConfigW(service, config, needed, &needed) || config->lpServiceStartName == nullptr)
+        return L"";
+    return config->lpServiceStartName;
+}
+
 wstring failure(const wstring& action, DWORD error)
 {
     if (error == ERROR_SERVICE_DOES_NOT_EXIST)
         return translate("bs_not_installed_windows");
+    const wstring account = error == ERROR_SERVICE_LOGON_FAILED ? service_account() : L"";
+    if (!account.empty())
+        return translate("bs_logon_failed", {account});  // [BackgroundService.md#logon-failure]
     return translate("bs_action_failed", {action, system_message(error)});
 }
 

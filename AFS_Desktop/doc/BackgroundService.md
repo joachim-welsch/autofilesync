@@ -54,6 +54,21 @@ Opened with the least access that still allows the requested control, so that a 
 Administrators group, and the service account - the installer grants it start and stop on the
 service - succeed without the UAC detour.
 
+## service_account
+
+The account is read for the message about a failed logon, see [logon-failure](#logon-failure).
+SERVICE_QUERY_CONFIG is granted to interactive users by default; where it is not, the account
+stays empty and the generic failure message is shown instead.
+
+## logon-failure
+
+The installer registers the service under the account of the person installing, with the
+password typed in at that time. Windows keeps that password with the service, so after the
+user changes their Windows password every start fails with ERROR_SERVICE_LOGON_FAILED (1069).
+The system text for it, "logon failure", does not tell the user that it is their own old
+password at fault, hence a message that names the account and the place to enter the new one.
+The exit code of sc.exe after the UAC detour ends up here as well.
+
 ## query_state-access
 
 SERVICE_QUERY_STATUS is granted to every user, so the state is available without the

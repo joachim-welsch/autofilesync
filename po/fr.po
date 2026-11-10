@@ -999,6 +999,10 @@ msgstr "Erreur %1"
 msgid "bs_not_installed_windows"
 msgstr "Le service en arrière-plan n'est pas installé. Exécutez d'abord install.ps1 du projet backgroundsync."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "Le service en arrière-plan n'a pas pu être démarré : Windows n'a pas pu ouvrir la session du compte de service %1. Le mot de passe enregistré lors de la configuration n'est plus valable, par exemple après un changement de mot de passe. Saisissez le mot de passe actuel dans la console des services (services.msc), sous « AutoFileSync Hintergrunddienst » → Propriétés → Connexion."
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

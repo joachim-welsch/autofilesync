@@ -999,6 +999,10 @@ msgstr "Błąd %1"
 msgid "bs_not_installed_windows"
 msgstr "Usługa w tle nie jest zainstalowana. Najpierw uruchom install.ps1 z projektu backgroundsync."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "Usługa w tle nie mogła zostać uruchomiona: system Windows nie mógł zalogować konta usługi %1. Hasło zapisane podczas konfiguracji nie jest już ważne, na przykład po zmianie hasła. Wprowadź aktualne hasło w konsoli usług (services.msc), w „AutoFileSync Hintergrunddienst” → Właściwości → Logowanie."
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

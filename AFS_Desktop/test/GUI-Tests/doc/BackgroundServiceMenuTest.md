@@ -42,3 +42,11 @@ The installer lets the service user start and stop the service without a passwor
 on Linux, service permissions on Windows. Both commands run in the order that ends where the
 service began, and RestoredBackgroundService puts it back should a step fail. A missing right
 shows as the "Hintergrunddienst" error box, which the fixture reports as an unexpected dialog.
+
+## start-obstacle
+
+A service whose account can no longer log on - the installer stored the Windows password of the
+installing user, and it has changed since - fails every start, in the menu as well as in the
+test. That is a flaw of the machine, not of the menu, so the test skips and quotes the message
+the user would see; see RestoredBackgroundService.md#start_obstacle for why the probe is a
+start.

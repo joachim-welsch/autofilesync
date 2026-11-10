@@ -999,6 +999,10 @@ msgstr "Помилка %1"
 msgid "bs_not_installed_windows"
 msgstr "Фонову службу не встановлено. Спочатку запустіть install.ps1 з проєкту backgroundsync."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "Фонову службу не вдалося запустити: Windows не зміг увійти в систему з обліковим записом служби %1. Пароль, збережений під час налаштування, більше не дійсний, наприклад після зміни пароля. Введіть поточний пароль у консолі служб (services.msc): «AutoFileSync Hintergrunddienst» → Властивості → Вхід."
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

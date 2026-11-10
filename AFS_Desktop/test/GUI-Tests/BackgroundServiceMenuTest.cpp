@@ -93,6 +93,8 @@ TEST_F(GuiTest, HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStar
     if (!service_controllable())
         GTEST_SKIP() << "Kein installierter Hintergrunddienst, den dieser Benutzer ohne Administratorrechte steuern darf.";
     const RestoredBackgroundService restored;
+    if (const std::wstring obstacle = start_obstacle(); !obstacle.empty())  // [BackgroundServiceMenuTest.md#start-obstacle]
+        GTEST_SKIP() << "Der Hintergrunddienst lässt sich auf dieser Maschine nicht starten: " << obstacle;
     const bool was_running = BackgroundService::state() == State::Running;
 
     activate_menu_item(main_window(), tul(was_running ? id::BackgroundServiceStop : id::BackgroundServiceStart));

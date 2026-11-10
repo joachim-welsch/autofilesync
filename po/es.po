@@ -999,6 +999,10 @@ msgstr "Error %1"
 msgid "bs_not_installed_windows"
 msgstr "El servicio en segundo plano no está instalado. Ejecute primero install.ps1 del proyecto backgroundsync."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "El servicio en segundo plano no se pudo iniciar: Windows no pudo iniciar sesión con la cuenta de servicio %1. La contraseña guardada al configurar el servicio ya no es válida, por ejemplo tras un cambio de contraseña. Introduzca la contraseña actual en la consola de servicios (services.msc), en «AutoFileSync Hintergrunddienst» → Propiedades → Iniciar sesión."
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223
