@@ -62,4 +62,7 @@ on a machine with the service installed that would be a UAC prompt no test can a
 answered messages count the "Fehler" box of add_unsaved_sync_item as well. Ja is tested where the
 service is not installed - the start ends in the "Hintergrunddienst" error box - and where this
 user may control the installed service without a password prompt, where the service runs
-afterwards. Either way the file content proves that the save came first.
+afterwards. Either way the file content proves that the save came first. An installed service
+that cannot start on this machine - RestoredBackgroundService.md#start_obstacle - would end the
+start in the same error box; the test skips with its message rather than report the machine's
+flaw as a GUI failure.

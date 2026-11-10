@@ -10,7 +10,8 @@
 <p>AutoFileSync gleicht auch Ordner auf einem Android-Handy mit dem PC ab:
 Fotos landen von selbst auf dem PC, ein Ordner bleibt auf beiden Geräten gleich,
 oder Musik kommt vom PC aufs Handy. Dafür braucht das Handy die App
-AutoFileSync, und Handy und PC müssen im selben WLAN sein.</p>
+AutoFileSync, und Handy und PC müssen im selben Netzwerk sein: das Handy im
+WLAN, der PC per WLAN oder Kabel am selben Router.</p>
 
 <h2>Handy verbinden</h2>
 
@@ -117,10 +118,16 @@ auf die Firewall hin.</p>
 
 <ul>
 <li><b>Die App meldet „PC nicht erreichbar“.</b> Ist der PC eingeschaltet und
-    im selben WLAN wie das Handy? Ein Gäste-WLAN oder ein WLAN, das die Geräte
-    voneinander abschirmt, lässt keine Verbindung zu.</li>
-<li><b>Der Code ist abgelaufen.</b> <b>Datei &rarr; Handy verbinden…</b>
-    erneut öffnen und den neuen Code scannen.</li>
+    am selben Router wie das Handy, per WLAN oder Kabel? Ein Gäste-WLAN oder
+    ein WLAN, das die Geräte voneinander abschirmt, lässt keine Verbindung zu.
+    Läuft AutoFileSync in einer virtuellen Maschine, braucht diese ein
+    Bridge-Netz: Hinter dem üblichen NAT-Netz (Adressen wie 192.168.122.x) ist
+    der PC für das Handy unsichtbar. Die Zeile unter dem Code zeigt die
+    Adressen des PCs; sie müssen zum Heimnetz passen.</li>
+<li><b>Das Handy meldet, der PC habe den Code abgelehnt oder warte nicht.</b>
+    Ein Code gilt nur, solange der Dialog offen ist, und zehn Minuten lang.
+    <b>Datei &rarr; Handy verbinden…</b> erneut öffnen und den neuen Code
+    scannen.</li>
 <li><b>Der Dialog wartet und wartet.</b> Vermutlich blockiert die Firewall
     (siehe oben).</li>
 <li><b>Es wird nichts übertragen.</b> Hat die App den Zugriff auf alle Dateien?

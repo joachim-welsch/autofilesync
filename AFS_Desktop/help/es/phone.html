@@ -10,7 +10,8 @@
 <p>AutoFileSync también mantiene al día carpetas de un móvil Android con el PC:
 las fotos llegan solas al PC, una carpeta queda igual en ambos dispositivos o
 la música pasa del PC al móvil. Para ello el móvil necesita la app AutoFileSync,
-y el móvil y el PC deben estar en la misma red Wi-Fi.</p>
+y el móvil y el PC deben estar en la misma red: el móvil por Wi-Fi, el PC por
+Wi-Fi o por cable en el mismo router.</p>
 
 <h2>Conectar el móvil</h2>
 
@@ -116,11 +117,17 @@ cortafuegos.</p>
 <h2>Si no funciona</h2>
 
 <ul>
-<li><b>La app indica «PC no accesible».</b> ¿Está el PC encendido y en la misma
-    Wi-Fi que el móvil? Una Wi-Fi de invitados o una Wi-Fi que aísla los
-    dispositivos entre sí no permite la conexión.</li>
-<li><b>El código ha caducado.</b> Abrir de nuevo <b>Archivo &rarr; Conectar
-    móvil…</b> y escanear el código nuevo.</li>
+<li><b>La app indica «PC no accesible».</b> ¿Está el PC encendido y en el mismo
+    router que el móvil, por Wi-Fi o por cable? Una Wi-Fi de invitados o una
+    Wi-Fi que aísla los dispositivos entre sí no permite la conexión. Si
+    AutoFileSync se ejecuta en una máquina virtual, esta necesita una red en
+    puente: tras la red NAT habitual (direcciones como 192.168.122.x) el PC
+    es invisible para el móvil. La línea bajo el código muestra las
+    direcciones del PC; deben pertenecer a la red doméstica.</li>
+<li><b>El móvil dice que el PC rechazó el código o que no está esperando.</b>
+    Un código solo vale mientras el diálogo está abierto, y durante diez
+    minutos. Abrir de nuevo <b>Archivo &rarr; Conectar móvil…</b> y escanear
+    el código nuevo.</li>
 <li><b>El diálogo sigue esperando.</b> Probablemente bloquea el cortafuegos
     (véase arriba).</li>
 <li><b>No se transfiere nada.</b> ¿Tiene la app acceso a todos los archivos?

@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "PasswordCrypto.h"
+#include "SecretBlob.h"
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
@@ -46,7 +47,20 @@ protected:
     {
         fs::remove_all(test_dir_);
     }
+
+    std::string stored_key() const
+    {
+        std::ifstream in(key_file_, std::ios::binary);
+        return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    }
+
+    void store_key(const std::string& content) const
+    {
+        std::ofstream(key_file_, std::ios::binary) << content;
+    }
 };
+
+constexpr size_t RAW_KEY_LENGTH = 32;
 
 } // namespace
 
@@ -115,7 +129,8 @@ TEST_F(PasswordCryptoTest, KeyFileIsCreatedWithOwnerOnlyPermissions)
 
     ASSERT_TRUE(fs::exists(key_file_));
 #ifdef _WIN32
-    GTEST_SKIP() << "POSIX-Rechtebits gibt es unter Windows nicht";  // [PasswordCryptoTests.md#windows-has-no-posix-bits]
+    EXPECT_NE(stored_key().size(), RAW_KEY_LENGTH) << "Die Schlüsseldatei enthält den rohen Schlüssel.";  // [PasswordCryptoTests.md#windows-has-no-posix-bits]
+    EXPECT_FALSE(secretblob::outdated(stored_key())) << "Die Schlüsseldatei ist nicht für den Benutzer versiegelt.";
 #else
     const auto perms = fs::status(key_file_).permissions();
     EXPECT_EQ(perms & fs::perms::group_all, fs::perms::none);
@@ -131,6 +146,37 @@ TEST_F(PasswordCryptoTest, ReusesPersistedKeyAcrossCalls)
     const auto decrypted = passwordcrypto::decrypt(encrypted, key_file_);  // [PasswordCryptoTests.md#decrypt-after-reload]
 
     EXPECT_EQ(decrypted, "correct horse battery staple");
+}
+
+TEST_F(PasswordCryptoTest, UnreadableKeyFileIsNotReplaced)  // [PasswordCryptoTests.md#UnreadableKeyFileIsNotReplaced]
+{
+    store_key("damaged");
+
+    EXPECT_TRUE(passwordcrypto::encrypt("correct horse battery staple", key_file_).empty()) << "Ohne lesbaren Schlüssel wurde trotzdem verschlüsselt.";
+    EXPECT_EQ(stored_key(), "damaged") << "Die unlesbare Schlüsseldatei wurde überschrieben.";
+}
+
+TEST_F(PasswordCryptoTest, KeyBecomesUsableAgainOnceTheFileIsReadable)  // [PasswordCryptoTests.md#UnreadableKeyFileIsNotReplaced]
+{
+    const std::string key(RAW_KEY_LENGTH, 'k');
+    store_key("damaged");
+    ASSERT_TRUE(passwordcrypto::encrypt("secret", key_file_).empty());
+
+    store_key(key);
+
+    const std::string encrypted = passwordcrypto::encrypt("secret", key_file_);
+    EXPECT_EQ(passwordcrypto::decrypt(encrypted, key_file_), "secret") << "Der Fehlschlag blieb über die lesbare Datei hinaus bestehen.";
+}
+
+TEST_F(PasswordCryptoTest, KeyFileOfAnOlderVersionKeepsItsKey)  // [PasswordCryptoTests.md#KeyFileOfAnOlderVersionKeepsItsKey]
+{
+    const std::string key(RAW_KEY_LENGTH, 'k');
+    store_key(key);
+
+    passwordcrypto::encrypt("secret", key_file_);
+
+    EXPECT_EQ(secretblob::unprotect(stored_key()), key) << "Die Schlüsseldatei der Vorversion trägt nicht mehr denselben Schlüssel.";
+    EXPECT_FALSE(secretblob::outdated(stored_key())) << "Die Schlüsseldatei der Vorversion wurde nicht versiegelt.";
 }
 
 TEST(PasswordCryptoTests, RoundTripsWithinProcessEvenWhenKeyPersistenceFails)  // [PasswordCryptoTests.md#RoundTripsWithinProcessEvenWhenKeyPersistenceFails]

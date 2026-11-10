@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "SshFileInspector.h"
+#include "HostConnect.h"
 #include "SyncFileSsh.h"
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
@@ -106,27 +107,12 @@ SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspec
     init_winsock();
     ensure_libssh2_initialized();
 
-    struct addrinfo hints = {}, *result = nullptr;
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-
-    if (getaddrinfo(account.host().c_str(), std::to_string(account.port()).c_str(), &hints, &result) != 0) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    sock_ = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve)
         throw SshUnreachable(translation::translate_utf8("host_name_not_resolvable") + account.host());
-    }
-
-    sock_ = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-    if (sock_ == INVALID_SOCKET) {
-        freeaddrinfo(result);
-        throw std::runtime_error(translation::translate_utf8("socket_create_error"));
-    }
-
-    if (connect(sock_, result->ai_addr, (int)result->ai_addrlen) != 0) {
-        freeaddrinfo(result);
-        closesocket(sock_);
-        sock_ = INVALID_SOCKET;
+    if (attempt.failure == ConnectFailure::Connect)
         throw SshUnreachable(translation::translate_utf8("server_connect_failed"));
-    }
-    freeaddrinfo(result);
 
     my_ssh_session_ = libssh2_session_init();
     if (!my_ssh_session_) {

@@ -10,8 +10,8 @@
 <p>AutoFileSync allinea anche cartelle di un telefono Android con il PC: le foto
 arrivano da sole sul PC, una cartella resta uguale su entrambi i dispositivi,
 oppure la musica passa dal PC al telefono. Per questo il telefono ha bisogno
-dell'app AutoFileSync, e telefono e PC devono essere sulla stessa rete
-Wi-Fi.</p>
+dell'app AutoFileSync, e telefono e PC devono essere sulla stessa rete: il
+telefono in Wi-Fi, il PC in Wi-Fi o via cavo sullo stesso router.</p>
 
 <h2>Collegare il telefono</h2>
 
@@ -116,11 +116,17 @@ stessa segnala il firewall.</p>
 <h2>Se non funziona</h2>
 
 <ul>
-<li><b>L'app segnala «PC non raggiungibile».</b> Il PC è acceso e sulla stessa
-    rete Wi-Fi del telefono? Una rete Wi-Fi per ospiti o una rete che isola i
-    dispositivi tra loro non consente la connessione.</li>
-<li><b>Il codice è scaduto.</b> Riaprire <b>File &rarr; Collega telefono…</b>
-    e scansionare il nuovo codice.</li>
+<li><b>L'app segnala «PC non raggiungibile».</b> Il PC è acceso e sullo stesso
+    router del telefono, in Wi-Fi o via cavo? Una rete Wi-Fi per ospiti o una
+    rete che isola i dispositivi tra loro non consente la connessione. Se
+    AutoFileSync gira in una macchina virtuale, questa ha bisogno di una rete
+    in bridge: dietro la solita rete NAT (indirizzi come 192.168.122.x) il PC
+    è invisibile al telefono. La riga sotto il codice mostra gli indirizzi del
+    PC; devono appartenere alla rete di casa.</li>
+<li><b>Il telefono dice che il PC ha rifiutato il codice o non sta
+    aspettando.</b> Un codice vale solo finché la finestra è aperta, e per
+    dieci minuti. Riaprire <b>File &rarr; Collega telefono…</b> e scansionare
+    il nuovo codice.</li>
 <li><b>La finestra continua ad aspettare.</b> Probabilmente blocca il firewall
     (vedi sopra).</li>
 <li><b>Non viene trasferito nulla.</b> L'app ha accesso a tutti i file? «Solo

@@ -155,3 +155,10 @@ write_to_file() applies the level itself. The head (timestamp, origin, level) is
 the line break dropped - the box shows the text, the level goes with it as a value. Capped at
 MAX_COLLECTED so a run over thousands of files cannot grow the vector without bound; the box
 tells the user to look into the log for the rest.
+
+## wide-file-names
+
+On Windows a narrow file name is read in the ANSI code page of the system, while
+wstring_to_string() yields UTF-8. A user profile with an umlaut in its name - the log lies
+below it - would therefore name a file that does not exist, and the program would run without a
+log. The wide call takes the name as it is.

@@ -28,5 +28,8 @@ State state();  // [BackgroundService.md#state]
 
 std::wstring start();  // [BackgroundService.md#command-result]
 std::wstring stop();
+bool logon_failed();  // [BackgroundService.md#logon_failed]
+std::wstring account();
+std::wstring set_password(const std::wstring& password);  // [BackgroundService.md#set_password]
 
 }

@@ -11,15 +11,21 @@
     .\makeWindowsInstaller.ps1
 .EXAMPLE
     .\makeWindowsInstaller.ps1 -NoBuild -Output C:\Temp
+.EXAMPLE
+    .\makeWindowsInstaller.ps1 -DevFirewallRules
+    Paket fuer den eigenen Rechner: oeffnet die Firewall zusaetzlich fuer die
+    Programme im Build-Verzeichnis (Release und Debug), damit ein aus Visual
+    Studio gestartetes Programm das Handy ohne Firewall-Abfrage erreicht.
 .NOTES
     Signiert wird mit dem Zertifikat aus AFS_SIGN_THUMBPRINT (Speicher CurrentUser\My)
-    oder AFS_SIGN_PFX + AFS_SIGN_PFX_PASSWORD; ohne beides entsteht ein unsigniertes
-    Paket mit Warnung. -NoSigning laesst die Signierung bewusst aus.
+    oder AFS_SIGN_PFX + AFS_SIGN_PFX_PASSWORD. Ohne Zertifikat bricht das Skript ab;
+    -NoSigning baut bewusst ein unsigniertes Paket (Entwicklerbuild).
 #>
 param(
     [ValidateSet('Release', 'Debug')][string]$Configuration = 'Release',
     [switch]$NoBuild,
     [switch]$NoSigning,
+    [switch]$DevFirewallRules,
     [string]$Output
 )
 
@@ -156,9 +162,9 @@ function Test-Payload {
 # Signiert werden die Programmdatei in der Nutzlast und das fertige MSI, mit
 # Zeitstempel, damit die Signatur das Zertifikat ueberlebt. Das Zertifikat kommt
 # aus dem Zertifikatspeicher (AFS_SIGN_THUMBPRINT) oder einer PFX-Datei
-# (AFS_SIGN_PFX, AFS_SIGN_PFX_PASSWORD). Ohne Zertifikat wird nicht abgebrochen:
-# ein Entwicklerbuild braucht keins, aber die Warnung steht im Protokoll, damit
-# kein unsigniertes Paket unbemerkt ausgeliefert wird.
+# (AFS_SIGN_PFX, AFS_SIGN_PFX_PASSWORD). Ohne Zertifikat wird abgebrochen, bevor
+# gebaut wird: eine Warnung im Protokoll geht unter, und ein unsigniertes Paket
+# soll nur entstehen, wenn es mit -NoSigning verlangt ist (Entwicklerbuild).
 $timestampServer = 'http://timestamp.digicert.com'
 
 function Find-SignTool {
@@ -180,10 +186,14 @@ function Get-SigningArguments {
     return $null
 }
 
+if (-not $NoSigning -and -not (Get-SigningArguments)) {
+    throw 'Kein Signaturzertifikat: AFS_SIGN_THUMBPRINT oder AFS_SIGN_PFX setzen, oder mit -NoSigning bewusst ein unsigniertes Paket bauen.'
+}
+
 function Invoke-Sign([string]$file) {
     $certificate = Get-SigningArguments
-    if ($NoSigning -or -not $certificate) {
-        Write-Warning "Nicht signiert: $(Split-Path -Leaf $file) - AFS_SIGN_THUMBPRINT oder AFS_SIGN_PFX setzen."
+    if ($NoSigning) {
+        Write-Warning "Nicht signiert (-NoSigning): $(Split-Path -Leaf $file)"
         return
     }
     $signtool = Find-SignTool
@@ -235,7 +245,9 @@ $version = Get-Version
 New-Item -ItemType Directory -Force $Output | Out-Null
 $msi = Join-Path $Output "AutoFileSync-$version.msi"
 $extensionArguments = $wixExtensions | ForEach-Object { '-ext', $_ }
-& wix build -arch x64 -culture de-DE @extensionArguments `
+$defineArguments = @()
+if ($DevFirewallRules) { $defineArguments = '-d', "DevBuildRoot=$root" }
+& wix build -arch x64 -culture de-DE @extensionArguments @defineArguments `
     -d "PayloadDir=$payloadDir" -d "ServiceDir=$serviceDir" -d "Version=$(ConvertTo-MsiVersion $version)" -d "IconFile=$icon" -d "LicenseRtf=$licenseRtf" `
     -o $msi $wxs
 if ($LASTEXITCODE -ne 0) { throw "wix build fehlgeschlagen." }

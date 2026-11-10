@@ -29,6 +29,15 @@ $modelNames = @{
     '7b'  = 'Qwen2.5-Coder-7B-Instruct'
     '14b' = 'Qwen2.5-Coder-14B-Instruct'
 }
+# Geladen wird ein festgelegter Stand des Repositorys und geprueft gegen den
+# SHA-256 seiner Datei: "main" kann sich aendern, und ein Modell wird vom
+# Programm geladen und ausgefuehrt. Wer ein neueres Modell will, traegt hier
+# Stand und Pruefsumme nach (Dateiliste des Repositorys, Spalte "SHA256").
+$modelSources = @{
+    'Qwen2.5-Coder-3B-Instruct'  = @{ Revision = '7c137640ef0332dfedb229f2504c58d83ed4307a'; Sha256 = '3da3afe6cf5c674ac195803ea0dd6fee7e1c228c2105c1ce8c66890d1d4ab460' }
+    'Qwen2.5-Coder-7B-Instruct'  = @{ Revision = '1f629da0c8bed16b9e50cee91c70693650e66c35'; Sha256 = '1664fccab734674a50763490a8c6931b70e3f2f8ec10031b54806d30e5f956b6' }
+    'Qwen2.5-Coder-14B-Instruct' = @{ Revision = '5b379ec4bf71bafecb5f9081ad28b19939128988'; Sha256 = '2946d28c9e1bb2bcae6d42e8678863a31775df6f740315c7d7e6d6b6411f5937' }
+}
 
 # LlamaClient rechnet mit n_gpu_layers = 0 auf der CPU: ein groesseres Modell
 # kostet Antwortzeit, nicht nur Speicher. Gezaehlt werden die eingebauten
@@ -57,8 +66,17 @@ function Save-Model([string]$name) {
     }
     New-Item -ItemType Directory -Force $modelDir | Out-Null
     Write-Host "Lade $file herunter..." -ForegroundColor Yellow
-    & curl.exe -L -C - --fail --progress-bar -o "$target.part" "https://huggingface.co/bartowski/$name-GGUF/resolve/main/$file"
+    $source = $modelSources[$name]
+    & curl.exe -L -C - --fail --progress-bar -o "$target.part" "https://huggingface.co/bartowski/$name-GGUF/resolve/$($source.Revision)/$file"
     if ($LASTEXITCODE -ne 0) { throw "Download fehlgeschlagen (curl: $LASTEXITCODE). Ein erneuter Aufruf setzt ihn fort." }
+    if (-not $NoVerify) {
+        Write-Host 'Pruefe die Pruefsumme...'
+        $hash = (Get-FileHash -Algorithm SHA256 "$target.part").Hash
+        if ($hash -ne $source.Sha256) {
+            Remove-Item "$target.part"
+            throw "Die geladene Datei hat nicht die erwartete Pruefsumme und wurde verworfen (erwartet $($source.Sha256), erhalten $hash)."
+        }
+    }
     Move-Item "$target.part" $target
     return $target
 }

@@ -14,7 +14,7 @@
     <string name="status_last_contact">Zuletzt gemeldet %1$s</string>
     <string name="status_never">Noch nicht gemeldet</string>
     <string name="status_up_to_date">Alles aktuell</string>
-    <string name="status_unreachable">PC nicht erreichbar: Ist er eingeschaltet und im selben WLAN?</string>
+    <string name="status_unreachable">PC nicht erreichbar: Ist er eingeschaltet und im selben Netzwerk wie das Handy?</string>
     <string name="status_rejected">Der PC kennt dieses Handy nicht mehr. Verbinde es neu.</string>
     <string name="items_none">Noch keine Synchronisation eingerichtet. Richte sie in AutoFileSync auf dem PC ein.</string>
     <string name="items_title">Synchronisationen</string>
@@ -22,8 +22,7 @@
     <string name="settings_on_pc">Einstellungen änderst du in AutoFileSync auf dem PC.</string>
     <string name="forget_pc">Verbindung zum PC trennen</string>
     <string name="error_code_invalid">Das ist kein AutoFileSync-Code.</string>
-    <string name="error_code_expired">Der Code ist abgelaufen. Öffne auf dem PC erneut „Handy verbinden…“.</string>
-    <string name="error_unreachable">PC nicht erreichbar: Ist er eingeschaltet und im selben WLAN?</string>
+    <string name="error_unreachable">PC nicht erreichbar: Ist er eingeschaltet und im selben Netzwerk wie das Handy?</string>
     <string name="error_handshake">Der PC hat nicht das erwartete Zertifikat gezeigt. Scanne einen neuen Code.</string>
     <string name="error_token_invalid">Der PC hat den Code abgelehnt. Öffne auf dem PC erneut „Handy verbinden…“ und scanne den neuen Code.</string>
     <string name="error_pairing_closed">Der PC wartet gerade nicht auf ein Handy. Öffne auf dem PC zuerst „Handy verbinden…“.</string>
@@ -49,5 +48,5 @@
     <string name="setting_charging_only">Nur beim Laden</string>
     <string name="channel_progress">Laufende Synchronisation</string>
     <string name="channel_problems">Probleme</string>
-    <string name="notify_unreachable">Der PC ist seit einem Tag nicht erreichbar. Ist er eingeschaltet und im selben WLAN?</string>
+    <string name="notify_unreachable">Der PC ist seit einem Tag nicht erreichbar. Ist er eingeschaltet und im selben Netzwerk?</string>
 </resources>

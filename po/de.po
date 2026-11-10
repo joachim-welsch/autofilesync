@@ -1011,6 +1011,38 @@ msgstr "Fehler %1"
 msgid "bs_not_installed_windows"
 msgstr "Der Hintergrunddienst ist nicht installiert. Bitte zuerst install.ps1 des Projektes backgroundsync ausführen."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "Der Hintergrunddienst konnte nicht gestartet werden: Windows konnte das Dienstkonto %1 nicht anmelden. Das beim Einrichten hinterlegte Kennwort gilt nicht mehr, zum Beispiel nach einer Kennwortänderung. Tragen Sie in der Diensteverwaltung (services.msc) unter „AutoFileSync Hintergrunddienst“ → Eigenschaften → Anmelden das aktuelle Kennwort ein."
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_key_unreadable"
+msgstr "Die Schlüsseldatei für gespeicherte Passwörter ist nicht lesbar. Sie wird nicht ersetzt, damit die Passwörter nicht verloren gehen: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp
+msgid "host_key_unconfirmed"
+msgstr "Der Schlüssel des SSH-Servers %1 ist nicht bestätigt, es wird keine Verbindung aufgebaut. Der Hintergrunddienst kann nicht nachfragen: Starten Sie die Synchronisation einmal im Programm AutoFileSync und bestätigen Sie dort den Schlüssel."
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question_title"
+msgstr "Unbekannter SSH-Server"
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question"
+msgstr "AutoFileSync verbindet sich zum ersten Mal mit dem Server %1.\n\nFingerabdruck seines Schlüssels:\n%2\n\nNur wenn dieser Fingerabdruck zum Server gehört, ist die Verbindung sicher. Im Zweifel nennt ihn der Betreiber des Servers.\n\nDiesem Server künftig vertrauen?"
+
+#: AFS_Desktop/src/BackgroundService.cpp
+msgid "bs_action_configured"
+msgstr "eingerichtet"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "bs_password_prompt"
+msgstr "Windows konnte das Dienstkonto %1 nicht anmelden. Das für den Hintergrunddienst hinterlegte Kennwort gilt nicht mehr, zum Beispiel nach einer Kennwortänderung.\n\nAktuelles Windows-Kennwort dieses Kontos:"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "autostart_registry_failed"
+msgstr "Der automatische Start konnte in der Windows-Registrierung nicht geändert werden, Fehler "
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

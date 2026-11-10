@@ -183,6 +183,8 @@ TEST_F(GuiTest, DienststartSpeichertAufWunschVorDemStart)  // [ConfigFileTest.md
         GTEST_SKIP() << "Der Hintergrunddienst ist installiert, und dieser Benutzer darf ihn nicht ohne Administratorrechte starten.";
     const RestoredConfigFile restored(main_window());
     const RestoredBackgroundService service;
+    if (const std::wstring obstacle = installed ? start_obstacle() : L""; !obstacle.empty())  // [ConfigFileTest.md#background-service]
+        GTEST_SKIP() << "Der Hintergrunddienst lässt sich auf dieser Maschine nicht starten: " << obstacle;
     ASSERT_TRUE(add_unsaved_sync_item(main_window(), sandbox_sync()));
     ModalDialogWatcher::instance().answer(not_saved_title(), wxID_YES);
     if (!installed)

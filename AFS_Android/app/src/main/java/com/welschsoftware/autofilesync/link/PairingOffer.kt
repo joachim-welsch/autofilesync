@@ -27,10 +27,7 @@ data class PairingOffer(  // what the PC's QR code carries, see DevicePairing.md
     val port: Int,
     val fingerprint: String,
     val token: String,
-    val expires: Long,
-) {
-    val expired: Boolean get() = System.currentTimeMillis() / 1000 > expires
-
+) {  // the expiry in the code is left to the PC, whose clock it belongs to; a phone's clock may differ by hours
     companion object {
         const val HOST = "welsch-software.com"
         const val PATH = "/pair"
@@ -55,7 +52,6 @@ data class PairingOffer(  // what the PC's QR code carries, see DevicePairing.md
                 port = port,
                 fingerprint = fingerprint,
                 token = token,
-                expires = fields["e"]?.toLongOrNull() ?: 0L,
             )
         }
     }

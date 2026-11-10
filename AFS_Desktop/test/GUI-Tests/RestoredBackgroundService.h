@@ -19,6 +19,7 @@
 #pragma once
 
 #include "BackgroundService.h"
+#include <string>
 #ifdef _WIN32
     #include <windows.h>
 #elif !defined(__APPLE__)
@@ -49,6 +50,13 @@ inline bool service_controllable()  // [RestoredBackgroundService.md#service_con
     const wxString unchanged = state == State::Running ? "start" : "stop";
     return wxExecute("systemctl --no-ask-password " + unchanged + " backgroundsync.service", output, errors, wxEXEC_SYNC) == 0;
 #endif
+}
+
+inline std::wstring start_obstacle()  // [RestoredBackgroundService.md#start_obstacle]
+{
+    if (BackgroundService::state() == BackgroundService::State::Running)
+        return L"";
+    return BackgroundService::start();
 }
 
 class RestoredBackgroundService {  // [RestoredBackgroundService.md#RestoredBackgroundService]

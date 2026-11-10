@@ -20,6 +20,7 @@
 #include "ForegroundApp.h"
 #include "GuiTestSandbox.h"
 #include "ModalDialogWatcher.h"
+#include "SshHostKeyVerification.h"
 #include <gtest/gtest.h>
 #include <wx/app.h>
 #include <wx/evtloop.h>
@@ -55,6 +56,7 @@ int main(int argc, char** argv)
     guitest::ModalDialogWatcher::instance();  // [GuiTestMain.md#watcher-before-start]
     int result = EXIT_FAILURE;
     if (wxTheApp->CallOnInit()) {
+        AFS_Core::on_unknown_host_key([](const std::string&, const std::string&) { return true; });  // [GuiTestMain.md#unknown-host-keys]
         wxEventLoop main_loop;  // [GuiTestMain.md#active-event-loop-needed]
         wxEventLoopActivator activate_main_loop(&main_loop);
 #ifdef _MACOS

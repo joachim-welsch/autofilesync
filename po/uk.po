@@ -999,6 +999,38 @@ msgstr "Помилка %1"
 msgid "bs_not_installed_windows"
 msgstr "Фонову службу не встановлено. Спочатку запустіть install.ps1 з проєкту backgroundsync."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "Фонову службу не вдалося запустити: Windows не зміг увійти в систему з обліковим записом служби %1. Пароль, збережений під час налаштування, більше не дійсний, наприклад після зміни пароля. Введіть поточний пароль у консолі служб (services.msc): «AutoFileSync Hintergrunddienst» → Властивості → Вхід."
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_key_unreadable"
+msgstr "Не вдалося прочитати файл ключа збережених паролів. Його не замінено, щоб паролі не було втрачено: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp
+msgid "host_key_unconfirmed"
+msgstr "Ключ SSH-сервера %1 не підтверджено, з'єднання не встановлюється. Фонова служба не може запитати: запустіть синхронізацію один раз у програмі AutoFileSync і підтвердьте там ключ."
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question_title"
+msgstr "Невідомий SSH-сервер"
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question"
+msgstr "AutoFileSync уперше з'єднується із сервером %1.\n\nВідбиток його ключа:\n%2\n\nЗ'єднання безпечне лише тоді, коли цей відбиток належить серверу. У разі сумніву його повідомить адміністратор сервера.\n\nДовіряти цьому серверу надалі?"
+
+#: AFS_Desktop/src/BackgroundService.cpp
+msgid "bs_action_configured"
+msgstr "налаштувати"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "bs_password_prompt"
+msgstr "Windows не зміг увійти в систему з обліковим записом служби %1. Пароль, збережений для фонової служби, більше не дійсний, наприклад після зміни пароля.\n\nПоточний пароль Windows цього облікового запису:"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "autostart_registry_failed"
+msgstr "Не вдалося змінити автоматичний запуск у реєстрі Windows, помилка "
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

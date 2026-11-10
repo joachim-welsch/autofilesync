@@ -19,6 +19,7 @@
 #include "pch.h"
 #include "SyncArbiter.h"
 #include "Config.h"
+#include "UserObject.h"
 #include <chrono>
 #include <thread>
 #include <Logging.h>
@@ -50,7 +51,7 @@ std::atomic_bool private_scope = TEST_SCOPE;
 #ifdef WIN32
 std::wstring event_name(SyncRole role)
 {
-    const std::wstring name = role == SyncRole::Foreground ? L"Global\\AutoFileSyncForegroundSync" : L"Global\\AutoFileSyncBackgroundSync";
+    const std::wstring name = role == SyncRole::Foreground ? L"AutoFileSyncForegroundSync" : L"AutoFileSyncBackgroundSync";  // [UserObject.md#userobject]
     return private_scope ? name + L"Test" : name;
 }
 #else
@@ -80,7 +81,7 @@ SyncRole other_role(SyncRole role)
 void SyncArbiter::publish_active()
 {
 #ifdef WIN32
-    active_event_ = CreateEventW(nullptr, TRUE, TRUE, event_name(role_).c_str());
+    active_event_ = userobject::create_event(event_name(role_));
     if (active_event_ == nullptr)
         log_warning(translation::translate("arbiter_announce_failed"), std::to_wstring(GetLastError()));
 #else
@@ -113,12 +114,7 @@ void SyncArbiter::withdraw_active()
 bool SyncArbiter::other_side_active() const
 {
 #ifdef WIN32
-    HANDLE other = OpenEventW(SYNCHRONIZE, FALSE, event_name(other_role(role_)).c_str());
-    if (other != nullptr) {
-        CloseHandle(other);
-        return true;
-    }
-    return GetLastError() != ERROR_FILE_NOT_FOUND;
+    return userobject::event_exists(event_name(other_role(role_)));
 #else
     const int other = open(lock_path(other_role(role_)).c_str(), O_RDWR | O_CREAT, 0600);
     if (other < 0)

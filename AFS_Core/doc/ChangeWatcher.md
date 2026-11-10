@@ -78,3 +78,12 @@ directories here, not files, so the limit is far away for a user with a few sync
 
 Whether this build has a backend that watches at all; Synchronize does not create a watcher
 without one, so the run stays what it was.
+
+## cancel-before-free
+
+The pending ReadDirectoryChangesW writes into the Watch's buffer and OVERLAPPED when it
+completes, and a cancelled request completes too, only later. CancelIo would not even cancel
+it: it reaches the requests of the calling thread, and the request was issued by the watcher
+thread. CancelIoEx cancels it from any thread, and the wait for its result makes sure the
+system is done with the memory before the Watch is freed. ERROR_NOT_FOUND means that nothing
+was pending, so there is nothing to wait for.

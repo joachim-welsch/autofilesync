@@ -104,6 +104,10 @@ int wmain()
     translation::init(translation::locale_dir());  // before the first message
     Logging::instance().origin(LogOrigin::Daemon);  // the GUI writes to the same file
     stop_event = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    if (stop_event == nullptr) {  // [WindowsService.md#stop_event]
+        log_error(translate("daemon_dispatcher_failed", {std::to_wstring(GetLastError())}));
+        return 1;
+    }
     SERVICE_TABLE_ENTRYW table[] = {{const_cast<LPWSTR>(SERVICE_NAME), service_main}, {nullptr, nullptr}};
     if (StartServiceCtrlDispatcherW(table))
         return 0;

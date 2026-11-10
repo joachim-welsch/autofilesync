@@ -57,9 +57,9 @@ bool MountedDrives::time_elapsed() const
 #ifdef WIN32
     fs::path get_mount_point(const fs::path& path)
     {
-        wchar_t volume_path_name[MAX_PATH];
-        if (GetVolumePathNameW(path.c_str(), volume_path_name, MAX_PATH)) {
-            return fs::path(volume_path_name);
+        std::wstring volume_path_name(path.native().size() + MAX_PATH, L'\0');  // a mount point is never longer than the path below it
+        if (GetVolumePathNameW(path.c_str(), volume_path_name.data(), static_cast<DWORD>(volume_path_name.size()))) {
+            return fs::path(volume_path_name.c_str());
         }
         else {
             DWORD error = GetLastError();

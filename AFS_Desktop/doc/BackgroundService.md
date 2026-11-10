@@ -43,10 +43,32 @@ everything it ran into afterwards - a failed logon of the service account, for o
 invisible and the start looked successful. SEE_MASK_NOCLOSEPROCESS keeps the handle so that its
 exit code can be read.
 
+## sc_path
+
+sc.exe is named with its full path in the system directory. A bare name is looked up in the
+working directory first, and since the command runs with administrator rights after the UAC
+prompt, a file of that name lying wherever the program happened to be started from would run
+elevated in its place.
+
+## quoted
+
+The password travels to sc.exe on its command line and may contain anything. The rules are
+those of the C runtime's argument parser: a quote is escaped with a backslash, and backslashes
+count as themselves unless a quote follows, in which case each of them is doubled.
+
 ## sc-exit-code
 
 sc.exe passes the error of the control it forwarded on as its exit code, so 1069 here is the
 SCM's "logon failed" for the service account.
+
+## start-pending
+
+A service reports START_PENDING until the daemon has loaded the configuration and accepts no
+control before then: a Stop right after a Start would fail with "cannot accept control" (1061),
+an error the user did nothing wrong for. The control therefore waits for that short phase to
+pass. STOP_PENDING is not waited for: it lasts until the running synchronisation pass has
+reached its next item, which can take long, and a Start during it fails with a message that
+says the service is still running - the right answer in that case.
 
 ## with_service
 
@@ -54,10 +76,26 @@ Opened with the least access that still allows the requested control, so that a 
 Administrators group, and the service account - the installer grants it start and stop on the
 service - succeed without the UAC detour.
 
+## service_account
+
+The account is read for the message about a failed logon, see [logon-failure](#logon-failure).
+SERVICE_QUERY_CONFIG is granted to interactive users by default; where it is not, the account
+stays empty and the generic failure message is shown instead.
+
+## logon-failure
+
+The installer registers the service under the account of the person installing, with the
+password typed in at that time. Windows keeps that password with the service, so after the
+user changes their Windows password every start fails with ERROR_SERVICE_LOGON_FAILED (1069).
+The system text for it, "logon failure", does not tell the user that it is their own old
+password at fault, hence a message that names the account and the place to enter the new one.
+The exit code of sc.exe after the UAC detour ends up here as well.
+
 ## query_state-access
 
 SERVICE_QUERY_STATUS is granted to every user, so the state is available without the
-administrator rights that starting and stopping require.
+administrator rights that starting and stopping require; adding it to the access of a start or
+stop therefore cannot be what makes them fail.
 
 ## LAUNCH_AGENT_LABEL
 
@@ -127,3 +165,17 @@ polkit's password prompt.
 "is-active" cannot distinguish from a stopped service. wxEXEC_NOEVENTS keeps this out of a
 nested event loop: the query runs while the menu is opening, where re-entrant event dispatch
 would be unsafe.
+
+## logon_failed
+
+Whether the last command failed because Windows could not log the service account on. The
+menu command reads it to offer the way out - asking for the current password - rather than
+only naming the cause. The value belongs to the last start, stop or set_password and is used
+from the GUI thread only.
+
+## set_password
+
+Hands the service the current password of its account (logon-failure above explains why it
+goes stale). Changing the service configuration needs administrator rights, so this always goes
+through the UAC prompt. Whether the password is right only shows at the next start: the service
+manager stores it unchecked.

@@ -999,6 +999,38 @@ msgstr "Erreur %1"
 msgid "bs_not_installed_windows"
 msgstr "Le service en arrière-plan n'est pas installé. Exécutez d'abord install.ps1 du projet backgroundsync."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "Le service en arrière-plan n'a pas pu être démarré : Windows n'a pas pu ouvrir la session du compte de service %1. Le mot de passe enregistré lors de la configuration n'est plus valable, par exemple après un changement de mot de passe. Saisissez le mot de passe actuel dans la console des services (services.msc), sous « AutoFileSync Hintergrunddienst » → Propriétés → Connexion."
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_key_unreadable"
+msgstr "Le fichier de clé des mots de passe enregistrés est illisible. Il n'est pas remplacé, afin que les mots de passe ne soient pas perdus : "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp
+msgid "host_key_unconfirmed"
+msgstr "La clé du serveur SSH %1 n'est pas confirmée, aucune connexion n'est établie. Le service en arrière-plan ne peut pas poser la question : lancez une fois la synchronisation dans le programme AutoFileSync et confirmez-y la clé."
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question_title"
+msgstr "Serveur SSH inconnu"
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question"
+msgstr "AutoFileSync se connecte pour la première fois au serveur %1.\n\nEmpreinte de sa clé :\n%2\n\nLa connexion n'est sûre que si cette empreinte appartient bien au serveur. En cas de doute, l'administrateur du serveur peut vous l'indiquer.\n\nFaire confiance à ce serveur désormais ?"
+
+#: AFS_Desktop/src/BackgroundService.cpp
+msgid "bs_action_configured"
+msgstr "configuré"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "bs_password_prompt"
+msgstr "Windows n'a pas pu ouvrir la session du compte de service %1. Le mot de passe enregistré pour le service en arrière-plan n'est plus valable, par exemple après un changement de mot de passe.\n\nMot de passe Windows actuel de ce compte :"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "autostart_registry_failed"
+msgstr "Le démarrage automatique n'a pas pu être modifié dans le registre Windows, erreur "
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

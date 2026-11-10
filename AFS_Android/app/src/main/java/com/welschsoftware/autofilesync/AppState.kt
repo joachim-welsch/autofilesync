@@ -128,20 +128,12 @@ class AppState(application: Application) : AndroidViewModel(application) {  // e
 
     fun onLink(uri: Uri?) {  // an app link from the camera app, or the scanner's text
         val offer = PairingOffer.parse(uri) ?: return
-        onOffer(offer)
+        screen = Screen.Confirm(offer)
     }
 
     fun onScanned(text: String) {
         val offer = PairingOffer.parse(text)
-        if (offer == null) message = "error_code_invalid" else onOffer(offer)
-    }
-
-    private fun onOffer(offer: PairingOffer) {
-        if (offer.expired) {
-            message = "error_code_expired"
-            cancel()
-        } else
-            screen = Screen.Confirm(offer)
+        if (offer == null) message = "error_code_invalid" else screen = Screen.Confirm(offer)
     }
 
     fun confirmPair() {

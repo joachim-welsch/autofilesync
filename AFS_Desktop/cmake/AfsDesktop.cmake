@@ -10,6 +10,7 @@ set(AFS_DESKTOP_SOURCES
     App.cpp
     AutoSave.cpp
     BackgroundService.cpp
+    HostKeyPrompt.cpp
     Canvas.cpp
     ChatDialog.cpp
     DevicesDialog.cpp

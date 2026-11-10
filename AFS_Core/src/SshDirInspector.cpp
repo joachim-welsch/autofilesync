@@ -21,6 +21,7 @@
 #endif
 
 #include "SshDirInspector.h"
+#include "HostConnect.h"
 #include "SshFileInspector.h"
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
@@ -170,30 +171,12 @@ SshDirInspector::SshDirInspector(const SshAccount& account)
         throw std::runtime_error(translation::translate_utf8("wsastartup_failed"));
     }
 
-    struct sockaddr_in sin;
-    sock_ = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock_ == INVALID_SOCKET) {
+    const HostConnection attempt = connect_host(account_.host(), account_.port());  // [HostConnect.md#connect_host]
+    sock_ = attempt.socket;
+    if (attempt.failure != ConnectFailure::None) {
         WSACleanup();
-        throw std::runtime_error(translation::translate_utf8("socket_create_error"));
-    }
-
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(account_.port());
-    sin.sin_addr.s_addr = inet_addr(account_.host().c_str());
-    if (sin.sin_addr.s_addr == INADDR_NONE) {
-        struct hostent* host = gethostbyname(account_.host().c_str());
-        if (!host) {
-            closesocket(sock_);
-            WSACleanup();
-            throw std::runtime_error(translation::translate_utf8("host_name_not_resolvable") + account_.host());
-        }
-        memcpy(&sin.sin_addr, host->h_addr, host->h_length);
-    }
-
-    if (connect(sock_, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) {
-        closesocket(sock_);
-        WSACleanup();
-        throw std::runtime_error(translation::translate_utf8("server_connect_failed"));
+        throw std::runtime_error(attempt.failure == ConnectFailure::Resolve ? translation::translate_utf8("host_name_not_resolvable") + account_.host()
+            : translation::translate_utf8("server_connect_failed"));
     }
 
     ensure_libssh2_initialized();

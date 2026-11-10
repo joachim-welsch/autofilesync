@@ -27,6 +27,7 @@ struct SmtpAccount {  // [SmtpMailer.md#SmtpAccount]
 	uint16_t     port = 587;	// submission port; 465 means implicit TLS
 	std::wstring user;			// empty: server accepts unauthenticated relaying
 	std::wstring password;
+	std::wstring sealed_password;	// [SmtpMailer.md#sealed_password]
 	std::wstring from;
 	bool complete() const { return !server.empty() && !from.empty(); }
 	bool operator==(const SmtpAccount&) const = default;

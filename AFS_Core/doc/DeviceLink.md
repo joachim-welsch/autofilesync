@@ -12,9 +12,9 @@ against the server the phone opens for a pass.
 ## role
 
 Only one process may listen - the GUI and the background service share the configuration and
-would otherwise both answer the phone. The role is `devicelink.lock` in the shared directory (a
-named mutex on Windows), taken for as long as the link runs, after the pattern of
-SyncArbiter.md#per-user-lock-path.
+would otherwise both answer the phone. The role is `devicelink.lock` in the shared directory (on
+Windows a mutex in the user's private namespace, UserObject.md#userobject), taken for as long as
+the link runs, after the pattern of SyncArbiter.md#per-user-lock-path.
 The process that finds the role taken simply does not listen and says so in the log, once:
 the background service retries every minute (MyDaemon.md#device-link) and would otherwise
 fill the log while the GUI holds the role.
@@ -116,9 +116,8 @@ the run ended early (a stop), or after PASS_LIMIT; the one-time password is forg
 ## offer
 
 Everything for the QR code (DevicePairing.md#PairingOffer), with the current token or a fresh
-one when none is open. The dialog calls it when it opens and shows the result; a dialog that
-stays open longer than the token lives shows a code the phone will find expired, which the
-app reports and the user fixes by opening the dialog again.
+one when none is open. The dialog calls it when it opens and again when the token has run out
+(PairDeviceDialog.md#renewed-code), so the code on the screen is always one the link accepts.
 
 ## take_paired
 

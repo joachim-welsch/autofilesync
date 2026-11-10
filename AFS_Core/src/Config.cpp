@@ -341,15 +341,17 @@ bool interpret_sync_item(boost::property_tree::wptree syncitem_node, SyncItem& s
     return true;
 }
 
-static wstring read_stored_password(const wstring& stored)  // [Config.md#read_stored_password]
+static void read_stored_password(const wstring& stored, SmtpAccount& smtp)  // [Config.md#read_stored_password]
 {
     const string value = util::wstring_to_string(stored);
     if (!passwordcrypto::is_encrypted(value))
-        return stored;
-    if (auto decrypted = passwordcrypto::decrypt(value, password_key_file_path()))
-        return string_to_wstring(*decrypted);
-    log_error(translation::translate_utf8("smtp_password_not_decryptable"));
-    return {};
+        smtp.password = stored;
+    else if (auto decrypted = passwordcrypto::decrypt(value, password_key_file_path()))
+        smtp.password = string_to_wstring(*decrypted);
+    else {
+        smtp.sealed_password = stored;  // [SmtpMailer.md#sealed_password]
+        log_error(translation::translate_utf8("smtp_password_not_decryptable"));
+    }
 }
 
 static SmtpAccount read_smtp_account(const boost::property_tree::wptree& logging)
@@ -358,7 +360,7 @@ static SmtpAccount read_smtp_account(const boost::property_tree::wptree& logging
     smtp.server = logging.get<wstring>(L"SmtpServer", L"");
     smtp.port = to_uint16_t(logging.get<wstring>(L"SmtpPort", L"587"));
     smtp.user = logging.get<wstring>(L"SmtpUser", L"");
-    smtp.password = read_stored_password(logging.get<wstring>(L"SmtpPassword", L""));
+    read_stored_password(logging.get<wstring>(L"SmtpPassword", L""), smtp);
     smtp.from = logging.get<wstring>(L"SmtpFrom", L"");
     return smtp;
 }
@@ -429,6 +431,7 @@ bool Config::read_ssh_accounts(boost::property_tree::wptree& root)
             } else if (auto decrypted = passwordcrypto::decrypt(stored_password, password_key_file_path())) {
                 account.set_password(*decrypted);
             } else {
+                account.set_sealed_password(stored_password);  // [SshAccount.md#sealed_password_]
                 log_fatal(translation::translate_utf8("ssh_password_not_decryptable"), account.name());  // [Config.md#no-ciphertext-fallback]
             }
             add(account, true);
@@ -480,7 +483,7 @@ void Config::write_logging_setup(boost::property_tree::wptree& root)
     logging.put(wstring(L"SmtpPort"), to_string(smtp.port));
     logging.put(wstring(L"SmtpUser"), smtp.user);
     logging.put(wstring(L"SmtpFrom"), smtp.from);
-    logging.put(wstring(L"SmtpPassword"), smtp.password.empty() ? wstring()  // [Config.md#smtp-password-encryption]
+    logging.put(wstring(L"SmtpPassword"), smtp.password.empty() ? smtp.sealed_password  // [Config.md#smtp-password-encryption]
         : string_to_wstring(passwordcrypto::encrypt(util::wstring_to_string(smtp.password), password_key_file_path())));
 	root.push_back(make_pair(wstring(L"Logging"), logging));
 }
@@ -496,7 +499,8 @@ void Config::write_ssh_accounts(boost::property_tree::wptree& root)
         account_node.put(wstring(L"user"), string_to_wstring(account.user()));
         account_node.put(wstring(L"port"), std::to_wstring(account.port()));
         account_node.put(wstring(L"hostKey"), string_to_wstring(account.host_key()));  // [Config.md#ssh-host-key]
-        account_node.put(wstring(L"password"), string_to_wstring(passwordcrypto::encrypt(account.password(), password_key_file_path())));
+        const bool keep_sealed = account.password().empty() && !account.sealed_password().empty();  // [SshAccount.md#sealed_password_]
+        account_node.put(wstring(L"password"), string_to_wstring(keep_sealed ? account.sealed_password() : passwordcrypto::encrypt(account.password(), password_key_file_path())));
         ssh_accounts_node.push_back(make_pair(wstring(L"SshAccount"), account_node));
     }
     root.push_back(make_pair(wstring(L"SshAccounts"), ssh_accounts_node));

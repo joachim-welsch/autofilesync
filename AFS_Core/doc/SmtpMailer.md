@@ -21,3 +21,9 @@ A server that refuses STARTTLS still gets the mail when the account has no passw
 the local network often has no certificate, and a notification that never arrives helps nobody.
 The session remembers that it went unencrypted and send_mail() reports it in MailResult, so the
 caller can say so in the log - the mailer itself must not log (see send_mail).
+
+## sealed_password
+
+The stored ciphertext of a password that could not be decrypted, kept so that a save does not
+replace it with an empty one; see SshAccount.md#sealed_password_. A dialog that builds a new
+account leaves it empty, so a password typed in again takes its place.

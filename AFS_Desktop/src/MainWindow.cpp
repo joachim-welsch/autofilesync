@@ -56,6 +56,7 @@
 #include <wx/config.h>
 #include <wx/display.h>
 #include <wx/stdpaths.h>
+#include <wx/textdlg.h>
 #include <wx/filedlg.h>
 #include <wx/aboutdlg.h>
 #include <wx/notifmsg.h>
@@ -267,23 +268,29 @@ std::string get_executable_path() {
 }
 #endif
 
+#ifdef WIN32
+static LSTATUS set_run_entry(bool yes)  // [MainWindow.md#set_run_entry]
+{
+    constexpr wchar_t RUN_KEY[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    constexpr wchar_t PROGRAM_NAME[] = L"AutoFileSync";
+    HKEY key = nullptr;
+    const LSTATUS opened = RegOpenKeyExW(HKEY_CURRENT_USER, RUN_KEY, 0, KEY_SET_VALUE, &key);
+    if (opened != ERROR_SUCCESS)
+        return opened;
+    const std::wstring command = L"\"" + wxStandardPaths::Get().GetExecutablePath().ToStdWstring() + L"\"";
+    const DWORD size = static_cast<DWORD>((command.size() + 1) * sizeof(wchar_t));
+    const LSTATUS changed = yes ? RegSetValueExW(key, PROGRAM_NAME, 0, REG_SZ, reinterpret_cast<const BYTE*>(command.c_str()), size)
+        : RegDeleteValueW(key, PROGRAM_NAME);
+    RegCloseKey(key);
+    return !yes && changed == ERROR_FILE_NOT_FOUND ? ERROR_SUCCESS : changed;
+}
+#endif
+
 void MainWindow::register_automatic_start(bool yes)
 {
 #ifdef WIN32
-    HKEY key;
-    auto program_name = L"AutoFileSync";
-    if (yes) {
-        TCHAR path[MAX_PATH];
-        GetModuleFileName(NULL, path, MAX_PATH);
-        RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &key);
-        RegSetValueEx(key, program_name, 0, REG_SZ, (LPBYTE)path, wcslen(path) * sizeof(TCHAR));
-        RegCloseKey(key);
-    }
-	else {
-		RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_SET_VALUE, &key);
-		RegDeleteValue(key, program_name);
-        RegCloseKey(key);
-    }
+    if (const LSTATUS status = set_run_entry(yes); status != ERROR_SUCCESS)
+        log_error(translation::translate("autostart_registry_failed"), std::to_wstring(status));
 #elif _UNIX
     if (yes)
         enable_autostart(get_executable_path());
@@ -878,10 +885,26 @@ void MainWindow::on_start_background_service(wxCommandEvent&)
 {
     if (!ask_and_save("bs_save_question", wxCANCEL))  // [MainWindow.md#service-reads-the-saved-file]
         return;
-    const std::wstring error = BackgroundService::start();
+    std::wstring error = BackgroundService::start();
+    while (BackgroundService::logon_failed()) {  // [MainWindow.md#renew_service_password]
+        if (!renew_service_password())
+            return;
+        error = BackgroundService::start();
+    }
     if (error.empty())
         log_info(translation::translate("bs_started"));
     report_background_service(error, translation::translate("bs_started"));
+}
+
+bool MainWindow::renew_service_password()  // [MainWindow.md#renew_service_password]
+{
+    wxPasswordEntryDialog dialog(this, translation::translate("bs_password_prompt", {BackgroundService::account()}), translation::translate("bs_caption"));
+    if (dialog.ShowModal() != wxID_OK)
+        return false;
+    const std::wstring error = BackgroundService::set_password(dialog.GetValue().ToStdWstring());
+    if (!error.empty())
+        wxMessageBox(error, translation::translate("bs_caption"), wxOK | wxICON_ERROR, this);
+    return error.empty();
 }
 
 void MainWindow::on_stop_background_service(wxCommandEvent&)

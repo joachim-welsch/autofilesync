@@ -14,7 +14,7 @@
     <string name="status_last_contact">Ostatni kontakt: %1$s</string>
     <string name="status_never">Jeszcze bez kontaktu</string>
     <string name="status_up_to_date">Wszystko aktualne</string>
-    <string name="status_unreachable">Komputer niedostępny: czy jest włączony i w tej samej sieci Wi-Fi?</string>
+    <string name="status_unreachable">Komputer niedostępny: czy jest włączony i w tej samej sieci co telefon?</string>
     <string name="status_rejected">Komputer nie rozpoznaje już tego telefonu. Połącz go ponownie.</string>
     <string name="items_none">Nie ustawiono jeszcze żadnej synchronizacji. Ustaw ją w AutoFileSync na komputerze.</string>
     <string name="items_title">Synchronizacje</string>
@@ -22,8 +22,7 @@
     <string name="settings_on_pc">Ustawienia zmieniasz w AutoFileSync na komputerze.</string>
     <string name="forget_pc">Odłącz od komputera</string>
     <string name="error_code_invalid">To nie jest kod AutoFileSync.</string>
-    <string name="error_code_expired">Kod wygasł. Otwórz ponownie „Połącz telefon…” na komputerze.</string>
-    <string name="error_unreachable">Komputer niedostępny: czy jest włączony i w tej samej sieci Wi-Fi?</string>
+    <string name="error_unreachable">Komputer niedostępny: czy jest włączony i w tej samej sieci co telefon?</string>
     <string name="error_handshake">Komputer nie przedstawił oczekiwanego certyfikatu. Zeskanuj nowy kod.</string>
     <string name="error_token_invalid">Komputer odrzucił kod. Otwórz ponownie „Połącz telefon…” na komputerze i zeskanuj nowy kod.</string>
     <string name="error_pairing_closed">Komputer nie czeka na telefon. Najpierw otwórz „Połącz telefon…” na komputerze.</string>
@@ -49,5 +48,5 @@
     <string name="setting_charging_only">Tylko podczas ładowania</string>
     <string name="channel_progress">Trwa synchronizacja</string>
     <string name="channel_problems">Problemy</string>
-    <string name="notify_unreachable">Komputer jest niedostępny od doby. Czy jest włączony i w tej samej sieci Wi-Fi?</string>
+    <string name="notify_unreachable">Komputer jest niedostępny od doby. Czy jest włączony i w tej samej sieci?</string>
 </resources>

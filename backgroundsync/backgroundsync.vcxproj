@@ -64,6 +64,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;bcrypt.lib;ws2_32.lib;iphlpapi.lib;kernel32.lib;user32.lib;shell32.lib;shlwapi.lib;ole32.lib;advapi32.lib;version.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <AdditionalManifestFiles>..\AFS_Core\longPathAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -73,12 +76,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <CETCompat>true</CETCompat>
       <AdditionalLibraryDirectories>C:\Entwicklung\extlib\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -108,6 +113,9 @@
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />
     <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SecretBlob.cpp" />
+    <ClCompile Include="..\AFS_Core\src\UserObject.cpp" />
+    <ClCompile Include="..\AFS_Core\src\HostConnect.cpp" />
     <ClCompile Include="..\AFS_Core\src\Device.cpp" />
     <ClCompile Include="..\AFS_Core\src\DeviceIdentity.cpp" />
     <ClCompile Include="..\AFS_Core\src\DeviceLink.cpp" />

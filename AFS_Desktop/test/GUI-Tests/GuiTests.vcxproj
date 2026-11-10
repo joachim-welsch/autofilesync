@@ -118,6 +118,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\ConfigSummary.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\MountedDrives.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\PasswordCrypto.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\SecretBlob.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\UserObject.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\HostConnect.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Device.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\DeviceIdentity.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\DeviceLink.h" />
@@ -151,6 +154,7 @@
     <ClInclude Include="..\..\include\App.h" />
     <ClInclude Include="..\..\include\AutoSave.h" />
     <ClInclude Include="..\..\include\BackgroundService.h" />
+    <ClInclude Include="..\..\include\HostKeyPrompt.h" />
     <ClInclude Include="..\..\include\Canvas.h" />
     <ClInclude Include="..\..\include\ChatDialog.h" />
     <ClInclude Include="..\..\include\HelpBook.h" />
@@ -245,6 +249,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\LogAnalysis.cpp" />
     <ClCompile Include="..\..\src\AutoSave.cpp" />
     <ClCompile Include="..\..\src\BackgroundService.cpp" />
+    <ClCompile Include="..\..\src\HostKeyPrompt.cpp" />
     <ClCompile Include="..\..\src\Canvas.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CheckPath.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ChangeWatcher.cpp" />
@@ -254,6 +259,9 @@
     <ClCompile Include="..\..\..\AFS_Core\src\HelpKnowledge.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\JsonText.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SecretBlob.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\UserObject.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\HostConnect.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Device.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\DeviceIdentity.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\DeviceLink.cpp" />

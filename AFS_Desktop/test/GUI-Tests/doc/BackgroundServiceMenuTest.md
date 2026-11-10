@@ -36,9 +36,25 @@ the undeterminable state that leads to it.
 The state line carries the answer where neither command does: a service that is not installed
 offers neither of them.
 
+## switched_to
+
+Start and Stop return once the service manager has accepted the command, not once the service
+has arrived in the new state: a stop ends the running synchronisation pass at its next item
+first (WindowsService.md#STOP_WAIT_HINT), which took several seconds on the real configuration
+of the development PC, and both pending states count as running. The check therefore waits
+for the state, with a timeout generous enough for a pass that is in the middle of a large file.
+
 ## HintergrunddienstLaesstSichOhneAdministratorrechteStoppenUndStarten
 
 The installer lets the service user start and stop the service without a password: polkit rule
 on Linux, service permissions on Windows. Both commands run in the order that ends where the
 service began, and RestoredBackgroundService puts it back should a step fail. A missing right
 shows as the "Hintergrunddienst" error box, which the fixture reports as an unexpected dialog.
+
+## start-obstacle
+
+A service whose account can no longer log on - the installer stored the Windows password of the
+installing user, and it has changed since - fails every start, in the menu as well as in the
+test. That is a flaw of the machine, not of the menu, so the test skips and quotes the message
+the user would see; see RestoredBackgroundService.md#start_obstacle for why the probe is a
+start.

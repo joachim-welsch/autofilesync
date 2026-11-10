@@ -29,3 +29,10 @@ into the work area about a second after it appears, and moves the modal dialogs 
 along - under a click a test has just aimed. The tests start only once the main window's
 position and size have stayed the same for half a second. Without a window manager, on Xvfb,
 that is the first half second.
+
+## unknown-host-keys
+
+The program asks the user before it trusts an SSH server it does not know
+(HostKeyPrompt.md#hostkeyprompt). The test server is such a server on a machine that runs the
+tests for the first time, and the question would be an unexpected dialog in every SSH test. The
+tests therefore accept unknown keys, after the application's start has registered its question.

@@ -258,6 +258,9 @@
     <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp" />
     <ClCompile Include="$(LibDir)\src\JsonText.cpp" />
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp" />
+    <ClCompile Include="$(LibDir)\src\SecretBlob.cpp" />
+    <ClCompile Include="$(LibDir)\src\UserObject.cpp" />
+    <ClCompile Include="$(LibDir)\src\HostConnect.cpp" />
     <ClCompile Include="$(LibDir)\src\Device.cpp" />
     <ClCompile Include="$(LibDir)\src\DeviceIdentity.cpp" />
     <ClCompile Include="$(LibDir)\src\DeviceLink.cpp" />
@@ -330,6 +333,9 @@
     <ClInclude Include="$(LibDir)\include\ConfigSummary.h" />
     <ClInclude Include="$(LibDir)\include\MountedDrives.h" />
     <ClInclude Include="$(LibDir)\include\PasswordCrypto.h" />
+    <ClInclude Include="$(LibDir)\include\SecretBlob.h" />
+    <ClInclude Include="$(LibDir)\include\UserObject.h" />
+    <ClInclude Include="$(LibDir)\include\HostConnect.h" />
     <ClInclude Include="FakePhone.h" />
     <ClInclude Include="$(LibDir)\include\Device.h" />
     <ClInclude Include="$(LibDir)\include\DeviceIdentity.h" />

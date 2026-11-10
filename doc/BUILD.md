@@ -132,9 +132,11 @@ Skript selbst nach, und zwar in der Version von `wix` selbst, weil eine neuere
 sich nicht laden lässt.
 
 ```cmd
-scripts\makeWindowsInstaller.cmd              :: Release bauen und paketieren
+scripts\makeWindowsInstaller.cmd              :: Release bauen, signieren und paketieren
 scripts\makeWindowsInstaller.cmd -NoBuild     :: vorhandenen Build verwenden
+scripts\makeWindowsInstaller.cmd -NoSigning   :: unsigniertes Paket (Entwicklerbuild)
 scripts\makeWindowsInstaller.cmd -Output C:\Temp
+scripts\makeWindowsInstaller.cmd -DevFirewallRules  :: Paket für den eigenen Rechner
 ```
 
 Das Skript stellt die Nutzlast in `build\windows_installer\payload` zusammen –
@@ -171,6 +173,17 @@ msiexec /i build\AutoFileSync-<Version>.msi INSTALLSERVICE="" /qn
 
 Ein falsches Passwort lässt die Installation nicht scheitern: der Dienst bleibt
 dann gestoppt, und das Menü **Hintergrunddienst** nennt beim Start den Grund.
+
+Für die Handy-Verbindung legt das Paket zwei Firewall-Ausnahmen an, „AutoFileSync
+(Handy)“ für das Programm und „AutoFileSync Hintergrunddienst (Handy)“ für den
+Dienst: eingehend, alle Profile, nur aus dem lokalen Subnetz, TCP und UDP.
+Windows filtert nach Programmpfad, deshalb gelten sie nur für die installierten
+Dateien unter `%ProgramFiles%\AutoFileSync`. Ein Paket, das mit
+`-DevFirewallRules` gebaut wurde, legt dieselben Ausnahmen zusätzlich für
+`autofilesync.exe` und `backgroundsync.exe` im Build-Verzeichnis an (Release
+und Debug, Namen mit „Entwicklungsbuild“), damit ein aus Visual Studio
+gestartetes Programm das Handy ohne Firewall-Abfrage erreicht. Ein solches
+Paket gehört nur auf den Entwicklungsrechner, weil es dessen Pfade enthält.
 
 Die Produktdefinition steht in `AFS_Desktop/installer/autofilesync.wxs`, die
 Versionsnummer kommt wie beim macOS-Bündel aus `AFS_Desktop/include/Version.h`.
@@ -436,8 +449,8 @@ Log-Level kann in der GUI konfiguriert werden:
     # oder
     $env:AFS_SIGN_PFX = 'C:\pfad\zertifikat.pfx'; $env:AFS_SIGN_PFX_PASSWORD = '...'
 
-Ohne Zertifikat entsteht ein unsigniertes Paket mit Warnung; `-NoSigning` lässt
-die Signierung bewusst aus. Für eine Auslieferung braucht es ein Code-Signing-
+Ohne Zertifikat bricht das Skript ab, damit kein unsigniertes Paket unbemerkt
+entsteht; `-NoSigning` baut bewusst ein unsigniertes Paket (Entwicklerbuild). Für eine Auslieferung braucht es ein Code-Signing-
 Zertifikat einer öffentlichen CA (OV oder EV); ein selbst ausgestelltes
 Zertifikat ergibt zwar eine gültige Signatur, aber keine Vertrauensstellung bei
 den Kunden. Die Versionsangaben der Programmdatei (Eigenschaften-Dialog,

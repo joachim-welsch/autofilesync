@@ -93,7 +93,8 @@ Der QR-Code ist eine normale HTTPS-Adresse
   - den Hinweis „Einstellungen änderst du in AutoFileSync auf dem PC.“
   - zwei Schalter: „Nur im WLAN“ (an) und „Nur beim Laden“ (aus)
 - Fehler stehen in verständlichen Worten in der App, zum Beispiel „PC nicht
-  erreichbar: Ist er eingeschaltet und im selben WLAN?“
+  erreichbar: Ist er eingeschaltet und im selben Netzwerk wie das Handy?“ (nicht
+  „WLAN“: der PC hängt oft per Kabel am Router)
 
 ### 3.3 Ordner auf dem Handy auswählen
 
@@ -117,6 +118,9 @@ https://welsch-software.com/pair#v=1&n=Arbeitszimmer&a=192.168.178.20,fd00::20&p
   und keinen Angriffspunkt für einen Mann in der Mitte.
 - `t`: Einmal-Token, 10 Minuten gültig, nach Gebrauch verbraucht. Er beweist
   dem PC, dass das Handy den Bildschirm gesehen hat.
+- `e`: Ablaufzeit des Tokens nach der Uhr des PCs. Nur der PC prüft sie; das
+  Handy vergleicht sie nicht mit seiner eigenen Uhr, weil die Uhren der beiden
+  Geräte um Stunden abweichen können.
 
 ### 4.2 Ablauf
 

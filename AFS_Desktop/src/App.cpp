@@ -17,6 +17,8 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "App.h"
+#include "HostKeyPrompt.h"
+#include "SshHostKeyVerification.h"
 #include "id.h"
 #include "MainWindow.h"
 #include "utilwx.h"
@@ -80,6 +82,8 @@ bool App::OnInit()
     wxFileSystem::AddHandler(new wxZipFSHandler);
 
 
+    if (!console_mode_)
+        AFS_Core::on_unknown_host_key(hostkeyprompt::confirm);  // [HostKeyPrompt.md#hostkeyprompt]
 	MainWindow *main = new MainWindow(nullptr, tul(id::MAINWINDOW), wxEmptyString);  // the title is set from the configuration path
     if (const auto mismatch = translation::catalogue_mismatch()) {  // [App.md#catalogue-check]
         log_warning(*mismatch);

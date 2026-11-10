@@ -14,7 +14,7 @@
     <string name="status_last_contact">Останній зв\'язок: %1$s</string>
     <string name="status_never">Зв\'язку ще не було</string>
     <string name="status_up_to_date">Усе актуально</string>
-    <string name="status_unreachable">ПК недоступний: чи він увімкнений і в тій самій мережі Wi-Fi?</string>
+    <string name="status_unreachable">ПК недоступний: чи він увімкнений і в тій самій мережі, що й телефон?</string>
     <string name="status_rejected">ПК більше не знає цей телефон. Під\'єднай його знову.</string>
     <string name="items_none">Синхронізацій ще не налаштовано. Налаштуй їх в AutoFileSync на ПК.</string>
     <string name="items_title">Синхронізації</string>
@@ -22,8 +22,7 @@
     <string name="settings_on_pc">Налаштування змінюються в AutoFileSync на ПК.</string>
     <string name="forget_pc">Від\'єднати від ПК</string>
     <string name="error_code_invalid">Це не код AutoFileSync.</string>
-    <string name="error_code_expired">Термін дії коду минув. Знову відкрий «Під\'єднати телефон…» на ПК.</string>
-    <string name="error_unreachable">ПК недоступний: чи він увімкнений і в тій самій мережі Wi-Fi?</string>
+    <string name="error_unreachable">ПК недоступний: чи він увімкнений і в тій самій мережі, що й телефон?</string>
     <string name="error_handshake">ПК не надав очікуваний сертифікат. Відскануй новий код.</string>
     <string name="error_token_invalid">ПК відхилив код. Знову відкрий «Під\'єднати телефон…» на ПК і відскануй новий код.</string>
     <string name="error_pairing_closed">ПК не очікує телефона. Спершу відкрий «Під\'єднати телефон…» на ПК.</string>
@@ -49,5 +48,5 @@
     <string name="setting_charging_only">Лише під час заряджання</string>
     <string name="channel_progress">Триває синхронізація</string>
     <string name="channel_problems">Проблеми</string>
-    <string name="notify_unreachable">ПК недоступний уже добу. Чи він увімкнений і в тій самій мережі Wi-Fi?</string>
+    <string name="notify_unreachable">ПК недоступний уже добу. Чи він увімкнений і в тій самій мережі?</string>
 </resources>

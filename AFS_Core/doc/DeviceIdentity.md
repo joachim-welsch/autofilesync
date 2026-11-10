@@ -31,7 +31,9 @@ unpair every phone one day. The fingerprint pinning makes the lifetime irrelevan
 ## private-files
 
 Owner-only permissions on the key file, like an SSH private key, through Util.md#private-files,
-which sets the mode when the file is created rather than afterwards.
+which sets the mode when the file is created rather than afterwards. On Windows the private key
+is sealed for the user in addition (SecretBlob.md#secretblob); a key file written before sealing
+existed is read as it is and written again sealed.
 
 ## unsaved-identity
 

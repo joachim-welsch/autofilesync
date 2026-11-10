@@ -59,6 +59,8 @@ void SshAccount::set_host(const std::string& host)
 void SshAccount::set_password(const std::string& password)
 {
     password_ = password;
+    if (!password.empty())
+        sealed_password_.clear();  // [SshAccount.md#sealed_password_]
 }
 
 } // namespace AFS_Core

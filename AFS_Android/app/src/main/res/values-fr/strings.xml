@@ -14,7 +14,7 @@
     <string name="status_last_contact">Dernier contact : %1$s</string>
     <string name="status_never">Pas encore de contact</string>
     <string name="status_up_to_date">Tout est à jour</string>
-    <string name="status_unreachable">PC injoignable : est-il allumé et sur le même réseau Wi-Fi ?</string>
+    <string name="status_unreachable">PC injoignable : est-il allumé et sur le même réseau que le téléphone ?</string>
     <string name="status_rejected">Le PC ne connaît plus ce téléphone. Connectez-le à nouveau.</string>
     <string name="items_none">Aucune synchronisation configurée. Configurez-en une dans AutoFileSync sur le PC.</string>
     <string name="items_title">Synchronisations</string>
@@ -22,8 +22,7 @@
     <string name="settings_on_pc">Les réglages se modifient dans AutoFileSync sur le PC.</string>
     <string name="forget_pc">Se déconnecter du PC</string>
     <string name="error_code_invalid">Ce n\'est pas un code AutoFileSync.</string>
-    <string name="error_code_expired">Le code a expiré. Ouvrez à nouveau « Connecter un téléphone… » sur le PC.</string>
-    <string name="error_unreachable">PC injoignable : est-il allumé et sur le même réseau Wi-Fi ?</string>
+    <string name="error_unreachable">PC injoignable : est-il allumé et sur le même réseau que le téléphone ?</string>
     <string name="error_handshake">Le PC n\'a pas présenté le certificat attendu. Scannez un nouveau code.</string>
     <string name="error_token_invalid">Le PC a refusé le code. Ouvrez à nouveau « Connecter un téléphone… » sur le PC et scannez le nouveau code.</string>
     <string name="error_pairing_closed">Le PC n\'attend aucun téléphone. Ouvrez d\'abord « Connecter un téléphone… » sur le PC.</string>
@@ -49,5 +48,5 @@
     <string name="setting_charging_only">Uniquement pendant la charge</string>
     <string name="channel_progress">Synchronisation en cours</string>
     <string name="channel_problems">Problèmes</string>
-    <string name="notify_unreachable">Le PC est injoignable depuis un jour. Est-il allumé et sur le même réseau Wi-Fi ?</string>
+    <string name="notify_unreachable">Le PC est injoignable depuis un jour. Est-il allumé et sur le même réseau ?</string>
 </resources>

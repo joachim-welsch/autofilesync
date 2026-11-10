@@ -23,6 +23,9 @@
 #include "Translation.h"
 #include "Util.h"
 #include <openssl/evp.h>
+#include <functional>
+#include <filesystem>
+#include <mutex>
 #include <utility>
 #include <vector>
 #ifdef _WIN32
@@ -79,6 +82,27 @@ std::string host_key_fingerprint(const std::string& host_key_line)  // [SshHostK
     if (EVP_Digest(blob.data(), blob.size(), digest, &length, EVP_sha256(), nullptr) != 1)
         return {};
     return "SHA256:" + unpadded_base64(digest, length);
+}
+
+namespace {
+std::mutex decision_mutex;
+UnknownHostKeyDecision unknown_key_decision;
+
+[[maybe_unused]] bool unknown_key_accepted(const std::string& host, const std::string& fingerprint)  // [SshHostKeyVerification.md#unknown-host-key]
+{
+    UnknownHostKeyDecision decision;
+    {
+        std::lock_guard<std::mutex> lock(decision_mutex);
+        decision = unknown_key_decision;
+    }
+    return decision && decision(host, fingerprint);
+}
+} // namespace
+
+void on_unknown_host_key(UnknownHostKeyDecision decision)
+{
+    std::lock_guard<std::mutex> lock(decision_mutex);
+    unknown_key_decision = std::move(decision);
 }
 
 #ifdef _UNIX
@@ -166,6 +190,45 @@ std::string known_hosts_file_path()
     return profile ? std::string(profile) + "\\.ssh\\known_hosts" : "known_hosts";
 }
 
+std::string base64_of(const unsigned char* data, size_t length)
+{
+    static constexpr char ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    std::string out;
+    for (size_t i = 0; i < length; i += 3) {
+        const unsigned int chunk = (data[i] << 16) | (i + 1 < length ? data[i + 1] << 8 : 0) | (i + 2 < length ? data[i + 2] : 0);
+        out += ALPHABET[(chunk >> 18) & 63];
+        out += ALPHABET[(chunk >> 12) & 63];
+        out += i + 1 < length ? ALPHABET[(chunk >> 6) & 63] : '=';
+        out += i + 2 < length ? ALPHABET[chunk & 63] : '=';
+    }
+    return out;
+}
+
+std::string fingerprint_of(LIBSSH2_SESSION* session)  // [SshHostKeyVerification.md#fingerprint_of]
+{
+    constexpr size_t SHA256_LENGTH = 32;
+    const char* hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
+    if (!hash)
+        return {};
+    std::string text = base64_of(reinterpret_cast<const unsigned char*>(hash), SHA256_LENGTH);
+    text.erase(text.find_last_not_of('=') + 1);
+    return "SHA256:" + text;
+}
+
+std::string known_host_name(const std::string& host, unsigned short port)  // [SshHostKeyVerification.md#known_host_name]
+{
+    constexpr unsigned short DEFAULT_PORT = 22;
+    return port == DEFAULT_PORT ? host : "[" + host + "]:" + std::to_string(port);
+}
+
+bool store_confirmed_key(LIBSSH2_KNOWNHOSTS* known_hosts, const std::string& path, const std::string& name, const char* key, size_t key_len, int key_mask)
+{
+    std::error_code ec;
+    std::filesystem::create_directories(std::filesystem::path(path).parent_path(), ec);
+    return libssh2_knownhost_addc(known_hosts, name.c_str(), nullptr, key, key_len, nullptr, 0, key_mask, nullptr) == 0
+        && libssh2_knownhost_writefile(known_hosts, path.c_str(), LIBSSH2_KNOWNHOST_FILE_OPENSSH) == 0;
+}
+
 int known_host_key_type_mask(int hostkey_type)  // [SshHostKeyVerification.md#known_host_key_type_mask]
 {
     switch (hostkey_type) {
@@ -208,11 +271,14 @@ bool verify_ssh_host_key(LIBSSH2_SESSION* session, const std::string& host, unsi
     case LIBSSH2_KNOWNHOST_CHECK_MATCH:
         result = true;
         break;
-    case LIBSSH2_KNOWNHOST_CHECK_NOTFOUND: // trust-on-first-use
-        libssh2_knownhost_addc(known_hosts, host.c_str(), nullptr, key, key_len, nullptr, 0, key_mask, nullptr);
-        libssh2_knownhost_writefile(known_hosts, known_hosts_path.c_str(), LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-        log_info(translation::translate("host_key_stored") + string_to_wstring(host));
-        result = true;
+    case LIBSSH2_KNOWNHOST_CHECK_NOTFOUND:
+        result = unknown_key_accepted(known_host_name(host, port), fingerprint_of(session));  // [SshHostKeyVerification.md#unknown-host-key]
+        if (!result)
+            log_error(translation::translate("host_key_unconfirmed", {string_to_wstring(host)}));
+        else if (store_confirmed_key(known_hosts, known_hosts_path, known_host_name(host, port), key, key_len, key_mask))
+            log_info(translation::translate("host_key_stored") + string_to_wstring(host));
+        else
+            log_error(translation::translate("host_key_not_storable") + string_to_wstring(host));
         break;
     case LIBSSH2_KNOWNHOST_CHECK_MISMATCH:
         log_error(translation::translate("host_key_changed") + string_to_wstring(host));
@@ -227,22 +293,6 @@ bool verify_ssh_host_key(LIBSSH2_SESSION* session, const std::string& host, unsi
     return result;
 }
 
-
-namespace {
-std::string base64_of(const unsigned char* data, size_t length)
-{
-    static constexpr char ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    std::string out;
-    for (size_t i = 0; i < length; i += 3) {
-        const unsigned int chunk = (data[i] << 16) | (i + 1 < length ? data[i + 1] << 8 : 0) | (i + 2 < length ? data[i + 2] : 0);
-        out += ALPHABET[(chunk >> 18) & 63];
-        out += ALPHABET[(chunk >> 12) & 63];
-        out += i + 1 < length ? ALPHABET[(chunk >> 6) & 63] : '=';
-        out += i + 2 < length ? ALPHABET[chunk & 63] : '=';
-    }
-    return out;
-}
-} // namespace
 
 bool verify_pinned_host_key(LIBSSH2_SESSION* session, const std::string& expected_line, const std::string& host)  // [SshHostKeyVerification.md#verify_pinned_host_key]
 {

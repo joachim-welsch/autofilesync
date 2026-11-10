@@ -1011,6 +1011,38 @@ msgstr "Error %1"
 msgid "bs_not_installed_windows"
 msgstr "The background service is not installed. Please run install.ps1 of the backgroundsync project first."
 
+#: AFS_Desktop/src/BackgroundService.cpp:91
+msgid "bs_logon_failed"
+msgstr "The background service could not be started: Windows could not log on the service account %1. The password stored when the service was set up is no longer valid, for example after a password change. Enter the current password in the Services console (services.msc) under \"AutoFileSync Hintergrunddienst\" → Properties → Log On."
+
+#: AFS_Core/src/PasswordCrypto.cpp
+msgid "crypto_key_unreadable"
+msgstr "The key file for stored passwords cannot be read. It is not replaced, so that the passwords are not lost: "
+
+#: AFS_Core/src/SshHostKeyVerification.cpp
+msgid "host_key_unconfirmed"
+msgstr "The key of the SSH server %1 has not been confirmed, no connection is made. The background service cannot ask: start the synchronisation once in the AutoFileSync program and confirm the key there."
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question_title"
+msgstr "Unknown SSH server"
+
+#: AFS_Desktop/src/HostKeyPrompt.cpp
+msgid "host_key_question"
+msgstr "AutoFileSync is connecting to the server %1 for the first time.\n\nFingerprint of its key:\n%2\n\nThe connection is only secure if this fingerprint belongs to the server. If in doubt, the server's operator can tell you.\n\nTrust this server from now on?"
+
+#: AFS_Desktop/src/BackgroundService.cpp
+msgid "bs_action_configured"
+msgstr "configured"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "bs_password_prompt"
+msgstr "Windows could not log on the service account %1. The password stored for the background service is no longer valid, for example after a password change.\n\nCurrent Windows password of this account:"
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "autostart_registry_failed"
+msgstr "The automatic start could not be changed in the Windows registry, error "
+
 #: AFS_Desktop/src/BackgroundService.cpp:70
 #: AFS_Desktop/src/BackgroundService.cpp:155
 #: AFS_Desktop/src/BackgroundService.cpp:223

@@ -16,3 +16,11 @@ known_hosts as before.
 
 22 unless the configuration says otherwise (Config.md#ssh-port); a phone's SFTP server cannot
 bind a port below 1024 and announces its own with every hello.
+
+## sealed_password_
+
+The stored ciphertext of a password that could not be decrypted when the configuration was read
+(PasswordCrypto.md#unusable-key). The account has no password then, and the next save would
+replace the ciphertext with an encrypted empty string - losing a password whose key may only
+have been out of reach for a moment. Config writes this value back instead, until a new
+password is set.

@@ -19,12 +19,15 @@
 #include "pch.h"
 #include "PasswordCrypto.h"
 #include "Logging.h"
+#include "SecretBlob.h"
 #include "Translation.h"
 #include "Util.h"
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <algorithm>
 #include <fstream>
 #include <array>
+#include <iterator>
 #include <vector>
 #include <map>
 #include <mutex>
@@ -40,31 +43,67 @@ constexpr size_t KEY_LEN = 32;
 constexpr size_t NONCE_LEN = 12;
 constexpr size_t TAG_LEN = 16;
 
-std::mutex key_cache_mutex;  // [PasswordCrypto.md#key-cache]
-std::map<std::filesystem::path, std::array<unsigned char, KEY_LEN>> key_cache;
+using Key = std::array<unsigned char, KEY_LEN>;
+enum class Stored { Missing, Unusable, Outdated, Current };
 
-std::optional<std::array<unsigned char, KEY_LEN>> load_or_create_key(const std::filesystem::path& key_file)  // [PasswordCrypto.md#random-failure]
+std::mutex key_cache_mutex;  // [PasswordCrypto.md#key-cache]
+std::map<std::filesystem::path, Key> key_cache;
+
+Stored read_key(const std::filesystem::path& key_file, Key& key)  // [PasswordCrypto.md#unusable-key]
+{
+    std::error_code ec;
+    const bool exists = std::filesystem::exists(key_file, ec);
+    if (ec)
+        return Stored::Unusable;
+    if (!exists || std::filesystem::file_size(key_file, ec) == 0)
+        return Stored::Missing;
+    std::ifstream in(key_file, std::ios::binary);
+    const std::string stored{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
+    const auto plain = secretblob::unprotect(stored);
+    if (!plain || plain->size() != KEY_LEN)
+        return Stored::Unusable;
+    std::copy(plain->begin(), plain->end(), key.begin());
+    return secretblob::outdated(stored) ? Stored::Outdated : Stored::Current;
+}
+
+bool persist(const std::filesystem::path& key_file, const Key& key)
+{
+    const auto stored = secretblob::protect(std::string(key.begin(), key.end()));
+    if (!stored)
+        return false;
+#ifdef _WIN32
+    const std::filesystem::path temporary = key_file.wstring() + L".tmp";  // [PasswordCrypto.md#key-file-replaced-whole]
+    std::ofstream out(temporary, std::ios::binary | std::ios::trunc);
+    out.write(stored->data(), static_cast<std::streamsize>(stored->size()));
+    out.close();
+    std::error_code ec;
+    if (out)
+        std::filesystem::rename(temporary, key_file, ec);
+    return out && !ec;
+#else
+    return util::write_private_file(key_file, *stored);  // [PasswordCrypto.md#key-file-permissions]
+#endif
+}
+
+std::optional<Key> load_or_create_key(const std::filesystem::path& key_file)
 {
     std::lock_guard<std::mutex> cache_lock(key_cache_mutex);
     if (auto cached = key_cache.find(key_file); cached != key_cache.end())
         return cached->second;
-
-    std::array<unsigned char, KEY_LEN> key{};
-    std::ifstream in(key_file, std::ios::binary);
-    if (in && in.read(reinterpret_cast<char*>(key.data()), key.size()) && in.gcount() == static_cast<std::streamsize>(key.size())) {
-        key_cache.emplace(key_file, key);
-        return key;
+    Key key{};
+    const Stored stored = read_key(key_file, key);
+    if (stored == Stored::Unusable) {
+        log_error(translation::translate("crypto_key_unreadable"), key_file.wstring());
+        return std::nullopt;
     }
-
-    if (RAND_bytes(key.data(), static_cast<int>(key.size())) != 1) {
+    if (stored == Stored::Missing && RAND_bytes(key.data(), static_cast<int>(key.size())) != 1) {  // [PasswordCrypto.md#random-failure]
         log_error(translation::translate("crypto_key_generation_failed"));
         return std::nullopt;
     }
     std::error_code ec;
     std::filesystem::create_directories(key_file.parent_path(), ec);
-    if (!util::write_private_file(key_file, std::string_view(reinterpret_cast<const char*>(key.data()), key.size())))  // [PasswordCrypto.md#key-file-permissions]
+    if (stored != Stored::Current && !persist(key_file, key))
         log_error(translation::translate("crypto_key_not_storable"), key_file.wstring());
-
     key_cache.emplace(key_file, key);
     return key;
 }

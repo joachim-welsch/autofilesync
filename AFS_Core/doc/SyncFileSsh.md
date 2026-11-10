@@ -13,10 +13,6 @@ SFTP write calls may legitimately write fewer bytes than requested (short write)
 negative return is an error. Treating a short write as failure made large uploads abort
 sporadically.
 
-## resolve_host
-
-Resolves hostname or IP address to sockaddr_in Returns true on success, false on failure
-
 ## connect_to
 
 Resolves "account:/path", connects - or shares the pass's session, see
@@ -138,3 +134,9 @@ ssh_list_dir() is the only way a remote name reaches SyncTree, which appends it 
 and the remote directory path. A name FilesystemUtil.md#plain_entry_name rejects is left out
 of the listing with an error in the log, so a lying server can neither write outside the target
 tree nor, in a two-way item, make the source tree lose a directory it never had.
+
+## wide-file-names
+
+The local file is opened through std::filesystem::path, which keeps the wide name on Windows.
+A narrow UTF-8 name would be read there in the ANSI code page, and a file with an umlaut in its
+name would arrive under a garbled one - see Logging.md#wide-file-names.

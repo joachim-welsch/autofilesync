@@ -20,6 +20,7 @@
 #include "SyncFileSsh.h"
 #include <functional>
 #include "Translation.h"
+#include "HostConnect.h"
 #include "SshHostKeyVerification.h"
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
@@ -166,37 +167,6 @@ namespace {
     bool verify_host_key(LIBSSH2_SESSION* session, const SshAccount& account)  // [SshHostKeyVerification.md#verify_pinned_host_key]
     {
         return account.host_key().empty() ? verify_ssh_host_key(session, account.host(), account.port()) : verify_pinned_host_key(session, account.host_key(), account.host());
-    }
-
-    bool resolve_host(const std::string& host, uint16_t port, sockaddr_in& sin)  // [SyncFileSsh.md#resolve_host]
-    {
-        sin = {};
-        sin.sin_family = AF_INET;
-        sin.sin_port = htons(port);
-#ifdef _WIN32
-        int pton_result = inet_pton(AF_INET, host.c_str(), &sin.sin_addr);
-        if (pton_result == 1) {
-            return true;
-        }
-#else
-        sin.sin_addr.s_addr = inet_addr(host.c_str());  // first try to parse the text as an IP address
-        if (sin.sin_addr.s_addr != INADDR_NONE) {
-            return true;
-        }
-#endif
-        addrinfo hints{};  // if not a valid IP, try to resolve it as a hostname
-        hints.ai_family = AF_INET;
-        hints.ai_socktype = SOCK_STREAM;
-
-        addrinfo* result = nullptr;
-        int rc = getaddrinfo(host.c_str(), std::to_string(port).c_str(), &hints, &result);
-        if (rc != 0 || result == nullptr) {
-            return false;
-        }
-
-        sin = *reinterpret_cast<sockaddr_in*>(result->ai_addr);
-        freeaddrinfo(result);
-        return true;
     }
 }
 #endif
@@ -501,7 +471,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     const SftpAttributes attributes = connection.stat(*remote_path);
     CopyResult result = CopyResult::Error;
     {
-        std::ofstream local_file(wstring_to_string(dest), std::ios::binary);
+        std::ofstream local_file(std::filesystem::path(dest), std::ios::binary);  // [SyncFileSsh.md#wide-file-names]
         if (!local_file.is_open())
             return copy_failed(translation::translate("local_file_open_error") + dest);
         result = download(remote_file.get(), local_file);
@@ -546,7 +516,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
 CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
 {
     log_debug(L"copy_fs_to_ssh: " + src + L" -> " + dest);
-    std::ifstream local_file(wstring_to_string(src), std::ios::binary);
+    std::ifstream local_file(std::filesystem::path(src), std::ios::binary);  // [SyncFileSsh.md#wide-file-names]
     if (!local_file.is_open())
         return copy_failed(translation::translate("local_file_open_error") + src);
     SftpConnection connection;
@@ -676,22 +646,14 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     std::string remote_path = get_remote_path(src);
 
     ensure_libssh2_initialized();
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
-        log_error(translation::translate("socket_create_error"));
-        return CopyResult::Error;
-    }
-
-    sockaddr_in sin{};
-    if (!resolve_host(account.host(), account.port(), sin)) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    SOCKET sock = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return CopyResult::Error;
     }
-
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
+    if (attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("ssh_connect_error_for_host") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return CopyResult::Error;
     }
 
@@ -745,8 +707,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    std::string dest_path = wstring_to_string(dest);
-    std::ofstream local_file(dest_path, std::ios::binary);
+    std::ofstream local_file(std::filesystem::path(dest), std::ios::binary);  // [SyncFileSsh.md#wide-file-names]
     if (!local_file.is_open()) {
         log_error(translation::translate("local_file_open_error") + dest);
         libssh2_sftp_close(remote_file);
@@ -818,22 +779,14 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
     std::string dest_remote_path = get_remote_path(dest);
 
     ensure_libssh2_initialized();
-    SOCKET src_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (src_sock == INVALID_SOCKET) {
-        log_error(translation::translate("source_socket_create_error"));
-        return CopyResult::Error;
-    }
-
-    sockaddr_in src_sin{};
-    if (!resolve_host(src_account.host(), src_account.port(), src_sin)) {
+    const HostConnection src_attempt = connect_host(src_account.host(), src_account.port());  // [HostConnect.md#connect_host]
+    SOCKET src_sock = src_attempt.socket;
+    if (src_attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("source_host_name_resolve_error") + string_to_wstring(src_account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(src_sock);
         return CopyResult::Error;
     }
-
-    if (connect(src_sock, (struct sockaddr*)&src_sin, sizeof(struct sockaddr_in)) != 0) {
+    if (src_attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("ssh_connect_error_source"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(src_sock);
         return CopyResult::Error;
     }
 
@@ -876,30 +829,18 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     }
 
-    SOCKET dest_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (dest_sock == INVALID_SOCKET) {
-        log_error(translation::translate("target_socket_create_error"));
-        libssh2_sftp_shutdown(src_sftp_session);
-        libssh2_session_disconnect(src_session, "Normal Shutdown");
-        libssh2_session_free(src_session);
-        closesocket(src_sock);
-        return CopyResult::Error;
-    }
-
-    sockaddr_in dest_sin{};
-    if (!resolve_host(dest_account.host(), dest_account.port(), dest_sin)) {
+    const HostConnection dest_attempt = connect_host(dest_account.host(), dest_account.port());  // [HostConnect.md#connect_host]
+    SOCKET dest_sock = dest_attempt.socket;
+    if (dest_attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("target_host_name_resolve_error") + string_to_wstring(dest_account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
         libssh2_session_free(src_session);
         closesocket(src_sock);
         return CopyResult::Error;
     }
-
-    if (connect(dest_sock, (struct sockaddr*)&dest_sin, sizeof(struct sockaddr_in)) != 0) {
+    if (dest_attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("ssh_connect_error_target"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(dest_sock);
         libssh2_sftp_shutdown(src_sftp_session);
         libssh2_session_disconnect(src_session, "Normal Shutdown");
         libssh2_session_free(src_session);
@@ -1052,30 +993,21 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     const SshAccount& account = account_opt.value();
     std::string remote_path = get_remote_path(dest);
 
-    std::string src_path = wstring_to_string(src);
-    std::ifstream local_file(src_path, std::ios::binary);
+    std::ifstream local_file(std::filesystem::path(src), std::ios::binary);  // [SyncFileSsh.md#wide-file-names]
     if (!local_file.is_open()) {
         log_error(translation::translate("local_file_open_error") + src);
         return CopyResult::Error;
     }
 
     ensure_libssh2_initialized();
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
-        log_error(translation::translate("socket_create_error"));
-        return CopyResult::Error;
-    }
-
-    sockaddr_in sin{};
-    if (!resolve_host(account.host(), account.port(), sin)) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    SOCKET sock = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return CopyResult::Error;
     }
-
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
+    if (attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return CopyResult::Error;
     }
 
@@ -1177,22 +1109,14 @@ bool ssh_exists(const std::wstring& path)
     std::string remote_path = get_remote_path(path);
 
     ensure_libssh2_initialized();
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
-        log_error(translation::translate("socket_create_error"));
-        return false;
-    }
-
-    sockaddr_in sin{};
-    if (!resolve_host(account.host(), account.port(), sin)) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    SOCKET sock = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
-
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
+    if (attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
 
@@ -1263,22 +1187,14 @@ bool ssh_is_directory(const std::wstring& path)
     std::string remote_path = get_remote_path(path);
 
     ensure_libssh2_initialized();
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
-        log_error(translation::translate("socket_create_error"));
-        return false;
-    }
-
-    sockaddr_in sin{};
-    if (!resolve_host(account.host(), account.port(), sin)) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    SOCKET sock = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
-
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
+    if (attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
 
@@ -1345,22 +1261,14 @@ bool ssh_mkdir(const std::wstring& path)
     std::string remote_path = win_to_sftp_path(get_remote_path(path));
 
     ensure_libssh2_initialized();
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
-        log_error(translation::translate("socket_create_error"));
-        return false;
-    }
-
-    sockaddr_in sin{};
-    if (!resolve_host(account.host(), account.port(), sin)) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    SOCKET sock = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
-
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
+    if (attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
 
@@ -1428,22 +1336,14 @@ static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBS
     std::string remote_path = win_to_sftp_path(get_remote_path(path));
 
     ensure_libssh2_initialized();
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
-        log_error(translation::translate("socket_create_error"));
-        return false;
-    }
-
-    sockaddr_in sin{};
-    if (!resolve_host(account.host(), account.port(), sin)) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    SOCKET sock = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
-
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
+    if (attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return false;
     }
 
@@ -1531,22 +1431,14 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     std::string remote_path = get_remote_path(path);
 
     ensure_libssh2_initialized();
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
-        log_error(translation::translate("socket_create_error"));
-        return entries;
-    }
-
-    sockaddr_in sin{};
-    if (!resolve_host(account.host(), account.port(), sin)) {
+    const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
+    SOCKET sock = attempt.socket;
+    if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return entries;
     }
-
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) != 0) {
+    if (attempt.failure == ConnectFailure::Connect) {
         log_warning(translation::translate("server_connect_failed"));  // [SyncFileSsh.md#unreachable-is-a-warning]
-        closesocket(sock);
         return entries;
     }
 

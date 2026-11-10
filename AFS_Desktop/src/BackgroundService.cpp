@@ -21,6 +21,8 @@
 #ifdef WIN32
     #include <Windows.h>
     #include <shellapi.h>
+    #include <cstddef>
+    #include <vector>
 #elif _UNIX
     #include <wx/wxprec.h>
     #ifndef WX_PRECOMP
@@ -45,6 +47,8 @@ constexpr wchar_t SERVICE_NAME[] = L"backgroundsync";  // [BackgroundService.md#
 
 #ifdef WIN32
 constexpr DWORD ELEVATION_TIMEOUT = 30000;  // [BackgroundService.md#ELEVATION_TIMEOUT]
+constexpr DWORD START_PENDING_TIMEOUT = 10000, START_PENDING_POLL = 100;  // [BackgroundService.md#start-pending]
+DWORD last_failure = ERROR_SUCCESS;  // [BackgroundService.md#logon_failed]
 
 class ScHandle {  // CloseServiceHandle is not CloseHandle, so util::AutoHandle does not fit
     SC_HANDLE handle_;
@@ -66,21 +70,60 @@ wstring system_message(DWORD error)
     return text;
 }
 
+wstring service_account()  // [BackgroundService.md#service_account]
+{
+    ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
+    ScHandle service(manager != nullptr ? OpenServiceW(manager, SERVICE_NAME, SERVICE_QUERY_CONFIG) : nullptr);
+    DWORD needed = 0;
+    if (service == nullptr || QueryServiceConfigW(service, nullptr, 0, &needed) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        return L"";
+    std::vector<std::byte> buffer(needed);
+    auto* config = reinterpret_cast<QUERY_SERVICE_CONFIGW*>(buffer.data());
+    if (!QueryServiceConfigW(service, config, needed, &needed) || config->lpServiceStartName == nullptr)
+        return L"";
+    return config->lpServiceStartName;
+}
+
 wstring failure(const wstring& action, DWORD error)
 {
+    last_failure = error;
     if (error == ERROR_SERVICE_DOES_NOT_EXIST)
         return translate("bs_not_installed_windows");
+    const wstring account = error == ERROR_SERVICE_LOGON_FAILED ? service_account() : L"";
+    if (!account.empty())
+        return translate("bs_logon_failed", {account});  // [BackgroundService.md#logon-failure]
     return translate("bs_action_failed", {action, system_message(error)});
 }
 
-wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundService.md#elevate]
+wstring sc_path()  // [BackgroundService.md#sc_path]
 {
-    const wstring parameters = verb + L" " + SERVICE_NAME;
+    wstring directory(MAX_PATH, L'\0');
+    directory.resize(GetSystemDirectoryW(directory.data(), static_cast<UINT>(directory.size())));
+    return directory + L"\\sc.exe";
+}
+
+wstring quoted(const wstring& argument)  // [BackgroundService.md#quoted]
+{
+    wstring result = L"\"";
+    size_t backslashes = 0;
+    for (const wchar_t c : argument) {
+        if (c == L'"')
+            result.append(backslashes + 1, L'\\');
+        backslashes = c == L'\\' ? backslashes + 1 : 0;
+        result += c;
+    }
+    result.append(backslashes, L'\\');
+    return result + L'"';
+}
+
+wstring elevate(const wstring& parameters, const wstring& action)  // [BackgroundService.md#elevate]
+{
+    const wstring program = sc_path();
     SHELLEXECUTEINFOW info{};
     info.cbSize = sizeof(info);
     info.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
     info.lpVerb = L"runas";
-    info.lpFile = L"sc.exe";
+    info.lpFile = program.c_str();
     info.lpParameters = parameters.c_str();
     info.nShow = SW_HIDE;
     if (!ShellExecuteExW(&info)) {
@@ -100,17 +143,30 @@ wstring elevate(const wstring& verb, const wstring& action)  // [BackgroundServi
     return failure(action, exit_code);
 }
 
+void wait_while_starting(SC_HANDLE service)  // [BackgroundService.md#start-pending]
+{
+    SERVICE_STATUS status{};
+    for (DWORD waited = 0; waited < START_PENDING_TIMEOUT; waited += START_PENDING_POLL) {
+        if (!QueryServiceStatus(service, &status) || status.dwCurrentState != SERVICE_START_PENDING)
+            return;
+        Sleep(START_PENDING_POLL);
+    }
+}
+
 wstring with_service(DWORD access, const wstring& verb, const wstring& action, bool (*control)(SC_HANDLE))  // [BackgroundService.md#with_service]
 {
+    last_failure = ERROR_SUCCESS;
+    const wstring command = verb + L" " + SERVICE_NAME;
     ScHandle manager(OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CONNECT));
     if (manager == nullptr)
         return failure(action, GetLastError());
-    ScHandle service(OpenServiceW(manager, SERVICE_NAME, access));
+    ScHandle service(OpenServiceW(manager, SERVICE_NAME, access | SERVICE_QUERY_STATUS));
     if (service == nullptr)
-        return GetLastError() == ERROR_ACCESS_DENIED ? elevate(verb, action) : failure(action, GetLastError());
+        return GetLastError() == ERROR_ACCESS_DENIED ? elevate(command, action) : failure(action, GetLastError());
+    wait_while_starting(service);
     if (control(service))
         return L"";
-    return GetLastError() == ERROR_ACCESS_DENIED ? elevate(verb, action) : failure(action, GetLastError());
+    return GetLastError() == ERROR_ACCESS_DENIED ? elevate(command, action) : failure(action, GetLastError());
 }
 
 BackgroundService::State query_state()  // [BackgroundService.md#query_state-access]
@@ -353,6 +409,34 @@ wstring stop()
     return stop_agent();
 #elif _UNIX
     return run_systemctl(L"stop", translate("bs_action_stopped"));
+#else
+    return translate("bs_unsupported");
+#endif
+}
+
+bool logon_failed()
+{
+#ifdef WIN32
+    return last_failure == ERROR_SERVICE_LOGON_FAILED;
+#else
+    return false;
+#endif
+}
+
+wstring account()
+{
+#ifdef WIN32
+    return service_account();
+#else
+    return L"";
+#endif
+}
+
+wstring set_password([[maybe_unused]] const wstring& password)
+{
+#ifdef WIN32
+    last_failure = ERROR_SUCCESS;
+    return elevate(wstring(L"config ") + SERVICE_NAME + L" password= " + quoted(password), translate("bs_action_configured"));
 #else
     return translate("bs_unsupported");
 #endif
