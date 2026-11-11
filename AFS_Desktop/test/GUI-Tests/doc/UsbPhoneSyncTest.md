@@ -120,5 +120,8 @@ comes first.
 
 ## expired
 
-An offer whose expiry lies in the past: the app says the code has expired and offers no
-"Connect" (the check is the app's own, before any connection).
+A code whose token runs out on the PC while the phone still shows it: only the PC judges the
+expiry (DevicePairing.md#qr_content), so the app offers "Connect", and the PC refuses the tap.
+Ending the token stands in for the ten minutes; the dialog may already show a renewed code
+(PairDeviceDialog.md#renewed-code), so the refusal is pairing_closed or token_invalid, both
+with the advice to open the dialog again. Nothing is paired.

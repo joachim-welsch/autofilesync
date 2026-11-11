@@ -415,21 +415,22 @@ TEST_F(UsbPhoneSyncTest, CodeGiltNurBeiOffenemDialog)  // [UsbPhoneSyncTest.md#c
     EXPECT_TRUE(Config::instance().devices_snapshot().empty()) << "Ein Code nach dem Schließen des Dialogs darf nichts koppeln.";
 }
 
-TEST_F(UsbPhoneSyncTest, AbgelaufenerCodeWirdErkannt)  // [UsbPhoneSyncTest.md#expired]
+TEST_F(UsbPhoneSyncTest, AbgelaufenerCodeWirdAbgelehnt)  // [UsbPhoneSyncTest.md#expired]
 {
     ModalDialogWatcher::instance().expect(txt::connect_phone(), [this](wxDialog& dialog) {
         PairingOffer offer = DeviceLink::instance().offer();
         offer.addresses = {"127.0.0.1"};
-        offer.expires = std::time(nullptr) - 60;
-        EXPECT_TRUE(phone_->reverse(offer.port) && phone_->open_link(qr_content(offer)));
-        EXPECT_TRUE(wait_until([this] { return phone_->shows("error_code_expired"); }, MESSAGE_TIMEOUT_MILLISECONDS)) << "Die App meldet den abgelaufenen Code nicht.";
-        EXPECT_FALSE(phone_->shows("connect")) << "Ein abgelaufener Code darf nicht zum Verbinden einladen.";
+        DeviceLink::instance().pairing().end();  // the token runs out while the code is still on the phone
+        const bool tapped = phone_->reverse(offer.port) && phone_->open_link(qr_content(offer)) && phone_->tap("connect", PHONE_TIMEOUT);
+        EXPECT_TRUE(tapped) << "Kopplung über USB nicht angestoßen: adb reverse, Kopplungs-Link oder \"Verbinden\" in der App.";
+        EXPECT_TRUE(tapped && wait_until([this] { return phone_->shows("error_pairing_closed") || phone_->shows("error_token_invalid"); }, MESSAGE_TIMEOUT_MILLISECONDS))
+            << "Die App meldet nicht, dass der PC den abgelaufenen Code ablehnt.";
         dialog.EndModal(wxID_CLOSE);
     });
     activate_menu_item(main_window(), tul(id::File_connect_phone));
     pump();
 
-    EXPECT_TRUE(Config::instance().devices_snapshot().empty());
+    EXPECT_TRUE(Config::instance().devices_snapshot().empty()) << "Ein abgelaufener Code darf nichts koppeln.";
 }
 
 }
