@@ -138,6 +138,10 @@ if (-not $NoBuild) {
     $clArgs = @('/nologo', '/c', '/EHsc', '/std:c++20', '/MP', '/utf-8')
     if ($debug) { $clArgs += '/MDd', '/Zi' } else { $clArgs += '/MD', '/O2' }
     foreach ($d in $defines) { $clArgs += "/D$d" }
+    # UsbPhone liest die Knopftexte der App aus deren Quellen; Schraegstriche,
+    # weil der Pfad in einem C++-Stringliteral landet.
+    $androidRes = (Join-Path $root 'AFS_Android\app\src\main\res') -replace '\\', '/'
+    $clArgs += "`"/DAFS_ANDROID_RES_DIR=\`"$androidRes\`"`""
     foreach ($i in $includes) { $clArgs += "/I`"$i`"" }
     # Doppelter Abschluss-Backslash: einfach wuerde in der Antwortdatei das
     # schliessende Anfuehrungszeichen entwerten, cl sieht dann eine Datei statt

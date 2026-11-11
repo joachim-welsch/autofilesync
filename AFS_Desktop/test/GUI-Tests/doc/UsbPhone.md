@@ -13,7 +13,7 @@ in the destructor.
 
 ## check
 
-The test is skipped, not failed, when no phone is ready: adb missing, no phone or more than one,
+The test is skipped, not failed, when no phone is ready: the app's texts missing, adb missing, no phone or more than one,
 USB debugging not confirmed, the app missing, not a debug build, or without "access to all
 files", or locked (unlocked). "Access to all files" cannot be granted over adb on OnePlus (ANDROID-CONCEPT.md, measurements),
 and without it the app refuses a pass. A debug build is required because only run-as can save
@@ -72,10 +72,26 @@ test's checks after the pass would then fail rather than pass wrongly.
 
 ## quoting
 
-Every phone command passes two shells: the host's, which popen starts, and the phone's, which
-adb starts with the command joined to one line (also for exec-in and exec-out). The phone
-command is therefore built with quoted parts first and then quoted as a whole for the host.
+adb is started with a list of arguments (Command), so the phone command reaches adb as one
+argument whatever it contains. Only the phone's shell parses it, which adb starts with the
+command joined to one line (also for exec-in and exec-out); paths inside it are therefore
+quoted for that shell with shell_quoted. On Linux and macOS the list still goes through popen,
+which needs the host's shell: every argument is quoted for it as a whole. On Windows the list
+is passed to CreateProcessW without a shell (windows-quoting).
+
+## windows-quoting
+
+CreateProcessW takes one command line, which adb splits again by the rules of the C runtime:
+an argument with a space, tab or quote is put in quotes, a quote inside is escaped with a
+backslash, and backslashes are doubled only in front of a quote, including the closing one.
+
+## adb_program
+
+adb is taken from the Android SDK if one is found (ANDROID_HOME, ANDROID_SDK_ROOT, then the
+default location of Android Studio), otherwise from the PATH, because Android Studio installs
+the platform-tools without putting them on the PATH.
 
 ## translations_of
 
-AFS_ANDROID_RES_DIR comes from the GUI tests' CMakeLists.txt.
+AFS_ANDROID_RES_DIR comes from the GUI tests' CMakeLists.txt, GuiTests.vcxproj or
+run_GUI_Tests.ps1; check skips the test when the directory is missing.

@@ -28,6 +28,7 @@ namespace guitest {
 
 class UsbPhone {  // [UsbPhone.md#UsbPhone]
 public:
+    using Command = std::vector<std::string>;  // program and arguments, passed without a host shell [UsbPhone.md#quoting]
     UsbPhone();
     ~UsbPhone();
     UsbPhone(const UsbPhone&) = delete;
@@ -54,14 +55,13 @@ private:
     std::string screen_texts();
     bool backup_pairing();
     bool restore_pairing();  // [UsbPhone.md#pairing-backup]
-    std::string adb(const std::string& arguments) const;
-    std::string adb(const std::string& service, const std::string& phone_command) const;
+    Command adb(Command arguments) const;
     std::string shell(const std::string& phone_command, int* status = nullptr);
     std::string why_not_;
     std::string serial_;
     std::optional<std::string> pairing_;
     bool backed_up_ = false;
-    std::vector<std::string> undo_;
+    std::vector<Command> undo_;
 };
 
 std::string app_package();
