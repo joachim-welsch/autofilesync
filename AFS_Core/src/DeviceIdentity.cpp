@@ -121,9 +121,10 @@ CertificatePtr self_signed(EVP_PKEY* key)  // [DeviceIdentity.md#self-signed]
     X509_gmtime_adj(X509_getm_notAfter(certificate.get()), VALID_DAYS * 86400L);
     X509_set_pubkey(certificate.get(), key);
     const std::string common_name = "AutoFileSync " + host_name();
-    X509_NAME* name = X509_get_subject_name(certificate.get());
-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_UTF8, reinterpret_cast<const unsigned char*>(common_name.c_str()), -1, -1, 0);
-    X509_set_issuer_name(certificate.get(), name);
+    const std::unique_ptr<X509_NAME, decltype(&X509_NAME_free)> name(X509_NAME_new(), X509_NAME_free);  // OpenSSL 4 returns the subject name const
+    X509_NAME_add_entry_by_txt(name.get(), "CN", MBSTRING_UTF8, reinterpret_cast<const unsigned char*>(common_name.c_str()), -1, -1, 0);
+    X509_set_subject_name(certificate.get(), name.get());
+    X509_set_issuer_name(certificate.get(), name.get());
     if (X509_sign(certificate.get(), key, EVP_sha256()) <= 0)
         certificate.reset();
     return certificate;
