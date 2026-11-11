@@ -251,6 +251,8 @@ wxString agent_plist()  // [BackgroundService.md#agent_plist]
 
 bool agent_plist_current()
 {
+    if (!wxFileExists(agent_plist_path()))
+        return false;
     wxFFile file(agent_plist_path(), "r");
     wxString content;
     return file.IsOpened() && file.ReadAll(&content) && content == agent_plist();

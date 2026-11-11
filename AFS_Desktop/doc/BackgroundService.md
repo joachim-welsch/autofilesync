@@ -121,6 +121,8 @@ Compared by content on every Start: a plist written for an earlier location (a m
 daemon under Application Support, a bundle moved since) would start the wrong, possibly outdated
 binary. launchd keeps the definition it was bootstrapped with, so a changed plist takes effect only
 after the agent was booted out and bootstrapped again.
+On the first Start no plist exists yet; its existence is checked before opening it, because a failed
+open of wxFFile reports itself as an error box through wxLog.
 
 ## run_launchctl
 
