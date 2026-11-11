@@ -105,6 +105,14 @@ survive the round trip.
 std::from_chars has no wchar_t overload, and narrowing a wide string blindly would turn a
 non-ASCII character into some byte that may well be a digit - so only ASCII digits and the sign
 are let through before the conversion.
+A field longer than 20 characters (the length of INT64_MIN and of UINT64_MAX) cannot be a valid
+number, so the digits fit into a fixed buffer instead of a string allocated per field.
+
+## sorted-lines
+
+write_sync_state() writes the files in the order of the map, so on reading each path belongs at
+the end and the hint makes the insertion cheap. A file edited by hand out of order is still read
+correctly, only slower; a path that appears twice keeps its last line.
 
 ## nanoseconds
 

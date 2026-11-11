@@ -22,6 +22,7 @@
 #include "Translation.h"
 #include "Util.h"
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <utility>
 #include <stdexcept>
@@ -42,20 +43,41 @@ namespace {
     constexpr wchar_t EXTENSION[] = L".tsv";
     constexpr std::size_t HEADER_LINES = 3;
     constexpr std::size_t FILE_FIELDS = 4;
+    constexpr std::size_t MAX_DIGITS = 20;  // length of INT64_MIN and UINT64_MAX
 
-    wstring escaped(wstring_view text)  // [SyncState.md#line-format]
+    void append_escaped(wstring& text, wstring_view raw)  // [SyncState.md#line-format]
     {
-        wstring retval;
-        retval.reserve(text.size());
-        for (wchar_t c : text)
+        for (wchar_t c : raw)
             switch (c) {
-            case L'\\': retval += L"\\\\"; break;
-            case L'\t': retval += L"\\t"; break;
-            case L'\n': retval += L"\\n"; break;
-            case L'\r': retval += L"\\r"; break;
-            default: retval += c;
+            case L'\\': text += L"\\\\"; break;
+            case L'\t': text += L"\\t"; break;
+            case L'\n': text += L"\\n"; break;
+            case L'\r': text += L"\\r"; break;
+            default: text += c;
             }
-        return retval;
+    }
+
+    template<class Integer> void append_field(wstring& text, Integer value)
+    {
+        text += std::to_wstring(value);
+        text += L'\t';
+    }
+
+    void append_header(wstring& text, wstring_view key, wstring_view value)
+    {
+        text += key;
+        text += L'\t';
+        append_escaped(text, value);
+        text += L'\n';
+    }
+
+    void append_file(wstring& text, const wstring& path, const FileState& file)
+    {
+        append_field(text, file.size);
+        append_field(text, util::to_unix_nanoseconds(file.source_time));
+        append_field(text, util::to_unix_nanoseconds(file.target_time));
+        append_escaped(text, path);
+        text += L'\n';
     }
 
     wstring unescaped(wstring_view text)
@@ -80,11 +102,10 @@ namespace {
     wstring text_of(const SyncState& state)
     {
         wstring text = wstring(MAGIC) + L' ' + std::to_wstring(SyncState::FORMAT_VERSION) + L'\n';
-        text += wstring(SOURCE_KEY) + L'\t' + escaped(state.source()) + L'\n';
-        text += wstring(TARGET_KEY) + L'\t' + escaped(state.target()) + L'\n';
+        append_header(text, SOURCE_KEY, state.source());
+        append_header(text, TARGET_KEY, state.target());
         for (const auto& [path, file] : state.files())
-            text += std::to_wstring(file.size) + L'\t' + std::to_wstring(util::to_unix_nanoseconds(file.source_time)) + L'\t'
-                + std::to_wstring(util::to_unix_nanoseconds(file.target_time)) + L'\t' + escaped(path) + L'\n';
+            append_file(text, path, file);
         return text;
     }
 
@@ -99,38 +120,46 @@ namespace {
         return retval;
     }
 
-    std::vector<wstring_view> fields_of(wstring_view line, std::size_t count)  // the last field takes the rest of the line
+    template<std::size_t COUNT> std::array<wstring_view, COUNT> fields_of(wstring_view line)  // the last field takes the rest of the line
     {
-        std::vector<wstring_view> retval;
-        while (retval.size() + 1 < count) {
+        std::array<wstring_view, COUNT> retval;
+        for (std::size_t i = 0; i + 1 < COUNT; ++i) {
             const std::size_t tab = line.find(L'\t');
             if (tab == wstring_view::npos)
                 throw std::runtime_error("line has too few fields");
-            retval.push_back(line.substr(0, tab));
+            retval[i] = line.substr(0, tab);
             line.remove_prefix(tab + 1);
         }
-        retval.push_back(line);
+        retval[COUNT - 1] = line;
         return retval;
+    }
+
+    [[noreturn]] void throw_not_a_number(wstring_view field)
+    {
+        throw std::runtime_error("not a number: " + util::wstring_to_string(wstring(field)));
     }
 
     template<class Integer> Integer integer(wstring_view field)  // [SyncState.md#integer]
     {
-        std::string digits;
-        for (wchar_t c : field) {
-            if (c != L'-' && (c < L'0' || c > L'9'))
-                throw std::runtime_error("not a number: " + util::wstring_to_string(wstring(field)));
-            digits += static_cast<char>(c);
+        std::array<char, MAX_DIGITS> digits{};
+        if (field.size() > digits.size())
+            throw_not_a_number(field);
+        for (std::size_t i = 0; i < field.size(); ++i) {
+            if (field[i] != L'-' && (field[i] < L'0' || field[i] > L'9'))
+                throw_not_a_number(field);
+            digits[i] = static_cast<char>(field[i]);
         }
         Integer value{};
-        const auto [end, ec] = std::from_chars(digits.data(), digits.data() + digits.size(), value);
-        if (ec != std::errc() || end != digits.data() + digits.size())
-            throw std::runtime_error("not a number: " + digits);
+        const char* last = digits.data() + field.size();
+        const auto [end, ec] = std::from_chars(digits.data(), last, value);
+        if (ec != std::errc() || end != last)
+            throw_not_a_number(field);
         return value;
     }
 
     wstring header_value(wstring_view line, wstring_view key)
     {
-        const std::vector<wstring_view> fields = fields_of(line, 2);
+        const auto fields = fields_of<2>(line);
         if (fields[0] != key)
             throw std::runtime_error("header line is not " + util::wstring_to_string(wstring(key)));
         return unescaped(fields[1]);
@@ -152,9 +181,9 @@ namespace {
         check_version(lines[0]);
         FileStates files;
         for (std::size_t i = HEADER_LINES; i < lines.size(); ++i) {
-            const std::vector<wstring_view> fields = fields_of(lines[i], FILE_FIELDS);
-            files[unescaped(fields[3])] = {integer<uint64_t>(fields[0]), util::from_unix_nanoseconds(integer<int64_t>(fields[1])),
-                util::from_unix_nanoseconds(integer<int64_t>(fields[2]))};
+            const auto fields = fields_of<FILE_FIELDS>(lines[i]);
+            files.insert_or_assign(files.end(), unescaped(fields[3]), FileState{integer<uint64_t>(fields[0]),
+                util::from_unix_nanoseconds(integer<int64_t>(fields[1])), util::from_unix_nanoseconds(integer<int64_t>(fields[2]))});  // [SyncState.md#sorted-lines]
         }
         return SyncState(header_value(lines[1], SOURCE_KEY), header_value(lines[2], TARGET_KEY), std::move(files));
     }
