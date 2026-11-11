@@ -29,6 +29,14 @@ Events arrive on the watcher's thread a few milliseconds after the write, so eve
 last_change() for up to three seconds instead of asserting right away; a negative expectation
 polls for one second, which is long for inotify and short for the suite.
 
+## wait_until_quiet
+
+One write produces several events (create, modify, close) and noticed() returns on the first.
+A test that clears the item afterwards must first let the rest arrive, or a late event marks
+the item again right after clear(). FSEvents delivers the first event at once (NoDefer) and
+the others bundled after its latency of one second; Windows reports them on the next
+ReadDirectoryChangesW call. So the test waits until no event came for 1.5 s.
+
 ## ADirectoryCreatedLaterIsWatchedToo
 
 inotify watches directories one by one (ChangeWatcher.md#inotify-per-directory): a directory

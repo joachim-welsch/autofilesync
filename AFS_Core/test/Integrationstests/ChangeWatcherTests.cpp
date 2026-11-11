@@ -37,6 +37,7 @@ namespace {
         const fs::path root_ = fs::temp_directory_path() / "autofilesync_changewatcher_test";
         std::optional<tu::ScopedLoggingSetup> logging_;  // [ChangeWatcherTests.md#log-in-test-dir]
         std::optional<ChangeWatcher> watcher_;
+        static constexpr milliseconds QUIET{1500};  // [ChangeWatcherTests.md#wait_until_quiet]
         void SetUp() override
         {
             fs::remove_all(root_);
@@ -67,6 +68,12 @@ namespace {
             }
             return false;
         }
+
+        static void wait_until_quiet(const ChangeWatcher& watcher, const std::wstring& item)  // [ChangeWatcherTests.md#wait_until_quiet]
+        {
+            while (std::chrono::steady_clock::now() - watcher.last_change(item).value_or(ChangeWatcher::TimePoint{}) < QUIET)
+                std::this_thread::sleep_for(milliseconds(20));
+        }
     };
 }
 
@@ -80,6 +87,7 @@ TEST_F(ChangeWatcherTest, AFileWrittenBelowAWatchedTreeIsNoticed)
     tu::write_text_file(root_ / "tree" / "sub" / "neu.txt", "x");
 
     EXPECT_TRUE(noticed(watcher, L"baum"));
+    wait_until_quiet(watcher, L"baum");
     watcher.clear(L"baum");
     EXPECT_FALSE(watcher.last_change(L"baum").has_value());
 }
@@ -89,7 +97,7 @@ TEST_F(ChangeWatcherTest, ADirectoryCreatedLaterIsWatchedToo)  // [ChangeWatcher
     ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true}});
     fs::create_directories(root_ / "tree" / "spaeter" / "tief");
     ASSERT_TRUE(noticed(watcher, L"baum"));
-    std::this_thread::sleep_for(milliseconds(200));
+    wait_until_quiet(watcher, L"baum");
     watcher.clear(L"baum");
 
     tu::write_text_file(root_ / "tree" / "spaeter" / "tief" / "datei.txt", "x");
