@@ -47,7 +47,7 @@ private:
     ApplicationState before_;
 };
 
-class SlowGuiTest: public GuiTest {};  // [GuiTest.md#SlowGuiTest]
-class ChatGuiTest: public GuiTest {};  // [GuiTest.md#ChatGuiTest]
+class DISABLED_SlowGuiTest: public GuiTest {};  // [GuiTest.md#SlowGuiTest]
+class DISABLED_ChatGuiTest: public GuiTest {};  // [GuiTest.md#ChatGuiTest]
 
 }

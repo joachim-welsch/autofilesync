@@ -7,13 +7,6 @@
 set -e
 BINARY="${1:-$(dirname "$0")/build/GuiTests}"
 shift || true
-# The chat tests (ChatGuiTest, SlowGuiTest) need the local language model and
-# take minutes each; they run only when the caller asks for them with a filter
-# of their own, see GuiTest.md#ChatGuiTest.
-case " $* " in
-    *--gtest_filter*) ;;
-    *) set -- "$@" "--gtest_filter=-ChatGuiTest.*:SlowGuiTest.*" ;;
-esac
 if [ ! -x "$BINARY" ]; then
     echo "Testprogramm nicht gefunden: $BINARY" >&2
     exit 1

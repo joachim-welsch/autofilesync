@@ -85,7 +85,7 @@ private:
 };
 }
 
-TEST_F(SlowGuiTest, LogFrageWirdImChatBeantwortet)  // [ChatLogQuestionTest.md#LogFrageWirdImChatBeantwortet]
+TEST_F(DISABLED_SlowGuiTest, LogFrageWirdImChatBeantwortet)  // [ChatLogQuestionTest.md#LogFrageWirdImChatBeantwortet]
 {
     const ScopedSampleLogEntries sample_log(wstring_to_string(Logging::instance().get_log_file_path_name()));
 

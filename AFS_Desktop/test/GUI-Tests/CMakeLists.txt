@@ -126,11 +126,4 @@ set_target_properties(GuiTests PROPERTIES CROSSCOMPILING_EMULATOR "${CMAKE_CURRE
 # an explicit ctest run, not on every build. RUN_SERIAL: multiple processes
 # must not compete for the same real desktop at once.
 include(GoogleTest)
-# ctest leaves the chat tests out as well (GuiTest.md#ChatGuiTest); TEST_FILTER
-# needs CMake 3.22, older ones register everything and the wrapper's default
-# filter does not apply to a single registered test.
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
-    gtest_discover_tests(GuiTests DISCOVERY_MODE PRE_TEST TEST_FILTER "-ChatGuiTest.*:SlowGuiTest.*" PROPERTIES RUN_SERIAL TRUE)
-else()
-    gtest_discover_tests(GuiTests DISCOVERY_MODE PRE_TEST PROPERTIES RUN_SERIAL TRUE)
-endif()
+gtest_discover_tests(GuiTests DISCOVERY_MODE PRE_TEST PROPERTIES RUN_SERIAL TRUE)

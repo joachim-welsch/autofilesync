@@ -122,5 +122,4 @@ the button must carry the menu's name for the command and run it like the menu d
 ## ChatGuiTest
 
 All tests of this file are chat tests, the quick ones under ChatGuiTest and the ones that wait
-for the model under SlowGuiTest, so that the GUI run leaves the chat out by default
-(GuiTest.md#ChatGuiTest).
+for the model under SlowGuiTest; both fixtures are disabled (GuiTest.md#ChatGuiTest).

@@ -43,17 +43,17 @@ taken in SetUp().
 ## SlowGuiTest
 
 Same fixture, different name: a test that waits for the local language model takes a minute
-or two, and the name lets a run leave them out (`--gtest_filter=-SlowGuiTest.*`) without
-losing them from the suite.
+or two. Every one of them is a chat test, so the fixture is disabled like ChatGuiTest.
 
 ## ChatGuiTest
 
 The assistant's quick tests - menu, help sections, empty input, new conversation, hiding the
-window - under a name of their own, so that the chat as a whole can be left out: every
-SlowGuiTest is a chat test, and these are the rest. run_gui_tests.sh leaves both out unless
-the caller passes a filter of their own, because the chat needs the language model
-(ModelLocation.md) and a developer working on the synchronisation should not wait for it or
-fail without it. `--gtest_filter='ChatGuiTest.*:SlowGuiTest.*'` runs the chat alone.
+window - under a name of their own; every SlowGuiTest is a chat test, and these are the rest.
+Both fixtures carry gtest's `DISABLED_` prefix, so no run - neither run_gui_tests.sh nor ctest,
+whatever filter it is given - executes the chat: it needs the language model (ModelLocation.md)
+and a developer working on the synchronisation should not wait for it or fail without it.
+`--gtest_also_run_disabled_tests --gtest_filter='DISABLED_ChatGuiTest.*:DISABLED_SlowGuiTest.*'`
+runs the chat alone.
 
 ## left-open-reported
 

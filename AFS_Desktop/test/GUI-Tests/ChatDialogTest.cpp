@@ -98,7 +98,7 @@ bool press_control_enter(wxWindow* input)
 
 }
 
-TEST_F(ChatGuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHatEinEigenesMenue]
+TEST_F(DISABLED_ChatGuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHatEinEigenesMenue]
 {
     wxMenuBar* menu_bar = main_window().GetMenuBar();
     const int assistant = menu_bar->FindMenu(AFS_Core::translation::translate("menu_assistant"));
@@ -106,7 +106,7 @@ TEST_F(ChatGuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#Assisten
     EXPECT_NE(menu_bar->GetMenu(static_cast<size_t>(assistant))->FindItem(tul(id::Chat)), nullptr) << "Der Chat steht nicht im Menü Assistent.";
 }
 
-TEST_F(ChatGuiTest, HilfebuchLiefertDemAssistentenSeineAbschnitte)  // [ChatDialogTest.md#HilfebuchLiefertDemAssistentenSeineAbschnitte]
+TEST_F(DISABLED_ChatGuiTest, HilfebuchLiefertDemAssistentenSeineAbschnitte)  // [ChatDialogTest.md#HilfebuchLiefertDemAssistentenSeineAbschnitte]
 {
     wxFileName book(wxStandardPaths::Get().GetExecutablePath());
     book.AppendDir("help");
@@ -121,7 +121,7 @@ TEST_F(ChatGuiTest, HilfebuchLiefertDemAssistentenSeineAbschnitte)  // [ChatDial
     EXPECT_TRUE(read_help_book(book.GetPath() + "/fehlt.htb").empty()) << "Ein fehlendes Hilfebuch lieferte Abschnitte.";
 }
 
-TEST_F(ChatGuiTest, ChatLeereEingabeTutNichts)
+TEST_F(DISABLED_ChatGuiTest, ChatLeereEingabeTutNichts)
 {
     ChatControls chat = open_chat(main_window());
     ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
@@ -135,7 +135,7 @@ TEST_F(ChatGuiTest, ChatLeereEingabeTutNichts)
     EXPECT_TRUE(chat.send->IsEnabled()) << "Eine leere Eingabe hat den Dialog ins Warten versetzt.";
 }
 
-TEST_F(ChatGuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#ChatNeuesGespraechLeertDenVerlauf]
+TEST_F(DISABLED_ChatGuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#ChatNeuesGespraechLeertDenVerlauf]
 {
     ChatControls chat = open_chat(main_window());
     ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
@@ -154,7 +154,7 @@ TEST_F(ChatGuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogTest.md#Ch
     EXPECT_TRUE(value_of(chat.transcript).Contains(LlamaClient::missing_model_hint())) << "Der Hinweis vom Start fehlt.";
 }
 
-TEST_F(ChatGuiTest, ChatSchliessenVerstecktUndMenueZeigtWieder)  // [ChatDialogTest.md#hidden-not-destroyed]
+TEST_F(DISABLED_ChatGuiTest, ChatSchliessenVerstecktUndMenueZeigtWieder)  // [ChatDialogTest.md#hidden-not-destroyed]
 {
     ChatControls chat = open_chat(main_window());
     ASSERT_NE(chat.dialog, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
@@ -170,7 +170,7 @@ TEST_F(ChatGuiTest, ChatSchliessenVerstecktUndMenueZeigtWieder)  // [ChatDialogT
     EXPECT_EQ(value_of(chat.input), "Entwurf") << "Der unfertige Text ging beim Schließen verloren.";
 }
 
-TEST_F(SlowGuiTest, ChatStrgEingabeSendet)  // [ChatDialogTest.md#ChatStrgEingabeSendet]
+TEST_F(DISABLED_SlowGuiTest, ChatStrgEingabeSendet)  // [ChatDialogTest.md#ChatStrgEingabeSendet]
 {
     ChatControls chat = open_chat(main_window());
     ASSERT_NE(chat.input, nullptr) << "Der Chat-Dialog wurde nicht geöffnet.";
@@ -188,7 +188,7 @@ TEST_F(SlowGuiTest, ChatStrgEingabeSendet)  // [ChatDialogTest.md#ChatStrgEingab
     EXPECT_TRUE(value_of(chat.transcript).Contains(AFS_Core::translation::translate("chat_assistant") + L":") || value_of(chat.transcript).Contains(AFS_Core::translation::translate("error") + L":"));
 }
 
-TEST_F(SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest.md#ChatAntwortErscheintWaehrendSieEntsteht]
+TEST_F(DISABLED_SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest.md#ChatAntwortErscheintWaehrendSieEntsteht]
 {
     if (!LlamaClient::available())
         GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
@@ -211,7 +211,7 @@ TEST_F(SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest
     EXPECT_EQ(count_of(value_of(chat.transcript), speaker), answers_before + 1) << "Die fertige Antwort wurde ein zweites Mal angehängt.";
 }
 
-TEST_F(SlowGuiTest, ChatBeantwortetHilfefrageMitDerHilfeseite)  // [ChatDialogTest.md#ChatBeantwortetHilfefrageMitDerHilfeseite]
+TEST_F(DISABLED_SlowGuiTest, ChatBeantwortetHilfefrageMitDerHilfeseite)  // [ChatDialogTest.md#ChatBeantwortetHilfefrageMitDerHilfeseite]
 {
     if (!LlamaClient::available())
         GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
@@ -230,7 +230,7 @@ TEST_F(SlowGuiTest, ChatBeantwortetHilfefrageMitDerHilfeseite)  // [ChatDialogTe
     EXPECT_NE(answer.Find("Globale Einstellungen"), wxNOT_FOUND) << "Die Antwort nennt die Hilfeseite nicht: " << answer;
 }
 
-TEST_F(SlowGuiTest, ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus)  // [ChatDialogTest.md#ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus]
+TEST_F(DISABLED_SlowGuiTest, ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus)  // [ChatDialogTest.md#ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus]
 {
     if (!LlamaClient::available())
         GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
@@ -257,7 +257,7 @@ TEST_F(SlowGuiTest, ChatSchlaegtEinmalSynchronisierenVorUndFuehrtEsAus)  // [Cha
     EXPECT_EQ(tree.read("ziel/bericht.txt"), "Bericht") << "Der Knopf hat nicht synchronisiert.";
 }
 
-TEST_F(SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDialogTest.md#ChatKenntDieAnzahlDerSynchronisationen]
+TEST_F(DISABLED_SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDialogTest.md#ChatKenntDieAnzahlDerSynchronisationen]
 {
     if (!LlamaClient::available())
         GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
@@ -280,7 +280,7 @@ TEST_F(SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDialogTest.
     EXPECT_NE(answer.Find("3"), wxNOT_FOUND) << "Der Assistent kennt die Anzahl nicht: " << answer;
 }
 
-TEST_F(SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  // [ChatDialogTest.md#ChatVorschlagLegtSynchronisationUeberDenDialogAn]
+TEST_F(DISABLED_SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  // [ChatDialogTest.md#ChatVorschlagLegtSynchronisationUeberDenDialogAn]
 {
     if (!LlamaClient::available())
         GTEST_SKIP() << "Kein lokales Sprachmodell; " << model_location::PATH_VARIABLE << " ist nicht gesetzt.";
