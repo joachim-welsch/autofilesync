@@ -355,6 +355,12 @@ backgroundsync/install.sh
 
 ## 13. Deinstallation
 
+`scripts/uninstallLinux.sh` entfernt das Debian-Paket und eine manuelle
+Installation in einem Schritt und fordert `sudo` selbst an. `--dry-run` zeigt
+nur, was entfernt würde; `--purge` löscht nach Rückfrage auch die Benutzerdaten
+(siehe unten), die Drop-in-Datei des Dienstes und das Systemkonto
+`backgroundsync`. Von Hand geht es so:
+
 ```bash
 sudo systemctl disable --now backgroundsync.service 2>/dev/null || true
 sudo rm -f /etc/systemd/system/backgroundsync.service /usr/sbin/backgroundsync
