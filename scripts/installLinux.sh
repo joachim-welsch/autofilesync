@@ -63,11 +63,44 @@ checkout_release()
     fi
 }
 
+pinned_llama_commit()
+{
+    sed -n '/llama_cpp$/,/GIT_TAG/s/^ *GIT_TAG *\([0-9a-f]*\).*/\1/p' "$1/AFS_Core/cmake/AfsCore.cmake"
+}
+
+local_llama_checkout()
+{
+    local dir
+    for dir in "${SOURCE_DIR}"/build/*/_deps/llama_cpp-src "${SOURCE_DIR}/build/_deps/llama_cpp-src"; do
+        [ "$(git -C "${dir}" rev-parse HEAD 2>/dev/null)" = "$1" ] && { echo "${dir}"; return; }
+    done
+    return 0
+}
+
+# makeDebianPackage.sh up to v0.4.0 ends silently without an existing llama.cpp
+# checkout; build/_deps of the release sources is one of the places it looks.
+provide_llama()
+{
+    local commit target="$1/build/_deps/llama_cpp-src"
+    commit="$(pinned_llama_commit "$1")"
+    [ -n "${commit}" ] || return 0
+    [ "$(git -C "${target}" rev-parse HEAD 2>/dev/null)" = "${commit}" ] && return 0
+    rm -rf "${target}"
+    mkdir -p "$(dirname "${target}")"
+    local existing; existing="$(local_llama_checkout "${commit}")"
+    if [ -n "${existing}" ]; then
+        ln -s "${existing}" "${target}"
+    else
+        info "=== llama.cpp ${commit:0:10} herunterladen ==="
+        git clone --quiet https://github.com/ggml-org/llama.cpp.git "${target}"
+        git -C "${target}" checkout --quiet --detach "${commit}"
+    fi
+}
+
 build_package()
 {
     rm -rf "${PACKAGE_DIR}"
-    "$1/scripts/makeDebianPackage.sh" --output "${PACKAGE_DIR}" >&2  # stdout carries only the package path; the release's own script matches the layout of its sources
-    find "${PACKAGE_DIR}" -maxdepth 1 -name 'autofilesync_*.deb' | head -n 1
+    "$1/scripts/makeDebianPackage.sh" --output "${PACKAGE_DIR}"  # the release's own script matches the layout of its sources
 }
 
 service_enabled()
@@ -116,8 +149,10 @@ else
     info "=== ${TAG} installieren (bisher: ${INSTALLED:-nicht installiert}) ==="
     checkout_release "${TAG}"
     SOURCE="${RELEASE_SOURCE}"
+    provide_llama "${SOURCE}"
 fi
-PACKAGE="$(build_package "${SOURCE}")"
+build_package "${SOURCE}"
+PACKAGE="$(find "${PACKAGE_DIR}" -maxdepth 1 -name 'autofilesync_*.deb' | head -n 1)"
 [ -f "${PACKAGE}" ] || fail "Kein Paket in ${PACKAGE_DIR} entstanden."
 "${SOURCE_DIR}/scripts/uninstallLinux.sh" --manual-only --yes  # leftovers in /usr/local and /etc would shadow the packaged program and unit
 install_package "${PACKAGE}"

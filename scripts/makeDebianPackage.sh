@@ -79,6 +79,7 @@ existing_llama_checkout()
     for dir in "${BUILD_DIR}/_deps" "${SOURCE_DIR}/build/Release/_deps" "${SOURCE_DIR}/build/_deps"; do
         [ -f "${dir}/llama_cpp-src/CMakeLists.txt" ] && { echo "${dir}/llama_cpp-src"; return; }
     done
+    return 0  # no checkout yet: FetchContent downloads one, and set -e must not end the script here
 }
 
 build_release()
