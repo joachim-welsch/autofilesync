@@ -4,6 +4,7 @@
 set -euo pipefail
 
 PURGE=false
+MANUAL_ONLY=false
 DRY_RUN=false
 ASSUME_YES=false
 UNIT=backgroundsync.service
@@ -21,6 +22,8 @@ usage()
     echo "Aufruf: $0 [OPTIONEN]"
     echo "  --purge       Zusätzlich Konfiguration, Schlüssel und Protokoll des Benutzers,"
     echo "                die Dienst-Benutzerdatei und das Systemkonto backgroundsync entfernen"
+    echo "  --manual-only Nur Reste einer manuellen Installation entfernen; Paket, Dienststatus"
+    echo "                und Benutzerdaten bleiben unberührt (vor der Installation des Pakets)"
     echo "  --dry-run     Nur anzeigen, was entfernt würde"
     echo "  -y, --yes     Keine Rückfrage"
     echo "  -h, --help    Diese Hilfe"
@@ -31,6 +34,7 @@ usage()
 while [[ $# -gt 0 ]]; do
     case $1 in
         --purge) PURGE=true; shift ;;
+        --manual-only) MANUAL_ONLY=true; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
         -y|--yes) ASSUME_YES=true; shift ;;
         -h|--help) usage; exit 0 ;;
@@ -143,6 +147,8 @@ summary()
 }
 
 [ "${DRY_RUN}" = true ] && warn "Probelauf - es wird nichts verändert."
+[ "${MANUAL_ONLY}" = false ] || [ "${PURGE}" = false ] || fail "--manual-only und --purge schließen sich aus."
+[ "${MANUAL_ONLY}" = false ] || { remove_manual_installation; exit 0; }
 confirm "AutoFileSync deinstallieren?" || fail "Abgebrochen."
 stop_programs
 remove_package

@@ -18,6 +18,12 @@ scripts/makeDebianPackage.sh
 sudo apt install ./build/autofilesync_<version>_<arch>.deb
 ```
 
+`scripts/installLinux.sh` erledigt das für das neueste Release in einem Schritt:
+Es baut das Paket aus dem höchsten Tag `v<major>.<minor>.<patch>` (Quellen in
+`build/release-source`), entfernt Reste einer manuellen Installation und
+installiert das Paket. Mit `--head` wird stattdessen der aktuelle Stand des
+Arbeitsverzeichnisses installiert.
+
 Das Paket wird gegen das wxWidgets der Distribution gebaut (ein selbst
 übersetztes unter `/usr/local` gibt es auf den Zielrechnern nicht) und mit
 `GGML_NATIVE=OFF`, damit es auch auf anderen CPUs läuft. Programm:
