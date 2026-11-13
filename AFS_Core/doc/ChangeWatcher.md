@@ -25,8 +25,10 @@ which is the whole fallback: a watcher that cannot watch must never make a pass 
 
 ## clear
 
-Forgets the recorded change. The run clears after its pass, because the pass's own copies into
-a watched target are changes too and would otherwise trigger the next pass at once.
+Forgets the recorded change if it is older than `before`; without `before` it forgets it in any
+case. The run clears after its pass with the pass's start time, so that a change from during
+the pass survives (Synchronize.md#due). Only the latest change is kept, so one event during
+the pass is enough to keep the record.
 
 ## overflow
 

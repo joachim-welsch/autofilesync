@@ -26,6 +26,10 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 Braucht das Android SDK (Plattform 34, build-tools 34) in `local.properties`
 (`sdk.dir=…`) und Java 17 oder neuer.
 
+Mit `keystore.properties` wird auch der Debug-Build mit dem Release-Schlüssel signiert,
+sodass Debug- und Release-APK sich gegenseitig ohne Deinstallieren ersetzen; ohne sie
+gilt der übliche Debug-Schlüssel.
+
 ## Ablauf
 
 1. Auf dem PC in AutoFileSync: Datei → Handy verbinden…
@@ -42,7 +46,11 @@ unabhängig davon.
 - Einmalig: `tools/make-release-key.sh` erzeugt den Signaturschlüssel (Standard:
   `~/.android/autofilesync-release.jks`) und `keystore.properties` (beides nie ins Repo).
   Schlüssel und Passwort sichern: ohne sie lässt sich kein Update mehr installieren.
-- `./gradlew assembleRelease` baut die signierte APK, ohne `keystore.properties` eine
+- `scripts/makeAndroidInstaller.sh` (im Wurzelverzeichnis) baut die signierte APK, prüft
+  die Signatur und legt `build/autofilesync-<versionName>.apk` mit `.sha256` ab;
+  `--install` installiert sie zusätzlich per adb. Die Version steht in `versionName` /
+  `versionCode` in `app/build.gradle.kts`.
+- `./gradlew assembleRelease` allein baut die signierte APK, ohne `keystore.properties` eine
   unsignierte (so baut F-Droid selbst).
 - `tools/assetlinks.sh` gibt die `assetlinks.json` für
   `https://welsch-software.com/.well-known/assetlinks.json` aus; erst damit öffnet die

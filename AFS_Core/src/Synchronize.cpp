@@ -285,12 +285,13 @@ void Synchronize::sync_item(SyncItem& i)
         return;
     if (!of_device && sync_type_ != SyncType::Preview && !due(i))  // [Synchronize.md#preview-ignores-the-pause]
         return;
+    const auto pass_start = std::chrono::steady_clock::now();
     if (touches_nothing())  // [Synchronize.md#no-proof-for-counting-passes]
         run_sync_item(i);
     else
         report_sync_item(i);
     if (watcher_)
-        watcher_->clear(i.name());  // [Synchronize.md#due] the pass's own writes are not a reason for the next one
+        watcher_->clear(i.name(), pass_start);  // [Synchronize.md#due] a change during the pass leads to one more pass
     if (of_device && !touches_nothing())
         DeviceLink::instance().item_passed(device_id, i.name());
 }

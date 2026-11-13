@@ -156,12 +156,13 @@ when WATCHED_SCAN_INTERVAL has passed since its last pass, the safety net for th
 watcher can miss: an overflowed queue, a network drive that reports nothing, a change that
 came in during the pass. The pause does not apply to a watched item: "at once" is what the
 option promises, and the loop's one-second tick plus the settle time already keep a file that
-is saved every few seconds from running a pass per keystroke. The watcher's record for the
-item is cleared after the pass, not before: the pass's own copies into the watched target are
-events too, and taken as a reason they would run the item again on every tick. A change that
-arrives during the pass is therefore left to the scan interval; the alternative, a pass after
-every pass, was worse. An unwatched item - no local side, the option off, the platform's limit
-reached - is due by its pause alone, as before.
+is saved every few seconds from running a pass per keystroke. After the pass the watcher
+forgets only the changes from before the pass started. A change that arrives during the pass
+cannot be told apart from the pass's own copies into the watched target, and the pass may have
+listed its directory before it came, so it leads to one more pass once it has settled. That
+pass finds nothing to do, writes nothing and so ends the chain; forgetting everything instead
+would leave a file saved during a pass to the ten-minute scan. An unwatched item - no local
+side, the option off, the platform's limit reached - is due by its pause alone, as before.
 
 ## device-items
 

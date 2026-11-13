@@ -1741,6 +1741,10 @@ msgstr "Виконується одноразова синхронізація �
 msgid "state_paused"
 msgstr "Пауза – наступний запуск через %1 с"
 
+#: AFS_Desktop/src/SyncInterface.cpp
+msgid "state_watching"
+msgstr "Очікування змін"
+
 #: AFS_Desktop/src/SyncInterface.cpp:323
 msgid "state_running"
 msgstr "Виконується синхронізація …"

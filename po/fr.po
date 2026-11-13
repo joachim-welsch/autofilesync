@@ -1741,6 +1741,10 @@ msgstr "Synchronisation unique en cours …"
 msgid "state_paused"
 msgstr "En pause – prochaine exécution dans %1 s"
 
+#: AFS_Desktop/src/SyncInterface.cpp
+msgid "state_watching"
+msgstr "En attente de modifications"
+
 #: AFS_Desktop/src/SyncInterface.cpp:323
 msgid "state_running"
 msgstr "Synchronisation en cours …"

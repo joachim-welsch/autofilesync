@@ -30,6 +30,9 @@ android {
         }
     }
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")  // same key lets debug and release builds replace each other on the phone
+        }
         release {
             isMinifyEnabled = false
             signingConfig = signingConfigs.findByName("release")  // unsigned without keystore.properties, as F-Droid builds it
