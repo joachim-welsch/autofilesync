@@ -455,6 +455,27 @@ namespace {
             }
             return false;
         }
+        static std::chrono::steady_clock::time_point last_pass()
+        {
+            for (const SyncItem& i : Config::instance().syncitems())
+                if (i.name() == L"watched")
+                    return i.last_sync();
+            return {};
+        }
+        static bool comes_to_rest(int quiet_ms, int timeout_ms)  // [SynchronizeTests.md#comes_to_rest]
+        {
+            auto seen = last_pass();
+            for (int waited = 0, quiet = 0; waited < timeout_ms; waited += 100, quiet += 100) {
+                if (quiet >= quiet_ms)
+                    return true;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                if (last_pass() != seen) {
+                    seen = last_pass();
+                    quiet = 0;
+                }
+            }
+            return false;
+        }
     };
 }
 
@@ -467,6 +488,32 @@ TEST(SynchronizeTests, AWatchedItemSyncsANewFileLongBeforeItsPause)  // [Synchro
     std::ofstream(run.source / "zweite.txt") << "2";
 
     EXPECT_TRUE(run.appears("zweite.txt", 8000)) << "the change must trigger a pass within the settle time, not after the 60 s pause";
+}
+
+TEST(SynchronizeTests, AChangeDuringAPassOfAWatchedItemIsNotLost)  // [SynchronizeTests.md#AChangeDuringAPassOfAWatchedItemIsNotLost]
+{
+    constexpr std::size_t LARGE_FILE_BYTES = 64u << 20;
+    const WatchedRun run(true);
+    tu::write_large_file(run.source / "gross.bin", LARGE_FILE_BYTES);
+    Synchronize::create(SyncType::Continuous);
+    for (int waited = 0; !std::filesystem::exists(run.target / "gross.bin") && waited < 5000; ++waited)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    std::ofstream(run.source / "zweite.txt") << "2";
+
+    ASSERT_EQ(WatchedRun::last_pass(), (std::chrono::steady_clock::time_point::min)()) << "the pass was over before the change came - the file must be larger";
+    EXPECT_TRUE(run.appears("zweite.txt", 8000)) << "a change during a pass must lead to one more pass, not wait for the ten-minute scan";
+}
+
+TEST(SynchronizeTests, AWatchedRunComesToRestAfterAChange)  // [SynchronizeTests.md#comes_to_rest]
+{
+    const WatchedRun run(true);
+    Synchronize::create(SyncType::Continuous);
+    ASSERT_TRUE(run.appears("erste.txt", 5000));
+    std::ofstream(run.source / "zweite.txt") << "2";
+    ASSERT_TRUE(run.appears("zweite.txt", 8000));
+
+    EXPECT_TRUE(WatchedRun::comes_to_rest(5000, 20000)) << "the passes after a change must stop once there is nothing left to do";
 }
 
 TEST(SynchronizeTests, AnUnwatchedItemWaitsForItsPause)  // [SynchronizeTests.md#watched-run]

@@ -382,21 +382,34 @@ void SyncInterface::stop_continuous_sync()
 
 namespace {
 
-std::optional<std::chrono::seconds> remaining_pause()  // [SyncInterface.md#remaining_pause]
+struct Waiting {  // [SyncInterface.md#waiting_items]
+    bool due = false;
+    bool watched = false;
+    std::optional<std::chrono::steady_clock::duration> shortest_pause;
+};
+
+Waiting waiting_items()  // [SyncInterface.md#waiting_items]
 {
-    std::optional<std::chrono::steady_clock::duration> shortest;
+    Waiting waiting;
+    const auto now = std::chrono::steady_clock::now();
     for (const auto& item : Config::instance().syncitems()) {
         if (!item.enabled())
             continue;
-        const auto remaining = item.last_sync() + std::chrono::seconds(item.sync_cycle()) - std::chrono::steady_clock::now();
-        if (remaining <= std::chrono::steady_clock::duration::zero())
-            return std::nullopt;
-        if (!shortest || remaining < *shortest)
-            shortest = remaining;
+        const auto last_sync = item.last_sync();
+        if (item.watch_changes() && last_sync != (std::chrono::steady_clock::time_point::min)()) {
+            waiting.watched = true;
+            continue;
+        }
+        const auto cycle = std::chrono::seconds(item.sync_cycle());
+        if (last_sync <= now - cycle) {  // last_sync + cycle would overflow for a fresh item's TimePoint::min
+            waiting.due = true;
+            continue;
+        }
+        const auto remaining = last_sync + cycle - now;
+        if (!waiting.shortest_pause || remaining < *waiting.shortest_pause)
+            waiting.shortest_pause = remaining;
     }
-    if (!shortest)
-        return std::nullopt;
-    return std::chrono::ceil<std::chrono::seconds>(*shortest);
+    return waiting;
 }
 
 }
@@ -410,8 +423,13 @@ wxString SyncInterface::state_text() const
     case SyncType::Single: return translation::translate("state_single_running");
     case SyncType::Continuous: break;
     }
-    if (const auto pause = remaining_pause())
-        return translation::translate("state_paused", {std::to_wstring(pause->count())});
+    const Waiting waiting = waiting_items();
+    if (waiting.due)
+        return translation::translate("state_running");
+    if (waiting.shortest_pause)
+        return translation::translate("state_paused", {std::to_wstring(std::chrono::ceil<std::chrono::seconds>(*waiting.shortest_pause).count())});
+    if (waiting.watched)
+        return translation::translate("state_watching");
     return translation::translate("state_running");
 }
 

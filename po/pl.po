@@ -1741,6 +1741,10 @@ msgstr "Trwa jednorazowa synchronizacja …"
 msgid "state_paused"
 msgstr "Wstrzymano – następne uruchomienie za %1 s"
 
+#: AFS_Desktop/src/SyncInterface.cpp
+msgid "state_watching"
+msgstr "Oczekiwanie na zmiany"
+
 #: AFS_Desktop/src/SyncInterface.cpp:323
 msgid "state_running"
 msgstr "Trwa synchronizacja …"

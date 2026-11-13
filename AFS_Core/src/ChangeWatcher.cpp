@@ -84,11 +84,11 @@ std::optional<ChangeWatcher::TimePoint> ChangeWatcher::last_change(const wstring
     return found == items_.end() ? std::nullopt : found->second.last_change;
 }
 
-void ChangeWatcher::clear(const wstring& item)  // [ChangeWatcher.md#clear]
+void ChangeWatcher::clear(const wstring& item, TimePoint before)  // [ChangeWatcher.md#clear]
 {
     std::lock_guard<std::mutex> lock(mutex_);
     const auto found = items_.find(item);
-    if (found != items_.end())
+    if (found != items_.end() && found->second.last_change < before)
         found->second.last_change.reset();
 }
 

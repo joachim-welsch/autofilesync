@@ -49,19 +49,31 @@ start_sync() when the pass could not be started.
 ## state_text
 
 One line for the status bar saying what the synchronisation is doing right now, refreshed by
-the main window on every timer tick: stopped, counting, a single run, a running pass, or
-paused with the seconds until the next pass. The pause is the state a user wonders about
+the main window on every timer tick: stopped, counting, a single run, a running pass, paused
+with the seconds until the next pass, or waiting for changes (waiting_items). The pause is the state a user wonders about
 most - nothing visibly happens - so it is spelled out instead of shown as "running". The state
 starts as None: it used to start as Single, which nothing noticed while the status bar did not
 show it, and which made a freshly started program claim a single run was in progress until the
 first real one ended.
 
-## remaining_pause
+## waiting_items
 
 The continuous run skips every item whose pause has not elapsed, so the run is paused only
 while all enabled items are; one due item means work is about to happen. The shortest
 remaining pause is what the user waits for. A fresh item's last_sync is TimePoint::min, which
-makes it due at once.
+makes it due at once; the comparison is written as last_sync <= now - cycle, since
+last_sync + cycle - now overflows for TimePoint::min and used to show a pause of billions of
+seconds until the first pass ended.
+
+An item with "Änderungen sofort übernehmen" has no pause after its first pass: it runs when a
+change has settled (Synchronize.md#due). It therefore counts neither as due nor as paused. If
+only such items are waiting, the status bar says the run waits for changes (state_watching); if
+items with a pause wait as well, their pause is shown, since it is the latest moment a pass
+comes. The status bar goes by the option alone: an item whose directories cannot be watched
+falls back to its pause in the run, which the log reports (watching_unavailable), while the
+status bar keeps saying that it waits for changes. The pass a change starts is not visible
+here either, since the run does not report a pass in progress; a longer one shows its progress
+dialog.
 
 ## show_run_messages
 

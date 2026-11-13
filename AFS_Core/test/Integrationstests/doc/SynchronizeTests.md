@@ -124,3 +124,18 @@ within a few seconds when the item is watched (Synchronize.md#due: one second of
 settling) and not within four seconds when it is not, which is the old behaviour the option
 leaves untouched. The fixture resets the configuration and removes its directories, and
 destroys the Synchronize first so that no pass runs into the removal.
+
+## AChangeDuringAPassOfAWatchedItemIsNotLost
+
+The 64 MiB file keeps the first pass busy: the target file exists from the first block on, and
+the change is written as soon as it appears. last_sync is set only at the end of a pass, so a
+last_sync still at its start value proves that the change fell into the pass. The pass listed
+its directory before, so only the next pass can copy the new file (Synchronize.md#due). A machine fast enough to copy 64 MiB before the check needs a larger
+file, which the assertion message names.
+
+## comes_to_rest
+
+A pass sets the item's last_sync, so a last_sync that stays the same for five seconds -
+longer than the settle time plus the loop's tick - means no pass followed. The passes after a
+change (the one that copies, the one its own writes cause) must end there; an endless chain
+would keep last_sync moving and run into the timeout.

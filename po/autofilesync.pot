@@ -1740,6 +1740,10 @@ msgstr ""
 msgid "state_paused"
 msgstr ""
 
+#: AFS_Desktop/src/SyncInterface.cpp
+msgid "state_watching"
+msgstr ""
+
 #: AFS_Desktop/src/SyncInterface.cpp:323
 msgid "state_running"
 msgstr ""

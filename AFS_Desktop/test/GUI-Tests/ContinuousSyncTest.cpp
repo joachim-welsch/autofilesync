@@ -96,6 +96,7 @@ TEST_F(GuiTest, StatuszeileZeigtZustandDerSynchronisation)  // [ContinuousSyncTe
     const SandboxTree tree(GuiTestSandbox::root() / "statuszeile", {{"quelle/erste.txt", "1"}, {"ziel/", ""}});
     SyncItemInput input = dir_sync(tree, "guitest-statuszeile");
     input.options.sync_cycle_seconds = 60;
+    input.options.watch_changes = false;
     ASSERT_TRUE(add_sync_item(main_window(), input));
     const RunningSync running(main_window());
     ASSERT_EQ(sync_state(main_window()), translation::translate("state_stopped"));
@@ -109,6 +110,21 @@ TEST_F(GuiTest, StatuszeileZeigtZustandDerSynchronisation)  // [ContinuousSyncTe
     activate_menu_item(main_window(), tul(id::StopSync));
     ASSERT_TRUE(wait_until_sync_finished(main_window()));
     EXPECT_EQ(sync_state(main_window()), translation::translate("state_stopped"));
+}
+
+TEST_F(GuiTest, StatuszeileZeigtWartenAufAenderungen)  // [ContinuousSyncTest.md#StatuszeileZeigtWartenAufAenderungen]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "beobachtet", {{"quelle/erste.txt", "1"}, {"ziel/", ""}});
+    SyncItemInput input = dir_sync(tree, "guitest-beobachtet");
+    input.options.watch_changes = true;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+    const RunningSync running(main_window());
+
+    activate_menu_item(main_window(), tul(id::StartSync));
+    ASSERT_TRUE(copied(tree, "ziel/erste.txt"));
+    const wxString watching = translation::translate("state_watching");
+    EXPECT_TRUE(wait_until([this, &watching] { return sync_state(main_window()) == watching; }, PASS_TIMEOUT_MILLISECONDS))
+        << "Nach dem Durchlauf zeigt die Statuszeile nicht das Warten auf Änderungen, sondern: " << sync_state(main_window());
 }
 
 TEST_F(GuiTest, StartMenueIstGesperrtWaehrendDesLaufs)

@@ -24,4 +24,11 @@ handler, see UserActions.md#activate_toolbar_tool.
 
 The second status field is read as the user reads it. A 60 s cycle makes the run pause right
 after its first pass, so "Pausiert" is what the field has to show then; the seconds are not
-pinned down because the tick that refreshes the field is not synchronised with the pass.
+pinned down because the tick that refreshes the field is not synchronised with the pass. The
+item does not watch for changes, since a watched item has no pause after its first pass
+(SyncInterface.md#waiting_items).
+
+## StatuszeileZeigtWartenAufAenderungen
+
+A watched item waits for a change, not for its pause, after the first pass; the status bar has
+to say so instead of counting down a pause that does not apply.
