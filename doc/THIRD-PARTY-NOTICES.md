@@ -37,8 +37,8 @@ Welsch und stehen wie das Programm unter der GPL.
 
 Die Symbole der Baumansicht und des Infobereichs stammen aus den Beispielen von
 wxWidgets und stehen unter der wxWindows Library Licence
-(`wxWidgets-LICENSE.txt`): `icons/icon1` bis `icon5`, `state1` bis `state5`,
-`checked`, `unchecked` (`samples/treectrl`) und `smile` (`samples/taskbar`).
+(`wxWidgets-LICENSE.txt`): `icons/icon1` bis `icon5`
+(`samples/treectrl`) und `smile` (`samples/taskbar`).
 
 ## LGPL-Bibliotheken
 

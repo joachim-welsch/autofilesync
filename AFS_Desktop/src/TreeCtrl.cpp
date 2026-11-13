@@ -18,20 +18,11 @@
  */
 #include "TreeCtrl.h"
 #include "wx/artprov.h"
-
-
 #include "../icons/icon1.xpm"
 #include "../icons/icon2.xpm"
 #include "../icons/icon3.xpm"
 #include "../icons/icon4.xpm"
 #include "../icons/icon5.xpm"
-#include "../icons/state1.xpm"
-#include "../icons/state2.xpm"
-#include "../icons/state3.xpm"
-#include "../icons/state4.xpm"
-#include "../icons/state5.xpm"
-#include "../icons/unchecked.xpm"
-#include "../icons/checked.xpm"
 
 #include "TreeItemData.h"
 #include "Config.h"
