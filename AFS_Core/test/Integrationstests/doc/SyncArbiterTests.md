@@ -25,3 +25,13 @@ hang for as long as the other process keeps going.
 ## RepeatedAcquireOfTheSameHolderReturnsAtOnce
 
 acquire() is called once per pass, so the second call of a holder must not wait for itself.
+
+## UncreatableLockFileIsWarnedAboutAndDoesNotBlock
+
+Without its lock files the arbiter cannot arbitrate. It must then let both sides run and say
+so in the log, rather than keep the service waiting for a lock that will never exist.
+
+## locked-temp-dir
+
+In the tests the lock files lie in the temp directory (SyncArbiter.md#TEST_SCOPE), so pointing
+TMPDIR at a directory without write permission is what makes them uncreatable.

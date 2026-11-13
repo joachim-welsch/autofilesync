@@ -18,6 +18,7 @@
  */
 #pragma once
 #include "SmtpMailer.h"
+#include <openssl/ssl.h>
 #include <atomic>
 #include <chrono>
 #include <mutex>
@@ -37,13 +38,22 @@ public:
         std::string subject() const;  // decoded from the encoded word
         std::string body() const;  // decoded from the base64 lines
     };
-    SmtpSink();
+    enum class Security { Plain, StartTls };  // [SmtpSink.md#StartTls]
+    struct Login {
+        std::string user;
+        std::string password;
+        bool operator==(const Login&) const = default;
+    };
+    explicit SmtpSink(Security security = Security::Plain);
     ~SmtpSink();
     SmtpSink(const SmtpSink&) = delete;
     SmtpSink& operator=(const SmtpSink&) = delete;
     uint16_t port() const { return port_; }
     AFS_Core::SmtpAccount account() const;  // [SmtpSink.md#account]
     void reply_to_rcpt(const std::string& reply);
+    void accept_login(const Login& login);  // [SmtpSink.md#StartTls]
+    const std::string& certificate_pem() const { return certificate_pem_; }
+    std::vector<Login> logins() const;
     std::vector<Mail> mails() const;
     std::vector<std::string> commands() const;
     int connections() const { return connections_; }
@@ -54,6 +64,14 @@ private:
     bool send(int client, const std::string& reply) const;
     bool read_line(int client, std::string& buffer, std::string& line) const;
     void record(const std::string& command);
+    void create_certificate();
+    bool start_tls(int client, std::string& buffer);
+    void login(int client, std::string& buffer);
+    SSL_CTX* tls_context_ = nullptr;
+    SSL* tls_ = nullptr;  // [SmtpSink.md#tls_]
+    std::string certificate_pem_;
+    Login accepted_login_;
+    std::vector<Login> logins_;
     int listener_ = -1;
     uint16_t port_ = 0;
     std::atomic_bool stop_{false};

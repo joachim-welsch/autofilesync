@@ -40,3 +40,19 @@ the synchronisation has to be able to delete, and restoring it must not resolve 
 
 The synchronisation deletes from several threads at once; the threads race in creating the
 mirrored directories and in moving the files.
+
+## RecycleBinOnAnotherFilesystemTest
+
+The bin on another filesystem than the files, which is what a user gets who puts the bin on
+another drive. /dev/shm serves as that other filesystem; where it is missing, not writable or
+the same device as the temp directory, the tests are skipped. Linux only.
+
+## FileTravelsToTheBinAndBack
+
+Without rename() the file is copied and removed (RecycleBin.md#move). Content and modification
+time must survive both directions; the test found that the time did not.
+
+## DirectoryTravelsToTheBin
+
+A deleted directory goes to the bin as a whole. The test found that across filesystems it did
+not go at all, so every directory deletion of a sync failed with such a bin.

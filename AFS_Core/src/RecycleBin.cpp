@@ -75,18 +75,32 @@ bool RecycleBin::check_relative(const fs::path& item) const  // [RecycleBin.md#c
     return true;
 }
 
+static void keep_write_times(const fs::path& from, const fs::path& to)  // [RecycleBin.md#move]
+{
+    std::error_code ec;
+    if (fs::is_symlink(from, ec))
+        return;
+    fs::last_write_time(to, fs::last_write_time(from, ec), ec);
+    if (!fs::is_directory(from, ec))
+        return;
+    for (const fs::directory_entry& entry : fs::recursive_directory_iterator(from, ec))
+        if (!entry.is_symlink(ec))
+            fs::last_write_time(to / entry.path().lexically_relative(from), entry.last_write_time(ec), ec);
+}
+
 bool RecycleBin::move(const fs::path& from, const fs::path& to) const  // [RecycleBin.md#move]
 {
     std::error_code ec;
     fs::rename(from, to, ec);
     if (!ec)
         return true;
-    fs::copy_file(from, to, fs::copy_options::overwrite_existing, ec);
+    fs::copy(from, to, fs::copy_options::recursive | fs::copy_options::copy_symlinks | fs::copy_options::overwrite_existing, ec);
     if (ec) {
         log_error(translation::translate("recycle_bin_move_failed"), from.wstring(), to.wstring(), util::string_to_wstring(ec.message()));
         return false;
     }
-    fs::remove(from, ec);
+    keep_write_times(from, to);
+    fs::remove_all(from, ec);
     if (ec) {
         log_error(translation::translate("recycle_bin_source_not_deletable"), from.wstring());
         return false;

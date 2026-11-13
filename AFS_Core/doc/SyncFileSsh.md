@@ -29,6 +29,14 @@ sftp_readdir returns NULL for both EOF and error - only sftp_dir_eof tells them 
 connection dropped mid-listing must not pass off the partial listing silently as the complete
 directory.
 
+## listing-failure-is-reported
+
+A remote directory that cannot be opened or read to its end yields no entries or too few, and
+the pass then copies nothing or too little from it. That must count as a failed run in the
+proof and the last-run record, like an unreadable local directory does - logging alone left
+the run looking clean. Nothing is deleted on the strength of such a listing: a target-only
+file is only removed after its own source file was looked up and found missing.
+
 ## transfer-keeps-the-modification-time
 
 A transfer carries the modification time of the file it copies, in every direction: the upload

@@ -45,6 +45,9 @@ public:
     std::optional<TimePoint> last_change(const std::wstring& item) const;
     void clear(const std::wstring& item, TimePoint before = TimePoint::max());  // [ChangeWatcher.md#clear]
     static bool available();  // [ChangeWatcher.md#available]
+#ifdef _TEST
+    void test_report_overflow() { changed_everywhere(); }  // [ChangeWatcher.md#test_report_overflow]
+#endif
 private:
     struct Backend;  // [ChangeWatcher.md#Backend]
     struct Entry {

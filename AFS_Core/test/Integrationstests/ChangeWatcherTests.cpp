@@ -135,6 +135,35 @@ TEST_F(ChangeWatcherTest, AMissingDirectoryIsNotWatched)  // [ChangeWatcherTests
     EXPECT_FALSE(watcher.watching(L"unbekannt"));
 }
 
+TEST_F(ChangeWatcherTest, AnOverflowMarksEveryWatchedItemAsChanged)  // [ChangeWatcherTests.md#AnOverflowMarksEveryWatchedItemAsChanged]
+{
+    ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true}, {L"flach", root_ / "flat", false}, {L"weg", root_ / "gibt-es-nicht", false}});
+    ASSERT_FALSE(watcher.last_change(L"baum").has_value());
+
+    watcher.test_report_overflow();
+
+    EXPECT_TRUE(watcher.last_change(L"baum").has_value());
+    EXPECT_TRUE(watcher.last_change(L"flach").has_value());
+    EXPECT_FALSE(watcher.last_change(L"weg").has_value()) << "an item that is not watched follows its tick and needs no change";
+}
+
+#ifdef __linux__
+TEST_F(ChangeWatcherTest, AWatchedDirectoryThatDisappearsIsNoLongerWatched)  // [ChangeWatcherTests.md#AWatchedDirectoryThatDisappearsIsNoLongerWatched]
+{
+    ChangeWatcher& watcher = watch({{L"flach", root_ / "flat", false}, {L"baum", root_ / "tree", true}});
+    ASSERT_TRUE(watcher.watching(L"flach"));
+
+    fs::remove_all(root_ / "flat");
+    fs::remove_all(root_ / "tree" / "sub");
+
+    for (int waited = 0; waited < 3000 && watcher.watching(L"flach"); waited += 20)
+        std::this_thread::sleep_for(milliseconds(20));
+    EXPECT_FALSE(watcher.watching(L"flach")) << "a directory created again under this name would be watched by nobody";
+    EXPECT_TRUE(noticed(watcher, L"baum"));
+    EXPECT_TRUE(watcher.watching(L"baum")) << "a subdirectory that goes is an ordinary change of its tree";
+}
+#endif
+
 TEST_F(ChangeWatcherTest, TwoItemsAreKeptApart)
 {
     ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true}, {L"flach", root_ / "flat", false}});

@@ -29,3 +29,18 @@ One thread accepts connections in a 50 ms poll loop and serves them one after an
 poll is what lets the destructor stop the thread without a trick like connecting to itself.
 A connection counts as handled only after its session ended, so wait_for_connections() also
 tells a test that the mail has been recorded.
+
+## StartTls
+
+The second kind of sink: it answers STARTTLS with 220 and continues in TLS, and after that it
+serves AUTH LOGIN, recording every user and password and accepting the one pair given with
+accept_login(). Its certificate is made at construction - a key pair and a self-signed
+certificate for 127.0.0.1, valid for an hour - and handed out as PEM so that a test can make
+it trusted. The plain sink is unchanged and still refuses both commands.
+
+## tls_
+
+The TLS layer of the connection being served, or null before STARTTLS. One connection is
+served at a time, so one member is enough. Reading asks SSL_pending() before it polls the
+socket: a TLS record that was already read from the socket holds lines the socket no longer
+announces.

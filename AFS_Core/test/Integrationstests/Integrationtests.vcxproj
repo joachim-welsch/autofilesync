@@ -192,6 +192,11 @@
     <!-- LocalPermissionTests.cpp arbeitet mit Unix-Dateirechten (chmod) und ist komplett in
          #ifdef _UNIX eingeschlossen; ein Windows-Gegenstueck mit ACLs fehlt noch. -->
     <ClCompile Include="LocalPermissionTests.cpp" />
+    <!-- CopyFailureTests.cpp (Ressourcenlimits, chmod), SyncSshFailureTests.cpp (Dateirechte zwischen
+         zwei Benutzern) und DaemonTests.cpp (privates Home) sind komplett in #ifdef _UNIX
+         eingeschlossen; DaemonTests.cpp braeuchte unter Windows zusaetzlich backgroundsync\MyDaemon.cpp. -->
+    <ClCompile Include="CopyFailureTests.cpp" />
+    <ClCompile Include="SyncSshFailureTests.cpp" />
     <!-- SymlinkTests.cpp legt Symlinks an (unter Windows ein Privileg); komplett in #ifdef _UNIX. -->
     <ClCompile Include="SymlinkTests.cpp" />
     <!-- MountedDrivesTests.cpp prueft /etc/fstab bzw. /proc/mounts und ruft

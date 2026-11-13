@@ -269,6 +269,14 @@ static void restore_backup(const wstring& dest, const wstring& bak_filename)  //
         util::rename_file(bak_filename, dest);
 }
 
+static wstring free_backup_name(const wstring& dest)  // [SyncFile.md#free_backup_name]
+{
+    wstring candidate = dest + L".bak";
+    for (int i = 1; file_exists(candidate); ++i)
+        candidate = dest + L".bak" + std::to_wstring(i);
+    return candidate;
+}
+
 static void discard_backup(const wstring& bak_filename)  // [SyncFile.md#discard_backup]
 {
     if (file_exists(bak_filename))
@@ -278,10 +286,8 @@ static void discard_backup(const wstring& bak_filename)  // [SyncFile.md#discard
 bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
 {
     log_debug(L"save_copy_file");
-    const wstring bak_filename = dest + L".bak";
+    const wstring bak_filename = free_backup_name(dest);
     if (file_exists(dest)) {
-        if (file_exists(bak_filename))
-            util::remove_file(bak_filename);
         if (!util::rename_file(dest, bak_filename)) {  // [SyncFile.md#backup-rename-failure]
             report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest);
             return false;

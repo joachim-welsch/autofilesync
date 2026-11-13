@@ -99,6 +99,7 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
         wstring item;
         fs::path dir;
         bool recursive;
+        bool root;  // [ChangeWatcher.md#root-directory-gone]
     };
     static constexpr uint32_t EVENTS = IN_CREATE | IN_DELETE | IN_MODIFY | IN_CLOSE_WRITE | IN_MOVED_FROM | IN_MOVED_TO | IN_ATTRIB | IN_DELETE_SELF | IN_MOVE_SELF | IN_ONLYDIR;
     ChangeWatcher& owner;
@@ -118,7 +119,7 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
             return;
         }
         for (const WatchedDir& watched : dirs)
-            add(watched.item, watched.dir, watched.recursive);
+            add(watched.item, watched.dir, watched.recursive, true);
         thread = std::thread([this] { run(); });
     }
 
@@ -145,7 +146,7 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
             }
     }
 
-    bool add(const wstring& item, const fs::path& dir, bool recursive)  // [ChangeWatcher.md#inotify-per-directory]
+    bool add(const wstring& item, const fs::path& dir, bool recursive, bool root)  // [ChangeWatcher.md#inotify-per-directory]
     {
         std::vector<fs::path> dirs{dir};
         if (recursive)
@@ -156,7 +157,7 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
                 owner.lost(item, watched);
                 return false;
             }
-            watches[wd] = {item, watched, recursive};
+            watches[wd] = {item, watched, recursive, root && watched == dir};
         }
         return true;
     }
@@ -190,10 +191,12 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
             return;
         const Watch watch = found->second;
         owner.changed(watch.item);
-        if (event.mask & IN_IGNORED)
+        if (event.mask & IN_IGNORED) {
             watches.erase(found);
-        else if (watch.recursive && (event.mask & IN_ISDIR) && (event.mask & (IN_CREATE | IN_MOVED_TO)) && event.len > 0)
-            add(watch.item, watch.dir / event.name, true);  // a directory that appeared is watched from now on
+            if (watch.root)
+                owner.lost(watch.item, watch.dir);  // [ChangeWatcher.md#root-directory-gone]
+        } else if (watch.recursive && (event.mask & IN_ISDIR) && (event.mask & (IN_CREATE | IN_MOVED_TO)) && event.len > 0)
+            add(watch.item, watch.dir / event.name, true, false);  // a directory that appeared is watched from now on
     }
 };
 

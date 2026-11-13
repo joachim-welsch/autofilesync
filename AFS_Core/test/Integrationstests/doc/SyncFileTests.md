@@ -149,6 +149,12 @@ Existing target: save_copy_file() renames it to .bak before the copy, so the wat
 both the backup and the new target to exist. After the stop the old content must be back under
 its name and the backup gone.
 
+## StopBetweenTheFilesOfADirectoryLeavesTheRestForTheNextRun
+
+The stop arrives while a directory of many files is on its way. Every file that is in the
+target is whole, the run ends before the last file, and the next run copies exactly the files
+that were left - none twice, none forgotten.
+
 ## StopDuringAMoveKeepsTheSource
 
 "Delete after copy" is the one option under which a cancelled copy could cost data: the source

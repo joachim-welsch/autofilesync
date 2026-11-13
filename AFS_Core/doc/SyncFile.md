@@ -30,6 +30,14 @@ without write permission refuses it. rename_file() logs that, but the item was o
 as failed when the copy itself failed - so the proof file and the last-run record claimed a
 clean run while the target stayed old. Reported like a failed copy, under the same message.
 
+## free_backup_name
+
+The old target is parked as "<name>.bak" while it is replaced. A file of that name that is
+already there is not the sync's to delete: it may be the user's own backup, or the only good
+version left over from a run that was killed mid-copy. So the first free name of ".bak",
+".bak1", ".bak2" ... is taken, and discard_backup() and restore_backup() only ever touch the
+file this copy parked itself.
+
 ## discard_backup
 
 The counterpart for the successful copy: the ".bak" exists only so restore_backup() has

@@ -63,6 +63,27 @@ out.
 Three ways to have nothing sent - notification off, no address, incomplete account - and each
 one must leave the sink without a connection: an install must not mail anywhere unasked.
 
+## SmtpTlsTest
+
+A sink that offers STARTTLS with a certificate of its own (SmtpSink.md#StartTls). The mailer
+checks certificates against OpenSSL's default store, and SSL_CERT_FILE names the file that
+store is read from - so pointing it at the sink's certificate makes exactly this one server
+trusted, for the length of one test.
+
+## MailWithLoginGoesThroughTls
+
+The way every real mail server asks for: STARTTLS, then AUTH LOGIN, then the mail. User and
+password arrive unchanged and only after the handshake.
+
+## UntrustedCertificateGetsNeitherPasswordNorMail
+
+The same server without the trust: the handshake must fail and nothing may follow it. This is
+the test that keeps the certificate check from being switched off unnoticed.
+
+## RejectedLoginIsReportedAndSendsNoMail
+
+A wrong password is the most likely configuration mistake; the message must name it.
+
 ## FailedDeliveryIsLoggedAsAnError
 
 The sender cannot log through the mailer (it would recurse), so notify_fatal() logs the failure

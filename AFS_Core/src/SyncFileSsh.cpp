@@ -25,6 +25,7 @@
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
 #include "SftpConnection.h"
+#include "CopyLog.h"
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -206,6 +207,12 @@ namespace {
     {
         log_error(message);
         return CopyResult::Error;
+    }
+
+    void listing_failed(const wstring& message)  // [SyncFileSsh.md#listing-failure-is-reported]
+    {
+        log_error(message);
+        report_sync_error(message);
     }
 
     std::optional<std::string> connect_to(const wstring& path, SftpConnection& connection)  // [SyncFileSsh.md#connect_to]
@@ -621,14 +628,14 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         return entries;
     const SftpDir dir = connection.open_dir(*remote_path);
     if (!dir) {
-        log_error(translation::translate("remote_dir_open_error") + string_to_wstring(*remote_path));
+        listing_failed(translation::translate("remote_dir_open_error") + string_to_wstring(*remote_path));
         return entries;
     }
     while (const auto attr = connection.read_dir(dir.get()))
         if (listed(attr->name, *remote_path))
             entries.push_back(to_dir_entry(*attr));
     if (!sftp_dir_eof(dir.get()))  // [SyncFileSsh.md#readdir-eof-vs-error]
-        log_error(translation::translate("remote_dir_read_incomplete") + string_to_wstring(*remote_path) + L" - " + string_to_wstring(connection.error()));
+        listing_failed(translation::translate("remote_dir_read_incomplete") + string_to_wstring(*remote_path) + L" - " + string_to_wstring(connection.error()));
     return entries;
 }
 #else

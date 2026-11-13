@@ -47,3 +47,17 @@ appear, or the file written into it would go unnoticed until the scan interval.
 
 A directory that cannot be watched leaves the item unwatched - the tick applies to it - and
 the other items watched, so one bad path does not take the whole watcher down.
+
+## AnOverflowMarksEveryWatchedItemAsChanged
+
+After lost events nobody knows which item changed, so all watched ones count as changed and
+the next pass looks (ChangeWatcher.md#overflow). The overflow is reported by the test
+(ChangeWatcher.md#test_report_overflow); that the kernel's overflow event leads to the same
+call is not covered.
+
+## AWatchedDirectoryThatDisappearsIsNoLongerWatched
+
+The directory of an item is removed while it is watched - a drive that is unplugged, a folder
+that is replaced. The item must fall back to its tick (ChangeWatcher.md#root-directory-gone);
+a subdirectory of a tree that goes the same way is only a change. Linux only: the other
+backends are not built here and their behaviour is not known.

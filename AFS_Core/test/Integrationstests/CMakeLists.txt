@@ -67,6 +67,8 @@ set(SOURCES
     TwoWaySyncTests.cpp
     SyncFlagTests.cpp
     LocalPermissionTests.cpp
+    CopyFailureTests.cpp
+    SyncSshFailureTests.cpp
     SymlinkTests.cpp
     MountedDrivesTests.cpp
     SynchronizeTests.cpp
@@ -99,6 +101,15 @@ set(SOURCES
 
 add_executable(Integrationtests ${SOURCES})
 target_include_directories(Integrationtests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# The daemon's worker (backgroundsync/MyDaemon.cpp) is tested here as well: it
+# is nothing but AFS_Core calls, and a test program of its own would have to
+# repeat the private temp directory and home of TestMain.cpp. Skipped when
+# AFS_Core is built without the rest of the repository.
+set(AFS_DAEMON_DIR ${AFS_CORE_DIR}/../backgroundsync)
+if(EXISTS ${AFS_DAEMON_DIR}/MyDaemon.cpp)
+    target_sources(Integrationtests PRIVATE DaemonTests.cpp ${AFS_DAEMON_DIR}/MyDaemon.cpp)
+    target_include_directories(Integrationtests PRIVATE ${AFS_DAEMON_DIR})
+endif()
 target_link_libraries(Integrationtests PRIVATE afs_core_test GTest::GTest)
 # Root of AFS_Core: the fixtures find test/resources and test/tree below it.
 target_compile_definitions(Integrationtests PRIVATE LIB_SOURCE_DIR="${AFS_CORE_DIR}")

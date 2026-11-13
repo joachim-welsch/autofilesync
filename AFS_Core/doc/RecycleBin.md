@@ -21,7 +21,10 @@ never touch.
 ## move
 
 rename() fails across filesystem boundaries (EXDEV), which happens as soon as the bin lives on
-another drive than the file.
+another drive than the file. The entry is then copied and the original removed. The copy has to
+do what the rename did for free: take a whole directory along, keep a symlink a symlink, and
+keep every modification time - a file restored from the bin with the time of its restoring
+would look freshly edited to the next sync and overwrite the other side.
 
 ## list_items
 

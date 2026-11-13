@@ -22,6 +22,7 @@
 #include "FileUtil.h"
 #include "FilesystemUtil.h"
 #include "SyncFileTests.h"
+#include "SyncRunner.h"
 #include "Config.h"
 #include "Util.h"
 #include <fstream>
@@ -496,6 +497,35 @@ TEST_F(StopDuringCopyTest, StopDuringTheCopyRestoresTheOldTarget)  // [SyncFileT
     ASSERT_TRUE(fs::exists(target_)) << "das alte Ziel muss zurueckkommen";
     EXPECT_EQ(tu::read_text_file(target_), "alter Inhalt");
     EXPECT_FALSE(fs::exists(backup_)) << "die Sicherung ist nach der Wiederherstellung ueberfluessig";
+}
+
+TEST_F(StopDuringCopyTest, StopBetweenTheFilesOfADirectoryLeavesTheRestForTheNextRun)  // [SyncFileTests.md#StopBetweenTheFilesOfADirectoryLeavesTheRestForTheNextRun]
+{
+    constexpr std::size_t FILES = 400;
+    const fs::path many = base_ / "viele";
+    const fs::path many_target = base_ / "viele_ziel";
+    for (std::size_t i = 0; i < FILES; ++i)
+        tu::write_text_file(many / ("datei" + std::to_string(i) + ".txt"), std::string(200000, 'x'));
+    fs::create_directories(many_target);
+    SyncItem si = item();
+    si.sync_item_type(SyncItemType::Dir);
+    si.source(many.wstring());
+    si.target(many_target.wstring());
+    std::thread stopper([&] {
+        while (fs::is_empty(many_target))
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        Synchronize::stop();
+    });
+
+    const std::size_t first_run = tu::run_sync(si);
+
+    stopper.join();
+    EXPECT_GT(first_run, 0u);
+    ASSERT_LT(first_run, FILES) << "der Lauf war schon fertig, bevor der Stopp ankam - es muessen mehr Dateien sein";
+    for (const fs::directory_entry& copied : fs::directory_iterator(many_target))
+        EXPECT_EQ(copied.file_size(), 200000u) << copied.path() << " ist nur halb angekommen";
+    Synchronize::start();
+    EXPECT_EQ(first_run + tu::run_sync(si), FILES) << "der naechste Lauf muss genau die liegengebliebenen Dateien nachholen";
 }
 
 TEST_F(StopDuringCopyTest, StopDuringAMoveKeepsTheSource)  // [SyncFileTests.md#StopDuringAMoveKeepsTheSource]

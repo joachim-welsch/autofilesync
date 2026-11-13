@@ -425,6 +425,12 @@
     <ClCompile Include="LocalPermissionTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="CopyFailureTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncSshFailureTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="SymlinkTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

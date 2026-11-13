@@ -18,6 +18,13 @@
  */
 #include "pch.h"
 #include "SyncArbiter.h"
+#include "FileUtil.h"
+#include "ScopedEnv.h"
+#include "ScopedLog.h"
+#include "TestPaths.h"
+#include "Translation.h"
+#include "Util.h"
+#include <filesystem>
 #include <atomic>
 #include <chrono>
 #include <thread>
@@ -111,3 +118,34 @@ TEST(SyncArbiterTests, RepeatedAcquireOfTheSameHolderReturnsAtOnce)  // [SyncArb
     EXPECT_TRUE(acquired);
     foreground.release();
 }
+
+#ifdef _UNIX
+TEST(SyncArbiterTests, UncreatableLockFileIsWarnedAboutAndDoesNotBlock)  // [SyncArbiterTests.md#UncreatableLockFileIsWarnedAboutAndDoesNotBlock]
+{
+    namespace fs = std::filesystem;
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root ignoriert Dateirechte";
+    const fs::path root = fs::temp_directory_path() / ("autofilesync_arbiter_" + std::to_string(TestPaths::process_id()));
+    fs::create_directories(root / "gesperrt");
+    const tu::ScopedLog log(root / "arbiter.log");
+    fs::permissions(root / "gesperrt", fs::perms::owner_read | fs::perms::owner_exec);
+    std::atomic_bool abort{false};
+    bool foreground_acquired = false;
+    bool background_acquired = false;
+    std::chrono::milliseconds waited{0};
+    {
+        const ScopedEnv locked_temp_dir("TMPDIR", (root / "gesperrt").c_str());  // [SyncArbiterTests.md#locked-temp-dir]
+        SyncArbiter foreground(SyncRole::Foreground);
+        SyncArbiter background(SyncRole::Background);
+        waited = time_acquire(foreground, abort, foreground_acquired) + time_acquire(background, abort, background_acquired);
+    }
+
+    EXPECT_TRUE(foreground_acquired);
+    EXPECT_TRUE(background_acquired) << "ohne Sperrdatei darf der Dienst nicht fuer immer warten";
+    EXPECT_LT(waited.count(), 500);
+    EXPECT_NE(tu::read_text_file(log.path()).find(util::wstring_to_string(translation::translate("arbiter_lock_file_failed"))), std::string::npos)
+        << "der Benutzer muss erfahren, dass GUI und Dienst sich nicht mehr abstimmen";
+    fs::permissions(root / "gesperrt", fs::perms::owner_all);
+    fs::remove_all(root);
+}
+#endif

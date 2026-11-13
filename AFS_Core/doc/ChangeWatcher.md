@@ -38,6 +38,20 @@ empty buffer. Lost events are reported as a change of every item (or of the item
 overflowed), so that a pass follows and finds what was missed; the ten-minute scan in
 Synchronize catches the rest.
 
+## root-directory-gone
+
+inotify drops the watch of a directory that is deleted (IN_IGNORED). For a subdirectory of a
+tree that is an ordinary change. For the directory the item itself names it is the end of
+watching: a directory created again under the same name is a new one that nobody watches, so
+the item is declared unwatched and the run goes back to its tick (#watching) instead of
+waiting for events that can no longer come.
+
+## test_report_overflow
+
+The integration tests cannot make the kernel's queue overflow on demand - the backend thread
+empties it faster than a test can fill it - so they report the overflow themselves and check
+what follows from it.
+
 ## Backend
 
 The platform part behind the one interface: a thread that blocks on the system's handle and

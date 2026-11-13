@@ -24,6 +24,11 @@
 #include <iterator>
 #include <thread>
 #include <vector>
+#ifdef __linux__
+#include <chrono>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 
 using namespace AFS_Core;
 
@@ -225,5 +230,58 @@ TEST_F(RecycleBinTest, ConcurrentAddsLoseNoItem)  // [RecycleBinTests.md#Concurr
 
     EXPECT_EQ(RecycleBin::instance().list_items().size(), static_cast<size_t>(THREADS * ITEMS_PER_THREAD));
 }
+
+#ifdef __linux__
+class RecycleBinOnAnotherFilesystemTest : public RecycleBinTest {  // [RecycleBinTests.md#RecycleBinOnAnotherFilesystemTest]
+protected:
+    const fs::path other_ = fs::path("/dev/shm") / ("autofilesync_recyclebin_" + std::to_string(getpid()));
+
+    void SetUp() override
+    {
+        RecycleBinTest::SetUp();
+        std::error_code ec;
+        fs::create_directories(other_, ec);
+        struct stat here{}, there{};
+        if (ec || stat(root_.c_str(), &here) != 0 || stat(other_.c_str(), &there) != 0 || here.st_dev == there.st_dev)
+            GTEST_SKIP() << "kein zweites beschreibbares Dateisystem unter /dev/shm";
+        RecycleBin::instance().bin_path(other_);
+    }
+
+    void TearDown() override
+    {
+        std::error_code ec;
+        fs::remove_all(other_, ec);
+        RecycleBinTest::TearDown();
+    }
+};
+
+TEST_F(RecycleBinOnAnotherFilesystemTest, FileTravelsToTheBinAndBack)  // [RecycleBinTests.md#FileTravelsToTheBinAndBack]
+{
+    const fs::path item = fs::path("sub") / "data.txt";
+    create_file(item);
+    const auto written = fs::last_write_time(item) - std::chrono::hours(24);
+    fs::last_write_time(item, written);
+
+    ASSERT_TRUE(RecycleBin::instance().add_item(item));
+
+    EXPECT_FALSE(fs::exists(item)) << "the file must leave its place even when it cannot simply be renamed";
+    EXPECT_EQ(content_of(other_ / item), "content");
+    EXPECT_EQ(fs::last_write_time(other_ / item), written) << "a deleted file keeps its age in the bin";
+    ASSERT_TRUE(RecycleBin::instance().restore_item(item));
+    EXPECT_EQ(content_of(item), "content");
+    EXPECT_EQ(fs::last_write_time(item), written) << "a restored file must not look freshly edited to the next sync";
+    EXPECT_TRUE(RecycleBin::instance().list_items().empty());
+}
+
+TEST_F(RecycleBinOnAnotherFilesystemTest, DirectoryTravelsToTheBin)  // [RecycleBinTests.md#DirectoryTravelsToTheBin]
+{
+    create_file(fs::path("tree") / "inner" / "data.txt");
+
+    EXPECT_TRUE(RecycleBin::instance().add_item("tree"));
+
+    EXPECT_FALSE(fs::exists("tree"));
+    EXPECT_EQ(content_of(other_ / "tree" / "inner" / "data.txt"), "content");
+}
+#endif
 
 } // namespace

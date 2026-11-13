@@ -18,7 +18,9 @@
  */
 #include "pch.h"
 #ifdef _UNIX
+#include "FileUtil.h"
 #include "Logging.h"
+#include "ScopedEnv.h"
 #include "ScopedLog.h"
 #include "ScopedLoggingSetup.h"
 #include "SmtpMailer.h"
@@ -148,6 +150,75 @@ TEST(SmtpMailerTests, RejectedRecipientIsReportedWithTheServersAnswer)
     ASSERT_TRUE(sink.wait_for_connections(1, 2s));
     EXPECT_TRUE(sink.mails().empty());
     EXPECT_FALSE(received(sink, "DATA"));
+}
+
+namespace {
+
+class SmtpTlsTest : public ::testing::Test {  // [SmtpMailerTests.md#SmtpTlsTest]
+protected:
+    const fs::path certificate_ = fs::temp_directory_path() / ("autofilesync_smtp_" + std::to_string(TestPaths::process_id()) + ".pem");
+    tu::SmtpSink sink_{tu::SmtpSink::Security::StartTls};
+    const tu::SmtpSink::Login login_{"afs", "testonly-smtp-secret"};
+
+    void SetUp() override
+    {
+        tu::write_text_file(certificate_, sink_.certificate_pem());
+        sink_.accept_login(login_);
+    }
+
+    void TearDown() override { fs::remove(certificate_); }
+
+    SmtpAccount account(const std::string& password) const
+    {
+        SmtpAccount account = sink_.account();
+        account.user = util::string_to_wstring(login_.user);
+        account.password = util::string_to_wstring(password);
+        return account;
+    }
+};
+
+} // namespace
+
+TEST_F(SmtpTlsTest, MailWithLoginGoesThroughTls)  // [SmtpMailerTests.md#MailWithLoginGoesThroughTls]
+{
+    const ScopedEnv trusted("SSL_CERT_FILE", certificate_.c_str());
+
+    const MailResult result = send_mail(account(login_.password), L"admin@example.org", L"Betreff", "verschluesselt");
+
+    EXPECT_EQ(result.error, "");
+    EXPECT_FALSE(result.unencrypted);
+    ASSERT_TRUE(sink_.wait_for_connections(1, 2s));
+    ASSERT_EQ(sink_.logins().size(), 1u);
+    EXPECT_EQ(sink_.logins().front(), login_) << "Benutzer und Passwort muessen unveraendert ankommen";
+    ASSERT_EQ(sink_.mails().size(), 1u);
+    EXPECT_EQ(sink_.mails().front().body(), "verschluesselt");
+    const auto commands = sink_.commands();
+    const auto position = [&](const std::string& command) { return std::find(commands.begin(), commands.end(), command); };
+    EXPECT_LT(position("STARTTLS"), position("AUTH LOGIN")) << "die Anmeldung darf erst nach dem TLS-Handshake kommen";
+}
+
+TEST_F(SmtpTlsTest, UntrustedCertificateGetsNeitherPasswordNorMail)  // [SmtpMailerTests.md#UntrustedCertificateGetsNeitherPasswordNorMail]
+{
+    const ScopedEnv system_store_only("SSL_CERT_FILE", nullptr);
+
+    const MailResult result = send_mail(account(login_.password), L"admin@example.org", L"Betreff", "Text");
+
+    EXPECT_FALSE(result.error.empty());
+    ASSERT_TRUE(sink_.wait_for_connections(1, 2s));
+    EXPECT_TRUE(sink_.logins().empty()) << "einem Server mit unbekanntem Zertifikat darf kein Passwort geschickt werden";
+    EXPECT_TRUE(sink_.mails().empty());
+}
+
+TEST_F(SmtpTlsTest, RejectedLoginIsReportedAndSendsNoMail)  // [SmtpMailerTests.md#RejectedLoginIsReportedAndSendsNoMail]
+{
+    const ScopedEnv trusted("SSL_CERT_FILE", certificate_.c_str());
+
+    const MailResult result = send_mail(account("falsch"), L"admin@example.org", L"Betreff", "Text");
+
+    EXPECT_NE(result.error.find(translation::translate_utf8("smtp_login_rejected", {"127.0.0.1"})), std::string::npos) << result.error;
+    ASSERT_TRUE(sink_.wait_for_connections(1, 2s));
+    EXPECT_FALSE(received(sink_, "MAIL FROM"));
+    EXPECT_TRUE(sink_.mails().empty());
 }
 
 namespace {
