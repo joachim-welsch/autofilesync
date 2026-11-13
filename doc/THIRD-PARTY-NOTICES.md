@@ -32,14 +32,13 @@ ausgeliefert. Die Lizenzen sind mit der GPL von AutoFileSync verträglich
 
 Das Programmsymbol (`icons/afs.ico`, `icons/afs.icns`, `icons/sample_xpm.xpm`)
 und die Werkzeugleisten-Symbole in `AFS_Desktop/bitmaps` (`new`, `edit`,
-`save`, `delete`, `start`, `stop`, `help`) sind eigene Arbeiten von Joachim
+`save`, `delete`, `start`, `stop`, `help`, `settings`) sind eigene Arbeiten von Joachim
 Welsch und stehen wie das Programm unter der GPL.
 
 Die Symbole der Baumansicht und des Infobereichs stammen aus den Beispielen von
 wxWidgets und stehen unter der wxWindows Library Licence
 (`wxWidgets-LICENSE.txt`): `icons/icon1` bis `icon5`, `state1` bis `state5`,
-`checked`, `unchecked` (`samples/treectrl`), `smile` (`samples/taskbar`) sowie
-die nicht verwendeten `bitmaps/copy`, `cut`, `open` und `print`.
+`checked`, `unchecked` (`samples/treectrl`) und `smile` (`samples/taskbar`).
 
 ## LGPL-Bibliotheken
 
