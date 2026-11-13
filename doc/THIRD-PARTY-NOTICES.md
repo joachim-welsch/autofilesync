@@ -39,7 +39,7 @@ Die Symbole der Baumansicht und des Infobereichs stammen aus den Beispielen von
 wxWidgets und stehen unter der wxWindows Library Licence
 (`wxWidgets-LICENSE.txt`): `icons/icon1` bis `icon5`, `state1` bis `state5`,
 `checked`, `unchecked` (`samples/treectrl`), `smile` (`samples/taskbar`) sowie
-die nicht verwendeten `bitmaps/copy`, `cut`, `open`, `print` und `icons/help`.
+die nicht verwendeten `bitmaps/copy`, `cut`, `open` und `print`.
 
 ## LGPL-Bibliotheken
 
