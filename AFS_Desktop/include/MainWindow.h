@@ -92,6 +92,7 @@ private:
 	void restore_size_and_position();
 	void create_task_bar();
 	void set_task_bar_icon();
+	void hide_to_background();
 	void switch_language();  // [MainWindow.md#switch_language]
 	void rebuild_menu();
 	void rebuild_tool_bar();

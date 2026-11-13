@@ -115,7 +115,7 @@ start.
 
 ## minimize-instead-of-close
 
-Keep the app (and any running background sync) alive in the tray instead of closing - same as
+Keep the app (and any running background sync) alive in the tray (minimized if there is no tray) instead of closing - same as
 on_view_background(). CanVeto() is false for a forced close (tray "Beenden", OS logoff), which
 must always go through regardless of this setting.
 
@@ -144,6 +144,19 @@ gets repaired.
 On macOS wxTaskBarIcon addresses the Dock icon, which the application bundle already supplies as
 afs.icns in every size the Dock asks for. Setting it here would replace that with the single
 64x64 XPM.
+
+## taskbar-icon-without-tray
+
+Without a system tray (Wayland, or an X11 desktop that has no tray manager) the icon could never be
+shown. On Wayland wxTaskBarIcon::SetIcon() still creates a GtkStatusIcon, which only works on X11 and
+makes GTK report "gtk_widget_get_scale_factor: assertion 'GTK_IS_WIDGET (widget)' failed", so the
+icon is not set at all there.
+
+## hide-without-tray
+
+A hidden window can only be brought back through the tray icon. Without a system tray it would be
+lost for good, and a second start is refused by the single instance check, so the window is
+minimized instead and stays reachable through the desktop's window list.
 
 ## real-shutdown
 

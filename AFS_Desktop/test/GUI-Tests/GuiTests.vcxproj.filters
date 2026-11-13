@@ -395,6 +395,9 @@
     <ClCompile Include="ProgressDialogTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
+    <ClCompile Include="HideToBackgroundTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
     <ClCompile Include="HugeFileTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>

@@ -848,7 +848,15 @@ void MainWindow::on_view_log(wxCommandEvent&)
 
 void MainWindow::on_view_background(wxCommandEvent&)
 {
-    Show(false);
+    hide_to_background();
+}
+
+void MainWindow::hide_to_background()
+{
+    if (wxTaskBarIcon::IsAvailable())
+        Show(false);
+    else
+        Iconize(true);  // [MainWindow.md#hide-without-tray]
 }
 
 void MainWindow::on_menu_open(wxMenuEvent& event)
@@ -942,7 +950,7 @@ void MainWindow::on_close(wxCloseEvent& event)
 
     if (event.CanVeto() && Config::instance().settings().minimize_instead_of_close()) {
         event.Veto();  // [MainWindow.md#minimize-instead-of-close]
-        Show(false);
+        hide_to_background();
         return;
     }
     close();
@@ -1039,6 +1047,8 @@ void MainWindow::create_task_bar()
 void MainWindow::set_task_bar_icon()
 {
 #ifndef __WXOSX__
+    if (!wxTaskBarIcon::IsAvailable())  // [MainWindow.md#taskbar-icon-without-tray]
+        return;
     if (!task_bar_icon_->SetIcon(wxICON(sample), translation::translate("taskbar_tooltip")))  // [MainWindow.md#taskbar-icon-macos]
         wxLogError("%s", translation::translate("icon_set_failed"));
 #endif

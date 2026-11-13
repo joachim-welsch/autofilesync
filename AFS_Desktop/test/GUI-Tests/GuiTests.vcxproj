@@ -222,6 +222,7 @@
     <ClCompile Include="PreviewTest.cpp" />
     <ClCompile Include="ContinuousSyncTest.cpp" />
     <ClCompile Include="ProgressDialogTest.cpp" />
+    <ClCompile Include="HideToBackgroundTest.cpp" />
     <ClCompile Include="HugeFileTest.cpp" />
     <ClCompile Include="SyncOptionsTest.cpp" />
     <ClCompile Include="SyncItemManagementTest.cpp" />
