@@ -94,6 +94,7 @@ set(TEST_SOURCES
     LogCutTests.cpp
     ModelLocationTests.cpp
     CloudFoldersTests.cpp
+    RestoreTests.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp
@@ -108,6 +109,7 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/FilesystemUtil.cpp
     ${LIB_DIR}/src/ModelLocation.cpp
     ${LIB_DIR}/src/CloudFolders.cpp
+    ${LIB_DIR}/src/Restore.cpp
     ${LIB_DIR}/src/CpuTopology.cpp
     ${LIB_DIR}/src/SyncProposal.cpp
     ${LIB_DIR}/src/ConfigSummary.cpp

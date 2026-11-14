@@ -2085,6 +2085,98 @@ msgstr "Choisir un dossier dans %1"
 msgid "title_cloud_folder"
 msgstr "Dossier cloud"
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files"
+msgstr "Restaurer des fichiers…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files_help"
+msgstr "Récupère les fichiers supprimés et les versions antérieures"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_restore_files"
+msgstr "Restaurer des fichiers"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_filter_hint"
+msgstr "Rechercher un fichier ou un dossier"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_file"
+msgstr "Fichier"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_folder"
+msgstr "Revient dans"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_kind"
+msgstr "Quoi"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_time"
+msgstr "Quand"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_deleted"
+msgstr "Supprimé"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_version"
+msgstr "Version antérieure"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_folder_unknown"
+msgstr "(demandé lors de la restauration)"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_searching"
+msgstr "Recherche des fichiers supprimés et des versions antérieures …"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_nothing_found"
+msgstr "Il n'y a rien à restaurer. Les fichiers supprimés apparaissent ici lorsque « Déplacer vers la corbeille » est choisi dans les paramètres ; les versions antérieures lorsque le principe des générations est activé pour une synchronisation."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_found"
+msgstr "%1 fichiers peuvent être restaurés. Les fichiers existants ne sont jamais écrasés."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_back"
+msgstr "Restaurer"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_elsewhere"
+msgstr "Restaurer vers…"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_choose_dir_title"
+msgstr "Où placer les fichiers ?"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_failed"
+msgstr "%1 fichiers n'ont pas pu être restaurés. La raison figure dans le journal."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_one"
+msgstr "« %1 » se trouve maintenant dans %2."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_renamed"
+msgstr "Restauré sous « %1 » dans %2, car un fichier portant le nom d'origine y existe déjà."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_many"
+msgstr "%1 fichiers ont été restaurés."
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_dir_not_creatable"
+msgstr "Restauration : impossible de créer le dossier : "
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_done"
+msgstr "Restauré : "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Téléphone"

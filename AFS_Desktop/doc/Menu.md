@@ -31,3 +31,10 @@ not installed case.
 "Handy verbinden…" stands in the File menu next to "Neue SSH-Verbindung…": pairing a phone
 is, for the user, adding a place to synchronise with, and that is where new places are added.
 The paired phones are listed under Edit next to the SSH connections for the same reason.
+
+## restore-entry
+
+"Dateien wiederherstellen…" stands in the Synchronisation menu, set off by a separator: what it
+gives back is what a synchronisation deleted or replaced, so that is where someone who misses a
+file after a pass looks. It works on files, not on the configuration, which is why it is not
+among the settings of the Edit menu.

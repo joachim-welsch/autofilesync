@@ -109,6 +109,7 @@
     <ClCompile Include="..\AFS_Core\src\Logging.cpp" />
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\AFS_Core\src\CloudFolders.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Restore.cpp" />
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />

@@ -2118,6 +2118,98 @@ msgstr "Wähle Verzeichnis in %1"
 msgid "title_cloud_folder"
 msgstr "Cloud-Ordner"
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files"
+msgstr "Dateien wiederherstellen…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files_help"
+msgstr "Holt gelöschte Dateien und frühere Fassungen zurück"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_restore_files"
+msgstr "Dateien wiederherstellen"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_filter_hint"
+msgstr "Nach Datei oder Ordner suchen"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_file"
+msgstr "Datei"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_folder"
+msgstr "Kommt zurück nach"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_kind"
+msgstr "Was"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_time"
+msgstr "Wann"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_deleted"
+msgstr "Gelöscht"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_version"
+msgstr "Frühere Fassung"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_folder_unknown"
+msgstr "(wird beim Wiederherstellen gefragt)"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_searching"
+msgstr "Suche nach gelöschten Dateien und früheren Fassungen …"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_nothing_found"
+msgstr "Es gibt nichts wiederherzustellen. Gelöschte Dateien stehen hier, wenn in den Einstellungen „In Papierkorb verschieben“ gewählt ist; frühere Fassungen, wenn bei einer Synchronisation das Generationenprinzip eingeschaltet ist."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_found"
+msgstr "%1 Dateien lassen sich wiederherstellen. Vorhandene Dateien werden dabei nie überschrieben."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_back"
+msgstr "Wiederherstellen"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_elsewhere"
+msgstr "Wiederherstellen nach…"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_choose_dir_title"
+msgstr "Wohin sollen die Dateien?"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_failed"
+msgstr "%1 Dateien ließen sich nicht wiederherstellen. Der Grund steht im Protokoll."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_one"
+msgstr "„%1“ liegt jetzt in %2."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_renamed"
+msgstr "Wiederhergestellt als „%1“ in %2, weil es dort schon eine Datei mit dem ursprünglichen Namen gibt."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_many"
+msgstr "%1 Dateien wurden wiederhergestellt."
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_dir_not_creatable"
+msgstr "Wiederherstellen: Ordner lässt sich nicht anlegen: "
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_done"
+msgstr "Wiederhergestellt: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Handy"

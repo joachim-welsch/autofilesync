@@ -2085,6 +2085,98 @@ msgstr "Elegir carpeta en %1"
 msgid "title_cloud_folder"
 msgstr "Carpeta en la nube"
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files"
+msgstr "Restaurar archivos…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files_help"
+msgstr "Recupera archivos eliminados y versiones anteriores"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_restore_files"
+msgstr "Restaurar archivos"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_filter_hint"
+msgstr "Buscar un archivo o una carpeta"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_file"
+msgstr "Archivo"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_folder"
+msgstr "Vuelve a"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_kind"
+msgstr "Qué"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_time"
+msgstr "Cuándo"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_deleted"
+msgstr "Eliminado"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_version"
+msgstr "Versión anterior"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_folder_unknown"
+msgstr "(se pregunta al restaurar)"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_searching"
+msgstr "Buscando archivos eliminados y versiones anteriores …"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_nothing_found"
+msgstr "No hay nada que restaurar. Los archivos eliminados aparecen aquí si en la configuración está elegido «Mover a la papelera»; las versiones anteriores, si en una sincronización está activado el principio generacional."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_found"
+msgstr "Se pueden restaurar %1 archivos. Nunca se sobrescriben archivos existentes."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_back"
+msgstr "Restaurar"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_elsewhere"
+msgstr "Restaurar en…"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_choose_dir_title"
+msgstr "¿Adónde deben ir los archivos?"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_failed"
+msgstr "No se pudieron restaurar %1 archivos. El motivo está en el registro."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_one"
+msgstr "«%1» está ahora en %2."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_renamed"
+msgstr "Restaurado como «%1» en %2, porque allí ya existe un archivo con el nombre original."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_many"
+msgstr "Se restauraron %1 archivos."
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_dir_not_creatable"
+msgstr "Restaurar: no se puede crear la carpeta: "
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_done"
+msgstr "Restaurado: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Móvil"

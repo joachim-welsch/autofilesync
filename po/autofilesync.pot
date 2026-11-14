@@ -2064,6 +2064,98 @@ msgstr ""
 msgid "title_cloud_folder"
 msgstr ""
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files"
+msgstr ""
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files_help"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_restore_files"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_filter_hint"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_file"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_folder"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_kind"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_time"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_deleted"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_version"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_folder_unknown"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_searching"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_nothing_found"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_found"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_back"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_elsewhere"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_choose_dir_title"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_failed"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_one"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_renamed"
+msgstr ""
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_many"
+msgstr ""
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_dir_not_creatable"
+msgstr ""
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_done"
+msgstr ""
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr ""

@@ -64,6 +64,7 @@ set(TEST_SOURCES
     SyncItemManagementTest.cpp
     SyncItemDialogRulesTest.cpp
     CloudFolderButtonTest.cpp
+    RestoreDialogTest.cpp
     ViewsTest.cpp
     ConfigFileTest.cpp
     SettingsTest.cpp

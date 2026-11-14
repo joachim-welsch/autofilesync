@@ -2085,6 +2085,98 @@ msgstr "Виберіть папку в %1"
 msgid "title_cloud_folder"
 msgstr "Хмарна папка"
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files"
+msgstr "Відновити файли…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files_help"
+msgstr "Повертає видалені файли та попередні версії"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_restore_files"
+msgstr "Відновлення файлів"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_filter_hint"
+msgstr "Пошук файлу або папки"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_file"
+msgstr "Файл"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_folder"
+msgstr "Повертається до"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_kind"
+msgstr "Що"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_time"
+msgstr "Коли"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_deleted"
+msgstr "Видалено"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_version"
+msgstr "Попередня версія"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_folder_unknown"
+msgstr "(запит під час відновлення)"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_searching"
+msgstr "Пошук видалених файлів і попередніх версій …"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_nothing_found"
+msgstr "Немає чого відновлювати. Видалені файли з'являються тут, якщо в налаштуваннях вибрано «Перемістити до кошика»; попередні версії — якщо для синхронізації ввімкнено принцип поколінь."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_found"
+msgstr "Можна відновити файлів: %1. Наявні файли ніколи не перезаписуються."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_back"
+msgstr "Відновити"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_elsewhere"
+msgstr "Відновити до…"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_choose_dir_title"
+msgstr "Куди покласти файли?"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_failed"
+msgstr "Не вдалося відновити файлів: %1. Причина — у журналі."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_one"
+msgstr "«%1» тепер лежить у %2."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_renamed"
+msgstr "Відновлено як «%1» у %2, бо там уже є файл із початковою назвою."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_many"
+msgstr "Відновлено файлів: %1."
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_dir_not_creatable"
+msgstr "Відновлення: не вдається створити папку: "
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_done"
+msgstr "Відновлено: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Телефон"

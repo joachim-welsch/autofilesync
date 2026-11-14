@@ -13,6 +13,12 @@ Same, but for a source that lies outside the current working directory: it is st
 under the relative path 'item', which lets the caller pick the name there (a timestamp prefix,
 say).
 
+## take_item
+
+Moves an item out of the bin to any destination, which restore_item() does for the place the
+relative path names. An existing destination is refused: the bin gives files back and must
+never be the reason another one is lost.
+
 ## check_relative
 
 An absolute path or a ".." component would place the item outside path_, which the bin must

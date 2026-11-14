@@ -12,6 +12,16 @@
   nicht nötig. Ist kein solches Programm installiert, nennt ein Hinweis, was
   fehlt.
 
+- Dateien wiederherstellen: „Synchronisation → Dateien wiederherstellen…“ zeigt
+  in einer Liste, was AutoFileSync in den Papierkorb gelöscht hat und welche
+  früheren Fassungen das Generationenprinzip aufbewahrt, mit Suche nach Datei
+  und Ordner. „Wiederherstellen“ legt die Auswahl dorthin zurück, wo man mit ihr
+  arbeitet: Dateien aus einem Ziel kommen in die Quelle, damit die nächste
+  Synchronisation sie nicht wieder entfernt. Eine vorhandene Datei wird dabei
+  nie überschrieben; ist der Name vergeben, bekommt die wiederhergestellte Datei
+  das Datum in den Namen. „Wiederherstellen nach…“ legt sie in einen gewählten
+  Ordner. Ziele über SSH und auf dem Handy werden nicht durchsucht.
+
 ## 0.4.0 – 2026-10-22
 
 - Handys lassen sich mit AutoFileSync verbinden: „Datei → Handy verbinden…“

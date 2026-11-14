@@ -150,6 +150,9 @@
     <ClInclude Include="$(LibDir)\include\CloudFolders.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\Restore.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\CpuTopology.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -324,6 +327,9 @@
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="CloudFoldersTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="RestoreTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="CpuTopologyTests.cpp">
@@ -513,6 +519,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CloudFolders.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\Restore.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CpuTopology.cpp">

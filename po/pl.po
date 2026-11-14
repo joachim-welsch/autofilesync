@@ -2085,6 +2085,98 @@ msgstr "Wybierz folder w %1"
 msgid "title_cloud_folder"
 msgstr "Folder w chmurze"
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files"
+msgstr "Przywróć pliki…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_restore_files_help"
+msgstr "Przywraca usunięte pliki i wcześniejsze wersje"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_restore_files"
+msgstr "Przywracanie plików"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_filter_hint"
+msgstr "Szukaj pliku lub folderu"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_file"
+msgstr "Plik"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_folder"
+msgstr "Wraca do"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_kind"
+msgstr "Co"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_column_time"
+msgstr "Kiedy"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_deleted"
+msgstr "Usunięty"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_kind_version"
+msgstr "Wcześniejsza wersja"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_folder_unknown"
+msgstr "(pytanie przy przywracaniu)"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_searching"
+msgstr "Szukanie usuniętych plików i wcześniejszych wersji …"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_nothing_found"
+msgstr "Nie ma nic do przywrócenia. Usunięte pliki pojawiają się tutaj, gdy w ustawieniach wybrano „Przenieś do kosza”; wcześniejsze wersje, gdy dla synchronizacji włączono zasadę pokoleniową."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_found"
+msgstr "Można przywrócić pliki: %1. Istniejące pliki nigdy nie są nadpisywane."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_back"
+msgstr "Przywróć"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_put_elsewhere"
+msgstr "Przywróć do…"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_choose_dir_title"
+msgstr "Dokąd przywrócić pliki?"
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_failed"
+msgstr "Nie udało się przywrócić plików: %1. Przyczyna jest w dzienniku."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_one"
+msgstr "„%1” znajduje się teraz w %2."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_renamed"
+msgstr "Przywrócono jako „%1” w %2, ponieważ istnieje tam już plik o pierwotnej nazwie."
+
+#: AFS_Desktop/src/RestoreDialog.cpp
+msgid "restore_result_many"
+msgstr "Przywrócono pliki: %1."
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_dir_not_creatable"
+msgstr "Przywracanie: nie można utworzyć folderu: "
+
+#: AFS_Core/src/Restore.cpp
+msgid "restore_done"
+msgstr "Przywrócono: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Telefon"

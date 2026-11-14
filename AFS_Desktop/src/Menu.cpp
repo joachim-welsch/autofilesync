@@ -126,6 +126,8 @@ wxMenu* Menu::create_sync_menu()
     sync_menu_->Append(tul(id::StopSync), translate("menu_stop"));
     sync_menu_->Append(tul(id::SyncOnce), translate("menu_sync_once"));
     sync_menu_->Append(tul(id::Preview), translate("menu_preview"), translate("menu_preview_help"));
+    sync_menu_->AppendSeparator();
+    sync_menu_->Append(tul(id::RestoreFiles), translate("menu_restore_files"), translate("menu_restore_files_help"));  // [Menu.md#restore-entry]
     return sync_menu_;
 }
 

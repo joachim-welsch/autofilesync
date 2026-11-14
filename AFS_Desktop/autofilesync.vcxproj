@@ -121,6 +121,7 @@
     <ClInclude Include="..\AFS_Core\include\Logging.h" />
     <ClInclude Include="..\AFS_Core\include\ModelLocation.h" />
     <ClInclude Include="..\AFS_Core\include\CloudFolders.h" />
+    <ClInclude Include="..\AFS_Core\include\Restore.h" />
     <ClInclude Include="..\AFS_Core\include\CpuTopology.h" />
     <ClInclude Include="..\AFS_Core\include\SyncProposal.h" />
     <ClInclude Include="..\AFS_Core\include\ConfigSummary.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="include\SshAccountDialog.h" />
     <ClInclude Include="include\SshAccountsDialog.h" />
     <ClInclude Include="include\DevicesDialog.h" />
+    <ClInclude Include="include\RestoreDialog.h" />
     <ClInclude Include="include\FirewallHint.h" />
     <ClInclude Include="include\PairDeviceDialog.h" />
     <ClInclude Include="include\PhoneDirDialog.h" />
@@ -228,6 +230,7 @@
     <ClCompile Include="..\AFS_Core\src\LlamaClient.cpp" />
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\AFS_Core\src\CloudFolders.cpp" />
+    <ClCompile Include="..\AFS_Core\src\Restore.cpp" />
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />
@@ -265,6 +268,7 @@
     <ClCompile Include="src\SshAccountDialog.cpp" />
     <ClCompile Include="src\SshAccountsDialog.cpp" />
     <ClCompile Include="src\DevicesDialog.cpp" />
+    <ClCompile Include="src\RestoreDialog.cpp" />
     <ClCompile Include="src\FirewallHint.cpp" />
     <ClCompile Include="src\PairDeviceDialog.cpp" />
     <ClCompile Include="src\PhoneDirDialog.cpp" />

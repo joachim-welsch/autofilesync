@@ -121,6 +121,7 @@ private:
     void on_edit_ssh_accounts(wxCommandEvent& event);
     void on_connect_phone(wxCommandEvent& event);  // [MainWindow.md#phones]
     void on_edit_devices(wxCommandEvent& event);
+    void on_restore_files(wxCommandEvent& event);
     void on_edit_settings(wxCommandEvent& event);
     void on_edit_logging(wxCommandEvent& event);
     void on_delete_sync(wxCommandEvent&);

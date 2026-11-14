@@ -143,11 +143,15 @@ bool RecycleBin::add_item(const fs::path& source, const fs::path& item)
 
 bool RecycleBin::restore_item(const fs::path& item)
 {
+    return take_item(item, item.lexically_normal());
+}
+
+bool RecycleBin::take_item(const fs::path& item, const fs::path& target)  // [RecycleBin.md#take_item]
+{
     std::lock_guard<std::mutex> lock(mutex_);
     if (!check_relative(item))
         return false;
-    const fs::path target = item.lexically_normal();
-    const fs::path source = path_ / target;
+    const fs::path source = path_ / item.lexically_normal();
     if (!entry_exists(source)) {
         log_error(translation::translate("recycle_bin_file_not_inside"), item.wstring());
         return false;

@@ -45,6 +45,7 @@ set(AFS_CORE_SOURCES
     LogEmail.cpp
     ModelLocation.cpp
     CloudFolders.cpp
+    Restore.cpp
     CpuTopology.cpp
     SyncProposal.cpp
     ConfigSummary.cpp

@@ -79,6 +79,7 @@ set(SOURCES
     LogAnalysisTests.cpp
     ModelLocationTests.cpp
     CloudFoldersTests.cpp
+    RestoreTests.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp

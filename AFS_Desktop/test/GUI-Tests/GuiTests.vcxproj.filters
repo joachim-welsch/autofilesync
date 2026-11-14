@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\CloudFolders.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Restore.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\CpuTopology.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -452,6 +455,9 @@
     <ClCompile Include="CloudFolderButtonTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
+    <ClCompile Include="RestoreDialogTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
     <ClCompile Include="SyncItemManagementTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
@@ -534,6 +540,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\CloudFolders.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Restore.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\CpuTopology.cpp">
@@ -705,6 +714,9 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\DevicesDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\RestoreDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\FirewallHint.cpp">
