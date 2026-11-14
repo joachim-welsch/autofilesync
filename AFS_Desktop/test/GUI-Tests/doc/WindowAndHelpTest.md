@@ -7,6 +7,13 @@ Module comment for WindowAndHelpTest.cpp.
 Every test here hides the main window at some point; the next test needs it on screen, so it
 is shown again when the test leaves its scope, whether it passed or failed.
 
+## needs-a-tray
+
+The way out to the background and back through the tray menu exists only with a tray. Without
+one the window is minimized instead of hidden (MainWindow.md#hide-without-tray), which
+HideToBackgroundTest covers, so this test is skipped there, as on the private X display of the
+GUI tests.
+
 ## activate_task_bar_menu_item
 
 The popup menu of the tray icon is a native menu the simulator cannot open, so the menu is

@@ -32,6 +32,7 @@
 #include "utilwx.h"
 #include <fstream>
 #include <wx/html/helpctrl.h>
+#include <wx/taskbar.h>
 #include <sstream>
 #ifdef _WIN32
     #include <wx/msw/registry.h>
@@ -167,8 +168,10 @@ TEST_F(GuiTest, MinimierenStattSchliessenVerstecktAnstattZuBeenden)  // [Setting
     main_window().Close();
     pump();
 
-    EXPECT_FALSE(main_window().IsShown()) << "Das Fenster wurde beim Schließen nicht versteckt.";
+    EXPECT_EQ(!main_window().IsShown(), wxTaskBarIcon::IsAvailable())  // [SettingsTest.md#hidden-only-with-tray]
+        << "Das Fenster darf beim Schließen nur versteckt werden, wenn ein Tray-Symbol es zurückholen kann.";
     EXPECT_NE(wxTheApp->GetTopWindow(), nullptr) << "Das Fenster wurde trotz Einstellung zerstört.";
+    main_window().Iconize(false);
     main_window().Show();
     pump();
     EXPECT_TRUE(main_window().IsShown());

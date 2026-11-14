@@ -32,6 +32,13 @@ Close() runs MainWindow::on_close with a vetoable event, exactly like the window
 button. Without the option the window would leave the main loop, which is why only the
 minimize path is tested in-process; the real exit is left to the plan's open points.
 
+## hidden-only-with-tray
+
+Closing hides the window only where a tray icon can bring it back; without a tray it is
+minimized and stays shown (MainWindow.md#hide-without-tray). The private X display of the GUI
+tests has no tray, a desktop session usually has one, so the expectation follows
+wxTaskBarIcon::IsAvailable(). That the window survives is checked in both cases.
+
 ## EndgueltigLoeschenLoeschtOhnePapierkorb
 
 Counterpart of SettingsRecycleBinTest: the same delete_file() with the other delete mode

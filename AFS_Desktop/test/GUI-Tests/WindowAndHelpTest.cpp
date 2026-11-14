@@ -87,6 +87,8 @@ private:
 
 TEST_F(GuiTest, AnsichtHintergrundVerstecktFensterUndTaskleisteZeigtEsWieder)
 {
+    if (!wxTaskBarIcon::IsAvailable())  // [WindowAndHelpTest.md#needs-a-tray]
+        GTEST_SKIP() << "Ohne Infobereich wird das Fenster nicht versteckt.";
     const ShownAgain shown_again(main_window());
     ASSERT_TRUE(main_window().IsShown());
     ASSERT_NE(main_window().task_bar_icon(), nullptr) << "Es gibt kein Symbol im Infobereich.";
