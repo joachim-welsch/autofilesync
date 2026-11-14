@@ -12,25 +12,15 @@ account's address.
 
 ## errors
 
-Every function throws. `SshUnreachable` means the server could not be reached at all (name not
-resolved, connection refused, timeout, TLS handshake): the callers treat that as "not there at
-the moment" and warn, exactly as for an SSH host. `Error` is everything else, an HTTP status
-that is not a success or a transport failure in mid-request. A wrong password is an Error, not
-an absence: reporting "file does not exist" for a 401 would make a mirroring item believe the
-whole target is empty.
+Every function throws (HttpClient.md#errors): `SshUnreachable` when the server could not be
+reached, `Error` for everything else, including an HTTP status that is not a success. A wrong
+password is an Error, not an absence: reporting "file does not exist" for a 401 would make a
+mirroring item believe the whole target is empty.
 
 ## Request
 
-One HTTP request on the calling thread's connection, with the account's credentials and the
-settings every request shares. perform() returns the HTTP status, or nothing when the user
-stopped the run during a transfer.
-
-## connection-reuse
-
-Each thread keeps one libcurl handle for its lifetime and resets it between requests. libcurl
-then reuses the open connection, so a tree with thousands of files costs one TLS handshake per
-thread instead of one per request. The handle is thread-local because an easy handle must not
-be used from two threads.
+An HTTP request (HttpClient.md#Request) with the account's credentials, refused before it is
+sent when the account's address is not encrypted (#https-only).
 
 ## https-only
 
@@ -44,17 +34,6 @@ which is what the tests use. The check compares the host exactly up to the next 
 The account's address plus the path, each path segment percent-encoded on its own so a "/" stays
 a separator and a "%" or a blank in a name survives. A collection is addressed with a trailing
 slash: Apache answers a collection without one with a redirect, and redirects are not followed.
-
-## timeouts
-
-Fifteen seconds to connect. After that a request has no total limit, since a large file may
-take hours, but it is given up when no byte has moved for a minute.
-
-## stop
-
-Only transfers ask whether the user stopped the run, and they report the bytes moved so far to
-the progress display. The small requests do not ask: the dialogs use them too, outside any run,
-when Synchronize::stopping() is true all the time.
 
 ## stat
 
@@ -102,9 +81,8 @@ compares as equal to its origin on the next pass.
 
 ## upload
 
-PUT with the file's size known beforehand. The "Expect: 100-continue" handshake is switched off:
-it only saves an upload the server would refuse, and some servers do not answer it, which costs
-a second of waiting per file.
+PUT with the file's size known beforehand (HttpClient.md#transfers), directly under the final
+name.
 
 ## modification-time
 

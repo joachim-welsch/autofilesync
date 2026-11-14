@@ -53,5 +53,6 @@ enum class id {  // [id.md#id]
     File_connect_phone,
     EditDevices,
     RestoreFiles,
-    File_new_WebDavConnection
+    File_new_WebDavConnection,
+    File_new_GoogleDriveConnection
 };

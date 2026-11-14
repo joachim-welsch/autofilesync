@@ -81,6 +81,7 @@ set(SOURCES
     CloudFoldersTests.cpp
     RestoreTests.cpp
     WebDavTests.cpp
+    GoogleDriveTests.cpp
     WebDavTestServer.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp

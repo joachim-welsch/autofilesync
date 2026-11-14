@@ -41,7 +41,7 @@
     #endif
 #endif
 
-#include "WebDav.h"
+#include "CloudStore.h"
 
 namespace AFS_Core {
 
@@ -63,7 +63,7 @@ static RemoteFileInfo inspect_webdav(const SshAccount& account, const std::strin
 {
     RemoteFileInfo info{};
     info.last_modified_iso = "N/A";
-    const auto entry = webdav::stat(account, remote_path);
+    const auto entry = cloud_store::stat(account, remote_path);
     if (!entry)
         return info;
     info.exists = true;
@@ -77,7 +77,7 @@ static RemoteFileInfo inspect_webdav(const SshAccount& account, const std::strin
 SshFileInspector::SshFileInspector(const SshAccount& account)
     : account_(account)
 {
-    if (!account.webdav())  // [SshFileInspector.md#webdav]
+    if (!cloud_store::handles(account))  // [SshFileInspector.md#webdav]
         connection_.connect(account);
 }
 
@@ -85,7 +85,7 @@ SshFileInspector::~SshFileInspector() = default;
 
 RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 {
-    if (account_.webdav())  // [SshFileInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshFileInspector.md#webdav]
         return inspect_webdav(account_, remote_path);
     RemoteFileInfo info{};
     info.last_modified_iso = "N/A";
@@ -124,7 +124,7 @@ static void init_winsock()
 SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspector.md#shared-message-ids]
     : account_(account)
 {
-    if (account.webdav())  // [SshFileInspector.md#webdav]
+    if (cloud_store::handles(account))  // [SshFileInspector.md#webdav]
         return;
     init_winsock();
     ensure_libssh2_initialized();
@@ -194,7 +194,7 @@ void SshFileInspector::cleanup()
 
 RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 {
-    if (account_.webdav())  // [SshFileInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshFileInspector.md#webdav]
         return inspect_webdav(account_, remote_path);
     RemoteFileInfo info{};
     info.exists = false;
@@ -250,7 +250,7 @@ void SshFileInspector::cleanup() {}
 
 RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 {
-    if (account_.webdav())  // [SshFileInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshFileInspector.md#webdav]
         return inspect_webdav(account_, remote_path);
     RemoteFileInfo info{};
     info.exists = false;

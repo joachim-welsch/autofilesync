@@ -123,6 +123,7 @@ private:
     void on_edit_devices(wxCommandEvent& event);
     void on_restore_files(wxCommandEvent& event);
     void on_add_webdav_connection(wxCommandEvent& event);
+    void on_add_google_drive_connection(wxCommandEvent& event);
     void on_edit_settings(wxCommandEvent& event);
     void on_edit_logging(wxCommandEvent& event);
     void on_delete_sync(wxCommandEvent&);

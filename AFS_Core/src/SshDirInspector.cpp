@@ -42,7 +42,7 @@
 #endif
 
 #include "SshFileInspector.h"
-#include "WebDav.h"
+#include "CloudStore.h"
 
 namespace AFS_Core {
 
@@ -64,7 +64,7 @@ namespace {
         RemoteDirInfo info{};
         info.path = remote_path;
         try {
-            for (const webdav::Entry& entry : webdav::list(account, remote_path))
+            for (const webdav::Entry& entry : cloud_store::list(account, remote_path))
                 info.entries.push_back({entry.name, entry.is_directory, !entry.is_directory, false, entry.size, time_to_iso(entry.mtime), entry.mtime, 0});
             info.exists = true;
             info.is_directory = true;
@@ -115,7 +115,7 @@ namespace {
 SshDirInspector::SshDirInspector(const SshAccount& account)
     : account_(account)
 {
-    if (!account.webdav())  // [SshDirInspector.md#webdav]
+    if (!cloud_store::handles(account))  // [SshDirInspector.md#webdav]
         connection_.connect(account);
 }
 
@@ -123,7 +123,7 @@ SshDirInspector::~SshDirInspector() = default;
 
 RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 {
-    if (account_.webdav())  // [SshDirInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshDirInspector.md#webdav]
         return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo info{};
     if (!require_directory(connection_, remote_path, info))
@@ -143,7 +143,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 
 std::string SshDirInspector::get_home_dir()
 {
-    if (account_.webdav())  // [SshDirInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshDirInspector.md#webdav]
         return "/";
     char* resolved = sftp_canonicalize_path(connection_.sftp(), ".");
     if (!resolved)
@@ -155,7 +155,7 @@ std::string SshDirInspector::get_home_dir()
 
 RemoteDirInfo SshDirInspector::inspect_dir_recursive(const std::string& remote_path)
 {
-    if (account_.webdav())  // [SshDirInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshDirInspector.md#webdav]
         return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo result{};
     if (require_directory(connection_, remote_path, result))
@@ -194,7 +194,7 @@ constexpr bool has_file_type(unsigned long permissions, unsigned long type)
 SshDirInspector::SshDirInspector(const SshAccount& account)
     : account_(account)
 {
-    if (account.webdav())  // [SshDirInspector.md#webdav]
+    if (cloud_store::handles(account))  // [SshDirInspector.md#webdav]
         return;
     WSADATA wsadata;
     int rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
@@ -269,7 +269,7 @@ void SshDirInspector::cleanup()
 
 RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 {
-    if (account_.webdav())  // [SshDirInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshDirInspector.md#webdav]
         return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo info{};
     info.exists = false;
@@ -331,7 +331,7 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 
 std::string SshDirInspector::get_home_dir()
 {
-    if (account_.webdav())  // [SshDirInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshDirInspector.md#webdav]
         return "/";
     char buffer[1024];
     int rc = libssh2_sftp_realpath(sftp_session_ptr_, ".", buffer, sizeof(buffer));
@@ -345,7 +345,7 @@ std::string SshDirInspector::get_home_dir()
 
 RemoteDirInfo SshDirInspector::inspect_dir_recursive(const std::string& remote_path)
 {
-    if (account_.webdav())  // [SshDirInspector.md#webdav]
+    if (cloud_store::handles(account_))  // [SshDirInspector.md#webdav]
         return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo result{};
     result.path = remote_path;

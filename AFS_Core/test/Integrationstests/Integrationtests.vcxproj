@@ -226,6 +226,7 @@
     <ClCompile Include="CloudFoldersTests.cpp" />
     <ClCompile Include="RestoreTests.cpp" />
     <ClCompile Include="WebDavTests.cpp" />
+    <ClCompile Include="GoogleDriveTests.cpp" />
     <ClCompile Include="WebDavTestServer.cpp" />
     <ClCompile Include="CpuTopologyTests.cpp" />
     <ClCompile Include="SyncProposalTests.cpp" />
@@ -244,6 +245,10 @@
     <ClCompile Include="$(LibDir)\src\CloudFolders.cpp" />
     <ClCompile Include="$(LibDir)\src\Restore.cpp" />
     <ClCompile Include="$(LibDir)\src\WebDav.cpp" />
+    <ClCompile Include="$(LibDir)\src\HttpClient.cpp" />
+    <ClCompile Include="$(LibDir)\src\GoogleDrive.cpp" />
+    <ClCompile Include="$(LibDir)\src\GoogleAuth.cpp" />
+    <ClCompile Include="$(LibDir)\src\CloudStore.cpp" />
     <ClCompile Include="$(LibDir)\src\CpuTopology.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncProposal.cpp" />
     <ClCompile Include="$(LibDir)\src\ConfigSummary.cpp" />
@@ -343,6 +348,10 @@
     <ClInclude Include="$(LibDir)\include\CloudFolders.h" />
     <ClInclude Include="$(LibDir)\include\Restore.h" />
     <ClInclude Include="$(LibDir)\include\WebDav.h" />
+    <ClInclude Include="$(LibDir)\include\HttpClient.h" />
+    <ClInclude Include="$(LibDir)\include\GoogleDrive.h" />
+    <ClInclude Include="$(LibDir)\include\GoogleAuth.h" />
+    <ClInclude Include="$(LibDir)\include\CloudStore.h" />
     <ClInclude Include="$(LibDir)\include\CpuTopology.h" />
     <ClInclude Include="$(LibDir)\include\SyncProposal.h" />
     <ClInclude Include="$(LibDir)\include\ConfigSummary.h" />

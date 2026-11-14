@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "WebDavTestServer.h"
+#include <curl/curl.h>
 #ifndef _WIN32
 #include <csignal>
 #include <cstdio>
@@ -26,16 +27,35 @@
 
 namespace tu {
 
-#ifdef _WIN32
-WebDavTestServer::WebDavTestServer(const std::filesystem::path&, bool)  // [WebDavTestServer.md#windows]
+void visit_like_a_browser(const std::string& url)  // [WebDavTestServer.md#visit_like_a_browser]
+{
+    CURL* browser = curl_easy_init();
+    curl_easy_setopt(browser, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(browser, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(browser, CURLOPT_WRITEFUNCTION, +[](char*, std::size_t size, std::size_t count, void*) { return size * count; });
+    curl_easy_perform(browser);
+    curl_easy_cleanup(browser);
+}
+
+WebDavTestServer::WebDavTestServer(const std::filesystem::path& root, bool keep_mtime)
+    : PythonTestServer("webdavTestServer.py", keep_mtime ? std::vector<std::string>{root.string(), "--user", USER, "--password", PASSWORD, "--keep-mtime"}
+                                                           : std::vector<std::string>{root.string(), "--user", USER, "--password", PASSWORD})
 {}
 
-WebDavTestServer::~WebDavTestServer() = default;
+GoogleDriveTestServer::GoogleDriveTestServer(int page_size)
+    : PythonTestServer("googleDriveTestServer.py", {"--page-size", std::to_string(page_size)})
+{}
+
+#ifdef _WIN32
+PythonTestServer::PythonTestServer(const std::string&, const std::vector<std::string>&)  // [WebDavTestServer.md#windows]
+{}
+
+PythonTestServer::~PythonTestServer() = default;
 #else
 namespace {
-std::string script()
+std::string script(const std::string& name)
 {
-    return (std::filesystem::path(__FILE__).parent_path().parent_path() / "tools" / "webdavTestServer.py").string();  // [WebDavTestServer.md#script]
+    return (std::filesystem::path(__FILE__).parent_path().parent_path() / "tools" / name).string();  // [WebDavTestServer.md#script]
 }
 
 int read_port(int descriptor)  // [WebDavTestServer.md#port]
@@ -50,27 +70,30 @@ int read_port(int descriptor)  // [WebDavTestServer.md#port]
 }
 }
 
-WebDavTestServer::WebDavTestServer(const std::filesystem::path& root, bool keep_mtime)
+PythonTestServer::PythonTestServer(const std::string& script_name, const std::vector<std::string>& arguments)
 {
     int output[2];
     if (pipe(output) != 0)
         return;
-    const std::string script_path = script();
-    const std::string root_path = root.string();
+    std::vector<std::string> words = {"python3", script(script_name)};
+    words.insert(words.end(), arguments.begin(), arguments.end());
+    std::vector<char*> command;
+    for (std::string& word : words)
+        command.push_back(word.data());
+    command.push_back(nullptr);
     process_ = fork();
     if (process_ == 0) {
         dup2(output[1], STDOUT_FILENO);
         close(output[0]);
         close(output[1]);
-        execlp("python3", "python3", script_path.c_str(), root_path.c_str(), "--user", USER, "--password", PASSWORD,
-            keep_mtime ? "--keep-mtime" : static_cast<char*>(nullptr), static_cast<char*>(nullptr));
+        execvp("python3", command.data());
         _exit(127);
     }
     close(output[1]);
     port_ = process_ > 0 ? read_port(output[0]) : 0;
 }
 
-WebDavTestServer::~WebDavTestServer()
+PythonTestServer::~PythonTestServer()
 {
     if (process_ <= 0)
         return;

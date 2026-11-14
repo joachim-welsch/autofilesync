@@ -2225,6 +2225,66 @@ msgstr "WebDAV: адреса без https:// не використовуєтьс
 msgid "webdav_time_not_kept"
 msgstr "WebDAV: сервер не зберігає час зміни вивантажених файлів; там вони мають час вивантаження. З'єднання: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_google_drive_connection"
+msgstr "Нове з'єднання Google Drive…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_google_drive_connection"
+msgstr "Додати з'єднання Google Drive"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_google_drive_connection"
+msgstr "Редагувати з'єднання Google Drive"
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_explanation"
+msgstr "Вхід відбувається в браузері, у Google; AutoFileSync не дізнається вашого пароля. Він отримує доступ лише до файлів і папок, які сам створює на вашому Google Диску. Наявних там файлів він не бачить."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_button"
+msgstr "Увійти через Google…"
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_none"
+msgstr "Вхід ще не виконано."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_waiting"
+msgstr "Очікування входу в браузері … Якщо браузер не відкрився, натисніть «Увійти через Google…» ще раз."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_done"
+msgstr "Вхід виконано. OK зберігає з'єднання."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "google_drive_not_configured"
+msgstr "Google Диск у цій версії ще не налаштовано: бракує ідентифікатора, яким AutoFileSync представляється Google."
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_refused"
+msgstr "Google не прийняв вхід: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_page_done"
+msgstr "Вхід завершено. Можете закрити це вікно й повернутися до AutoFileSync."
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_page_failed"
+msgstr "Вхід не вдався. Закрийте це вікно й спробуйте ще раз в AutoFileSync."
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_folder_missing"
+msgstr "Google Диск: папку не знайдено: "
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_file_missing"
+msgstr "Google Диск: файл не знайдено: "
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_name_taken"
+msgstr "Google Диск: назву вже зайнято: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Телефон"

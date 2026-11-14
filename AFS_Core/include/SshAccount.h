@@ -31,6 +31,7 @@ class SshAccount {
     std::string host_key_;  // [SshAccount.md#host_key_]
     std::string sealed_password_;  // [SshAccount.md#sealed_password_]
     std::string url_;  // [SshAccount.md#url_]
+    bool google_drive_ = false;  // [SshAccount.md#google_drive_]
 public:
     const std::string& name() const;
     const std::string& user() const;
@@ -40,7 +41,8 @@ public:
     const std::string& host_key() const { return host_key_; }
     const std::string& sealed_password() const { return sealed_password_; }
     const std::string& url() const { return url_; }
-    bool webdav() const { return !url_.empty(); }  // [SshAccount.md#url_]
+    bool webdav() const { return !url_.empty() && !google_drive_; }  // [SshAccount.md#url_]
+    bool google_drive() const { return google_drive_; }  // [SshAccount.md#google_drive_]
 
     void set_name(const std::string& name);
     void set_user(const std::string& user);
@@ -50,6 +52,7 @@ public:
     void set_host_key(const std::string& key) { host_key_ = key; }
     void set_sealed_password(const std::string& ciphertext) { sealed_password_ = ciphertext; }
     void set_url(const std::string& url) { url_ = url; }
+    void set_google_drive(bool google_drive) { google_drive_ = google_drive; }
 };
 
 } // namespace AFS_Core

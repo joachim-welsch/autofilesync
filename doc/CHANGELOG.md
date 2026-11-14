@@ -32,6 +32,16 @@
   ownCloud übernehmen die Änderungszeit hochgeladener Dateien, andere Server
   nicht; dort meldet das Protokoll das einmal je Programmlauf. Neue
   Abhängigkeit: libcurl.
+- Google Drive (vorbereitet): „Datei → Neue Google-Drive-Verbindung…“ meldet
+  im Browser bei Google an und macht das Laufwerk danach als Quelle oder Ziel
+  wählbar, mit Zwei-Wege-Synchronisation, Generationenprinzip und Löschen im
+  Ziel. AutoFileSync sieht nur Dateien und Ordner, die es selbst angelegt hat
+  (Zugriff `drive.file`); Gelöschtes landet im Papierkorb von Google Drive.
+  Die Kennung des bei Google registrierten Clients steht nicht im Quelltext,
+  sondern wird beim Bauen übergeben (`AFS_GOOGLE_CLIENT_ID` und
+  `AFS_GOOGLE_CLIENT_SECRET`, etwa aus einer nicht eingecheckten Datei
+  `google-client.cmake`); ohne sie meldet der Menüeintrag, dass Google Drive
+  noch nicht eingerichtet ist.
 - Behoben: Wurde dieselbe Datei innerhalb einer Millisekunde zweimal in den
   Papierkorb gelöscht, ersetzte die zweite dort die erste. Jede Löschung
   bekommt jetzt einen eigenen Eintrag, und der Papierkorb ersetzt grundsätzlich

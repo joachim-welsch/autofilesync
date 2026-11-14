@@ -66,6 +66,7 @@ set(TEST_SOURCES
     CloudFolderButtonTest.cpp
     RestoreDialogTest.cpp
     WebDavAccountTest.cpp
+    GoogleDriveAccountTest.cpp
     ViewsTest.cpp
     ConfigFileTest.cpp
     SettingsTest.cpp

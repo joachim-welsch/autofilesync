@@ -47,6 +47,10 @@ set(AFS_CORE_SOURCES
     CloudFolders.cpp
     Restore.cpp
     WebDav.cpp
+    HttpClient.cpp
+    GoogleDrive.cpp
+    GoogleAuth.cpp
+    CloudStore.cpp
     CpuTopology.cpp
     SyncProposal.cpp
     ConfigSummary.cpp
@@ -94,6 +98,10 @@ if(NOT TARGET afs_core_deps)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBSSH REQUIRED libssh)
     find_package(CURL REQUIRED)  # WebDav.cpp speaks HTTP through libcurl
+    find_package(CURL REQUIRED)  # HttpClient.cpp speaks HTTP through libcurl
+    find_package(CURL REQUIRED)  # GoogleDrive.cpp speaks HTTP through libcurl
+    find_package(CURL REQUIRED)  # GoogleAuth.cpp speaks HTTP through libcurl
+    find_package(CURL REQUIRED)  # CloudStore.cpp speaks HTTP through libcurl
 
     # GNU gettext for the translated texts (Translation.cpp). Part of the C library on
     # glibc, a separate libintl on macOS and Windows. Required, not optional: the
@@ -142,6 +150,20 @@ if(NOT TARGET afs_core_deps)
     target_include_directories(afs_core_deps SYSTEM INTERFACE ${Intl_INCLUDE_DIRS})
     target_link_libraries(afs_core_deps INTERFACE ${Intl_LIBRARIES})
     target_compile_definitions(afs_core_deps INTERFACE AFS_WITH_GETTEXT)
+
+    # The OAuth client AutoFileSync presents to Google (GoogleAuth.md#client). It is not
+    # part of the sources: google-client.cmake beside the top-level CMakeLists.txt, which
+    # git ignores, or -DAFS_GOOGLE_CLIENT_ID=... on the command line supplies it. Without
+    # it the program is built without the Google Drive sign-in.
+    include(${AFS_CORE_DIR}/../google-client.cmake OPTIONAL)
+    set(AFS_GOOGLE_CLIENT_ID "${AFS_GOOGLE_CLIENT_ID}" CACHE STRING "Google OAuth client id for Google Drive")
+    set(AFS_GOOGLE_CLIENT_SECRET "${AFS_GOOGLE_CLIENT_SECRET}" CACHE STRING "Google OAuth client secret for Google Drive")
+    if(AFS_GOOGLE_CLIENT_ID)
+        target_compile_definitions(afs_core_deps INTERFACE
+            AFS_GOOGLE_CLIENT_ID="${AFS_GOOGLE_CLIENT_ID}" AFS_GOOGLE_CLIENT_SECRET="${AFS_GOOGLE_CLIENT_SECRET}")
+    else()
+        message(STATUS "Google Drive sign-in: no client id (google-client.cmake), built without it")
+    endif()
 endif()
 
 # afs_core_add_library(<target> [WXWIDGETS] [DEFINITIONS <def>...])

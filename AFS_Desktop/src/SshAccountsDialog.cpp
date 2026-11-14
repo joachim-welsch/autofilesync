@@ -19,6 +19,7 @@
 #include "SshAccountsDialog.h"
 #include "SshAccountDialog.h"
 #include "WebDavAccountDialog.h"
+#include "GoogleDriveAccountDialog.h"
 #include "SshAccount.h"
 #include "Config.h"
 #include "TextResources.h"
@@ -92,7 +93,7 @@ void SshAccountsDialog::populate_list()
     long index = 0;
     for (const auto& account : accounts) {
         long item = list_ctrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
-        list_ctrl_->SetItem(item, 1, wxString::FromUTF8(account.webdav() ? account.url() : account.host()));  // [SshAccountsDialog.md#webdav-accounts]
+        list_ctrl_->SetItem(item, 1, utilwx::place_of(account));  // [SshAccountsDialog.md#webdav-accounts]
         list_ctrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
         list_ctrl_->SetItem(item, 3, wxString(account.password().empty() ? "" : "********"));
         index++;
@@ -125,6 +126,13 @@ void SshAccountsDialog::on_add(wxCommandEvent&)
 namespace {
 bool edited(wxWindow* parent, SshAccount& account)  // [SshAccountsDialog.md#webdav-accounts]
 {
+    if (account.google_drive()) {
+        GoogleDriveAccountDialog dlg(account, parent, wxID_ANY, txt::edit_google_drive_connection());
+        if (dlg.ShowModal() != wxID_OK)
+            return false;
+        dlg.save_data(account);
+        return true;
+    }
     if (account.webdav()) {
         WebDavAccountDialog dlg(account, parent, wxID_ANY, txt::edit_webdav_connection());
         if (dlg.ShowModal() != wxID_OK)

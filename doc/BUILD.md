@@ -247,6 +247,23 @@ bzw. `cmake -S AFS_Desktop ...`); AFS_Desktop zieht AFS_Core dann selbst hinzu.
 | `AFS_CORE_WITH_WXWIDGETS` | ON | Kern mit seinen wxWidgets-Anbindungen (`_WXWIDGETS`); AFS_Desktop braucht ON |
 | `FETCHCONTENT_SOURCE_DIR_LLAMA_CPP` | – | Vorhandenen llama.cpp-Checkout verwenden statt neu zu klonen |
 
+## Google Drive
+
+Die Anmeldung bei Google Drive braucht die Kennung eines bei Google registrierten
+OAuth-Clients (Typ „Desktop-App“). Sie steht nicht im Quelltext. Der CMake-Build
+liest sie aus `google-client.cmake` neben der obersten `CMakeLists.txt` (von git
+ignoriert):
+
+```cmake
+set(AFS_GOOGLE_CLIENT_ID "….apps.googleusercontent.com")
+set(AFS_GOOGLE_CLIENT_SECRET "…")
+```
+
+oder von der Kommandozeile (`-DAFS_GOOGLE_CLIENT_ID=… -DAFS_GOOGLE_CLIENT_SECRET=…`).
+Ohne Kennung wird das Programm ohne Google-Drive-Anmeldung gebaut; der Menüeintrag
+meldet das dann. Die Visual-Studio-Projekte bauen ohne Kennung, solange die Makros
+`AFS_GOOGLE_CLIENT_ID` und `AFS_GOOGLE_CLIENT_SECRET` dort nicht definiert sind.
+
 ## Externe Abhängigkeiten
 
 Die früher separat erwartete Bibliothek **mylib** ist vollständig in `AFS_Core`

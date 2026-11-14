@@ -12,6 +12,9 @@ compile_commands.json
 CMakeUserPresets.json
 CMakeLists.txt.user*
 
+# The Google OAuth client of the release builds (AFS_Core/doc/GoogleAuth.md#client)
+/google-client.cmake
+
 # Generated help books
 /AFS_Desktop/help/**/help.htb
 

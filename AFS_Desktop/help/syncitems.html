@@ -58,6 +58,14 @@ und prüft die Verbindung. Danach steht der Server wie eine SSH-Verbindung unter
 Änderungszeit einer hochgeladenen Datei nicht; mit ihnen sollte <b>Kopieren,
 auch wenn Zieldatei neuer ist</b> ausgeschaltet bleiben.</p>
 
+<p>Google Drive lässt sich ebenfalls ohne das Programm von Google ansprechen:
+<b>Datei → Neue Google-Drive-Verbindung…</b> öffnet die Anmeldung bei Google im
+Browser; AutoFileSync erfährt das Passwort nicht. Danach steht das Laufwerk
+unter <b>Server…</b> zur Wahl. AutoFileSync sieht dort nur Dateien und Ordner,
+die es selbst angelegt hat: Zum Sichern und für einen Ordner, den AutoFileSync
+angelegt hat, genügt das, vorhandene Dateien im Laufwerk erscheinen nicht.
+Gelöschtes landet im Papierkorb von Google Drive.</p>
+
 <p>Ein Ziel, das noch nicht existiert, wird beim ersten Lauf angelegt. Liegt die
 Quelle auf einem Wechseldatenträger oder einem Netzlaufwerk, das gerade nicht
 verbunden ist, überspringt AutoFileSync die Synchronisation und rührt das Ziel

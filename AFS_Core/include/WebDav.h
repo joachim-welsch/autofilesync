@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include "HttpClient.h"
 #include "SshAccount.h"
 #include "SyncBase.h"
 
@@ -31,9 +32,7 @@ namespace AFS_Core {
 
 namespace webdav {  // [WebDav.md#webdav]
 
-struct Error : std::runtime_error {  // [WebDav.md#errors]
-    using std::runtime_error::runtime_error;
-};
+using Error = http::Error;  // [WebDav.md#errors]
 
 struct Entry {
     std::string name;

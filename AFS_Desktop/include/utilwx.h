@@ -20,6 +20,7 @@
 
 #include <type_traits>
 #include <wx/msgdlg.h>
+#include "SshAccount.h"
 #include "Translation.h"
 
 namespace utilwx {
@@ -29,6 +30,13 @@ inline bool confirm(wxWindow* parent, const wxString& question, const wxString& 
     wxMessageDialog dialog(parent, question, caption, wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
     dialog.SetYesNoLabels(action, wxString(AFS_Core::translation::translate("button_cancel")));
     return dialog.ShowModal() == wxID_YES;
+}
+
+inline wxString place_of(const AFS_Core::SshAccount& account)  // [utilwx.md#place_of]
+{
+    if (account.google_drive())
+        return "Google Drive";
+    return wxString::FromUTF8(account.webdav() ? account.url() : account.host());
 }
 
 inline wxString field_label(const char* msgid)  // [utilwx.md#field_label]

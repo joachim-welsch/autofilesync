@@ -2258,6 +2258,66 @@ msgstr "WebDAV: Adresse ohne https:// wird nicht verwendet: "
 msgid "webdav_time_not_kept"
 msgstr "WebDAV: Der Server übernimmt die Änderungszeit hochgeladener Dateien nicht; sie tragen dort die Zeit des Hochladens. Verbindung: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_google_drive_connection"
+msgstr "Neue Google-Drive-Verbindung…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_google_drive_connection"
+msgstr "Google-Drive-Verbindung hinzufügen"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_google_drive_connection"
+msgstr "Google-Drive-Verbindung bearbeiten"
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_explanation"
+msgstr "Die Anmeldung geschieht im Browser bei Google; AutoFileSync erfährt dein Passwort nicht. Es bekommt nur Zugriff auf Dateien und Ordner, die es selbst in deinem Google Drive anlegt. Vorhandene Dateien dort sieht es nicht."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_button"
+msgstr "Bei Google anmelden…"
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_none"
+msgstr "Noch nicht angemeldet."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_waiting"
+msgstr "Warte auf die Anmeldung im Browser … Falls sich kein Browser geöffnet hat, klicke erneut auf „Bei Google anmelden…“."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_done"
+msgstr "Angemeldet. Mit OK wird die Verbindung gespeichert."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "google_drive_not_configured"
+msgstr "Google Drive ist in dieser Version noch nicht eingerichtet: Es fehlt die Kennung, mit der sich AutoFileSync bei Google ausweist."
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_refused"
+msgstr "Google hat die Anmeldung nicht angenommen: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_page_done"
+msgstr "Die Anmeldung ist abgeschlossen. Du kannst dieses Fenster schließen und zu AutoFileSync zurückkehren."
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_page_failed"
+msgstr "Die Anmeldung ist nicht zustande gekommen. Schließe dieses Fenster und versuche es in AutoFileSync erneut."
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_folder_missing"
+msgstr "Google Drive: Ordner nicht gefunden: "
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_file_missing"
+msgstr "Google Drive: Datei nicht gefunden: "
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_name_taken"
+msgstr "Google Drive: Der Name ist schon vergeben: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Handy"

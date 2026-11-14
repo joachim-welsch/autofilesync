@@ -33,3 +33,10 @@ an account without one is an SSH account. Both kinds live in one class and one l
 everything else treats them alike: a synchronisation names its remote side as `<account>:/path`,
 and the remote functions pick the protocol from the account (SyncFileSsh.md#webdav-dispatch).
 The class keeps its name from the time when SSH was the only kind.
+
+## google_drive_
+
+Marks a Google Drive account. Its `url_` is the address of Google's API (another one only in
+the tests), `password_` holds the refresh token the login produced, and it is stored encrypted
+like every password. `user_`, `host_` and `port_` are unused. webdav() is false for such an
+account although it has an address.

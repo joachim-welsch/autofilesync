@@ -18,3 +18,9 @@ Field labels end with a colon, as the platform guidelines put it, and the colon 
 the catalogue ("label_colon") because French sets a space before it. The bare texts stay
 without it: the same keys ("name", "host", ...) are also column headers in the lists, where
 a colon would be wrong.
+
+## place_of
+
+What the lists of connections show beside the name: the host of an SSH connection, the address
+of a WebDAV connection, "Google Drive" for a Google account, whose address is the same for
+everyone.

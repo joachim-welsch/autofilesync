@@ -290,3 +290,8 @@ The command is written in quotes and with its terminating zero. Unquoted, a path
 in it - "C:\Program Files\..." - is ambiguous to Windows, which tries "C:\Program.exe" first;
 without the zero the value is not a valid string. The path comes from wxStandardPaths, which
 has no length limit. Deleting an entry that is not there counts as done.
+
+## google-drive-not-configured
+
+Without a client identifier (GoogleAuth.md#client) a sign-in cannot work. The menu entry then
+says so instead of opening a dialog whose button leads to an error page at Google.

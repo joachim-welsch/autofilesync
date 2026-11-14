@@ -26,7 +26,7 @@
 #include "Libssh2Init.h"
 #include "SftpConnection.h"
 #include "SshUnreachable.h"
-#include "WebDav.h"
+#include "CloudStore.h"
 #include "CopyLog.h"
 #include <filesystem>
 #include <fstream>
@@ -1536,7 +1536,7 @@ namespace {
 std::optional<SshAccount> webdav_account(const wstring& path)  // [SyncFileSsh.md#webdav-dispatch]
 {
     auto account = get_account_from_path(path);
-    return account && account->webdav() ? account : std::nullopt;
+    return account && cloud_store::handles(*account) ? account : std::nullopt;
 }
 
 template <typename Action>
@@ -1564,7 +1564,7 @@ CopyResult webdav_copied(const wstring& path, Transfer transfer)  // [SyncFileSs
 std::optional<webdav::Entry> webdav_stat(const SshAccount& account, const wstring& path)
 {
     std::optional<webdav::Entry> entry;
-    webdav_done(path, [&] { entry = webdav::stat(account, get_remote_path(path)); });
+    webdav_done(path, [&] { entry = cloud_store::stat(account, get_remote_path(path)); });
     return entry;
 }
 
@@ -1572,7 +1572,7 @@ std::vector<SshDirEntry> webdav_list_dir(const SshAccount& account, const wstrin
 {
     std::vector<SshDirEntry> entries;
     const bool listed = webdav_done(path, [&] {
-        for (const webdav::Entry& entry : webdav::list(account, get_remote_path(path)))
+        for (const webdav::Entry& entry : cloud_store::list(account, get_remote_path(path)))
             entries.push_back({string_to_wstring(entry.name), entry.is_directory, !entry.is_directory, false, entry.size});
     });
     if (!listed)
@@ -1600,7 +1600,7 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
     const auto account = webdav_account(src);
     if (!account)
         return sftp_backend::copy_ssh_to_fs(src, dest);
-    return webdav_copied(src, [&] { return webdav::download(*account, get_remote_path(src), std::filesystem::path(dest)); });
+    return webdav_copied(src, [&] { return cloud_store::download(*account, get_remote_path(src), std::filesystem::path(dest)); });
 }
 
 CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
@@ -1608,7 +1608,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     const auto account = webdav_account(dest);
     if (!account)
         return sftp_backend::copy_fs_to_ssh(src, dest);
-    return webdav_copied(dest, [&] { return webdav::upload(std::filesystem::path(src), *account, get_remote_path(dest)); });
+    return webdav_copied(dest, [&] { return cloud_store::upload(std::filesystem::path(src), *account, get_remote_path(dest)); });
 }
 
 CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)  // [SyncFileSsh.md#webdav-through-a-local-file]
@@ -1638,25 +1638,25 @@ bool ssh_is_directory(const std::wstring& path)
 bool ssh_mkdir(const std::wstring& path)
 {
     const auto account = webdav_account(path);
-    return account ? webdav_done(path, [&] { webdav::make_directory(*account, get_remote_path(path)); }) : sftp_backend::ssh_mkdir(path);
+    return account ? webdav_done(path, [&] { cloud_store::make_directory(*account, get_remote_path(path)); }) : sftp_backend::ssh_mkdir(path);
 }
 
 bool ssh_remove_file(const std::wstring& path)
 {
     const auto account = webdav_account(path);
-    return account ? webdav_done(path, [&] { webdav::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_remove_file(path);
+    return account ? webdav_done(path, [&] { cloud_store::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_remove_file(path);
 }
 
 bool ssh_rmdir(const std::wstring& path)
 {
     const auto account = webdav_account(path);
-    return account ? webdav_done(path, [&] { webdav::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_rmdir(path);
+    return account ? webdav_done(path, [&] { cloud_store::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_rmdir(path);
 }
 
 bool ssh_rename(const std::wstring& from, const std::wstring& to)
 {
     const auto account = webdav_account(from);
-    return account ? webdav_done(from, [&] { webdav::move(*account, get_remote_path(from), get_remote_path(to)); }) : sftp_backend::ssh_rename(from, to);
+    return account ? webdav_done(from, [&] { cloud_store::move(*account, get_remote_path(from), get_remote_path(to)); }) : sftp_backend::ssh_rename(from, to);
 }
 
 std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)

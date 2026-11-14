@@ -2225,6 +2225,66 @@ msgstr "WebDAV: adres bez https:// nie jest używany: "
 msgid "webdav_time_not_kept"
 msgstr "WebDAV: serwer nie zachowuje czasu modyfikacji wysłanych plików; mają tam czas wysłania. Połączenie: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_google_drive_connection"
+msgstr "Nowe połączenie Google Drive…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_google_drive_connection"
+msgstr "Dodaj połączenie Google Drive"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_google_drive_connection"
+msgstr "Edytuj połączenie Google Drive"
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_explanation"
+msgstr "Logowanie odbywa się w przeglądarce, w Google; AutoFileSync nie poznaje hasła. Otrzymuje dostęp tylko do plików i folderów, które sam utworzy na Twoim Dysku Google. Nie widzi plików, które już tam są."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_button"
+msgstr "Zaloguj się przez Google…"
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_none"
+msgstr "Jeszcze nie zalogowano."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_waiting"
+msgstr "Oczekiwanie na logowanie w przeglądarce … Jeśli przeglądarka się nie otworzyła, kliknij ponownie „Zaloguj się przez Google…”."
+
+#: AFS_Desktop/src/GoogleDriveAccountDialog.cpp
+msgid "google_login_status_done"
+msgstr "Zalogowano. OK zapisuje połączenie."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "google_drive_not_configured"
+msgstr "Dysk Google nie jest jeszcze skonfigurowany w tej wersji: brakuje identyfikatora, którym AutoFileSync przedstawia się Google."
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_refused"
+msgstr "Google nie przyjął logowania: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_page_done"
+msgstr "Logowanie zakończone. Możesz zamknąć to okno i wrócić do AutoFileSync."
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "google_login_page_failed"
+msgstr "Logowanie nie powiodło się. Zamknij to okno i spróbuj ponownie w AutoFileSync."
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_folder_missing"
+msgstr "Dysk Google: nie znaleziono folderu: "
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_file_missing"
+msgstr "Dysk Google: nie znaleziono pliku: "
+
+#: AFS_Core/src/GoogleDrive.cpp
+msgid "google_drive_name_taken"
+msgstr "Dysk Google: nazwa jest już zajęta: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Telefon"

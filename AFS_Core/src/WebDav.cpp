@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "WebDav.h"
+#include "HttpClient.h"
 #include "FilesystemUtil.h"
 #include "Logging.h"
 #include "SshUnreachable.h"
@@ -27,12 +28,12 @@
 #include "Util.h"
 #include <algorithm>
 #include <fstream>
+#include <cctype>
 #include <mutex>
 #include <set>
 #include <sstream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <curl/curl.h>
 
 namespace AFS_Core {
 
@@ -42,46 +43,15 @@ namespace fs = std::filesystem;
 namespace pt = boost::property_tree;
 
 namespace {
-constexpr long CONNECT_TIMEOUT_SECONDS = 15;
-constexpr long STALL_SECONDS = 60;  // [WebDav.md#timeouts]
-constexpr long HTTP_OK = 200;
-constexpr long HTTP_MULTIPLE_CHOICES = 300;
 constexpr long HTTP_MULTI_STATUS = 207;
 constexpr long HTTP_MOVED_PERMANENTLY = 301;
 constexpr long HTTP_FOUND = 302;
-constexpr long HTTP_NOT_FOUND = 404;
 constexpr long HTTP_METHOD_NOT_ALLOWED = 405;
 constexpr char PROPFIND_BODY[] =
     "<?xml version=\"1.0\" encoding=\"utf-8\"?><D:propfind xmlns:D=\"DAV:\"><D:prop>"
     "<D:resourcetype/><D:getcontentlength/><D:getlastmodified/></D:prop></D:propfind>";
 constexpr char MTIME_HEADER[] = "X-OC-Mtime";  // [WebDav.md#modification-time]
 constexpr char MTIME_ACCEPTED[] = "accepted";
-
-struct ThreadHandle {  // [WebDav.md#connection-reuse]
-    CURL* curl;
-    ThreadHandle()
-    {
-        static std::once_flag initialised;
-        std::call_once(initialised, [] { curl_global_init(CURL_GLOBAL_DEFAULT); });
-        curl = curl_easy_init();
-    }
-    ~ThreadHandle()
-    {
-        if (curl != nullptr)
-            curl_easy_cleanup(curl);
-    }
-    ThreadHandle(const ThreadHandle&) = delete;
-    ThreadHandle& operator=(const ThreadHandle&) = delete;
-};
-
-CURL* thread_handle()
-{
-    thread_local ThreadHandle handle;
-    if (handle.curl == nullptr)
-        throw Error("libcurl could not be initialised");
-    curl_easy_reset(handle.curl);
-    return handle.curl;
-}
 
 bool loopback(const std::string& url)
 {
@@ -100,24 +70,7 @@ void require_encryption(const std::string& url)  // [WebDav.md#https-only]
         throw Error(util::wstring_to_string(translation::translate("webdav_url_not_https")) + url);
 }
 
-std::string escaped(CURL* curl, const std::string& segment)
-{
-    char* text = curl_easy_escape(curl, segment.c_str(), static_cast<int>(segment.size()));
-    const std::string result = text != nullptr ? text : "";
-    curl_free(text);
-    return result;
-}
-
-std::string unescaped(CURL* curl, const std::string& segment)
-{
-    int length = 0;
-    char* text = curl_easy_unescape(curl, segment.c_str(), static_cast<int>(segment.size()), &length);
-    const std::string result = text != nullptr ? std::string(text, static_cast<std::size_t>(length)) : "";
-    curl_free(text);
-    return result;
-}
-
-std::string url_of(CURL* curl, const SshAccount& account, const std::string& path, bool collection = false)  // [WebDav.md#urls]
+std::string url_of(const SshAccount& account, const std::string& path, bool collection = false)  // [WebDav.md#urls]
 {
     std::string url = account.url();
     while (url.ends_with('/'))
@@ -125,27 +78,8 @@ std::string url_of(CURL* curl, const SshAccount& account, const std::string& pat
     std::istringstream segments(path);
     for (std::string segment; std::getline(segments, segment, '/');)
         if (!segment.empty())
-            url += "/" + escaped(curl, segment);
+            url += "/" + http::escaped(segment);
     return collection ? url + "/" : url;
-}
-
-std::size_t append_body(char* data, std::size_t size, std::size_t count, void* body)
-{
-    static_cast<std::string*>(body)->append(data, size * count);
-    return size * count;
-}
-
-std::size_t write_file(char* data, std::size_t size, std::size_t count, void* file)
-{
-    auto* out = static_cast<std::ofstream*>(file);
-    return out->write(data, static_cast<std::streamsize>(size * count)) ? size * count : 0;
-}
-
-std::size_t read_file(char* buffer, std::size_t size, std::size_t count, void* file)
-{
-    auto* in = static_cast<std::ifstream*>(file);
-    in->read(buffer, static_cast<std::streamsize>(size * count));
-    return in->bad() ? CURL_READFUNC_ABORT : static_cast<std::size_t>(in->gcount());
 }
 
 std::size_t note_mtime_accepted(char* data, std::size_t size, std::size_t count, void* accepted)  // [WebDav.md#modification-time]
@@ -157,79 +91,12 @@ std::size_t note_mtime_accepted(char* data, std::size_t size, std::size_t count,
     return size * count;
 }
 
-int transfer_progress(void*, curl_off_t, curl_off_t downloaded, curl_off_t, curl_off_t uploaded)  // [WebDav.md#stop]
-{
-    if (downloaded + uploaded > 0)
-        Synchronize::report_copied_bytes(static_cast<uint64_t>(downloaded + uploaded));
-    return Synchronize::stopping() ? 1 : 0;
-}
-
-bool unreachable(CURLcode code)  // [WebDav.md#errors]
-{
-    return code == CURLE_COULDNT_RESOLVE_HOST || code == CURLE_COULDNT_RESOLVE_PROXY || code == CURLE_COULDNT_CONNECT
-        || code == CURLE_OPERATION_TIMEDOUT || code == CURLE_SSL_CONNECT_ERROR;
-}
-
-class Request {  // [WebDav.md#Request]
-    CURL* curl_ = thread_handle();
-    curl_slist* headers_ = nullptr;
-    std::string url_;
-    std::string body_;
-    char error_[CURL_ERROR_SIZE] = {};
+class Request : public http::Request {  // [WebDav.md#Request]
 public:
-    Request(const SshAccount& account, const std::string& url, const char* method): url_(url)
+    Request(const SshAccount& account, const std::string& url, const char* method): http::Request(url, method)
     {
         require_encryption(account.url());
-        curl_easy_setopt(curl_, CURLOPT_URL, url_.c_str());
-        curl_easy_setopt(curl_, CURLOPT_CUSTOMREQUEST, method);
-        curl_easy_setopt(curl_, CURLOPT_USERNAME, account.user().c_str());
-        curl_easy_setopt(curl_, CURLOPT_PASSWORD, account.password().c_str());
-        curl_easy_setopt(curl_, CURLOPT_HTTPAUTH, static_cast<long>(CURLAUTH_BASIC));
-        curl_easy_setopt(curl_, CURLOPT_USERAGENT, "AutoFileSync");
-        curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, CONNECT_TIMEOUT_SECONDS);
-        curl_easy_setopt(curl_, CURLOPT_LOW_SPEED_LIMIT, 1L);
-        curl_easy_setopt(curl_, CURLOPT_LOW_SPEED_TIME, STALL_SECONDS);
-        curl_easy_setopt(curl_, CURLOPT_ERRORBUFFER, error_);
-        curl_easy_setopt(curl_, CURLOPT_NOSIGNAL, 1L);
-        curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, append_body);
-        curl_easy_setopt(curl_, CURLOPT_WRITEDATA, &body_);
-    }
-    ~Request()
-    {
-        curl_slist_free_all(headers_);
-    }
-    Request(const Request&) = delete;
-    Request& operator=(const Request&) = delete;
-    CURL* curl() const { return curl_; }
-    const std::string& body() const { return body_; }
-    const std::string& url() const { return url_; }
-    void header(const std::string& line)
-    {
-        headers_ = curl_slist_append(headers_, line.c_str());
-    }
-    std::optional<long> perform()  // the HTTP status, or nothing when the user stopped the run
-    {
-        curl_easy_setopt(curl_, CURLOPT_HTTPHEADER, headers_);
-        const CURLcode code = curl_easy_perform(curl_);
-        if (code == CURLE_ABORTED_BY_CALLBACK && Synchronize::stopping())
-            return std::nullopt;
-        const std::string reason = error_[0] != 0 ? error_ : curl_easy_strerror(code);
-        if (unreachable(code))
-            throw SshUnreachable(reason);
-        if (code != CURLE_OK)
-            throw Error(reason);
-        long status = 0;
-        curl_easy_getinfo(curl_, CURLINFO_RESPONSE_CODE, &status);
-        return status;
-    }
-    [[noreturn]] void fail(long status) const
-    {
-        throw Error("HTTP " + std::to_string(status) + " " + url_);
-    }
-    void expect_success(std::optional<long> status) const
-    {
-        if (status && (*status < HTTP_OK || *status >= HTTP_MULTIPLE_CHOICES))
-            fail(*status);
+        basic_auth(account.user(), account.password());
     }
 };
 
@@ -254,11 +121,11 @@ const pt::ptree* child(const pt::ptree& node, const char* name)
     return found.empty() ? nullptr : found.front();
 }
 
-std::string name_of(CURL* curl, std::string href)  // [WebDav.md#entry-names]
+std::string name_of(std::string href)  // [WebDav.md#entry-names]
 {
     while (href.ends_with('/'))
         href.pop_back();
-    return unescaped(curl, href.substr(href.rfind('/') + 1));
+    return http::unescaped(href.substr(href.rfind('/') + 1));
 }
 
 void read_properties(const pt::ptree& prop, Entry& entry)
@@ -268,7 +135,7 @@ void read_properties(const pt::ptree& prop, Entry& entry)
     if (const pt::ptree* length = child(prop, "getcontentlength"))
         entry.size = length->get_value<uint64_t>(entry.size);
     if (const pt::ptree* modified = child(prop, "getlastmodified")) {
-        const std::time_t time = curl_getdate(modified->get_value<std::string>().c_str(), nullptr);
+        const std::time_t time = http::parse_date(modified->get_value<std::string>());
         entry.mtime = time > 0 ? time : entry.mtime;
     }
 }
@@ -281,7 +148,7 @@ struct Response {
 std::vector<Response> responses(const Request& request)  // [WebDav.md#multistatus]
 {
     pt::ptree document;
-    std::istringstream xml(request.body());
+    std::istringstream xml(request.response());
     try {
         pt::read_xml(xml, document);
     }
@@ -295,7 +162,7 @@ std::vector<Response> responses(const Request& request)  // [WebDav.md#multistat
         if (href == nullptr)
             continue;
         Response item{href->get_value<std::string>(), {}};
-        item.entry.name = name_of(request.curl(), item.href);
+        item.entry.name = name_of(item.href);
         for (const pt::ptree* propstat : children(*response, "propstat"))
             if (const pt::ptree* prop = child(*propstat, "prop"))
                 read_properties(*prop, item.entry);
@@ -308,15 +175,15 @@ std::optional<long> propfind(Request& request, const char* depth)
 {
     request.header(std::string("Depth: ") + depth);
     request.header("Content-Type: application/xml; charset=utf-8");
-    curl_easy_setopt(request.curl(), CURLOPT_POSTFIELDS, PROPFIND_BODY);
+    request.body(PROPFIND_BODY);
     return request.perform();
 }
 
 std::optional<Entry> stat_at(const SshAccount& account, const std::string& path, bool collection)  // [WebDav.md#stat]
 {
-    Request request(account, url_of(thread_handle(), account, path, collection), "PROPFIND");
+    Request request(account, url_of(account, path, collection), "PROPFIND");
     const auto status = propfind(request, "0");
-    if (!status || *status == HTTP_NOT_FOUND)
+    if (!status || *status == http::NOT_FOUND)
         return std::nullopt;
     if (!collection && (*status == HTTP_MOVED_PERMANENTLY || *status == HTTP_FOUND))
         return stat_at(account, path, true);
@@ -359,7 +226,7 @@ std::optional<Entry> stat(const SshAccount& account, const std::string& path)
 
 std::vector<Entry> list(const SshAccount& account, const std::string& path)
 {
-    Request request(account, url_of(thread_handle(), account, path, true), "PROPFIND");
+    Request request(account, url_of(account, path, true), "PROPFIND");
     const auto status = propfind(request, "1");
     if (!status)
         return {};
@@ -375,7 +242,7 @@ std::vector<Entry> list(const SshAccount& account, const std::string& path)
 
 void make_directory(const SshAccount& account, const std::string& path)
 {
-    Request request(account, url_of(thread_handle(), account, path, true), "MKCOL");
+    Request request(account, url_of(account, path, true), "MKCOL");
     const auto status = request.perform();
     if (status && *status == HTTP_METHOD_NOT_ALLOWED) {
         const auto existing = stat(account, path);
@@ -387,41 +254,33 @@ void make_directory(const SshAccount& account, const std::string& path)
 
 void remove(const SshAccount& account, const std::string& path)
 {
-    Request request(account, url_of(thread_handle(), account, path), "DELETE");
+    Request request(account, url_of(account, path), "DELETE");
     request.expect_success(request.perform());
 }
 
 void move(const SshAccount& account, const std::string& from, const std::string& to)
 {
-    Request request(account, url_of(thread_handle(), account, from), "MOVE");
-    request.header("Destination: " + url_of(request.curl(), account, to));
+    Request request(account, url_of(account, from), "MOVE");
+    request.header("Destination: " + url_of(account, to));
     request.header("Overwrite: F");
     request.expect_success(request.perform());
 }
 
 CopyResult download(const SshAccount& account, const std::string& path, const fs::path& local_file)
 {
-    Request request(account, url_of(thread_handle(), account, path), "GET");
+    Request request(account, url_of(account, path), "GET");
     std::ofstream out(local_file, std::ios::binary);
     if (!out.is_open())
         throw Error(util::wstring_to_string(translation::translate("local_file_open_error")) + local_file.string());
-    curl_easy_setopt(request.curl(), CURLOPT_HTTPGET, 1L);
-    curl_easy_setopt(request.curl(), CURLOPT_FAILONERROR, 1L);
-    curl_easy_setopt(request.curl(), CURLOPT_FILETIME, 1L);
-    curl_easy_setopt(request.curl(), CURLOPT_WRITEFUNCTION, write_file);
-    curl_easy_setopt(request.curl(), CURLOPT_WRITEDATA, &out);
-    curl_easy_setopt(request.curl(), CURLOPT_NOPROGRESS, 0L);
-    curl_easy_setopt(request.curl(), CURLOPT_XFERINFOFUNCTION, transfer_progress);
+    request.download_to(out);
     const auto status = request.perform();
     out.close();
     if (!status)
         return CopyResult::Stopped;
     request.expect_success(status);
-    curl_off_t modified = -1;
-    curl_easy_getinfo(request.curl(), CURLINFO_FILETIME_T, &modified);
     std::error_code ec;
-    if (modified > 0)
-        fs::last_write_time(local_file, util::to_file_time(static_cast<std::time_t>(modified)), ec);
+    if (const auto modified = request.file_time())
+        fs::last_write_time(local_file, util::to_file_time(*modified), ec);
     return CopyResult::OK;
 }
 
@@ -433,18 +292,11 @@ CopyResult upload(const fs::path& local_file, const SshAccount& account, const s
     std::ifstream in(local_file, std::ios::binary);
     if (ec || !in.is_open())
         throw Error(util::wstring_to_string(translation::translate("local_file_open_error")) + local_file.string());
-    Request request(account, url_of(thread_handle(), account, path), "PUT");
+    Request request(account, url_of(account, path), "PUT");
     bool time_kept = false;
     request.header(std::string(MTIME_HEADER) + ": " + std::to_string(util::to_time_t(modified)));
-    request.header("Expect:");  // [WebDav.md#upload]
-    curl_easy_setopt(request.curl(), CURLOPT_UPLOAD, 1L);
-    curl_easy_setopt(request.curl(), CURLOPT_READFUNCTION, read_file);
-    curl_easy_setopt(request.curl(), CURLOPT_READDATA, &in);
-    curl_easy_setopt(request.curl(), CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(size));
-    curl_easy_setopt(request.curl(), CURLOPT_HEADERFUNCTION, note_mtime_accepted);
-    curl_easy_setopt(request.curl(), CURLOPT_HEADERDATA, &time_kept);
-    curl_easy_setopt(request.curl(), CURLOPT_NOPROGRESS, 0L);
-    curl_easy_setopt(request.curl(), CURLOPT_XFERINFOFUNCTION, transfer_progress);
+    request.upload_from(in, size);
+    request.on_header(note_mtime_accepted, &time_kept);
     const auto status = request.perform();
     if (!status)
         return CopyResult::Stopped;

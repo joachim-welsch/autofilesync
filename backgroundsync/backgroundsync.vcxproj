@@ -111,6 +111,10 @@
     <ClCompile Include="..\AFS_Core\src\CloudFolders.cpp" />
     <ClCompile Include="..\AFS_Core\src\Restore.cpp" />
     <ClCompile Include="..\AFS_Core\src\WebDav.cpp" />
+    <ClCompile Include="..\AFS_Core\src\HttpClient.cpp" />
+    <ClCompile Include="..\AFS_Core\src\GoogleDrive.cpp" />
+    <ClCompile Include="..\AFS_Core\src\GoogleAuth.cpp" />
+    <ClCompile Include="..\AFS_Core\src\CloudStore.cpp" />
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />
