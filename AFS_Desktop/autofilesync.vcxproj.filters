@@ -75,6 +75,9 @@
     <ClInclude Include="..\AFS_Core\include\ModelLocation.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\AFS_Core\include\CloudFolders.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\AFS_Core\include\CpuTopology.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -372,6 +375,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\CloudFolders.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp">

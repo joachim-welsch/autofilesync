@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "ModelLocation.h"
+#include "FilesystemUtil.h"
 #include <cstdlib>
 #include <optional>
 #include <string>
@@ -30,20 +31,8 @@ namespace model_location {
 namespace fs = std::filesystem;
 
 namespace {
+using fsu::env_path;
 constexpr char MODEL_EXTENSION[] = ".gguf";
-
-std::optional<fs::path> env_path(const char* name)
-{
-#ifdef _WIN32
-    const std::wstring wide_name(name, name + std::char_traits<char>::length(name));
-    const wchar_t* value = _wgetenv(wide_name.c_str());  // [ModelLocation.md#wide-environment]
-#else
-    const char* value = std::getenv(name);
-#endif
-    if (value == nullptr || *value == 0)
-        return std::nullopt;
-    return fs::path(value);
-}
 
 fs::path data_dir()
 {

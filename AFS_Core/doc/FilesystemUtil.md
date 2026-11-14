@@ -16,6 +16,12 @@ like "../../.ssh/authorized_keys" would carry the synchronisation out of the con
 (the scp and rsync clients had this very hole, CVE-2019-6111 and CVE-2024-12087). The backslash
 counts on every platform because the name may be joined to a Windows path.
 
+## env_path
+
+The value of an environment variable as a path, or nothing if the variable is unset or empty.
+On Windows it reads the wide CRT environment: the narrow one is converted to the ANSI code
+page, which cannot represent every user name that appears in LOCALAPPDATA or USERPROFILE.
+
 ## home_dir-windows
 
 USERPROFILE comes first: it is set for every process of the user, the background service

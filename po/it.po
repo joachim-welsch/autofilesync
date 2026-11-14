@@ -2065,6 +2065,26 @@ msgstr "Cartella sul telefono"
 msgid "button_phone"
 msgstr "Telefono…"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_cloud"
+msgstr "Cloud…"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "no_cloud_folder_found"
+msgstr "Su questo computer non è stata trovata nessuna cartella cloud. Installa prima il programma del tuo fornitore (per esempio OneDrive, Google Drive, Dropbox o Nextcloud) ed effettua l'accesso."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "choose_cloud_folder"
+msgstr "Quale cartella cloud deve essere la destinazione?"
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "choose_cloud_dir_title"
+msgstr "Scegli cartella in %1"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_cloud_folder"
+msgstr "Cartella cloud"
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Telefono"

@@ -79,6 +79,7 @@ private:
     void on_phone_source(wxCommandEvent& event);  // [SyncItemDialog.md#phone-buttons]
     void on_phone_target(wxCommandEvent& event);
     void handle_phone_button(wxTextCtrl* target_box);
+    void on_cloud_target(wxCommandEvent& event);  // [SyncItemDialog.md#cloud-button]
     void set_data(const SyncItem& si);
     SyncItemType act_sync_item_type(wxChoice* type_choice);
     
@@ -149,6 +150,7 @@ enum {
     ID_BTN_SSH_TARGET,
     ID_BTN_PHONE_SOURCE,
     ID_BTN_PHONE_TARGET,
+    ID_BTN_CLOUD_TARGET,
     ID_ENABLED_CHECK,
     ID_DEL_SOURCE_AFTER_CHECK,
     ID_COMPARE_DATE_CHECK,

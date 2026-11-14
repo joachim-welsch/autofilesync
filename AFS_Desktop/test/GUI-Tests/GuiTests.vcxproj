@@ -113,6 +113,7 @@
     <ClInclude Include="..\..\..\AFS_Core\include\LogEmail.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Logging.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\ModelLocation.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\CloudFolders.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CpuTopology.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncProposal.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\ConfigSummary.h" />
@@ -227,6 +228,7 @@
     <ClCompile Include="SyncOptionsTest.cpp" />
     <ClCompile Include="SyncItemManagementTest.cpp" />
     <ClCompile Include="SyncItemDialogRulesTest.cpp" />
+    <ClCompile Include="CloudFolderButtonTest.cpp" />
     <ClCompile Include="ViewsTest.cpp" />
     <ClCompile Include="ConfigFileTest.cpp" />
     <ClCompile Include="SettingsTest.cpp" />
@@ -244,6 +246,7 @@
     <ClCompile Include="..\..\src\HelpBook.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LlamaClient.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ModelLocation.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\CloudFolders.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CpuTopology.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ConfigSummary.cpp" />

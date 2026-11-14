@@ -78,6 +78,7 @@ set(SOURCES
     LoggingCollectTests.cpp
     LogAnalysisTests.cpp
     ModelLocationTests.cpp
+    CloudFoldersTests.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp

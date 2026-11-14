@@ -93,6 +93,7 @@ set(TEST_SOURCES
     CheckPathTests.cpp
     LogCutTests.cpp
     ModelLocationTests.cpp
+    CloudFoldersTests.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp
@@ -106,6 +107,7 @@ set(TEST_SOURCES
 set(LIB_SOURCES
     ${LIB_DIR}/src/FilesystemUtil.cpp
     ${LIB_DIR}/src/ModelLocation.cpp
+    ${LIB_DIR}/src/CloudFolders.cpp
     ${LIB_DIR}/src/CpuTopology.cpp
     ${LIB_DIR}/src/SyncProposal.cpp
     ${LIB_DIR}/src/ConfigSummary.cpp

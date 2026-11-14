@@ -2044,6 +2044,26 @@ msgstr ""
 msgid "button_phone"
 msgstr ""
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_cloud"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "no_cloud_folder_found"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "choose_cloud_folder"
+msgstr ""
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "choose_cloud_dir_title"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_cloud_folder"
+msgstr ""
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr ""

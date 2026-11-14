@@ -223,6 +223,7 @@
     <ClCompile Include="LoggingCollectTests.cpp" />
     <ClCompile Include="LogAnalysisTests.cpp" />
     <ClCompile Include="ModelLocationTests.cpp" />
+    <ClCompile Include="CloudFoldersTests.cpp" />
     <ClCompile Include="CpuTopologyTests.cpp" />
     <ClCompile Include="SyncProposalTests.cpp" />
     <ClCompile Include="SyncPlanTests.cpp" />
@@ -237,6 +238,7 @@
     <ClCompile Include="TestMain.cpp" />
     <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp" />
     <ClCompile Include="$(LibDir)\src\ModelLocation.cpp" />
+    <ClCompile Include="$(LibDir)\src\CloudFolders.cpp" />
     <ClCompile Include="$(LibDir)\src\CpuTopology.cpp" />
     <ClCompile Include="$(LibDir)\src\SyncProposal.cpp" />
     <ClCompile Include="$(LibDir)\src\ConfigSummary.cpp" />
@@ -333,6 +335,7 @@
     <ClInclude Include="$(LibDir)\include\LogEmail.h" />
     <ClInclude Include="$(LibDir)\include\Logging.h" />
     <ClInclude Include="$(LibDir)\include\ModelLocation.h" />
+    <ClInclude Include="$(LibDir)\include\CloudFolders.h" />
     <ClInclude Include="$(LibDir)\include\CpuTopology.h" />
     <ClInclude Include="$(LibDir)\include\SyncProposal.h" />
     <ClInclude Include="$(LibDir)\include\ConfigSummary.h" />

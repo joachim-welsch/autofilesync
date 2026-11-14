@@ -19,6 +19,12 @@ recycle bin's default path hangs on it. Without these two the application under 
 emptied into - and a test once emptied - the developer's real `~/.recyclebin`. HOMEPATH
 carries the path without the drive and with a leading backslash, the way Windows sets it.
 
+## no-real-cloud-folders
+
+The OneDrive client sets these variables for every process of the user, and the "Cloud…" button
+of the synchronisation dialog reads them (CloudFolders.md#onedrive). Emptied, the tests see only
+the cloud folders they set up themselves.
+
 ## minimal_config
 
 Enough of a configuration to keep the start-up quiet: an unreadable or missing file makes

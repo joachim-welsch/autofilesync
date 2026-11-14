@@ -22,11 +22,6 @@ would hide the mistake. Otherwise the directory is searched on every call, not c
 model dropped in while the program runs is found without a restart. Empty if neither yields a
 file.
 
-## wide-environment
-
-The wide CRT environment: the narrow one is converted to the ANSI code page, which cannot
-represent every user name that appears in LOCALAPPDATA.
-
 ## local-not-roaming
 
 LOCALAPPDATA, not APPDATA like the configuration: a model is several gigabytes, and a roaming

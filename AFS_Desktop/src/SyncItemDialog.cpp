@@ -19,11 +19,14 @@
 #include "SyncItemDialog.h"
 #include <sstream>
 #include <filesystem>
+#include <optional>
 #include <wx/sizer.h>
 #include "wx/filedlg.h"
 #include <wx/dirdlg.h>
+#include <wx/choicdlg.h>
 #include "SyncItem.h"
 #include "Config.h"
+#include "CloudFolders.h"
 #include "Util.h"
 #include "Logging.h"
 #include "SshAccountSelectDialog.h"
@@ -121,6 +124,8 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
     target_dir_sizer->Add(btn_ssh_target, wxSizerFlags().Border(wxLEFT, 2));
     wxButton* btn_phone_target = new wxButton(tab1, ID_BTN_PHONE_TARGET, translation::translate("button_phone"));
     target_dir_sizer->Add(btn_phone_target, wxSizerFlags().Border(wxLEFT, 2));
+    wxButton* btn_cloud_target = new wxButton(tab1, ID_BTN_CLOUD_TARGET, translation::translate("button_cloud"));  // [SyncItemDialog.md#cloud-button]
+    target_dir_sizer->Add(btn_cloud_target, wxSizerFlags().Border(wxLEFT, 2));
 
     tab1_sizer->Add(target_dir_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
@@ -149,6 +154,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
     btn_ssh_target->Bind(wxEVT_BUTTON, &SyncItemDialog::on_ssh_target, this);
     btn_phone_source->Bind(wxEVT_BUTTON, &SyncItemDialog::on_phone_source, this);
     btn_phone_target->Bind(wxEVT_BUTTON, &SyncItemDialog::on_phone_target, this);
+    btn_cloud_target->Bind(wxEVT_BUTTON, &SyncItemDialog::on_cloud_target, this);
 
     SetSizer(main_sizer);
     SetMinSize(FromDIP(wxSize(300, 100)));
@@ -455,11 +461,9 @@ wxString choose_file(SyncItemDialog* sync_item_dialog)
     return "";
 }
 
-wxString choose_dir(SyncItemDialog* sync_item_dialog)
+wxString choose_dir(SyncItemDialog* sync_item_dialog, const wxString& title = translation::translate("choose_dir_title"), const wxString& start_dir = wxGetHomeDir())
 {
-    wxString dir_home;
-    wxGetHomeDir(&dir_home);
-    wxDirDialog dialog(sync_item_dialog, translation::translate("choose_dir_title"), dir_home, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    wxDirDialog dialog(sync_item_dialog, title, start_dir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
     if (dialog.ShowModal() == wxID_OK)
     {
         return with_volumen_name(dialog.GetPath());
@@ -541,6 +545,36 @@ void SyncItemDialog::handle_phone_button(wxTextCtrl* target_box)  // [SyncItemDi
     PhoneDirDialog dlg(this, wxID_ANY, txt::phone_dir(), target_box->GetValue());
     if (dlg.ShowModal() == wxID_OK)
         target_box->SetValue(dlg.path());
+}
+
+namespace {
+std::optional<CloudFolder> choose_cloud_folder(wxWindow* parent)  // [SyncItemDialog.md#cloud-button]
+{
+    const CloudFolders folders = cloud_folders::detect();
+    if (folders.empty()) {
+        wxMessageBox(translation::translate("no_cloud_folder_found"), translation::translate("info"), wxOK | wxICON_INFORMATION, parent);
+        return std::nullopt;
+    }
+    if (folders.size() == 1)
+        return folders.front();
+    wxArrayString choices;
+    for (const CloudFolder& folder : folders)
+        choices.push_back(folder.provider + L" \u2013 " + folder.path.wstring());
+    wxSingleChoiceDialog dialog(parent, translation::translate("choose_cloud_folder"), txt::cloud_folder(), choices);
+    if (dialog.ShowModal() != wxID_OK)
+        return std::nullopt;
+    return folders[dialog.GetSelection()];
+}
+}
+
+void SyncItemDialog::on_cloud_target(wxCommandEvent&)  // [SyncItemDialog.md#cloud-button]
+{
+    const auto folder = choose_cloud_folder(this);
+    if (!folder)
+        return;
+    const wxString chosen = choose_dir(this, translation::translate("choose_cloud_dir_title", {folder->provider}), folder->path.wstring());
+    if (!chosen.empty())
+        target_dir_box_->SetValue(chosen);
 }
 
 void SyncItemDialog::handle_ssh_button(wxTextCtrl* target_box)

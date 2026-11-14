@@ -91,3 +91,15 @@ finds the option as they had it.
 user should not have to know that, so it gets its own button and its own dialog
 (PhoneDirDialog.md). Without a paired phone the button explains where to pair one instead of
 opening an empty dialog.
+
+## cloud-button
+
+"Cloud…" beside the target offers the folders that the sync clients of cloud providers keep on
+this computer (CloudFolders.md#cloud_folders). Someone without a NAS or an SSH server still has
+a cloud account, and without the button they would have to know where the client hides its
+folder. With one folder found the list is skipped; with none a message names what to install.
+The choice opens the ordinary directory dialog inside that folder instead of filling the field
+right away: a backup rarely belongs in the top level of a cloud folder, and the top level of
+Google Drive cannot be written to at all, only "My Drive" below it. The button stands at the
+target only. A cloud folder as the source can hold files that exist only online, and reading
+them would download the whole cloud; whoever wants that can still pick the folder by hand.

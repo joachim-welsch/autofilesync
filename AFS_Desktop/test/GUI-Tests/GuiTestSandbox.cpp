@@ -68,6 +68,8 @@ void redirect_user_directories()
     set_environment_variable(L"HOME", GuiTestSandbox::root());
     set_environment_variable(L"HOMEDRIVE", GuiTestSandbox::root().root_name());  // [GuiTestSandbox.md#homedrive-homepath]
     set_environment_variable(L"HOMEPATH", GuiTestSandbox::root().relative_path().wstring().insert(0, L"\\"));
+    for (const wchar_t* one_drive : {L"OneDrive", L"OneDriveConsumer", L"OneDriveCommercial"})  // [GuiTestSandbox.md#no-real-cloud-folders]
+        set_environment_variable(one_drive, fs::path());
 #else
     set_environment_variable("HOME", GuiTestSandbox::root());
     set_environment_variable("XDG_CONFIG_HOME", GuiTestSandbox::root() / ".config");

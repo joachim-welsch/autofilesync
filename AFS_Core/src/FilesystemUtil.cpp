@@ -62,6 +62,19 @@ namespace FilesystemUtil {
     }
 #endif
 
+std::optional<fs::path> env_path(const char* name)  // [FilesystemUtil.md#env_path]
+{
+#ifdef _WIN32
+    const std::wstring wide_name(name, name + std::char_traits<char>::length(name));
+    const wchar_t* value = _wgetenv(wide_name.c_str());
+#else
+    const char* value = getenv(name);
+#endif
+    if (value == nullptr || *value == 0)
+        return std::nullopt;
+    return fs::path(value);
+}
+
 bool file_exists(const std::wstring& filename)
 {
     std::error_code ec;

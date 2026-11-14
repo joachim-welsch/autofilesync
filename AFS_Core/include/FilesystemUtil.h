@@ -35,6 +35,7 @@ namespace FilesystemUtil
     std::optional<std::filesystem::path> is_mountpoint(const std::filesystem::path& path);
     std::optional<std::filesystem::path> get_mount_root(const std::filesystem::path& in);
 	std::string home_dir();
+    std::optional<std::filesystem::path> env_path(const char* name);  // [FilesystemUtil.md#env_path]
     bool plain_entry_name(std::string_view name);  // [FilesystemUtil.md#plain_entry_name]
 }
 namespace fsu = FilesystemUtil;
