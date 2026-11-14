@@ -71,7 +71,7 @@ funktioniert also gleichermaßen.
 sudo apt update
 sudo apt install build-essential cmake git pkg-config \
                  libwxgtk3.2-dev libboost-filesystem-dev \
-                 libssh-dev libssl-dev imagemagick gettext
+                 libssh-dev libcurl4-openssl-dev libssl-dev imagemagick gettext
 ```
 
 ### Fedora
@@ -79,7 +79,7 @@ sudo apt install build-essential cmake git pkg-config \
 ```bash
 sudo dnf install gcc-c++ cmake git pkgconf-pkg-config \
                  wxGTK-devel boost-devel \
-                 libssh-devel openssl-devel ImageMagick gettext
+                 libssh-devel libcurl-devel openssl-devel ImageMagick gettext
 ```
 
 ### Mindestversionen
@@ -91,6 +91,7 @@ sudo dnf install gcc-c++ cmake git pkgconf-pkg-config \
 | wxWidgets | 3.2 (mit `core base aui html`) | `wx-config --version` |
 | Boost | 1.83 (Komponente `filesystem`) | `dpkg -s libboost-dev` |
 | libssh | 0.9 | `pkg-config --modversion libssh` |
+| libcurl | 7.61 | `pkg-config --modversion libcurl` |
 | OpenSSL | 3.0 | `openssl version` |
 
 `imagemagick` wird nur für die Umwandlung des Programmsymbols in Schritt 6

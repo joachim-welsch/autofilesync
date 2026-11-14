@@ -34,6 +34,7 @@
 #include "PhoneTemplatesDialog.h"
 #include "DevicesDialog.h"
 #include "RestoreDialog.h"
+#include "WebDavAccountDialog.h"
 #include "DeviceLink.h"
 #include "ChatDialog.h"
 #include "Config.h"
@@ -124,6 +125,7 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
     EVT_MENU(tul(id::File_connect_phone), MainWindow::on_connect_phone)
     EVT_MENU(tul(id::EditDevices), MainWindow::on_edit_devices)
     EVT_MENU(tul(id::RestoreFiles), MainWindow::on_restore_files)
+    EVT_MENU(tul(id::File_new_WebDavConnection), MainWindow::on_add_webdav_connection)
     EVT_MENU(tul(id::File_open), MainWindow::on_file_open)
     EVT_MENU(tul(id::File_save), MainWindow::on_file_save)
     EVT_UPDATE_UI(tul(id::File_save), MainWindow::on_update_file_save)
@@ -453,6 +455,17 @@ void MainWindow::on_add_ssh_connection(wxCommandEvent& WXUNUSED(event))
         cfg.add(ssh_account);
         autosave::after_change(this);
     }
+}
+
+void MainWindow::on_add_webdav_connection(wxCommandEvent&)
+{
+    SshAccount account;
+    WebDavAccountDialog dlg(account, this, wxID_ANY, txt::add_webdav_connection());
+    if (dlg.ShowModal() != wxID_OK)
+        return;
+    dlg.save_data(account);
+    Config::instance().add(account);
+    autosave::after_change(this);
 }
 
 void MainWindow::update()

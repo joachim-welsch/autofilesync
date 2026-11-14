@@ -46,6 +46,7 @@ set(AFS_CORE_SOURCES
     ModelLocation.cpp
     CloudFolders.cpp
     Restore.cpp
+    WebDav.cpp
     CpuTopology.cpp
     SyncProposal.cpp
     ConfigSummary.cpp
@@ -92,6 +93,7 @@ if(NOT TARGET afs_core_deps)
     find_package(Threads REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBSSH REQUIRED libssh)
+    find_package(CURL REQUIRED)  # WebDav.cpp speaks HTTP through libcurl
 
     # GNU gettext for the translated texts (Translation.cpp). Part of the C library on
     # glibc, a separate libintl on macOS and Windows. Required, not optional: the
@@ -133,7 +135,7 @@ if(NOT TARGET afs_core_deps)
     add_library(afs_core_deps INTERFACE)
     target_include_directories(afs_core_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS})
     target_link_directories(afs_core_deps INTERFACE ${LIBSSH_LIBRARY_DIRS})
-    target_link_libraries(afs_core_deps INTERFACE ${LIBSSH_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto llama Threads::Threads)
+    target_link_libraries(afs_core_deps INTERFACE ${LIBSSH_LIBRARIES} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto llama Threads::Threads)
     if(APPLE)
         target_link_libraries(afs_core_deps INTERFACE "-framework CoreServices")  # FSEvents for ChangeWatcher
     endif()

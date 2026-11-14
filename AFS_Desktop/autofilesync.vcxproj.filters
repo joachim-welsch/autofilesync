@@ -81,6 +81,9 @@
     <ClInclude Include="..\AFS_Core\include\Restore.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\AFS_Core\include\WebDav.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\AFS_Core\include\CpuTopology.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -273,6 +276,9 @@
     <ClInclude Include="include\RestoreDialog.h">
       <Filter>AFS_Desktop</Filter>
     </ClInclude>
+    <ClInclude Include="include\WebDavAccountDialog.h">
+      <Filter>AFS_Desktop</Filter>
+    </ClInclude>
     <ClInclude Include="include\FirewallHint.h">
       <Filter>AFS_Desktop</Filter>
     </ClInclude>
@@ -387,6 +393,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Restore.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\WebDav.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp">
@@ -561,6 +570,9 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\RestoreDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebDavAccountDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\FirewallHint.cpp">

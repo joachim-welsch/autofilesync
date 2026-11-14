@@ -58,7 +58,8 @@ Skrócona wersja dla Linuksa:
 
 ```bash
 sudo apt install build-essential cmake git pkg-config libwxgtk3.2-dev \
-                 libboost-filesystem-dev libssh-dev libssl-dev imagemagick gettext
+                 libboost-filesystem-dev libssh-dev libcurl4-openssl-dev libssl-dev \
+                 imagemagick gettext
 scripts/build.sh
 scripts/run_autofilesync.sh
 ```

@@ -103,7 +103,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
     source_dir_sizer->Add(source_dir_box_, 1);
     wxButton* btn_pick_source_dir_text = new wxButton(tab1, ID_BTN_PICK_SOURCE_DIR, translation::translate("button_choose"));
     source_dir_sizer->Add(btn_pick_source_dir_text, wxSizerFlags().Border(wxLEFT, 2));
-    wxButton* btn_ssh_source = new wxButton(tab1, ID_BTN_SSH_SOURCE, L"SSH\u2026");
+    wxButton* btn_ssh_source = new wxButton(tab1, ID_BTN_SSH_SOURCE, translation::translate("button_server"));
     source_dir_sizer->Add(btn_ssh_source, wxSizerFlags().Border(wxLEFT, 2));
     wxButton* btn_phone_source = new wxButton(tab1, ID_BTN_PHONE_SOURCE, translation::translate("button_phone"));  // [SyncItemDialog.md#phone-buttons]
     source_dir_sizer->Add(btn_phone_source, wxSizerFlags().Border(wxLEFT, 2));
@@ -120,7 +120,7 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
 
     wxButton* btn_pick_target_dir_text = new wxButton(tab1, ID_BTN_PICK_TARGET_DIR, translation::translate("button_choose"));
     target_dir_sizer->Add(btn_pick_target_dir_text, wxSizerFlags().Border(wxLEFT, 2));
-    wxButton* btn_ssh_target = new wxButton(tab1, ID_BTN_SSH_TARGET, L"SSH\u2026");
+    wxButton* btn_ssh_target = new wxButton(tab1, ID_BTN_SSH_TARGET, translation::translate("button_server"));
     target_dir_sizer->Add(btn_ssh_target, wxSizerFlags().Border(wxLEFT, 2));
     wxButton* btn_phone_target = new wxButton(tab1, ID_BTN_PHONE_TARGET, translation::translate("button_phone"));
     target_dir_sizer->Add(btn_phone_target, wxSizerFlags().Border(wxLEFT, 2));

@@ -142,7 +142,7 @@ function Write-LicenseRtf {
 function Test-Payload {
     $required = @(
         'autofilesync.exe',
-        'intl-8.dll', 'iconv-2.dll', 'libssh2.dll', 'zlib1.dll',
+        'intl-8.dll', 'iconv-2.dll', 'libssh2.dll', 'libcurl.dll', 'zlib1.dll',
         'libssl-3-x64.dll', 'libcrypto-3-x64.dll',
         'llama.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu.dll',
         'help\help.htb', 'licenses\LICENSE', 'licenses\LICENSING.md', 'licenses\THIRD-PARTY-NOTICES.md'

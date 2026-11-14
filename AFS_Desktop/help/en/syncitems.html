@@ -48,6 +48,15 @@ on this computer and opens the chooser inside the one picked. Whatever
 AutoFileSync copies there is uploaded to the cloud by the provider's program,
 which has to be installed and signed in for that.</p>
 
+<p>A server that speaks WebDAV (Nextcloud, ownCloud, many NAS devices and web
+hosts) can also be reached without the provider's program: <b>File → New WebDAV
+connection…</b> asks for the address, user and password and checks the
+connection. After that the server can be chosen under <b>Server…</b> like an SSH
+connection, as source or as target. The address has to begin with
+<tt>https://</tt>. Servers other than Nextcloud and ownCloud do not keep the
+modification time of an uploaded file; with them <b>Copy even if the target
+file is newer</b> should stay switched off.</p>
+
 <p>A target that does not exist yet is created on the first run. If the source
 is on a removable drive or a network drive that is not connected at the moment,
 AutoFileSync skips the synchronisation and leaves the target alone – this

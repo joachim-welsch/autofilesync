@@ -22,6 +22,16 @@
   das Datum in den Namen. „Wiederherstellen nach…“ legt sie in einen gewählten
   Ordner. Ziele über SSH und auf dem Handy werden nicht durchsucht.
 
+- WebDAV: Server, die WebDAV sprechen (Nextcloud, ownCloud, viele NAS und
+  Webhoster), lassen sich als Quelle oder Ziel verwenden, auch für
+  Zwei-Wege-Synchronisation, Generationenprinzip und Löschen im Ziel.
+  „Datei → Neue WebDAV-Verbindung…“ fragt nach Adresse, Benutzer und Passwort
+  und prüft die Verbindung; danach steht der Server neben den SSH-Verbindungen
+  zur Wahl. Die Schaltfläche heißt deshalb jetzt „Server…“ und die Verwaltung
+  „Server-Verbindungen…“. Die Adresse muss mit https:// beginnen. Nextcloud und
+  ownCloud übernehmen die Änderungszeit hochgeladener Dateien, andere Server
+  nicht; dort meldet das Protokoll das einmal je Programmlauf. Neue
+  Abhängigkeit: libcurl.
 - Behoben: Wurde dieselbe Datei innerhalb einer Millisekunde zweimal in den
   Papierkorb gelöscht, ersetzte die zweite dort die erste. Jede Löschung
   bekommt jetzt einen eigenen Eintrag, und der Papierkorb ersetzt grundsätzlich

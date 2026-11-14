@@ -129,6 +129,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\Restore.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\WebDav.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\CpuTopology.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -458,6 +461,9 @@
     <ClCompile Include="RestoreDialogTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
+    <ClCompile Include="WebDavAccountTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
     <ClCompile Include="SyncItemManagementTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
@@ -543,6 +549,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\Restore.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\WebDav.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\CpuTopology.cpp">
@@ -719,6 +728,9 @@
     <ClCompile Include="..\..\src\RestoreDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\WebDavAccountDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\FirewallHint.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
@@ -738,6 +750,9 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\test\Integrationstests\FakePhone.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\test\Integrationstests\WebDavTestServer.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\SshAccountSelectDialog.cpp">

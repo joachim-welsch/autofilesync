@@ -41,6 +41,9 @@
     #include <sys/stat.h>
 #endif
 
+#include "SshFileInspector.h"
+#include "WebDav.h"
+
 namespace AFS_Core {
 
 namespace {
@@ -52,6 +55,23 @@ namespace {
             return true;
         log_error(translation::translate("remote_entry_name_rejected"), util::string_to_wstring(remote_path), util::string_to_wstring(name));
         return false;
+    }
+}
+
+namespace {
+    RemoteDirInfo inspect_webdav_dir(const SshAccount& account, const std::string& remote_path)  // [SshDirInspector.md#webdav]
+    {
+        RemoteDirInfo info{};
+        info.path = remote_path;
+        try {
+            for (const webdav::Entry& entry : webdav::list(account, remote_path))
+                info.entries.push_back({entry.name, entry.is_directory, !entry.is_directory, false, entry.size, time_to_iso(entry.mtime), entry.mtime, 0});
+            info.exists = true;
+            info.is_directory = true;
+        } catch (const std::exception& e) {
+            info.error_message = e.what();
+        }
+        return info;
     }
 }
 
@@ -93,13 +113,18 @@ namespace {
 }
 
 SshDirInspector::SshDirInspector(const SshAccount& account)
-    : connection_(account), account_(account)
-{}
+    : account_(account)
+{
+    if (!account.webdav())  // [SshDirInspector.md#webdav]
+        connection_.connect(account);
+}
 
 SshDirInspector::~SshDirInspector() = default;
 
 RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 {
+    if (account_.webdav())  // [SshDirInspector.md#webdav]
+        return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo info{};
     if (!require_directory(connection_, remote_path, info))
         return info;
@@ -118,6 +143,8 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 
 std::string SshDirInspector::get_home_dir()
 {
+    if (account_.webdav())  // [SshDirInspector.md#webdav]
+        return "/";
     char* resolved = sftp_canonicalize_path(connection_.sftp(), ".");
     if (!resolved)
         throw std::runtime_error(translation::translate_utf8("home_dir_unknown") + connection_.error());
@@ -128,6 +155,8 @@ std::string SshDirInspector::get_home_dir()
 
 RemoteDirInfo SshDirInspector::inspect_dir_recursive(const std::string& remote_path)
 {
+    if (account_.webdav())  // [SshDirInspector.md#webdav]
+        return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo result{};
     if (require_directory(connection_, remote_path, result))
         inspect_dir_recursive_impl(remote_path, result);
@@ -165,6 +194,8 @@ constexpr bool has_file_type(unsigned long permissions, unsigned long type)
 SshDirInspector::SshDirInspector(const SshAccount& account)
     : account_(account)
 {
+    if (account.webdav())  // [SshDirInspector.md#webdav]
+        return;
     WSADATA wsadata;
     int rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
     if (rc != 0) {
@@ -238,6 +269,8 @@ void SshDirInspector::cleanup()
 
 RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 {
+    if (account_.webdav())  // [SshDirInspector.md#webdav]
+        return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo info{};
     info.exists = false;
     info.is_directory = false;
@@ -298,6 +331,8 @@ RemoteDirInfo SshDirInspector::inspect_dir(const std::string& remote_path)
 
 std::string SshDirInspector::get_home_dir()
 {
+    if (account_.webdav())  // [SshDirInspector.md#webdav]
+        return "/";
     char buffer[1024];
     int rc = libssh2_sftp_realpath(sftp_session_ptr_, ".", buffer, sizeof(buffer));
     if (rc < 0) {
@@ -310,6 +345,8 @@ std::string SshDirInspector::get_home_dir()
 
 RemoteDirInfo SshDirInspector::inspect_dir_recursive(const std::string& remote_path)
 {
+    if (account_.webdav())  // [SshDirInspector.md#webdav]
+        return inspect_webdav_dir(account_, remote_path);
     RemoteDirInfo result{};
     result.path = remote_path;
     result.exists = false;

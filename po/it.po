@@ -1419,7 +1419,7 @@ msgstr "Elimina sincronizzazione…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "Connessioni SSH…"
+msgstr "Connessioni ai server…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
@@ -1915,7 +1915,7 @@ msgstr "Modifica connessione SSH"
 
 #: AFS_Desktop/include/TextResources.h:28
 msgid "title_ssh_connections"
-msgstr "Connessioni SSH"
+msgstr "Connessioni ai server"
 
 #: AFS_Core/src/DeviceIdentity.cpp
 msgid "device_identity_failed"
@@ -2177,6 +2177,54 @@ msgstr "Ripristino: impossibile creare la cartella: "
 msgid "restore_done"
 msgstr "Ripristinato: "
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_server"
+msgstr "Server…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_webdav_connection"
+msgstr "Nuova connessione WebDAV…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_webdav_connection"
+msgstr "Aggiungi connessione WebDAV"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_webdav_connection"
+msgstr "Modifica connessione WebDAV"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address"
+msgstr "Indirizzo"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_hint"
+msgstr "L'indirizzo WebDAV è indicato dal fornitore. Per Nextcloud è https://<server>/remote.php/dav/files/<utente> e si trova lì in File → Impostazioni. Usa una password per le applicazioni se il tuo account ha l'accesso a due fattori."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_needs_https"
+msgstr "L'indirizzo deve iniziare con https:// affinché la password venga trasmessa cifrata."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_folder_not_found"
+msgstr "Il server non conosce questo indirizzo."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_caption"
+msgstr "Verifica della connessione"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_failed_save_anyway"
+msgstr "Non è stato possibile collegarsi al server:\n%1\n\nControlla indirizzo, utente e password. Salvare comunque?"
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_url_not_https"
+msgstr "WebDAV: un indirizzo senza https:// non viene usato: "
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_time_not_kept"
+msgstr "WebDAV: il server non conserva la data di modifica dei file caricati; lì portano l'ora del caricamento. Connessione: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Telefono"
@@ -2247,11 +2295,11 @@ msgstr "Configura sincronizzazione…"
 
 #: AFS_Desktop/include/TextResources.h:29
 msgid "title_select_ssh_connection"
-msgstr "Seleziona connessione SSH"
+msgstr "Seleziona connessione"
 
 #: AFS_Desktop/include/TextResources.h:30
 msgid "title_select_ssh_dir"
-msgstr "Scegli cartella SSH"
+msgstr "Scegli cartella sul server"
 
 #: AFS_Desktop/include/TextResources.h:31
 msgid "title_settings"

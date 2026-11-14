@@ -24,3 +24,12 @@ The stored ciphertext of a password that could not be decrypted when the configu
 replace the ciphertext with an encrypted empty string - losing a password whose key may only
 have been out of reach for a moment. Config writes this value back instead, until a new
 password is set.
+
+## url_
+
+The address of a WebDAV server, for instance `https://cloud.example.org/remote.php/dav/files/anna`.
+An account with an address is a WebDAV account and `host_`, `port_` and `host_key_` are unused;
+an account without one is an SSH account. Both kinds live in one class and one list because
+everything else treats them alike: a synchronisation names its remote side as `<account>:/path`,
+and the remote functions pick the protocol from the account (SyncFileSsh.md#webdav-dispatch).
+The class keeps its name from the time when SSH was the only kind.

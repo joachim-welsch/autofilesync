@@ -2156,6 +2156,54 @@ msgstr ""
 msgid "restore_done"
 msgstr ""
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_server"
+msgstr ""
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_webdav_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_webdav_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_webdav_connection"
+msgstr ""
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address"
+msgstr ""
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_hint"
+msgstr ""
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_needs_https"
+msgstr ""
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_folder_not_found"
+msgstr ""
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_caption"
+msgstr ""
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_failed_save_anyway"
+msgstr ""
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_url_not_https"
+msgstr ""
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_time_not_kept"
+msgstr ""
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr ""

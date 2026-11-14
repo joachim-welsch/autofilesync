@@ -52,5 +52,6 @@ enum class id {  // [id.md#id]
     Chat,
     File_connect_phone,
     EditDevices,
-    RestoreFiles
+    RestoreFiles,
+    File_new_WebDavConnection
 };

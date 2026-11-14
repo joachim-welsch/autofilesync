@@ -148,3 +148,26 @@ tree nor, in a two-way item, make the source tree lose a directory it never had.
 The local file is opened through std::filesystem::path, which keeps the wide name on Windows.
 A narrow UTF-8 name would be read there in the ANSI code page, and a file with an umlaut in its
 name would arrive under a garbled one - see Logging.md#wide-file-names.
+
+## webdav-dispatch
+
+The remote functions (ssh_exists, ssh_list_dir, the three copy functions and so on) are what
+the synchronisation calls for any path of the form `<account>:/path`. They used to be the SFTP
+implementation itself; that now lives in the namespace `sftp_backend`, once per platform as
+before, and the public functions look at the account: one with an address goes to the WebDAV
+client (WebDav.md#webdav), every other to SFTP. This is the single place where the two
+protocols part, which is why the synchronisation, the comparison and the father-son principle
+work over WebDAV without knowing it. The names still say "ssh" for that reason.
+
+## webdav-errors
+
+The WebDAV client throws; the remote functions answer with false or CopyResult::Error like
+their SFTP counterparts. An unreachable server is logged as a warning, everything else as an
+error (SyncFileSsh.md#unreachable-is-a-warning).
+
+## webdav-through-a-local-file
+
+A copy between two remote sides of which at least one is WebDAV goes through a file in the temp
+directory: download, then upload. SFTP to SFTP streams directly, but there is no common stream
+between the two libraries, and a server-side copy would only cover the case of one account on
+both sides. The file is removed when the copy ends, however it ends.

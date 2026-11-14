@@ -1,5 +1,6 @@
 {
   "dependencies": [
+    "curl",
     "gettext",
     "libssh2",
     "llama-cpp"

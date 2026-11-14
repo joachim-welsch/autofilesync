@@ -49,6 +49,16 @@ iCloud ont créés sur cet ordinateur et ouvre la sélection dans celui qui est
 choisi. Ce qu'AutoFileSync y copie est envoyé dans le cloud par le programme du
 fournisseur, qui doit être installé et connecté.</p>
 
+<p>Un serveur qui parle WebDAV (Nextcloud, ownCloud, de nombreux NAS et
+hébergeurs) est aussi accessible sans le programme du fournisseur :
+<b>Fichier → Nouvelle connexion WebDAV…</b> demande l'adresse, l'utilisateur et
+le mot de passe et vérifie la connexion. Le serveur peut ensuite être choisi
+sous <b>Serveur…</b> comme une connexion SSH, en source ou en cible. L'adresse
+doit commencer par <tt>https://</tt>. Les serveurs autres que Nextcloud et
+ownCloud ne conservent pas la date de modification d'un fichier envoyé ; avec
+eux, l'option de copie lorsque la cible est plus récente devrait rester
+désactivée.</p>
+
 <p>Une cible qui n'existe pas encore est créée lors de la première exécution. Si
 la source se trouve sur un support amovible ou un lecteur réseau qui n'est pas
 connecté pour l'instant, AutoFileSync saute la synchronisation et ne touche pas

@@ -100,7 +100,7 @@ vcpkg-Verzeichnis heraus installiert werden (im Repo-Verzeichnis erzwingt das
 
 ```cmd
 cd C:\Entwicklung\extlib\vcpkg
-vcpkg install "gettext[core,tools]:x64-windows" libssh2:x64-windows llama-cpp:x64-windows
+vcpkg install "gettext[core,tools]:x64-windows" libssh2:x64-windows curl:x64-windows llama-cpp:x64-windows
 ```
 
 Das Feature `tools` ist nötig, weil `msgfmt` sonst nicht mitkommt: das Paket
@@ -252,7 +252,7 @@ bzw. `cmake -S AFS_Desktop ...`); AFS_Desktop zieht AFS_Core dann selbst hinzu.
 Die früher separat erwartete Bibliothek **mylib** ist vollständig in `AFS_Core`
 aufgegangen (Logging, LogCut, FilesystemUtil, MountedDrives, RecycleBin,
 SmtpMailer, StrUtil, Util). Weitere Abhängigkeiten: wxWidgets 3.2, Boost
-(header-only), libssh, OpenSSL, Google Test (nur Tests); llama.cpp wird beim
+(header-only), libssh, libcurl (WebDAV), OpenSSL, Google Test (nur Tests); llama.cpp wird beim
 Konfigurieren geklont. GNU gettext (libintl) ist **erforderlich**: die msgids sind
 technische Schlüssel, ein Build ohne libintl zeigt also `source_dir_not_reachable`
 statt eines Satzes. `msgfmt` bleibt optional - fehlt es, entfällt nur der Schritt,

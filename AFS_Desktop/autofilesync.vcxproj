@@ -68,7 +68,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libssh2.lib;libcurl-d.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -93,7 +93,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <CETCompat>true</CETCompat>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libssh2.lib;libcurl.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Entwicklung\extlib\vcpkg\installed\x64-windows\lib;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -122,6 +122,7 @@
     <ClInclude Include="..\AFS_Core\include\ModelLocation.h" />
     <ClInclude Include="..\AFS_Core\include\CloudFolders.h" />
     <ClInclude Include="..\AFS_Core\include\Restore.h" />
+    <ClInclude Include="..\AFS_Core\include\WebDav.h" />
     <ClInclude Include="..\AFS_Core\include\CpuTopology.h" />
     <ClInclude Include="..\AFS_Core\include\SyncProposal.h" />
     <ClInclude Include="..\AFS_Core\include\ConfigSummary.h" />
@@ -186,6 +187,7 @@
     <ClInclude Include="include\SshAccountsDialog.h" />
     <ClInclude Include="include\DevicesDialog.h" />
     <ClInclude Include="include\RestoreDialog.h" />
+    <ClInclude Include="include\WebDavAccountDialog.h" />
     <ClInclude Include="include\FirewallHint.h" />
     <ClInclude Include="include\PairDeviceDialog.h" />
     <ClInclude Include="include\PhoneDirDialog.h" />
@@ -231,6 +233,7 @@
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\AFS_Core\src\CloudFolders.cpp" />
     <ClCompile Include="..\AFS_Core\src\Restore.cpp" />
+    <ClCompile Include="..\AFS_Core\src\WebDav.cpp" />
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />
@@ -269,6 +272,7 @@
     <ClCompile Include="src\SshAccountsDialog.cpp" />
     <ClCompile Include="src\DevicesDialog.cpp" />
     <ClCompile Include="src\RestoreDialog.cpp" />
+    <ClCompile Include="src\WebDavAccountDialog.cpp" />
     <ClCompile Include="src\FirewallHint.cpp" />
     <ClCompile Include="src\PairDeviceDialog.cpp" />
     <ClCompile Include="src\PhoneDirDialog.cpp" />

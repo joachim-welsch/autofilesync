@@ -65,6 +65,7 @@ set(TEST_SOURCES
     SyncItemDialogRulesTest.cpp
     CloudFolderButtonTest.cpp
     RestoreDialogTest.cpp
+    WebDavAccountTest.cpp
     ViewsTest.cpp
     ConfigFileTest.cpp
     SettingsTest.cpp
@@ -74,6 +75,7 @@ set(TEST_SOURCES
     UsbPhone.cpp
     UsbPhoneSyncTest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../AFS_Core/test/Integrationstests/FakePhone.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../AFS_Core/test/Integrationstests/WebDavTestServer.cpp
     SshSyncTest.cpp
     WindowAndHelpTest.cpp
     ChatDialogTest.cpp

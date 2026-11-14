@@ -80,6 +80,8 @@ set(SOURCES
     ModelLocationTests.cpp
     CloudFoldersTests.cpp
     RestoreTests.cpp
+    WebDavTests.cpp
+    WebDavTestServer.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp

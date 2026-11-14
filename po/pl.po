@@ -1419,7 +1419,7 @@ msgstr "Usuń synchronizację…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "Połączenia SSH…"
+msgstr "Połączenia z serwerami…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
@@ -1915,7 +1915,7 @@ msgstr "Edytuj połączenie SSH"
 
 #: AFS_Desktop/include/TextResources.h:28
 msgid "title_ssh_connections"
-msgstr "Połączenia SSH"
+msgstr "Połączenia z serwerami"
 
 #: AFS_Core/src/DeviceIdentity.cpp
 msgid "device_identity_failed"
@@ -2177,6 +2177,54 @@ msgstr "Przywracanie: nie można utworzyć folderu: "
 msgid "restore_done"
 msgstr "Przywrócono: "
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_server"
+msgstr "Serwer…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_webdav_connection"
+msgstr "Nowe połączenie WebDAV…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_webdav_connection"
+msgstr "Dodaj połączenie WebDAV"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_webdav_connection"
+msgstr "Edytuj połączenie WebDAV"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address"
+msgstr "Adres"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_hint"
+msgstr "Adres WebDAV podaje dostawca. W Nextcloud ma postać https://<serwer>/remote.php/dav/files/<użytkownik> i jest tam podany w Pliki → Ustawienia. Użyj hasła aplikacji, jeśli konto ma logowanie dwuskładnikowe."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_needs_https"
+msgstr "Adres musi zaczynać się od https://, aby hasło było przesyłane w postaci zaszyfrowanej."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_folder_not_found"
+msgstr "Serwer nie zna tego adresu."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_caption"
+msgstr "Sprawdzanie połączenia"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_failed_save_anyway"
+msgstr "Nie udało się połączyć z serwerem:\n%1\n\nSprawdź adres, użytkownika i hasło. Zapisać mimo to?"
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_url_not_https"
+msgstr "WebDAV: adres bez https:// nie jest używany: "
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_time_not_kept"
+msgstr "WebDAV: serwer nie zachowuje czasu modyfikacji wysłanych plików; mają tam czas wysłania. Połączenie: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Telefon"
@@ -2247,11 +2295,11 @@ msgstr "Skonfiguruj synchronizację…"
 
 #: AFS_Desktop/include/TextResources.h:29
 msgid "title_select_ssh_connection"
-msgstr "Wybierz połączenie SSH"
+msgstr "Wybierz połączenie"
 
 #: AFS_Desktop/include/TextResources.h:30
 msgid "title_select_ssh_dir"
-msgstr "Wybierz folder SSH"
+msgstr "Wybierz folder na serwerze"
 
 #: AFS_Desktop/include/TextResources.h:31
 msgid "title_settings"

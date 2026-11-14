@@ -49,6 +49,15 @@ creato su questo computer e apre la scelta all'interno di quella selezionata.
 Ciò che AutoFileSync vi copia viene caricato nel cloud dal programma del
 fornitore, che deve essere installato e avere l'accesso effettuato.</p>
 
+<p>Un server che parla WebDAV (Nextcloud, ownCloud, molti NAS e servizi di
+hosting) è raggiungibile anche senza il programma del fornitore:
+<b>File → Nuova connessione WebDAV…</b> chiede indirizzo, utente e password e
+verifica la connessione. Dopo, il server si può scegliere in <b>Server…</b> come
+una connessione SSH, come origine o come destinazione. L'indirizzo deve iniziare
+con <tt>https://</tt>. I server diversi da Nextcloud e ownCloud non conservano
+la data di modifica di un file caricato; con essi l'opzione di copia quando la
+destinazione è più recente dovrebbe restare disattivata.</p>
+
 <p>Una destinazione che non esiste ancora viene creata alla prima esecuzione. Se
 l'origine si trova su un'unità rimovibile o su un'unità di rete al momento non
 collegata, AutoFileSync salta la sincronizzazione e non tocca la destinazione –

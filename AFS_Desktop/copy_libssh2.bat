@@ -1,6 +1,7 @@
 @echo off
 if "%1"=="Debug" (
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\debug\bin\libssh2.dll" "%2" >nul 2>&1
+    copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\debug\bin\libcurl-d.dll" "%2" >nul 2>&1
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\debug\bin\zlibd1.dll" "%2" >nul 2>&1
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\debug\bin\llama.dll" "%2" >nul 2>&1
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\debug\bin\ggml.dll" "%2" >nul 2>&1
@@ -12,6 +13,7 @@ if "%1"=="Debug" (
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\debug\bin\iconv-2.dll" "%2" >nul 2>&1
 ) else (
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\bin\libssh2.dll" "%2" >nul 2>&1
+    copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\bin\libcurl.dll" "%2" >nul 2>&1
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\bin\zlib1.dll" "%2" >nul 2>&1
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\bin\llama.dll" "%2" >nul 2>&1
     copy /Y "C:\Entwicklung\extlib\vcpkg\installed\x64-windows\bin\ggml.dll" "%2" >nul 2>&1

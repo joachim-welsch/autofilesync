@@ -51,7 +51,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>gtestd.lib;libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxmsw33ud_adv.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtestd.lib;libssh2.lib;libcurl-d.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33ud_html.lib;wxmsw33ud_core.lib;wxmsw33ud_adv.lib;wxbase33ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug;C:\Entwicklung\extlib\boost\boost_1_90_0\stage\lib;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -72,7 +72,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>gtest.lib;libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxmsw33u_adv.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gtest.lib;libssh2.lib;libcurl.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;ws2_32.lib;iphlpapi.lib;wxmsw33u_html.lib;wxmsw33u_core.lib;wxmsw33u_adv.lib;wxbase33u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;shlwapi.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;version.lib;wsock32.lib;wininet.lib;winhttp.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release;C:\Entwicklung\extlib\boost\boost_1_90_0\stage\lib;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -115,6 +115,7 @@
     <ClInclude Include="..\..\..\AFS_Core\include\ModelLocation.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CloudFolders.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Restore.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\WebDav.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CpuTopology.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncProposal.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\ConfigSummary.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="..\..\include\SshAccountsDialog.h" />
     <ClInclude Include="..\..\include\DevicesDialog.h" />
     <ClInclude Include="..\..\include\RestoreDialog.h" />
+    <ClInclude Include="..\..\include\WebDavAccountDialog.h" />
     <ClInclude Include="..\..\include\FirewallHint.h" />
     <ClInclude Include="..\..\include\PairDeviceDialog.h" />
     <ClInclude Include="..\..\include\PhoneDirDialog.h" />
@@ -232,6 +234,7 @@
     <ClCompile Include="SyncItemDialogRulesTest.cpp" />
     <ClCompile Include="CloudFolderButtonTest.cpp" />
     <ClCompile Include="RestoreDialogTest.cpp" />
+    <ClCompile Include="WebDavAccountTest.cpp" />
     <ClCompile Include="ViewsTest.cpp" />
     <ClCompile Include="ConfigFileTest.cpp" />
     <ClCompile Include="SettingsTest.cpp" />
@@ -251,6 +254,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CloudFolders.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Restore.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\WebDav.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CpuTopology.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ConfigSummary.cpp" />
@@ -297,6 +301,7 @@
     <ClCompile Include="..\..\src\SshAccountsDialog.cpp" />
     <ClCompile Include="..\..\src\DevicesDialog.cpp" />
     <ClCompile Include="..\..\src\RestoreDialog.cpp" />
+    <ClCompile Include="..\..\src\WebDavAccountDialog.cpp" />
     <ClCompile Include="..\..\src\FirewallHint.cpp" />
     <ClCompile Include="..\..\src\PairDeviceDialog.cpp" />
     <ClCompile Include="..\..\src\PhoneDirDialog.cpp" />
@@ -304,6 +309,7 @@
     <ClCompile Include="..\..\src\QrCode.cpp" />
     <ClCompile Include="..\..\..\third-party\qrcodegen\qrcodegen.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\test\Integrationstests\FakePhone.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\test\Integrationstests\WebDavTestServer.cpp" />
     <ClCompile Include="..\..\src\SshDirDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SshDirInspector.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SshFileInspector.cpp" />

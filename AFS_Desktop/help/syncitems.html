@@ -49,6 +49,15 @@ diesem Rechner angelegt haben, und öffnet die Auswahl gleich darin. Was
 AutoFileSync dorthin kopiert, lädt das Programm des Anbieters in die Cloud; es
 muss dafür installiert und angemeldet sein.</p>
 
+<p>Ein Server, der WebDAV spricht (Nextcloud, ownCloud, viele NAS-Geräte und
+Webhoster), lässt sich auch ohne Programm des Anbieters ansprechen:
+<b>Datei → Neue WebDAV-Verbindung…</b> fragt nach Adresse, Benutzer und Passwort
+und prüft die Verbindung. Danach steht der Server wie eine SSH-Verbindung unter
+<b>Server…</b> zur Wahl, als Quelle oder als Ziel. Die Adresse muss mit
+<tt>https://</tt> beginnen. Server außer Nextcloud und ownCloud merken sich die
+Änderungszeit einer hochgeladenen Datei nicht; mit ihnen sollte <b>Kopieren,
+auch wenn Zieldatei neuer ist</b> ausgeschaltet bleiben.</p>
+
 <p>Ein Ziel, das noch nicht existiert, wird beim ersten Lauf angelegt. Liegt die
 Quelle auf einem Wechseldatenträger oder einem Netzlaufwerk, das gerade nicht
 verbunden ist, überspringt AutoFileSync die Synchronisation und rührt das Ziel

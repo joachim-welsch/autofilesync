@@ -15,6 +15,7 @@ set(AFS_DESKTOP_SOURCES
     ChatDialog.cpp
     DevicesDialog.cpp
     RestoreDialog.cpp
+    WebDavAccountDialog.cpp
     FirewallHint.cpp
     PairDeviceDialog.cpp
     PhoneDirDialog.cpp

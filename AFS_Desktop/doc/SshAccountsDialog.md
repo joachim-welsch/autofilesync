@@ -22,3 +22,9 @@ can do is warn instead of letting them silently start failing every sync pass.
 
 Keeps sync items using this account under its old name from silently failing every pass
 afterward (see Config::updateSshAccountReferences).
+
+## webdav-accounts
+
+The list holds SSH and WebDAV connections alike (SshAccount.md#url_). The second column shows
+the host of the one and the address of the other, and editing opens the dialog that fits the
+kind, since the two ask for different things.

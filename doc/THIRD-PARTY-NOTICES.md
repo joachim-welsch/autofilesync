@@ -12,6 +12,7 @@ ausgeliefert. Die Lizenzen sind mit der GPL von AutoFileSync verträglich
 | OpenSSL 3 | Verschlüsselung der Passwörter, TLS für E-Mail | Apache License 2.0 | `OpenSSL-LICENSE.txt` |
 | libssh2 (Windows) | SSH/SFTP | BSD-3-Clause | `libssh2-LICENSE.txt` |
 | libssh (Linux, macOS) | SSH/SFTP, als Systembibliothek bzw. im Bündel | LGPL 2.1 | Text der LGPL 2.1 in `gettext-libintl-LGPL-2.1.txt`, Quelle: <https://www.libssh.org> |
+| libcurl | HTTP für WebDAV, als Systembibliothek unter Linux und macOS, als DLL unter Windows | curl License (MIT-artig) | `curl-LICENSE.txt` |
 | zlib | Kompression in libssh2 | zlib License | `zlib-LICENSE.txt` |
 | GNU gettext (libintl) | Übersetzungen | LGPL 2.1 | `gettext-libintl-LGPL-2.1.txt` |
 | GNU libiconv | Zeichensatzumwandlung für gettext | LGPL 2.1 | `libiconv-LICENSE.txt` |

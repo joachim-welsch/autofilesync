@@ -67,6 +67,7 @@ wxMenu* Menu::create_file_menu()
     wxMenu* file_menu = new wxMenu;  // [Menu.md#structure]
     file_menu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
     file_menu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
+    file_menu->Append(tul(id::File_new_WebDavConnection), translate("menu_new_webdav_connection"));
     file_menu->Append(tul(id::File_connect_phone), translate("menu_connect_phone"));  // [Menu.md#phone-entries]
     file_menu->AppendSeparator();
     file_menu->Append(tul(id::File_open), with_shortcut(translate("menu_open"), "Ctrl+O"));

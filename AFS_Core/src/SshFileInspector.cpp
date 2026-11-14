@@ -41,6 +41,8 @@
     #endif
 #endif
 
+#include "WebDav.h"
+
 namespace AFS_Core {
 
 std::string time_to_iso(time_t t)  // [SshFileInspector.md#time_to_iso]
@@ -57,15 +59,34 @@ std::string time_to_iso(time_t t)  // [SshFileInspector.md#time_to_iso]
     return oss.str();
 }
 
+static RemoteFileInfo inspect_webdav(const SshAccount& account, const std::string& remote_path)  // [SshFileInspector.md#webdav]
+{
+    RemoteFileInfo info{};
+    info.last_modified_iso = "N/A";
+    const auto entry = webdav::stat(account, remote_path);
+    if (!entry)
+        return info;
+    info.exists = true;
+    info.size_bytes = entry->size;
+    info.raw_mtime = entry->mtime;
+    info.last_modified_iso = time_to_iso(info.raw_mtime);
+    return info;
+}
+
 #ifdef _UNIX
 SshFileInspector::SshFileInspector(const SshAccount& account)
-    : connection_(account), account_(account)
-{}
+    : account_(account)
+{
+    if (!account.webdav())  // [SshFileInspector.md#webdav]
+        connection_.connect(account);
+}
 
 SshFileInspector::~SshFileInspector() = default;
 
 RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 {
+    if (account_.webdav())  // [SshFileInspector.md#webdav]
+        return inspect_webdav(account_, remote_path);
     RemoteFileInfo info{};
     info.last_modified_iso = "N/A";
     const std::string sftp_path = win_to_sftp_path(remote_path);  // [SshFileInspector.md#path-separators]
@@ -103,7 +124,8 @@ static void init_winsock()
 SshFileInspector::SshFileInspector(const SshAccount& account)  // [SshFileInspector.md#shared-message-ids]
     : account_(account)
 {
-
+    if (account.webdav())  // [SshFileInspector.md#webdav]
+        return;
     init_winsock();
     ensure_libssh2_initialized();
 
@@ -172,6 +194,8 @@ void SshFileInspector::cleanup()
 
 RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 {
+    if (account_.webdav())  // [SshFileInspector.md#webdav]
+        return inspect_webdav(account_, remote_path);
     RemoteFileInfo info{};
     info.exists = false;
     info.size_bytes = 0;
@@ -226,6 +250,8 @@ void SshFileInspector::cleanup() {}
 
 RemoteFileInfo SshFileInspector::inspect_file(const std::string& remote_path)
 {
+    if (account_.webdav())  // [SshFileInspector.md#webdav]
+        return inspect_webdav(account_, remote_path);
     RemoteFileInfo info{};
     info.exists = false;
     info.size_bytes = 0;

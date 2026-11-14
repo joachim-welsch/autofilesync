@@ -73,7 +73,7 @@ void SshAccountSelectDialog::populate_list()
     long index = 0;
     for (const auto& account : accounts) {
         long item = list_ctrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
-        list_ctrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
+        list_ctrl_->SetItem(item, 1, wxString::FromUTF8(account.webdav() ? account.url() : account.host()));  // [SshAccountsDialog.md#webdav-accounts]
         list_ctrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
         index++;
     }

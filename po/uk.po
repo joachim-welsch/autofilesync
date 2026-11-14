@@ -1419,7 +1419,7 @@ msgstr "Видалити синхронізацію…"
 
 #: AFS_Desktop/src/Menu.cpp:80
 msgid "menu_ssh_connections"
-msgstr "З'єднання SSH…"
+msgstr "З'єднання із серверами…"
 
 #: AFS_Desktop/src/Menu.cpp:81
 msgid "menu_settings"
@@ -1915,7 +1915,7 @@ msgstr "Редагувати з'єднання SSH"
 
 #: AFS_Desktop/include/TextResources.h:28
 msgid "title_ssh_connections"
-msgstr "З'єднання SSH"
+msgstr "З'єднання із серверами"
 
 #: AFS_Core/src/DeviceIdentity.cpp
 msgid "device_identity_failed"
@@ -2177,6 +2177,54 @@ msgstr "Відновлення: не вдається створити папк�
 msgid "restore_done"
 msgstr "Відновлено: "
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "button_server"
+msgstr "Сервер…"
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_webdav_connection"
+msgstr "Нове з'єднання WebDAV…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_webdav_connection"
+msgstr "Додати з'єднання WebDAV"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_webdav_connection"
+msgstr "Редагувати з'єднання WebDAV"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address"
+msgstr "Адреса"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_hint"
+msgstr "Адресу WebDAV повідомляє постачальник. Для Nextcloud це https://<сервер>/remote.php/dav/files/<користувач>; її видно там у Файли → Налаштування. Використовуйте пароль застосунку, якщо обліковий запис має двофакторний вхід."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_address_needs_https"
+msgstr "Адреса має починатися з https://, щоб пароль передавався зашифрованим."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_folder_not_found"
+msgstr "Сервер не знає цієї адреси."
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_caption"
+msgstr "Перевірка з'єднання"
+
+#: AFS_Desktop/src/WebDavAccountDialog.cpp
+msgid "webdav_check_failed_save_anyway"
+msgstr "Не вдалося з'єднатися із сервером:\n%1\n\nПеревірте адресу, користувача та пароль. Усе одно зберегти?"
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_url_not_https"
+msgstr "WebDAV: адреса без https:// не використовується: "
+
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_time_not_kept"
+msgstr "WebDAV: сервер не зберігає час зміни вивантажених файлів; там вони мають час вивантаження. З'єднання: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Телефон"
@@ -2247,11 +2295,11 @@ msgstr "Налаштувати синхронізацію…"
 
 #: AFS_Desktop/include/TextResources.h:29
 msgid "title_select_ssh_connection"
-msgstr "Вибрати з'єднання SSH"
+msgstr "Вибрати з'єднання"
 
 #: AFS_Desktop/include/TextResources.h:30
 msgid "title_select_ssh_dir"
-msgstr "Виберіть папку SSH"
+msgstr "Виберіть папку на сервері"
 
 #: AFS_Desktop/include/TextResources.h:31
 msgid "title_settings"

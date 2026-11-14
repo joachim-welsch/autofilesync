@@ -30,6 +30,7 @@ class SshAccount {
     uint16_t port_ = 22;
     std::string host_key_;  // [SshAccount.md#host_key_]
     std::string sealed_password_;  // [SshAccount.md#sealed_password_]
+    std::string url_;  // [SshAccount.md#url_]
 public:
     const std::string& name() const;
     const std::string& user() const;
@@ -38,6 +39,8 @@ public:
     uint16_t port() const { return port_; }
     const std::string& host_key() const { return host_key_; }
     const std::string& sealed_password() const { return sealed_password_; }
+    const std::string& url() const { return url_; }
+    bool webdav() const { return !url_.empty(); }  // [SshAccount.md#url_]
 
     void set_name(const std::string& name);
     void set_user(const std::string& user);
@@ -46,6 +49,7 @@ public:
     void set_port(uint16_t port) { port_ = port; }
     void set_host_key(const std::string& key) { host_key_ = key; }
     void set_sealed_password(const std::string& ciphertext) { sealed_password_ = ciphertext; }
+    void set_url(const std::string& url) { url_ = url; }
 };
 
 } // namespace AFS_Core

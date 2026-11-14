@@ -109,7 +109,7 @@ wstring describe_accounts(const std::vector<SshAccount>& accounts)  // [ConfigSu
 {
     std::vector<wstring> names;
     for (const SshAccount& account : accounts)
-        names.push_back(util::string_to_wstring(account.name() + " (" + account.user() + "@" + account.host() + ")"));
+        names.push_back(util::string_to_wstring(account.name() + " (" + account.user() + "@" + (account.webdav() ? account.url() : account.host()) + ")"));  // [SshAccount.md#url_]
     return translate("config_summary_ssh_accounts") + joined(names, L", ");
 }
 }

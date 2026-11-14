@@ -48,3 +48,9 @@ Local time to the second, "YYYY-MM-DD HH:MM:SS", for the file information the di
 Shared with SshDirInspector: it used to format the same mtime through std::chrono, which
 prints the nine fractional digits of a system_clock time point and UTC - the SSH directory
 dialog showed "07:00:00.000000000" next to the file inspector's local "09:00:00".
+
+## webdav
+
+For an account with an address (SshAccount.md#url_) no SSH connection is opened and
+inspect_file() asks the WebDAV server instead. The comparison and the reachability check use
+this class for every remote file, so this is where they learn about WebDAV.

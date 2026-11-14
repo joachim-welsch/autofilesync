@@ -18,6 +18,7 @@
  */
 #include "SshAccountsDialog.h"
 #include "SshAccountDialog.h"
+#include "WebDavAccountDialog.h"
 #include "SshAccount.h"
 #include "Config.h"
 #include "TextResources.h"
@@ -91,7 +92,7 @@ void SshAccountsDialog::populate_list()
     long index = 0;
     for (const auto& account : accounts) {
         long item = list_ctrl_->InsertItem(index, wxString::FromUTF8(account.name()));  // [SshAccountsDialog.md#utf8-list]
-        list_ctrl_->SetItem(item, 1, wxString::FromUTF8(account.host()));
+        list_ctrl_->SetItem(item, 1, wxString::FromUTF8(account.webdav() ? account.url() : account.host()));  // [SshAccountsDialog.md#webdav-accounts]
         list_ctrl_->SetItem(item, 2, wxString::FromUTF8(account.user()));
         list_ctrl_->SetItem(item, 3, wxString(account.password().empty() ? "" : "********"));
         index++;
@@ -119,6 +120,24 @@ void SshAccountsDialog::on_add(wxCommandEvent&)
         Config::instance().add(new_account);
         populate_list();
     }
+}
+
+namespace {
+bool edited(wxWindow* parent, SshAccount& account)  // [SshAccountsDialog.md#webdav-accounts]
+{
+    if (account.webdav()) {
+        WebDavAccountDialog dlg(account, parent, wxID_ANY, txt::edit_webdav_connection());
+        if (dlg.ShowModal() != wxID_OK)
+            return false;
+        dlg.save_data(account);
+        return true;
+    }
+    SshAccountDialog dlg(&account, parent, wxID_ANY, txt::edit_ssh_connection());
+    if (dlg.ShowModal() != wxID_OK)
+        return false;
+    dlg.save_data(account);
+    return true;
+}
 }
 
 void SshAccountsDialog::on_edit(wxCommandEvent&)
@@ -202,9 +221,7 @@ void SshAccountsDialog::edit_selected_item()
         return;
 
     const std::string old_name = account->name();
-    SshAccountDialog dlg(&account.value(), this, wxID_ANY, txt::edit_ssh_connection());
-    if (dlg.ShowModal() == wxID_OK) {
-        dlg.save_data(account.value());
+    if (edited(this, account.value())) {
         Config::instance().update_ssh_account(static_cast<size_t>(sel), account.value());
         Config::instance().update_ssh_account_references(old_name, account.value());  // [SshAccountsDialog.md#account-references-updated]
         populate_list();

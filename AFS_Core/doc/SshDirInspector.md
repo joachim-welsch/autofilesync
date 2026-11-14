@@ -26,3 +26,10 @@ in the GUI shows the same format (SshFileInspector.md#time_to_iso).
 Every listing drops "." and "..", and refuses with an error in the log any name
 FilesystemUtil.md#plain_entry_name rejects. The dialog then shows the rest of the directory;
 the error names the directory and the entry so the user can see what the server sent.
+
+## webdav
+
+For an account with an address (SshAccount.md#url_) no SSH connection is opened and the
+directory is listed through WebDAV. There is no login directory on such a server, so the home
+directory is "/", the root of the account's address. The recursive listing is not offered and
+answers with the one directory; nothing in the program asks for it over WebDAV.

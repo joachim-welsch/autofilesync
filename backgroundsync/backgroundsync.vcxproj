@@ -62,7 +62,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libssh2.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;bcrypt.lib;ws2_32.lib;iphlpapi.lib;kernel32.lib;user32.lib;shell32.lib;shlwapi.lib;ole32.lib;advapi32.lib;version.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libssh2.lib;libcurl.lib;llama.lib;ggml.lib;ggml-cpu.lib;ggml-base.lib;libssl.lib;libcrypto.lib;crypt32.lib;bcrypt.lib;ws2_32.lib;iphlpapi.lib;kernel32.lib;user32.lib;shell32.lib;shlwapi.lib;ole32.lib;advapi32.lib;version.lib;intl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>..\AFS_Core\longPathAware.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -110,6 +110,7 @@
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\AFS_Core\src\CloudFolders.cpp" />
     <ClCompile Include="..\AFS_Core\src\Restore.cpp" />
+    <ClCompile Include="..\AFS_Core\src\WebDav.cpp" />
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />

@@ -25,6 +25,8 @@
 #include "SshConnectTimeout.h"
 #include "Libssh2Init.h"
 #include "SftpConnection.h"
+#include "SshUnreachable.h"
+#include "WebDav.h"
 #include "CopyLog.h"
 #include <filesystem>
 #include <fstream>
@@ -191,6 +193,7 @@ std::string get_remote_path(const wstring& path)
     return wstring_to_string(path.substr(colon_pos + 1));
 }
 
+namespace sftp_backend {  // [SyncFileSsh.md#webdav-dispatch]
 #ifdef _UNIX
 namespace {
     constexpr size_t SFTP_BUFFER_SIZE = 65536;  // 64 KiB per request stays within what every SFTP server accepts
@@ -1527,6 +1530,140 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 
 #endif
 #endif
+}
+
+namespace {
+std::optional<SshAccount> webdav_account(const wstring& path)  // [SyncFileSsh.md#webdav-dispatch]
+{
+    auto account = get_account_from_path(path);
+    return account && account->webdav() ? account : std::nullopt;
+}
+
+template <typename Action>
+bool webdav_done(const wstring& path, Action action)  // [SyncFileSsh.md#webdav-errors]
+{
+    try {
+        action();
+        return true;
+    } catch (const SshUnreachable& e) {
+        log_warning(L"WebDAV: " + path + L": " + string_to_wstring(e.what()));
+    } catch (const std::exception& e) {
+        log_error(L"WebDAV: " + path + L": " + string_to_wstring(e.what()));
+    }
+    return false;
+}
+
+template <typename Transfer>
+CopyResult webdav_copied(const wstring& path, Transfer transfer)  // [SyncFileSsh.md#webdav-errors]
+{
+    CopyResult result = CopyResult::Error;
+    webdav_done(path, [&] { result = transfer(); });
+    return result;
+}
+
+std::optional<webdav::Entry> webdav_stat(const SshAccount& account, const wstring& path)
+{
+    std::optional<webdav::Entry> entry;
+    webdav_done(path, [&] { entry = webdav::stat(account, get_remote_path(path)); });
+    return entry;
+}
+
+std::vector<SshDirEntry> webdav_list_dir(const SshAccount& account, const wstring& path)
+{
+    std::vector<SshDirEntry> entries;
+    const bool listed = webdav_done(path, [&] {
+        for (const webdav::Entry& entry : webdav::list(account, get_remote_path(path)))
+            entries.push_back({string_to_wstring(entry.name), entry.is_directory, !entry.is_directory, false, entry.size});
+    });
+    if (!listed)
+        report_sync_error(translation::translate("remote_dir_open_error") + path);  // [SyncFileSsh.md#listing-failure-is-reported]
+    return entries;
+}
+
+class TemporaryFile {  // [SyncFileSsh.md#webdav-through-a-local-file]
+    std::filesystem::path path_ = std::filesystem::temp_directory_path() / util::with_timestamp_prefix("autofilesync-transfer.tmp");
+public:
+    TemporaryFile() = default;
+    ~TemporaryFile()
+    {
+        std::error_code ec;
+        std::filesystem::remove(path_, ec);
+    }
+    TemporaryFile(const TemporaryFile&) = delete;
+    TemporaryFile& operator=(const TemporaryFile&) = delete;
+    wstring name() const { return path_.wstring(); }
+};
+}
+
+CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
+{
+    const auto account = webdav_account(src);
+    if (!account)
+        return sftp_backend::copy_ssh_to_fs(src, dest);
+    return webdav_copied(src, [&] { return webdav::download(*account, get_remote_path(src), std::filesystem::path(dest)); });
+}
+
+CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
+{
+    const auto account = webdav_account(dest);
+    if (!account)
+        return sftp_backend::copy_fs_to_ssh(src, dest);
+    return webdav_copied(dest, [&] { return webdav::upload(std::filesystem::path(src), *account, get_remote_path(dest)); });
+}
+
+CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)  // [SyncFileSsh.md#webdav-through-a-local-file]
+{
+    if (!webdav_account(src) && !webdav_account(dest))
+        return sftp_backend::copy_ssh_to_ssh(src, dest);
+    const TemporaryFile local;
+    const CopyResult fetched = copy_ssh_to_fs(src, local.name());
+    return fetched == CopyResult::OK ? copy_fs_to_ssh(local.name(), dest) : fetched;
+}
+
+bool ssh_exists(const std::wstring& path)
+{
+    const auto account = webdav_account(path);
+    return account ? webdav_stat(*account, path).has_value() : sftp_backend::ssh_exists(path);
+}
+
+bool ssh_is_directory(const std::wstring& path)
+{
+    const auto account = webdav_account(path);
+    if (!account)
+        return sftp_backend::ssh_is_directory(path);
+    const auto entry = webdav_stat(*account, path);
+    return entry && entry->is_directory;
+}
+
+bool ssh_mkdir(const std::wstring& path)
+{
+    const auto account = webdav_account(path);
+    return account ? webdav_done(path, [&] { webdav::make_directory(*account, get_remote_path(path)); }) : sftp_backend::ssh_mkdir(path);
+}
+
+bool ssh_remove_file(const std::wstring& path)
+{
+    const auto account = webdav_account(path);
+    return account ? webdav_done(path, [&] { webdav::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_remove_file(path);
+}
+
+bool ssh_rmdir(const std::wstring& path)
+{
+    const auto account = webdav_account(path);
+    return account ? webdav_done(path, [&] { webdav::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_rmdir(path);
+}
+
+bool ssh_rename(const std::wstring& from, const std::wstring& to)
+{
+    const auto account = webdav_account(from);
+    return account ? webdav_done(from, [&] { webdav::move(*account, get_remote_path(from), get_remote_path(to)); }) : sftp_backend::ssh_rename(from, to);
+}
+
+std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
+{
+    const auto account = webdav_account(path);
+    return account ? webdav_list_dir(*account, path) : sftp_backend::ssh_list_dir(path);
+}
 
 bool ssh_mkdir_p(const std::wstring& path)  // [SyncFileSsh.md#ssh_mkdir_p]
 {
