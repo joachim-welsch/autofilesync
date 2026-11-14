@@ -1,5 +1,17 @@
 # Änderungen
 
+## 0.5.0 – in Arbeit
+
+- Cloud-Ordner als Ziel: Im Dialog einer Synchronisation steht neben dem Ziel
+  „Cloud…“. Die Schaltfläche zeigt die Ordner, die die Programme der
+  Cloud-Anbieter auf dem Rechner angelegt haben (Dropbox und Nextcloud überall,
+  OneDrive und Google Drive unter Windows, dazu iCloud Drive und alle Anbieter
+  aus `~/Library/CloudStorage` unter macOS), und öffnet die Verzeichniswahl
+  gleich darin. AutoFileSync kopiert dorthin, das Hochladen übernimmt das
+  Programm des Anbieters; ein Konto oder eine Anmeldung in AutoFileSync ist
+  nicht nötig. Ist kein solches Programm installiert, nennt ein Hinweis, was
+  fehlt.
+
 ## 0.4.0 – 2026-10-22
 
 - Handys lassen sich mit AutoFileSync verbinden: „Datei → Handy verbinden…“
