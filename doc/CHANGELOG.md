@@ -22,6 +22,11 @@
   das Datum in den Namen. „Wiederherstellen nach…“ legt sie in einen gewählten
   Ordner. Ziele über SSH und auf dem Handy werden nicht durchsucht.
 
+- Behoben: Wurde dieselbe Datei innerhalb einer Millisekunde zweimal in den
+  Papierkorb gelöscht, ersetzte die zweite dort die erste. Jede Löschung
+  bekommt jetzt einen eigenen Eintrag, und der Papierkorb ersetzt grundsätzlich
+  keinen vorhandenen Eintrag mehr.
+
 ## 0.4.0 – 2026-10-22
 
 - Handys lassen sich mit AutoFileSync verbinden: „Datei → Handy verbinden…“

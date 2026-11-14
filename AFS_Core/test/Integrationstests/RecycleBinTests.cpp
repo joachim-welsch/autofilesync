@@ -178,6 +178,19 @@ TEST_F(RecycleBinTest, SourceOutsideTheWorkingDirectoryGetsTheGivenName)
     EXPECT_EQ(RecycleBin::instance().list_items(), RecycleBin::ItemList{item});
 }
 
+TEST_F(RecycleBinTest, AddItemNeverReplacesAnItemInTheBin)  // [RecycleBinTests.md#AddItemNeverReplacesAnItemInTheBin]
+{
+    create_file("data.txt", "first");
+    ASSERT_TRUE(RecycleBin::instance().add_item("data.txt"));
+    EXPECT_TRUE(RecycleBin::instance().has_item("data.txt"));
+    create_file("data.txt", "second");
+
+    EXPECT_FALSE(RecycleBin::instance().add_item("data.txt"));
+
+    EXPECT_EQ(content_of(bin_ / "data.txt"), "first");
+    EXPECT_EQ(content_of("data.txt"), "second");
+}
+
 TEST_F(RecycleBinTest, ListItemsOfABinThatDoesNotExistYetIsEmpty)
 {
     ASSERT_FALSE(fs::exists(bin_));

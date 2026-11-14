@@ -100,6 +100,15 @@ TEST_F(FileDeleteTest, RecycleBinModeKeepsFilesOfTheSameName)
     EXPECT_EQ(RecycleBin::instance().list_items().size(), 2u);
 }
 
+TEST_F(FileDeleteTest, RecycleBinModeKeepsEveryDeletionOfTheSameFile)  // [FileDeleteTests.md#RecycleBinModeKeepsEveryDeletionOfTheSameFile]
+{
+    constexpr std::size_t DELETIONS = 200;
+    for (std::size_t i = 0; i < DELETIONS; ++i)
+        ASSERT_TRUE(delete_file(create_file("sub/data.txt", std::to_string(i)).wstring()));
+
+    EXPECT_EQ(RecycleBin::instance().list_items().size(), DELETIONS);
+}
+
 TEST_F(FileDeleteTest, PermanentModeDeletesWithoutTouchingTheBin)
 {
     Config::instance().settings().delete_mode(DeleteMode::Permanent);

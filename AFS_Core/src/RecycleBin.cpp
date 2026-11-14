@@ -135,10 +135,20 @@ bool RecycleBin::add_item(const fs::path& source, const fs::path& item)
         return false;
     }
     const fs::path target = path_ / item.lexically_normal();
+    if (entry_exists(target)) {  // [RecycleBin.md#add_item-never-replaces]
+        log_error(translation::translate("recycle_bin_target_exists"), target.wstring());
+        return false;
+    }
     if (!create_parent(target) || !move(source, target))
         return false;
     log_debug(L"Papierkorb: verschoben " + source.wstring());
     return true;
+}
+
+bool RecycleBin::has_item(const fs::path& item) const
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return entry_exists(path_ / item.lexically_normal());
 }
 
 bool RecycleBin::restore_item(const fs::path& item)

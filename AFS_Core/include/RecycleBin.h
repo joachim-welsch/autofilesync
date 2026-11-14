@@ -41,6 +41,7 @@ public:
 	std::filesystem::path bin_path() const;
 	bool add_item(const std::filesystem::path& item);
 	bool add_item(const std::filesystem::path& source, const std::filesystem::path& item);  // [RecycleBin.md#add_item-outside-cwd]
+	bool has_item(const std::filesystem::path& item) const;
 	bool restore_item(const std::filesystem::path& item);
 	bool take_item(const std::filesystem::path& item, const std::filesystem::path& destination);  // [RecycleBin.md#take_item]
 	ItemList list_items() const;  // by value: a reference would outlive the lock that protects the bin

@@ -29,7 +29,6 @@
 #include <fstream>
 #include <iterator>
 #include <string>
-#include <thread>
 
 using namespace AFS_Core;
 namespace fs = std::filesystem;
@@ -174,7 +173,6 @@ TEST_F(RestoreTest, DeepestTargetDecidesBetweenNestedItems)
 TEST_F(RestoreTest, ExistingFileIsNeverOverwritten)  // [RestoreTests.md#ExistingFileIsNeverOverwritten]
 {
     delete_through_bin(target_ / "bericht.txt", "erste");
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));  // [RestoreTests.md#ExistingFileIsNeverOverwritten]
     delete_through_bin(target_ / "bericht.txt", "zweite");
     write(source_ / "bericht.txt", "neu");
     Restorables found = find({item(SyncItemType::Tree)});

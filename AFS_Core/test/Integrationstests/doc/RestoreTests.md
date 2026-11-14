@@ -16,8 +16,7 @@ It has to appear in the source, with its content, and must not be offered a seco
 ## ExistingFileIsNeverOverwritten
 
 Two deleted versions of one file are put back while a third exists under that name. All three
-have to survive. The deletions are a few milliseconds apart because the bin names items by the
-millisecond; both restorables are then given the same time to force the counter after the date.
+have to survive. Both restorables are given the same time to force the counter after the date.
 
 ## FilesOfADeletedDirectoryKeepTheirPlace
 

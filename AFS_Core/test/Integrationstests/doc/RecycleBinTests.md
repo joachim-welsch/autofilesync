@@ -56,3 +56,8 @@ time must survive both directions; the test found that the time did not.
 
 A deleted directory goes to the bin as a whole. The test found that across filesystems it did
 not go at all, so every directory deletion of a sync failed with such a bin.
+
+## AddItemNeverReplacesAnItemInTheBin
+
+The second file of the same name must stay where it is and the first must stay in the bin:
+before, the rename replaced the binned file without a word.

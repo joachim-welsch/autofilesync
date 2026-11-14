@@ -13,6 +13,13 @@ Same, but for a source that lies outside the current working directory: it is st
 under the relative path 'item', which lets the caller pick the name there (a timestamp prefix,
 say).
 
+## add_item-never-replaces
+
+A name already taken in the bin is refused. The rename that moves the item would otherwise
+replace the file lying there, and the bin would lose exactly what it was asked to keep. The
+caller picks the name, so the caller has to pick a free one (FileDelete.md#free_bin_item);
+has_item() tells it.
+
 ## take_item
 
 Moves an item out of the bin to any destination, which restore_item() does for the place the
