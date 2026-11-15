@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2026 Joachim Welsch <https://welsch-software.com>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * This file is part of Utilities, the general-purpose helpers of AutoFileSync.
+ *
+ * AutoFileSync is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * AutoFileSync is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
+ */
+#pragma once
+#include <UtilitiesConfig.h>
+#include <filesystem>
+#include <string>
+#include <string_view>
+#include <optional>
+#include <Logging.h>
+
+namespace Utilities {
+
+namespace FilesystemUtil
+{
+	enum class FileInfoResult { OK, FileNotExist, DriveNotMounted, CannotReadFileAttributes, InvalidFileTime, ErrorReadFileInfo };
+
+	bool file_exists(const std::wstring& filename);
+    FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
+	std::wstring make_error_message(FileInfoResult result);
+    bool touch(const std::wstring& fpathname);
+    std::optional<std::filesystem::path> is_mountpoint(const std::filesystem::path& path);
+    std::optional<std::filesystem::path> get_mount_root(const std::filesystem::path& in);
+	std::string home_dir();
+    std::optional<std::filesystem::path> env_path(const char* name);  // [FilesystemUtil.md#env_path]
+    bool plain_entry_name(std::string_view name);  // [FilesystemUtil.md#plain_entry_name]
+    bool volume_exists(const std::wstring& drive_name, const std::wstring& volume_name);
+    bool drive_exists(const std::wstring& drive_name);
+    void handle_last_error(std::filesystem::filesystem_error const& ex);
+    bool files_equal(const std::wstring& input1, const std::wstring& input2);
+    bool rename_file(const std::wstring& oldname, const std::wstring& newname);
+    bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
+    bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
+    std::wstring read_utf8_file(const std::filesystem::path& file);  // [FilesystemUtil.md#utf8-files]
+    void write_utf8_file(const std::filesystem::path& file, const std::wstring& text);  // [FilesystemUtil.md#utf8-files]
+    bool write_private_file(const std::filesystem::path& file, std::string_view bytes);  // [FilesystemUtil.md#private-files]
+}
+namespace fsu = FilesystemUtil;
+
+} // namespace Utilities
