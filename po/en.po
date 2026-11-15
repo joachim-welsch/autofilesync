@@ -2446,6 +2446,22 @@ msgstr "S3: the bucket does not exist; create it at your provider: "
 msgid "s3_folder_not_renamable"
 msgstr "S3: folders cannot be renamed: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_storage_box_connection"
+msgstr "New Hetzner Storage Box connection…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_storage_box_connection"
+msgstr "Add Hetzner Storage Box"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "storage_box_hint"
+msgstr "User name and password are shown in the Hetzner console at the Storage Box, for example u123456 or u123456-sub1 for a sub-account. “External reachability” has to be switched on there. The address of the server follows from the user name."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "storage_box_user_invalid"
+msgstr "The user name of a Storage Box looks like u123456 or u123456-sub1."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Phone"

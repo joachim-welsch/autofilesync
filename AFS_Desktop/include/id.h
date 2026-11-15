@@ -57,5 +57,6 @@ enum class id {  // [id.md#id]
     File_new_GoogleDriveConnection,
     File_new_OneDriveConnection,
     File_new_DropboxConnection,
-    File_new_S3Connection
+    File_new_S3Connection,
+    File_new_StorageBoxConnection
 };

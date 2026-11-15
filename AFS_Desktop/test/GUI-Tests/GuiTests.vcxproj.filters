@@ -488,6 +488,9 @@
     <ClCompile Include="S3AccountTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
+    <ClCompile Include="StorageBoxTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
     <ClCompile Include="OAuthAccountTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>

@@ -2446,6 +2446,22 @@ msgstr "S3: Den Speicherbereich gibt es nicht; lege ihn beim Anbieter an: "
 msgid "s3_folder_not_renamable"
 msgstr "S3: Ordner lassen sich nicht umbenennen: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_storage_box_connection"
+msgstr "Neue Hetzner-Storage-Box-Verbindung…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_storage_box_connection"
+msgstr "Hetzner Storage Box hinzufügen"
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "storage_box_hint"
+msgstr "Benutzername und Passwort stehen in der Hetzner-Konsole bei der Storage Box, zum Beispiel u123456 oder u123456-sub1 für ein Unterkonto. Dort muss „Externe Erreichbarkeit“ eingeschaltet sein. Die Adresse des Servers ergibt sich aus dem Benutzernamen."
+
+#: AFS_Desktop/src/SshAccountDialog.cpp
+msgid "storage_box_user_invalid"
+msgstr "Der Benutzername einer Storage Box sieht aus wie u123456 oder u123456-sub1."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Handy"

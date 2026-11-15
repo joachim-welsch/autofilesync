@@ -132,6 +132,7 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
     EVT_MENU(tul(id::File_new_OneDriveConnection), MainWindow::on_add_one_drive_connection)
     EVT_MENU(tul(id::File_new_DropboxConnection), MainWindow::on_add_dropbox_connection)
     EVT_MENU(tul(id::File_new_S3Connection), MainWindow::on_add_s3_connection)
+    EVT_MENU(tul(id::File_new_StorageBoxConnection), MainWindow::on_add_storage_box_connection)
     EVT_MENU(tul(id::File_open), MainWindow::on_file_open)
     EVT_MENU(tul(id::File_save), MainWindow::on_file_save)
     EVT_UPDATE_UI(tul(id::File_save), MainWindow::on_update_file_save)
@@ -492,6 +493,18 @@ void MainWindow::add_cloud_connection(CloudProvider provider, const wxString& ti
 void MainWindow::on_add_google_drive_connection(wxCommandEvent&)
 {
     add_cloud_connection(CloudProvider::GoogleDrive, txt::add_google_drive_connection(), "google_drive_not_configured");
+}
+
+void MainWindow::on_add_storage_box_connection(wxCommandEvent&)  // [SshAccountDialog.md#storage-box]
+{
+    SshAccount account;
+    SshAccountDialog dlg(&account, this, wxID_ANY, txt::add_storage_box_connection());
+    dlg.use_storage_box_preset();
+    if (dlg.ShowModal() != wxID_OK)
+        return;
+    dlg.save_data(account);
+    Config::instance().add(account);
+    autosave::after_change(this);
 }
 
 void MainWindow::on_add_s3_connection(wxCommandEvent&)
