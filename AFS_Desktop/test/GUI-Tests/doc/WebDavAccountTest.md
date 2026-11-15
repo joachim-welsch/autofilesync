@@ -24,3 +24,9 @@ address passes the https rule because it is local.
 Uses the WebDAV server of the integration tests (WebDavTestServer.md#WebDavTestServer). After
 the checked connection is saved, the directory dialog is opened on it directly to see that the
 server's folder is listed.
+
+## nextcloud
+
+The address of the server is typed, as a user would, against a server laid out like a Nextcloud
+(WebDavTestServer.md#nextcloud-layout). The connection must be saved without a question, with
+the address of the files.

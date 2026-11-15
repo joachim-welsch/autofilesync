@@ -92,9 +92,18 @@ bool WebDavAccountDialog::name_valid()  // [SshAccountDialog.md#validate_ssh_acc
     return false;
 }
 
+namespace {
+wxString with_scheme(const wxString& typed)  // [WebDavAccountDialog.md#address-completed]
+{
+    const wxString address = typed.Strip(wxString::both);
+    return address.empty() || address.Contains("://") ? address : "https://" + address;
+}
+}
+
 bool WebDavAccountDialog::address_valid()  // [WebDav.md#https-only]
 {
-    if (webdav::address_allowed(std::string(url_box_->GetValue().Strip(wxString::both).ToUTF8())))
+    url_box_->ChangeValue(with_scheme(url_box_->GetValue()));
+    if (webdav::address_allowed(std::string(url_box_->GetValue().ToUTF8())))
         return true;
     wxMessageBox(translation::translate("webdav_address_needs_https"), translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
     url_box_->SetFocus();
@@ -104,15 +113,14 @@ bool WebDavAccountDialog::address_valid()  // [WebDav.md#https-only]
 bool WebDavAccountDialog::server_answers()  // [WebDavAccountDialog.md#connection-check]
 {
     SshAccount probe;
-    probe.set_url(std::string(url_box_->GetValue().Strip(wxString::both).ToUTF8()));
+    probe.set_url(std::string(url_box_->GetValue().ToUTF8()));
     probe.set_user(std::string(user_box_->GetValue().ToUTF8()));
     probe.set_password(std::string(password_box_->GetValue().ToUTF8()));
     std::string problem;
     try {
         wxBusyCursor wait;
-        if (webdav::stat(probe, "/"))
-            return true;
-        problem = util::wstring_to_string(translation::translate("webdav_folder_not_found"));
+        url_box_->ChangeValue(wxString::FromUTF8(webdav::working_address(probe)));  // [WebDavAccountDialog.md#address-completed]
+        return true;
     } catch (const std::exception& e) {
         problem = e.what();
     }

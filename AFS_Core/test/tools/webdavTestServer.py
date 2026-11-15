@@ -7,7 +7,10 @@ depth 0 and 1, GET, PUT, MKCOL, DELETE and MOVE, with Basic authentication.
 With --keep-mtime it honours the X-OC-Mtime header the way Nextcloud does;
 without it an uploaded file gets the time of the upload, like a plain server.
 
-Usage: webdavTestServer.py ROOT [--keep-mtime] [--user NAME --password SECRET]
+With --prefix the directory is served below that path only and every other
+address answers 405, the way the front page of a Nextcloud does.
+
+Usage: webdavTestServer.py ROOT [--keep-mtime] [--user NAME --password SECRET] [--prefix PATH]
 """
 import argparse
 import base64
@@ -28,6 +31,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def local(self, url_path=None):
         path = urllib.parse.unquote(urllib.parse.urlsplit(url_path or self.path).path)
+        prefix = self.server.prefix
+        if path != prefix and not path.startswith(prefix + "/"):
+            return None
+        path = path[len(prefix):]
         parts = [part for part in path.split("/") if part not in ("", ".")]
         if ".." in parts:
             return None
@@ -61,7 +68,7 @@ class Handler(BaseHTTPRequestHandler):
         path = self.local()
         if path is None:
             self.body()
-            self.reply(403)
+            self.reply(405 if self.server.prefix else 403)
         return path
 
     def properties(self, path, href):
@@ -165,11 +172,13 @@ def main():
     parser.add_argument("--keep-mtime", action="store_true")
     parser.add_argument("--user")
     parser.add_argument("--password", default="")
+    parser.add_argument("--prefix", default="")
     args = parser.parse_args()
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     server.daemon_threads = True
     server.root = os.path.abspath(args.root)
     server.keep_mtime = args.keep_mtime
+    server.prefix = args.prefix.rstrip("/")
     server.credentials = None if args.user is None else args.user + ":" + args.password
     print(server.server_address[1], flush=True)
     server.serve_forever()

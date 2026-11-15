@@ -222,6 +222,64 @@ TEST_F(WebDavTest, UnencryptedAddressOutsideThisComputerIsRefused)  // [WebDavTe
     EXPECT_THROW(webdav::stat(account_, "/brief.txt"), webdav::Error);
 }
 
+class NextcloudLayoutTest : public ::testing::Test {  // [WebDavTests.md#NextcloudLayoutTest]
+protected:
+    fs::path root_ = fs::temp_directory_path() / ("autofilesync_nextcloudtest_" + std::to_string(TestPaths::process_id()));
+    std::unique_ptr<tu::WebDavTestServer> server_;
+    SshAccount account_;
+
+    void SetUp() override
+    {
+        fs::remove_all(root_);
+        fs::create_directories(root_ / "bilder");
+        server_ = std::make_unique<tu::WebDavTestServer>(root_, true, true);
+        if (!server_->running())
+            GTEST_SKIP() << "The WebDAV test server could not be started (needs python3).";
+        account_.set_user(tu::WebDavTestServer::USER);
+        account_.set_password(tu::WebDavTestServer::PASSWORD);
+    }
+
+    void TearDown() override
+    {
+        server_.reset();
+        fs::remove_all(root_);
+    }
+
+    std::string dav_address() const
+    {
+        return server_->url() + tu::WebDavTestServer::NEXTCLOUD_PREFIX;
+    }
+};
+
+TEST_F(NextcloudLayoutTest, ServerAddressAloneLeadsToTheFilesOfTheUser)  // [WebDavTests.md#NextcloudLayoutTest]
+{
+    account_.set_url(server_->url() + "/");
+    EXPECT_THROW(webdav::stat(account_, "/"), webdav::Error) << "The front page must not pass for a WebDAV folder.";
+    EXPECT_EQ(webdav::working_address(account_), dav_address());
+    account_.set_url(webdav::working_address(account_));
+    EXPECT_EQ(webdav::list(account_, "/").size(), 1u);
+}
+
+TEST_F(NextcloudLayoutTest, CompleteAddressIsKept)
+{
+    account_.set_url(dav_address());
+    EXPECT_EQ(webdav::working_address(account_), dav_address());
+}
+
+TEST_F(NextcloudLayoutTest, WrongPasswordIsReportedInsteadOfTryingOtherAddresses)
+{
+    account_.set_url(dav_address());
+    account_.set_password("falsch");
+    EXPECT_THROW(webdav::working_address(account_), webdav::Error);
+}
+
+TEST_F(NextcloudLayoutTest, AddressWithoutAnyWebDavIsAnError)
+{
+    account_.set_user("jemand-anderes");
+    account_.set_url(server_->url());
+    EXPECT_THROW(webdav::working_address(account_), webdav::Error);
+}
+
 TEST_F(WebDavTest, RemoteFunctionsReachTheServerThroughTheAccountName)
 {
     write(remote_ / "ordner" / "brief.txt", "hallo");

@@ -219,6 +219,42 @@ bool address_allowed(const std::string& url)
     return url.starts_with("https://") || loopback(url);
 }
 
+namespace {
+constexpr long HTTP_UNAUTHORIZED = 401;
+constexpr char NEXTCLOUD_FILES[] = "/remote.php/dav/files/";  // [WebDav.md#working_address]
+constexpr char NEXTCLOUD_LEGACY[] = "/remote.php/webdav";
+
+std::vector<std::string> address_candidates(const SshAccount& account)  // [WebDav.md#working_address]
+{
+    std::string base = account.url();
+    while (base.ends_with('/'))
+        base.pop_back();
+    if (base.find("/remote.php/") != std::string::npos)
+        return {base};
+    return {base, base + NEXTCLOUD_FILES + http::escaped(account.user()), base + NEXTCLOUD_LEGACY};
+}
+
+bool is_collection(SshAccount account, const std::string& url)
+{
+    account.set_url(url);
+    Request request(account, url + "/", "PROPFIND");
+    const auto status = propfind(request, "0");
+    if (status && *status == HTTP_UNAUTHORIZED)
+        request.fail(*status);
+    return status && *status == HTTP_MULTI_STATUS;
+}
+}
+
+std::string working_address(const SshAccount& account)
+{
+    require_encryption(account.url());
+    const std::vector<std::string> candidates = address_candidates(account);
+    for (const std::string& candidate : candidates)
+        if (is_collection(account, candidate))
+            return candidate;
+    throw Error(util::wstring_to_string(translation::translate("webdav_no_dav_at_address")) + candidates.front());
+}
+
 std::optional<Entry> stat(const SshAccount& account, const std::string& path)
 {
     return stat_at(account, path, false);

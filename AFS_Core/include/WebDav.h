@@ -42,6 +42,7 @@ struct Entry {
 };
 
 bool address_allowed(const std::string& url);  // [WebDav.md#https-only]
+std::string working_address(const SshAccount& account);  // [WebDav.md#working_address]
 std::optional<Entry> stat(const SshAccount& account, const std::string& path);  // [WebDav.md#stat]
 std::vector<Entry> list(const SshAccount& account, const std::string& path);  // [WebDav.md#list]
 void make_directory(const SshAccount& account, const std::string& path);  // [WebDav.md#make_directory]

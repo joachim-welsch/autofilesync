@@ -37,9 +37,20 @@ void visit_like_a_browser(const std::string& url)  // [WebDavTestServer.md#visit
     curl_easy_cleanup(browser);
 }
 
-WebDavTestServer::WebDavTestServer(const std::filesystem::path& root, bool keep_mtime)
-    : PythonTestServer("webdavTestServer.py", keep_mtime ? std::vector<std::string>{root.string(), "--user", USER, "--password", PASSWORD, "--keep-mtime"}
-                                                           : std::vector<std::string>{root.string(), "--user", USER, "--password", PASSWORD})
+namespace {
+std::vector<std::string> webdav_arguments(const std::filesystem::path& root, bool keep_mtime, bool nextcloud_layout)
+{
+    std::vector<std::string> arguments = {root.string(), "--user", WebDavTestServer::USER, "--password", WebDavTestServer::PASSWORD};
+    if (keep_mtime)
+        arguments.push_back("--keep-mtime");
+    if (nextcloud_layout)
+        arguments.insert(arguments.end(), {"--prefix", WebDavTestServer::NEXTCLOUD_PREFIX});
+    return arguments;
+}
+}
+
+WebDavTestServer::WebDavTestServer(const std::filesystem::path& root, bool keep_mtime, bool nextcloud_layout)
+    : PythonTestServer("webdavTestServer.py", webdav_arguments(root, keep_mtime, nextcloud_layout))
 {}
 
 GoogleDriveTestServer::GoogleDriveTestServer(int page_size)

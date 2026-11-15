@@ -36,3 +36,9 @@ begins with "http://localhost" without being this computer (WebDav.md#https-only
 
 Changes and deletions in both directions through a sync state, with the delete mode set to
 permanent for the second half so the local deletion does not depend on a recycle bin.
+
+## NextcloudLayoutTest
+
+A server laid out like a Nextcloud: the files are below `/remote.php/dav/files/anna`, and every
+other address, the front page included, answers 405. The tests enter what a user enters, the
+address of the server, and expect the address of the files.

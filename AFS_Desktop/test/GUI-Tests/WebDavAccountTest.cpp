@@ -126,4 +126,16 @@ TEST_F(WebDavAccountTest, ErreichbarerServerWirdGespeichertUndZeigtSeineOrdner) 
     dir_dialog.ShowModal();
 }
 
+TEST_F(WebDavAccountTest, ServeradresseEinerNextcloudWirdZurWebDavAdresseErgaenzt)  // [WebDavAccountTest.md#nextcloud]
+{
+    const SandboxTree server_files(GuiTestSandbox::root() / "webdav-server", {{"bilder/", ""}});
+    const tu::WebDavTestServer server(server_files.root(), true, true);
+    if (!server.running())
+        GTEST_SKIP() << "Der WebDAV-Testserver ließ sich nicht starten (braucht python3).";
+    add_connection(server.url(), wxEmptyString, wxID_NONE);
+    const auto account = saved();
+    ASSERT_TRUE(account.has_value()) << "Die Verbindung wurde nicht gespeichert.";
+    EXPECT_EQ(account->url(), server.url() + tu::WebDavTestServer::NEXTCLOUD_PREFIX);
+}
+
 }

@@ -2199,15 +2199,15 @@ msgstr "Adresse"
 
 #: AFS_Desktop/src/WebDavAccountDialog.cpp
 msgid "webdav_address_hint"
-msgstr "L'adresse WebDAV est indiquée par le fournisseur. Pour Nextcloud, c'est https://<serveur>/remote.php/dav/files/<utilisateur> ; elle figure sous Fichiers → Paramètres. Utilisez un mot de passe d'application si votre compte a une double authentification."
+msgstr "Saisissez l'adresse de votre serveur, par exemple https://cloud.example.org. Pour Nextcloud et ownCloud, AutoFileSync trouve le reste lui-même ; pour les autres fournisseurs, saisissez l'adresse WebDAV complète. Utilisez un mot de passe d'application si votre compte a une double authentification."
 
 #: AFS_Desktop/src/WebDavAccountDialog.cpp
 msgid "webdav_address_needs_https"
 msgstr "L'adresse doit commencer par https:// afin que le mot de passe soit transmis chiffré."
 
-#: AFS_Desktop/src/WebDavAccountDialog.cpp
-msgid "webdav_folder_not_found"
-msgstr "Le serveur ne connaît pas cette adresse."
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_no_dav_at_address"
+msgstr "Aucun service WebDAV ne répond à cette adresse : "
 
 #: AFS_Desktop/src/WebDavAccountDialog.cpp
 msgid "webdav_check_caption"

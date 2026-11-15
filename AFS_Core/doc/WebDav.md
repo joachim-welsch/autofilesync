@@ -93,3 +93,14 @@ change of the source is still newer than the upload, and a two-way item compares
 state it recorded after the upload. But "copy when the target is newer" would then see every
 uploaded file as newer, so a warning names the connection once per program run when a server
 did not confirm.
+
+## working_address
+
+Finds the WebDAV address behind what the user typed. People enter the address they know, the
+one of the server's web page, and a PROPFIND on that page is answered with 405. So the address
+is tried as given first and then with the two paths Nextcloud and ownCloud serve files under:
+`/remote.php/dav/files/<user>` and the older `/remote.php/webdav`, which also fits a user whose
+login name differs from the name in the first path. The first address that answers as a
+collection is returned. An address that already contains `/remote.php/` is taken as complete. A
+refused login ends the search at once and is reported as such: the other addresses would be
+refused as well, and the user has to know that the password is the problem, not the address.

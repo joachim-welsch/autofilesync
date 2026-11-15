@@ -2184,8 +2184,8 @@ msgstr ""
 msgid "webdav_address_needs_https"
 msgstr ""
 
-#: AFS_Desktop/src/WebDavAccountDialog.cpp
-msgid "webdav_folder_not_found"
+#: AFS_Core/src/WebDav.cpp
+msgid "webdav_no_dav_at_address"
 msgstr ""
 
 #: AFS_Desktop/src/WebDavAccountDialog.cpp

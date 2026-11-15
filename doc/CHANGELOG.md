@@ -32,6 +32,10 @@
   ownCloud übernehmen die Änderungszeit hochgeladener Dateien, andere Server
   nicht; dort meldet das Protokoll das einmal je Programmlauf. Neue
   Abhängigkeit: libcurl.
+- Behoben: Die Anmeldung an einer Nextcloud scheiterte mit „HTTP 405“, wenn
+  die Adresse des Servers statt der WebDAV-Adresse eingetragen war. Die
+  Verbindungsprüfung findet die WebDAV-Adresse bei Nextcloud und ownCloud jetzt
+  selbst und ergänzt ein fehlendes https://.
 - Google Drive (vorbereitet): „Datei → Neue Google-Drive-Verbindung…“ meldet
   im Browser bei Google an und macht das Laufwerk danach als Quelle oder Ziel
   wählbar, mit Zwei-Wege-Synchronisation, Generationenprinzip und Löschen im

@@ -40,7 +40,8 @@ class WebDavTestServer : public PythonTestServer {  // [WebDavTestServer.md#WebD
 public:
     static constexpr char USER[] = "anna";
     static constexpr char PASSWORD[] = "geheim";
-    WebDavTestServer(const std::filesystem::path& root, bool keep_mtime);
+    static constexpr char NEXTCLOUD_PREFIX[] = "/remote.php/dav/files/anna";  // [WebDavTestServer.md#nextcloud-layout]
+    WebDavTestServer(const std::filesystem::path& root, bool keep_mtime, bool nextcloud_layout = false);
 };
 
 class GoogleDriveTestServer : public PythonTestServer {  // [WebDavTestServer.md#GoogleDriveTestServer]

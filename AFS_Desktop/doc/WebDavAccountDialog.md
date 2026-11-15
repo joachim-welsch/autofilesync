@@ -12,10 +12,17 @@ their name space, since a synchronisation refers to both kinds as `<name>:/path`
 
 ## address-hint
 
-The address is the one thing a user cannot guess, so the line under the field says where to
-find it and shows the Nextcloud form, the most common server. It also mentions the app
-password, without which an account with two-factor sign-in is refused. The text is wrapped to a
-fixed width because a wxStaticText does not wrap by itself.
+The line under the field says what to enter: the address of the server is enough for Nextcloud
+and ownCloud (#address-completed), other providers need their complete WebDAV address. It also
+mentions the app password, without which an account with two-factor sign-in is refused. The
+text is wrapped to a fixed width because a wxStaticText does not wrap by itself.
+
+## address-completed
+
+An address typed without "https://" gets it, and the connection check replaces the address by
+the one that actually answers as WebDAV (WebDav.md#working_address). The field shows the
+result, so what is saved is what was tested. Before, a Nextcloud user who entered the address
+of the web page got "HTTP 405" and had to know about `/remote.php/dav/files/…`.
 
 ## connection-check
 

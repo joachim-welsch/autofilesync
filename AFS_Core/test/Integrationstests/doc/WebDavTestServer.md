@@ -38,3 +38,8 @@ keeps its files in memory. It accepts the client and the refresh token named her
 
 Fetches an address and follows redirects, discarding the pages. That is all the browser does
 during a sign-in when the user agrees.
+
+## nextcloud-layout
+
+With this layout the server serves its directory below NEXTCLOUD_PREFIX only and answers every
+other address with 405, as the web page of a Nextcloud answers a PROPFIND.
