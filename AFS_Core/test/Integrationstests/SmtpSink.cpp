@@ -78,9 +78,11 @@ void SmtpSink::create_certificate()  // [SmtpSink.md#StartTls]
     X509_gmtime_adj(X509_getm_notBefore(certificate), -3600);
     X509_gmtime_adj(X509_getm_notAfter(certificate), 3600);
     X509_set_pubkey(certificate, key);
-    X509_NAME* name = X509_get_subject_name(certificate);
+    X509_NAME* name = X509_NAME_new();  // OpenSSL 4 only hands out the subject name as const
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, reinterpret_cast<const unsigned char*>("SmtpSink"), -1, -1, 0);
+    X509_set_subject_name(certificate, name);
     X509_set_issuer_name(certificate, name);
+    X509_NAME_free(name);
     X509V3_CTX context;
     X509V3_set_ctx_nodb(&context);
     X509V3_set_ctx(&context, certificate, certificate, nullptr, nullptr, 0);

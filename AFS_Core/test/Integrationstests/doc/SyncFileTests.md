@@ -155,6 +155,10 @@ The stop arrives while a directory of many files is on its way. Every file that 
 target is whole, the run ends before the last file, and the next run copies exactly the files
 that were left - none twice, none forgotten.
 
+The stop is sent only once one file has arrived whole. Sending it as soon as the target is no
+longer empty would hit the first file while it is still being copied (its target is created
+before the first block is written), so that file is cancelled and the run would copy nothing.
+
 ## StopDuringAMoveKeepsTheSource
 
 "Delete after copy" is the one option under which a cancelled copy could cost data: the source

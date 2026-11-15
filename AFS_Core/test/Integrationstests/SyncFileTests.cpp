@@ -504,17 +504,25 @@ TEST_F(StopDuringCopyTest, StopDuringTheCopyRestoresTheOldTarget)  // [SyncFileT
 TEST_F(StopDuringCopyTest, StopBetweenTheFilesOfADirectoryLeavesTheRestForTheNextRun)  // [SyncFileTests.md#StopBetweenTheFilesOfADirectoryLeavesTheRestForTheNextRun]
 {
     constexpr std::size_t FILES = 400;
+    constexpr std::size_t FILE_BYTES = 200000;
     const fs::path many = base_ / "viele";
     const fs::path many_target = base_ / "viele_ziel";
     for (std::size_t i = 0; i < FILES; ++i)
-        tu::write_text_file(many / ("datei" + std::to_string(i) + ".txt"), std::string(200000, 'x'));
+        tu::write_text_file(many / ("datei" + std::to_string(i) + ".txt"), std::string(FILE_BYTES, 'x'));
     fs::create_directories(many_target);
     SyncItem si = item();
     si.sync_item_type(SyncItemType::Dir);
     si.source(many.wstring());
     si.target(many_target.wstring());
+    auto one_file_arrived = [&] {
+        std::error_code ec;
+        for (const fs::directory_entry& copied : fs::directory_iterator(many_target, ec))
+            if (copied.file_size(ec) == FILE_BYTES)
+                return true;
+        return false;
+    };
     std::thread stopper([&] {
-        while (fs::is_empty(many_target))
+        while (!one_file_arrived())  // [SyncFileTests.md#StopBetweenTheFilesOfADirectoryLeavesTheRestForTheNextRun]
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         Synchronize::stop();
     });
@@ -525,7 +533,7 @@ TEST_F(StopDuringCopyTest, StopBetweenTheFilesOfADirectoryLeavesTheRestForTheNex
     EXPECT_GT(first_run, 0u);
     ASSERT_LT(first_run, FILES) << "der Lauf war schon fertig, bevor der Stopp ankam - es muessen mehr Dateien sein";
     for (const fs::directory_entry& copied : fs::directory_iterator(many_target))
-        EXPECT_EQ(copied.file_size(), 200000u) << copied.path() << " ist nur halb angekommen";
+        EXPECT_EQ(copied.file_size(), FILE_BYTES) << copied.path() << " ist nur halb angekommen";
     Synchronize::start();
     EXPECT_EQ(first_run + tu::run_sync(si), FILES) << "der naechste Lauf muss genau die liegengebliebenen Dateien nachholen";
 }
