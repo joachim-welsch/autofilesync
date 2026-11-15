@@ -1,10 +1,11 @@
-# GoogleDriveAccountTest
+# OAuthAccountTest
 
-Module comment for GoogleDriveAccountTest.cpp.
+Module comment for OAuthAccountTest.cpp.
 
-## GoogleDriveAccountTest
+## OAuthAccountTest
 
-Drives "Datei → Neue Google-Drive-Verbindung…". TearDown waits for the thread that played the
+Drives "Datei → Neue Google-Drive-Verbindung…" and "Datei → Neue OneDrive-Verbindung…", each
+against the stand-in for its provider. TearDown waits for the thread that played the
 browser, restores the real sign-in settings and the real way to open a browser, and the base
 fixture reads the configuration back, which removes the connection a test saved.
 

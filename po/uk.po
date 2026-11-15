@@ -2263,7 +2263,7 @@ msgstr "Google Диск у цій версії ще не налаштовано:
 
 #: AFS_Core/src/GoogleAuth.cpp
 msgid "google_login_refused"
-msgstr "Google не прийняв вхід: "
+msgstr "Вхід не прийнято: "
 
 #: AFS_Core/src/GoogleAuth.cpp
 msgid "google_login_page_done"
@@ -2284,6 +2284,42 @@ msgstr "Google Диск: файл не знайдено: "
 #: AFS_Core/src/GoogleDrive.cpp
 msgid "google_drive_name_taken"
 msgstr "Google Диск: назву вже зайнято: "
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_one_drive_connection"
+msgstr "Нове з'єднання OneDrive…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_one_drive_connection"
+msgstr "Додати з'єднання OneDrive"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_one_drive_connection"
+msgstr "Редагувати з'єднання OneDrive"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_explanation"
+msgstr "Вхід відбувається в браузері, у Microsoft; AutoFileSync не дізнається вашого пароля. Він отримує доступ до файлів у вашому OneDrive, щоб ви могли вибирати там папки як джерело або призначення."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_button"
+msgstr "Увійти через Microsoft…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_status_waiting"
+msgstr "Очікування входу в браузері … Якщо браузер не відкрився, натисніть «Увійти через Microsoft…» ще раз."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "one_drive_not_configured"
+msgstr "OneDrive у цій версії ще не налаштовано: бракує ідентифікатора, яким AutoFileSync представляється Microsoft."
+
+#: AFS_Core/src/OneDrive.cpp
+msgid "one_drive_file_missing"
+msgstr "OneDrive: файл не знайдено: "
+
+#: AFS_Core/src/OneDrive.cpp
+msgid "one_drive_name_taken"
+msgstr "OneDrive: назву вже зайнято: "
 
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"

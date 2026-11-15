@@ -36,6 +36,8 @@ inline wxString add_webdav_connection() { return AFS_Core::translation::translat
 inline wxString edit_webdav_connection() { return AFS_Core::translation::translate("title_edit_webdav_connection"); }
 inline wxString add_google_drive_connection() { return AFS_Core::translation::translate("title_add_google_drive_connection"); }
 inline wxString edit_google_drive_connection() { return AFS_Core::translation::translate("title_edit_google_drive_connection"); }
+inline wxString add_one_drive_connection() { return AFS_Core::translation::translate("title_add_one_drive_connection"); }
+inline wxString edit_one_drive_connection() { return AFS_Core::translation::translate("title_edit_one_drive_connection"); }
 inline wxString restore_files() { return AFS_Core::translation::translate("title_restore_files"); }
 inline wxString phone_templates() { return AFS_Core::translation::translate("title_phone_templates"); }
 inline wxString settings() { return AFS_Core::translation::translate("title_settings"); }

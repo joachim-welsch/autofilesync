@@ -23,20 +23,30 @@
 
 namespace AFS_Core {
 
-namespace google_auth {  // [GoogleAuth.md#google_auth]
+namespace oauth {  // [GoogleAuth.md#oauth]
 
 struct Settings {  // [GoogleAuth.md#settings]
     std::string client_id;
     std::string client_secret;
-    std::string auth_url = "https://accounts.google.com/o/oauth2/v2/auth";
-    std::string token_url = "https://oauth2.googleapis.com/token";
-    std::string api_url = "https://www.googleapis.com";
+    std::string auth_url;
+    std::string token_url;
+    std::string api_url;
 };
 
-Settings& settings();  // [GoogleAuth.md#settings]
-bool configured();
+struct Provider {  // [GoogleAuth.md#Provider]
+    Settings& (*settings)();
+    const char* scope;
+    const char* consent_parameters;
+    const char* redirect_host;
+};
+
+const Provider& google();
+const Provider& microsoft();  // [GoogleAuth.md#microsoft]
+const Provider& provider_of(const SshAccount& account);
+bool configured(const Provider& provider);
 
 class Login {  // [GoogleAuth.md#Login]
+    const Provider& provider_;
     int listener_ = -1;
     int port_ = 0;
     std::string verifier_;
@@ -46,7 +56,7 @@ class Login {  // [GoogleAuth.md#Login]
     std::string redirect_uri() const;
     void answer_browser(int connection);
 public:
-    Login();
+    explicit Login(const Provider& provider);
     ~Login();
     Login(const Login&) = delete;
     Login& operator=(const Login&) = delete;
@@ -56,6 +66,27 @@ public:
 };
 
 std::string access_token(const SshAccount& account);  // [GoogleAuth.md#access_token]
+
+}
+
+namespace google_auth {  // [GoogleAuth.md#google_auth]
+
+using Settings = oauth::Settings;
+
+Settings& settings();  // [GoogleAuth.md#settings]
+bool configured();
+
+struct Login : oauth::Login {
+    Login(): oauth::Login(oauth::google()) {}
+};
+
+inline std::string access_token(const SshAccount& account) { return oauth::access_token(account); }
+
+}
+
+namespace microsoft_auth {  // [GoogleAuth.md#microsoft]
+
+oauth::Settings& settings();
 
 }
 

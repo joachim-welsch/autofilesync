@@ -2264,6 +2264,42 @@ msgstr ""
 msgid "google_drive_name_taken"
 msgstr ""
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_one_drive_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_one_drive_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_one_drive_connection"
+msgstr ""
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_explanation"
+msgstr ""
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_button"
+msgstr ""
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_status_waiting"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "one_drive_not_configured"
+msgstr ""
+
+#: AFS_Core/src/OneDrive.cpp
+msgid "one_drive_file_missing"
+msgstr ""
+
+#: AFS_Core/src/OneDrive.cpp
+msgid "one_drive_name_taken"
+msgstr ""
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr ""

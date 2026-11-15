@@ -51,6 +51,11 @@ class Request {  // [HttpClient.md#Request]
     std::string body_;
     std::string response_;
     char error_[256] = {};
+    struct UploadSource {  // [HttpClient.md#transfers]
+        std::ifstream* file = nullptr;
+        std::uintmax_t remaining = 0;
+    } upload_;
+    std::uintmax_t progress_offset_ = 0;
 public:
     Request(const std::string& url, const char* method);
     ~Request();
@@ -63,7 +68,8 @@ public:
     void header(const std::string& line);
     void body(const std::string& content);
     void download_to(std::ofstream& file);  // [HttpClient.md#transfers]
-    void upload_from(std::ifstream& file, std::uintmax_t size);
+    void upload_from(std::ifstream& file, std::uintmax_t size, std::uintmax_t already_sent = 0);
+    struct UploadReader;
     void on_header(HeaderCallback callback, void* context);
     std::optional<long> perform();  // [HttpClient.md#perform]
     std::optional<std::time_t> file_time() const;

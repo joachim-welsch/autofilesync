@@ -30,6 +30,7 @@
 #include <optional>
 #include <string>
 #include "Menu.h"
+#include "OAuthAccountDialog.h"
 #include "Toolbar.h"
 #include "Global.h"
 #include "SyncInterface.h"
@@ -124,6 +125,8 @@ private:
     void on_restore_files(wxCommandEvent& event);
     void on_add_webdav_connection(wxCommandEvent& event);
     void on_add_google_drive_connection(wxCommandEvent& event);
+    void on_add_one_drive_connection(wxCommandEvent& event);
+    void add_cloud_connection(CloudProvider provider, const wxString& title, const char* not_configured_msgid);
     void on_edit_settings(wxCommandEvent& event);
     void on_edit_logging(wxCommandEvent& event);
     void on_delete_sync(wxCommandEvent&);

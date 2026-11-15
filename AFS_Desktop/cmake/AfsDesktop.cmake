@@ -16,7 +16,7 @@ set(AFS_DESKTOP_SOURCES
     DevicesDialog.cpp
     RestoreDialog.cpp
     WebDavAccountDialog.cpp
-    GoogleDriveAccountDialog.cpp
+    OAuthAccountDialog.cpp
     FirewallHint.cpp
     PairDeviceDialog.cpp
     PhoneDirDialog.cpp

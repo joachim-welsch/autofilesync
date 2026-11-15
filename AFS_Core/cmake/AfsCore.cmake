@@ -49,6 +49,7 @@ set(AFS_CORE_SOURCES
     WebDav.cpp
     HttpClient.cpp
     GoogleDrive.cpp
+    OneDrive.cpp
     GoogleAuth.cpp
     CloudStore.cpp
     CpuTopology.cpp
@@ -100,6 +101,7 @@ if(NOT TARGET afs_core_deps)
     find_package(CURL REQUIRED)  # WebDav.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # HttpClient.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # GoogleDrive.cpp speaks HTTP through libcurl
+    find_package(CURL REQUIRED)  # OneDrive.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # GoogleAuth.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # CloudStore.cpp speaks HTTP through libcurl
 
@@ -163,6 +165,17 @@ if(NOT TARGET afs_core_deps)
             AFS_GOOGLE_CLIENT_ID="${AFS_GOOGLE_CLIENT_ID}" AFS_GOOGLE_CLIENT_SECRET="${AFS_GOOGLE_CLIENT_SECRET}")
     else()
         message(STATUS "Google Drive sign-in: no client id (google-client.cmake), built without it")
+    endif()
+
+    # The same for the application registered with Microsoft for OneDrive
+    # (GoogleAuth.md#microsoft): microsoft-client.cmake or -DAFS_MICROSOFT_CLIENT_ID=...
+    # A public client has no secret.
+    include(${AFS_CORE_DIR}/../microsoft-client.cmake OPTIONAL)
+    set(AFS_MICROSOFT_CLIENT_ID "${AFS_MICROSOFT_CLIENT_ID}" CACHE STRING "Microsoft application (client) id for OneDrive")
+    if(AFS_MICROSOFT_CLIENT_ID)
+        target_compile_definitions(afs_core_deps INTERFACE AFS_MICROSOFT_CLIENT_ID="${AFS_MICROSOFT_CLIENT_ID}")
+    else()
+        message(STATUS "OneDrive sign-in: no client id (microsoft-client.cmake), built without it")
     endif()
 endif()
 

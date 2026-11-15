@@ -35,7 +35,7 @@
 #include "DevicesDialog.h"
 #include "RestoreDialog.h"
 #include "WebDavAccountDialog.h"
-#include "GoogleDriveAccountDialog.h"
+#include "OAuthAccountDialog.h"
 #include "DeviceLink.h"
 #include "ChatDialog.h"
 #include "Config.h"
@@ -128,6 +128,7 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
     EVT_MENU(tul(id::RestoreFiles), MainWindow::on_restore_files)
     EVT_MENU(tul(id::File_new_WebDavConnection), MainWindow::on_add_webdav_connection)
     EVT_MENU(tul(id::File_new_GoogleDriveConnection), MainWindow::on_add_google_drive_connection)
+    EVT_MENU(tul(id::File_new_OneDriveConnection), MainWindow::on_add_one_drive_connection)
     EVT_MENU(tul(id::File_open), MainWindow::on_file_open)
     EVT_MENU(tul(id::File_save), MainWindow::on_file_save)
     EVT_UPDATE_UI(tul(id::File_save), MainWindow::on_update_file_save)
@@ -470,19 +471,29 @@ void MainWindow::on_add_webdav_connection(wxCommandEvent&)
     autosave::after_change(this);
 }
 
-void MainWindow::on_add_google_drive_connection(wxCommandEvent&)  // [MainWindow.md#google-drive-not-configured]
+void MainWindow::add_cloud_connection(CloudProvider provider, const wxString& title, const char* not_configured_msgid)  // [MainWindow.md#google-drive-not-configured]
 {
-    if (!google_auth::configured()) {
-        wxMessageBox(translation::translate("google_drive_not_configured"), translation::translate("info"), wxOK | wxICON_INFORMATION, this);
+    if (!OAuthAccountDialog::configured(provider)) {
+        wxMessageBox(translation::translate(not_configured_msgid), translation::translate("info"), wxOK | wxICON_INFORMATION, this);
         return;
     }
     SshAccount account;
-    GoogleDriveAccountDialog dlg(account, this, wxID_ANY, txt::add_google_drive_connection());
+    OAuthAccountDialog dlg(provider, account, this, wxID_ANY, title);
     if (dlg.ShowModal() != wxID_OK)
         return;
     dlg.save_data(account);
     Config::instance().add(account);
     autosave::after_change(this);
+}
+
+void MainWindow::on_add_google_drive_connection(wxCommandEvent&)
+{
+    add_cloud_connection(CloudProvider::GoogleDrive, txt::add_google_drive_connection(), "google_drive_not_configured");
+}
+
+void MainWindow::on_add_one_drive_connection(wxCommandEvent&)
+{
+    add_cloud_connection(CloudProvider::OneDrive, txt::add_one_drive_connection(), "one_drive_not_configured");
 }
 
 void MainWindow::update()

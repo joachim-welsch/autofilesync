@@ -264,6 +264,21 @@ Ohne Kennung wird das Programm ohne Google-Drive-Anmeldung gebaut; der Menüeint
 meldet das dann. Die Visual-Studio-Projekte bauen ohne Kennung, solange die Makros
 `AFS_GOOGLE_CLIENT_ID` und `AFS_GOOGLE_CLIENT_SECRET` dort nicht definiert sind.
 
+## OneDrive
+
+Für OneDrive gilt dasselbe mit der Anwendungs-ID einer bei Microsoft Entra
+registrierten App (Plattform „Mobilgerät- und Desktopanwendungen“, Umleitungs-URI
+`http://localhost`, Kontotypen „beliebiges Organisationsverzeichnis und
+persönliche Microsoft-Konten“, delegierte Berechtigungen `Files.ReadWrite` und
+`offline_access`). Sie steht in `microsoft-client.cmake` (von git ignoriert):
+
+```cmake
+set(AFS_MICROSOFT_CLIENT_ID "00000000-0000-0000-0000-000000000000")
+```
+
+oder kommt von der Kommandozeile (`-DAFS_MICROSOFT_CLIENT_ID=…`). Ein Secret gibt
+es bei dieser Art von App nicht.
+
 ## Externe Abhängigkeiten
 
 Die früher separat erwartete Bibliothek **mylib** ist vollständig in `AFS_Core`

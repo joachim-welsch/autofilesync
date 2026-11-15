@@ -36,6 +36,8 @@ inline wxString place_of(const AFS_Core::SshAccount& account)  // [utilwx.md#pla
 {
     if (account.google_drive())
         return "Google Drive";
+    if (account.one_drive())
+        return "OneDrive";
     return wxString::FromUTF8(account.webdav() ? account.url() : account.host());
 }
 

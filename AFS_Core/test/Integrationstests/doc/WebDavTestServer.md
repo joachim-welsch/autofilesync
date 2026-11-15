@@ -43,3 +43,9 @@ during a sign-in when the user agrees.
 
 With this layout the server serves its directory below NEXTCLOUD_PREFIX only and answers every
 other address with 405, as the web page of a Nextcloud answers a PROPFIND.
+
+## OneDriveTestServer
+
+Starts test/tools/oneDriveTestServer.py, a stand-in for Microsoft's sign-in and the OneDrive
+part of Microsoft Graph that keeps its files in memory. It accepts the client and the refresh
+token named here and issues a new refresh token with every access token.

@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "GoogleAuth.h"
+#include "Config.h"
 #include "HttpClient.h"
 #include "Translation.h"
 #include "Util.h"
@@ -45,18 +46,27 @@
     #define AFS_GOOGLE_CLIENT_ID ""  // [GoogleAuth.md#client]
     #define AFS_GOOGLE_CLIENT_SECRET ""
 #endif
+#ifndef AFS_MICROSOFT_CLIENT_ID
+    #define AFS_MICROSOFT_CLIENT_ID ""  // [GoogleAuth.md#microsoft]
+#endif
 
 namespace AFS_Core {
 
-namespace google_auth {
+namespace {
+constexpr char CLIENT_ID[] = AFS_GOOGLE_CLIENT_ID;  // [GoogleAuth.md#client]
+constexpr char CLIENT_SECRET[] = AFS_GOOGLE_CLIENT_SECRET;  // [GoogleAuth.md#client]
+constexpr char MICROSOFT_CLIENT_ID[] = AFS_MICROSOFT_CLIENT_ID;  // [GoogleAuth.md#microsoft]
+}
+
+namespace oauth {
 
 namespace pt = boost::property_tree;
 using std::chrono::steady_clock;
 
 namespace {
-constexpr char CLIENT_ID[] = AFS_GOOGLE_CLIENT_ID;  // [GoogleAuth.md#client]
-constexpr char CLIENT_SECRET[] = AFS_GOOGLE_CLIENT_SECRET;  // [GoogleAuth.md#client]
-constexpr char SCOPE[] = "https://www.googleapis.com/auth/drive.file";  // [GoogleAuth.md#scope]
+constexpr char GOOGLE_SCOPE[] = "https://www.googleapis.com/auth/drive.file";  // [GoogleAuth.md#scope]
+constexpr char MICROSOFT_SCOPE[] = "Files.ReadWrite offline_access";
+constexpr std::chrono::hours TOKEN_SAVE_INTERVAL{24};  // [GoogleAuth.md#renewed-refresh-token]
 constexpr std::size_t RANDOM_BYTES = 32;
 constexpr std::size_t SHA256_BYTES = 32;
 constexpr std::size_t REQUEST_BYTES = 4096;
@@ -68,6 +78,8 @@ constexpr char BROWSER_PAGE[] =
 struct AccessToken {
     std::string token;
     steady_clock::time_point expires;
+    steady_clock::time_point refresh_saved;
+    bool refresh_ever_saved = false;
 };
 
 std::string base64url(const unsigned char* data, std::size_t length)  // [GoogleAuth.md#pkce]
@@ -137,13 +149,14 @@ std::string query_of(const std::string& request)  // "GET /?code=...&state=... H
     return begin == std::string::npos || end == std::string::npos ? "" : request.substr(begin + 1, end - begin - 1);
 }
 
-pt::ptree token_answer(const std::string& form)  // [GoogleAuth.md#token-endpoint]
+pt::ptree token_answer(const Settings& settings, const std::string& form)  // [GoogleAuth.md#token-endpoint]
 {
-    if (!webdav::address_allowed(settings().token_url))
-        throw http::Error(util::wstring_to_string(translation::translate("webdav_url_not_https")) + settings().token_url);
-    http::Request request(settings().token_url, "POST");
+    if (!webdav::address_allowed(settings.token_url))
+        throw http::Error(util::wstring_to_string(translation::translate("webdav_url_not_https")) + settings.token_url);
+    http::Request request(settings.token_url, "POST");
     request.header("Content-Type: application/x-www-form-urlencoded");
-    request.body(form + "&client_id=" + http::escaped(settings().client_id) + "&client_secret=" + http::escaped(settings().client_secret));
+    const std::string secret = settings.client_secret.empty() ? "" : "&client_secret=" + http::escaped(settings.client_secret);  // [GoogleAuth.md#microsoft]
+    request.body(form + "&client_id=" + http::escaped(settings.client_id) + secret);
     const auto status = request.perform();
     pt::ptree answer;
     std::istringstream json(request.response());
@@ -162,19 +175,30 @@ std::mutex token_mutex;
 std::map<std::string, AccessToken> tokens;
 }
 
-Settings& settings()
+const Provider& google()
 {
-    static Settings current{CLIENT_ID, CLIENT_SECRET};
-    return current;
+    static const Provider provider{google_auth::settings, GOOGLE_SCOPE, "&access_type=offline&prompt=consent", "127.0.0.1"};
+    return provider;
 }
 
-bool configured()
+const Provider& microsoft()
 {
-    return !settings().client_id.empty();
+    static const Provider provider{microsoft_auth::settings, MICROSOFT_SCOPE, "", "localhost"};
+    return provider;
 }
 
-Login::Login()
-    : verifier_(random_text() + random_text()), state_(random_text())
+const Provider& provider_of(const SshAccount& account)
+{
+    return account.one_drive() ? microsoft() : google();
+}
+
+bool configured(const Provider& provider)
+{
+    return !provider.settings().client_id.empty();
+}
+
+Login::Login(const Provider& provider)
+    : provider_(provider), verifier_(random_text() + random_text()), state_(random_text())
 {
     start_sockets();
     listener_ = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0));
@@ -197,14 +221,15 @@ Login::~Login()
 
 std::string Login::redirect_uri() const  // [GoogleAuth.md#loopback]
 {
-    return "http://127.0.0.1:" + std::to_string(port_);
+    return std::string("http://") + provider_.redirect_host + ":" + std::to_string(port_);
 }
 
 std::string Login::browser_url() const
 {
-    return settings().auth_url + "?response_type=code&access_type=offline&prompt=consent&code_challenge_method=S256"
-        + "&client_id=" + http::escaped(settings().client_id) + "&redirect_uri=" + http::escaped(redirect_uri())
-        + "&scope=" + http::escaped(SCOPE) + "&state=" + state_ + "&code_challenge=" + challenge_of(verifier_);
+    const Settings& settings = provider_.settings();
+    return settings.auth_url + "?response_type=code&code_challenge_method=S256" + provider_.consent_parameters
+        + "&client_id=" + http::escaped(settings.client_id) + "&redirect_uri=" + http::escaped(redirect_uri())
+        + "&scope=" + http::escaped(provider_.scope) + "&state=" + state_ + "&code_challenge=" + challenge_of(verifier_);
 }
 
 void Login::answer_browser(int connection)  // [GoogleAuth.md#finished]
@@ -245,7 +270,7 @@ std::string Login::refresh_token() const
 {
     if (code_.empty())
         throw http::Error(util::wstring_to_string(translation::translate("google_login_refused")) + error_);
-    const pt::ptree answer = token_answer("grant_type=authorization_code&code=" + http::escaped(code_)
+    const pt::ptree answer = token_answer(provider_.settings(), "grant_type=authorization_code&code=" + http::escaped(code_)
         + "&code_verifier=" + verifier_ + "&redirect_uri=" + http::escaped(redirect_uri()));
     const std::string token = answer.get<std::string>("refresh_token", "");
     if (token.empty())
@@ -253,16 +278,64 @@ std::string Login::refresh_token() const
     return token;
 }
 
+namespace {
+void keep_renewed_refresh_token(const SshAccount& account, const std::string& renewed, AccessToken& cached)  // [GoogleAuth.md#renewed-refresh-token]
+{
+    const bool due = !cached.refresh_ever_saved || steady_clock::now() - cached.refresh_saved > TOKEN_SAVE_INTERVAL;
+    if (renewed.empty() || renewed == account.password() || !due)
+        return;
+    Config& config = Config::instance();
+    for (std::size_t index = 0; const auto stored = config.ssh_account_at(index); ++index) {
+        if (stored->name() != account.name())
+            continue;
+        SshAccount updated = *stored;
+        updated.set_password(renewed);
+        config.update_ssh_account(index, updated);
+        if (!config.pathname().empty())
+            config.write(config.pathname());
+    }
+    cached.refresh_saved = steady_clock::now();
+    cached.refresh_ever_saved = true;
+}
+}
+
 std::string access_token(const SshAccount& account)
 {
     std::lock_guard<std::mutex> lock(token_mutex);
-    AccessToken& cached = tokens[account.name() + "\n" + account.password()];
+    AccessToken& cached = tokens[account.name()];
     if (!cached.token.empty() && steady_clock::now() + TOKEN_MARGIN < cached.expires)
         return cached.token;
-    const pt::ptree answer = token_answer("grant_type=refresh_token&refresh_token=" + http::escaped(account.password()));
+    const pt::ptree answer = token_answer(provider_of(account).settings(), "grant_type=refresh_token&refresh_token=" + http::escaped(account.password()));
     cached.token = answer.get<std::string>("access_token");
     cached.expires = steady_clock::now() + std::chrono::seconds(answer.get<long>("expires_in", 0));
+    keep_renewed_refresh_token(account, answer.get<std::string>("refresh_token", ""), cached);
     return cached.token;
+}
+
+}
+
+namespace google_auth {
+
+Settings& settings()
+{
+    static Settings current{CLIENT_ID, CLIENT_SECRET, "https://accounts.google.com/o/oauth2/v2/auth", "https://oauth2.googleapis.com/token", "https://www.googleapis.com"};
+    return current;
+}
+
+bool configured()
+{
+    return oauth::configured(oauth::google());
+}
+
+}
+
+namespace microsoft_auth {
+
+oauth::Settings& settings()
+{
+    static oauth::Settings current{MICROSOFT_CLIENT_ID, "", "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+        "https://login.microsoftonline.com/common/oauth2/v2.0/token", "https://graph.microsoft.com/v1.0"};
+    return current;
 }
 
 }

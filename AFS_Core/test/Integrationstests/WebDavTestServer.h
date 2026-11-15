@@ -52,6 +52,13 @@ public:
     explicit GoogleDriveTestServer(int page_size = 0);
 };
 
+class OneDriveTestServer : public PythonTestServer {  // [WebDavTestServer.md#OneDriveTestServer]
+public:
+    static constexpr char CLIENT_ID[] = "test-client";
+    static constexpr char REFRESH_TOKEN[] = "refresh-ok";
+    explicit OneDriveTestServer(int page_size = 0);
+};
+
 void visit_like_a_browser(const std::string& url);  // [WebDavTestServer.md#visit_like_a_browser]
 
 } // namespace tu

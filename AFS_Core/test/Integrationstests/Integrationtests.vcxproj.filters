@@ -162,6 +162,9 @@
     <ClInclude Include="$(LibDir)\include\GoogleDrive.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\OneDrive.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\GoogleAuth.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -351,6 +354,9 @@
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="GoogleDriveTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="OneDriveTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="WebDavTestServer.cpp">
@@ -555,6 +561,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\GoogleDrive.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\OneDrive.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\GoogleAuth.cpp">

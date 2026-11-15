@@ -19,6 +19,7 @@
 #include "pch.h"
 #include "CloudStore.h"
 #include "GoogleDrive.h"
+#include "OneDrive.h"
 
 namespace AFS_Core {
 
@@ -26,41 +27,55 @@ namespace cloud_store {
 
 bool handles(const SshAccount& account)
 {
-    return account.webdav() || account.google_drive();
+    return account.webdav() || account.google_drive() || account.one_drive();
 }
 
 std::optional<Entry> stat(const SshAccount& account, const std::string& path)
 {
+    if (account.one_drive())
+        return one_drive::stat(account, path);
     return account.google_drive() ? google_drive::stat(account, path) : webdav::stat(account, path);
 }
 
 std::vector<Entry> list(const SshAccount& account, const std::string& path)
 {
+    if (account.one_drive())
+        return one_drive::list(account, path);
     return account.google_drive() ? google_drive::list(account, path) : webdav::list(account, path);
 }
 
 void make_directory(const SshAccount& account, const std::string& path)
 {
+    if (account.one_drive())
+        return one_drive::make_directory(account, path);
     account.google_drive() ? google_drive::make_directory(account, path) : webdav::make_directory(account, path);
 }
 
 void remove(const SshAccount& account, const std::string& path)
 {
+    if (account.one_drive())
+        return one_drive::remove(account, path);
     account.google_drive() ? google_drive::remove(account, path) : webdav::remove(account, path);
 }
 
 void move(const SshAccount& account, const std::string& from, const std::string& to)
 {
+    if (account.one_drive())
+        return one_drive::move(account, from, to);
     account.google_drive() ? google_drive::move(account, from, to) : webdav::move(account, from, to);
 }
 
 CopyResult download(const SshAccount& account, const std::string& path, const std::filesystem::path& local_file)
 {
+    if (account.one_drive())
+        return one_drive::download(account, path, local_file);
     return account.google_drive() ? google_drive::download(account, path, local_file) : webdav::download(account, path, local_file);
 }
 
 CopyResult upload(const std::filesystem::path& local_file, const SshAccount& account, const std::string& path)
 {
+    if (account.one_drive())
+        return one_drive::upload(local_file, account, path);
     return account.google_drive() ? google_drive::upload(local_file, account, path) : webdav::upload(local_file, account, path);
 }
 

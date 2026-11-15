@@ -23,7 +23,7 @@
 #include "WebDavTestServer.h"
 #include "Config.h"
 #include "GoogleAuth.h"
-#include "GoogleDriveAccountDialog.h"
+#include "OAuthAccountDialog.h"
 #include "HttpClient.h"
 #include "SshDirDialog.h"
 #include "id.h"
@@ -45,10 +45,11 @@ namespace {
 const wxString ACCOUNT_NAME = "guitest-google";
 constexpr int LOGIN_TIMEOUT_MILLISECONDS = 10000;
 
-class GoogleDriveAccountTest: public GuiTest {  // [GoogleDriveAccountTest.md#GoogleDriveAccountTest]
+class OAuthAccountTest: public GuiTest {  // [OAuthAccountTest.md#OAuthAccountTest]
 protected:
     google_auth::Settings real_settings_ = google_auth::settings();
-    std::unique_ptr<tu::GoogleDriveTestServer> server_;
+    oauth::Settings real_microsoft_settings_ = microsoft_auth::settings();
+    std::unique_ptr<tu::PythonTestServer> server_;
     std::thread browser_;
 
     void use_test_server()
@@ -56,7 +57,19 @@ protected:
         server_ = std::make_unique<tu::GoogleDriveTestServer>();
         google_auth::settings() = {tu::GoogleDriveTestServer::CLIENT_ID, tu::GoogleDriveTestServer::CLIENT_SECRET,
             server_->url() + "/auth", server_->url() + "/token", server_->url()};
-        GoogleDriveAccountDialog::open_browser_with([this](const wxString& url) {  // [GoogleDriveAccountTest.md#browser]
+        play_the_browser();
+    }
+
+    void use_one_drive_test_server()
+    {
+        server_ = std::make_unique<tu::OneDriveTestServer>();
+        microsoft_auth::settings() = {tu::OneDriveTestServer::CLIENT_ID, "", server_->url() + "/authorize", server_->url() + "/token", server_->url()};
+        play_the_browser();
+    }
+
+    void play_the_browser()
+    {
+        OAuthAccountDialog::open_browser_with([this](const wxString& url) {  // [OAuthAccountTest.md#browser]
             browser_ = std::thread(tu::visit_like_a_browser, std::string(url.ToUTF8()));
         });
     }
@@ -65,8 +78,9 @@ protected:
     {
         if (browser_.joinable())
             browser_.join();
-        GoogleDriveAccountDialog::open_browser_with([](const wxString& url) { wxLaunchDefaultBrowser(url); });
+        OAuthAccountDialog::open_browser_with([](const wxString& url) { wxLaunchDefaultBrowser(url); });
         google_auth::settings() = real_settings_;
+        microsoft_auth::settings() = real_microsoft_settings_;
         server_.reset();
         GuiTest::TearDown();
     }
@@ -79,7 +93,7 @@ protected:
 
 }
 
-TEST_F(GoogleDriveAccountTest, OhneKennungSagtDasProgrammDassGoogleDriveFehlt)
+TEST_F(OAuthAccountTest, OhneKennungSagtDasProgrammDassGoogleDriveFehlt)
 {
     google_auth::settings().client_id.clear();
     ModalDialogWatcher::instance().answer(translation::translate("info"), wxID_OK);
@@ -90,7 +104,7 @@ TEST_F(GoogleDriveAccountTest, OhneKennungSagtDasProgrammDassGoogleDriveFehlt)
     EXPECT_EQ(messages.front(), wxString(translation::translate("google_drive_not_configured")));
 }
 
-TEST_F(GoogleDriveAccountTest, AnmeldungImBrowserSpeichertDieVerbindungUndZeigtIhreOrdner)  // [GoogleDriveAccountTest.md#login]
+TEST_F(OAuthAccountTest, AnmeldungImBrowserSpeichertDieVerbindungUndZeigtIhreOrdner)  // [OAuthAccountTest.md#login]
 {
     use_test_server();
     if (!server_->running())
@@ -99,8 +113,8 @@ TEST_F(GoogleDriveAccountTest, AnmeldungImBrowserSpeichertDieVerbindungUndZeigtI
         ASSERT_TRUE(wait_until([&dialog] { return dialog.IsShownOnScreen(); }));
         pump();
         EXPECT_FALSE(find(dialog, wxID_OK)->IsEnabled()) << "OK ist ohne Anmeldung bedienbar.";
-        ASSERT_TRUE(replace_text(find(dialog, ID_GOOGLE_NAME_BOX), ACCOUNT_NAME));
-        ASSERT_TRUE(click_on(find(dialog, ID_GOOGLE_LOGIN_BUTTON)));
+        ASSERT_TRUE(replace_text(find(dialog, ID_OAUTH_NAME_BOX), ACCOUNT_NAME));
+        ASSERT_TRUE(click_on(find(dialog, ID_OAUTH_LOGIN_BUTTON)));
         EXPECT_TRUE(click_when_enabled(find(dialog, wxID_OK), LOGIN_TIMEOUT_MILLISECONDS)) << "Die Anmeldung kam nicht an.";
         pump();
         if (dialog.IsModal())
@@ -125,6 +139,52 @@ TEST_F(GoogleDriveAccountTest, AnmeldungImBrowserSpeichertDieVerbindungUndZeigtI
     });
     SshDirDialog dir_dialog(&main_window(), txt::select_ssh_dir(), *account, "/");
     dir_dialog.ShowModal();
+}
+
+TEST_F(OAuthAccountTest, AnmeldungBeiMicrosoftSpeichertEineOneDriveVerbindung)  // [OAuthAccountTest.md#login]
+{
+    use_one_drive_test_server();
+    if (!server_->running())
+        GTEST_SKIP() << "Der OneDrive-Testserver ließ sich nicht starten (braucht python3).";
+    ModalDialogWatcher::instance().expect(txt::add_one_drive_connection(), [](wxDialog& dialog) {
+        ASSERT_TRUE(wait_until([&dialog] { return dialog.IsShownOnScreen(); }));
+        ASSERT_TRUE(replace_text(find(dialog, ID_OAUTH_NAME_BOX), ACCOUNT_NAME));
+        ASSERT_TRUE(click_on(find(dialog, ID_OAUTH_LOGIN_BUTTON)));
+        EXPECT_TRUE(click_when_enabled(find(dialog, wxID_OK), LOGIN_TIMEOUT_MILLISECONDS)) << "Die Anmeldung kam nicht an.";
+        pump();
+        if (dialog.IsModal())
+            dialog.EndModal(wxID_CANCEL);
+    });
+    activate_menu_item(main_window(), tul(id::File_new_OneDriveConnection));
+    pump();
+    const auto account = saved();
+    ASSERT_TRUE(account.has_value()) << "Die Verbindung wurde nicht gespeichert.";
+    EXPECT_TRUE(account->one_drive());
+    EXPECT_FALSE(account->google_drive());
+    EXPECT_FALSE(account->password().empty());
+    EXPECT_EQ(account->url(), server_->url());
+
+    http::Request put(server_->url() + "/__test/files/fotos/urlaub.jpg", "PUT");
+    put.body("jpeg");
+    put.expect_success(put.perform());
+    ModalDialogWatcher::instance().expect(txt::select_ssh_dir(), [](wxDialog& dialog) {
+        auto* list = static_cast<wxListCtrl*>(find(dialog, ID_SSH_DIR_LIST));
+        EXPECT_TRUE(wait_until([list] { return list->FindItem(-1, "[fotos]") != wxNOT_FOUND; })) << "Der Ordner im OneDrive erscheint nicht.";
+        dialog.EndModal(wxID_CANCEL);
+    });
+    SshDirDialog dir_dialog(&main_window(), txt::select_ssh_dir(), *account, "/");
+    dir_dialog.ShowModal();
+}
+
+TEST_F(OAuthAccountTest, OhneKennungSagtDasProgrammDassOneDriveFehlt)
+{
+    microsoft_auth::settings().client_id.clear();
+    ModalDialogWatcher::instance().answer(translation::translate("info"), wxID_OK);
+    activate_menu_item(main_window(), tul(id::File_new_OneDriveConnection));
+    pump();
+    const auto& messages = ModalDialogWatcher::instance().answered_messages();
+    ASSERT_EQ(messages.size(), 1u);
+    EXPECT_EQ(messages.front(), wxString(translation::translate("one_drive_not_configured")));
 }
 
 }

@@ -40,3 +40,8 @@ Marks a Google Drive account. Its `url_` is the address of Google's API (another
 the tests), `password_` holds the refresh token the login produced, and it is stored encrypted
 like every password. `user_`, `host_` and `port_` are unused. webdav() is false for such an
 account although it has an address.
+
+## one_drive_
+
+Marks a OneDrive account. Like a Google Drive account (#google_drive_) it carries the address
+of the provider's API in `url_` and the refresh token in `password_`.

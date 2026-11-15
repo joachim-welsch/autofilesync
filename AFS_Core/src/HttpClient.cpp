@@ -20,6 +20,7 @@
 #include "HttpClient.h"
 #include "SshUnreachable.h"
 #include "Synchronize.h"
+#include <algorithm>
 #include <mutex>
 #include <curl/curl.h>
 
@@ -70,17 +71,10 @@ std::size_t write_file(char* data, std::size_t size, std::size_t count, void* fi
     return out->write(data, static_cast<std::streamsize>(size * count)) ? size * count : 0;
 }
 
-std::size_t read_file(char* buffer, std::size_t size, std::size_t count, void* file)
-{
-    auto* in = static_cast<std::ifstream*>(file);
-    in->read(buffer, static_cast<std::streamsize>(size * count));
-    return in->bad() ? CURL_READFUNC_ABORT : static_cast<std::size_t>(in->gcount());
-}
-
-int transfer_progress(void*, curl_off_t, curl_off_t downloaded, curl_off_t, curl_off_t uploaded)  // [HttpClient.md#stop]
+int transfer_progress(void* offset, curl_off_t, curl_off_t downloaded, curl_off_t, curl_off_t uploaded)  // [HttpClient.md#stop]
 {
     if (downloaded + uploaded > 0)
-        Synchronize::report_copied_bytes(static_cast<uint64_t>(downloaded + uploaded));
+        Synchronize::report_copied_bytes(*static_cast<std::uintmax_t*>(offset) + static_cast<uint64_t>(downloaded + uploaded));
     return Synchronize::stopping() ? 1 : 0;
 }
 
@@ -95,12 +89,26 @@ CURL* handle_of(void* curl)
     return static_cast<CURL*>(curl);
 }
 
-void watch_transfer(CURL* curl)
+void watch_transfer(CURL* curl, std::uintmax_t* offset)
 {
+    curl_easy_setopt(curl, CURLOPT_XFERINFODATA, offset);
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, transfer_progress);
 }
 }
+
+struct Request::UploadReader {  // [HttpClient.md#transfers]
+    static std::size_t read(char* buffer, std::size_t size, std::size_t count, void* source)
+    {
+        auto* upload = static_cast<UploadSource*>(source);
+        const std::uintmax_t wanted = std::min<std::uintmax_t>(size * count, upload->remaining);
+        upload->file->read(buffer, static_cast<std::streamsize>(wanted));
+        if (upload->file->bad())
+            return CURL_READFUNC_ABORT;
+        upload->remaining -= static_cast<std::uintmax_t>(upload->file->gcount());
+        return static_cast<std::size_t>(upload->file->gcount());
+    }
+};
 
 std::string escaped(const std::string& text)
 {
@@ -177,18 +185,20 @@ void Request::download_to(std::ofstream& file)
     curl_easy_setopt(curl, CURLOPT_FILETIME, 1L);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_file);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
-    watch_transfer(curl);
+    watch_transfer(curl, &progress_offset_);
 }
 
-void Request::upload_from(std::ifstream& file, std::uintmax_t size)
+void Request::upload_from(std::ifstream& file, std::uintmax_t size, std::uintmax_t already_sent)
 {
     CURL* curl = handle_of(curl_);
     header("Expect:");  // [HttpClient.md#transfers]
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-    curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_file);
-    curl_easy_setopt(curl, CURLOPT_READDATA, &file);
+    upload_ = {&file, size};
+    progress_offset_ = already_sent;
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, UploadReader::read);
+    curl_easy_setopt(curl, CURLOPT_READDATA, &upload_);
     curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(size));
-    watch_transfer(curl);
+    watch_transfer(curl, &progress_offset_);
 }
 
 void Request::on_header(HeaderCallback callback, void* context)

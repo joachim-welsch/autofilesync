@@ -32,6 +32,15 @@
   ownCloud übernehmen die Änderungszeit hochgeladener Dateien, andere Server
   nicht; dort meldet das Protokoll das einmal je Programmlauf. Neue
   Abhängigkeit: libcurl.
+- OneDrive (vorbereitet): „Datei → Neue OneDrive-Verbindung…“ meldet im Browser
+  bei Microsoft an, mit einem privaten Konto oder einem Geschäfts- oder
+  Schulkonto, und macht das OneDrive als Quelle oder Ziel wählbar, mit
+  Zwei-Wege-Synchronisation, Generationenprinzip und Löschen im Ziel.
+  AutoFileSync sieht dort alle Dateien (Zugriff `Files.ReadWrite`); Gelöschtes
+  landet im Papierkorb von OneDrive. Die Kennung der bei Microsoft
+  registrierten App wird wie bei Google beim Bauen übergeben
+  (`AFS_MICROSOFT_CLIENT_ID`, etwa aus `microsoft-client.cmake`); ohne sie
+  meldet der Menüeintrag, dass OneDrive noch nicht eingerichtet ist.
 - Behoben: Die Anmeldung an einer Nextcloud scheiterte mit „HTTP 405“, wenn
   die Adresse des Servers statt der WebDAV-Adresse eingetragen war. Die
   Verbindungsprüfung findet die WebDAV-Adresse bei Nextcloud und ownCloud jetzt

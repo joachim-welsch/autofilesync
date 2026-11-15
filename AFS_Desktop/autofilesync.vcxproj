@@ -125,6 +125,7 @@
     <ClInclude Include="..\AFS_Core\include\WebDav.h" />
     <ClInclude Include="..\AFS_Core\include\HttpClient.h" />
     <ClInclude Include="..\AFS_Core\include\GoogleDrive.h" />
+    <ClInclude Include="..\AFS_Core\include\OneDrive.h" />
     <ClInclude Include="..\AFS_Core\include\GoogleAuth.h" />
     <ClInclude Include="..\AFS_Core\include\CloudStore.h" />
     <ClInclude Include="..\AFS_Core\include\CpuTopology.h" />
@@ -192,7 +193,7 @@
     <ClInclude Include="include\DevicesDialog.h" />
     <ClInclude Include="include\RestoreDialog.h" />
     <ClInclude Include="include\WebDavAccountDialog.h" />
-    <ClInclude Include="include\GoogleDriveAccountDialog.h" />
+    <ClInclude Include="include\OAuthAccountDialog.h" />
     <ClInclude Include="include\FirewallHint.h" />
     <ClInclude Include="include\PairDeviceDialog.h" />
     <ClInclude Include="include\PhoneDirDialog.h" />
@@ -241,6 +242,7 @@
     <ClCompile Include="..\AFS_Core\src\WebDav.cpp" />
     <ClCompile Include="..\AFS_Core\src\HttpClient.cpp" />
     <ClCompile Include="..\AFS_Core\src\GoogleDrive.cpp" />
+    <ClCompile Include="..\AFS_Core\src\OneDrive.cpp" />
     <ClCompile Include="..\AFS_Core\src\GoogleAuth.cpp" />
     <ClCompile Include="..\AFS_Core\src\CloudStore.cpp" />
     <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
@@ -282,7 +284,7 @@
     <ClCompile Include="src\DevicesDialog.cpp" />
     <ClCompile Include="src\RestoreDialog.cpp" />
     <ClCompile Include="src\WebDavAccountDialog.cpp" />
-    <ClCompile Include="src\GoogleDriveAccountDialog.cpp" />
+    <ClCompile Include="src\OAuthAccountDialog.cpp" />
     <ClCompile Include="src\FirewallHint.cpp" />
     <ClCompile Include="src\PairDeviceDialog.cpp" />
     <ClCompile Include="src\PhoneDirDialog.cpp" />

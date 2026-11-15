@@ -90,6 +90,9 @@
     <ClInclude Include="..\AFS_Core\include\GoogleDrive.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\AFS_Core\include\OneDrive.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\AFS_Core\include\GoogleAuth.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -291,7 +294,7 @@
     <ClInclude Include="include\WebDavAccountDialog.h">
       <Filter>AFS_Desktop</Filter>
     </ClInclude>
-    <ClInclude Include="include\GoogleDriveAccountDialog.h">
+    <ClInclude Include="include\OAuthAccountDialog.h">
       <Filter>AFS_Desktop</Filter>
     </ClInclude>
     <ClInclude Include="include\FirewallHint.h">
@@ -417,6 +420,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\GoogleDrive.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AFS_Core\src\OneDrive.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\GoogleAuth.cpp">
@@ -602,7 +608,7 @@
     <ClCompile Include="src\WebDavAccountDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
-    <ClCompile Include="src\GoogleDriveAccountDialog.cpp">
+    <ClCompile Include="src\OAuthAccountDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="src\FirewallHint.cpp">

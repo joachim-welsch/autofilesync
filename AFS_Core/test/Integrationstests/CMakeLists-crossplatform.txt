@@ -97,6 +97,7 @@ set(TEST_SOURCES
     RestoreTests.cpp
     WebDavTests.cpp
     GoogleDriveTests.cpp
+    OneDriveTests.cpp
     WebDavTestServer.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp
@@ -116,6 +117,7 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/WebDav.cpp
     ${LIB_DIR}/src/HttpClient.cpp
     ${LIB_DIR}/src/GoogleDrive.cpp
+    ${LIB_DIR}/src/OneDrive.cpp
     ${LIB_DIR}/src/GoogleAuth.cpp
     ${LIB_DIR}/src/CloudStore.cpp
     ${LIB_DIR}/src/CpuTopology.cpp

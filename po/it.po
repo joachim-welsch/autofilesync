@@ -2263,7 +2263,7 @@ msgstr "Google Drive non è ancora configurato in questa versione: manca l'ident
 
 #: AFS_Core/src/GoogleAuth.cpp
 msgid "google_login_refused"
-msgstr "Google non ha accettato l'accesso: "
+msgstr "L'accesso non è stato accettato: "
 
 #: AFS_Core/src/GoogleAuth.cpp
 msgid "google_login_page_done"
@@ -2284,6 +2284,42 @@ msgstr "Google Drive: file non trovato: "
 #: AFS_Core/src/GoogleDrive.cpp
 msgid "google_drive_name_taken"
 msgstr "Google Drive: il nome è già in uso: "
+
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_one_drive_connection"
+msgstr "Nuova connessione OneDrive…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_one_drive_connection"
+msgstr "Aggiungi connessione OneDrive"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_one_drive_connection"
+msgstr "Modifica connessione OneDrive"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_explanation"
+msgstr "L'accesso avviene nel browser, presso Microsoft; AutoFileSync non viene a conoscere la tua password. Ottiene accesso ai file del tuo OneDrive, così puoi scegliere lì le cartelle come origine o destinazione."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_button"
+msgstr "Accedi con Microsoft…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "microsoft_login_status_waiting"
+msgstr "In attesa dell'accesso nel browser … Se non si è aperto alcun browser, fai di nuovo clic su «Accedi con Microsoft…»."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "one_drive_not_configured"
+msgstr "OneDrive non è ancora configurato in questa versione: manca l'identificativo con cui AutoFileSync si presenta a Microsoft."
+
+#: AFS_Core/src/OneDrive.cpp
+msgid "one_drive_file_missing"
+msgstr "OneDrive: file non trovato: "
+
+#: AFS_Core/src/OneDrive.cpp
+msgid "one_drive_name_taken"
+msgstr "OneDrive: il nome è già in uso: "
 
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"

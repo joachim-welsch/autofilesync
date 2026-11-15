@@ -2,12 +2,44 @@
 
 Module comment for GoogleAuth.h / GoogleAuth.cpp.
 
+## oauth
+
+Signs a user in at a cloud provider and keeps the short-lived access tokens fresh. The sign-in
+is OAuth for installed programs: the user agrees in the browser, the provider sends the browser
+back to a port on this computer with a code, and the code is exchanged for a refresh token,
+which the account stores encrypted in place of a password. Google and Microsoft both work this
+way; what differs between them is in `Provider`. The module keeps its name from the time when
+Google was the only provider.
+
+## Provider
+
+What differs between the providers: where the client and the addresses are kept, the scope
+asked for, extra parameters of the consent address, and the host name of the redirect. Google
+wants `access_type=offline` and `prompt=consent` to hand out a refresh token; Microsoft wants
+the scope `offline_access` instead. Microsoft accepts any port only for the host name
+`localhost`, Google for the address 127.0.0.1 as well, which cannot be misdirected by a hosts
+file and is therefore used there.
+
 ## google_auth
 
-Signs a user in at Google and keeps the short-lived access tokens fresh. The sign-in is OAuth
-for installed programs: the user agrees in the browser, Google sends the browser back to a port
-on this computer with a code, and the code is exchanged for a refresh token, which the account
-stores encrypted in place of a password.
+The settings of the Google client and shorthand for a Google login.
+
+## microsoft
+
+The application registered for AutoFileSync at Microsoft Entra, as a public client for
+"Mobile and desktop applications" with the redirect address `http://localhost`. A public
+client has no secret, and Microsoft rejects a request that sends one, so the token requests
+leave it out when it is empty. The identifier comes from AFS_MICROSOFT_CLIENT_ID, set like
+Google's (#client) on the command line or in a `microsoft-client.cmake` that git ignores. The
+addresses use the tenant `common`, which admits private accounts and those of organisations.
+The scope is `Files.ReadWrite`: all files of the user, for which Microsoft asks no assessment.
+
+## renewed-refresh-token
+
+Microsoft hands out a new refresh token with every access token, and the one stored at sign-in
+expires after ninety days. The newest one is therefore written back into the account and the
+configuration file, but at most once a day per account: every hour would rewrite the
+configuration for nothing. Google's refresh token stays the same and is never written.
 
 ## client
 
@@ -69,6 +101,5 @@ the user what to do: sign in again.
 
 ## access_token
 
-The access token for an account, fetched with its refresh token and kept until a minute before
-it expires. The cache is keyed by name and refresh token, so an account that signed in again
-does not get the token of its former login.
+The access token for an account, fetched with its refresh token at the provider the account
+belongs to and kept until a minute before it expires.
