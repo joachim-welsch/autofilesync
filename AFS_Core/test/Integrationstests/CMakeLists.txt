@@ -84,6 +84,7 @@ set(SOURCES
     GoogleDriveTests.cpp
     OneDriveTests.cpp
     DropboxTests.cpp
+    S3Tests.cpp
     WebDavTestServer.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp

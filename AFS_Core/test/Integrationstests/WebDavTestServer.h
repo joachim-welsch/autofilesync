@@ -66,6 +66,15 @@ public:
     explicit DropboxTestServer(int page_size = 0);
 };
 
+class S3TestServer : public PythonTestServer {  // [WebDavTestServer.md#S3TestServer]
+public:
+    static constexpr char ACCESS_KEY[] = "AKIATESTTESTTEST";
+    static constexpr char SECRET_KEY[] = "test-secret-key/with+signs";
+    static constexpr char REGION[] = "eu-test-1";
+    static constexpr char BUCKET[] = "sicherung";
+    explicit S3TestServer(int page_size = 0);
+};
+
 void visit_like_a_browser(const std::string& url);  // [WebDavTestServer.md#visit_like_a_browser]
 
 } // namespace tu

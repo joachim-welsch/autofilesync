@@ -2357,6 +2357,62 @@ msgstr "Dropbox: archivo no encontrado: "
 msgid "login_no_local_port"
 msgstr "No hay ningún puerto libre en este equipo para la respuesta del inicio de sesión. Cierra otras ventanas de inicio de sesión e inténtalo de nuevo."
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_s3_connection"
+msgstr "Nueva conexión S3…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_s3_connection"
+msgstr "Añadir conexión S3"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_s3_connection"
+msgstr "Editar conexión S3"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint"
+msgstr "Punto de conexión"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_region"
+msgstr "Región"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_access_key"
+msgstr "Clave de acceso"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_secret_key"
+msgstr "Clave secreta"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint_hint"
+msgstr "El punto de conexión y la región los indica el proveedor, por ejemplo https://s3.eu-central-1.amazonaws.com con la región eu-central-1 en Amazon o https://s3.eu-central-003.backblazeb2.com con eu-central-003 en Backblaze. Las claves se crean allí para este fin. El contenedor (bucket) se elige después como una carpeta."
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_check_failed_save_anyway"
+msgstr "No se pudo establecer la conexión:\n%1\n\nComprueba el punto de conexión, la región y las claves. Una clave válida solo para un contenedor no puede obtener la lista de contenedores; en ese caso guarda de todos modos e introduce la ruta a mano. ¿Guardar de todos modos?"
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_access_denied"
+msgstr "S3: acceso denegado: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_file_missing"
+msgstr "S3: archivo no encontrado: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_name_taken"
+msgstr "S3: el nombre ya está en uso: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_bucket_missing"
+msgstr "S3: el contenedor no existe; créalo con tu proveedor: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_folder_not_renamable"
+msgstr "S3: las carpetas no se pueden renombrar: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Móvil"

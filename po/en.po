@@ -2390,6 +2390,62 @@ msgstr "Dropbox: file not found: "
 msgid "login_no_local_port"
 msgstr "No port is free on this computer for the answer of the sign-in. Close other sign-in windows and try again."
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_s3_connection"
+msgstr "New S3 connection…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_s3_connection"
+msgstr "Add S3 connection"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_s3_connection"
+msgstr "Edit S3 connection"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint"
+msgstr "Endpoint"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_region"
+msgstr "Region"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_access_key"
+msgstr "Access key"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_secret_key"
+msgstr "Secret key"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint_hint"
+msgstr "Your provider tells you the endpoint and the region, for example https://s3.eu-central-1.amazonaws.com with the region eu-central-1 at Amazon or https://s3.eu-central-003.backblazeb2.com with eu-central-003 at Backblaze. You create the keys there for this purpose. The bucket is then chosen like a folder."
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_check_failed_save_anyway"
+msgstr "The connection could not be made:\n%1\n\nCheck the endpoint, region and keys. A key that is valid for one bucket only may not fetch the list of buckets; in that case save anyway and enter the path by hand. Save anyway?"
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_access_denied"
+msgstr "S3: access denied: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_file_missing"
+msgstr "S3: file not found: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_name_taken"
+msgstr "S3: the name is already taken: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_bucket_missing"
+msgstr "S3: the bucket does not exist; create it at your provider: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_folder_not_renamable"
+msgstr "S3: folders cannot be renamed: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Phone"

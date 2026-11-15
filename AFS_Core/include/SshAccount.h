@@ -22,7 +22,7 @@
 
 namespace AFS_Core {
 
-enum class CloudDrive { None, GoogleDrive, OneDrive, Dropbox };  // [SshAccount.md#cloud_drive_]
+enum class CloudDrive { None, GoogleDrive, OneDrive, Dropbox, S3 };  // [SshAccount.md#cloud_drive_]
 
 class SshAccount {
     std::string name_;
@@ -34,6 +34,7 @@ class SshAccount {
     std::string sealed_password_;  // [SshAccount.md#sealed_password_]
     std::string url_;  // [SshAccount.md#url_]
     CloudDrive cloud_drive_ = CloudDrive::None;  // [SshAccount.md#cloud_drive_]
+    std::string region_;  // [SshAccount.md#s3]
     void set_cloud_drive(CloudDrive drive, bool on) { cloud_drive_ = on ? drive : cloud_drive_ == drive ? CloudDrive::None : cloud_drive_; }
 public:
     const std::string& name() const;
@@ -48,6 +49,8 @@ public:
     bool one_drive() const { return cloud_drive_ == CloudDrive::OneDrive; }  // [SshAccount.md#one_drive_]
     bool google_drive() const { return cloud_drive_ == CloudDrive::GoogleDrive; }  // [SshAccount.md#google_drive_]
     bool dropbox() const { return cloud_drive_ == CloudDrive::Dropbox; }  // [SshAccount.md#dropbox]
+    bool s3() const { return cloud_drive_ == CloudDrive::S3; }  // [SshAccount.md#s3]
+    const std::string& region() const { return region_; }
 
     void set_name(const std::string& name);
     void set_user(const std::string& user);
@@ -60,6 +63,8 @@ public:
     void set_google_drive(bool on) { set_cloud_drive(CloudDrive::GoogleDrive, on); }
     void set_one_drive(bool on) { set_cloud_drive(CloudDrive::OneDrive, on); }
     void set_dropbox(bool on) { set_cloud_drive(CloudDrive::Dropbox, on); }
+    void set_s3(bool on) { set_cloud_drive(CloudDrive::S3, on); }
+    void set_region(const std::string& region) { region_ = region; }
 };
 
 } // namespace AFS_Core

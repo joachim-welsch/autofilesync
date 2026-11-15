@@ -2357,6 +2357,62 @@ msgstr "Dropbox: файл не знайдено: "
 msgid "login_no_local_port"
 msgstr "На цьому комп'ютері немає вільного порту для відповіді входу. Закрийте інші вікна входу й спробуйте ще раз."
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_s3_connection"
+msgstr "Нове з'єднання S3…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_s3_connection"
+msgstr "Додати з'єднання S3"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_s3_connection"
+msgstr "Редагувати з'єднання S3"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint"
+msgstr "Кінцева точка"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_region"
+msgstr "Регіон"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_access_key"
+msgstr "Ключ доступу"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_secret_key"
+msgstr "Секретний ключ"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint_hint"
+msgstr "Кінцеву точку й регіон повідомляє постачальник, наприклад https://s3.eu-central-1.amazonaws.com з регіоном eu-central-1 в Amazon або https://s3.eu-central-003.backblazeb2.com з eu-central-003 у Backblaze. Ключі створюють там для цієї мети. Сховище (bucket) потім вибирають як папку."
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_check_failed_save_anyway"
+msgstr "Не вдалося з'єднатися:\n%1\n\nПеревірте кінцеву точку, регіон і ключі. Ключ, чинний лише для одного сховища, не може отримати список сховищ; тоді збережіть усе одно й введіть шлях уручну. Усе одно зберегти?"
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_access_denied"
+msgstr "S3: доступ заборонено: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_file_missing"
+msgstr "S3: файл не знайдено: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_name_taken"
+msgstr "S3: назву вже зайнято: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_bucket_missing"
+msgstr "S3: сховища не існує; створіть його в постачальника: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_folder_not_renamable"
+msgstr "S3: папки не можна перейменовувати: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Телефон"

@@ -2336,6 +2336,62 @@ msgstr ""
 msgid "login_no_local_port"
 msgstr ""
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_s3_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_s3_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_s3_connection"
+msgstr ""
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint"
+msgstr ""
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_region"
+msgstr ""
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_access_key"
+msgstr ""
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_secret_key"
+msgstr ""
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint_hint"
+msgstr ""
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_check_failed_save_anyway"
+msgstr ""
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_access_denied"
+msgstr ""
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_file_missing"
+msgstr ""
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_name_taken"
+msgstr ""
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_bucket_missing"
+msgstr ""
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_folder_not_renamable"
+msgstr ""
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr ""

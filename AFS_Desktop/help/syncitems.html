@@ -77,6 +77,13 @@ Dropbox an; danach sieht AutoFileSync alle Dateien der Dropbox. Dropbox
 unterscheidet bei Namen nicht zwischen Groß- und Kleinschreibung. Gelöschtes
 lässt sich auf der Webseite von Dropbox wiederherstellen.</p>
 
+<p>Für Speicherdienste mit S3-Schnittstelle (Amazon S3, Backblaze B2, Wasabi,
+MinIO und andere) gibt es <b>Datei → Neue S3-Verbindung…</b>. Statt einer
+Anmeldung im Browser trägt man Endpunkt, Region und die beiden Schlüssel ein,
+die der Anbieter ausgibt. Der Speicherbereich (Bucket) erscheint danach unter
+<b>Server…</b> wie ein Ordner; angelegt wird er beim Anbieter. S3 kennt keinen
+Papierkorb: Gelöschtes ist weg, außer der Anbieter führt Versionen.</p>
+
 <p>Ein Ziel, das noch nicht existiert, wird beim ersten Lauf angelegt. Liegt die
 Quelle auf einem Wechseldatenträger oder einem Netzlaufwerk, das gerade nicht
 verbunden ist, überspringt AutoFileSync die Synchronisation und rührt das Ziel

@@ -19,6 +19,7 @@
 #include "SshAccountsDialog.h"
 #include "SshAccountDialog.h"
 #include "WebDavAccountDialog.h"
+#include "S3AccountDialog.h"
 #include "OAuthAccountDialog.h"
 #include "SshAccount.h"
 #include "Config.h"
@@ -133,6 +134,13 @@ wxString edit_title(const SshAccount& account)
 
 bool edited(wxWindow* parent, SshAccount& account)  // [SshAccountsDialog.md#webdav-accounts]
 {
+    if (account.s3()) {
+        S3AccountDialog dlg(account, parent, wxID_ANY, txt::edit_s3_connection());
+        if (dlg.ShowModal() != wxID_OK)
+            return false;
+        dlg.save_data(account);
+        return true;
+    }
     if (account.google_drive() || account.one_drive() || account.dropbox()) {
         OAuthAccountDialog dlg(OAuthAccountDialog::provider_of(account), account, parent, wxID_ANY, edit_title(account));
         if (dlg.ShowModal() != wxID_OK)

@@ -61,6 +61,10 @@ DropboxTestServer::DropboxTestServer(int page_size)
     : PythonTestServer("dropboxTestServer.py", {"--page-size", std::to_string(page_size)})
 {}
 
+S3TestServer::S3TestServer(int page_size)
+    : PythonTestServer("s3TestServer.py", {"--page-size", std::to_string(page_size)})
+{}
+
 OneDriveTestServer::OneDriveTestServer(int page_size)
     : PythonTestServer("oneDriveTestServer.py", {"--page-size", std::to_string(page_size)})
 {}

@@ -71,6 +71,7 @@ public:
     void upload_from(std::ifstream& file, std::uintmax_t size, std::uintmax_t already_sent = 0);
     struct UploadReader;
     void on_header(HeaderCallback callback, void* context);
+    void without_body();  // [HttpClient.md#without_body]
     std::optional<long> perform();  // [HttpClient.md#perform]
     std::optional<std::time_t> file_time() const;
     [[noreturn]] void fail(long status) const;

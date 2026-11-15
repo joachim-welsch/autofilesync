@@ -144,6 +144,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\Dropbox.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\S3.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\GoogleAuth.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -482,6 +485,9 @@
     <ClCompile Include="WebDavAccountTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
+    <ClCompile Include="S3AccountTest.cpp">
+      <Filter>GuiTests</Filter>
+    </ClCompile>
     <ClCompile Include="OAuthAccountTest.cpp">
       <Filter>GuiTests</Filter>
     </ClCompile>
@@ -585,6 +591,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\Dropbox.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\S3.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\GoogleAuth.cpp">
@@ -768,6 +777,9 @@
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\WebDavAccountDialog.cpp">
+      <Filter>AFS_Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\S3AccountDialog.cpp">
       <Filter>AFS_Desktop</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\OAuthAccountDialog.cpp">

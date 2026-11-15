@@ -16,6 +16,7 @@ set(AFS_DESKTOP_SOURCES
     DevicesDialog.cpp
     RestoreDialog.cpp
     WebDavAccountDialog.cpp
+    S3AccountDialog.cpp
     OAuthAccountDialog.cpp
     FirewallHint.cpp
     PairDeviceDialog.cpp

@@ -168,6 +168,9 @@
     <ClInclude Include="$(LibDir)\include\Dropbox.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\S3.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\GoogleAuth.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -363,6 +366,9 @@
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="DropboxTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="S3Tests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="WebDavTestServer.cpp">
@@ -573,6 +579,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\Dropbox.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\S3.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\GoogleAuth.cpp">

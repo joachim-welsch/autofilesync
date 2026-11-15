@@ -81,6 +81,14 @@ les fichiers de la Dropbox. Dropbox ne distingue pas les majuscules des
 minuscules dans les noms. Ce qui est supprimé peut être restauré sur le site de
 Dropbox.</p>
 
+<p>Pour les services de stockage dotés d'une interface S3 (Amazon S3, Backblaze
+B2, Wasabi, MinIO et d'autres), il y a <b>Fichier → Nouvelle connexion S3…</b>.
+Au lieu d'une connexion dans le navigateur, on saisit le point de terminaison,
+la région et les deux clés fournies par le fournisseur. Le compartiment (bucket)
+apparaît ensuite sous <b>Serveur…</b> comme un dossier ; il se crée chez le
+fournisseur. S3 n'a pas de corbeille : ce qui est supprimé disparaît, sauf si le
+fournisseur conserve des versions.</p>
+
 <p>Une cible qui n'existe pas encore est créée lors de la première exécution. Si
 la source se trouve sur un support amovible ou un lecteur réseau qui n'est pas
 connecté pour l'instant, AutoFileSync saute la synchronisation et ne touche pas

@@ -56,3 +56,8 @@ dropbox() read it.
 
 Marks a Dropbox account. Like the other cloud drives (#google_drive_) it carries the address of
 the provider's API in `url_` and the refresh token in `password_`.
+
+## s3
+
+Marks an account at an S3 service. `url_` holds the endpoint, `user_` the access key,
+`password_` the secret key and `region_` the region the requests are signed for (S3.md#signature).

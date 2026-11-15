@@ -2357,6 +2357,62 @@ msgstr "Dropbox: nie znaleziono pliku: "
 msgid "login_no_local_port"
 msgstr "Na tym komputerze nie ma wolnego portu na odpowiedź logowania. Zamknij inne okna logowania i spróbuj ponownie."
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_s3_connection"
+msgstr "Nowe połączenie S3…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_s3_connection"
+msgstr "Dodaj połączenie S3"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_s3_connection"
+msgstr "Edytuj połączenie S3"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint"
+msgstr "Punkt końcowy"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_region"
+msgstr "Region"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_access_key"
+msgstr "Klucz dostępu"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_secret_key"
+msgstr "Klucz tajny"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint_hint"
+msgstr "Punkt końcowy i region podaje dostawca, na przykład https://s3.eu-central-1.amazonaws.com z regionem eu-central-1 w Amazon albo https://s3.eu-central-003.backblazeb2.com z eu-central-003 w Backblaze. Klucze tworzy się tam w tym celu. Zasobnik (bucket) wybiera się potem jak folder."
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_check_failed_save_anyway"
+msgstr "Nie udało się połączyć:\n%1\n\nSprawdź punkt końcowy, region i klucze. Klucz ważny tylko dla jednego zasobnika nie może pobrać listy zasobników; wtedy zapisz mimo to i wpisz ścieżkę ręcznie. Zapisać mimo to?"
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_access_denied"
+msgstr "S3: odmowa dostępu: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_file_missing"
+msgstr "S3: nie znaleziono pliku: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_name_taken"
+msgstr "S3: nazwa jest już zajęta: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_bucket_missing"
+msgstr "S3: zasobnik nie istnieje; utwórz go u dostawcy: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_folder_not_renamable"
+msgstr "S3: folderów nie można zmieniać nazwy: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Telefon"

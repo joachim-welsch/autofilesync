@@ -79,6 +79,13 @@ sesión en Dropbox en el navegador; después AutoFileSync ve todos los archivos 
 Dropbox. Dropbox no distingue entre mayúsculas y minúsculas en los nombres. Lo
 eliminado se puede restaurar en la página web de Dropbox.</p>
 
+<p>Para los servicios de almacenamiento con interfaz S3 (Amazon S3, Backblaze B2,
+Wasabi, MinIO y otros) existe <b>Archivo → Nueva conexión S3…</b>. En lugar de
+iniciar sesión en el navegador se introducen el punto de conexión, la región y
+las dos claves que entrega el proveedor. El contenedor (bucket) aparece después
+en <b>Servidor…</b> como una carpeta; se crea con el proveedor. S3 no tiene
+papelera: lo eliminado desaparece, salvo que el proveedor conserve versiones.</p>
+
 <p>Un destino que todavía no existe se crea en la primera ejecución. Si el origen
 está en una unidad extraíble o en una unidad de red que no está conectada en ese
 momento, AutoFileSync omite la sincronización y no toca el destino – esto es

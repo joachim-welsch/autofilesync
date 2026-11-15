@@ -2390,6 +2390,62 @@ msgstr "Dropbox: Datei nicht gefunden: "
 msgid "login_no_local_port"
 msgstr "Für die Antwort der Anmeldung ist auf diesem Rechner kein Anschluss frei. Schließe andere Anmeldefenster und versuche es erneut."
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_s3_connection"
+msgstr "Neue S3-Verbindung…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_s3_connection"
+msgstr "S3-Verbindung hinzufügen"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_s3_connection"
+msgstr "S3-Verbindung bearbeiten"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint"
+msgstr "Endpunkt"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_region"
+msgstr "Region"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_access_key"
+msgstr "Zugangsschlüssel"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_secret_key"
+msgstr "Geheimer Schlüssel"
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_endpoint_hint"
+msgstr "Endpunkt und Region nennt der Anbieter, zum Beispiel https://s3.eu-central-1.amazonaws.com mit der Region eu-central-1 bei Amazon oder https://s3.eu-central-003.backblazeb2.com mit eu-central-003 bei Backblaze. Die Schlüssel legst du dort für diesen Zweck an. Der Speicherbereich (Bucket) wird danach wie ein Ordner gewählt."
+
+#: AFS_Desktop/src/S3AccountDialog.cpp
+msgid "s3_check_failed_save_anyway"
+msgstr "Die Verbindung kam nicht zustande:\n%1\n\nPrüfe Endpunkt, Region und Schlüssel. Ein Schlüssel, der nur für einen Speicherbereich gilt, darf die Liste der Speicherbereiche nicht abrufen; dann speichere trotzdem und trage den Pfad von Hand ein. Trotzdem speichern?"
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_access_denied"
+msgstr "S3: Zugriff verweigert: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_file_missing"
+msgstr "S3: Datei nicht gefunden: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_name_taken"
+msgstr "S3: Der Name ist schon vergeben: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_bucket_missing"
+msgstr "S3: Den Speicherbereich gibt es nicht; lege ihn beim Anbieter an: "
+
+#: AFS_Core/src/S3.cpp
+msgid "s3_folder_not_renamable"
+msgstr "S3: Ordner lassen sich nicht umbenennen: "
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Handy"

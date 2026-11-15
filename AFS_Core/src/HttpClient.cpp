@@ -207,6 +207,11 @@ void Request::on_header(HeaderCallback callback, void* context)
     curl_easy_setopt(handle_of(curl_), CURLOPT_HEADERDATA, context);
 }
 
+void Request::without_body()
+{
+    curl_easy_setopt(handle_of(curl_), CURLOPT_NOBODY, 1L);
+}
+
 std::optional<long> Request::perform()
 {
     CURL* curl = handle_of(curl_);

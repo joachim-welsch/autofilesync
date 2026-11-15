@@ -48,6 +48,16 @@
   App-Key der bei Dropbox registrierten App wird beim Bauen übergeben
   (`AFS_DROPBOX_APP_KEY`, etwa aus `dropbox-client.cmake`); ohne ihn meldet
   der Menüeintrag, dass Dropbox noch nicht eingerichtet ist.
+- S3: Speicherdienste mit S3-Schnittstelle (Amazon S3, Backblaze B2, Wasabi,
+  MinIO und andere) lassen sich als Quelle oder Ziel verwenden, mit
+  Zwei-Wege-Synchronisation, Generationenprinzip und Löschen im Ziel.
+  „Datei → Neue S3-Verbindung…“ fragt nach Endpunkt, Region und den beiden
+  Schlüsseln und prüft die Verbindung; der Speicherbereich (Bucket) wird
+  danach wie ein Ordner gewählt. Die Änderungszeit einer Datei wird als
+  Metadatum `mtime` mitgespeichert, wie rclone es tut. Große Dateien gehen in
+  Teilen hoch. S3 hat keinen Papierkorb: Gelöschtes ist weg, außer der
+  Anbieter führt Versionen. Eine Registrierung beim Anbieter des Programms ist
+  hier nicht nötig.
 - Behoben: Die Anmeldung an einer Nextcloud scheiterte mit „HTTP 405“, wenn
   die Adresse des Servers statt der WebDAV-Adresse eingetragen war. Die
   Verbindungsprüfung findet die WebDAV-Adresse bei Nextcloud und ownCloud jetzt

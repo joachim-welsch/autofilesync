@@ -429,6 +429,8 @@ bool Config::read_ssh_accounts(boost::property_tree::wptree& root)
             account.set_google_drive(iter->second.get<bool>(L"googleDrive", false));  // [SshAccount.md#google_drive_]
             account.set_one_drive(iter->second.get<bool>(L"oneDrive", false));  // [SshAccount.md#one_drive_]
             account.set_dropbox(iter->second.get<bool>(L"dropbox", false));  // [SshAccount.md#dropbox]
+            account.set_s3(iter->second.get<bool>(L"s3", false));  // [SshAccount.md#s3]
+            account.set_region(util::wstring_to_string(iter->second.get<wstring>(L"region", L"")));
             const std::string stored_password = util::wstring_to_string(iter->second.get<wstring>(L"password"));
             if (!passwordcrypto::is_encrypted(stored_password)) {
                 account.set_password(stored_password); // genuine legacy plaintext, predates encryption
@@ -511,6 +513,10 @@ void Config::write_ssh_accounts(boost::property_tree::wptree& root)
             account_node.put(wstring(L"oneDrive"), true);  // [SshAccount.md#one_drive_]
         if (account.dropbox())
             account_node.put(wstring(L"dropbox"), true);  // [SshAccount.md#dropbox]
+        if (account.s3()) {
+            account_node.put(wstring(L"s3"), true);  // [SshAccount.md#s3]
+            account_node.put(wstring(L"region"), string_to_wstring(account.region()));
+        }
         const bool keep_sealed = account.password().empty() && !account.sealed_password().empty();  // [SshAccount.md#sealed_password_]
         account_node.put(wstring(L"password"), string_to_wstring(keep_sealed ? account.sealed_password() : passwordcrypto::encrypt(account.password(), password_key_file_path())));
         ssh_accounts_node.push_back(make_pair(wstring(L"SshAccount"), account_node));

@@ -21,15 +21,18 @@
 #include "Dropbox.h"
 #include "GoogleDrive.h"
 #include "OneDrive.h"
+#include "S3.h"
 
 namespace AFS_Core {
 
 namespace cloud_store {
 
 namespace {
-template <typename WebDav, typename Google, typename Microsoft, typename Dropbox>
-auto by_kind(const SshAccount& account, WebDav webdav, Google google, Microsoft microsoft, Dropbox dropbox)  // [CloudStore.md#by_kind]
+template <typename WebDav, typename Google, typename Microsoft, typename Dropbox, typename S3>
+auto by_kind(const SshAccount& account, WebDav webdav, Google google, Microsoft microsoft, Dropbox dropbox, S3 s3)  // [CloudStore.md#by_kind]
 {
+    if (account.s3())
+        return s3();
     if (account.google_drive())
         return google();
     if (account.one_drive())
@@ -40,49 +43,56 @@ auto by_kind(const SshAccount& account, WebDav webdav, Google google, Microsoft 
 
 bool handles(const SshAccount& account)
 {
-    return account.webdav() || account.google_drive() || account.one_drive() || account.dropbox();
+    return account.webdav() || account.google_drive() || account.one_drive() || account.dropbox() || account.s3();
 }
 
 std::optional<Entry> stat(const SshAccount& account, const std::string& path)
 {
     return by_kind(account, [&] { return webdav::stat(account, path); }, [&] { return google_drive::stat(account, path); },
-        [&] { return one_drive::stat(account, path); }, [&] { return dropbox::stat(account, path); });
+        [&] { return one_drive::stat(account, path); }, [&] { return dropbox::stat(account, path); },
+        [&] { return s3::stat(account, path); });
 }
 
 std::vector<Entry> list(const SshAccount& account, const std::string& path)
 {
     return by_kind(account, [&] { return webdav::list(account, path); }, [&] { return google_drive::list(account, path); },
-        [&] { return one_drive::list(account, path); }, [&] { return dropbox::list(account, path); });
+        [&] { return one_drive::list(account, path); }, [&] { return dropbox::list(account, path); },
+        [&] { return s3::list(account, path); });
 }
 
 void make_directory(const SshAccount& account, const std::string& path)
 {
     by_kind(account, [&] { webdav::make_directory(account, path); }, [&] { google_drive::make_directory(account, path); },
-        [&] { one_drive::make_directory(account, path); }, [&] { dropbox::make_directory(account, path); });
+        [&] { one_drive::make_directory(account, path); }, [&] { dropbox::make_directory(account, path); },
+        [&] { s3::make_directory(account, path); });
 }
 
 void remove(const SshAccount& account, const std::string& path)
 {
     by_kind(account, [&] { webdav::remove(account, path); }, [&] { google_drive::remove(account, path); },
-        [&] { one_drive::remove(account, path); }, [&] { dropbox::remove(account, path); });
+        [&] { one_drive::remove(account, path); }, [&] { dropbox::remove(account, path); },
+        [&] { s3::remove(account, path); });
 }
 
 void move(const SshAccount& account, const std::string& from, const std::string& to)
 {
     by_kind(account, [&] { webdav::move(account, from, to); }, [&] { google_drive::move(account, from, to); },
-        [&] { one_drive::move(account, from, to); }, [&] { dropbox::move(account, from, to); });
+        [&] { one_drive::move(account, from, to); }, [&] { dropbox::move(account, from, to); },
+        [&] { s3::move(account, from, to); });
 }
 
 CopyResult download(const SshAccount& account, const std::string& path, const std::filesystem::path& local_file)
 {
     return by_kind(account, [&] { return webdav::download(account, path, local_file); }, [&] { return google_drive::download(account, path, local_file); },
-        [&] { return one_drive::download(account, path, local_file); }, [&] { return dropbox::download(account, path, local_file); });
+        [&] { return one_drive::download(account, path, local_file); }, [&] { return dropbox::download(account, path, local_file); },
+        [&] { return s3::download(account, path, local_file); });
 }
 
 CopyResult upload(const std::filesystem::path& local_file, const SshAccount& account, const std::string& path)
 {
     return by_kind(account, [&] { return webdav::upload(local_file, account, path); }, [&] { return google_drive::upload(local_file, account, path); },
-        [&] { return one_drive::upload(local_file, account, path); }, [&] { return dropbox::upload(local_file, account, path); });
+        [&] { return one_drive::upload(local_file, account, path); }, [&] { return dropbox::upload(local_file, account, path); },
+        [&] { return s3::upload(local_file, account, path); });
 }
 
 }

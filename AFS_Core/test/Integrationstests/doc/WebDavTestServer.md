@@ -55,3 +55,9 @@ token named here and issues a new refresh token with every access token.
 Starts test/tools/dropboxTestServer.py, a stand-in for Dropbox's sign-in and the files part of
 its API that keeps its files in memory. It accepts the app key and the refresh token named here
 and redirects only to the registered ports.
+
+## S3TestServer
+
+Starts test/tools/s3TestServer.py, a stand-in for an S3 service that keeps two buckets in
+memory and answers only requests with a valid signature for the keys and the region named
+here.

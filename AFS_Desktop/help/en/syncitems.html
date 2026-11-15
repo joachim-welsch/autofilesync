@@ -76,6 +76,13 @@ Dropbox in the browser; after that AutoFileSync sees all files of the Dropbox.
 Dropbox does not tell upper and lower case apart in names. Whatever is deleted
 can be restored on Dropbox's web page.</p>
 
+<p>For storage services with an S3 interface (Amazon S3, Backblaze B2, Wasabi,
+MinIO and others) there is <b>File → New S3 connection…</b>. Instead of signing
+in in the browser you enter the endpoint, the region and the two keys the
+provider issues. The bucket then appears under <b>Server…</b> like a folder; it
+is created at the provider. S3 has no trash: whatever is deleted is gone, unless
+the provider keeps versions.</p>
+
 <p>A target that does not exist yet is created on the first run. If the source
 is on a removable drive or a network drive that is not connected at the moment,
 AutoFileSync skips the synchronisation and leaves the target alone – this

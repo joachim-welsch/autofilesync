@@ -51,6 +51,7 @@ set(AFS_CORE_SOURCES
     GoogleDrive.cpp
     OneDrive.cpp
     Dropbox.cpp
+    S3.cpp
     GoogleAuth.cpp
     CloudStore.cpp
     CpuTopology.cpp
@@ -104,6 +105,7 @@ if(NOT TARGET afs_core_deps)
     find_package(CURL REQUIRED)  # GoogleDrive.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # OneDrive.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # Dropbox.cpp speaks HTTP through libcurl
+    find_package(CURL REQUIRED)  # S3.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # GoogleAuth.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # CloudStore.cpp speaks HTTP through libcurl
 

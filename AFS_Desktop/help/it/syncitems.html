@@ -77,6 +77,13 @@ l'accesso a Dropbox nel browser; dopo, AutoFileSync vede tutti i file di
 Dropbox. Dropbox non distingue tra maiuscole e minuscole nei nomi. Ciò che viene
 eliminato si può ripristinare sul sito di Dropbox.</p>
 
+<p>Per i servizi di archiviazione con interfaccia S3 (Amazon S3, Backblaze B2,
+Wasabi, MinIO e altri) c'è <b>File → Nuova connessione S3…</b>. Invece di
+accedere nel browser si inseriscono l'endpoint, la regione e le due chiavi
+rilasciate dal fornitore. Il contenitore (bucket) compare poi in <b>Server…</b>
+come una cartella; lo si crea presso il fornitore. S3 non ha cestino: ciò che
+viene eliminato è perso, a meno che il fornitore conservi le versioni.</p>
+
 <p>Una destinazione che non esiste ancora viene creata alla prima esecuzione. Se
 l'origine si trova su un'unità rimovibile o su un'unità di rete al momento non
 collegata, AutoFileSync salta la sincronizzazione e non tocca la destinazione –
