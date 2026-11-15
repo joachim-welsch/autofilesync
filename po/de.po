@@ -2354,6 +2354,42 @@ msgstr "OneDrive: Datei nicht gefunden: "
 msgid "one_drive_name_taken"
 msgstr "OneDrive: Der Name ist schon vergeben: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_dropbox_connection"
+msgstr "Neue Dropbox-Verbindung…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_dropbox_connection"
+msgstr "Dropbox-Verbindung hinzufügen"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_dropbox_connection"
+msgstr "Dropbox-Verbindung bearbeiten"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_explanation"
+msgstr "Die Anmeldung geschieht im Browser bei Dropbox; AutoFileSync erfährt dein Passwort nicht. Es bekommt Zugriff auf die Dateien in deiner Dropbox, damit du dort Ordner als Quelle oder Ziel wählen kannst."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_button"
+msgstr "Bei Dropbox anmelden…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_status_waiting"
+msgstr "Warte auf die Anmeldung im Browser … Falls sich kein Browser geöffnet hat, klicke erneut auf „Bei Dropbox anmelden…“."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "dropbox_not_configured"
+msgstr "Dropbox ist in dieser Version noch nicht eingerichtet: Es fehlt die Kennung, mit der sich AutoFileSync bei Dropbox ausweist."
+
+#: AFS_Core/src/Dropbox.cpp
+msgid "dropbox_file_missing"
+msgstr "Dropbox: Datei nicht gefunden: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "login_no_local_port"
+msgstr "Für die Antwort der Anmeldung ist auf diesem Rechner kein Anschluss frei. Schließe andere Anmeldefenster und versuche es erneut."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Handy"

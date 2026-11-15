@@ -49,6 +49,9 @@
 #ifndef AFS_MICROSOFT_CLIENT_ID
     #define AFS_MICROSOFT_CLIENT_ID ""  // [GoogleAuth.md#microsoft]
 #endif
+#ifndef AFS_DROPBOX_APP_KEY
+    #define AFS_DROPBOX_APP_KEY ""  // [GoogleAuth.md#dropbox]
+#endif
 
 namespace AFS_Core {
 
@@ -56,6 +59,7 @@ namespace {
 constexpr char CLIENT_ID[] = AFS_GOOGLE_CLIENT_ID;  // [GoogleAuth.md#client]
 constexpr char CLIENT_SECRET[] = AFS_GOOGLE_CLIENT_SECRET;  // [GoogleAuth.md#client]
 constexpr char MICROSOFT_CLIENT_ID[] = AFS_MICROSOFT_CLIENT_ID;  // [GoogleAuth.md#microsoft]
+constexpr char DROPBOX_APP_KEY[] = AFS_DROPBOX_APP_KEY;  // [GoogleAuth.md#dropbox]
 }
 
 namespace oauth {
@@ -177,18 +181,26 @@ std::map<std::string, AccessToken> tokens;
 
 const Provider& google()
 {
-    static const Provider provider{google_auth::settings, GOOGLE_SCOPE, "&access_type=offline&prompt=consent", "127.0.0.1"};
+    static const Provider provider{google_auth::settings, GOOGLE_SCOPE, "&access_type=offline&prompt=consent", "127.0.0.1", {}};
     return provider;
 }
 
 const Provider& microsoft()
 {
-    static const Provider provider{microsoft_auth::settings, MICROSOFT_SCOPE, "", "localhost"};
+    static const Provider provider{microsoft_auth::settings, MICROSOFT_SCOPE, "", "localhost", {}};
+    return provider;
+}
+
+const Provider& dropbox()
+{
+    static const Provider provider{dropbox_auth::settings, "", "&token_access_type=offline", "localhost", {53682, 53683, 53684}};  // [GoogleAuth.md#redirect-ports]
     return provider;
 }
 
 const Provider& provider_of(const SshAccount& account)
 {
+    if (account.dropbox())
+        return dropbox();
     return account.one_drive() ? microsoft() : google();
 }
 
@@ -197,20 +209,37 @@ bool configured(const Provider& provider)
     return !provider.settings().client_id.empty();
 }
 
+namespace {
+int listening_socket(int wanted_port, int& bound_port)  // [GoogleAuth.md#redirect-ports]
+{
+    const int listener = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0));
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    address.sin_port = htons(static_cast<unsigned short>(wanted_port));
+    socklen_t length = sizeof(address);
+    const bool listening = listener >= 0 && bind(listener, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0
+        && listen(listener, 1) == 0 && getsockname(listener, reinterpret_cast<sockaddr*>(&address), &length) == 0;
+    if (listening) {
+        bound_port = ntohs(address.sin_port);
+        return listener;
+    }
+    if (listener >= 0)
+        close_socket(listener);
+    return -1;
+}
+}
+
 Login::Login(const Provider& provider)
     : provider_(provider), verifier_(random_text() + random_text()), state_(random_text())
 {
     start_sockets();
-    listener_ = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0));
-    sockaddr_in address{};
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    socklen_t length = sizeof(address);
-    const bool listening = listener_ >= 0 && bind(listener_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0
-        && listen(listener_, 1) == 0 && getsockname(listener_, reinterpret_cast<sockaddr*>(&address), &length) == 0;
-    if (!listening)
-        throw http::Error("no local port for the answer of the login");
-    port_ = ntohs(address.sin_port);
+    const std::vector<int> any_port = {0};
+    for (const int port : provider.redirect_ports.empty() ? any_port : provider.redirect_ports)
+        if (listener_ < 0)
+            listener_ = listening_socket(port, port_);
+    if (listener_ < 0)
+        throw http::Error(util::wstring_to_string(translation::translate("login_no_local_port")));
 }
 
 Login::~Login()
@@ -229,7 +258,7 @@ std::string Login::browser_url() const
     const Settings& settings = provider_.settings();
     return settings.auth_url + "?response_type=code&code_challenge_method=S256" + provider_.consent_parameters
         + "&client_id=" + http::escaped(settings.client_id) + "&redirect_uri=" + http::escaped(redirect_uri())
-        + "&scope=" + http::escaped(provider_.scope) + "&state=" + state_ + "&code_challenge=" + challenge_of(verifier_);
+        + (*provider_.scope != 0 ? "&scope=" + http::escaped(provider_.scope) : "") + "&state=" + state_ + "&code_challenge=" + challenge_of(verifier_);
 }
 
 void Login::answer_browser(int connection)  // [GoogleAuth.md#finished]
@@ -325,6 +354,17 @@ Settings& settings()
 bool configured()
 {
     return oauth::configured(oauth::google());
+}
+
+}
+
+namespace dropbox_auth {
+
+oauth::Settings& settings()
+{
+    static oauth::Settings current{DROPBOX_APP_KEY, "", "https://www.dropbox.com/oauth2/authorize", "https://api.dropboxapi.com/oauth2/token",
+        "https://api.dropboxapi.com/2", "https://content.dropboxapi.com/2"};
+    return current;
 }
 
 }

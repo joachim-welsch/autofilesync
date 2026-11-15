@@ -126,6 +126,7 @@ private:
     void on_add_webdav_connection(wxCommandEvent& event);
     void on_add_google_drive_connection(wxCommandEvent& event);
     void on_add_one_drive_connection(wxCommandEvent& event);
+    void on_add_dropbox_connection(wxCommandEvent& event);
     void add_cloud_connection(CloudProvider provider, const wxString& title, const char* not_configured_msgid);
     void on_edit_settings(wxCommandEvent& event);
     void on_edit_logging(wxCommandEvent& event);

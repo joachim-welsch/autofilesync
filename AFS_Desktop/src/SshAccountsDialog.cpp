@@ -124,10 +124,17 @@ void SshAccountsDialog::on_add(wxCommandEvent&)
 }
 
 namespace {
+wxString edit_title(const SshAccount& account)
+{
+    if (account.dropbox())
+        return txt::edit_dropbox_connection();
+    return account.one_drive() ? txt::edit_one_drive_connection() : txt::edit_google_drive_connection();
+}
+
 bool edited(wxWindow* parent, SshAccount& account)  // [SshAccountsDialog.md#webdav-accounts]
 {
-    if (account.google_drive() || account.one_drive()) {
-        OAuthAccountDialog dlg(OAuthAccountDialog::provider_of(account), account, parent, wxID_ANY, account.one_drive() ? txt::edit_one_drive_connection() : txt::edit_google_drive_connection());
+    if (account.google_drive() || account.one_drive() || account.dropbox()) {
+        OAuthAccountDialog dlg(OAuthAccountDialog::provider_of(account), account, parent, wxID_ANY, edit_title(account));
         if (dlg.ShowModal() != wxID_OK)
             return false;
         dlg.save_data(account);

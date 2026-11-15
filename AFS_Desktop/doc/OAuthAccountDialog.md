@@ -4,13 +4,13 @@ Module comment for OAuthAccountDialog.h / OAuthAccountDialog.cpp.
 
 ## CloudProvider
 
-The dialog serves Google Drive and OneDrive. The provider decides where the sign-in goes, which
+The dialog serves Google Drive, OneDrive and Dropbox. The provider decides where the sign-in goes, which
 texts explain it and what kind of account is saved; everything else is the same, which is why
 there is one dialog and not two.
 
 ## OAuthAccountDialog
 
-Creates or edits a Google Drive or OneDrive connection. There is nothing to type but a name: the button
+Creates or edits a Google Drive, OneDrive or Dropbox connection. There is nothing to type but a name: the button
 opens the provider's sign-in in the browser, and OK becomes available once the sign-in has come back.
 An existing connection opens as signed in and can be renamed, or signed in again when the
 provider has withdrawn the access.

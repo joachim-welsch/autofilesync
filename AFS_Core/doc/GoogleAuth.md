@@ -7,8 +7,8 @@ Module comment for GoogleAuth.h / GoogleAuth.cpp.
 Signs a user in at a cloud provider and keeps the short-lived access tokens fresh. The sign-in
 is OAuth for installed programs: the user agrees in the browser, the provider sends the browser
 back to a port on this computer with a code, and the code is exchanged for a refresh token,
-which the account stores encrypted in place of a password. Google and Microsoft both work this
-way; what differs between them is in `Provider`. The module keeps its name from the time when
+which the account stores encrypted in place of a password. Google, Microsoft and Dropbox all work
+this way; what differs between them is in `Provider`. The module keeps its name from the time when
 Google was the only provider.
 
 ## Provider
@@ -33,6 +33,24 @@ leave it out when it is empty. The identifier comes from AFS_MICROSOFT_CLIENT_ID
 Google's (#client) on the command line or in a `microsoft-client.cmake` that git ignores. The
 addresses use the tenant `common`, which admits private accounts and those of organisations.
 The scope is `Files.ReadWrite`: all files of the user, for which Microsoft asks no assessment.
+
+## dropbox
+
+The app registered for AutoFileSync in the Dropbox App Console, with access to the full
+Dropbox. Its app key comes from AFS_DROPBOX_APP_KEY, set like the others (#client) on the
+command line or in a `dropbox-client.cmake` that git ignores. With PKCE the app secret is not
+needed and not used. The consent address asks for `token_access_type=offline`, without which
+Dropbox hands out no refresh token. No scope is sent: the app then gets the permissions set
+for it in the console, which must include reading and writing file content and metadata.
+Besides the API address the settings hold a second one for file content (Dropbox.md#two-hosts).
+
+## redirect-ports
+
+Dropbox accepts a redirect only to an address registered for the app, port included, so the
+login cannot let the system choose a port there. Three ports are registered
+(`http://localhost:53682` to `53684`) and the first that is free is taken; three, so that a
+second sign-in or another program on one of them does not block it. With an empty list any
+port will do, as for Google and Microsoft.
 
 ## renewed-refresh-token
 

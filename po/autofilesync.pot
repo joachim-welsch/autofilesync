@@ -2300,6 +2300,42 @@ msgstr ""
 msgid "one_drive_name_taken"
 msgstr ""
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_dropbox_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_dropbox_connection"
+msgstr ""
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_dropbox_connection"
+msgstr ""
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_explanation"
+msgstr ""
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_button"
+msgstr ""
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_status_waiting"
+msgstr ""
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "dropbox_not_configured"
+msgstr ""
+
+#: AFS_Core/src/Dropbox.cpp
+msgid "dropbox_file_missing"
+msgstr ""
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "login_no_local_port"
+msgstr ""
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr ""

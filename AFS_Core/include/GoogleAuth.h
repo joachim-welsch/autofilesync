@@ -19,6 +19,7 @@
 #pragma once
 #include <chrono>
 #include <string>
+#include <vector>
 #include "SshAccount.h"
 
 namespace AFS_Core {
@@ -31,6 +32,7 @@ struct Settings {  // [GoogleAuth.md#settings]
     std::string auth_url;
     std::string token_url;
     std::string api_url;
+    std::string content_url;  // [GoogleAuth.md#dropbox]
 };
 
 struct Provider {  // [GoogleAuth.md#Provider]
@@ -38,10 +40,12 @@ struct Provider {  // [GoogleAuth.md#Provider]
     const char* scope;
     const char* consent_parameters;
     const char* redirect_host;
+    std::vector<int> redirect_ports;  // [GoogleAuth.md#redirect-ports]
 };
 
 const Provider& google();
 const Provider& microsoft();  // [GoogleAuth.md#microsoft]
+const Provider& dropbox();  // [GoogleAuth.md#dropbox]
 const Provider& provider_of(const SshAccount& account);
 bool configured(const Provider& provider);
 
@@ -85,6 +89,12 @@ inline std::string access_token(const SshAccount& account) { return oauth::acces
 }
 
 namespace microsoft_auth {  // [GoogleAuth.md#microsoft]
+
+oauth::Settings& settings();
+
+}
+
+namespace dropbox_auth {  // [GoogleAuth.md#dropbox]
 
 oauth::Settings& settings();
 

@@ -279,6 +279,22 @@ set(AFS_MICROSOFT_CLIENT_ID "00000000-0000-0000-0000-000000000000")
 oder kommt von der Kommandozeile (`-DAFS_MICROSOFT_CLIENT_ID=…`). Ein Secret gibt
 es bei dieser Art von App nicht.
 
+## Dropbox
+
+Für Dropbox braucht es den App-Key einer in der Dropbox App Console angelegten
+App: „Scoped access“, Zugriffstyp „Full Dropbox“, Berechtigungen
+`files.metadata.read`, `files.metadata.write`, `files.content.read` und
+`files.content.write`, und als Redirect-URIs genau diese drei:
+`http://localhost:53682`, `http://localhost:53683`, `http://localhost:53684`.
+Der Key steht in `dropbox-client.cmake` (von git ignoriert):
+
+```cmake
+set(AFS_DROPBOX_APP_KEY "…")
+```
+
+oder kommt von der Kommandozeile (`-DAFS_DROPBOX_APP_KEY=…`). Das App-Secret wird
+nicht gebraucht.
+
 ## Externe Abhängigkeiten
 
 Die früher separat erwartete Bibliothek **mylib** ist vollständig in `AFS_Core`

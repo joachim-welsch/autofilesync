@@ -49,3 +49,9 @@ other address with 405, as the web page of a Nextcloud answers a PROPFIND.
 Starts test/tools/oneDriveTestServer.py, a stand-in for Microsoft's sign-in and the OneDrive
 part of Microsoft Graph that keeps its files in memory. It accepts the client and the refresh
 token named here and issues a new refresh token with every access token.
+
+## DropboxTestServer
+
+Starts test/tools/dropboxTestServer.py, a stand-in for Dropbox's sign-in and the files part of
+its API that keeps its files in memory. It accepts the app key and the refresh token named here
+and redirects only to the registered ports.

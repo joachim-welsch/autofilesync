@@ -2321,6 +2321,42 @@ msgstr "OneDrive: nie znaleziono pliku: "
 msgid "one_drive_name_taken"
 msgstr "OneDrive: nazwa jest już zajęta: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_dropbox_connection"
+msgstr "Nowe połączenie Dropbox…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_dropbox_connection"
+msgstr "Dodaj połączenie Dropbox"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_dropbox_connection"
+msgstr "Edytuj połączenie Dropbox"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_explanation"
+msgstr "Logowanie odbywa się w przeglądarce, w Dropbox; AutoFileSync nie poznaje hasła. Otrzymuje dostęp do plików w Twoim Dropbox, aby można było wybierać tam foldery jako źródło lub cel."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_button"
+msgstr "Zaloguj się przez Dropbox…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_status_waiting"
+msgstr "Oczekiwanie na logowanie w przeglądarce … Jeśli przeglądarka się nie otworzyła, kliknij ponownie „Zaloguj się przez Dropbox…”."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "dropbox_not_configured"
+msgstr "Dropbox nie jest jeszcze skonfigurowany w tej wersji: brakuje identyfikatora, którym AutoFileSync przedstawia się Dropbox."
+
+#: AFS_Core/src/Dropbox.cpp
+msgid "dropbox_file_missing"
+msgstr "Dropbox: nie znaleziono pliku: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "login_no_local_port"
+msgstr "Na tym komputerze nie ma wolnego portu na odpowiedź logowania. Zamknij inne okna logowania i spróbuj ponownie."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Telefon"

@@ -50,6 +50,7 @@ set(AFS_CORE_SOURCES
     HttpClient.cpp
     GoogleDrive.cpp
     OneDrive.cpp
+    Dropbox.cpp
     GoogleAuth.cpp
     CloudStore.cpp
     CpuTopology.cpp
@@ -102,6 +103,7 @@ if(NOT TARGET afs_core_deps)
     find_package(CURL REQUIRED)  # HttpClient.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # GoogleDrive.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # OneDrive.cpp speaks HTTP through libcurl
+    find_package(CURL REQUIRED)  # Dropbox.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # GoogleAuth.cpp speaks HTTP through libcurl
     find_package(CURL REQUIRED)  # CloudStore.cpp speaks HTTP through libcurl
 
@@ -176,6 +178,16 @@ if(NOT TARGET afs_core_deps)
         target_compile_definitions(afs_core_deps INTERFACE AFS_MICROSOFT_CLIENT_ID="${AFS_MICROSOFT_CLIENT_ID}")
     else()
         message(STATUS "OneDrive sign-in: no client id (microsoft-client.cmake), built without it")
+    endif()
+
+    # And for the app registered with Dropbox (GoogleAuth.md#dropbox): dropbox-client.cmake
+    # or -DAFS_DROPBOX_APP_KEY=... With PKCE the app secret is not used.
+    include(${AFS_CORE_DIR}/../dropbox-client.cmake OPTIONAL)
+    set(AFS_DROPBOX_APP_KEY "${AFS_DROPBOX_APP_KEY}" CACHE STRING "Dropbox app key")
+    if(AFS_DROPBOX_APP_KEY)
+        target_compile_definitions(afs_core_deps INTERFACE AFS_DROPBOX_APP_KEY="${AFS_DROPBOX_APP_KEY}")
+    else()
+        message(STATUS "Dropbox sign-in: no app key (dropbox-client.cmake), built without it")
     endif()
 endif()
 

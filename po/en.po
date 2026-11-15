@@ -2354,6 +2354,42 @@ msgstr "OneDrive: file not found: "
 msgid "one_drive_name_taken"
 msgstr "OneDrive: the name is already taken: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_dropbox_connection"
+msgstr "New Dropbox connection…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_dropbox_connection"
+msgstr "Add Dropbox connection"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_dropbox_connection"
+msgstr "Edit Dropbox connection"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_explanation"
+msgstr "You sign in at Dropbox in your browser; AutoFileSync never learns your password. It gets access to the files in your Dropbox so that you can choose folders there as source or target."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_button"
+msgstr "Sign in with Dropbox…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_status_waiting"
+msgstr "Waiting for the sign-in in the browser … If no browser has opened, click “Sign in with Dropbox…” again."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "dropbox_not_configured"
+msgstr "Dropbox is not set up in this version yet: the identifier AutoFileSync presents to Dropbox is missing."
+
+#: AFS_Core/src/Dropbox.cpp
+msgid "dropbox_file_missing"
+msgstr "Dropbox: file not found: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "login_no_local_port"
+msgstr "No port is free on this computer for the answer of the sign-in. Close other sign-in windows and try again."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Phone"

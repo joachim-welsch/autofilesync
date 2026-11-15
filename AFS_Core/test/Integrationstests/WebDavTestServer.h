@@ -59,6 +59,13 @@ public:
     explicit OneDriveTestServer(int page_size = 0);
 };
 
+class DropboxTestServer : public PythonTestServer {  // [WebDavTestServer.md#DropboxTestServer]
+public:
+    static constexpr char APP_KEY[] = "test-app-key";
+    static constexpr char REFRESH_TOKEN[] = "refresh-ok";
+    explicit DropboxTestServer(int page_size = 0);
+};
+
 void visit_like_a_browser(const std::string& url);  // [WebDavTestServer.md#visit_like_a_browser]
 
 } // namespace tu

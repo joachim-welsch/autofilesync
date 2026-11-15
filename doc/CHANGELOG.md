@@ -41,6 +41,13 @@
   registrierten App wird wie bei Google beim Bauen übergeben
   (`AFS_MICROSOFT_CLIENT_ID`, etwa aus `microsoft-client.cmake`); ohne sie
   meldet der Menüeintrag, dass OneDrive noch nicht eingerichtet ist.
+- Dropbox (vorbereitet): „Datei → Neue Dropbox-Verbindung…“ meldet im Browser
+  bei Dropbox an und macht die Dropbox als Quelle oder Ziel wählbar, mit
+  Zwei-Wege-Synchronisation, Generationenprinzip und Löschen im Ziel.
+  AutoFileSync sieht dort alle Dateien (Zugriffstyp „Full Dropbox“). Der
+  App-Key der bei Dropbox registrierten App wird beim Bauen übergeben
+  (`AFS_DROPBOX_APP_KEY`, etwa aus `dropbox-client.cmake`); ohne ihn meldet
+  der Menüeintrag, dass Dropbox noch nicht eingerichtet ist.
 - Behoben: Die Anmeldung an einer Nextcloud scheiterte mit „HTTP 405“, wenn
   die Adresse des Servers statt der WebDAV-Adresse eingetragen war. Die
   Verbindungsprüfung findet die WebDAV-Adresse bei Nextcloud und ownCloud jetzt

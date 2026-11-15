@@ -2321,6 +2321,42 @@ msgstr "OneDrive: archivo no encontrado: "
 msgid "one_drive_name_taken"
 msgstr "OneDrive: el nombre ya está en uso: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_dropbox_connection"
+msgstr "Nueva conexión de Dropbox…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_dropbox_connection"
+msgstr "Añadir conexión de Dropbox"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_dropbox_connection"
+msgstr "Editar conexión de Dropbox"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_explanation"
+msgstr "El inicio de sesión se hace en el navegador, en Dropbox; AutoFileSync no conoce tu contraseña. Obtiene acceso a los archivos de tu Dropbox para que puedas elegir allí carpetas como origen o destino."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_button"
+msgstr "Iniciar sesión con Dropbox…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_status_waiting"
+msgstr "Esperando el inicio de sesión en el navegador … Si no se ha abierto ningún navegador, vuelve a pulsar «Iniciar sesión con Dropbox…»."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "dropbox_not_configured"
+msgstr "Dropbox aún no está configurado en esta versión: falta el identificador con el que AutoFileSync se presenta ante Dropbox."
+
+#: AFS_Core/src/Dropbox.cpp
+msgid "dropbox_file_missing"
+msgstr "Dropbox: archivo no encontrado: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "login_no_local_port"
+msgstr "No hay ningún puerto libre en este equipo para la respuesta del inicio de sesión. Cierra otras ventanas de inicio de sesión e inténtalo de nuevo."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Móvil"

@@ -49,6 +49,7 @@ class OAuthAccountTest: public GuiTest {  // [OAuthAccountTest.md#OAuthAccountTe
 protected:
     google_auth::Settings real_settings_ = google_auth::settings();
     oauth::Settings real_microsoft_settings_ = microsoft_auth::settings();
+    oauth::Settings real_dropbox_settings_ = dropbox_auth::settings();
     std::unique_ptr<tu::PythonTestServer> server_;
     std::thread browser_;
 
@@ -67,6 +68,14 @@ protected:
         play_the_browser();
     }
 
+    void use_dropbox_test_server()
+    {
+        server_ = std::make_unique<tu::DropboxTestServer>();
+        dropbox_auth::settings() = {tu::DropboxTestServer::APP_KEY, "", server_->url() + "/oauth2/authorize", server_->url() + "/oauth2/token",
+            server_->url() + "/2", server_->url() + "/content/2"};
+        play_the_browser();
+    }
+
     void play_the_browser()
     {
         OAuthAccountDialog::open_browser_with([this](const wxString& url) {  // [OAuthAccountTest.md#browser]
@@ -81,6 +90,7 @@ protected:
         OAuthAccountDialog::open_browser_with([](const wxString& url) { wxLaunchDefaultBrowser(url); });
         google_auth::settings() = real_settings_;
         microsoft_auth::settings() = real_microsoft_settings_;
+        dropbox_auth::settings() = real_dropbox_settings_;
         server_.reset();
         GuiTest::TearDown();
     }
@@ -170,6 +180,40 @@ TEST_F(OAuthAccountTest, AnmeldungBeiMicrosoftSpeichertEineOneDriveVerbindung)  
     ModalDialogWatcher::instance().expect(txt::select_ssh_dir(), [](wxDialog& dialog) {
         auto* list = static_cast<wxListCtrl*>(find(dialog, ID_SSH_DIR_LIST));
         EXPECT_TRUE(wait_until([list] { return list->FindItem(-1, "[fotos]") != wxNOT_FOUND; })) << "Der Ordner im OneDrive erscheint nicht.";
+        dialog.EndModal(wxID_CANCEL);
+    });
+    SshDirDialog dir_dialog(&main_window(), txt::select_ssh_dir(), *account, "/");
+    dir_dialog.ShowModal();
+}
+
+TEST_F(OAuthAccountTest, AnmeldungBeiDropboxSpeichertEineDropboxVerbindung)  // [OAuthAccountTest.md#login]
+{
+    use_dropbox_test_server();
+    if (!server_->running())
+        GTEST_SKIP() << "Der Dropbox-Testserver ließ sich nicht starten (braucht python3).";
+    ModalDialogWatcher::instance().expect(txt::add_dropbox_connection(), [](wxDialog& dialog) {
+        ASSERT_TRUE(wait_until([&dialog] { return dialog.IsShownOnScreen(); }));
+        ASSERT_TRUE(replace_text(find(dialog, ID_OAUTH_NAME_BOX), ACCOUNT_NAME));
+        ASSERT_TRUE(click_on(find(dialog, ID_OAUTH_LOGIN_BUTTON)));
+        EXPECT_TRUE(click_when_enabled(find(dialog, wxID_OK), LOGIN_TIMEOUT_MILLISECONDS)) << "Die Anmeldung kam nicht an.";
+        pump();
+        if (dialog.IsModal())
+            dialog.EndModal(wxID_CANCEL);
+    });
+    activate_menu_item(main_window(), tul(id::File_new_DropboxConnection));
+    pump();
+    const auto account = saved();
+    ASSERT_TRUE(account.has_value()) << "Die Verbindung wurde nicht gespeichert.";
+    EXPECT_TRUE(account->dropbox());
+    EXPECT_FALSE(account->one_drive());
+    EXPECT_EQ(account->password(), std::string(tu::DropboxTestServer::REFRESH_TOKEN));
+
+    http::Request put(server_->url() + "/__test/files/Fotos/urlaub.jpg", "PUT");
+    put.body("jpeg");
+    put.expect_success(put.perform());
+    ModalDialogWatcher::instance().expect(txt::select_ssh_dir(), [](wxDialog& dialog) {
+        auto* list = static_cast<wxListCtrl*>(find(dialog, ID_SSH_DIR_LIST));
+        EXPECT_TRUE(wait_until([list] { return list->FindItem(-1, "[Fotos]") != wxNOT_FOUND; })) << "Der Ordner in der Dropbox erscheint nicht.";
         dialog.EndModal(wxID_CANCEL);
     });
     SshDirDialog dir_dialog(&main_window(), txt::select_ssh_dir(), *account, "/");

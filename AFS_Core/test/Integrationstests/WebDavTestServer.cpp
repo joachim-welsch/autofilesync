@@ -57,6 +57,10 @@ GoogleDriveTestServer::GoogleDriveTestServer(int page_size)
     : PythonTestServer("googleDriveTestServer.py", {"--page-size", std::to_string(page_size)})
 {}
 
+DropboxTestServer::DropboxTestServer(int page_size)
+    : PythonTestServer("dropboxTestServer.py", {"--page-size", std::to_string(page_size)})
+{}
+
 OneDriveTestServer::OneDriveTestServer(int page_size)
     : PythonTestServer("oneDriveTestServer.py", {"--page-size", std::to_string(page_size)})
 {}

@@ -141,6 +141,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\OneDrive.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\Dropbox.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\GoogleAuth.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -579,6 +582,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\OneDrive.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\Dropbox.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\GoogleAuth.cpp">

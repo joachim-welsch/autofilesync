@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "CloudStore.h"
+#include "Dropbox.h"
 #include "GoogleDrive.h"
 #include "OneDrive.h"
 
@@ -25,58 +26,63 @@ namespace AFS_Core {
 
 namespace cloud_store {
 
+namespace {
+template <typename WebDav, typename Google, typename Microsoft, typename Dropbox>
+auto by_kind(const SshAccount& account, WebDav webdav, Google google, Microsoft microsoft, Dropbox dropbox)  // [CloudStore.md#by_kind]
+{
+    if (account.google_drive())
+        return google();
+    if (account.one_drive())
+        return microsoft();
+    return account.dropbox() ? dropbox() : webdav();
+}
+}
+
 bool handles(const SshAccount& account)
 {
-    return account.webdav() || account.google_drive() || account.one_drive();
+    return account.webdav() || account.google_drive() || account.one_drive() || account.dropbox();
 }
 
 std::optional<Entry> stat(const SshAccount& account, const std::string& path)
 {
-    if (account.one_drive())
-        return one_drive::stat(account, path);
-    return account.google_drive() ? google_drive::stat(account, path) : webdav::stat(account, path);
+    return by_kind(account, [&] { return webdav::stat(account, path); }, [&] { return google_drive::stat(account, path); },
+        [&] { return one_drive::stat(account, path); }, [&] { return dropbox::stat(account, path); });
 }
 
 std::vector<Entry> list(const SshAccount& account, const std::string& path)
 {
-    if (account.one_drive())
-        return one_drive::list(account, path);
-    return account.google_drive() ? google_drive::list(account, path) : webdav::list(account, path);
+    return by_kind(account, [&] { return webdav::list(account, path); }, [&] { return google_drive::list(account, path); },
+        [&] { return one_drive::list(account, path); }, [&] { return dropbox::list(account, path); });
 }
 
 void make_directory(const SshAccount& account, const std::string& path)
 {
-    if (account.one_drive())
-        return one_drive::make_directory(account, path);
-    account.google_drive() ? google_drive::make_directory(account, path) : webdav::make_directory(account, path);
+    by_kind(account, [&] { webdav::make_directory(account, path); }, [&] { google_drive::make_directory(account, path); },
+        [&] { one_drive::make_directory(account, path); }, [&] { dropbox::make_directory(account, path); });
 }
 
 void remove(const SshAccount& account, const std::string& path)
 {
-    if (account.one_drive())
-        return one_drive::remove(account, path);
-    account.google_drive() ? google_drive::remove(account, path) : webdav::remove(account, path);
+    by_kind(account, [&] { webdav::remove(account, path); }, [&] { google_drive::remove(account, path); },
+        [&] { one_drive::remove(account, path); }, [&] { dropbox::remove(account, path); });
 }
 
 void move(const SshAccount& account, const std::string& from, const std::string& to)
 {
-    if (account.one_drive())
-        return one_drive::move(account, from, to);
-    account.google_drive() ? google_drive::move(account, from, to) : webdav::move(account, from, to);
+    by_kind(account, [&] { webdav::move(account, from, to); }, [&] { google_drive::move(account, from, to); },
+        [&] { one_drive::move(account, from, to); }, [&] { dropbox::move(account, from, to); });
 }
 
 CopyResult download(const SshAccount& account, const std::string& path, const std::filesystem::path& local_file)
 {
-    if (account.one_drive())
-        return one_drive::download(account, path, local_file);
-    return account.google_drive() ? google_drive::download(account, path, local_file) : webdav::download(account, path, local_file);
+    return by_kind(account, [&] { return webdav::download(account, path, local_file); }, [&] { return google_drive::download(account, path, local_file); },
+        [&] { return one_drive::download(account, path, local_file); }, [&] { return dropbox::download(account, path, local_file); });
 }
 
 CopyResult upload(const std::filesystem::path& local_file, const SshAccount& account, const std::string& path)
 {
-    if (account.one_drive())
-        return one_drive::upload(local_file, account, path);
-    return account.google_drive() ? google_drive::upload(local_file, account, path) : webdav::upload(local_file, account, path);
+    return by_kind(account, [&] { return webdav::upload(local_file, account, path); }, [&] { return google_drive::upload(local_file, account, path); },
+        [&] { return one_drive::upload(local_file, account, path); }, [&] { return dropbox::upload(local_file, account, path); });
 }
 
 }

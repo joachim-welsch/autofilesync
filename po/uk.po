@@ -2321,6 +2321,42 @@ msgstr "OneDrive: файл не знайдено: "
 msgid "one_drive_name_taken"
 msgstr "OneDrive: назву вже зайнято: "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_dropbox_connection"
+msgstr "Нове з'єднання Dropbox…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_dropbox_connection"
+msgstr "Додати з'єднання Dropbox"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_dropbox_connection"
+msgstr "Редагувати з'єднання Dropbox"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_explanation"
+msgstr "Вхід відбувається в браузері, у Dropbox; AutoFileSync не дізнається вашого пароля. Він отримує доступ до файлів у вашому Dropbox, щоб ви могли вибирати там папки як джерело або призначення."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_button"
+msgstr "Увійти через Dropbox…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_status_waiting"
+msgstr "Очікування входу в браузері … Якщо браузер не відкрився, натисніть «Увійти через Dropbox…» ще раз."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "dropbox_not_configured"
+msgstr "Dropbox у цій версії ще не налаштовано: бракує ідентифікатора, яким AutoFileSync представляється Dropbox."
+
+#: AFS_Core/src/Dropbox.cpp
+msgid "dropbox_file_missing"
+msgstr "Dropbox: файл не знайдено: "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "login_no_local_port"
+msgstr "На цьому комп'ютері немає вільного порту для відповіді входу. Закрийте інші вікна входу й спробуйте ще раз."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Телефон"

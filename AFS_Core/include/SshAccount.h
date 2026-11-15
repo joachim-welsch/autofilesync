@@ -22,6 +22,8 @@
 
 namespace AFS_Core {
 
+enum class CloudDrive { None, GoogleDrive, OneDrive, Dropbox };  // [SshAccount.md#cloud_drive_]
+
 class SshAccount {
     std::string name_;
     std::string user_;
@@ -31,8 +33,8 @@ class SshAccount {
     std::string host_key_;  // [SshAccount.md#host_key_]
     std::string sealed_password_;  // [SshAccount.md#sealed_password_]
     std::string url_;  // [SshAccount.md#url_]
-    bool google_drive_ = false;  // [SshAccount.md#google_drive_]
-    bool one_drive_ = false;  // [SshAccount.md#one_drive_]
+    CloudDrive cloud_drive_ = CloudDrive::None;  // [SshAccount.md#cloud_drive_]
+    void set_cloud_drive(CloudDrive drive, bool on) { cloud_drive_ = on ? drive : cloud_drive_ == drive ? CloudDrive::None : cloud_drive_; }
 public:
     const std::string& name() const;
     const std::string& user() const;
@@ -42,9 +44,10 @@ public:
     const std::string& host_key() const { return host_key_; }
     const std::string& sealed_password() const { return sealed_password_; }
     const std::string& url() const { return url_; }
-    bool webdav() const { return !url_.empty() && !google_drive_ && !one_drive_; }  // [SshAccount.md#url_]
-    bool one_drive() const { return one_drive_; }  // [SshAccount.md#one_drive_]
-    bool google_drive() const { return google_drive_; }  // [SshAccount.md#google_drive_]
+    bool webdav() const { return !url_.empty() && cloud_drive_ == CloudDrive::None; }  // [SshAccount.md#url_]
+    bool one_drive() const { return cloud_drive_ == CloudDrive::OneDrive; }  // [SshAccount.md#one_drive_]
+    bool google_drive() const { return cloud_drive_ == CloudDrive::GoogleDrive; }  // [SshAccount.md#google_drive_]
+    bool dropbox() const { return cloud_drive_ == CloudDrive::Dropbox; }  // [SshAccount.md#dropbox]
 
     void set_name(const std::string& name);
     void set_user(const std::string& user);
@@ -54,8 +57,9 @@ public:
     void set_host_key(const std::string& key) { host_key_ = key; }
     void set_sealed_password(const std::string& ciphertext) { sealed_password_ = ciphertext; }
     void set_url(const std::string& url) { url_ = url; }
-    void set_google_drive(bool google_drive) { google_drive_ = google_drive; }
-    void set_one_drive(bool one_drive) { one_drive_ = one_drive; }
+    void set_google_drive(bool on) { set_cloud_drive(CloudDrive::GoogleDrive, on); }
+    void set_one_drive(bool on) { set_cloud_drive(CloudDrive::OneDrive, on); }
+    void set_dropbox(bool on) { set_cloud_drive(CloudDrive::Dropbox, on); }
 };
 
 } // namespace AFS_Core

@@ -32,7 +32,7 @@
 
 namespace AFS_Core { class SshAccount; }
 
-enum class CloudProvider { GoogleDrive, OneDrive };  // [OAuthAccountDialog.md#CloudProvider]
+enum class CloudProvider { GoogleDrive, OneDrive, Dropbox };  // [OAuthAccountDialog.md#CloudProvider]
 
 class OAuthAccountDialog : public wxDialog {  // [OAuthAccountDialog.md#OAuthAccountDialog]
 public:

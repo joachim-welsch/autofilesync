@@ -47,17 +47,23 @@ void OAuthAccountDialog::open_browser_with(BrowserOpener opener)
 namespace {
 const oauth::Provider& login_provider(CloudProvider provider)
 {
+    if (provider == CloudProvider::Dropbox)
+        return oauth::dropbox();
     return provider == CloudProvider::OneDrive ? oauth::microsoft() : oauth::google();
 }
 
-const char* text_of(CloudProvider provider, const char* google_msgid, const char* microsoft_msgid)  // [OAuthAccountDialog.md#CloudProvider]
+const char* text_of(CloudProvider provider, const char* google_msgid, const char* microsoft_msgid, const char* dropbox_msgid)  // [OAuthAccountDialog.md#CloudProvider]
 {
+    if (provider == CloudProvider::Dropbox)
+        return dropbox_msgid;
     return provider == CloudProvider::OneDrive ? microsoft_msgid : google_msgid;
 }
 }
 
 CloudProvider OAuthAccountDialog::provider_of(const SshAccount& account)
 {
+    if (account.dropbox())
+        return CloudProvider::Dropbox;
     return account.one_drive() ? CloudProvider::OneDrive : CloudProvider::GoogleDrive;
 }
 
@@ -78,10 +84,10 @@ OAuthAccountDialog::OAuthAccountDialog(CloudProvider provider, const SshAccount&
     name_box_ = new wxTextCtrl(this, ID_OAUTH_NAME_BOX, original_name_);
     name_sizer->Add(name_box_, 1);
     main_sizer->Add(name_sizer, 0, wxEXPAND | wxALL, 5);
-    wxStaticText* explanation = new wxStaticText(this, wxID_STATIC, translation::translate(text_of(provider_, "google_login_explanation", "microsoft_login_explanation")));  // [OAuthAccountDialog.md#explanation]
+    wxStaticText* explanation = new wxStaticText(this, wxID_STATIC, translation::translate(text_of(provider_, "google_login_explanation", "microsoft_login_explanation", "dropbox_login_explanation")));  // [OAuthAccountDialog.md#explanation]
     explanation->Wrap(FromDIP(TEXT_WIDTH));
     main_sizer->Add(explanation, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
-    login_button_ = new wxButton(this, ID_OAUTH_LOGIN_BUTTON, translation::translate(text_of(provider_, "google_login_button", "microsoft_login_button")));
+    login_button_ = new wxButton(this, ID_OAUTH_LOGIN_BUTTON, translation::translate(text_of(provider_, "google_login_button", "microsoft_login_button", "dropbox_login_button")));
     main_sizer->Add(login_button_, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
     status_ = new wxStaticText(this, ID_OAUTH_STATUS, translation::translate(refresh_token_.empty() ? "google_login_status_none" : "google_login_status_done"));
     main_sizer->Add(status_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
@@ -106,7 +112,7 @@ void OAuthAccountDialog::on_login(wxCommandEvent&)
     try {
         login_ = std::make_unique<oauth::Login>(login_provider(provider_));
         browser_opener()(wxString::FromUTF8(login_->browser_url()));
-        show_status(translation::translate(text_of(provider_, "google_login_status_waiting", "microsoft_login_status_waiting")));
+        show_status(translation::translate(text_of(provider_, "google_login_status_waiting", "microsoft_login_status_waiting", "dropbox_login_status_waiting")));
         poll_timer_.Start(POLL_MILLISECONDS);
     } catch (const std::exception& e) {
         show_status(translation::translate("error_with_reason", {util::string_to_wstring(e.what())}));
@@ -134,6 +140,7 @@ void OAuthAccountDialog::save_data(SshAccount& account) const
     account.set_name(std::string(name_.ToUTF8()));
     account.set_google_drive(provider_ == CloudProvider::GoogleDrive);
     account.set_one_drive(provider_ == CloudProvider::OneDrive);
+    account.set_dropbox(provider_ == CloudProvider::Dropbox);
     account.set_url(login_provider(provider_).settings().api_url);
     account.set_password(refresh_token_);
 }

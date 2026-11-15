@@ -2321,6 +2321,42 @@ msgstr "OneDrive : fichier introuvable : "
 msgid "one_drive_name_taken"
 msgstr "OneDrive : le nom est déjà utilisé : "
 
+#: AFS_Desktop/src/Menu.cpp
+msgid "menu_new_dropbox_connection"
+msgstr "Nouvelle connexion Dropbox…"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_add_dropbox_connection"
+msgstr "Ajouter une connexion Dropbox"
+
+#: AFS_Desktop/include/TextResources.h
+msgid "title_edit_dropbox_connection"
+msgstr "Modifier la connexion Dropbox"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_explanation"
+msgstr "La connexion se fait dans le navigateur, chez Dropbox ; AutoFileSync ne connaît jamais votre mot de passe. Il obtient l'accès aux fichiers de votre Dropbox afin que vous puissiez y choisir des dossiers comme source ou cible."
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_button"
+msgstr "Se connecter avec Dropbox…"
+
+#: AFS_Desktop/src/OAuthAccountDialog.cpp
+msgid "dropbox_login_status_waiting"
+msgstr "En attente de la connexion dans le navigateur … Si aucun navigateur ne s'est ouvert, cliquez de nouveau sur « Se connecter avec Dropbox… »."
+
+#: AFS_Desktop/src/MainWindow.cpp
+msgid "dropbox_not_configured"
+msgstr "Dropbox n'est pas encore configuré dans cette version : il manque l'identifiant avec lequel AutoFileSync se présente à Dropbox."
+
+#: AFS_Core/src/Dropbox.cpp
+msgid "dropbox_file_missing"
+msgstr "Dropbox : fichier introuvable : "
+
+#: AFS_Core/src/GoogleAuth.cpp
+msgid "login_no_local_port"
+msgstr "Aucun port n'est libre sur cet ordinateur pour la réponse de la connexion. Fermez les autres fenêtres de connexion et réessayez."
+
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Téléphone"

@@ -45,3 +45,14 @@ account although it has an address.
 
 Marks a OneDrive account. Like a Google Drive account (#google_drive_) it carries the address
 of the provider's API in `url_` and the refresh token in `password_`.
+
+## cloud_drive_
+
+Which cloud drive the account belongs to, if any. One value instead of a flag per provider,
+because an account is at most one of them; the questions google_drive(), one_drive() and
+dropbox() read it.
+
+## dropbox
+
+Marks a Dropbox account. Like the other cloud drives (#google_drive_) it carries the address of
+the provider's API in `url_` and the refresh token in `password_`.

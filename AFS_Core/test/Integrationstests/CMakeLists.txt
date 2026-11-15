@@ -83,6 +83,7 @@ set(SOURCES
     WebDavTests.cpp
     GoogleDriveTests.cpp
     OneDriveTests.cpp
+    DropboxTests.cpp
     WebDavTestServer.cpp
     CpuTopologyTests.cpp
     SyncProposalTests.cpp

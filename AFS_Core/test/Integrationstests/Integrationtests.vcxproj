@@ -228,6 +228,7 @@
     <ClCompile Include="WebDavTests.cpp" />
     <ClCompile Include="GoogleDriveTests.cpp" />
     <ClCompile Include="OneDriveTests.cpp" />
+    <ClCompile Include="DropboxTests.cpp" />
     <ClCompile Include="WebDavTestServer.cpp" />
     <ClCompile Include="CpuTopologyTests.cpp" />
     <ClCompile Include="SyncProposalTests.cpp" />
@@ -249,6 +250,7 @@
     <ClCompile Include="$(LibDir)\src\HttpClient.cpp" />
     <ClCompile Include="$(LibDir)\src\GoogleDrive.cpp" />
     <ClCompile Include="$(LibDir)\src\OneDrive.cpp" />
+    <ClCompile Include="$(LibDir)\src\Dropbox.cpp" />
     <ClCompile Include="$(LibDir)\src\GoogleAuth.cpp" />
     <ClCompile Include="$(LibDir)\src\CloudStore.cpp" />
     <ClCompile Include="$(LibDir)\src\CpuTopology.cpp" />
@@ -353,6 +355,7 @@
     <ClInclude Include="$(LibDir)\include\HttpClient.h" />
     <ClInclude Include="$(LibDir)\include\GoogleDrive.h" />
     <ClInclude Include="$(LibDir)\include\OneDrive.h" />
+    <ClInclude Include="$(LibDir)\include\Dropbox.h" />
     <ClInclude Include="$(LibDir)\include\GoogleAuth.h" />
     <ClInclude Include="$(LibDir)\include\CloudStore.h" />
     <ClInclude Include="$(LibDir)\include\CpuTopology.h" />
