@@ -20,7 +20,11 @@
 #include "Config.h"
 #include "Logging.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include "FileName.h"
+#include "FilesystemUtil.h"
+#include <filesystem>
 #include <algorithm>
 #include <array>
 #include <charconv>
@@ -74,8 +78,8 @@ namespace {
     void append_file(wstring& text, const wstring& path, const FileState& file)
     {
         append_field(text, file.size);
-        append_field(text, util::to_unix_nanoseconds(file.source_time));
-        append_field(text, util::to_unix_nanoseconds(file.target_time));
+        append_field(text, file_time::to_unix_nanoseconds(file.source_time));
+        append_field(text, file_time::to_unix_nanoseconds(file.target_time));
         append_escaped(text, path);
         text += L'\n';
     }
@@ -183,7 +187,7 @@ namespace {
         for (std::size_t i = HEADER_LINES; i < lines.size(); ++i) {
             const auto fields = fields_of<FILE_FIELDS>(lines[i]);
             files.insert_or_assign(files.end(), unescaped(fields[3]), FileState{integer<uint64_t>(fields[0]),
-                util::from_unix_nanoseconds(integer<int64_t>(fields[1])), util::from_unix_nanoseconds(integer<int64_t>(fields[2]))});  // [SyncState.md#sorted-lines]
+                file_time::from_unix_nanoseconds(integer<int64_t>(fields[1])), file_time::from_unix_nanoseconds(integer<int64_t>(fields[2]))});  // [SyncState.md#sorted-lines]
         }
         return SyncState(header_value(lines[1], SOURCE_KEY), header_value(lines[2], TARGET_KEY), std::move(files));
     }
@@ -303,7 +307,7 @@ fs::path sync_state_dir()  // [SyncState.md#sync_state_dir]
 
 fs::path sync_state_file_path(const fs::path& directory, const wstring& item_name)  // [SyncState.md#sync_state_file_path]
 {
-    const wstring name = util::as_file_name(item_name);
+    const wstring name = file_name::sanitized(item_name);
     return directory / ((name.empty() ? wstring(DEFAULT_FILE_NAME) : name) + EXTENSION);
 }
 
@@ -313,7 +317,7 @@ std::optional<SyncState> read_sync_state(const fs::path& file, const wstring& so
     if (!fs::exists(file, ec))
         return std::nullopt;
     try {
-        SyncState state = state_of(util::read_utf8_file(file));  // [SyncState.md#utf8-file]
+        SyncState state = state_of(fsu::read_utf8_file(file));  // [SyncState.md#utf8-file]
         if (state.source() != source || state.target() != target) {  // [SyncState.md#sides-must-match]
             log_info(L"sync state ignored, it belongs to other paths: " + file.wstring());
             return std::nullopt;
@@ -331,14 +335,14 @@ bool write_sync_state(const fs::path& file, const SyncState& state)  // [SyncSta
     const fs::path tmp_file = file.wstring() + L".tmp";
     try {
         fs::create_directories(file.parent_path());
-        util::write_utf8_file(tmp_file, text_of(state));  // [SyncState.md#utf8-file]
+        fsu::write_utf8_file(tmp_file, text_of(state));  // [SyncState.md#utf8-file]
     }
     catch (const std::exception& ex) {
         log_error(translation::translate("sync_state_not_writable"), file.wstring(), util::string_to_wstring(ex.what()));
-        util::remove_file(tmp_file.wstring());
+        fsu::remove_file(tmp_file.wstring());
         return false;
     }
-    return util::rename_file(tmp_file.wstring(), file.wstring());
+    return fsu::rename_file(tmp_file.wstring(), file.wstring());
 }
 
 bool remove_sync_state(const fs::path& file)

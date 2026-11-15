@@ -19,7 +19,9 @@
 #include "pch.h"
 #include "SyncState.h"
 #include "Config.h"
-#include "Util.h"
+#include "FileTime.h"
+#include "FilesystemUtil.h"
+#include "Logging.h"
 #include "ScopedConfigHome.h"
 #include "ScopedLoggingSetup.h"
 #include <chrono>
@@ -42,7 +44,7 @@ namespace {
 
     FileState state_at(uint64_t size, int64_t source_ns, int64_t target_ns)
     {
-        return {size, util::from_unix_nanoseconds(source_ns), util::from_unix_nanoseconds(target_ns)};
+        return {size, file_time::from_unix_nanoseconds(source_ns), file_time::from_unix_nanoseconds(target_ns)};
     }
 
     class SyncStateTest: public ::testing::Test {
@@ -76,7 +78,7 @@ namespace {
             state.record(L"emoji 🙂/Datei.bin", state_at(UINT64_C(5'000'000'000), 1'800'000'000'999'999'999, 1'800'000'001'000'000'000));
             return state;
         }
-        void write_text(const wstring& text) const { util::write_utf8_file(state_file(), text); }
+        void write_text(const wstring& text) const { fsu::write_utf8_file(state_file(), text); }
         wstring header() const { return L"autofilesync-sync-state 1\nsource\t" + source_ + L"\ntarget\t" + target_ + L"\n"; }
         std::optional<SyncState> read() const { return read_sync_state(state_file(), source_, target_); }
     };
@@ -168,7 +170,7 @@ TEST_F(SyncStateTest, WriteCreatesTheDirectoryAndLeavesNoTempFile)
 TEST_F(SyncStateTest, FailedWriteLeavesNoTempFileAndNoHalfFile)  // [SyncStateTests.md#FailedWriteLeavesNoTempFileAndNoHalfFile]
 {
     const fs::path blocking_file = test_dir_ / "file";
-    util::write_utf8_file(blocking_file, L"not a directory");
+    fsu::write_utf8_file(blocking_file, L"not a directory");
     const fs::path file = blocking_file / "state.tsv";
     EXPECT_FALSE(write_sync_state(file, filled_state()));
     EXPECT_FALSE(fs::exists(file.wstring() + L".tmp"));

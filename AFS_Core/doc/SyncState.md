@@ -60,7 +60,7 @@ GUI wrote (Config::get_root_pathname()).
 
 ## sync_state_file_path
 
-The same sanitised item name the backup proof uses (Util.md#as_file_name), with "state" as the
+The same sanitised item name the backup proof uses (FileName.md#sanitized), with "state" as the
 fallback for a name that has no usable character.
 
 ## read_sync_state
@@ -97,7 +97,7 @@ escaped as \t, \n, \r and \\, because a Linux file name may contain any of them.
 ## utf8-file
 
 UTF-8 through util::write_utf8_file() and util::read_utf8_file(), for the same reasons as the
-configuration (Util.md#utf8-files): paths with umlauts, Cyrillic letters or emoji have to
+configuration (FilesystemUtil.md#utf8-files): paths with umlauts, Cyrillic letters or emoji have to
 survive the round trip.
 
 ## integer
@@ -116,7 +116,7 @@ correctly, only slower; a path that appears twice keeps its last line.
 
 ## nanoseconds
 
-The write times are stored as nanoseconds since the Unix epoch (Util.md#file-time-conversions),
+The write times are stored as nanoseconds since the Unix epoch (FileTime.md#conversions),
 not as seconds: a file rewritten within the same second must still differ from the stored
 state, or an edit shortly after a sync would pass for unchanged.
 

@@ -18,7 +18,7 @@ harmless for ten minutes.
 ## files
 
 The token lives in `pairing.token` in the configuration directory, owner-only from creation
-(Util.md#private-files) and replaced atomically, so the GUI can open a pairing that the background service redeems
+(FilesystemUtil.md#private-files) and replaced atomically, so the GUI can open a pairing that the background service redeems
 (DeviceLink.md#shared-files). The failure count stays in the memory of the redeeming process.
 
 ## redeem

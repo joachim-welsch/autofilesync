@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "Options.h"
+#include "StrUtil.h"
 #include <algorithm>
 #include <charconv>
 #include <iostream>
@@ -63,16 +64,6 @@ void usage()
         "  --keep-sandbox        Sandbox nach dem Lauf stehen lassen\n";
 }
 
-std::vector<std::string> split(const std::string& list)
-{
-    std::vector<std::string> parts;
-    std::stringstream stream(list);
-    for (std::string part; std::getline(stream, part, ',');)
-        if (!part.empty())
-            parts.push_back(part);
-    return parts;
-}
-
 bool parse_int(const std::string& text, int& value)
 {
     return std::from_chars(text.data(), text.data() + text.size(), value).ec == std::errc();
@@ -106,7 +97,7 @@ std::optional<Options> parse_options(int argc, char** argv)  // [Options.md#pars
         const auto value = [&]() -> std::string { return i + 1 < argc ? argv[++i] : std::string(); };
         bool ok = true;
         if (arg == "--help" || arg == "-h") { usage(); return std::nullopt; }
-        else if (arg == "--scenes") { options.scenes = split(value()); scenes_given = true; }
+        else if (arg == "--scenes") { options.scenes = Utilities::util::split(value(), ','); scenes_given = true; }
         else if (arg == "--sandbox") { options.sandbox = value(); ok = options.sandbox == "photos" || options.sandbox == "tour"; }
         else if (arg == "--root") options.root = value();
         else if (arg == "--target") options.target = value();

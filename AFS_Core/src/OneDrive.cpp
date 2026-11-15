@@ -21,8 +21,11 @@
 #include "FilesystemUtil.h"
 #include "GoogleAuth.h"
 #include "HttpClient.h"
+#include "PercentEncoding.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include <filesystem>
 #include <algorithm>
 #include <ctime>
 #include <fstream>
@@ -68,10 +71,8 @@ std::string checked_base(const SshAccount& account)
 std::string encoded_path(const std::string& path)
 {
     std::string encoded;
-    std::istringstream segments(path);
-    for (std::string segment; std::getline(segments, segment, '/');)
-        if (!segment.empty())
-            encoded += "/" + http::escaped(segment);
+    for (const std::string& segment : util::split(path, '/'))
+        encoded += "/" + percent::encoded(segment);
     return encoded;
 }
 
@@ -306,7 +307,7 @@ CopyResult download(const SshAccount& account, const std::string& path, const fs
     request.expect_success(status);
     std::error_code ec;
     if (const std::time_t modified = entry_of(*item).mtime; modified > 0)
-        fs::last_write_time(local_file, util::to_file_time(modified), ec);
+        fs::last_write_time(local_file, file_time::to_file_time(modified), ec);
     return CopyResult::OK;
 }
 
@@ -314,7 +315,7 @@ CopyResult upload(const fs::path& local_file, const SshAccount& account, const s
 {
     std::error_code ec;
     const auto size = fs::file_size(local_file, ec);
-    const std::time_t modified = util::to_time_t(fs::last_write_time(local_file, ec));
+    const std::time_t modified = file_time::to_time_t(fs::last_write_time(local_file, ec));
     std::ifstream in(local_file, std::ios::binary);
     if (ec || !in.is_open())
         throw Error(util::wstring_to_string(translation::translate("local_file_open_error")) + local_file.string());

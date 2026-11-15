@@ -30,7 +30,6 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
-#include "Util.h"
 
 #ifdef _UNIX
     #include <libssh/sftp.h>

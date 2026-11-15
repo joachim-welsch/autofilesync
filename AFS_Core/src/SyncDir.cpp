@@ -21,7 +21,8 @@
 #include "SyncFileSsh.h"
 #include "SyncFile.h"
 #include "Synchronize.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <filesystem>
 #include "Logging.h"
 #include "Translation.h"
 #include "Global.h"

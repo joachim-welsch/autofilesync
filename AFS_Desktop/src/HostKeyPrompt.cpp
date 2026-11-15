@@ -27,7 +27,7 @@
 #include <map>
 #include <memory>
 
-using AFS_Core::translation::translate;
+using Utilities::translation::translate;
 
 namespace {
 

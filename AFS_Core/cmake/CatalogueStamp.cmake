@@ -16,7 +16,7 @@
 # AFS_Core. If not, see <https://www.gnu.org/licenses/>.
 # AFS_CATALOGUE_STAMP ties the compiled message catalogues to the message ids
 # the program was built with: the SHA-1 of po/autofilesync.pot, the list of all
-# ids. The programs carry it as a compile definition (AfsCore.cmake), the
+# ids. The programs carry it as the compile definition TRANSLATION_CATALOGUE_STAMP (AfsCore.cmake), the
 # catalogues as the extra entry "catalogue_stamp" (StampCatalogue.cmake), and
 # translation::catalogue_mismatch() compares the two at startup - a program
 # copied over an installation whose catalogues were left behind otherwise shows

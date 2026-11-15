@@ -29,7 +29,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "Util.h"
+#include "StrUtil.h"
+#include "Logging.h"
+#include <chrono>
 #include "Config.h"
 #include <sstream>
 #include <filesystem>
@@ -447,7 +449,7 @@ void Synchronize::run_sync_item(SyncItem& i)
             known_files_[i.name()] = keeper.state()->files().size();
     }
     catch (std::filesystem::filesystem_error const& ex) {
-        handle_last_error(ex);
+        fsu::handle_last_error(ex);
         report_sync_error(string_to_wstring(ex.what()));
         return;
     }

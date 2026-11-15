@@ -8,6 +8,7 @@
             "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "includePath": [
                 "${workspaceFolder}/AFS_Core/include",
+                "${workspaceFolder}/Utilities/include",
                 "${workspaceFolder}/AFS_Desktop/include"
             ],
             "defines": [

@@ -24,6 +24,7 @@
 #include "Logging.h"
 #include "MyDaemon.h"
 #include "Translation.h"
+#include "Languages.h"
 
 namespace {
 std::unique_ptr<MyDaemon> my_daemon;
@@ -37,19 +38,19 @@ void signal_handler(int)
 
 int main()
 {
-    AFS_Core::translation::init_locale(AFS_Core::translation::DEFAULT_LOCALES);  // a unit file usually names no language at all
-    AFS_Core::translation::init(AFS_Core::translation::locale_dir());  // before the first message; installed to /usr/sbin there is no locale dir beside it, so gettext searches the system path
-    AFS_Core::Logging::instance().origin(AFS_Core::LogOrigin::Daemon);  // the GUI writes to the same file
+    Utilities::translation::init_locale(AFS_Core::languages::DEFAULT_LOCALES);  // a unit file usually names no language at all
+    Utilities::translation::init(Utilities::translation::locale_dir());  // before the first message; installed to /usr/sbin there is no locale dir beside it, so gettext searches the system path
+    Utilities::Logging::instance().origin(Utilities::LogOrigin::Daemon);  // the GUI writes to the same file
     my_daemon = std::make_unique<MyDaemon>();
     std::signal(SIGINT, signal_handler);
     std::signal(SIGTERM, signal_handler);
     my_daemon->start();
-    syslog(LOG_INFO, "%s", AFS_Core::translation::translate_utf8("daemon_running").c_str());
-    AFS_Core::log_info(AFS_Core::translation::translate("daemon_started"), L"");
+    syslog(LOG_INFO, "%s", Utilities::translation::translate_utf8("daemon_running").c_str());
+    Utilities::log_info(Utilities::translation::translate("daemon_started"), L"");
     while (!stop_requested)
         std::this_thread::sleep_for(std::chrono::seconds(1));
     my_daemon->stop();
-    syslog(LOG_INFO, "%s", AFS_Core::translation::translate_utf8("daemon_stopped").c_str());
-    AFS_Core::log_info(AFS_Core::translation::translate("daemon_stopped"), L"");  // after stop(), so it is the daemon's last entry
+    syslog(LOG_INFO, "%s", Utilities::translation::translate_utf8("daemon_stopped").c_str());
+    Utilities::log_info(Utilities::translation::translate("daemon_stopped"), L"");  // after stop(), so it is the daemon's last entry
     return 0;
 }

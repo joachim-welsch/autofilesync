@@ -101,7 +101,7 @@ bool press_control_enter(wxWindow* input)
 TEST_F(DISABLED_ChatGuiTest, AssistentHatEinEigenesMenue)  // [ChatDialogTest.md#AssistentHatEinEigenesMenue]
 {
     wxMenuBar* menu_bar = main_window().GetMenuBar();
-    const int assistant = menu_bar->FindMenu(AFS_Core::translation::translate("menu_assistant"));
+    const int assistant = menu_bar->FindMenu(Utilities::translation::translate("menu_assistant"));
     ASSERT_NE(assistant, wxNOT_FOUND) << "Die Menüleiste hat kein Menü Assistent.";
     EXPECT_NE(menu_bar->GetMenu(static_cast<size_t>(assistant))->FindItem(tul(id::Chat)), nullptr) << "Der Chat steht nicht im Menü Assistent.";
 }
@@ -142,7 +142,7 @@ TEST_F(DISABLED_ChatGuiTest, ChatNeuesGespraechLeertDenVerlauf)  // [ChatDialogT
     const HiddenChat hidden(chat);
     if (LlamaClient::available())
         GTEST_SKIP() << "Mit Sprachmodell dauert die Antwort zu lange für diesen Test.";
-    const wxString you = wxString(AFS_Core::translation::translate("chat_you")) + ":";
+    const wxString you = wxString(Utilities::translation::translate("chat_you")) + ":";
     ASSERT_TRUE(type_into(chat.input, "Hallo"));
     ASSERT_TRUE(click_when_enabled(chat.send));
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Die Antwort kam nicht.";
@@ -182,10 +182,10 @@ TEST_F(DISABLED_SlowGuiTest, ChatStrgEingabeSendet)  // [ChatDialogTest.md#ChatS
 
     EXPECT_NE(value_of(chat.transcript).Find("Antworte nur mit dem Wort ja"), wxNOT_FOUND) << "Strg+Eingabe hat die Frage nicht in den Verlauf gestellt.";
     EXPECT_EQ(value_of(chat.input), "") << "Das Eingabefeld wurde nach dem Senden nicht geleert.";
-    EXPECT_TRUE(!chat.send->IsEnabled() || value_of(chat.transcript).Contains(AFS_Core::translation::translate("error") + L":"))  // [ChatDialogTest.md#no-model]
+    EXPECT_TRUE(!chat.send->IsEnabled() || value_of(chat.transcript).Contains(Utilities::translation::translate("error") + L":"))  // [ChatDialogTest.md#no-model]
         << "Der Dialog wartet nach dem Senden nicht auf die Antwort.";
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
-    EXPECT_TRUE(value_of(chat.transcript).Contains(AFS_Core::translation::translate("chat_assistant") + L":") || value_of(chat.transcript).Contains(AFS_Core::translation::translate("error") + L":"));
+    EXPECT_TRUE(value_of(chat.transcript).Contains(Utilities::translation::translate("chat_assistant") + L":") || value_of(chat.transcript).Contains(Utilities::translation::translate("error") + L":"));
 }
 
 TEST_F(DISABLED_SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatDialogTest.md#ChatAntwortErscheintWaehrendSieEntsteht]
@@ -197,7 +197,7 @@ TEST_F(DISABLED_SlowGuiTest, ChatAntwortErscheintWaehrendSieEntsteht)  // [ChatD
     const HiddenChat hidden(chat);
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
     ASSERT_TRUE(replace_text(chat.input, "Nenne die sieben Wochentage, jeden in einer eigenen Zeile"));
-    const wxString speaker = AFS_Core::translation::translate("chat_assistant") + L":";
+    const wxString speaker = Utilities::translation::translate("chat_assistant") + L":";
     const std::size_t answers_before = count_of(value_of(chat.transcript), speaker);
 
     ASSERT_TRUE(press_control_enter(chat.input));
@@ -220,7 +220,7 @@ TEST_F(DISABLED_SlowGuiTest, ChatBeantwortetHilfefrageMitDerHilfeseite)  // [Cha
     const HiddenChat hidden(chat);
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
     ASSERT_TRUE(replace_text(chat.input, "Wie stelle ich die Sprache um?"));
-    const wxString speaker = AFS_Core::translation::translate("chat_assistant") + L":";
+    const wxString speaker = Utilities::translation::translate("chat_assistant") + L":";
 
     ASSERT_TRUE(press_control_enter(chat.input));
 
@@ -270,7 +270,7 @@ TEST_F(DISABLED_SlowGuiTest, ChatKenntDieAnzahlDerSynchronisationen)  // [ChatDi
     const HiddenChat hidden(chat);
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS));
     ASSERT_TRUE(replace_text(chat.input, "Wie viele Synchronisationen sind konfiguriert? Antworte nur mit der Zahl."));
-    const wxString speaker = AFS_Core::translation::translate("chat_assistant") + L":";
+    const wxString speaker = Utilities::translation::translate("chat_assistant") + L":";
 
     ASSERT_TRUE(press_control_enter(chat.input));
 
@@ -300,7 +300,7 @@ TEST_F(DISABLED_SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  
     const wxString transcript = value_of(chat.transcript);
     ASSERT_TRUE(create->IsShown()) << "Die Antwort enthielt keinen Vorschlag: " << transcript;
     EXPECT_EQ(transcript.Find("```"), wxNOT_FOUND) << "Der Vorschlagsblock steht im Verlauf.";  // [ChatDialogTest.md#block-not-shown]
-    const wxString answer = transcript.Mid(transcript.rfind(AFS_Core::translation::translate("chat_assistant") + L":"));
+    const wxString answer = transcript.Mid(transcript.rfind(Utilities::translation::translate("chat_assistant") + L":"));
     EXPECT_TRUE(answer.Contains("Chat-Vorschlag") && answer.Contains(target)) << "Die Antwort beschreibt den Vorschlag nicht: " << answer;  // [ChatDialogTest.md#proposal-described]
 
     wxString prefilled_source;
@@ -326,8 +326,8 @@ TEST_F(DISABLED_SlowGuiTest, ChatVorschlagLegtSynchronisationUeberDenDialogAn)  
     ASSERT_TRUE(press_control_enter(chat.input));
     ASSERT_TRUE(wait_until([&chat] { return chat.send->IsEnabled(); }, REPLY_TIMEOUT_MILLISECONDS)) << "Der Assistent hat nicht geantwortet.";
     ASSERT_TRUE(create->IsShown()) << "Die Antwort enthielt keinen Loeschvorschlag: " << value_of(chat.transcript);
-    EXPECT_EQ(create->GetLabel(), wxString(AFS_Core::translation::translate("chat_delete_sync")));
-    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("confirm_delete_title"), wxID_YES);
+    EXPECT_EQ(create->GetLabel(), wxString(Utilities::translation::translate("chat_delete_sync")));
+    ModalDialogWatcher::instance().answer(Utilities::translation::translate("confirm_delete_title"), wxID_YES);
     ASSERT_TRUE(click_on(create));
     pump();
     EXPECT_FALSE(Config::instance().find_by_name(L"Chat-Vorschlag").has_value()) << "Die Synchronisation wurde nicht geloescht.";

@@ -21,7 +21,8 @@
 #include "SshAccount.h"
 #include "Config.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <chrono>
 #include "utilwx.h"
 
 using namespace AFS_Core;

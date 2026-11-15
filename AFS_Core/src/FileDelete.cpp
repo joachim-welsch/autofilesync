@@ -20,7 +20,8 @@
 #include "FileDelete.h"
 #include "Config.h"
 #include <RecycleBin.h>
-#include <Util.h>
+#include <FileName.h>
+#include <FilesystemUtil.h>
 #include <Logging.h>
 #include <Translation.h>
 #include <chrono>
@@ -33,16 +34,16 @@ namespace fs = std::filesystem;
 static fs::path free_bin_item(const fs::path& origin)  // [FileDelete.md#free_bin_item]
 {
     auto time = std::chrono::system_clock::now();
-    fs::path item = util::with_timestamp_prefix(origin, time);
+    fs::path item = file_name::with_timestamp_prefix(origin, time);
     while (RecycleBin::instance().has_item(item))
-        item = util::with_timestamp_prefix(origin, time += std::chrono::milliseconds(1));
+        item = file_name::with_timestamp_prefix(origin, time += std::chrono::milliseconds(1));
     return item;
 }
 
 bool delete_file(const std::wstring& pathname)
 {
     if (Config::instance().settings().delete_mode() == DeleteMode::Permanent)
-        return util::remove_file(pathname, LogLevel::Error);
+        return fsu::remove_file(pathname, LogLevel::Error);
     const fs::path source(pathname);
     const fs::path item = free_bin_item(source.relative_path());  // [FileDelete.md#recycle-bin-layout]
     if (!RecycleBin::instance().add_item(source, item)) {

@@ -41,7 +41,7 @@ using utilwx::tul;
 namespace {
 wxString tooltip(const char* msgid)  // [Toolbar.md#tooltips-without-ellipsis]
 {
-    wxString label = AFS_Core::translation::translate(msgid);
+    wxString label = Utilities::translation::translate(msgid);
     if (label.EndsWith(L"\u2026"))
         label.RemoveLast();
     return label;

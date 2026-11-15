@@ -71,21 +71,13 @@ bool is_nextcloud_folder_key(std::string_view key)
     return key.ends_with(NEXTCLOUD_PATH_KEY) && key.find(NEXTCLOUD_FOLDER_GROUP) != std::string_view::npos;
 }
 
-std::string_view unquoted(std::string_view value)
-{
-    while (!value.empty() && (value.back() == '\r' || value.back() == ' '))
-        value.remove_suffix(1);
-    const bool quoted = value.size() >= 2 && value.front() == '"' && value.back() == '"';
-    return quoted ? value.substr(1, value.size() - 2) : value;
-}
-
 void add_nextcloud(CloudFolders& found, const fs::path& config_file)  // [CloudFolders.md#nextcloud]
 {
     std::ifstream in(config_file);
     for (std::string line; std::getline(in, line);) {
         const auto separator = line.find('=');
         if (separator != std::string::npos && is_nextcloud_folder_key(std::string_view(line).substr(0, separator)))
-            found.push_back({NEXTCLOUD, utf8_path(unquoted(std::string_view(line).substr(separator + 1)))});
+            found.push_back({NEXTCLOUD, utf8_path(util::unquoted(util::trimmed(std::string_view(line).substr(separator + 1))))});
     }
 }
 

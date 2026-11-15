@@ -27,7 +27,6 @@
     #include "wx/dcmirror.h"
 #endif
 
-#include "Util.h"
 #include "SourceCanvas.h"
 #include "TargetCanvas.h"
 

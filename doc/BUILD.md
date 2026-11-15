@@ -319,7 +319,7 @@ keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
   und `po/uk.po`, Vorlage `po/autofilesync.pot`.
   Eine Sprache ohne Katalog fällt auf Englisch zurück. Eine neue Sprache braucht
   `po/<sprache>.po` - Build und Installationspakete sammeln alle `po/*.po` ein - und
-  einen Eintrag in `translation::LANGUAGES`, damit sie in den Einstellungen wählbar ist.
+  einen Eintrag in `languages::LANGUAGES`, damit sie in den Einstellungen wählbar ist.
 - `msgfmt` übersetzt sie beim Build nach `build/locale/<sprache>/LC_MESSAGES/autofilesync.mo`
   (auf macOS zusätzlich in `autofilesync.app/Contents/Resources/locale`).
   Beide Programme suchen dieses Verzeichnis neben der eigenen Binary.
@@ -327,7 +327,7 @@ keine Sprache, auf die er zurückfallen könnte - er zeigt den Schlüssel.
   der Konfiguration), oder ohne gewählte Sprache über die Umgebung:
   `LANGUAGE=en ./autofilesync` (gettext wertet
   `LANGUAGE` vor der Locale aus). Eine Sitzung, die gar keine Sprache nennt, bekommt
-  Deutsch - siehe `translation::init_locale()` und `translation::DEFAULT_LOCALES`.
+  Deutsch - siehe `translation::init_locale()` und `languages::DEFAULT_LOCALES`.
 - Neue übersetzbare Texte einsammeln:
   ```bash
   xgettext --keyword=translate --keyword=translate_utf8 --keyword=msgid \
@@ -352,7 +352,7 @@ msgid ändert das Dateiformat nicht.
 ### Windows (Visual Studio)
 
 Der CMake-Build erzwingt libintl; die `.vcxproj`-Projekte holen es über vcpkg
-(`gettext` in `vcpkg.json`), definieren `AFS_WITH_GETTEXT` und linken `intl.lib`.
+(`gettext` in `vcpkg.json`), definieren `TRANSLATION_WITH_GETTEXT` und linken `intl.lib`.
 Heißt die Bibliothek in `installed\x64-windows\lib` anders (vcpkg kennt auch
 `libintl` und `intl-8`), ist der Eintrag in `AdditionalDependencies` anzupassen.
 

@@ -52,7 +52,9 @@
 #endif
 #include "Config.h"
 #include "FilesystemUtil.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include "FileName.h"
 #include "Logging.h"
 #include "Synchronize.h"
 
@@ -91,7 +93,7 @@ namespace {
     void keep_local_time(const wstring& local_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
     {
         std::error_code ec;
-        std::filesystem::last_write_time(local_path, util::to_file_time(mtime), ec);
+        std::filesystem::last_write_time(local_path, file_time::to_file_time(mtime), ec);
         if (ec)
             log_error(translation::translate("file_time_not_settable"), local_path, string_to_wstring(ec.message()));
     }
@@ -100,7 +102,7 @@ namespace {
     {
         std::error_code ec;
         const auto time = std::filesystem::last_write_time(path, ec);
-        return ec ? 0 : util::to_time_t(time);
+        return ec ? 0 : file_time::to_time_t(time);
     }
 }
 
@@ -1581,7 +1583,7 @@ std::vector<SshDirEntry> webdav_list_dir(const SshAccount& account, const wstrin
 }
 
 class TemporaryFile {  // [SyncFileSsh.md#webdav-through-a-local-file]
-    std::filesystem::path path_ = std::filesystem::temp_directory_path() / util::with_timestamp_prefix("autofilesync-transfer.tmp");
+    std::filesystem::path path_ = std::filesystem::temp_directory_path() / file_name::with_timestamp_prefix("autofilesync-transfer.tmp");
 public:
     TemporaryFile() = default;
     ~TemporaryFile()

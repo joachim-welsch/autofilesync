@@ -10,9 +10,15 @@ Benutzerfreundliche automatische Synchronisation von Dateien hin bis Verzeichnis
   Darf nichts aus AFS_Desktop einbinden.
 - `AFS_Desktop/`: Benutzeroberfläche und weiterführende Funktionalität,
   erzeugt das Programm `autofilesync`.
-- Quelllisten stehen in `AFS_Core/cmake/AfsCore.cmake` und
-  `AFS_Desktop/cmake/AfsDesktop.cmake`; neue Dateien dort eintragen (und in den
-  `.vcxproj`-Dateien für Windows).
+- `Utilities/`: allgemein verwendbare Module ohne Bezug zur Synchronisation
+  (z.B. `StrUtil`, `Base64`) im Namensraum `Utilities`; werden in `afs_core`
+  mitkompiliert. `AFS_Core` sieht die Namen ohne Präfix (`UtilitiesConfig.h`).
+  Die Tests liegen in `Utilities/test` und laufen im Programm `Integrationtests`.
+  Darf nichts aus AFS_Core, AFS_Desktop oder backgroundsync einbinden, außer
+  `pch.h` und `UtilitiesConfig.h` (Programmname), die das einbindende Projekt stellt.
+- Quelllisten stehen in `AFS_Core/cmake/AfsCore.cmake`,
+  `Utilities/cmake/Utilities.cmake` und `AFS_Desktop/cmake/AfsDesktop.cmake`;
+  neue Dateien dort eintragen (und in den `.vcxproj`-Dateien für Windows).
 
 ### Sprache
 modernstes C++ (mindestens C++20)
@@ -74,7 +80,7 @@ Konstanten werden Makros wenn immer möglich bevorzugt.
 - Zu jedem Modul wird eine Kommentardatei gepflegt und zwar im doc-Verzeichnis (neben include und src). Hier wird der mehrzeilige Kommentar abgelegt.
 - Inline-Kommentar ist im Quelltext nur hinter dem Code erlaubt. Inline-Kommentare stehen auf derselben Zeile wie der Code. Zeilen, die nur Kommentar enthalten sind strikt verboten.
 - Im Inline-Kommentar sollten Sprungmarken zum Modulkommentar stehen, wenn es um die Erklärung eines Abschnitts des Codes geht.
-- Ausnahme: Der Lizenz-Header am Dateianfang (GPLv3-Hinweis) ist als Kommentarblock erlaubt und in allen Quelldateien von AFS_Core, AFS_Desktop und backgroundsync Pflicht. `python tools/licenseHeaders.py --apply` setzt ihn, `--check` prüft ihn.
+- Ausnahme: Der Lizenz-Header am Dateianfang (GPLv3-Hinweis) ist als Kommentarblock erlaubt und in allen Quelldateien von AFS_Core, Utilities, AFS_Desktop und backgroundsync Pflicht. `python tools/licenseHeaders.py --apply` setzt ihn, `--check` prüft ihn.
 ## Tests
 
 ### Unittests

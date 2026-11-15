@@ -27,7 +27,8 @@
 #include "SyncState.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
 #include "WebDavTestServer.h"
 #include <chrono>
 #include <filesystem>
@@ -128,7 +129,7 @@ TEST_F(WebDavTest, StatTellsFileDirectoryAndAbsenceApart)
     ASSERT_TRUE(directory.has_value());
     EXPECT_FALSE(file->is_directory);
     EXPECT_EQ(file->size, 5u);
-    EXPECT_EQ(file->mtime, util::to_time_t(fs::last_write_time(remote_ / "brief.txt")));
+    EXPECT_EQ(file->mtime, file_time::to_time_t(fs::last_write_time(remote_ / "brief.txt")));
     EXPECT_TRUE(directory->is_directory);
     EXPECT_FALSE(webdav::stat(account_, "/fehlt.txt").has_value());
 }
@@ -155,11 +156,11 @@ TEST_F(WebDavTest, UploadAndDownloadKeepContentAndTime)
     set_age(local_ / "bild.bin", std::chrono::hours(50));
     EXPECT_EQ(webdav::upload(local_ / "bild.bin", account_, "/bild kopie.bin"), CopyResult::OK);
     EXPECT_EQ(content_of(remote_ / "bild kopie.bin"), content_of(local_ / "bild.bin"));
-    EXPECT_EQ(util::to_time_t(fs::last_write_time(remote_ / "bild kopie.bin")), util::to_time_t(fs::last_write_time(local_ / "bild.bin")));
+    EXPECT_EQ(file_time::to_time_t(fs::last_write_time(remote_ / "bild kopie.bin")), file_time::to_time_t(fs::last_write_time(local_ / "bild.bin")));
 
     EXPECT_EQ(webdav::download(account_, "/bild kopie.bin", local_ / "zurueck.bin"), CopyResult::OK);
     EXPECT_EQ(content_of(local_ / "zurueck.bin"), content_of(local_ / "bild.bin"));
-    EXPECT_EQ(util::to_time_t(fs::last_write_time(local_ / "zurueck.bin")), util::to_time_t(fs::last_write_time(local_ / "bild.bin")));
+    EXPECT_EQ(file_time::to_time_t(fs::last_write_time(local_ / "zurueck.bin")), file_time::to_time_t(fs::last_write_time(local_ / "bild.bin")));
 }
 
 TEST_F(WebDavTest, EmptyFileTravelsBothWays)

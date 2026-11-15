@@ -21,7 +21,7 @@
 #include "SyncTree.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include <filesystem>
 #include <fstream>
 #include <string>

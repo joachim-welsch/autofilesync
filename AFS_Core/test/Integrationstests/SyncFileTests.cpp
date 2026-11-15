@@ -24,7 +24,9 @@
 #include "SyncFileTests.h"
 #include "SyncRunner.h"
 #include "Config.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <latch>

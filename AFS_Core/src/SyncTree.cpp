@@ -19,7 +19,7 @@
 #include "SyncTree.h"
 #include "Global.h"
 #include "SyncFileSsh.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include "Synchronize.h"
 #include "Logging.h"
 #include "Translation.h"

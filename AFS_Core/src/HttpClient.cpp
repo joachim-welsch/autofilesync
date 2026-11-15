@@ -110,23 +110,6 @@ struct Request::UploadReader {  // [HttpClient.md#transfers]
     }
 };
 
-std::string escaped(const std::string& text)
-{
-    char* encoded = curl_easy_escape(thread_handle(false), text.c_str(), static_cast<int>(text.size()));
-    const std::string result = encoded != nullptr ? encoded : "";
-    curl_free(encoded);
-    return result;
-}
-
-std::string unescaped(const std::string& text)
-{
-    int length = 0;
-    char* decoded = curl_easy_unescape(thread_handle(false), text.c_str(), static_cast<int>(text.size()), &length);
-    const std::string result = decoded != nullptr ? std::string(decoded, static_cast<std::size_t>(length)) : "";
-    curl_free(decoded);
-    return result;
-}
-
 std::time_t parse_date(const std::string& text)
 {
     return curl_getdate(text.c_str(), nullptr);

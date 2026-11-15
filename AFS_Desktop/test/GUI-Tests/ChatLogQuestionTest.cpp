@@ -24,7 +24,7 @@
 #include "utilwx.h"
 #include "Logging.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include <fstream>
 #include <iomanip>
 #include <sstream>

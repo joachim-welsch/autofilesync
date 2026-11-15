@@ -24,7 +24,8 @@
 #include "SyncFile.h"
 #include "Synchronize.h"
 #include "SyncItem.h"
-#include "Util.h"
+#include "FilesystemUtil.h"
+#include "Logging.h"
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
@@ -131,7 +132,7 @@ protected:
         std::ofstream(path) << content;
         const auto duration = time.time_since_epoch();
         const auto fs_time = fs::file_time_type(std::chrono::duration_cast<fs::file_time_type::duration>(duration));
-        util::set_last_write_time(path.wstring(), fs_time, LogLevel::None);
+        fsu::set_last_write_time(path.wstring(), fs_time, LogLevel::None);
     }
 };
 
@@ -431,7 +432,7 @@ TEST_F(ThreeWayTest, BothChangedIsAConflictUnlessTheyAgree)  // [FileDifferenceT
 TEST_F(ThreeWayTest, SizeAloneMarksASideAsChanged)
 {
     tu::write_text_file(source_, "v1!");
-    util::set_last_write_time(source_w_, base_.source_time);
+    fsu::set_last_write_time(source_w_, base_.source_time);
     EXPECT_EQ(with_base(), Result::SourceModified);
     EXPECT_EQ(without_base(), Result::SourceModified);
 }

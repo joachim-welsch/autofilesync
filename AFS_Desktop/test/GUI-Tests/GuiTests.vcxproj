@@ -38,7 +38,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_GUITEST;wxUSE_HELP;_WXWIDGETS;WIN32;X64;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOMINMAX;NOPCH;AFS_WITH_GETTEXT;AFS_ANDROID_RES_DIR="$(ProjectDir.Replace('\','/'))../../../AFS_Android/app/src/main/res";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_GUITEST;wxUSE_HELP;_WXWIDGETS;WIN32;X64;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOMINMAX;NOPCH;TRANSLATION_WITH_GETTEXT;AFS_ANDROID_RES_DIR="$(ProjectDir.Replace('\','/'))../../../AFS_Android/app/src/main/res";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- The prebuilt wxmsw33ud_* debug libs below were built against the debug CRT
@@ -46,7 +46,7 @@
            to /MD, and linking mixes the two, leaving wx's internal debug-heap calls
            (_CrtDbgReport, _calloc_dbg) unresolved. -->
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\..\third-party;..\..\..\AFS_Core\test\Integrationstests;packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\third-party;..\..\..\AFS_Core\test\Integrationstests;packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;..\..\..\Utilities\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswud;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -60,10 +60,10 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_GUITEST;wxUSE_HELP;_WXWIDGETS;WIN32;X64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOMINMAX;NOPCH;AFS_WITH_GETTEXT;AFS_ANDROID_RES_DIR="$(ProjectDir.Replace('\','/'))../../../AFS_Android/app/src/main/res";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_GUITEST;wxUSE_HELP;_WXWIDGETS;WIN32;X64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;__WXMSW__;_UNICODE;NOMINMAX;NOPCH;TRANSLATION_WITH_GETTEXT;AFS_ANDROID_RES_DIR="$(ProjectDir.Replace('\','/'))../../../AFS_Android/app/src/main/res";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>..\..\..\third-party;..\..\..\AFS_Core\test\Integrationstests;packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\third-party;..\..\..\AFS_Core\test\Integrationstests;packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\include;.\;..\..;..\..\include;..\..\..\AFS_Core\include;..\..\..\Utilities\include;C:\Entwicklung\extlib\boost\boost_1_90_0;C:\Entwicklung\extlib\wxWidgets-3.3.1\lib\vc_x64_lib\mswu;C:\Entwicklung\extlib\wxWidgets-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
@@ -101,17 +101,17 @@
     <ClInclude Include="..\..\..\AFS_Core\include\Config.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CopyLog.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\HelpKnowledge.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\JsonText.h" />
+    <ClInclude Include="..\..\..\Utilities\include\JsonText.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\FileDelete.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\FileDifference.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\FilesystemUtil.h" />
+    <ClInclude Include="..\..\..\Utilities\include\FilesystemUtil.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Global.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Libssh2Init.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\LlamaClient.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\LogAnalysis.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\LogCut.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\LogEmail.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\Logging.h" />
+    <ClInclude Include="..\..\..\Utilities\include\LogCut.h" />
+    <ClInclude Include="..\..\..\Utilities\include\LogEmail.h" />
+    <ClInclude Include="..\..\..\Utilities\include\Logging.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\ModelLocation.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CloudFolders.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Restore.h" />
@@ -123,10 +123,10 @@
     <ClInclude Include="..\..\..\AFS_Core\include\S3.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\GoogleAuth.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\CloudStore.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\CpuTopology.h" />
+    <ClInclude Include="..\..\..\Utilities\include\CpuTopology.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncProposal.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\ConfigSummary.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\MountedDrives.h" />
+    <ClInclude Include="..\..\..\Utilities\include\MountedDrives.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\PasswordCrypto.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SecretBlob.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\UserObject.h" />
@@ -136,17 +136,20 @@
     <ClInclude Include="..\..\..\AFS_Core\include\DeviceLink.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\DevicePairing.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\pch.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\RecycleBin.h" />
+    <ClInclude Include="..\..\..\Utilities\include\RecycleBin.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Settings.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SftpConnection.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\SmtpMailer.h" />
+    <ClInclude Include="..\..\..\Utilities\include\SmtpMailer.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SshAccount.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SshConnectTimeout.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SshDirInspector.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SshFileInspector.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SshHostKeyVerification.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SshUnreachable.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\StrUtil.h" />
+    <ClInclude Include="..\..\..\Utilities\include\StrUtil.h" />
+    <ClInclude Include="..\..\..\Utilities\include\Base64.h" />
+    <ClInclude Include="..\..\..\Utilities\include\Hex.h" />
+    <ClInclude Include="..\..\..\Utilities\include\PercentEncoding.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncArbiter.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncBase.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncControler.h" />
@@ -158,9 +161,13 @@
     <ClInclude Include="..\..\..\AFS_Core\include\SyncMessage.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncPlan.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncTree.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\ThreadSaveStack.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\Translation.h" />
-    <ClInclude Include="..\..\..\AFS_Core\include\Util.h" />
+    <ClInclude Include="..\..\..\Utilities\include\ThreadSaveStack.h" />
+    <ClInclude Include="..\..\..\Utilities\include\Translation.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\Languages.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\UtilitiesConfig.h" />
+    <ClInclude Include="..\..\..\Utilities\include\FileTime.h" />
+    <ClInclude Include="..\..\..\Utilities\include\FileName.h" />
+    <ClInclude Include="..\..\..\Utilities\include\SystemInfo.h" />
     <ClInclude Include="..\..\include\App.h" />
     <ClInclude Include="..\..\include\AutoSave.h" />
     <ClInclude Include="..\..\include\BackgroundService.h" />
@@ -274,7 +281,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\S3.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\GoogleAuth.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CloudStore.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\CpuTopology.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\CpuTopology.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\ConfigSummary.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\LogAnalysis.cpp" />
@@ -288,7 +295,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\Config.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\CopyLog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\HelpKnowledge.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\JsonText.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\JsonText.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SecretBlob.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\UserObject.cpp" />
@@ -345,7 +352,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\SyncFileSsh.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\Synchronize.cpp" />
     <ClCompile Include="..\..\src\SyncInterface.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\Translation.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\Translation.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncItem.cpp" />
     <ClCompile Include="..\..\src\SyncItemDialog.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncMessage.cpp" />
@@ -357,15 +364,20 @@
     <ClCompile Include="..\..\src\Toolbar.cpp" />
     <ClCompile Include="..\..\src\TreeCtrl.cpp" />
     <ClCompile Include="..\..\src\TreeItemData.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\Util.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\SmtpMailer.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\MountedDrives.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\RecycleBin.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\LogCut.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\LogEmail.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\Logging.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\StrUtil.cpp" />
-    <ClCompile Include="..\..\..\AFS_Core\src\FilesystemUtil.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\FileTime.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\FileName.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\SystemInfo.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\SmtpMailer.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\MountedDrives.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\RecycleBin.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\LogCut.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\LogEmail.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\Logging.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\StrUtil.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\Base64.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\Hex.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\PercentEncoding.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\FilesystemUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

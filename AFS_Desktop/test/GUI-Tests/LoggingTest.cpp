@@ -30,7 +30,8 @@
 #include "Logging.h"
 #include "TextResources.h"
 #include "Translation.h"
-#include "Util.h"
+#include "FilesystemUtil.h"
+#include <filesystem>
 #include "id.h"
 #include "utilwx.h"
 #include <boost/property_tree/json_parser.hpp>
@@ -51,7 +52,7 @@ namespace {
 std::wstring proven_status(const fs::path& proof)  // [LoggingTest.md#proven_status]
 {
     boost::property_tree::wptree root;
-    std::wistringstream text(util::read_utf8_file(proof));
+    std::wistringstream text(fsu::read_utf8_file(proof));
     boost::property_tree::read_json(text, root);
     const auto& entry = root.front().second.back().second;
     const auto found = entry.find(translation::translate("backup_proof_field_status"));

@@ -18,11 +18,14 @@
  */
 #include "pch.h"
 #include "HelpKnowledge.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FilesystemUtil.h"
+#include <string_view>
 #include <filesystem>
 #include <regex>
 #include <set>
 #include "Translation.h"
+#include "Languages.h"
 
 using namespace AFS_Core;
 namespace fs = std::filesystem;
@@ -47,7 +50,7 @@ std::vector<Section> real_help(const fs::path& language = {})  // [HelpKnowledge
     const fs::path help = fs::path(LIB_SOURCE_DIR) / ".." / "AFS_Desktop" / "help" / language;
     for (const auto& entry : fs::directory_iterator(help))
         if (entry.path().extension() == ".html") {
-            const std::vector<Section> page = help_knowledge::sections_of(util::read_utf8_file(entry.path()));
+            const std::vector<Section> page = help_knowledge::sections_of(fsu::read_utf8_file(entry.path()));
             sections.insert(sections.end(), page.begin(), page.end());
         }
     return sections;
@@ -134,7 +137,7 @@ std::multiset<std::string> links_of(const fs::path& directory)
     for (const auto& entry : fs::directory_iterator(directory)) {
         if (entry.path().extension() != ".html")
             continue;
-        const std::string page = util::wstring_to_string(util::read_utf8_file(entry.path()));
+        const std::string page = util::wstring_to_string(fsu::read_utf8_file(entry.path()));
         for (std::sregex_iterator link(page.begin(), page.end(), href); link != std::sregex_iterator(); ++link)
             links.insert((*link)[1]);
     }
@@ -148,7 +151,7 @@ TEST(HelpKnowledgeTests, EveryOfferedLanguageHasACompleteHelpBook)  // [HelpKnow
     const fs::path help = fs::path(LIB_SOURCE_DIR) / ".." / "AFS_Desktop" / "help";
     const std::set<std::string> german_files = files_of(help);
     const std::multiset<std::string> german_links = links_of(help);
-    for (const translation::Language& language : translation::LANGUAGES) {
+    for (const translation::Language& language : languages::LANGUAGES) {
         if (std::string_view(language.code) == "de")
             continue;
         const fs::path directory = help / language.code;

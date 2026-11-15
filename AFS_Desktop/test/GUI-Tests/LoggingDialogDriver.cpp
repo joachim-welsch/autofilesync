@@ -73,9 +73,9 @@ bool enter_email_page(wxDialog& dialog, const EmailInput& email)  // [LoggingDia
 
 bool enter_values(wxDialog& dialog, const LoggingInput& input)
 {
-    return show_notebook_page(dialog, AFS_Core::translation::translate("tab_logging")) && enter_logging_page(dialog, input)
-        && show_notebook_page(dialog, AFS_Core::translation::translate("tab_email")) && enter_email_page(dialog, input.email)
-        && show_notebook_page(dialog, AFS_Core::translation::translate("tab_logging"));
+    return show_notebook_page(dialog, Utilities::translation::translate("tab_logging")) && enter_logging_page(dialog, input)
+        && show_notebook_page(dialog, Utilities::translation::translate("tab_email")) && enter_email_page(dialog, input.email)
+        && show_notebook_page(dialog, Utilities::translation::translate("tab_logging"));
 }
 
 }

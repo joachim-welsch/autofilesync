@@ -27,7 +27,7 @@
 #include "SyncItem.h"
 #include "Config.h"
 #include "CloudFolders.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include "Logging.h"
 #include "SshAccountSelectDialog.h"
 #include "SshDirDialog.h"
@@ -292,13 +292,9 @@ void SyncItemDialog::save_data(SyncItem& si)
         Exclusions exclusions;  // [SyncItemDialog.md#exclusions-one-per-line]
         std::wistringstream lines(exclusions_.ToStdWstring());
         std::wstring line;
-        while (std::getline(lines, line)) {
-            const auto first = line.find_first_not_of(L" \t\r");
-            if (first == std::wstring::npos)
-                continue;
-            const auto last = line.find_last_not_of(L" \t\r");
-            exclusions.push_back(line.substr(first, last - first + 1));
-        }
+        while (std::getline(lines, line))
+            if (const std::wstring exclusion = util::trimmed(line); !exclusion.empty())
+                exclusions.push_back(exclusion);
         si.exclusions(exclusions);
     }
     si.source(source_.ToStdWstring());

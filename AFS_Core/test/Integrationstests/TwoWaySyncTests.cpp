@@ -24,7 +24,10 @@
 #include "Synchronize.h"
 #include "Translation.h"
 #include "TwoWaySyncTests.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include "FileName.h"
+#include "SystemInfo.h"
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
@@ -90,7 +93,7 @@ TEST_F(TwoWaySyncTest, NewerTargetFileIsCopiedBackToTheSource)
 
     EXPECT_EQ(tu::read_text_file(source_dir_ / "notes.txt"), "edited on the target");
     EXPECT_EQ(tu::read_text_file(target_dir_ / "notes.txt"), "edited on the target") << "the side that won must stay untouched";
-    EXPECT_TRUE(util::equal(fs::last_write_time(source_dir_ / "notes.txt"),
+    EXPECT_TRUE(file_time::equal(fs::last_write_time(source_dir_ / "notes.txt"),
                             fs::last_write_time(target_dir_ / "notes.txt")))
         << "the back copy must carry the target's modification time, otherwise the next pass syncs again";  // [TwoWaySyncTests.md#back-copy-timestamp]
 }
@@ -115,8 +118,8 @@ TEST_F(TwoWaySyncTest, IdenticalFilesAreCopiedInNeitherDirection)
 
     EXPECT_EQ(tu::run_sync(two_way_file_item(L"notes.txt")), 0u);
 
-    EXPECT_TRUE(util::equal(fs::last_write_time(source_dir_ / "notes.txt"), source_time));
-    EXPECT_TRUE(util::equal(fs::last_write_time(target_dir_ / "notes.txt"), target_time));
+    EXPECT_TRUE(file_time::equal(fs::last_write_time(source_dir_ / "notes.txt"), source_time));
+    EXPECT_TRUE(file_time::equal(fs::last_write_time(target_dir_ / "notes.txt"), target_time));
 }
 
 TEST_F(TwoWaySyncTest, FileDeletedInTheSourceIsRestoredFromTheTarget)
@@ -297,7 +300,7 @@ TEST_F(TwoWaySyncTest, FirstPassRecordsEveryFileInTheState)  // [TwoWaySyncTests
     ASSERT_NE(state.find(L"back.txt"), nullptr);
     EXPECT_EQ(state.find(L"cache.tmp"), nullptr) << "an excluded file is not the state's business";
     EXPECT_EQ(state.find(L"sub/new.txt")->size, std::string("new in the source").size());
-    EXPECT_TRUE(util::equal(state.find(L"sub/new.txt")->target_time, fs::last_write_time(target_dir_ / "sub" / "new.txt")));
+    EXPECT_TRUE(file_time::equal(state.find(L"sub/new.txt")->target_time, fs::last_write_time(target_dir_ / "sub" / "new.txt")));
     EXPECT_TRUE(state.changed());
 }
 
@@ -727,10 +730,10 @@ namespace {
     }
     std::string conflict_name(const std::string& stem, const std::string& extension, int n = 1)  // [TwoWaySyncTests.md#conflict-copies]
     {
-        const std::wstring host = util::string_to_wstring(util::host_name());
-        std::wstring marker = translation::translate("conflict_copy_marker", {util::local_date(), host});
+        const std::wstring host = util::string_to_wstring(system_info::host_name());
+        std::wstring marker = translation::translate("conflict_copy_marker", {file_name::local_date(), host});
         if (marker == L"conflict_copy_marker")  // the test process binds no catalogue, see SyncFile.md#conflict-copy-name
-            marker = L"conflict " + util::local_date() + L", " + host;
+            marker = L"conflict " + file_name::local_date() + L", " + host;
         return stem + " (" + util::wstring_to_string(marker) + (n == 1 ? "" : " " + std::to_string(n)) + ")" + extension;
     }
 }

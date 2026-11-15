@@ -21,7 +21,7 @@
 #include "Global.h"
 #include "SyncBase.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include <wx/filename.h>
 #include <filesystem>
 

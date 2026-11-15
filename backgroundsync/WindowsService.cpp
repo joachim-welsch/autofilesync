@@ -21,6 +21,7 @@
 #include <string>
 #include "Logging.h"
 #include "Translation.h"
+#include "Languages.h"
 #include "MyDaemon.h"
 
 using namespace AFS_Core;
@@ -100,7 +101,7 @@ int run_in_console()  // [WindowsService.md#run_in_console]
 
 int wmain()
 {
-    translation::init_locale(translation::DEFAULT_LOCALES);  // the service control manager names no language at all
+    translation::init_locale(languages::DEFAULT_LOCALES);  // the service control manager names no language at all
     translation::init(translation::locale_dir());  // before the first message
     Logging::instance().origin(LogOrigin::Daemon);  // the GUI writes to the same file
     stop_event = CreateEventW(nullptr, TRUE, FALSE, nullptr);

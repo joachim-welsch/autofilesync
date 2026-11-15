@@ -29,7 +29,7 @@
 #include "Translation.h"
 #include "FilesystemUtil.h"
 #include "Logging.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include <string>
 #include <iostream>
 #include <stdexcept>

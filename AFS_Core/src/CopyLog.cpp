@@ -28,7 +28,10 @@
 #include <sstream>
 #include "Logging.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileName.h"
+#include "FilesystemUtil.h"
+#include <filesystem>
 
 namespace AFS_Core {
 
@@ -57,7 +60,7 @@ namespace {
 
     wstring as_file_name(const wstring& item_name)
     {
-        const wstring retval = util::as_file_name(item_name);
+        const wstring retval = file_name::sanitized(item_name);
         return retval.empty() ? wstring(L"Sicherungsnachweis") : retval;  // [CopyLog.md#untranslated-file-name]
     }
 
@@ -99,7 +102,7 @@ namespace {
         if (!fs::exists(file, ec))
             return root;
         try {
-            std::wistringstream text(util::read_utf8_file(file));  // [CopyLog.md#utf8-file]
+            std::wistringstream text(fsu::read_utf8_file(file));  // [CopyLog.md#utf8-file]
             pt::read_json(text, root);
         }
         catch (const std::exception& ex) {
@@ -121,15 +124,15 @@ namespace {
     {
         const fs::path tmp_file = file.wstring() + L".tmp";
         try {
-            util::write_utf8_file(tmp_file, json::to_text(root));  // [CopyLog.md#utf8-file]
+            fsu::write_utf8_file(tmp_file, json::to_text(root));  // [CopyLog.md#utf8-file]
         }
         catch (const std::exception& ex) {
             log_error(translation::translate("backup_proof_not_writable"), file.wstring(),
                 util::string_to_wstring(ex.what()));
-            util::remove_file(tmp_file.wstring());
+            fsu::remove_file(tmp_file.wstring());
             return false;
         }
-        return util::rename_file(tmp_file.wstring(), file.wstring());
+        return fsu::rename_file(tmp_file.wstring(), file.wstring());
     }
 }
 

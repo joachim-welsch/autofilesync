@@ -24,7 +24,7 @@
 #include <fstream>
 #include <Logging.h>
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include <sstream>
 #include <vector>
 
@@ -65,9 +65,7 @@ std::vector<std::wstring> log_words()  // [LogAnalysis.md#log_words]
 
 bool looks_like_log_question(const std::wstring& text)
 {
-    std::wstring lower = text;
-    std::transform(lower.begin(), lower.end(), lower.begin(),
-        [](wchar_t c) { return static_cast<wchar_t>(std::towlower(c)); });  // [LogAnalysis.md#towlower]
+    const std::wstring lower = util::lowercase(text);  // [StrUtil.md#lowercase]
     const std::vector<std::wstring> words = log_words();
     return std::ranges::any_of(words, [&lower](const std::wstring& word) { return lower.find(word) != std::wstring::npos; });
 }

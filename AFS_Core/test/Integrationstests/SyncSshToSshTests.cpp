@@ -24,7 +24,8 @@
 #include "SyncRunner.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
 #include <chrono>
 #include <filesystem>
 #include <thread>
@@ -115,7 +116,7 @@ protected:
 
     static std::time_t whole_seconds(const fs::path& file)
     {
-        return util::to_time_t(fs::last_write_time(file));
+        return file_time::to_time_t(fs::last_write_time(file));
     }
 };
 

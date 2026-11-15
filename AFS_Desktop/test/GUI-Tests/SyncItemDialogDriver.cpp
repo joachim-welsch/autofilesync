@@ -97,14 +97,14 @@ bool enter_options(wxDialog& dialog, const SyncItemOptions& options)  // [SyncIt
 
 bool enter_values(wxDialog& dialog, const SyncItemInput& input)
 {
-    if (!show_notebook_page(dialog, AFS_Core::translation::translate("tab_general")) || !enter_general(dialog, input))
+    if (!show_notebook_page(dialog, Utilities::translation::translate("tab_general")) || !enter_general(dialog, input))
         return false;
-    if (!show_notebook_page(dialog, AFS_Core::translation::translate("tab_options")) || !enter_options(dialog, input.options))
+    if (!show_notebook_page(dialog, Utilities::translation::translate("tab_options")) || !enter_options(dialog, input.options))
         return false;
-    if (input.exclusions && (!show_notebook_page(dialog, AFS_Core::translation::translate("tab_exclusions"))
+    if (input.exclusions && (!show_notebook_page(dialog, Utilities::translation::translate("tab_exclusions"))
             || !enter_lines(dialog, ID_EXCLUSIONS_BOX, *input.exclusions, "Die Ausschlüsse")))
         return false;
-    return show_notebook_page(dialog, AFS_Core::translation::translate("tab_general"));
+    return show_notebook_page(dialog, Utilities::translation::translate("tab_general"));
 }
 
 }

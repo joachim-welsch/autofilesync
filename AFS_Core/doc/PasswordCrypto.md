@@ -41,7 +41,7 @@ succeeding, which is why that failure is logged.
 
 ## key-file-permissions
 
-Written through Util.md#private-files, so the key is owner-only (mode 0600) from the moment the
+Written through FilesystemUtil.md#private-files, so the key is owner-only (mode 0600) from the moment the
 file exists.
 
 ## unusable-key

@@ -24,21 +24,21 @@ namespace tu {
 
 class ScopedLog {  // [ScopedLog.md#ScopedLog]
     std::filesystem::path path_;
-    std::wstring previous_path_ = AFS_Core::Logging::instance().get_log_file_path_name();
-    AFS_Core::LogLevel previous_level_ = AFS_Core::Logging::instance().get_log_level();
+    std::wstring previous_path_ = Utilities::Logging::instance().get_log_file_path_name();
+    Utilities::LogLevel previous_level_ = Utilities::Logging::instance().get_log_level();
 public:
-    explicit ScopedLog(std::filesystem::path path, AFS_Core::LogLevel level = AFS_Core::LogLevel::Info): path_(std::move(path))
+    explicit ScopedLog(std::filesystem::path path, Utilities::LogLevel level = Utilities::LogLevel::Info): path_(std::move(path))
     {
         std::filesystem::remove(path_);
-        AFS_Core::Logging::instance().set_log_file_path_name(path_.wstring());
-        AFS_Core::Logging::instance().set_log_level(level);
+        Utilities::Logging::instance().set_log_file_path_name(path_.wstring());
+        Utilities::Logging::instance().set_log_level(level);
     }
     ScopedLog(const ScopedLog&) = delete;
     ScopedLog& operator=(const ScopedLog&) = delete;
     ~ScopedLog()
     {
-        AFS_Core::Logging::instance().set_log_level(previous_level_);
-        AFS_Core::Logging::instance().set_log_file_path_name(previous_path_);
+        Utilities::Logging::instance().set_log_level(previous_level_);
+        Utilities::Logging::instance().set_log_file_path_name(previous_path_);
         std::error_code ec;
         std::filesystem::remove(path_, ec);
     }

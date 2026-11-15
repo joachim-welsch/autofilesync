@@ -25,6 +25,7 @@
 include_guard(DIRECTORY)
 
 get_filename_component(AFS_CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/.. ABSOLUTE)
+include(${AFS_CORE_DIR}/../Utilities/cmake/Utilities.cmake)
 
 set(AFS_CORE_SOURCES
     ChangeWatcher.cpp
@@ -34,7 +35,6 @@ set(AFS_CORE_SOURCES
     DeviceLink.cpp
     DevicePairing.cpp
     HelpKnowledge.cpp
-    JsonText.cpp
     CheckPath.cpp
     FileDelete.cpp
     FileDifference.cpp
@@ -42,7 +42,6 @@ set(AFS_CORE_SOURCES
     Libssh2Init.cpp
     LlamaClient.cpp
     LogAnalysis.cpp
-    LogEmail.cpp
     ModelLocation.cpp
     CloudFolders.cpp
     Restore.cpp
@@ -54,7 +53,6 @@ set(AFS_CORE_SOURCES
     S3.cpp
     GoogleAuth.cpp
     CloudStore.cpp
-    CpuTopology.cpp
     SyncProposal.cpp
     ConfigSummary.cpp
     PasswordCrypto.cpp
@@ -79,17 +77,8 @@ set(AFS_CORE_SOURCES
     SyncTree.cpp
     Synchronize.cpp
     Config.cpp
-    Translation.cpp
     Settings.cpp
     SyncItem.cpp
-    FilesystemUtil.cpp
-    LogCut.cpp
-    Logging.cpp
-    MountedDrives.cpp
-    RecycleBin.cpp
-    SmtpMailer.cpp
-    StrUtil.cpp
-    Util.cpp
 )
 list(TRANSFORM AFS_CORE_SOURCES PREPEND ${AFS_CORE_DIR}/src/)
 
@@ -114,7 +103,7 @@ if(NOT TARGET afs_core_deps)
     # message ids are technical keys, so a build without it shows
     # "source_dir_not_reachable" where a sentence belongs. Translation.cpp still
     # carries the fallback for that case because the Visual Studio projects build
-    # without gettext - they define no AFS_WITH_GETTEXT.
+    # without gettext - they define no TRANSLATION_WITH_GETTEXT.
     find_package(Intl REQUIRED)
 
     # LlamaClient runs the assistant chat locally through llama.cpp instead of a
@@ -155,7 +144,7 @@ if(NOT TARGET afs_core_deps)
     endif()
     target_include_directories(afs_core_deps SYSTEM INTERFACE ${Intl_INCLUDE_DIRS})
     target_link_libraries(afs_core_deps INTERFACE ${Intl_LIBRARIES})
-    target_compile_definitions(afs_core_deps INTERFACE AFS_WITH_GETTEXT)
+    target_compile_definitions(afs_core_deps INTERFACE TRANSLATION_WITH_GETTEXT)
 
     # The OAuth client AutoFileSync presents to Google (GoogleAuth.md#client). It is not
     # part of the sources: google-client.cmake beside the top-level CMakeLists.txt, which
@@ -199,12 +188,12 @@ endif()
 # PUBLIC compile definitions so that consumers see the same class layouts.
 function(afs_core_add_library target)
     cmake_parse_arguments(ARG "WXWIDGETS" "" "DEFINITIONS" ${ARGN})
-    add_library(${target} STATIC ${AFS_CORE_SOURCES})
-    target_include_directories(${target} PUBLIC ${AFS_CORE_DIR}/include)
+    add_library(${target} STATIC ${AFS_CORE_SOURCES} ${UTILITIES_SOURCES})
+    target_include_directories(${target} PUBLIC ${AFS_CORE_DIR}/include ${UTILITIES_DIR}/include)
     target_compile_features(${target} PUBLIC cxx_std_20)
     target_compile_definitions(${target} PUBLIC ${ARG_DEFINITIONS})
     include(${AFS_CORE_DIR}/cmake/CatalogueStamp.cmake)
-    target_compile_definitions(${target} PRIVATE AFS_CATALOGUE_STAMP="${AFS_CATALOGUE_STAMP}")
+    target_compile_definitions(${target} PRIVATE TRANSLATION_CATALOGUE_STAMP="${AFS_CATALOGUE_STAMP}")
     if(NOT WIN32)
         target_compile_definitions(${target} PUBLIC _UNIX)
     endif()

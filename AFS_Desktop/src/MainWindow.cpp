@@ -49,7 +49,6 @@
 #include "Logging.h"
 #include "LogCut.h"
 #include "App.h"
-#include "Util.h"
 #include "Translation.h"
 #ifdef WIN32
     #include <Windows.h> // register_automatic_start() writes the autostart registry key

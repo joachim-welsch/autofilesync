@@ -17,7 +17,8 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "SyncInterface.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <chrono>
 #include "SyncControler.h"
 #include "SyncItem.h"
 #include "ProgressDialog.h"

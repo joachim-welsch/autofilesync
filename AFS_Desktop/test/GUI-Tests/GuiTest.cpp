@@ -28,7 +28,8 @@
 #include "Config.h"
 #include "id.h"
 #include "ListCtrl.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <filesystem>
 #include "utilwx.h"
 #include <wx/app.h>
 #include <algorithm>

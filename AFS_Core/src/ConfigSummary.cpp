@@ -24,7 +24,7 @@
 #include <sstream>
 #include "Config.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
 
 namespace AFS_Core {
 
@@ -34,14 +34,7 @@ namespace {
 constexpr std::size_t MAX_ERROR_CHARS = 200;  // [ConfigSummary.md#MAX_ERROR_CHARS]
 using std::wstring;
 using translation::translate;
-
-wstring joined(const std::vector<wstring>& parts, const wchar_t* separator)
-{
-    wstring result;
-    for (const wstring& part : parts)
-        result += (result.empty() ? L"" : separator) + part;
-    return result;
-}
+using util::joined;
 
 wstring enabled_options(const SyncItem& item)
 {

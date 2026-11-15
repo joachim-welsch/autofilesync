@@ -19,9 +19,14 @@
 #include "pch.h"
 #include "S3.h"
 #include "FilesystemUtil.h"
+#include "Hex.h"
 #include "HttpClient.h"
+#include "PercentEncoding.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include <filesystem>
+#include <string_view>
 #include <algorithm>
 #include <cctype>
 #include <ctime>
@@ -68,23 +73,11 @@ struct Call {
 
 Place place_of(const std::string& path)
 {
-    std::vector<std::string> segments;
-    std::istringstream parts(path);
-    for (std::string segment; std::getline(parts, segment, '/');)
-        if (!segment.empty())
-            segments.push_back(segment);
+    const std::vector<std::string> segments = util::split(path, '/');
     Place place;
     for (std::size_t i = 0; i < segments.size(); ++i)
         (i == 0 ? place.bucket : place.key) += (i > 1 ? "/" : "") + segments[i];
     return place;
-}
-
-std::string hex(const unsigned char* bytes, std::size_t length)
-{
-    std::ostringstream text;
-    for (std::size_t i = 0; i < length; ++i)
-        text << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(bytes[i]);
-    return text.str();
 }
 
 std::string sha256_hex(const std::string& text)
@@ -92,7 +85,7 @@ std::string sha256_hex(const std::string& text)
     unsigned char digest[HASH_BYTES];
     unsigned int length = 0;
     EVP_Digest(text.data(), text.size(), digest, &length, EVP_sha256(), nullptr);
-    return hex(digest, length);
+    return hex::encoded({digest, length});
 }
 
 std::string hmac(const std::string& key, const std::string& text)
@@ -122,7 +115,7 @@ std::string encoded_key(const std::string& key)
     std::string encoded;
     std::istringstream segments(key);
     for (std::string segment; std::getline(segments, segment, '/');)
-        encoded += (encoded.empty() ? "" : "/") + http::escaped(segment);
+        encoded += (encoded.empty() ? "" : "/") + percent::encoded(segment);
     return key.ends_with('/') ? encoded + "/" : encoded;
 }
 
@@ -130,7 +123,7 @@ std::string encoded_query(const Fields& query)
 {
     std::string text;
     for (const auto& [name, value] : query)
-        text += (text.empty() ? "" : "&") + http::escaped(name) + "=" + http::escaped(value);
+        text += (text.empty() ? "" : "&") + percent::encoded(name) + "=" + percent::encoded(value);
     return text;
 }
 
@@ -142,9 +135,7 @@ struct Address {  // [S3.md#addressing]
 
 Address address_of(const SshAccount& account, const Place& place)
 {
-    std::string endpoint = account.url();
-    while (endpoint.ends_with('/'))
-        endpoint.pop_back();
+    const std::string endpoint = util::without_trailing_chars(account.url(), '/');
     if (!webdav::address_allowed(endpoint))
         throw Error(util::wstring_to_string(translation::translate("webdav_url_not_https")) + endpoint);
     const auto host_begin = endpoint.find("://") + 3;
@@ -153,7 +144,7 @@ Address address_of(const SshAccount& account, const Place& place)
     const bool virtual_hosted = host.ends_with(AWS_HOST_SUFFIX) && !place.bucket.empty();
     if (virtual_hosted)
         return {scheme + place.bucket + "." + host, place.bucket + "." + host, "/" + encoded_key(place.key)};
-    return {endpoint, host, place.bucket.empty() ? "/" : "/" + http::escaped(place.bucket) + (place.key.empty() ? "" : "/" + encoded_key(place.key))};
+    return {endpoint, host, place.bucket.empty() ? "/" : "/" + percent::encoded(place.bucket) + (place.key.empty() ? "" : "/" + encoded_key(place.key))};
 }
 
 std::string authorization(const SshAccount& account, const Call& call, const Address& address, const Fields& headers, const std::string& amz_date)  // [S3.md#signature]
@@ -172,7 +163,7 @@ std::string authorization(const SshAccount& account, const Call& call, const Add
     const std::string signing_key = hmac(hmac(hmac(hmac("AWS4" + account.password(), date), region), "s3"), "aws4_request");
     const std::string signature = hmac(signing_key, string_to_sign);
     return "AWS4-HMAC-SHA256 Credential=" + account.user() + "/" + scope + ", SignedHeaders=" + signed_headers
-        + ", Signature=" + hex(reinterpret_cast<const unsigned char*>(signature.data()), signature.size());
+        + ", Signature=" + hex::encoded(signature);
 }
 
 std::unique_ptr<http::Request> request_for(const SshAccount& account, const Call& call)  // [S3.md#signature]
@@ -197,13 +188,8 @@ std::size_t note_header(char* data, std::size_t size, std::size_t count, void* h
 {
     const std::string line(data, size * count);
     const auto colon = line.find(':');
-    if (colon != std::string::npos) {
-        std::string name = line.substr(0, colon);
-        std::ranges::transform(name, name.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-        const auto begin = line.find_first_not_of(" \t", colon + 1);
-        const auto end = line.find_last_not_of(" \t\r\n");
-        (*static_cast<Fields*>(headers))[name] = begin == std::string::npos || end < begin ? "" : line.substr(begin, end - begin + 1);
-    }
+    if (colon != std::string::npos)
+        (*static_cast<Fields*>(headers))[util::lowercase(line.substr(0, colon))] = util::trimmed(std::string_view(line).substr(colon + 1));
     return size * count;
 }
 
@@ -283,11 +269,10 @@ std::optional<Fields> head(const SshAccount& account, const Place& place)  // [S
     return headers;
 }
 
-std::string name_of(std::string key)
+std::string name_of(const std::string& key)
 {
-    while (key.ends_with('/'))
-        key.pop_back();
-    return key.substr(key.rfind('/') + 1);
+    const std::string path = util::without_trailing_chars(key, '/');
+    return path.substr(path.rfind('/') + 1);
 }
 
 struct Page {
@@ -334,7 +319,7 @@ bool has_entries_below(const SshAccount& account, const Place& place)  // [S3.md
 std::string mtime_text(const fs::path& local_file)
 {
     std::error_code ec;
-    return std::to_string(util::to_time_t(fs::last_write_time(local_file, ec)));
+    return std::to_string(file_time::to_time_t(fs::last_write_time(local_file, ec)));
 }
 
 std::optional<std::string> upload_part(const SshAccount& account, const Place& place, const std::string& upload_id, int number, std::ifstream& in, std::uintmax_t length, std::uintmax_t sent)
@@ -458,7 +443,7 @@ void move(const SshAccount& account, const std::string& from, const std::string&
         throw Error(util::wstring_to_string(translation::translate(existing ? "s3_folder_not_renamable" : "s3_file_missing")) + from);
     if (stat(account, to))
         throw Error(util::wstring_to_string(translation::translate("s3_name_taken")) + to);
-    send(account, {"PUT", target, {}, {{"x-amz-copy-source", "/" + http::escaped(source.bucket) + "/" + encoded_key(source.key)}}});
+    send(account, {"PUT", target, {}, {{"x-amz-copy-source", "/" + percent::encoded(source.bucket) + "/" + encoded_key(source.key)}}});
     send(account, {"DELETE", source, {}, {}});
 }
 
@@ -478,7 +463,7 @@ CopyResult download(const SshAccount& account, const std::string& path, const fs
     request->expect_success(status);
     std::error_code ec;
     if (const std::time_t modified = modified_of(headers); modified > 0)
-        fs::last_write_time(local_file, util::to_file_time(modified), ec);
+        fs::last_write_time(local_file, file_time::to_file_time(modified), ec);
     return CopyResult::OK;
 }
 

@@ -26,7 +26,7 @@
 #include "Synchronize.h"
 #include "TestPaths.h"
 #include "Translation.h"
-#include "Util.h"
+#include "Logging.h"
 #include <filesystem>
 #include <fstream>
 

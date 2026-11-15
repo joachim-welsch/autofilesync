@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "HelpKnowledge.h"
+#include "StrUtil.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -29,6 +30,7 @@ namespace AFS_Core {
 namespace help_knowledge {
 namespace {
 using std::wstring;
+using util::lowercase;
 
 constexpr double MIN_SCORE = 3.0;  // [HelpKnowledge.md#MIN_SCORE]
 constexpr double TITLE_SCORE = 3.0;  // [HelpKnowledge.md#scored]
@@ -128,20 +130,9 @@ wstring plain_text(const wstring& html)
     return collapsed(decoded(text));
 }
 
-wchar_t lowered(wchar_t c)
-{
-    return static_cast<wchar_t>(std::towlower(c));
-}
-
 bool word_char(wchar_t c)  // [HelpKnowledge.md#word_char]
 {
     return static_cast<std::uint32_t>(c) > 127 || std::iswalnum(c);
-}
-
-wstring lowercase(wstring text)
-{
-    std::transform(text.begin(), text.end(), text.begin(), lowered);
-    return text;
 }
 
 bool acronym(const wstring& word)

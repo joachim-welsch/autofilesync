@@ -77,17 +77,17 @@ TEST_F(GuiTest, HintergrunddienstmenueZeigtObDerDienstLaeuft)  // [BackgroundSer
     case State::Running:
         EXPECT_FALSE(start_enabled) << "Ein laufender Dienst darf nicht noch einmal startbar sein.";
         EXPECT_TRUE(stop_enabled) << "Ein laufender Dienst muss sich stoppen lassen.";
-        EXPECT_EQ(state_line, AFS_Core::translation::translate("bs_state_running"));
+        EXPECT_EQ(state_line, Utilities::translation::translate("bs_state_running"));
         break;
     case State::Stopped:
         EXPECT_TRUE(start_enabled) << "Ein gestoppter Dienst muss sich starten lassen.";
         EXPECT_FALSE(stop_enabled) << "Ein gestoppter Dienst kann nicht noch einmal gestoppt werden.";
-        EXPECT_EQ(state_line, AFS_Core::translation::translate("bs_state_stopped"));
+        EXPECT_EQ(state_line, Utilities::translation::translate("bs_state_stopped"));
         break;
     case State::NotInstalled:
         EXPECT_FALSE(start_enabled) << "Ein nicht installierter Dienst ist nicht startbar.";
         EXPECT_FALSE(stop_enabled) << "Ein nicht installierter Dienst ist nicht stoppbar.";
-        EXPECT_EQ(state_line, AFS_Core::translation::translate("bs_state_not_installed"));
+        EXPECT_EQ(state_line, Utilities::translation::translate("bs_state_not_installed"));
         break;
     case State::Unknown:
         break; // already reported above; both commands are offered on purpose

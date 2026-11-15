@@ -169,13 +169,13 @@ TEST_F(GuiTest, VorgeschlagenesEinmalSynchronisierenKopiertDateiInsZiel)  // [Sy
 
 TEST_F(GuiTest, VorgeschlagenesStoppenOhneLaufMeldetDas)  // [SyncOnceTest.md#proposed-command]
 {
-    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("info"), wxID_OK);
+    ModalDialogWatcher::instance().answer(Utilities::translation::translate("info"), wxID_OK);
 
     main_window().apply_proposal(AFS_Core::sync_proposal::Command::StopSync);
     pump();
 
     ASSERT_EQ(ModalDialogWatcher::instance().answered_messages().size(), 1u) << "Der gesperrte Befehl blieb ohne Hinweis.";
-    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), AFS_Core::translation::translate("no_sync_active"));
+    EXPECT_EQ(ModalDialogWatcher::instance().answered_messages().front(), Utilities::translation::translate("no_sync_active"));
 }
 
 }

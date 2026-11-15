@@ -51,17 +51,10 @@ set(SOURCES
     PasswordCryptoTests.cpp
     FakePhone.cpp
     DeviceTests.cpp
-    StrUtilTests.cpp
-    TranslationTests.cpp
-    JsonTextTests.cpp
     LlamaClientTests.cpp
     HelpKnowledgeTests.cpp
     ScopedEnv.cpp
-    UtilTests.cpp
-    FilesystemUtilTests.cpp
-    RecycleBinTests.cpp
     FileDifferenceTests.cpp
-    LoggingConcurrencyTests.cpp
     Libssh2InitTests.cpp
     SyncTreeTests.cpp
     TwoWaySyncTests.cpp
@@ -70,12 +63,10 @@ set(SOURCES
     CopyFailureTests.cpp
     SyncSshFailureTests.cpp
     SymlinkTests.cpp
-    MountedDrivesTests.cpp
+    UnpluggedDriveTests.cpp
     SynchronizeTests.cpp
     SyncArbiterTests.cpp
     CheckPathTests.cpp
-    LogCutTests.cpp
-    LoggingCollectTests.cpp
     LogAnalysisTests.cpp
     ModelLocationTests.cpp
     CloudFoldersTests.cpp
@@ -86,7 +77,6 @@ set(SOURCES
     DropboxTests.cpp
     S3Tests.cpp
     WebDavTestServer.cpp
-    CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp
     SyncStateTests.cpp
@@ -102,12 +92,14 @@ set(SOURCES
     SshHostKeyTests.cpp
     SshConnectTimeoutTests.cpp
     SshDirInspectorTests.cpp
-    SmtpMailerTests.cpp
     SshTest.cpp
     TestMain.cpp
 )
 
-add_executable(Integrationtests ${SOURCES})
+# The tests of the general-purpose modules lie beside them in Utilities/test; they
+# run in this program because Utilities is compiled into the core and its tests
+# use the private temp directory and home of TestMain.cpp.
+add_executable(Integrationtests ${SOURCES} ${UTILITIES_TEST_SOURCES})
 target_include_directories(Integrationtests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # The daemon's worker (backgroundsync/MyDaemon.cpp) is tested here as well: it
 # is nothing but AFS_Core calls, and a test program of its own would have to

@@ -30,7 +30,7 @@
 #include "ModelLocation.h"
 #include "SyncProposal.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
 
 namespace AFS_Core {
 

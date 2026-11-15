@@ -118,20 +118,6 @@ Block proposal_block(const wstring& answer)
     return proposal_from(bare.body) ? bare : Block{};
 }
 
-wstring trimmed(wstring text)
-{
-    const auto not_space = [](wchar_t c) { return c != L' ' && c != L'\n' && c != L'\r' && c != L'\t'; };
-    text.erase(text.begin(), std::find_if(text.begin(), text.end(), not_space));
-    text.erase(std::find_if(text.rbegin(), text.rend(), not_space).base(), text.end());
-    return text;
-}
-
-wstring lower(wstring text)
-{
-    std::transform(text.begin(), text.end(), text.begin(), [](wchar_t c) { return std::towlower(c); });
-    return text;
-}
-
 std::string gbnf_literal(const wstring& text)  // [SyncProposal.md#gbnf_literal]
 {
     std::string literal = "\"\\\"";
@@ -187,7 +173,7 @@ wstring without_block(const wstring& answer)
     const Block block = proposal_block(answer);
     if (block.begin == wstring::npos)
         return answer;
-    return trimmed(answer.substr(0, block.begin) + answer.substr(block.end));
+    return util::trimmed(answer.substr(0, block.begin) + answer.substr(block.end));
 }
 
 wstring describe(const Proposal& proposal)
@@ -213,13 +199,13 @@ bool names_two_paths(const wstring& question)
 
 bool names_configured_item(const wstring& question, const SyncItems& items)
 {
-    const wstring text = lower(question);
-    return std::any_of(items.begin(), items.end(), [&text](const SyncItem& item) { return text.find(lower(item.name())) != wstring::npos; });
+    const wstring text = util::lowercase(question);
+    return std::any_of(items.begin(), items.end(), [&text](const SyncItem& item) { return text.find(util::lowercase(item.name())) != wstring::npos; });
 }
 
 bool names_command(const wstring& question)
 {
-    const wstring text = lower(question);
+    const wstring text = util::lowercase(question);
     std::wistringstream words(translation::translate("assistant_command_words"));
     for (wstring word; std::getline(words, word, L',');)
         if (!word.empty() && text.find(word) != wstring::npos)

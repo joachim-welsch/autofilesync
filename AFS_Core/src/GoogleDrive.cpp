@@ -21,8 +21,12 @@
 #include "FilesystemUtil.h"
 #include "GoogleAuth.h"
 #include "HttpClient.h"
+#include "PercentEncoding.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include <filesystem>
+#include <string_view>
 #include <algorithm>
 #include <cctype>
 #include <ctime>
@@ -179,8 +183,8 @@ std::vector<Node> children(const SshAccount& account, const std::string& folder_
     std::vector<Node> found;
     std::string page;
     do {
-        DriveRequest request(account, files_url(account, "?spaces=drive&pageSize=" + std::string(PAGE_SIZE) + "&fields=" + http::escaped(std::string("nextPageToken,files(") + FIELDS + ")")
-            + "&q=" + http::escaped(query) + (page.empty() ? "" : "&pageToken=" + http::escaped(page))), "GET");
+        DriveRequest request(account, files_url(account, "?spaces=drive&pageSize=" + std::string(PAGE_SIZE) + "&fields=" + percent::encoded(std::string("nextPageToken,files(") + FIELDS + ")")
+            + "&q=" + percent::encoded(query) + (page.empty() ? "" : "&pageToken=" + percent::encoded(page))), "GET");
             const pt::ptree answer = answer_of(request, request.perform());
         if (const auto files = answer.get_child_optional("files"))
             for (const auto& [key, file] : *files)
@@ -199,12 +203,7 @@ std::optional<Node> child(const SshAccount& account, const std::string& folder_i
 
 std::vector<std::string> segments_of(const std::string& path)
 {
-    std::vector<std::string> segments;
-    std::istringstream parts(path);
-    for (std::string segment; std::getline(parts, segment, '/');)
-        if (!segment.empty())
-            segments.push_back(segment);
-    return segments;
+    return util::split(path, '/');
 }
 
 std::string joined(const std::vector<std::string>& segments, std::size_t count)
@@ -278,7 +277,7 @@ Node existing(const SshAccount& account, const std::string& path)
 
 void change(const SshAccount& account, const std::string& id, const std::string& parameters, const std::string& metadata)
 {
-    DriveRequest request(account, files_url(account, "/" + http::escaped(id) + parameters), "PATCH");
+    DriveRequest request(account, files_url(account, "/" + percent::encoded(id) + parameters), "PATCH");
     request.header("Content-Type: application/json; charset=utf-8");
     request.body(metadata);
     request.expect_success(request.perform());
@@ -287,20 +286,16 @@ void change(const SshAccount& account, const std::string& id, const std::string&
 std::size_t note_location(char* data, std::size_t size, std::size_t count, void* location)  // [GoogleDrive.md#upload]
 {
     const std::string line(data, size * count);
-    std::string name = line.substr(0, line.find(':'));
-    std::ranges::transform(name, name.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-    if (name == "location") {
-        const auto begin = line.find_first_not_of(" \t", line.find(':') + 1);
-        const auto end = line.find_last_not_of(" \t\r\n");
-        if (begin != std::string::npos)
-            *static_cast<std::string*>(location) = line.substr(begin, end - begin + 1);
-    }
+    const auto colon = line.find(':');
+    if (colon != std::string::npos && util::lowercase(line.substr(0, colon)) == "location")
+        if (const std::string value = util::trimmed(std::string_view(line).substr(colon + 1)); !value.empty())
+            *static_cast<std::string*>(location) = value;
     return size * count;
 }
 
 std::string upload_session(const SshAccount& account, const Place& place, std::time_t modified, std::uintmax_t size)  // [GoogleDrive.md#upload]
 {
-    const std::string target = place.node ? "/" + http::escaped(place.node->id) : "";
+    const std::string target = place.node ? "/" + percent::encoded(place.node->id) : "";
     std::string metadata = "{\"modifiedTime\":" + json_text(format_time(modified));
     if (!place.node)
         metadata += ",\"name\":" + json_text(place.name) + ",\"parents\":[" + json_text(place.parent_id) + "]";
@@ -345,7 +340,7 @@ void make_directory(const SshAccount& account, const std::string& path)
         return;
     if (place.node)
         throw Error(util::wstring_to_string(translation::translate("google_drive_name_taken")) + path);
-    DriveRequest request(account, files_url(account, std::string("?fields=") + http::escaped(FIELDS)), "POST");
+    DriveRequest request(account, files_url(account, std::string("?fields=") + percent::encoded(FIELDS)), "POST");
     request.header("Content-Type: application/json; charset=utf-8");
     request.body("{\"name\":" + json_text(place.name) + ",\"mimeType\":" + json_text(FOLDER_TYPE) + ",\"parents\":[" + json_text(place.parent_id) + "]}");
     remember_folder(account, joined(segments_of(path), segments_of(path).size()), node_of(answer_of(request, request.perform())).id);
@@ -367,7 +362,7 @@ void move(const SshAccount& account, const std::string& from, const std::string&
     if (target.node)
         throw Error(util::wstring_to_string(translation::translate("google_drive_name_taken")) + to);
     const bool same_folder = source.parent_id == target.parent_id;
-    const std::string parents = same_folder ? "" : "?addParents=" + http::escaped(target.parent_id) + "&removeParents=" + http::escaped(source.parent_id);
+    const std::string parents = same_folder ? "" : "?addParents=" + percent::encoded(target.parent_id) + "&removeParents=" + percent::encoded(source.parent_id);
     change(account, source.node->id, parents, "{\"name\":" + json_text(target.name) + "}");
     forget_folders();
 }
@@ -375,7 +370,7 @@ void move(const SshAccount& account, const std::string& from, const std::string&
 CopyResult download(const SshAccount& account, const std::string& path, const fs::path& local_file)
 {
     const Node node = existing(account, path);
-    DriveRequest request(account, files_url(account, "/" + http::escaped(node.id) + "?alt=media"), "GET");
+    DriveRequest request(account, files_url(account, "/" + percent::encoded(node.id) + "?alt=media"), "GET");
     std::ofstream out(local_file, std::ios::binary);
     if (!out.is_open())
         throw Error(util::wstring_to_string(translation::translate("local_file_open_error")) + local_file.string());
@@ -387,7 +382,7 @@ CopyResult download(const SshAccount& account, const std::string& path, const fs
     request.expect_success(status);
     std::error_code ec;
     if (node.entry.mtime > 0)
-        fs::last_write_time(local_file, util::to_file_time(node.entry.mtime), ec);
+        fs::last_write_time(local_file, file_time::to_file_time(node.entry.mtime), ec);
     return CopyResult::OK;
 }
 
@@ -399,7 +394,7 @@ CopyResult upload(const fs::path& local_file, const SshAccount& account, const s
     std::ifstream in(local_file, std::ios::binary);
     if (ec || !in.is_open())
         throw Error(util::wstring_to_string(translation::translate("local_file_open_error")) + local_file.string());
-    const std::string session = upload_session(account, existing_parent(account, path), util::to_time_t(modified), size);
+    const std::string session = upload_session(account, existing_parent(account, path), file_time::to_time_t(modified), size);
     http::Request request(session, "PUT");
     request.upload_from(in, size);
     const auto status = request.perform();

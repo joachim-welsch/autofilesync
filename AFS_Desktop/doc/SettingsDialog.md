@@ -15,6 +15,6 @@ falls back to the bin's default path instead of failing.
 ## language_index
 
 Entry 0 of the choice is the operating system's language, the others follow
-translation::LANGUAGES. A code in the configuration that is not offered (written by a newer
+languages::LANGUAGES. A code in the configuration that is not offered (written by a newer
 version, or by hand) shows as entry 0, and is kept unless the user picks another entry: OK
 alone must not overwrite a choice the dialog merely cannot display.

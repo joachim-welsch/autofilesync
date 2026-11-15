@@ -127,9 +127,9 @@ SmtpSink::~SmtpSink()
         SSL_CTX_free(tls_context_);
 }
 
-AFS_Core::SmtpAccount SmtpSink::account() const
+Utilities::SmtpAccount SmtpSink::account() const
 {
-    AFS_Core::SmtpAccount account;
+    Utilities::SmtpAccount account;
     account.server = L"127.0.0.1";
     account.port = port_;
     account.from = L"afs@example.org";

@@ -19,7 +19,10 @@
 #include "pch.h"
 #include "FileDifference.h"
 #include "Synchronize.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include <chrono>
+#include <sstream>
 #include <filesystem>
 #include <FilesystemUtil.h>
 #include "Logging.h"
@@ -95,7 +98,7 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, b
             return false;
         }
         filesize = info.size_bytes;
-        last_write_time = util::to_file_time(info.raw_mtime);  // [FileDifference.md#remote-time-conversion]
+        last_write_time = file_time::to_file_time(info.raw_mtime);  // [FileDifference.md#remote-time-conversion]
         drive_mounted = true;
         return true;
     }
@@ -190,8 +193,8 @@ bool FileDifference::newer(fs::file_time_type a, fs::file_time_type b) const  //
 {
     const std::chrono::seconds tolerance(ci_.time_tolerance_seconds());
     if (ssh_ == SSHPATH::none)
-        return util::greater(a, b + std::chrono::duration_cast<fs::file_time_type::duration>(tolerance));
-    return util::to_time_t(a) > util::to_time_t(b) + tolerance.count();  // [FileDifference.md#second-resolution]
+        return file_time::greater(a, b + std::chrono::duration_cast<fs::file_time_type::duration>(tolerance));
+    return file_time::to_time_t(a) > file_time::to_time_t(b) + tolerance.count();  // [FileDifference.md#second-resolution]
 }
 
 FileDifference::Result FileDifference::compare_metadata(fs::file_time_type sourcetime, fs::file_time_type desttime) const
@@ -214,7 +217,7 @@ void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_tim
         os << translation::translate("comparing") << L'\n' << source_ << L'\n' << translation::translate("comparing_with") << L'\n' << dest_ << L"...";
         Synchronize::set_progress_message(os.str(), L"", sourcesize_);
     }
-    if (util::files_equal(source_, dest_))
+    if (fsu::files_equal(source_, dest_))
         return;
     if (two_way_sync_ && sourcesize_ == destsize_ && !newer(sourcetime, desttime) && !newer(desttime, sourcetime))
         result_ = Result::ContentConflict;  // [FileDifference.md#content-conflict]

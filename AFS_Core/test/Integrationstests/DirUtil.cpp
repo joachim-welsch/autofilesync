@@ -20,7 +20,7 @@
 #include "DirUtil.h"
 #include "FileUtil.h"
 #include "SyncFileSsh.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include <filesystem>
 
 using namespace AFS_Core;

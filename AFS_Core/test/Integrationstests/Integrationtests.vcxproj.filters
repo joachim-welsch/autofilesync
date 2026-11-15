@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{98980993-e46e-4c20-a6d1-0de63f66e8a7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Integrationtests">
       <UniqueIdentifier>{5eae6f97-a44d-42f3-b7e7-48c95e4b6874}</UniqueIdentifier>
     </Filter>
@@ -21,7 +24,10 @@
     <ClInclude Include="FileUtil.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
-    <ClInclude Include="MountedDrivesTests.h">
+    <ClInclude Include="..\..\..\Utilities\test\MountedDrivesTests.h">
+      <Filter>Integrationtests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopedFstab.h">
       <Filter>Integrationtests\include</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
@@ -111,8 +117,8 @@
     <ClInclude Include="$(LibDir)\include\HelpKnowledge.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\JsonText.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\JsonText.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\FileDelete.h">
       <Filter>AFS_Core\include</Filter>
@@ -120,8 +126,8 @@
     <ClInclude Include="$(LibDir)\include\FileDifference.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\FilesystemUtil.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\FilesystemUtil.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\Global.h">
       <Filter>AFS_Core\include</Filter>
@@ -135,14 +141,14 @@
     <ClInclude Include="$(LibDir)\include\LogAnalysis.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\LogCut.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\LogCut.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\LogEmail.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\LogEmail.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\Logging.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\Logging.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\ModelLocation.h">
       <Filter>AFS_Core\include</Filter>
@@ -177,8 +183,8 @@
     <ClInclude Include="$(LibDir)\include\CloudStore.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\CpuTopology.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\CpuTopology.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\SyncProposal.h">
       <Filter>AFS_Core\include</Filter>
@@ -186,8 +192,8 @@
     <ClInclude Include="$(LibDir)\include\ConfigSummary.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\MountedDrives.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\MountedDrives.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\PasswordCrypto.h">
       <Filter>AFS_Core\include</Filter>
@@ -216,8 +222,8 @@
     <ClInclude Include="$(LibDir)\include\pch.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\RecycleBin.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\RecycleBin.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\Settings.h">
       <Filter>AFS_Core\include</Filter>
@@ -225,8 +231,8 @@
     <ClInclude Include="$(LibDir)\include\SftpConnection.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\SmtpMailer.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\SmtpMailer.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\SshAccount.h">
       <Filter>AFS_Core\include</Filter>
@@ -246,8 +252,17 @@
     <ClInclude Include="$(LibDir)\include\SshUnreachable.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\StrUtil.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\StrUtil.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\Base64.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\Hex.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\PercentEncoding.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="$(LibDir)\include\SyncArbiter.h">
       <Filter>AFS_Core\include</Filter>
@@ -282,14 +297,26 @@
     <ClInclude Include="$(LibDir)\include\SyncTree.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\ThreadSaveStack.h">
+    <ClInclude Include="$(LibDir)\..\Utilities\include\ThreadSaveStack.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\Translation.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\include\Languages.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\Translation.h">
+    <ClInclude Include="$(LibDir)\include\UtilitiesConfig.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="$(LibDir)\include\Util.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\FileTime.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\FileName.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\SystemInfo.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -326,7 +353,7 @@
     <ClCompile Include="FileDifferenceTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="FilesystemUtilTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\FilesystemUtilTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="FileUtil.cpp">
@@ -338,13 +365,13 @@
     <ClCompile Include="LogAnalysisTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="LogCutTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\LogCutTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="LoggingCollectTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\LoggingCollectTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="LoggingConcurrencyTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\LoggingConcurrencyTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="ModelLocationTests.cpp">
@@ -374,7 +401,7 @@
     <ClCompile Include="WebDavTestServer.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="CpuTopologyTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\CpuTopologyTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="SyncProposalTests.cpp">
@@ -386,10 +413,13 @@
     <ClCompile Include="ConfigSummaryTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="MountedDrivesTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\MountedDrivesTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="MountedDrivesTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\ThreadSaveStackTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="UnpluggedDriveTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="PasswordCryptoTests.cpp">
@@ -404,7 +434,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="RecycleBinTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\RecycleBinTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="ScopedEnv.cpp">
@@ -416,7 +446,16 @@
     <ClCompile Include="SshTest.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="StrUtilTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\StrUtilTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utilities\test\Base64Tests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utilities\test\HexTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utilities\test\PercentEncodingTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="SyncArbiterTests.cpp">
@@ -458,10 +497,10 @@
     <ClCompile Include="ThStrUtil.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="TranslationTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\TranslationTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="JsonTextTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\JsonTextTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="LlamaClientTests.cpp">
@@ -500,10 +539,16 @@
     <ClCompile Include="SmtpSink.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="SmtpMailerTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\SmtpMailerTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
-    <ClCompile Include="UtilTests.cpp">
+    <ClCompile Include="..\..\..\Utilities\test\FileTimeTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utilities\test\FileNameTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Utilities\test\SystemInfoTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\CheckPath.cpp">
@@ -524,8 +569,8 @@
     <ClCompile Include="$(LibDir)\src\HelpKnowledge.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\JsonText.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\JsonText.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\FileDelete.cpp">
       <Filter>AFS_Core</Filter>
@@ -533,8 +578,8 @@
     <ClCompile Include="$(LibDir)\src\FileDifference.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\FilesystemUtil.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\FilesystemUtil.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\Global.cpp">
       <Filter>AFS_Core</Filter>
@@ -548,14 +593,14 @@
     <ClCompile Include="$(LibDir)\src\LogAnalysis.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\LogCut.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\LogCut.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\LogEmail.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\LogEmail.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\Logging.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\Logging.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\ModelLocation.cpp">
       <Filter>AFS_Core</Filter>
@@ -590,8 +635,8 @@
     <ClCompile Include="$(LibDir)\src\CloudStore.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\CpuTopology.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\CpuTopology.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\SyncProposal.cpp">
       <Filter>AFS_Core</Filter>
@@ -599,8 +644,8 @@
     <ClCompile Include="$(LibDir)\src\ConfigSummary.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\MountedDrives.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\MountedDrives.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\PasswordCrypto.cpp">
       <Filter>AFS_Core</Filter>
@@ -626,8 +671,8 @@
     <ClCompile Include="$(LibDir)\src\DevicePairing.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\RecycleBin.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\RecycleBin.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\Settings.cpp">
       <Filter>AFS_Core</Filter>
@@ -635,8 +680,8 @@
     <ClCompile Include="$(LibDir)\src\SftpConnection.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\SmtpMailer.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\SmtpMailer.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\SshAccount.cpp">
       <Filter>AFS_Core</Filter>
@@ -653,8 +698,17 @@
     <ClCompile Include="$(LibDir)\src\SshHostKeyVerification.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\StrUtil.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\StrUtil.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\Base64.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\Hex.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\PercentEncoding.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\SyncArbiter.cpp">
       <Filter>AFS_Core</Filter>
@@ -689,11 +743,17 @@
     <ClCompile Include="$(LibDir)\src\SyncTree.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\Translation.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\Translation.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="$(LibDir)\src\Util.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\FileTime.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\FileName.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\SystemInfo.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

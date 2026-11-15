@@ -26,7 +26,9 @@
 #include <filesystem>
 #include <thread>
 #include <fstream>
-#include <Util.h>
+#include <StrUtil.h>
+#include <SystemInfo.h>
+#include <chrono>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -61,7 +63,7 @@ TEST(CheckPathTests, RepeatedHitsWithinValidityWindowDoNotExtendIt)  // [CheckPa
     using namespace std::chrono;
     constexpr auto VALIDITY = milliseconds(2000);
     TempTree tree(fs::temp_directory_path() /
-        ("autofilesync_checkpath_test_" + std::to_string(util::current_pid())));
+        ("autofilesync_checkpath_test_" + std::to_string(system_info::current_pid())));
 
     const fs::path& base = tree.path;
     fs::remove_all(base);

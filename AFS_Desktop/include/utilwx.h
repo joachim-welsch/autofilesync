@@ -28,7 +28,7 @@ namespace utilwx {
 inline bool confirm(wxWindow* parent, const wxString& question, const wxString& caption, const wxString& action)  // [utilwx.md#confirm]
 {
     wxMessageDialog dialog(parent, question, caption, wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-    dialog.SetYesNoLabels(action, wxString(AFS_Core::translation::translate("button_cancel")));
+    dialog.SetYesNoLabels(action, wxString(Utilities::translation::translate("button_cancel")));
     return dialog.ShowModal() == wxID_YES;
 }
 
@@ -47,7 +47,7 @@ inline wxString place_of(const AFS_Core::SshAccount& account)  // [utilwx.md#pla
 
 inline wxString field_label(const char* msgid)  // [utilwx.md#field_label]
 {
-    return AFS_Core::translation::translate(msgid) + AFS_Core::translation::translate("label_colon");
+    return Utilities::translation::translate(msgid) + Utilities::translation::translate("label_colon");
 }
 
 template <typename E>

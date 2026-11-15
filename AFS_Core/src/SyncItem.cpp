@@ -23,7 +23,8 @@
 #include <Logging.h>
 #include "Translation.h"
 #include "SyncFileSsh.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <chrono>
 
 namespace AFS_Core {
 

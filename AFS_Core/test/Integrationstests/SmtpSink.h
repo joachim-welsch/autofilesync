@@ -49,7 +49,7 @@ public:
     SmtpSink(const SmtpSink&) = delete;
     SmtpSink& operator=(const SmtpSink&) = delete;
     uint16_t port() const { return port_; }
-    AFS_Core::SmtpAccount account() const;  // [SmtpSink.md#account]
+    Utilities::SmtpAccount account() const;  // [SmtpSink.md#account]
     void reply_to_rcpt(const std::string& reply);
     void accept_login(const Login& login);  // [SmtpSink.md#StartTls]
     const std::string& certificate_pem() const { return certificate_pem_; }

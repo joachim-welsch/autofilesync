@@ -22,7 +22,7 @@
 #include "Translation.h"
 
 using utilwx::tul;
-using AFS_Core::translation::translate;
+using Utilities::translation::translate;
 
 namespace {
 wxString with_shortcut(const wxString& label, const char* shortcut)  // [Menu.md#shortcuts]

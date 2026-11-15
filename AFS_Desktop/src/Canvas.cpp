@@ -67,8 +67,8 @@ void Canvas::show_context_menu(const wxPoint& pos)
     if (wxGetKeyState(WXK_SHIFT)) {
     }
     else {
-        menu.Append(tul(id::EditSync), AFS_Core::translation::translate("context_edit"));
-        menu.Append(tul(id::DeleteSync), AFS_Core::translation::translate("context_delete"));
+        menu.Append(tul(id::EditSync), Utilities::translation::translate("context_edit"));
+        menu.Append(tul(id::DeleteSync), Utilities::translation::translate("context_delete"));
         PopupMenu(&menu, pos);
     }
 }

@@ -27,7 +27,7 @@ the configuration so the caller can take its snapshot on its own thread.
 
 ## stamped
 
-A name the bin made: "YYYY-MM-DD_hh-mm-ss-mmm_<name>" in local time (Util.md#with_timestamp_prefix).
+A name the bin made: "YYYY-MM-DD_hh-mm-ss-mmm_<name>" in local time (FileName.md#with_timestamp_prefix).
 Names without that prefix are not ours and are not offered.
 
 ## stamped_origin

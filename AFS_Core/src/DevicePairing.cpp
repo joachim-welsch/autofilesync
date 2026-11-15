@@ -18,7 +18,12 @@
  */
 #include "pch.h"
 #include "DevicePairing.h"
-#include "Util.h"
+#include "Hex.h"
+#include "PercentEncoding.h"
+#include "StrUtil.h"
+#include "FilesystemUtil.h"
+#include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <openssl/rand.h>
 #ifdef _WIN32
@@ -41,7 +46,7 @@ bool write_private(const std::filesystem::path& file, const std::string& text)  
     std::error_code ec;
     std::filesystem::create_directories(file.parent_path(), ec);
     const std::filesystem::path temporary = file.string() + ".tmp";
-    if (!util::write_private_file(temporary, text))
+    if (!fsu::write_private_file(temporary, text))
         return false;
     std::filesystem::rename(temporary, file, ec);
     return !ec;
@@ -127,43 +132,16 @@ std::string random_hex(size_t bytes)
     std::vector<unsigned char> buffer(bytes);
     if (RAND_bytes(buffer.data(), static_cast<int>(buffer.size())) != 1)
         return {};  // [DevicePairing.md#random_hex]
-    static constexpr char HEX[] = "0123456789abcdef";
-    std::string hex;
-    for (const unsigned char b : buffer) {
-        hex += HEX[b >> 4];
-        hex += HEX[b & 0xF];
-    }
-    return hex;
+    return hex::encoded(buffer);
 }
 
 namespace {
-
-std::string url_encoded(const std::string& text)
-{
-    static constexpr char HEX[] = "0123456789ABCDEF";
-    std::string encoded;
-    for (const unsigned char c : text) {
-        if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
-            encoded += static_cast<char>(c);
-        else
-            encoded += std::string("%") + HEX[c >> 4] + HEX[c & 0xF];
-    }
-    return encoded;
-}
-
-std::string joined(const std::vector<std::string>& values)
-{
-    std::string text;
-    for (const auto& value : values)
-        text += (text.empty() ? "" : ",") + value;
-    return text;
-}
 
 } // namespace
 
 std::string qr_content(const PairingOffer& offer)  // [DevicePairing.md#qr_content]
 {
-    return std::string(PAIRING_URL) + "#v=1&n=" + url_encoded(offer.pc_name) + "&a=" + joined(offer.addresses)
+    return std::string(PAIRING_URL) + "#v=1&n=" + percent::encoded(offer.pc_name) + "&a=" + util::joined(offer.addresses, ",")
         + "&p=" + std::to_string(offer.port) + "&f=" + offer.fingerprint + "&t=" + offer.token + "&e=" + std::to_string(offer.expires);
 }
 

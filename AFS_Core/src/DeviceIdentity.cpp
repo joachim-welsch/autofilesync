@@ -18,10 +18,12 @@
  */
 #include "pch.h"
 #include "DeviceIdentity.h"
+#include "Hex.h"
 #include "SecretBlob.h"
 #include "Logging.h"
 #include "Translation.h"
-#include "Util.h"
+#include "FilesystemUtil.h"
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <memory>
@@ -57,7 +59,7 @@ std::string read_text(const std::filesystem::path& file)
 bool write_private_key(const std::filesystem::path& file, const std::string& pem)  // [DeviceIdentity.md#private-files]
 {
     const auto stored = secretblob::protect(pem);
-    return stored && util::write_private_file(file, *stored);
+    return stored && fsu::write_private_file(file, *stored);
 }
 
 std::string pem_of(const std::function<int(BIO*)>& write)
@@ -124,13 +126,7 @@ std::string certificate_fingerprint(X509* certificate)  // [DeviceIdentity.md#ce
     unsigned int length = 0;
     if (!certificate || X509_digest(certificate, EVP_sha256(), digest, &length) != 1)
         return {};
-    static constexpr char HEX[] = "0123456789abcdef";
-    std::string hex;
-    for (unsigned int i = 0; i < length; ++i) {
-        hex += HEX[digest[i] >> 4];
-        hex += HEX[digest[i] & 0xF];
-    }
-    return hex;
+    return hex::encoded({digest, length});
 }
 
 std::optional<DeviceIdentity> DeviceIdentity::load_or_create(const std::filesystem::path& dir)  // [DeviceIdentity.md#load_or_create]
@@ -151,7 +147,7 @@ std::optional<DeviceIdentity> DeviceIdentity::load_or_create(const std::filesyst
         identity.certificate_pem_ = pem_of([&](BIO* bio) { return PEM_write_bio_X509(bio, certificate.get()); });
         std::error_code ec;
         std::filesystem::create_directories(dir, ec);
-        if (!write_private_key(dir / KEY_FILE, identity.key_pem_) || !util::write_private_file(dir / CERTIFICATE_FILE, identity.certificate_pem_))
+        if (!write_private_key(dir / KEY_FILE, identity.key_pem_) || !fsu::write_private_file(dir / CERTIFICATE_FILE, identity.certificate_pem_))
             log_error(translation::translate("device_identity_not_saved"), dir.wstring());  // [DeviceIdentity.md#unsaved-identity]
     } else if (secretblob::outdated(stored_key) && !write_private_key(dir / KEY_FILE, identity.key_pem_))
         log_error(translation::translate("device_identity_not_saved"), dir.wstring());  // [DeviceIdentity.md#private-files]

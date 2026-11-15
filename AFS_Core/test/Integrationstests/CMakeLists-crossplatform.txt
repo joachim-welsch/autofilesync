@@ -78,20 +78,27 @@ set(TEST_SOURCES
     ConfigTests.cpp
     FileDeleteTests.cpp
     PasswordCryptoTests.cpp
-    StrUtilTests.cpp
+    ${LIB_DIR}/../Utilities/test/StrUtilTests.cpp
+    ${LIB_DIR}/../Utilities/test/Base64Tests.cpp
+    ${LIB_DIR}/../Utilities/test/HexTests.cpp
+    ${LIB_DIR}/../Utilities/test/PercentEncodingTests.cpp
     ScopedEnv.cpp
-    UtilTests.cpp
-    FilesystemUtilTests.cpp
-    RecycleBinTests.cpp
+    ${LIB_DIR}/../Utilities/test/FileTimeTests.cpp
+    ${LIB_DIR}/../Utilities/test/FileNameTests.cpp
+    ${LIB_DIR}/../Utilities/test/SystemInfoTests.cpp
+    ${LIB_DIR}/../Utilities/test/FilesystemUtilTests.cpp
+    ${LIB_DIR}/../Utilities/test/RecycleBinTests.cpp
     FileDifferenceTests.cpp
-    LoggingConcurrencyTests.cpp
+    ${LIB_DIR}/../Utilities/test/LoggingConcurrencyTests.cpp
     Libssh2InitTests.cpp
     SyncTreeTests.cpp
     TwoWaySyncTests.cpp
-    MountedDrivesTests.cpp
+    ${LIB_DIR}/../Utilities/test/MountedDrivesTests.cpp
+    ${LIB_DIR}/../Utilities/test/ThreadSaveStackTests.cpp
+    UnpluggedDriveTests.cpp
     SynchronizeTests.cpp
     CheckPathTests.cpp
-    LogCutTests.cpp
+    ${LIB_DIR}/../Utilities/test/LogCutTests.cpp
     ModelLocationTests.cpp
     CloudFoldersTests.cpp
     RestoreTests.cpp
@@ -101,7 +108,7 @@ set(TEST_SOURCES
     DropboxTests.cpp
     S3Tests.cpp
     WebDavTestServer.cpp
-    CpuTopologyTests.cpp
+    ${LIB_DIR}/../Utilities/test/CpuTopologyTests.cpp
     SyncProposalTests.cpp
     SyncPlanTests.cpp
     ConfigSummaryTests.cpp
@@ -112,7 +119,7 @@ set(TEST_SOURCES
 )
 
 set(LIB_SOURCES
-    ${LIB_DIR}/src/FilesystemUtil.cpp
+    ${LIB_DIR}/../Utilities/src/FilesystemUtil.cpp
     ${LIB_DIR}/src/ModelLocation.cpp
     ${LIB_DIR}/src/CloudFolders.cpp
     ${LIB_DIR}/src/Restore.cpp
@@ -124,16 +131,21 @@ set(LIB_SOURCES
     ${LIB_DIR}/src/S3.cpp
     ${LIB_DIR}/src/GoogleAuth.cpp
     ${LIB_DIR}/src/CloudStore.cpp
-    ${LIB_DIR}/src/CpuTopology.cpp
+    ${LIB_DIR}/../Utilities/src/CpuTopology.cpp
     ${LIB_DIR}/src/SyncProposal.cpp
     ${LIB_DIR}/src/ConfigSummary.cpp
-    ${LIB_DIR}/src/LogCut.cpp
-    ${LIB_DIR}/src/Logging.cpp
-    ${LIB_DIR}/src/LogEmail.cpp
-    ${LIB_DIR}/src/StrUtil.cpp
-    ${LIB_DIR}/src/Util.cpp
-    ${LIB_DIR}/src/MountedDrives.cpp
-    ${LIB_DIR}/src/RecycleBin.cpp
+    ${LIB_DIR}/../Utilities/src/LogCut.cpp
+    ${LIB_DIR}/../Utilities/src/Logging.cpp
+    ${LIB_DIR}/../Utilities/src/LogEmail.cpp
+    ${LIB_DIR}/../Utilities/src/StrUtil.cpp
+    ${LIB_DIR}/../Utilities/src/Base64.cpp
+    ${LIB_DIR}/../Utilities/src/Hex.cpp
+    ${LIB_DIR}/../Utilities/src/PercentEncoding.cpp
+    ${LIB_DIR}/../Utilities/src/FileTime.cpp
+    ${LIB_DIR}/../Utilities/src/FileName.cpp
+    ${LIB_DIR}/../Utilities/src/SystemInfo.cpp
+    ${LIB_DIR}/../Utilities/src/MountedDrives.cpp
+    ${LIB_DIR}/../Utilities/src/RecycleBin.cpp
     ${LIB_DIR}/src/SshFileInspector.cpp
     ${LIB_DIR}/src/SshAccount.cpp
     ${LIB_DIR}/src/SyncFileSsh.cpp
@@ -177,6 +189,7 @@ target_include_directories(Integrationtests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${LIB_DIR}
     ${LIB_DIR}/include
+    ${LIB_DIR}/../Utilities/include
 )
 
 target_compile_definitions(Integrationtests PRIVATE LIB_SOURCE_DIR="${LIB_DIR}")

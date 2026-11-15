@@ -27,7 +27,8 @@
 #include "SyncState.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
 #include "WebDavTestServer.h"
 #include <chrono>
 #include <filesystem>
@@ -222,10 +223,10 @@ TEST_F(S3Test, UploadAndDownloadKeepContentAndTime)  // [S3Tests.md#time]
     write(local_ / "bericht.txt", "erste fassung");
     fs::last_write_time(local_ / "bericht.txt", fs::file_time_type::clock::now() - std::chrono::hours(50));
     ASSERT_EQ(s3::upload(local_ / "bericht.txt", account_, in_bucket("bericht.txt")), CopyResult::OK);
-    EXPECT_EQ(s3::stat(account_, in_bucket("bericht.txt"))->mtime, util::to_time_t(fs::last_write_time(local_ / "bericht.txt")));
+    EXPECT_EQ(s3::stat(account_, in_bucket("bericht.txt"))->mtime, file_time::to_time_t(fs::last_write_time(local_ / "bericht.txt")));
     ASSERT_EQ(s3::download(account_, in_bucket("bericht.txt"), local_ / "zurueck.txt"), CopyResult::OK);
     EXPECT_EQ(content_of(local_ / "zurueck.txt"), "erste fassung");
-    EXPECT_EQ(util::to_time_t(fs::last_write_time(local_ / "zurueck.txt")), util::to_time_t(fs::last_write_time(local_ / "bericht.txt")));
+    EXPECT_EQ(file_time::to_time_t(fs::last_write_time(local_ / "zurueck.txt")), file_time::to_time_t(fs::last_write_time(local_ / "bericht.txt")));
 }
 
 TEST_F(S3Test, LargeFileIsUploadedInParts)  // [S3Tests.md#LargeFileIsUploadedInParts]
@@ -237,7 +238,7 @@ TEST_F(S3Test, LargeFileIsUploadedInParts)  // [S3Tests.md#LargeFileIsUploadedIn
     const auto entry = s3::stat(account_, in_bucket("gross.bin"));
     ASSERT_TRUE(entry.has_value());
     EXPECT_EQ(entry->size, content.size());
-    EXPECT_EQ(entry->mtime, util::to_time_t(fs::last_write_time(local_ / "gross.bin")));
+    EXPECT_EQ(entry->mtime, file_time::to_time_t(fs::last_write_time(local_ / "gross.bin")));
     ASSERT_EQ(s3::download(account_, in_bucket("gross.bin"), local_ / "zurueck.bin"), CopyResult::OK);
     EXPECT_EQ(content_of(local_ / "zurueck.bin"), content);
 }
@@ -268,7 +269,7 @@ TEST_F(S3Test, MoveCopiesWithItsTimeAndNeverReplaces)  // [S3Tests.md#move]
     s3::move(account_, in_bucket("a/alt.txt"), in_bucket("b/neu name.txt"));
     EXPECT_EQ(on_server().at(BUCKET + "/b/neu name.txt"), "alt");
     EXPECT_EQ(on_server().count(BUCKET + "/a/alt.txt"), 0u);
-    EXPECT_EQ(s3::stat(account_, in_bucket("b/neu name.txt"))->mtime, util::to_time_t(fs::last_write_time(local_ / "alt.txt")));
+    EXPECT_EQ(s3::stat(account_, in_bucket("b/neu name.txt"))->mtime, file_time::to_time_t(fs::last_write_time(local_ / "alt.txt")));
     EXPECT_THROW(s3::move(account_, in_bucket("b/neu name.txt"), in_bucket("b/besetzt.txt")), http::Error);
     EXPECT_EQ(on_server().at(BUCKET + "/b/besetzt.txt"), "besetzt");
 }

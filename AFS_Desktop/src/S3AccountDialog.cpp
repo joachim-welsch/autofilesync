@@ -22,7 +22,7 @@
 #include "Config.h"
 #include "S3.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include "utilwx.h"
 
 using namespace AFS_Core;

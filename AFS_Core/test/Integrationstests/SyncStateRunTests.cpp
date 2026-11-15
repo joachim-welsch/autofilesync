@@ -24,7 +24,8 @@
 #include "ScopedLoggingSetup.h"
 #include "SyncState.h"
 #include "Synchronize.h"
-#include "Util.h"
+#include "FileTime.h"
+#include "Logging.h"
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
@@ -120,10 +121,10 @@ TEST_F(SyncStateRunTest, ARunWritesTheStateNextToTheConfigurationAndTheNextRunUs
     EXPECT_NE(state->find(L"sub/kept.txt"), nullptr);
     EXPECT_EQ(Config::instance().syncitems()[0].last_run()->known_files, 1u);
 
-    EXPECT_FALSE(util::equal(fs::last_write_time(state_file()), written)) << "the deletion changed the state";
+    EXPECT_FALSE(file_time::equal(fs::last_write_time(state_file()), written)) << "the deletion changed the state";
     const auto settled = fs::last_write_time(state_file());
     run_pass(SyncType::Single);
-    EXPECT_TRUE(util::equal(fs::last_write_time(state_file()), settled)) << "a run that changes nothing must not rewrite the state";
+    EXPECT_TRUE(file_time::equal(fs::last_write_time(state_file()), settled)) << "a run that changes nothing must not rewrite the state";
 }
 
 TEST_F(SyncStateRunTest, AOneWayItemHasNoState)

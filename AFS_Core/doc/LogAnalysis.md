@@ -23,8 +23,4 @@ current language ("Protokoll", "journal", "registro", "dziennik", "журнал"
 log_question_words. With only "log" and "protokoll" built in, a question in five of the seven
 languages got no log excerpt, and the model guessed instead.
 
-## towlower
-
-towlower() lowers non-ASCII letters only in a UTF-8 locale - which the programs set in
-init_locale(); in the "C" locale an uppercase "Журнал" would not match. The catalogue words are
-lowercase.
+The catalogue words are lowercase, the question is lowered with util::lowercase().

@@ -119,12 +119,12 @@ if (-not $NoBuild) {
     if (-not (Test-Path $gtestLibDir)) { throw "Google Test fehlt: $gtestLibDir" }
 
     New-Item -ItemType Directory -Force $buildDir | Out-Null
-    # AFS_WITH_GETTEXT wie in GuiTests.vcxproj: ohne libintl zeigen die getesteten
+    # TRANSLATION_WITH_GETTEXT wie in GuiTests.vcxproj: ohne libintl zeigen die getesteten
     # Fenster die Message-IDs statt der Texte, die der Benutzer sieht.
     $defines = '_GUITEST', 'wxUSE_HELP', '_WXWIDGETS', 'WIN32', 'X64', '_CONSOLE',
                '_CRT_SECURE_NO_DEPRECATE=1', '_CRT_NON_CONFORMING_SWPRINTFS=1',
                '_SCL_SECURE_NO_WARNINGS=1', '__WXMSW__', '_UNICODE', 'UNICODE', 'NOMINMAX', 'NOPCH',
-               'AFS_WITH_GETTEXT'
+               'TRANSLATION_WITH_GETTEXT'
     if ($debug) { $defines += '_DEBUG' } else { $defines += 'NDEBUG' }
     $includes = $guiDir, (Join-Path $root 'AFS_Desktop\include'), (Join-Path $root 'AFS_Core\include'),
                 (Join-Path $GTestDir 'include'), (Join-Path $VcpkgDir 'include'), $BoostDir,

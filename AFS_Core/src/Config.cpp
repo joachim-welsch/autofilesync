@@ -21,7 +21,8 @@
 #include <algorithm>
 #include "SyncState.h"
 #include "JsonText.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <filesystem>
 #include "PasswordCrypto.h"
 #include <fstream>
 #include <sstream>
@@ -61,7 +62,7 @@ boost::property_tree::wptree parse_json_file(wchar_t const* filename)
             return pt;
     }
     try {
-        std::wistringstream in(util::read_utf8_file(filename));  // [Config.md#utf8-file]
+        std::wistringstream in(fsu::read_utf8_file(filename));  // [Config.md#utf8-file]
         boost::property_tree::read_json(in, pt);
     }
     catch (std::exception& ex) {
@@ -163,7 +164,7 @@ void migrate_legacy_config(const wstring& new_path)  // [Config.md#migrate_legac
         return;
     std::error_code ec;
     std::filesystem::create_directories(std::filesystem::path(new_path).parent_path(), ec);
-    if (util::rename_file(old_path, new_path))
+    if (fsu::rename_file(old_path, new_path))
         log_info(translation::translate("config_migrated_from"), old_path, new_path);
     else
         log_error(translation::translate("config_migration_failed"), old_path, new_path);
@@ -619,17 +620,17 @@ bool Config::write(const std::wstring& pathname)
     std::filesystem::create_directories(std::filesystem::path(pathname).parent_path(), ec);
     const wstring tmp_pathname = pathname + L".tmp";
     try {
-        util::write_utf8_file(tmp_pathname, json::to_text(root));  // [Config.md#utf8-file]
+        fsu::write_utf8_file(tmp_pathname, json::to_text(root));  // [Config.md#utf8-file]
     }
     catch (std::exception& ex) {
 #ifdef _WXWIDGETS
         wxMessageBox(wxString(translation::translate("config_write_error")) + ex.what());
 #endif
         log_fatal(translation::translate_utf8("config_write_error"), ex.what());
-        util::remove_file(tmp_pathname);
+        fsu::remove_file(tmp_pathname);
         return false;
     }
-    if (!util::rename_file(tmp_pathname, pathname))
+    if (!fsu::rename_file(tmp_pathname, pathname))
         return false;
     disk_time_ = disk_time(pathname);
     changed_ = false;

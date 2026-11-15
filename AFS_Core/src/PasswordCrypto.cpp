@@ -18,10 +18,13 @@
  */
 #include "pch.h"
 #include "PasswordCrypto.h"
+#include "Base64.h"
 #include "Logging.h"
 #include "SecretBlob.h"
 #include "Translation.h"
-#include "Util.h"
+#include "FilesystemUtil.h"
+#include <filesystem>
+#include <string_view>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <algorithm>
@@ -81,7 +84,7 @@ bool persist(const std::filesystem::path& key_file, const Key& key)
         std::filesystem::rename(temporary, key_file, ec);
     return out && !ec;
 #else
-    return util::write_private_file(key_file, *stored);  // [PasswordCrypto.md#key-file-permissions]
+    return fsu::write_private_file(key_file, *stored);  // [PasswordCrypto.md#key-file-permissions]
 #endif
 }
 
@@ -106,28 +109,6 @@ std::optional<Key> load_or_create_key(const std::filesystem::path& key_file)
         log_error(translation::translate("crypto_key_not_storable"), key_file.wstring());
     key_cache.emplace(key_file, key);
     return key;
-}
-
-std::string to_base64(const std::vector<unsigned char>& data)
-{
-    std::vector<unsigned char> out(4 * ((data.size() + 2) / 3) + 1);
-    int len = EVP_EncodeBlock(out.data(), data.data(), static_cast<int>(data.size()));
-    return std::string(reinterpret_cast<char*>(out.data()), len);
-}
-
-std::vector<unsigned char> from_base64(const std::string& text)
-{
-    std::vector<unsigned char> out(3 * (text.size() / 4) + 3);
-    int len = EVP_DecodeBlock(out.data(), reinterpret_cast<const unsigned char*>(text.data()), static_cast<int>(text.size()));
-    if (len < 0)
-        return {};
-    int padding = 0;
-    if (!text.empty() && text.back() == '=')
-        ++padding;
-    if (text.size() > 1 && text[text.size() - 2] == '=')
-        ++padding;
-    out.resize(static_cast<size_t>(len) - padding);
-    return out;
 }
 
 } // namespace
@@ -165,7 +146,7 @@ std::string encrypt(const std::string& plaintext, const std::filesystem::path& k
     blob.insert(blob.end(), nonce.begin(), nonce.end());
     blob.insert(blob.end(), ciphertext.begin(), ciphertext.end());
     blob.insert(blob.end(), tag.begin(), tag.end());
-    return MARKER + to_base64(blob);
+    return MARKER + base64::encoded(blob);
 }
 
 bool is_encrypted(const std::string& stored)
@@ -178,7 +159,7 @@ std::optional<std::string> decrypt(const std::string& stored, const std::filesys
     if (!is_encrypted(stored))
         return std::nullopt; // legacy plaintext, predates this feature
 
-    auto blob = from_base64(stored.substr(MARKER.size()));
+    auto blob = base64::decoded(std::string_view(stored).substr(MARKER.size()));
     if (blob.size() < NONCE_LEN + TAG_LEN) {
         log_error(translation::translate("crypto_password_corrupted"));
         return std::nullopt;

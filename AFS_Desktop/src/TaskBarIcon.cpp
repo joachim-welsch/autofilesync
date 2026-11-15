@@ -77,13 +77,13 @@ void TaskBarIcon::on_menu_sub(wxCommandEvent&)
 wxMenu* TaskBarIcon::CreatePopupMenu()
 {
     wxMenu* menu = new wxMenu;
-    menu->Append(PU_RESTORE, AFS_Core::translation::translate("taskbar_restore"));
+    menu->Append(PU_RESTORE, Utilities::translation::translate("taskbar_restore"));
 #ifdef __WXOSX__  // OSX has a built-in quit menu for the dock menu, but not for the status item
     if (OSXIsStatusItem())
 #endif
     {
         menu->AppendSeparator();
-        menu->Append(PU_EXIT, AFS_Core::translation::translate("taskbar_exit"));
+        menu->Append(PU_EXIT, Utilities::translation::translate("taskbar_exit"));
     }
     return menu;
 }

@@ -24,6 +24,7 @@
 #include "ScopedLog.h"
 #include <ScopedEnv.h>
 #include <Translation.h>
+#include <Languages.h>
 #include <clocale>
 #include <optional>
 #include <utility>
@@ -93,7 +94,7 @@ protected:
         if (translation::locale_dir().empty())
             GTEST_SKIP() << "no compiled catalogues beside the test binary";
         language_.emplace("LANGUAGE", nullptr);
-        translation::init_locale(translation::DEFAULT_LOCALES);
+        translation::init_locale(languages::DEFAULT_LOCALES);
 #ifdef LC_MESSAGES
         if (std::string(std::setlocale(LC_MESSAGES, nullptr)) == "C")
             GTEST_SKIP() << "no usable locale, gettext ignores LANGUAGE in C";

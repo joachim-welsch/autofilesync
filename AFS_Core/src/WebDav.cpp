@@ -19,13 +19,15 @@
 #include "pch.h"
 #include "WebDav.h"
 #include "HttpClient.h"
+#include "PercentEncoding.h"
 #include "FilesystemUtil.h"
 #include "Logging.h"
 #include "SshUnreachable.h"
 #include "StrUtil.h"
 #include "Synchronize.h"
 #include "Translation.h"
-#include "Util.h"
+#include "FileTime.h"
+#include <filesystem>
 #include <algorithm>
 #include <fstream>
 #include <cctype>
@@ -72,20 +74,15 @@ void require_encryption(const std::string& url)  // [WebDav.md#https-only]
 
 std::string url_of(const SshAccount& account, const std::string& path, bool collection = false)  // [WebDav.md#urls]
 {
-    std::string url = account.url();
-    while (url.ends_with('/'))
-        url.pop_back();
-    std::istringstream segments(path);
-    for (std::string segment; std::getline(segments, segment, '/');)
-        if (!segment.empty())
-            url += "/" + http::escaped(segment);
+    std::string url = util::without_trailing_chars(account.url(), '/');
+    for (const std::string& segment : util::split(path, '/'))
+        url += "/" + percent::encoded(segment);
     return collection ? url + "/" : url;
 }
 
 std::size_t note_mtime_accepted(char* data, std::size_t size, std::size_t count, void* accepted)  // [WebDav.md#modification-time]
 {
-    std::string line(data, size * count);
-    std::ranges::transform(line, line.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    const std::string line = util::lowercase(std::string(data, size * count));
     if (line.starts_with("x-oc-mtime:") && line.find(MTIME_ACCEPTED) != std::string::npos)
         *static_cast<bool*>(accepted) = true;
     return size * count;
@@ -121,11 +118,10 @@ const pt::ptree* child(const pt::ptree& node, const char* name)
     return found.empty() ? nullptr : found.front();
 }
 
-std::string name_of(std::string href)  // [WebDav.md#entry-names]
+std::string name_of(const std::string& href)  // [WebDav.md#entry-names]
 {
-    while (href.ends_with('/'))
-        href.pop_back();
-    return http::unescaped(href.substr(href.rfind('/') + 1));
+    const std::string path = util::without_trailing_chars(href, '/');
+    return percent::decoded(path.substr(path.rfind('/') + 1));
 }
 
 void read_properties(const pt::ptree& prop, Entry& entry)
@@ -226,12 +222,10 @@ constexpr char NEXTCLOUD_LEGACY[] = "/remote.php/webdav";
 
 std::vector<std::string> address_candidates(const SshAccount& account)  // [WebDav.md#working_address]
 {
-    std::string base = account.url();
-    while (base.ends_with('/'))
-        base.pop_back();
+    const std::string base = util::without_trailing_chars(account.url(), '/');
     if (base.find("/remote.php/") != std::string::npos)
         return {base};
-    return {base, base + NEXTCLOUD_FILES + http::escaped(account.user()), base + NEXTCLOUD_LEGACY};
+    return {base, base + NEXTCLOUD_FILES + percent::encoded(account.user()), base + NEXTCLOUD_LEGACY};
 }
 
 bool is_collection(SshAccount account, const std::string& url)
@@ -316,7 +310,7 @@ CopyResult download(const SshAccount& account, const std::string& path, const fs
     request.expect_success(status);
     std::error_code ec;
     if (const auto modified = request.file_time())
-        fs::last_write_time(local_file, util::to_file_time(*modified), ec);
+        fs::last_write_time(local_file, file_time::to_file_time(*modified), ec);
     return CopyResult::OK;
 }
 
@@ -330,7 +324,7 @@ CopyResult upload(const fs::path& local_file, const SshAccount& account, const s
         throw Error(util::wstring_to_string(translation::translate("local_file_open_error")) + local_file.string());
     Request request(account, url_of(account, path), "PUT");
     bool time_kept = false;
-    request.header(std::string(MTIME_HEADER) + ": " + std::to_string(util::to_time_t(modified)));
+    request.header(std::string(MTIME_HEADER) + ": " + std::to_string(file_time::to_time_t(modified)));
     request.upload_from(in, size);
     request.on_header(note_mtime_accepted, &time_kept);
     const auto status = request.perform();

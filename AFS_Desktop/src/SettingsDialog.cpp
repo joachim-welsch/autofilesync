@@ -20,6 +20,7 @@
 #include "Config.h"
 #include "RecycleBin.h"
 #include "Translation.h"
+#include "Languages.h"
 #include <wx/dirdlg.h>
 #include <algorithm>
 
@@ -28,14 +29,14 @@ using namespace AFS_Core;
 namespace {
 int language_index(const std::string& code)  // [SettingsDialog.md#language_index]
 {
-    const auto& languages = translation::LANGUAGES;
+    const auto& languages = languages::LANGUAGES;
     const auto found = std::ranges::find(languages, code, &translation::Language::code);
     return found == languages.end() ? 0 : static_cast<int>(found - languages.begin()) + 1;
 }
 
 std::string language_code(int index)
 {
-    return index <= 0 ? std::string() : translation::LANGUAGES[static_cast<std::size_t>(index - 1)].code;
+    return index <= 0 ? std::string() : languages::LANGUAGES[static_cast<std::size_t>(index - 1)].code;
 }
 }
 
@@ -122,7 +123,7 @@ void SettingsDialog::add_language_choice(wxSizer* sizer)
     language_sizer->Add(new wxStaticText(this, wxID_STATIC, translation::translate("settings_language")), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
     language_choice_ = new wxChoice(this, ID_LANGUAGE_CHOICE);
     language_choice_->Append(translation::translate("language_system"));
-    for (const translation::Language& language : translation::LANGUAGES)
+    for (const translation::Language& language : languages::LANGUAGES)
         language_choice_->Append(wxString::FromUTF8(language.name));
     language_sizer->Add(language_choice_, 1);
     sizer->Add(language_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);

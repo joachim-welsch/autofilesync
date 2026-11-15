@@ -56,8 +56,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;_UNICODE;_WINDOWS;NOMINMAX;WIN32_LEAN_AND_MEAN;NOPCH;AFS_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\$(VcpkgTriplet)\include;..\AFS_Core\include;C:\Entwicklung\extlib\boost\boost_1_90_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_DEPRECATE=1;_CRT_NON_CONFORMING_SWPRINTFS=1;_SCL_SECURE_NO_WARNINGS=1;_UNICODE;_WINDOWS;NOMINMAX;WIN32_LEAN_AND_MEAN;NOPCH;TRANSLATION_WITH_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\$(VcpkgTriplet)\include;..\AFS_Core\include;..\Utilities\include;C:\Entwicklung\extlib\boost\boost_1_90_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,17 +96,17 @@
     <ClCompile Include="..\AFS_Core\src\CopyLog.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncState.cpp" />
     <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp" />
-    <ClCompile Include="..\AFS_Core\src\JsonText.cpp" />
+    <ClCompile Include="..\Utilities\src\JsonText.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDelete.cpp" />
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp" />
-    <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp" />
+    <ClCompile Include="..\Utilities\src\FilesystemUtil.cpp" />
     <ClCompile Include="..\AFS_Core\src\Global.cpp" />
     <ClCompile Include="..\AFS_Core\src\Libssh2Init.cpp" />
     <ClCompile Include="..\AFS_Core\src\LlamaClient.cpp" />
     <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp" />
-    <ClCompile Include="..\AFS_Core\src\LogCut.cpp" />
-    <ClCompile Include="..\AFS_Core\src\LogEmail.cpp" />
-    <ClCompile Include="..\AFS_Core\src\Logging.cpp" />
+    <ClCompile Include="..\Utilities\src\LogCut.cpp" />
+    <ClCompile Include="..\Utilities\src\LogEmail.cpp" />
+    <ClCompile Include="..\Utilities\src\Logging.cpp" />
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp" />
     <ClCompile Include="..\AFS_Core\src\CloudFolders.cpp" />
     <ClCompile Include="..\AFS_Core\src\Restore.cpp" />
@@ -118,10 +118,10 @@
     <ClCompile Include="..\AFS_Core\src\S3.cpp" />
     <ClCompile Include="..\AFS_Core\src\GoogleAuth.cpp" />
     <ClCompile Include="..\AFS_Core\src\CloudStore.cpp" />
-    <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp" />
+    <ClCompile Include="..\Utilities\src\CpuTopology.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp" />
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp" />
-    <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp" />
+    <ClCompile Include="..\Utilities\src\MountedDrives.cpp" />
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp" />
     <ClCompile Include="..\AFS_Core\src\SecretBlob.cpp" />
     <ClCompile Include="..\AFS_Core\src\UserObject.cpp" />
@@ -130,16 +130,19 @@
     <ClCompile Include="..\AFS_Core\src\DeviceIdentity.cpp" />
     <ClCompile Include="..\AFS_Core\src\DeviceLink.cpp" />
     <ClCompile Include="..\AFS_Core\src\DevicePairing.cpp" />
-    <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp" />
+    <ClCompile Include="..\Utilities\src\RecycleBin.cpp" />
     <ClCompile Include="..\AFS_Core\src\Settings.cpp" />
     <ClCompile Include="..\AFS_Core\src\SftpConnection.cpp" />
-    <ClCompile Include="..\AFS_Core\src\SmtpMailer.cpp" />
+    <ClCompile Include="..\Utilities\src\SmtpMailer.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshAccount.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshConnectTimeout.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshDirInspector.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshFileInspector.cpp" />
     <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp" />
-    <ClCompile Include="..\AFS_Core\src\StrUtil.cpp" />
+    <ClCompile Include="..\Utilities\src\StrUtil.cpp" />
+    <ClCompile Include="..\Utilities\src\Base64.cpp" />
+    <ClCompile Include="..\Utilities\src\Hex.cpp" />
+    <ClCompile Include="..\Utilities\src\PercentEncoding.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncArbiter.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncBase.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncControler.cpp" />
@@ -151,8 +154,10 @@
     <ClCompile Include="..\AFS_Core\src\SyncMessage.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncPlan.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
-    <ClCompile Include="..\AFS_Core\src\Translation.cpp" />
-    <ClCompile Include="..\AFS_Core\src\Util.cpp" />
+    <ClCompile Include="..\Utilities\src\Translation.cpp" />
+    <ClCompile Include="..\Utilities\src\FileTime.cpp" />
+    <ClCompile Include="..\Utilities\src\FileName.cpp" />
+    <ClCompile Include="..\Utilities\src\SystemInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyDaemon.h" />

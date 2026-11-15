@@ -30,7 +30,8 @@
 #include "SyncTree.h"
 #include "SyncSshTwoWayTests.h"
 #include "Synchronize.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
 #include <chrono>
 #include <filesystem>
 #include <thread>
@@ -117,7 +118,7 @@ protected:
 
     static std::time_t local_time(const fs::path& file)  // [SyncSshTwoWayTests.md#whole-seconds]
     {
-        return util::to_time_t(fs::last_write_time(file));
+        return file_time::to_time_t(fs::last_write_time(file));
     }
 
     std::wstring remote_path(const std::wstring& name) const

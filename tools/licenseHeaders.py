@@ -32,6 +32,7 @@ PARTS = {
     "AFS_Core": "AFS_Core, the synchronisation engine of AutoFileSync",
     "AFS_Desktop": "AFS_Desktop, the desktop program of AutoFileSync",
     "backgroundsync": "backgroundsync, the background service of AutoFileSync",
+    "Utilities": "Utilities, the general-purpose helpers of AutoFileSync",
 }
 EXCLUDED = {"build", "vcpkg_installed", "packages", "x64", "Debug", "Release", "third-party"}
 OLD_HEADER = re.compile(r"\A/\*\n \* Copyright \(C\) \d{4} Joachim Welsch.*?\*/\n", re.S)

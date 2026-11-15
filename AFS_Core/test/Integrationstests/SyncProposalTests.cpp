@@ -23,6 +23,7 @@
 #include "ScopedEnv.h"
 #include "StrUtil.h"
 #include "Translation.h"
+#include "Languages.h"
 
 using namespace AFS_Core;
 using std::wstring;
@@ -32,7 +33,7 @@ class GermanCatalogue {  // [SyncProposalTests.md#GermanCatalogue]
 public:
     GermanCatalogue(): saved_locale_(std::setlocale(LC_ALL, nullptr)), language_("LANGUAGE", "de")
     {
-        translation::init_locale(translation::DEFAULT_LOCALES);
+        translation::init_locale(languages::DEFAULT_LOCALES);
         translation::init(translation::locale_dir());
     }
     ~GermanCatalogue() { std::setlocale(LC_ALL, saved_locale_.c_str()); }
@@ -112,7 +113,7 @@ TEST(SyncProposalTests, InstructionNamesTypesAndFields)  // [SyncProposalTests.m
     if (translation::locale_dir().empty())
         GTEST_SKIP() << "no compiled catalogues beside the test binary";
     const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
-    translation::init_locale(translation::DEFAULT_LOCALES);
+    translation::init_locale(languages::DEFAULT_LOCALES);
     const ScopedEnv language("LANGUAGE", "de");
     translation::init(translation::locale_dir());
     const wstring instruction = sync_proposal::instruction();
@@ -187,7 +188,7 @@ TEST(SyncProposalTests, DeletionDescriptionNamesItemAndButton)
     if (translation::locale_dir().empty())
         GTEST_SKIP() << "no compiled catalogues beside the test binary";
     const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
-    translation::init_locale(translation::DEFAULT_LOCALES);
+    translation::init_locale(languages::DEFAULT_LOCALES);
     const ScopedEnv language("LANGUAGE", "de");
     translation::init(translation::locale_dir());
     const wstring description = sync_proposal::describe(sync_proposal::Deletion{L"Fotos"});
@@ -203,7 +204,7 @@ TEST(SyncProposalTests, DescriptionNamesItemAndButton)  // [SyncProposalTests.md
     if (translation::locale_dir().empty())
         GTEST_SKIP() << "no compiled catalogues beside the test binary";
     const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
-    translation::init_locale(translation::DEFAULT_LOCALES);
+    translation::init_locale(languages::DEFAULT_LOCALES);
     const ScopedEnv language("LANGUAGE", "de");
     translation::init(translation::locale_dir());
     const auto proposal = sync_proposal::parse(BLOCK);

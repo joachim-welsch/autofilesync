@@ -18,10 +18,12 @@
  */
 #include "pch.h"
 #include "SshHostKeyVerification.h"
+#include "Base64.h"
 #include "SshConnectTimeout.h"
 #include "Logging.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <string_view>
 #include <openssl/evp.h>
 #include <functional>
 #include <filesystem>
@@ -47,41 +49,18 @@ std::pair<std::string, std::string> type_and_blob(const std::string& line)  // [
     const size_t second = line.find(' ', first + 1);
     return {line.substr(0, first), line.substr(first + 1, second == std::string::npos ? std::string::npos : second - first - 1)};
 }
-
-std::vector<unsigned char> decoded_base64(const std::string& text)
-{
-    std::vector<unsigned char> out(3 * (text.size() / 4) + 3);
-    const int len = EVP_DecodeBlock(out.data(), reinterpret_cast<const unsigned char*>(text.data()), static_cast<int>(text.size()));
-    if (len < 0)
-        return {};
-    size_t padding = 0;
-    for (auto it = text.rbegin(); it != text.rend() && *it == '='; ++it)
-        ++padding;
-    out.resize(static_cast<size_t>(len) - padding);
-    return out;
-}
-
-std::string unpadded_base64(const unsigned char* data, size_t length)
-{
-    std::vector<unsigned char> out(4 * ((length + 2) / 3) + 1);
-    const int len = EVP_EncodeBlock(out.data(), data, static_cast<int>(length));
-    std::string text(reinterpret_cast<char*>(out.data()), static_cast<size_t>(len));
-    while (!text.empty() && text.back() == '=')
-        text.pop_back();
-    return text;
-}
 } // namespace
 
 std::string host_key_fingerprint(const std::string& host_key_line)  // [SshHostKeyVerification.md#host_key_fingerprint]
 {
-    const std::vector<unsigned char> blob = decoded_base64(type_and_blob(host_key_line).second);
+    const std::vector<unsigned char> blob = base64::decoded(type_and_blob(host_key_line).second);
     if (blob.empty())
         return {};
     unsigned char digest[EVP_MAX_MD_SIZE];
     unsigned int length = 0;
     if (EVP_Digest(blob.data(), blob.size(), digest, &length, EVP_sha256(), nullptr) != 1)
         return {};
-    return "SHA256:" + unpadded_base64(digest, length);
+    return "SHA256:" + base64::encoded_unpadded({digest, length});
 }
 
 namespace {
@@ -190,29 +169,13 @@ std::string known_hosts_file_path()
     return profile ? std::string(profile) + "\\.ssh\\known_hosts" : "known_hosts";
 }
 
-std::string base64_of(const unsigned char* data, size_t length)
-{
-    static constexpr char ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    std::string out;
-    for (size_t i = 0; i < length; i += 3) {
-        const unsigned int chunk = (data[i] << 16) | (i + 1 < length ? data[i + 1] << 8 : 0) | (i + 2 < length ? data[i + 2] : 0);
-        out += ALPHABET[(chunk >> 18) & 63];
-        out += ALPHABET[(chunk >> 12) & 63];
-        out += i + 1 < length ? ALPHABET[(chunk >> 6) & 63] : '=';
-        out += i + 2 < length ? ALPHABET[chunk & 63] : '=';
-    }
-    return out;
-}
-
 std::string fingerprint_of(LIBSSH2_SESSION* session)  // [SshHostKeyVerification.md#fingerprint_of]
 {
     constexpr size_t SHA256_LENGTH = 32;
     const char* hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
     if (!hash)
         return {};
-    std::string text = base64_of(reinterpret_cast<const unsigned char*>(hash), SHA256_LENGTH);
-    text.erase(text.find_last_not_of('=') + 1);
-    return "SHA256:" + text;
+    return "SHA256:" + base64::encoded_unpadded({reinterpret_cast<const unsigned char*>(hash), SHA256_LENGTH});
 }
 
 std::string known_host_name(const std::string& host, unsigned short port)  // [SshHostKeyVerification.md#known_host_name]
@@ -304,7 +267,7 @@ bool verify_pinned_host_key(LIBSSH2_SESSION* session, const std::string& expecte
         return false;
     }
     const auto [expected_type, expected_blob] = type_and_blob(expected_line);
-    if (!expected_type.empty() && base64_of(reinterpret_cast<const unsigned char*>(key), key_len) == expected_blob)
+    if (!expected_type.empty() && base64::encoded(std::string_view(key, key_len)) == expected_blob)
         return true;  // the blob names its own type, so the type needs no separate mapping
     log_error(translation::translate("host_key_changed") + string_to_wstring(host));
     return false;
@@ -365,7 +328,7 @@ std::optional<std::string> fetch_ssh_host_key(const SshAccount& account, std::st
             size_t key_len = 0;
             int key_type = 0;
             if (const char* key = libssh2_session_hostkey(session, &key_len, &key_type))
-                line = std::string(host_key_type_name(key_type)) + " " + base64_of(reinterpret_cast<const unsigned char*>(key), key_len);
+                line = std::string(host_key_type_name(key_type)) + " " + base64::encoded(std::string_view(key, key_len));
             libssh2_session_disconnect(session, "Normal Shutdown");
         }
         if (!line) {

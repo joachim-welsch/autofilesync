@@ -23,7 +23,8 @@
 #include "FileUtil.h"
 #include "DirUtil.h"
 #include "TestPaths.h"
-#include <Util.h>
+#include <StrUtil.h>
+#include <SystemInfo.h>
 #include <Logging.h>
 #include <Translation.h>
 #include <thread>
@@ -259,7 +260,7 @@ std::optional<LastRun> last_run_after_one_pass(const std::wstring& source, const
 
 TEST(SynchronizeTests, LastRunIsRecordedInTheConfiguration)  // [SynchronizeTests.md#LastRunIsRecordedInTheConfiguration]
 {
-    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(util::current_pid()));
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(system_info::current_pid()));
     std::filesystem::create_directories(root / "quelle");
     std::filesystem::create_directories(root / "ziel");
     std::ofstream(root / "quelle" / "a.txt") << "a";
@@ -274,7 +275,7 @@ TEST(SynchronizeTests, LastRunIsRecordedInTheConfiguration)  // [SynchronizeTest
 
 TEST(SynchronizeTests, UnreachableSourceIsRecordedAsSuch)
 {
-    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(util::current_pid()));
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / ("afs_lastrun_" + std::to_string(system_info::current_pid()));
     std::filesystem::create_directories(root / "ziel");
 
     const std::optional<LastRun> run = last_run_after_one_pass((root / "gibt-es-nicht").wstring(), (root / "ziel").wstring());
@@ -305,7 +306,7 @@ namespace {
 
 class SyncScheduleTest : public ::testing::Test {  // [SynchronizeTests.md#SyncScheduleTest]
 protected:
-    const std::filesystem::path root_ = std::filesystem::temp_directory_path() / ("afs_schedule_" + std::to_string(util::current_pid()));
+    const std::filesystem::path root_ = std::filesystem::temp_directory_path() / ("afs_schedule_" + std::to_string(system_info::current_pid()));
     const std::filesystem::path source_ = root_ / "quelle";
     const std::filesystem::path target_ = root_ / "ziel";
 

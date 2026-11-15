@@ -97,7 +97,7 @@ TEST_F(GuiTest, AnsichtHintergrundVerstecktFensterUndTaskleisteZeigtEsWieder)
     pump();
     EXPECT_FALSE(main_window().IsShown()) << "\"Ansicht → Hintergrund\" hat das Fenster nicht versteckt.";
 
-    ASSERT_TRUE(activate_task_bar_menu_item(*main_window().task_bar_icon(), wxMenuItem::GetLabelText(AFS_Core::translation::translate("taskbar_restore"))))
+    ASSERT_TRUE(activate_task_bar_menu_item(*main_window().task_bar_icon(), wxMenuItem::GetLabelText(Utilities::translation::translate("taskbar_restore"))))
         << "Das Menü des Infobereichs hat keinen Eintrag zum Wiederherstellen.";
     EXPECT_TRUE(main_window().IsShown()) << "Das Fenster kam über das Menü des Infobereichs nicht zurück.";
 }
@@ -132,7 +132,7 @@ TEST_F(GuiTest, InfoDialogZeigtVersion)  // [WindowAndHelpTest.md#about]
 #ifdef __WXOSX__
     GTEST_SKIP() << "macOS zeigt das native Info-Fenster, das kein wxDialog ist.";
 #endif
-    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("about_title"), wxID_OK);
+    ModalDialogWatcher::instance().answer(Utilities::translation::translate("about_title"), wxID_OK);
 
     activate_menu_item(main_window(), tul(id::About));
     pump();
@@ -142,7 +142,7 @@ TEST_F(GuiTest, InfoDialogZeigtVersion)  // [WindowAndHelpTest.md#about]
     EXPECT_TRUE(about.Contains(AFS_VERSION_STRING)) << "Der Info-Dialog nennt die Version nicht: " << about;
     EXPECT_TRUE(about.Contains("Joachim Welsch")) << "Der Info-Dialog nennt den Rechteinhaber nicht: " << about;
     EXPECT_TRUE(about.Contains("GPL")) << "Der Info-Dialog nennt die Lizenz nicht: " << about;
-    EXPECT_EQ(about, AFS_Core::translation::translate("about_text",
+    EXPECT_EQ(about, Utilities::translation::translate("about_text",
         {wxString(AFS_NAME_STRING).ToStdWstring(), wxString(AFS_VERSION_STRING).ToStdWstring(), wxGetOsDescription().ToStdWstring()}))
         << "Der Info-Dialog weicht vom Katalogtext ab (Umlaute?): " << about;
 }
@@ -173,7 +173,7 @@ TEST_F(GuiTest, HintergrunddienstStartOhneDienstZeigtFehlerbox)  // [WindowAndHe
 {
     if (BackgroundService::state() != BackgroundService::State::NotInstalled)
         GTEST_SKIP() << "Der Hintergrunddienst ist installiert; Start und Stopp ohne ihn lassen sich hier nicht prüfen.";
-    ModalDialogWatcher::instance().answer(AFS_Core::translation::translate("bs_caption"), wxID_OK);
+    ModalDialogWatcher::instance().answer(Utilities::translation::translate("bs_caption"), wxID_OK);
 
     activate_menu_item(main_window(), tul(id::BackgroundServiceStart));
     pump();

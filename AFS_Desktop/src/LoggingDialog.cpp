@@ -19,7 +19,7 @@
 #include "LoggingDialog.h"
 #include "Logging.h"
 #include "id.h"
-#include "Util.h"
+#include "StrUtil.h"
 #include "Config.h"
 #include "LogCut.h"
 #include "Translation.h"

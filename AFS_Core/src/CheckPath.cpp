@@ -20,7 +20,8 @@
 #include "CheckPath.h"
 #include <sstream>
 #include "Logging.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <chrono>
 #include "MountedDrives.h"
 #include "Config.h"
 #include "SshAccount.h"
@@ -90,10 +91,10 @@ bool CheckPath::path_exists(const wstring& pathname, bool must_exist) const
     return fs::exists(pathname, ec);
 #else
     const wstring drive_name = root_name(pathname);
-    if (path_contains_volume_name(pathname) && !volume_exists(drive_name, volume_name(pathname)))
+    if (path_contains_volume_name(pathname) && !fsu::volume_exists(drive_name, volume_name(pathname)))
         return false;
     if (!must_exist)  // [CheckPath.md#target-need-not-exist]
-        return drive_exists(drive_name);
+        return fsu::drive_exists(drive_name);
     std::error_code ec;
     return fs::exists(without_volume_spec(pathname), ec);
 #endif

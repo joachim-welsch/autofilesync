@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{fbf546c4-7537-48f3-ab88-5a24582eedd4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="AFS_Core">
       <UniqueIdentifier>{c79809d4-f935-48d0-b92a-609da03c21e5}</UniqueIdentifier>
     </Filter>
@@ -39,8 +42,8 @@
     <ClInclude Include="..\AFS_Core\include\HelpKnowledge.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\JsonText.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\JsonText.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\FileDelete.h">
       <Filter>AFS_Core\include</Filter>
@@ -48,8 +51,8 @@
     <ClInclude Include="..\AFS_Core\include\FileDifference.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\FilesystemUtil.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\FilesystemUtil.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\Global.h">
       <Filter>AFS_Core\include</Filter>
@@ -63,14 +66,14 @@
     <ClInclude Include="..\AFS_Core\include\LogAnalysis.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\LogCut.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\LogCut.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\LogEmail.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\LogEmail.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\Logging.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\Logging.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\ModelLocation.h">
       <Filter>AFS_Core\include</Filter>
@@ -105,8 +108,8 @@
     <ClInclude Include="..\AFS_Core\include\CloudStore.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\CpuTopology.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\CpuTopology.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\SyncProposal.h">
       <Filter>AFS_Core\include</Filter>
@@ -114,8 +117,8 @@
     <ClInclude Include="..\AFS_Core\include\ConfigSummary.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\MountedDrives.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\MountedDrives.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\PasswordCrypto.h">
       <Filter>AFS_Core\include</Filter>
@@ -144,8 +147,8 @@
     <ClInclude Include="..\AFS_Core\include\pch.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\RecycleBin.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\RecycleBin.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\Settings.h">
       <Filter>AFS_Core\include</Filter>
@@ -153,8 +156,8 @@
     <ClInclude Include="..\AFS_Core\include\SftpConnection.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\SmtpMailer.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\SmtpMailer.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\SshAccount.h">
       <Filter>AFS_Core\include</Filter>
@@ -174,8 +177,17 @@
     <ClInclude Include="..\AFS_Core\include\SshUnreachable.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\StrUtil.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\StrUtil.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\include\Base64.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\include\Hex.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\include\PercentEncoding.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="..\AFS_Core\include\SyncArbiter.h">
       <Filter>AFS_Core\include</Filter>
@@ -210,14 +222,26 @@
     <ClInclude Include="..\AFS_Core\include\SyncTree.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\ThreadSaveStack.h">
+    <ClInclude Include="..\Utilities\include\ThreadSaveStack.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\include\Translation.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AFS_Core\include\Languages.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\Translation.h">
+    <ClInclude Include="..\AFS_Core\include\UtilitiesConfig.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\AFS_Core\include\Util.h">
-      <Filter>AFS_Core\include</Filter>
+    <ClInclude Include="..\Utilities\include\FileTime.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\include\FileName.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\include\SystemInfo.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
     <ClInclude Include="include\App.h">
       <Filter>AFS_Desktop\include</Filter>
@@ -380,8 +404,8 @@
     <ClCompile Include="..\AFS_Core\src\HelpKnowledge.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\JsonText.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\JsonText.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\FileDelete.cpp">
       <Filter>AFS_Core</Filter>
@@ -389,8 +413,8 @@
     <ClCompile Include="..\AFS_Core\src\FileDifference.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\FilesystemUtil.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\FilesystemUtil.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Global.cpp">
       <Filter>AFS_Core</Filter>
@@ -404,14 +428,14 @@
     <ClCompile Include="..\AFS_Core\src\LogAnalysis.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\LogCut.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\LogCut.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\LogEmail.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\LogEmail.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\Logging.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\Logging.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\ModelLocation.cpp">
       <Filter>AFS_Core</Filter>
@@ -446,8 +470,8 @@
     <ClCompile Include="..\AFS_Core\src\CloudStore.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\CpuTopology.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\CpuTopology.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncProposal.cpp">
       <Filter>AFS_Core</Filter>
@@ -455,8 +479,8 @@
     <ClCompile Include="..\AFS_Core\src\ConfigSummary.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\MountedDrives.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\MountedDrives.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\PasswordCrypto.cpp">
       <Filter>AFS_Core</Filter>
@@ -482,8 +506,8 @@
     <ClCompile Include="..\AFS_Core\src\DevicePairing.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\RecycleBin.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\RecycleBin.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\Settings.cpp">
       <Filter>AFS_Core</Filter>
@@ -491,8 +515,8 @@
     <ClCompile Include="..\AFS_Core\src\SftpConnection.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\SmtpMailer.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\SmtpMailer.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SshAccount.cpp">
       <Filter>AFS_Core</Filter>
@@ -509,8 +533,17 @@
     <ClCompile Include="..\AFS_Core\src\SshHostKeyVerification.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\StrUtil.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\StrUtil.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\src\Base64.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\src\Hex.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\src\PercentEncoding.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\AFS_Core\src\SyncArbiter.cpp">
       <Filter>AFS_Core</Filter>
@@ -545,11 +578,17 @@
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\Translation.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\Translation.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="..\AFS_Core\src\Util.cpp">
-      <Filter>AFS_Core</Filter>
+    <ClCompile Include="..\Utilities\src\FileTime.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\src\FileName.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\src\SystemInfo.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="src\App.cpp">
       <Filter>AFS_Desktop</Filter>

@@ -26,7 +26,11 @@
 #include <vector>
 #include "Global.h"
 #include "Synchronize.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include "FileName.h"
+#include "SystemInfo.h"
+#include <chrono>
 #include <FilesystemUtil.h>
 #include "FileDifference.h"
 #include "Logging.h"
@@ -41,11 +45,11 @@ namespace AFS_Core {
 namespace fs = std::filesystem;
 using std::wstring;
 using FDResult = FileDifference::Result;
-using util::handle_last_error;
+using fsu::handle_last_error;
 using util::string_to_wstring;
 using util::to_string;
 using fsu::file_exists;
-using util::files_equal;
+using fsu::files_equal;
 
 namespace {
 class ReportedOnce {  // [SyncFile.md#reported-once]
@@ -187,7 +191,7 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
     std::error_code ec;
     int set_count = 0;
     int end_count = 0;
-    while (!util::equal(fs::last_write_time(fn, ec), modify_time)) {
+    while (!file_time::equal(fs::last_write_time(fn, ec), modify_time)) {
         if (Synchronize::stopping())
             return;
         const auto act_filetime = fs::last_write_time(fn, ec);
@@ -257,7 +261,7 @@ CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
 static void remove_partial_target(const wstring& dest)  // [SyncFile.md#restore_backup]
 {
     if (!get_account_from_path(dest).has_value())
-        util::remove_file(dest);
+        fsu::remove_file(dest);
     else if (ssh_exists(dest))
         ssh_remove_file(dest);
 }
@@ -266,7 +270,7 @@ static void restore_backup(const wstring& dest, const wstring& bak_filename)  //
 {
     remove_partial_target(dest);
     if (file_exists(bak_filename))
-        util::rename_file(bak_filename, dest);
+        fsu::rename_file(bak_filename, dest);
 }
 
 static wstring free_backup_name(const wstring& dest)  // [SyncFile.md#free_backup_name]
@@ -280,7 +284,7 @@ static wstring free_backup_name(const wstring& dest)  // [SyncFile.md#free_backu
 static void discard_backup(const wstring& bak_filename)  // [SyncFile.md#discard_backup]
 {
     if (file_exists(bak_filename))
-        util::remove_file(bak_filename);
+        fsu::remove_file(bak_filename);
 }
 
 bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
@@ -288,7 +292,7 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
     log_debug(L"save_copy_file");
     const wstring bak_filename = free_backup_name(dest);
     if (file_exists(dest)) {
-        if (!util::rename_file(dest, bak_filename)) {  // [SyncFile.md#backup-rename-failure]
+        if (!fsu::rename_file(dest, bak_filename)) {  // [SyncFile.md#backup-rename-failure]
             report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest);
             return false;
         }
@@ -551,10 +555,10 @@ wstring SyncFile::conflict_copy_name(const wstring& path, bool ssh) const  // [S
     const bool has_extension = dot != wstring::npos && dot != 0;
     const wstring stem = has_extension ? file.substr(0, dot) : file, extension = has_extension ? file.substr(dot) : wstring();
     const std::optional<SshAccount> account = ssh ? get_account_from_path(path) : std::nullopt;
-    const wstring host = string_to_wstring(account ? account->host() : util::host_name());
-    wstring marker = translation::translate("conflict_copy_marker", {util::local_date(), host});
+    const wstring host = string_to_wstring(account ? account->host() : system_info::host_name());
+    wstring marker = translation::translate("conflict_copy_marker", {file_name::local_date(), host});
     if (marker == L"conflict_copy_marker")  // [SyncFile.md#conflict-copy-name] no catalogue bound: the key must not become a file name
-        marker = L"conflict " + util::local_date() + L", " + host;
+        marker = L"conflict " + file_name::local_date() + L", " + host;
     for (int n = 1;; ++n) {
         const wstring candidate = dir + stem + L" (" + marker + (n == 1 ? wstring() : L" " + std::to_wstring(n)) + L")" + extension;
         if (!observe_file(candidate, ssh))
@@ -629,7 +633,7 @@ bool SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
         if (!save_copy_file(source, destination))
             return false;
         if (ssh_ == SSHPATH::none)  // [SyncFile.md#local-only-filetime]
-            util::set_last_write_time(destination, fs::last_write_time(source));
+            fsu::set_last_write_time(destination, fs::last_write_time(source));
         log_info(translation::translate("copied_source_to_target"), source, translation::translate("to_label"), destination);
     }
     catch (const fs::filesystem_error& ex) {

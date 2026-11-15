@@ -38,7 +38,7 @@
 #endif
 
 using std::wstring;
-using AFS_Core::translation::translate;
+using Utilities::translation::translate;
 
 namespace {
 #ifndef _MACOS

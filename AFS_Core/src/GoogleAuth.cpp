@@ -18,10 +18,13 @@
  */
 #include "pch.h"
 #include "GoogleAuth.h"
+#include "Base64.h"
 #include "Config.h"
 #include "HttpClient.h"
+#include "PercentEncoding.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include <chrono>
 #include "WebDav.h"
 #include <map>
 #include <mutex>
@@ -86,30 +89,12 @@ struct AccessToken {
     bool refresh_ever_saved = false;
 };
 
-std::string base64url(const unsigned char* data, std::size_t length)  // [GoogleAuth.md#pkce]
-{
-    static const char ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-    std::string text;
-    for (std::size_t i = 0; i < length; i += 3) {
-        const unsigned b0 = data[i];
-        const unsigned b1 = i + 1 < length ? data[i + 1] : 0;
-        const unsigned b2 = i + 2 < length ? data[i + 2] : 0;
-        text += ALPHABET[b0 >> 2];
-        text += ALPHABET[((b0 & 3) << 4) | (b1 >> 4)];
-        if (i + 1 < length)
-            text += ALPHABET[((b1 & 15) << 2) | (b2 >> 6)];
-        if (i + 2 < length)
-            text += ALPHABET[b2 & 63];
-    }
-    return text;
-}
-
 std::string random_text()
 {
     unsigned char bytes[RANDOM_BYTES];
     if (RAND_bytes(bytes, static_cast<int>(RANDOM_BYTES)) != 1)
         throw http::Error("no random numbers available");
-    return base64url(bytes, RANDOM_BYTES);
+    return base64::url_encoded(bytes);
 }
 
 std::string challenge_of(const std::string& verifier)  // [GoogleAuth.md#pkce]
@@ -117,7 +102,7 @@ std::string challenge_of(const std::string& verifier)  // [GoogleAuth.md#pkce]
     unsigned char digest[SHA256_BYTES];
     unsigned int length = 0;
     EVP_Digest(verifier.data(), verifier.size(), digest, &length, EVP_sha256(), nullptr);
-    return base64url(digest, length);
+    return base64::url_encoded({digest, length});
 }
 
 void close_socket(int socket)
@@ -142,7 +127,7 @@ std::string parameter(const std::string& query, const std::string& name)
     std::istringstream pairs(query);
     for (std::string pair; std::getline(pairs, pair, '&');)
         if (pair.starts_with(name + "="))
-            return http::unescaped(pair.substr(name.size() + 1));
+            return percent::decoded(pair.substr(name.size() + 1));
     return "";
 }
 
@@ -159,8 +144,8 @@ pt::ptree token_answer(const Settings& settings, const std::string& form)  // [G
         throw http::Error(util::wstring_to_string(translation::translate("webdav_url_not_https")) + settings.token_url);
     http::Request request(settings.token_url, "POST");
     request.header("Content-Type: application/x-www-form-urlencoded");
-    const std::string secret = settings.client_secret.empty() ? "" : "&client_secret=" + http::escaped(settings.client_secret);  // [GoogleAuth.md#microsoft]
-    request.body(form + "&client_id=" + http::escaped(settings.client_id) + secret);
+    const std::string secret = settings.client_secret.empty() ? "" : "&client_secret=" + percent::encoded(settings.client_secret);  // [GoogleAuth.md#microsoft]
+    request.body(form + "&client_id=" + percent::encoded(settings.client_id) + secret);
     const auto status = request.perform();
     pt::ptree answer;
     std::istringstream json(request.response());
@@ -257,8 +242,8 @@ std::string Login::browser_url() const
 {
     const Settings& settings = provider_.settings();
     return settings.auth_url + "?response_type=code&code_challenge_method=S256" + provider_.consent_parameters
-        + "&client_id=" + http::escaped(settings.client_id) + "&redirect_uri=" + http::escaped(redirect_uri())
-        + (*provider_.scope != 0 ? "&scope=" + http::escaped(provider_.scope) : "") + "&state=" + state_ + "&code_challenge=" + challenge_of(verifier_);
+        + "&client_id=" + percent::encoded(settings.client_id) + "&redirect_uri=" + percent::encoded(redirect_uri())
+        + (*provider_.scope != 0 ? "&scope=" + percent::encoded(provider_.scope) : "") + "&state=" + state_ + "&code_challenge=" + challenge_of(verifier_);
 }
 
 void Login::answer_browser(int connection)  // [GoogleAuth.md#finished]
@@ -299,8 +284,8 @@ std::string Login::refresh_token() const
 {
     if (code_.empty())
         throw http::Error(util::wstring_to_string(translation::translate("google_login_refused")) + error_);
-    const pt::ptree answer = token_answer(provider_.settings(), "grant_type=authorization_code&code=" + http::escaped(code_)
-        + "&code_verifier=" + verifier_ + "&redirect_uri=" + http::escaped(redirect_uri()));
+    const pt::ptree answer = token_answer(provider_.settings(), "grant_type=authorization_code&code=" + percent::encoded(code_)
+        + "&code_verifier=" + verifier_ + "&redirect_uri=" + percent::encoded(redirect_uri()));
     const std::string token = answer.get<std::string>("refresh_token", "");
     if (token.empty())
         throw http::Error(util::wstring_to_string(translation::translate("google_login_refused")) + "refresh_token");
@@ -334,7 +319,7 @@ std::string access_token(const SshAccount& account)
     AccessToken& cached = tokens[account.name()];
     if (!cached.token.empty() && steady_clock::now() + TOKEN_MARGIN < cached.expires)
         return cached.token;
-    const pt::ptree answer = token_answer(provider_of(account).settings(), "grant_type=refresh_token&refresh_token=" + http::escaped(account.password()));
+    const pt::ptree answer = token_answer(provider_of(account).settings(), "grant_type=refresh_token&refresh_token=" + percent::encoded(account.password()));
     cached.token = answer.get<std::string>("access_token");
     cached.expires = steady_clock::now() + std::chrono::seconds(answer.get<long>("expires_in", 0));
     keep_renewed_refresh_token(account, answer.get<std::string>("refresh_token", ""), cached);

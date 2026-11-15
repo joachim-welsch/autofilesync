@@ -21,6 +21,7 @@
 #include "Config.h"
 #include "GoogleAuth.h"
 #include "HttpClient.h"
+#include "PercentEncoding.h"
 #include "ScopedDeleteMode.h"
 #include "SyncFileSsh.h"
 #include "SyncItem.h"
@@ -28,7 +29,8 @@
 #include "SyncState.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
 #include "WebDavTestServer.h"
 #include <chrono>
 #include <filesystem>
@@ -163,7 +165,7 @@ TEST_F(GoogleDriveTest, LoginRefusedByTheUserFails)
 {
     google_auth::Login login;
     const std::string url = login.browser_url();
-    const std::string redirect = http::unescaped(url.substr(url.find("redirect_uri=") + 13, url.find('&', url.find("redirect_uri=")) - url.find("redirect_uri=") - 13));
+    const std::string redirect = percent::decoded(url.substr(url.find("redirect_uri=") + 13, url.find('&', url.find("redirect_uri=")) - url.find("redirect_uri=") - 13));
     std::thread browser(tu::visit_like_a_browser, redirect + "/?error=access_denied&state=fremd");
     const bool finished = wait_for(login);
     browser.join();
@@ -217,7 +219,7 @@ TEST_F(GoogleDriveTest, UploadCreatesThenReplacesAndKeepsTheTime)
     write(local_ / "bericht.txt", "erste fassung");
     fs::last_write_time(local_ / "bericht.txt", fs::file_time_type::clock::now() - std::chrono::hours(50));
     ASSERT_EQ(google_drive::upload(local_ / "bericht.txt", account_, "/bericht.txt"), CopyResult::OK);
-    EXPECT_EQ(google_drive::stat(account_, "/bericht.txt")->mtime, util::to_time_t(fs::last_write_time(local_ / "bericht.txt")));
+    EXPECT_EQ(google_drive::stat(account_, "/bericht.txt")->mtime, file_time::to_time_t(fs::last_write_time(local_ / "bericht.txt")));
     write(local_ / "bericht.txt", "zweite");
     ASSERT_EQ(google_drive::upload(local_ / "bericht.txt", account_, "/bericht.txt"), CopyResult::OK);
     const auto files = on_server();
@@ -232,7 +234,7 @@ TEST_F(GoogleDriveTest, DownloadKeepsContentAndTime)
     ASSERT_EQ(google_drive::upload(local_ / "bild.bin", account_, "/bild.bin"), CopyResult::OK);
     ASSERT_EQ(google_drive::download(account_, "/bild.bin", local_ / "zurueck.bin"), CopyResult::OK);
     EXPECT_EQ(content_of(local_ / "zurueck.bin"), content_of(local_ / "bild.bin"));
-    EXPECT_EQ(util::to_time_t(fs::last_write_time(local_ / "zurueck.bin")), util::to_time_t(fs::last_write_time(local_ / "bild.bin")));
+    EXPECT_EQ(file_time::to_time_t(fs::last_write_time(local_ / "zurueck.bin")), file_time::to_time_t(fs::last_write_time(local_ / "bild.bin")));
 }
 
 TEST_F(GoogleDriveTest, RemovePutsTheFileIntoTheTrashOfTheDrive)  // [GoogleDriveTests.md#trash]

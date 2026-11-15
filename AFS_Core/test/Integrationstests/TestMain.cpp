@@ -125,11 +125,11 @@ public:
     explicit ScratchLogEnvironment(fs::path log_path): log_path_(std::move(log_path)) {}
     void SetUp() override
     {
-        AFS_Core::Logging::instance().set_log_file_path_name(log_path_.wstring());
+        Utilities::Logging::instance().set_log_file_path_name(log_path_.wstring());
     }
     void TearDown() override
     {
-        AFS_Core::Logging::shutdown();
+        Utilities::Logging::shutdown();
         fs::remove(log_path_);
         for (const std::string& leak: leaks)
             ADD_FAILURE() << "test changed the file system: " << leak;

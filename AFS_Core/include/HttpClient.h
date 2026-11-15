@@ -40,8 +40,6 @@ struct Error : std::runtime_error {  // [HttpClient.md#errors]
 
 using HeaderCallback = std::size_t (*)(char* data, std::size_t size, std::size_t count, void* context);
 
-std::string escaped(const std::string& text);  // [HttpClient.md#escaping]
-std::string unescaped(const std::string& text);
 std::time_t parse_date(const std::string& text);
 
 class Request {  // [HttpClient.md#Request]

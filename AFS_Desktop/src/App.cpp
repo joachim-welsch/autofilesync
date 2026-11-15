@@ -30,6 +30,7 @@
 #include "Global.h"
 #include "Logging.h"
 #include "Translation.h"
+#include "Languages.h"
 #include <wx/stdpaths.h>
 #include <filesystem>
 #ifdef _MACOS
@@ -68,7 +69,7 @@ bool App::OnInit()
     mac_transform_to_foreground_app();
 #endif
     locale_.Init(wxLANGUAGE_DEFAULT);  // [App.md#wx-locale]
-    translation::init_locale(translation::DEFAULT_LOCALES);  // [App.md#init_locale]
+    translation::init_locale(languages::DEFAULT_LOCALES);  // [App.md#init_locale]
     translation::init(message_catalogue_dir());  // [App.md#language-from-environment]
     if (single_instance_checker_.IsAnotherRunning()) {
         log_error(translation::translate("start_aborted_other_instance"));  // [App.md#log-single-instance]

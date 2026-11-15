@@ -22,14 +22,14 @@
 
 namespace tu {
 class ScopedLoggingSetup {  // [ScopedLoggingSetup.md#ScopedLoggingSetup]
-    AFS_Core::Logging& log_ = AFS_Core::Logging::instance();
-    const AFS_Core::LogLevel level_ = log_.get_log_level();
+    Utilities::Logging& log_ = Utilities::Logging::instance();
+    const Utilities::LogLevel level_ = log_.get_log_level();
     const std::wstring file_ = log_.get_log_file_path_name();
     const std::wstring editor_ = log_.get_editor_path_name();
     const uint16_t retention_ = log_.retention_days();
     const bool notify_active_ = log_.email().notify_active();
     const std::wstring notify_address_ = log_.email().notify_address();
-    const AFS_Core::SmtpAccount smtp_ = log_.email().smtp_account();
+    const Utilities::SmtpAccount smtp_ = log_.email().smtp_account();
 public:
     ScopedLoggingSetup() = default;
     ScopedLoggingSetup(const ScopedLoggingSetup&) = delete;

@@ -38,6 +38,6 @@ private:
 
     std::atomic<bool> running_ = false;
     std::thread worker_thread_;
-    AFS_Core::DailyLogCut cut_log_daily_;
+    Utilities::DailyLogCut cut_log_daily_;
     std::chrono::steady_clock::time_point next_link_try_{};
 };

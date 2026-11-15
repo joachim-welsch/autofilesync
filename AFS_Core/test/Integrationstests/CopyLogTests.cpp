@@ -21,7 +21,8 @@
 #include "Synchronize.h"
 #include "Config.h"
 #include "Translation.h"
-#include "Util.h"
+#include "Languages.h"
+#include "StrUtil.h"
 #include <ScopedEnv.h>
 #include <clocale>
 #include <sstream>
@@ -342,7 +343,7 @@ TEST_F(CopyLogTest, ProofIsWrittenWhenFieldNamesAreNotAscii)  // [CopyLogTests.m
     const std::string saved_locale = std::setlocale(LC_ALL, nullptr);
     {
         const ScopedEnv language("LANGUAGE", nullptr);
-        translation::init_locale(translation::DEFAULT_LOCALES);
+        translation::init_locale(languages::DEFAULT_LOCALES);
         translation::init(translation::locale_dir());
         for (const char* code : {"fr", "pl", "uk"}) {
             translation::set_language(code);

@@ -22,7 +22,7 @@
 #include <wx/log.h>
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
-#include "Util.h"
+#include "StrUtil.h"
 
 using namespace AFS_Core;
 

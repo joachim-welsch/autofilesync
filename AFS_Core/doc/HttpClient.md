@@ -52,10 +52,6 @@ when Synchronize::stopping() is true all the time.
 
 Returns the HTTP status, or nothing when the user stopped the run during a transfer.
 
-## escaping
-
-Percent-encoding of one path segment or one query value, and its reverse.
-
 ## without_body
 
 For HEAD requests: tells libcurl that no body follows the headers. Without it libcurl would wait

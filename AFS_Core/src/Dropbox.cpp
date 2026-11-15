@@ -22,7 +22,9 @@
 #include "GoogleAuth.h"
 #include "HttpClient.h"
 #include "Translation.h"
-#include "Util.h"
+#include "StrUtil.h"
+#include "FileTime.h"
+#include <filesystem>
 #include <algorithm>
 #include <ctime>
 #include <fstream>
@@ -307,7 +309,7 @@ CopyResult download(const SshAccount& account, const std::string& path, const fs
     request.expect_success(status);
     std::error_code ec;
     if (entry->mtime > 0)
-        fs::last_write_time(local_file, util::to_file_time(entry->mtime), ec);
+        fs::last_write_time(local_file, file_time::to_file_time(entry->mtime), ec);
     return CopyResult::OK;
 }
 
@@ -315,7 +317,7 @@ CopyResult upload(const fs::path& local_file, const SshAccount& account, const s
 {
     std::error_code ec;
     const auto size = fs::file_size(local_file, ec);
-    const std::time_t modified = util::to_time_t(fs::last_write_time(local_file, ec));
+    const std::time_t modified = file_time::to_time_t(fs::last_write_time(local_file, ec));
     std::ifstream in(local_file, std::ios::binary);
     if (ec || !in.is_open())
         throw Error(util::wstring_to_string(translation::translate("local_file_open_error")) + local_file.string());

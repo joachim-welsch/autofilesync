@@ -31,7 +31,6 @@
 #include <chrono>
 #include <atomic>
 #include <vector>
-#include <Util.h>
 #include "TestPaths.h"
 
 using namespace AFS_Core;
