@@ -22,6 +22,9 @@
 #include "Synchronize.h"
 #include <algorithm>
 #include <mutex>
+#ifdef _WIN32
+    #include <winsock2.h>  // pch.h defines _WINSOCKAPI_, so curl.h would not include it itself
+#endif
 #include <curl/curl.h>
 
 namespace AFS_Core {

@@ -19,6 +19,7 @@
 #include "pch.h"
 #include "Restore.h"
 #include "CheckPath.h"
+#include "FileTime.h"
 #include "Logging.h"
 #include "RecycleBin.h"
 #include "StrUtil.h"
@@ -161,8 +162,8 @@ fs::path replaced_file(const fs::path& version)
 system_clock::time_point written(const fs::directory_entry& entry)
 {
     std::error_code ec;
-    const auto file_time = entry.last_write_time(ec);
-    return ec ? system_clock::time_point() : std::chrono::time_point_cast<system_clock::duration>(std::chrono::file_clock::to_sys(file_time));
+    const auto last_write = entry.last_write_time(ec);
+    return ec ? system_clock::time_point() : system_clock::time_point(std::chrono::duration_cast<system_clock::duration>(std::chrono::nanoseconds(file_time::to_unix_nanoseconds(last_write))));
 }
 
 template <typename Iterator>
