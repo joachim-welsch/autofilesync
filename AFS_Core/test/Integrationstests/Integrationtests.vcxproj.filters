@@ -389,6 +389,9 @@
     <ClCompile Include="GoogleDriveTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="GoogleDriveLiveTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="OneDriveTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

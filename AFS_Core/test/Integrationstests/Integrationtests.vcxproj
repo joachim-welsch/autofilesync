@@ -234,6 +234,7 @@
     <ClCompile Include="RestoreTests.cpp" />
     <ClCompile Include="WebDavTests.cpp" />
     <ClCompile Include="GoogleDriveTests.cpp" />
+    <ClCompile Include="GoogleDriveLiveTests.cpp" />
     <ClCompile Include="OneDriveTests.cpp" />
     <ClCompile Include="DropboxTests.cpp" />
     <ClCompile Include="S3Tests.cpp" />

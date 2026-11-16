@@ -10,6 +10,11 @@ developer's Linux home directory, which only exists on that one machine.
 LIB_SOURCE_DIR (set from $HOME by CMake) and the OS temp dir make the fixtures work on any
 machine and platform.
 
+## user-config-dir
+
+The name of the environment variable in which the test program hands the directory of the
+user's real configuration to the tests (TestMain.md#config-of-the-user).
+
 ## process_id
 
 Tests that create scratch files name them after the process id so that two test runs

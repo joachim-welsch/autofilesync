@@ -27,6 +27,8 @@
 
 namespace TestPaths  // [TestPaths.md#TestPaths]
 {
+    constexpr char USER_CONFIG_DIR_VARIABLE[] = "AFS_TEST_USER_CONFIG_DIR";  // [TestPaths.md#user-config-dir]
+
     inline std::wstring repo_dir()
     {
         static const std::string dir = LIB_SOURCE_DIR;

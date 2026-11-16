@@ -23,6 +23,14 @@ bin - touches the files of the user. known_hosts is copied, as the SSH tests
 would otherwise meet an unknown server. The XDG variables are unset, because
 they take precedence over HOME.
 
+## config-of-the-user
+
+Where the configuration of the user lies, noted in an environment variable before HOME is
+replaced. The tests against the real Google Drive (GoogleDriveLiveTests.md#account-of-the-user)
+read the sign-in of the user from there; nothing is ever written to it. The path is worked out
+here by hand instead of asking Config, because Config would move a configuration from its old
+place to the new one on the way, and a test run must not change the files of the user.
+
 ## ssh-user-writes-here
 
 The SSH tests reach the temp directory through the local SSH server as the SSH

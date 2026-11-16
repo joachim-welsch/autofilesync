@@ -73,6 +73,7 @@ set(SOURCES
     RestoreTests.cpp
     WebDavTests.cpp
     GoogleDriveTests.cpp
+    GoogleDriveLiveTests.cpp
     OneDriveTests.cpp
     DropboxTests.cpp
     S3Tests.cpp

@@ -150,13 +150,25 @@ int run_tests(int argc, char* argv[])
 }
 
 #ifndef _WIN32
+fs::path config_dir_of_the_user(const fs::path& real_home)  // [TestMain.md#config-of-the-user]
+{
+#ifdef _MACOS
+    return real_home / "Library" / "Application Support" / "autofilesync";
+#else
+    const char* xdg_config = std::getenv("XDG_CONFIG_HOME");
+    return (xdg_config != nullptr && *xdg_config != 0 ? fs::path(xdg_config) : real_home / ".config") / "autofilesync";
+#endif
+}
+
 void use_private_home(const fs::path& home)  // [TestMain.md#private-home]
 {
     const char* real_home = std::getenv("HOME");
     std::error_code ec;
     fs::create_directories(home / ".ssh");
-    if (real_home != nullptr)
+    if (real_home != nullptr) {
         fs::copy_file(fs::path(real_home) / ".ssh" / "known_hosts", home / ".ssh" / "known_hosts", ec);
+        setenv(TestPaths::USER_CONFIG_DIR_VARIABLE, config_dir_of_the_user(real_home).c_str(), 1);  // [TestMain.md#config-of-the-user]
+    }
     setenv("HOME", home.c_str(), 1);
     unsetenv("XDG_CONFIG_HOME");
     unsetenv("XDG_CACHE_HOME");
