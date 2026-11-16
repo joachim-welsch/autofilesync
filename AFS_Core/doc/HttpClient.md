@@ -15,6 +15,17 @@ failure. The callers treat the first as "not there at the moment", like an SSH h
 switched off. An HTTP status is no error here; the caller judges it, usually with
 expect_success().
 
+## reason
+
+Why the server refused, taken from a JSON answer: Google and Microsoft put it into
+`error.message`, the token addresses into `error_description`, Dropbox into `error_summary`.
+A status alone says too little; "HTTP 403" from Google can mean that the Drive API is not
+switched on for the project, that the scope does not cover the file or that a quota is used
+up, and only the text tells which. It stands before the address, because the address of a
+query is long and has no place to break, so a dialog shows only what comes before it. An
+answer that is not JSON, or one written into a file (#transfers), yields no reason and the
+message stays as it was.
+
 ## Request
 
 One request on the calling thread's connection. Because the connection is shared, a Request

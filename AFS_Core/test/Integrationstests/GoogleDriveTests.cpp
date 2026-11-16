@@ -180,6 +180,19 @@ TEST_F(GoogleDriveTest, RevokedLoginIsAnErrorNotAnAbsence)
     EXPECT_THROW(google_drive::stat(account_, "/brief.txt"), http::Error);
 }
 
+TEST_F(GoogleDriveTest, RefusedRequestTellsTheReasonOfTheServer)  // [GoogleDriveTests.md#reason]
+{
+    http::Request request(server_->url() + "/drive/v3/files", "GET");
+    request.bearer("falsch");
+    const auto status = request.perform();
+    try {
+        request.expect_success(status);
+        FAIL() << "A request without a valid token was accepted.";
+    } catch (const http::Error& e) {
+        EXPECT_NE(std::string(e.what()).find("HTTP 401: Invalid Credentials "), std::string::npos) << e.what();
+    }
+}
+
 TEST_F(GoogleDriveTest, StatTellsFileFolderAndAbsenceApart)
 {
     put_on_server("ordner/brief.txt", "hallo");

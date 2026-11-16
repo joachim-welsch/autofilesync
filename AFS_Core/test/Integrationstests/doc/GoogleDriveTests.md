@@ -29,6 +29,11 @@ The whole sign-in without a person: a thread plays the browser, visits the conse
 follows the redirect to the port the login listens on, while the test polls the login the way
 the dialog's timer does.
 
+## reason
+
+The stand-in refuses a wrong token the way Google does, with the reason in `error.message`;
+the exception has to carry it (HttpClient.md#reason).
+
 ## difficult-names
 
 An apostrophe and a backslash, which the query syntax escapes, a quotation mark, which JSON

@@ -22,6 +22,9 @@
 #include "Synchronize.h"
 #include <algorithm>
 #include <mutex>
+#include <sstream>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <curl/curl.h>
 
 namespace AFS_Core {
@@ -48,6 +51,21 @@ struct ThreadHandle {  // [HttpClient.md#connection-reuse]
     ThreadHandle(const ThreadHandle&) = delete;
     ThreadHandle& operator=(const ThreadHandle&) = delete;
 };
+
+std::string reason_in(const std::string& response)  // [HttpClient.md#reason]
+{
+    boost::property_tree::ptree answer;
+    std::istringstream json(response);
+    try {
+        boost::property_tree::read_json(json, answer);
+    } catch (const boost::property_tree::json_parser_error&) {
+        return "";
+    }
+    for (const char* key : {"error.message", "error_description", "error_summary", "message", "error"})
+        if (const auto reason = answer.get_optional<std::string>(key); reason && !reason->empty())
+            return *reason;
+    return "";
+}
 
 CURL* thread_handle(bool reset)
 {
@@ -221,7 +239,8 @@ std::optional<std::time_t> Request::file_time() const
 
 void Request::fail(long status) const
 {
-    throw Error("HTTP " + std::to_string(status) + " " + url_);
+    const std::string reason = reason_in(response_);
+    throw Error("HTTP " + std::to_string(status) + (reason.empty() ? " " : ": " + reason + " ") + url_);  // [HttpClient.md#reason]
 }
 
 void Request::expect_success(std::optional<long> status) const
