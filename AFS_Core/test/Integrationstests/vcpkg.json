@@ -9,6 +9,7 @@
       "version>=": "1.17.0#2"
     },
     "libssh2",
+    "curl",
     "openssl",
     "boost-property-tree",
     "gettext-libintl"

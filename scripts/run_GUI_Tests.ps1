@@ -48,6 +48,7 @@ $wxLibDir = Join-Path $WxDir 'lib\vc_x64_lib'
 $vcpkgRoot = Split-Path (Split-Path $VcpkgDir -Parent) -Parent
 $llamaPkgDir = Join-Path $vcpkgRoot 'packages\llama-cpp_x64-windows'
 $ggmlPkgDir = Join-Path $vcpkgRoot 'packages\ggml_x64-windows'
+$curlPkgDir = Join-Path $vcpkgRoot 'packages\curl_x64-windows'
 
 function Find-VcVars {
     $candidates = @()
@@ -127,9 +128,11 @@ if (-not $NoBuild) {
                'TRANSLATION_WITH_GETTEXT'
     if ($debug) { $defines += '_DEBUG' } else { $defines += 'NDEBUG' }
     $includes = $guiDir, (Join-Path $root 'AFS_Desktop\include'), (Join-Path $root 'AFS_Core\include'),
+                (Join-Path $root 'Utilities\include'),
                 (Join-Path $GTestDir 'include'), (Join-Path $VcpkgDir 'include'), $BoostDir,
                 (Join-Path $wxLibDir $wxSetupDir), (Join-Path $WxDir 'include'),
                 (Join-Path $llamaPkgDir 'include'), (Join-Path $ggmlPkgDir 'include'),
+                (Join-Path $curlPkgDir 'include'),
                 (Join-Path $root 'third-party'), (Join-Path $root 'AFS_Core\test\Integrationstests')
 
     # /utf-8 wie in den vcxproj-Dateien: die Quellen sind UTF-8 ohne BOM, sonst
@@ -170,13 +173,15 @@ if (-not $NoBuild) {
               "wxregexu$(if ($debug) {'d'}).lib", "wxexpat$(if ($debug) {'d'}).lib"
     $llamaLibDir = Join-Path $llamaPkgDir "$(if ($debug) {'debug\'})lib"
     $ggmlLibDir = Join-Path $ggmlPkgDir "$(if ($debug) {'debug\'})lib"
+    $curlLibDir = Join-Path $curlPkgDir "$(if ($debug) {'debug\'})lib"
     $linkArgs = @("/OUT:`"$exe`"", '/SUBSYSTEM:CONSOLE', '/DEBUG',
                   "/LIBPATH:`"$gtestLibDir`"", "/LIBPATH:`"$vcpkgLibDir`"", "/LIBPATH:`"$wxLibDir`"",
-                  "/LIBPATH:`"$llamaLibDir`"", "/LIBPATH:`"$ggmlLibDir`"")
+                  "/LIBPATH:`"$llamaLibDir`"", "/LIBPATH:`"$ggmlLibDir`"", "/LIBPATH:`"$curlLibDir`"")
     foreach ($o in (Get-ChildItem "$buildDir\*.obj")) { $linkArgs += "`"$($o.FullName)`"" }
     $linkArgs += "`"$res`""
     $linkArgs += 'gtest.lib', 'libssh2.lib', 'libssl.lib', 'libcrypto.lib', 'ws2_32.lib', 'iphlpapi.lib', 'crypt32.lib', 'intl.lib'
     $linkArgs += 'llama.lib', 'ggml.lib', 'ggml-cpu.lib', 'ggml-base.lib'
+    $linkArgs += "libcurl$(if ($debug) {'-d'}).lib"
     $linkArgs += $wxLibs
     $linkArgs += 'kernel32.lib', 'user32.lib', 'gdi32.lib', 'comdlg32.lib', 'winspool.lib', 'winmm.lib',
                  'shell32.lib', 'shlwapi.lib', 'comctl32.lib', 'ole32.lib', 'oleaut32.lib', 'uuid.lib',
@@ -191,10 +196,11 @@ if (-not $NoBuild) {
 
 if (-not (Test-Path $exe)) { throw "Testprogramm nicht gefunden: $exe" }
 
-# libssh2, OpenSSL, llama und ggml kommen als DLL aus dem vcpkg-Baum.
+# libssh2, OpenSSL, llama, ggml und curl kommen als DLL aus dem vcpkg-Baum.
 $llamaBinDir = Join-Path $llamaPkgDir "$(if ($debug) {'debug\'})bin"
 $ggmlBinDir = Join-Path $ggmlPkgDir "$(if ($debug) {'debug\'})bin"
-$env:PATH = "$vcpkgBinDir;$gtestBinDir;$llamaBinDir;$ggmlBinDir;$env:PATH"
+$curlBinDir = Join-Path $curlPkgDir "$(if ($debug) {'debug\'})bin"
+$env:PATH = "$vcpkgBinDir;$gtestBinDir;$llamaBinDir;$ggmlBinDir;$curlBinDir;$env:PATH"
 Write-Host ''
 Write-Host 'GUI-Tests laufen auf dem aktiven Desktop - bitte Maus und Tastatur nicht benutzen.' -ForegroundColor Yellow
 $testArgs = @()
