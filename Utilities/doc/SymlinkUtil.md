@@ -46,7 +46,10 @@ A link the system made for itself and that means nothing on another drive: one t
 into /proc, /sys, /dev, /run or /snap on Linux, into /System, /dev or /private/var/db on macOS,
 or to a device, a pipe or a socket anywhere. Below /run the removable drives (/run/media,
 /run/mount) and the user's own directory (/run/user) are the user's and do not count. A link
-that leads nowhere is not a system link; it is dangling. Windows has no rule here yet.
+that leads nowhere is not a system link; it is dangling. On Windows it is a symbolic link or a
+junction that bears the "system" or "hidden" attribute - the compatibility junctions such as
+"Documents and Settings", which nobody may list - and an app execution alias, which is no file
+that could be read. The Windows rule is written and has never been compiled or run.
 
 ## create_link_refusal
 
@@ -78,3 +81,21 @@ asks the other side where a root or a link really lies and hands the answers in.
 starts a trail from roots that are already resolved, refusal_of() judges a directory a link
 leads to, and enter_resolved() enters it. Nothing here touches the file system. The local
 refusal() and enter_link() resolve and then do the same.
+
+## rooted
+
+Whether a link's text names a fixed place rather than one relative to the link. On Unix that
+is an absolute path. On Windows std::filesystem calls "/srv/daten" relative, because it has no
+drive; but the text of a link on a server is a path of that server, and there it is absolute.
+So a text with a root directory counts as rooted on every platform. On Unix nothing changes.
+
+## junction
+
+A Windows junction: a reparse point of the mount-point kind, which leads to another directory
+like a symbolic link but is none to std::filesystem, which calls it a directory. The default
+mode goes on treating it as the directory it leads to, as it always did. The mode that keeps
+links as links does not recreate it - a junction holds an absolute path of this machine and
+cannot be created on a server or in a cloud - and the mode that follows links enters it with
+the guard against loops (SyncTree.md#junctions). A mounted volume in a folder is the same kind
+of reparse point and is treated alike. Always false elsewhere. Written for Windows and never
+compiled or run there.

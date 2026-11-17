@@ -166,7 +166,8 @@ group appears and again only after a pass in which it was empty; the note for th
 now whether they lead somewhere - the files they point to were copied by the same pass. A
 pass that only counts has created nothing and says nothing. The groups of the mode "follow the
 link" - loops, links into the target, chains that are too long and links that lead nowhere -
-are reported the same way (SyncTree.md#followed-links).
+are reported the same way (SyncTree.md#followed-links), and so are the junctions a Windows item
+in the mode "as link" left out (SyncTree.md#junctions).
 
 ## target-only-links
 

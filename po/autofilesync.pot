@@ -1003,6 +1003,10 @@ msgid "links_dangling_skipped"
 msgstr ""
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr ""
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr ""
 

@@ -1016,6 +1016,10 @@ msgid "links_dangling_skipped"
 msgstr "Symbolische Links übersprungen, weil sie ins Leere führen:"
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr "Windows-Verknüpfungspunkte (Junctions) übersprungen, sie lassen sich nicht als Verweis übernehmen:"
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr "„Dem Link folgen“ gilt nicht zusammen mit Zwei-Wege-Synchronisation oder Verschieben; symbolische Links werden wie in der Standardeinstellung behandelt:"
 

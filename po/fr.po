@@ -1004,6 +1004,10 @@ msgid "links_dangling_skipped"
 msgstr "Liens symboliques ignorés, car ils ne mènent nulle part :"
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr "Jonctions Windows ignorées ; elles ne peuvent pas être conservées comme liens :"
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr "« Suivre le lien » ne s'applique pas avec la synchronisation bidirectionnelle ou le déplacement ; les liens symboliques sont traités comme dans le réglage par défaut :"
 

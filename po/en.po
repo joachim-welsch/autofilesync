@@ -1016,6 +1016,10 @@ msgid "links_dangling_skipped"
 msgstr "Symbolic links skipped because they lead nowhere:"
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr "Windows junctions skipped, they cannot be kept as links:"
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr "“Follow the link” does not apply together with two-way synchronisation or moving; symbolic links are treated as in the default setting:"
 

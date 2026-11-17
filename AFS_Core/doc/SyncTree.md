@@ -95,3 +95,13 @@ one more round trip per directory link and one for the root. The trail then work
 server's answers (SymlinkUtil.md#LinkTrail-resolved). A link the server gives no answer for is
 left alone; without the root's real path nothing is followed in that pass. The target tree
 counts for the guard only when it lies on the same server.
+
+## junctions
+
+Windows only (SymlinkUtil.md#junction). To std::filesystem a junction is a directory, and the
+default mode goes on entering it as one: an item that reached a moved folder through a
+junction must not lose it with an update. Only a junction of the system is taken out there,
+like any link of the system. In the two new modes a junction counts as a link: the mode that
+keeps links does not recreate it and names the skipped junctions once per pass, and the mode
+that follows links enters it under the guard against loops, which a plain directory does not
+get. Written for Windows and never compiled or run there.

@@ -40,6 +40,7 @@ private:
     wchar_t source_separator() const;
     wchar_t target_separator() const;
     std::vector<Entry> list_source(const std::wstring& sourcename) const;
+    bool junction_as_link(const std::filesystem::path& path) const;  // [SyncTree.md#junctions]
     Names list_target_dirs(const std::wstring& targetname) const;  // [SyncTree.md#target-only-directories]
     bool known_below(const std::wstring& sourcename) const;
     DirState subtree_state(const std::wstring& name, const std::wstring& sourcename, const Names& target_dirs) const;

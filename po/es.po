@@ -1004,6 +1004,10 @@ msgid "links_dangling_skipped"
 msgstr "Enlaces simbólicos omitidos porque no llevan a ninguna parte:"
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr "Puntos de unión de Windows omitidos; no se pueden conservar como enlaces:"
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr "«Seguir el enlace» no se aplica junto con la sincronización bidireccional o el movimiento; los enlaces simbólicos se tratan como en la configuración predeterminada:"
 

@@ -1004,6 +1004,10 @@ msgid "links_dangling_skipped"
 msgstr "Символьні посилання пропущено, бо вони нікуди не ведуть:"
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr "Точки з'єднання Windows пропущено: їх не можна зберегти як посилання:"
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr "«Переходити за посиланням» не діє разом із двосторонньою синхронізацією чи переміщенням; символьні посилання обробляються як у типовому налаштуванні:"
 

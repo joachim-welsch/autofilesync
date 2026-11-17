@@ -51,3 +51,8 @@ ChainOfLinksEndsAtTheLimit also shows that leaving gives the place back.
 ## LinkTrail-resolved
 
 Made-up paths of a machine that does not exist: every answer comes from the paths handed in.
+
+## junction
+
+All this machine can say about junctions: there are none here, whatever the path is. The
+Windows side of the function has no test that runs anywhere yet.

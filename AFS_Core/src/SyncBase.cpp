@@ -141,6 +141,7 @@ void SyncBase::report_links()  // [SyncBase.md#report_links]
     report_link_count(link_tally_.into_target, "links_into_target_skipped");
     report_link_count(link_tally_.too_deep, "links_too_deep_skipped");
     report_link_count(link_tally_.dangling, "links_dangling_skipped");
+    report_link_count(link_tally_.junctions, "junctions_skipped");
     link_tally_ = {};
 }
 

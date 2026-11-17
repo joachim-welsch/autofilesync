@@ -63,6 +63,13 @@ wchar_t SyncTree::target_separator() const
     return sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR;
 }
 
+bool SyncTree::junction_as_link(const fs::path& path) const  // [SyncTree.md#junctions]
+{
+    if (!symlink_util::junction(path))
+        return false;
+    return sync_item_.symlink_mode() != SymlinkMode::FileContent || symlink_util::system_link(path);
+}
+
 std::vector<SyncTree::Entry> SyncTree::list_source(const wstring& sourcename) const
 {
     std::vector<Entry> entries;
@@ -73,7 +80,7 @@ std::vector<SyncTree::Entry> SyncTree::list_source(const wstring& sourcename) co
     }
     for (const fs::directory_entry& entry : fs::directory_iterator(with_trailing_char(sourcename, DIR_SEPARATOR))) {
         std::error_code ec;  // [SyncTree.md#list_source]
-        entries.push_back({entry.path().filename().wstring(), entry.is_directory(ec), entry.is_regular_file(ec), entry.is_symlink(ec)});
+        entries.push_back({entry.path().filename().wstring(), entry.is_directory(ec), entry.is_regular_file(ec), entry.is_symlink(ec) || (entry.is_directory(ec) && junction_as_link(entry.path()))});
     }
     return entries;
 }
@@ -191,6 +198,8 @@ void SyncTree::sync_link_entry(const Entry& entry, const wstring& source, const 
 {
     if ((!wildcard.empty() && !entry.is_directory && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions()))
         return;
+    if (!sync_item_.ssh_source() && symlink_util::junction(source))  // [SyncTree.md#junctions]
+        return link_tally_.junctions.add(source);
     sync_link(source, with_trailing_char(targetname, target_separator()) + entry.name);
 }
 

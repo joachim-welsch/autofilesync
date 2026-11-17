@@ -1004,6 +1004,10 @@ msgid "links_dangling_skipped"
 msgstr "Collegamenti simbolici saltati perché non portano da nessuna parte:"
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr "Giunzioni di Windows saltate: non possono essere mantenute come collegamenti:"
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr "«Seguire il collegamento» non vale insieme alla sincronizzazione bidirezionale o allo spostamento; i collegamenti simbolici sono trattati come nell'impostazione predefinita:"
 

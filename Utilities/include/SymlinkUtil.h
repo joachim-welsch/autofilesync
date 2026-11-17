@@ -62,6 +62,7 @@ namespace symlink_util {
     std::filesystem::path portable_link_text(const std::filesystem::path& link, const std::filesystem::path& text, const std::filesystem::path& root);  // [SymlinkUtil.md#portable_link_text]
     bool leaves_root(const std::filesystem::path& link, const std::filesystem::path& text, const std::filesystem::path& root);  // [SymlinkUtil.md#leaves_root]
     bool system_link(const std::filesystem::path& link);  // [SymlinkUtil.md#system_link]
+    bool junction(const std::filesystem::path& path);  // [SymlinkUtil.md#junction]
     FilesystemUtil::FileInfoResult create_link_refusal(const std::filesystem::path& text, const std::filesystem::path& at, bool to_directory);  // [SymlinkUtil.md#create_link_refusal]
 #ifdef _TEST
     void set_link_error_for_test(std::optional<std::error_code> error);  // [SymlinkUtil.md#create_link_refusal]

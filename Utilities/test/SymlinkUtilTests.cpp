@@ -275,4 +275,14 @@ TEST(SymlinkUtilTests, TrailOfResolvedPathsJudgesWithoutTheFileSystem)  // [Syml
     trail.leave();
     EXPECT_EQ(trail.refusal_of("/srv/anderes"), symlink_util::FollowRefusal::None);
 }
+
+TEST_F(SymlinkUtilTest, JunctionIsAWindowsThingAndNeverSeenElsewhere)  // [SymlinkUtilTests.md#junction]
+{
+    fs::create_directories(root_ / "ordner");
+    fs::create_directory_symlink("ordner", root_ / "verzeichnis");
+
+    EXPECT_FALSE(symlink_util::junction(root_ / "ordner"));
+    EXPECT_FALSE(symlink_util::junction(root_ / "verzeichnis")) << "a symbolic link is no junction";
+    EXPECT_FALSE(symlink_util::junction(root_ / "weg"));
+}
 #endif

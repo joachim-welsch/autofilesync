@@ -1004,6 +1004,10 @@ msgid "links_dangling_skipped"
 msgstr "Pominięto dowiązania symboliczne, bo prowadzą donikąd:"
 
 #: AFS_Core/src/SyncBase.cpp
+msgid "junctions_skipped"
+msgstr "Pominięto punkty połączenia systemu Windows; nie można ich zachować jako dowiązań:"
+
+#: AFS_Core/src/SyncBase.cpp
 msgid "symlink_follow_needs_one_way"
 msgstr "„Podążaj za dowiązaniem” nie działa razem z synchronizacją dwukierunkową ani przenoszeniem; dowiązania symboliczne są traktowane jak w ustawieniu domyślnym:"
 

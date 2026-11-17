@@ -43,6 +43,7 @@ struct LinkTally {  // [SyncLink.md#LinkTally]
 	Count into_target;
 	Count too_deep;
 	Count dangling;
+	Count junctions;
 	std::vector<std::wstring> created;
 };
 

@@ -44,6 +44,40 @@ constexpr std::array<std::string_view, 0> SYSTEM_ROOTS = {};
 constexpr std::array<std::string_view, 0> USER_ROOTS = {};
 #endif
 
+bool rooted(const fs::path& path)  // [SymlinkUtil.md#rooted]
+{
+    return path.is_absolute() || path.has_root_directory();
+}
+
+#ifdef WIN32
+#ifndef IO_REPARSE_TAG_APPEXECLINK
+#define IO_REPARSE_TAG_APPEXECLINK 0x8000001BL
+#endif
+
+struct ReparsePoint {  // [SymlinkUtil.md#junction]
+    DWORD attributes = 0;
+    DWORD tag = 0;
+};
+
+ReparsePoint reparse_point(const fs::path& path)  // [SymlinkUtil.md#junction]
+{
+    WIN32_FIND_DATAW data;
+    const HANDLE found = FindFirstFileW(path.c_str(), &data);
+    if (found == INVALID_HANDLE_VALUE)
+        return {};
+    FindClose(found);
+    return {data.dwFileAttributes, (data.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0 ? data.dwReserved0 : 0};
+}
+
+bool windows_system_link(const fs::path& link)  // [SymlinkUtil.md#system_link]
+{
+    const ReparsePoint point = reparse_point(link);
+    const bool leads_elsewhere = point.tag == IO_REPARSE_TAG_SYMLINK || point.tag == IO_REPARSE_TAG_MOUNT_POINT;
+    const bool of_the_system = (point.attributes & (FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN)) != 0;
+    return (leads_elsewhere && of_the_system) || point.tag == IO_REPARSE_TAG_APPEXECLINK;
+}
+#endif
+
 fs::path plain(const fs::path& path)  // [SymlinkUtil.md#lexical]
 {
     const fs::path normal = path.lexically_normal();
@@ -113,18 +147,31 @@ LinkInfo link_info(const fs::path& path)  // [SymlinkUtil.md#link_info]
 
 fs::path portable_link_text(const fs::path& link, const fs::path& text, const fs::path& root)  // [SymlinkUtil.md#portable_link_text]
 {
-    if (text.is_relative() || !within(plain(text), plain(root)))
+    if (!rooted(text) || !within(plain(text), plain(root)))
         return text;
     return plain(text).lexically_relative(plain(link.parent_path()));
 }
 
 bool leaves_root(const fs::path& link, const fs::path& text, const fs::path& root)  // [SymlinkUtil.md#leaves_root]
 {
-    return !within(plain(text.is_absolute() ? text : link.parent_path() / text), plain(root));
+    return !within(plain(rooted(text) ? text : link.parent_path() / text), plain(root));
+}
+
+bool junction(const fs::path& path)  // [SymlinkUtil.md#junction]
+{
+#ifdef WIN32
+    return reparse_point(path).tag == IO_REPARSE_TAG_MOUNT_POINT;
+#else
+    static_cast<void>(path);
+    return false;
+#endif
 }
 
 bool system_link(const fs::path& link)  // [SymlinkUtil.md#system_link]
 {
+#ifdef WIN32
+    return windows_system_link(link);
+#else
     std::error_code ec;
     if (!fs::is_symlink(fs::symlink_status(link, ec)))
         return false;
@@ -132,6 +179,7 @@ bool system_link(const fs::path& link)  // [SymlinkUtil.md#system_link]
     if (ec)
         return false;
     return special_file(resolved) || (below_any(resolved, SYSTEM_ROOTS) && !below_any(resolved, USER_ROOTS));
+#endif
 }
 
 #ifdef _TEST
