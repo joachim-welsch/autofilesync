@@ -36,6 +36,7 @@ class PreviewDialog: public wxDialog {  // [PreviewDialog.md#PreviewDialog]
 public:
     PreviewDialog(wxWindow* parent, const SyncPlan& plan, const wxString& notes);  // [PreviewDialog.md#notes]
     static wxString action_label(PlannedAction action);
+    static wxString step_label(const PlannedStep& step);  // [PreviewDialog.md#link-steps]
     static wxString summary(const SyncPlan& plan);  // [PreviewDialog.md#summary]
     wxListCtrl& list() { return *list_; }
 };

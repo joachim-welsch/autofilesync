@@ -61,6 +61,7 @@ struct PlannedStep {
     std::wstring source;
     std::wstring target;
     uint64_t bytes;
+    bool link = false;  // [SyncPlan.md#link-steps]
 };
 
 class SyncPlan {  // [SyncPlan.md#SyncPlan]

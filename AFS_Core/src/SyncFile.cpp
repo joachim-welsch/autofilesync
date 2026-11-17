@@ -553,7 +553,7 @@ void SyncFile::carry_out_deferred(const PendingDeletion& deletion)  // [SyncFile
     const PlannedAction action = deletion.in_target ? PlannedAction::DeleteInTarget : PlannedAction::DeleteInSource;
     if (only_count_) {
         ++copy_count_;
-        plan_step({sync_item_.name(), action, deletion.source, deletion.target, deletion.bytes});
+        plan_step({sync_item_.name(), action, deletion.source, deletion.target, deletion.bytes, deletion.link});
         return;
     }
     const bool removed = deletion.in_target ? delete_target_file(deletion.source, deletion.target) : delete_source_file(deletion.source, deletion.target);

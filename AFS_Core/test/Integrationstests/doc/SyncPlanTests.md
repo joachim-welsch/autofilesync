@@ -76,3 +76,11 @@ approve it.
 
 A conflict is one step in the preview, named after the winning side and sized by the winner
 (SyncPlan.md#PlannedAction); the preview changes nothing, conflict copies included.
+
+## links
+
+SyncPlan.md#link-steps. The first test has the three kinds of step side by side - a link to
+create, a link to delete and a plain file - and checks that only the file moves bytes. The
+second covers the two steps that do not come straight from SyncLink: a deletion that waits in
+the state until the end of the pass, and a conflict, which a preview used to pass over. Unix
+only: the tests create symbolic links.

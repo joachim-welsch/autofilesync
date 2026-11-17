@@ -2757,6 +2757,10 @@ msgstr "Azione"
 msgid "preview_copy_to_target"
 msgstr "Copia nella destinazione"
 
+#: AFS_Desktop/src/PreviewDialog.cpp:88
+msgid "preview_link_suffix"
+msgstr "(collegamento)"
+
 #: AFS_Desktop/src/PreviewDialog.cpp:89
 msgid "preview_move_to_target"
 msgstr "Sposta nella destinazione"

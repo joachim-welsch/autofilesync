@@ -220,7 +220,7 @@ void SyncLink::carry(const Side& from, const wstring& from_path, const wstring& 
     if (only_count_) {
         ++copy_count_;
         const PlannedAction action = !to_target ? PlannedAction::CopyToSource : sync_item_.del_aftercopy() ? PlannedAction::MoveToTarget : PlannedAction::CopyToTarget;
-        plan_step({sync_item_.name(), action, to_target ? from_path : to_path, to_target ? to_path : from_path, 0});
+        plan_step({sync_item_.name(), action, to_target ? from_path : to_path, to_target ? to_path : from_path, 0, true});
         return;
     }
     if (!create(from.text, to_path, from.to_directory))
@@ -240,12 +240,12 @@ void SyncLink::remove(const wstring& source, const wstring& destination, bool in
 {
     const wstring& doomed = in_target ? destination : source;
     if (state_ != nullptr && sync_item_.sync_item_type() != SyncItemType::File) {
-        state_->defer({key_, source, destination, in_target, 0});
+        state_->defer({key_, source, destination, in_target, 0, true});
         return;
     }
     if (only_count_) {
         ++copy_count_;
-        plan_step({sync_item_.name(), in_target ? PlannedAction::DeleteInTarget : PlannedAction::DeleteInSource, source, destination, 0});
+        plan_step({sync_item_.name(), in_target ? PlannedAction::DeleteInTarget : PlannedAction::DeleteInSource, source, destination, 0, true});
         return;
     }
     if (delete_file(doomed))
@@ -263,8 +263,12 @@ void SyncLink::resolve_conflict(const wstring& source, const wstring& destinatio
         report_sync_error(message);
         return;
     }
-    if (only_count_ || blocked_by_directory(destination))
+    if (blocked_by_directory(destination))
         return;
+    if (only_count_) {
+        ++copy_count_;
+        return plan_step({sync_item_.name(), PlannedAction::ConflictCopyToTarget, source, destination, 0, true});
+    }
     const wstring copy = conflict_copy_name(destination, false);
     const FileInfoResult refusal = fsu::rename_refusal(destination, copy);
     if (refusal != FileInfoResult::OK)

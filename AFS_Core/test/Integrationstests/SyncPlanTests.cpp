@@ -404,3 +404,58 @@ TEST_F(SyncPlanTest, PreviewPlansAConflictCopyWithTheWinnersSize)  // [SyncPlanT
     EXPECT_EQ(plan.bytes(), std::string("target v2").size());
     EXPECT_TRUE(file_in_target(PlannedAction::ConflictCopyToSource));
 }
+
+#ifdef _UNIX
+TEST_F(SyncPlanTest, PreviewMarksTheStepsThatHandleALink)  // [SyncPlanTests.md#links]
+{
+    tu::write_text_file(source_dir_ / "datei.txt", "content");
+    fs::create_symlink("datei.txt", source_dir_ / "zeiger");
+    fs::create_symlink("weg.txt", target_dir_ / "alt");
+    const auto before = entries_below(root_);
+    SyncItem si = item(SyncItemType::Tree);
+    si.symlink_mode(SymlinkMode::AsLink);
+    si.delete_in_target(true);
+
+    std::size_t count = 0;
+    const SyncPlan plan = preview(si, count);
+
+    EXPECT_EQ(entries_below(root_), before) << "the preview changed the filesystem";
+    EXPECT_EQ(count, 3u);
+    ASSERT_NE(step_for(plan, "zeiger"), nullptr);
+    EXPECT_EQ(step_for(plan, "zeiger")->action, PlannedAction::CopyToTarget);
+    EXPECT_TRUE(step_for(plan, "zeiger")->link);
+    ASSERT_NE(step_for(plan, "alt"), nullptr);
+    EXPECT_EQ(step_for(plan, "alt")->action, PlannedAction::DeleteInTarget);
+    EXPECT_TRUE(step_for(plan, "alt")->link);
+    ASSERT_NE(step_for(plan, "datei.txt"), nullptr);
+    EXPECT_FALSE(step_for(plan, "datei.txt")->link) << "a file is no link";
+    EXPECT_EQ(plan.bytes(), std::string("content").size()) << "a link moves no bytes";
+}
+
+TEST_F(SyncPlanTest, PreviewMarksADeferredLinkDeletionAndALinkConflict)  // [SyncPlanTests.md#links]
+{
+    fs::create_symlink("eins", source_dir_ / "geloescht");
+    fs::create_symlink("eins", source_dir_ / "streit");
+    SyncItem si = item(SyncItemType::Tree);
+    si.symlink_mode(SymlinkMode::AsLink);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 2u);
+    fs::remove(source_dir_ / "geloescht");
+    for (const fs::path& side : {source_dir_, target_dir_}) {
+        fs::remove(side / "streit");
+        fs::create_symlink(side == source_dir_ ? "zwei" : "drei", side / "streit");
+    }
+    const auto before = entries_below(root_);
+
+    const SyncPlan plan = preview(si, state);
+
+    EXPECT_EQ(entries_below(root_), before);
+    ASSERT_NE(step_for(plan, "geloescht"), nullptr);
+    EXPECT_EQ(step_for(plan, "geloescht")->action, PlannedAction::DeleteInTarget);
+    EXPECT_TRUE(step_for(plan, "geloescht")->link) << "the deletion is put off to the end of the pass and must still say what it deletes";
+    ASSERT_NE(step_for(plan, "streit"), nullptr);
+    EXPECT_EQ(step_for(plan, "streit")->action, PlannedAction::ConflictCopyToTarget);
+    EXPECT_TRUE(step_for(plan, "streit")->link);
+}
+#endif

@@ -56,3 +56,12 @@ can never outlive its pass.
 Whether a plan is being collected on this thread. SyncBase::sync_file counts files blindly
 when it only counts - the count is a range for the progress bar and need not be exact - but
 a preview must compare every file, so it uses this to take the full path through SyncFile.
+
+## link-steps
+
+A step that handles a symbolic link kept as a link (SyncLink.md) is one of the same actions as
+a file's - created in the target or the source, deleted, kept as a conflict copy - so the
+actions and their counts stay as they are, and the step only says that its entry is a link.
+The preview shows it, because "copy to target" for a link to a directory of a thousand files
+is one link and not a thousand files, and a deleted link deletes nothing it points to. A link
+moves no bytes.

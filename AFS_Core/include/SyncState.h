@@ -43,6 +43,7 @@ struct PendingDeletion {  // [SyncState.md#pass-notebook]
     std::wstring target;
     bool in_target;
     uint64_t bytes;
+    bool link = false;  // [SyncPlan.md#link-steps]
 };
 
 struct PendingDirRemoval {

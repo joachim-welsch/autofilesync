@@ -100,12 +100,17 @@ void PreviewDialog::fill(const SyncPlan& plan)
 
 void PreviewDialog::add_step(const PlannedStep& step)
 {
-    const long row = list_->InsertItem(list_->GetItemCount(), action_label(step.action));
+    const long row = list_->InsertItem(list_->GetItemCount(), step_label(step));
     list_->SetItem(row, 1, step.item);
     list_->SetItem(row, 2, shown_path(step));
-    list_->SetItem(row, 3, deletion(step.action) || rename(step.action) ? wxString() : human_size(step.bytes));
+    list_->SetItem(row, 3, deletion(step.action) || rename(step.action) || step.link ? wxString() : human_size(step.bytes));
     if (deletion(step.action))  // [PreviewDialog.md#deletions-in-red]
         list_->SetItemTextColour(row, *wxRED);
+}
+
+wxString PreviewDialog::step_label(const PlannedStep& step)  // [PreviewDialog.md#link-steps]
+{
+    return step.link ? action_label(step.action) + L" " + translate("preview_link_suffix") : action_label(step.action);
 }
 
 wxString PreviewDialog::action_label(PlannedAction action)

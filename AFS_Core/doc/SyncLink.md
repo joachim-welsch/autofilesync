@@ -45,7 +45,7 @@ With conflict copies the target's entry is renamed to the conflict name a file w
 (SyncFile.md#conflict-copy-name) and the source's link takes the name; the renamed entry is
 then new in the target and travels to the source with the next pass, like any new link or
 file. A link has no time that could say which side is newer, so the source wins the name by
-rule, and nothing is lost either way. Without conflict copies both sides stay as they are and
+rule, and nothing is lost either way. A preview plans it as a conflict copy into the target. Without conflict copies both sides stay as they are and
 the pair is an error of every run until the user settles it; the log gets the line once.
 
 ## local-only

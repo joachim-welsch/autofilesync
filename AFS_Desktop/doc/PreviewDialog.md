@@ -56,3 +56,9 @@ the point of the step - the user sees that the move was recognised and no copy i
 A conflict step (SyncPlan.md#PlannedAction) names the winning side in its label, shows the
 file like a copy and the winner's size; that the other version survives as a conflict copy is
 the help's and the log's business, the preview only has to make clear that nothing is lost.
+
+## link-steps
+
+A step that handles a symbolic link kept as a link (SyncPlan.md#link-steps) gets "(link)"
+after its action and no size: the user must see that "copy to target" brings one link and not
+the directory behind it, and that a red deletion removes the link and nothing it points to.
