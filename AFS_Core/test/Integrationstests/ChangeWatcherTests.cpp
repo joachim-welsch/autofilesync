@@ -171,3 +171,38 @@ TEST_F(ChangeWatcherTest, TwoItemsAreKeptApart)
     EXPECT_TRUE(noticed(watcher, L"flach"));
     EXPECT_FALSE(watcher.last_change(L"baum").has_value()) << "a change in one item's directory must not mark the other";
 }
+
+#ifdef __linux__
+TEST_F(ChangeWatcherTest, AFollowedDirectoryLinkIsWatchedAndAnUnfollowedOneIsNot)  // [ChangeWatcherTests.md#followed-links]
+{
+    fs::create_directories(root_ / "elsewhere" / "deep");
+    fs::create_directory_symlink(root_ / "elsewhere", root_ / "tree" / "link");
+    fs::create_directory_symlink("..", root_ / "tree" / "sub" / "up");
+    ChangeWatcher& following = watch({{L"folgt", root_ / "tree", true, true}});
+    ASSERT_TRUE(following.watching(L"folgt")) << "the loop link must not keep the watcher from starting";
+
+    tu::write_text_file(root_ / "elsewhere" / "deep" / "neu.txt", "x");
+
+    EXPECT_TRUE(noticed(following, L"folgt")) << "a change behind a followed link belongs to the item";
+    ChangeWatcher& plain = watch({{L"folgt-nicht", root_ / "tree", true}});
+
+    tu::write_text_file(root_ / "elsewhere" / "deep" / "noch-eine.txt", "x");
+
+    EXPECT_FALSE(noticed(plain, L"folgt-nicht", 600)) << "without the mode a link is not entered";
+}
+
+TEST_F(ChangeWatcherTest, ADirectoryLinkCreatedLaterIsWatchedWhenLinksAreFollowed)  // [ChangeWatcherTests.md#followed-links]
+{
+    fs::create_directories(root_ / "elsewhere");
+    ChangeWatcher& watcher = watch({{L"baum", root_ / "tree", true, true}});
+    fs::create_directory_symlink(root_ / "elsewhere", root_ / "tree" / "spaeter");
+    ASSERT_TRUE(noticed(watcher, L"baum"));
+    wait_until_quiet(watcher, L"baum");
+    watcher.clear(L"baum");
+
+    tu::write_text_file(root_ / "elsewhere" / "datei.txt", "x");
+
+    EXPECT_TRUE(noticed(watcher, L"baum"));
+}
+#endif
+

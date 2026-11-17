@@ -47,3 +47,7 @@ A source and a target tree and a third directory outside both.
 One test per answer. SiblingReachedTwiceIsNoLoop is the one that keeps the guard from being
 too strict: the same directory is refused only while the walk is inside it.
 ChainOfLinksEndsAtTheLimit also shows that leaving gives the place back.
+
+## LinkTrail-resolved
+
+Made-up paths of a machine that does not exist: every answer comes from the paths handed in.

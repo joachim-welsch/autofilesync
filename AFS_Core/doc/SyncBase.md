@@ -188,9 +188,8 @@ that only counts touches nothing.
 
 ## follows_links
 
-Whether the pass follows directory links: the item says so, it is one-way and no move, and
-the source is local. With two-way sync or "delete after copying" the item's writes and
+Whether the pass follows directory links: the item says so, it is one-way and no move. With two-way sync or "delete after copying" the item's writes and
 deletions would travel through the link into places outside the item, and content reached
 twice would conflict with itself. The dialog does not offer the combination; a configuration
 that has it anyway is run as in the default mode, and the pass says so once
-(report_mode_conflict). Behind SSH a link is not followed yet.
+(report_mode_conflict).

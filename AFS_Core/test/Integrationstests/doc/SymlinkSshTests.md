@@ -45,3 +45,15 @@ points to.
 ## TwoWaySyncWithAnSftpTargetCarriesAndDeletesLinks
 
 With a state: a link deleted on the server goes locally, a new one on the server comes here.
+
+## RealPathOverSftpResolvesALink
+
+The server's own answer to where a path really lies, and none for a path that is not there.
+
+## FollowModeEntersTheDirectoryLinksOfAnSftpSource
+
+The mode "follow the link" with the source behind SFTP (SyncTree.md#followed-links): the
+directory link is entered and the file link copied as content, which the default mode skips
+over SSH. Two loops - one in the tree, one that closes behind the followed link - are not
+entered, and a dead link on the server does not delete the file of its name in the target,
+although "delete in target" is set.

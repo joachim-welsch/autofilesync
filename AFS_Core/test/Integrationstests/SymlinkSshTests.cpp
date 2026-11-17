@@ -234,4 +234,50 @@ TEST_F(SymlinkSshTest, TwoWaySyncWithAnSftpTargetCarriesAndDeletesLinks)  // [Sy
     EXPECT_FALSE(fs::is_symlink(source_ / "hier")) << "deleted on the server, so it goes here";
     EXPECT_EQ(fs::read_symlink(source_ / "dort"), fs::path("echt")) << "new on the server, so it comes here";
 }
+
+TEST_F(SymlinkSshTest, RealPathOverSftpResolvesALink)  // [SymlinkSshTests.md#RealPathOverSftpResolvesALink]
+{
+    SKIP_WITHOUT_SSH_SERVER();
+    fs::create_directory_symlink("echt", source_ / "ordner");
+
+    const std::optional<std::wstring> resolved = ssh_real_path(remote(source_ / "ordner"));
+
+    ASSERT_TRUE(resolved.has_value());
+    EXPECT_EQ(fs::path(*resolved), fs::canonical(source_ / "echt"));
+    EXPECT_FALSE(ssh_real_path(remote(source_ / "fehlt" / "tiefer")).has_value());
+}
+
+TEST_F(SymlinkSshTest, FollowModeEntersTheDirectoryLinksOfAnSftpSource)  // [SymlinkSshTests.md#FollowModeEntersTheDirectoryLinksOfAnSftpSource]
+{
+    SKIP_WITHOUT_SSH_SERVER();
+    fs::create_directories(root_ / "fremd");
+    fs::permissions(root_ / "fremd", fs::perms::all);
+    tu::write_text_file(root_ / "fremd" / "f.txt", "f");
+    fs::permissions(root_ / "fremd" / "f.txt", fs::perms::owner_all | fs::perms::group_read | fs::perms::others_read);
+    fs::create_directory_symlink("../fremd", source_ / "raus");
+    fs::create_symlink("b.txt", source_ / "datei.txt");
+    fs::create_directory_symlink(".", source_ / "selbst");
+    fs::create_directory_symlink(source_, root_ / "fremd" / "zurueck");
+    fs::create_symlink("weg.txt", source_ / "tot.txt");
+    tu::write_text_file(target_ / "tot.txt", "liegt schon da");
+    SyncItem si = from_remote();
+    si.symlink_mode(SymlinkMode::Follow);
+    si.delete_in_target(true);
+    Outcome first, second;
+
+    run(si, first);
+
+    EXPECT_TRUE(first.report.successful());
+    EXPECT_EQ(first.copies, 4u) << "two files of the tree, one behind the directory link and the file link";
+    EXPECT_EQ(tu::read_text_file(target_ / "raus" / "f.txt"), "f");
+    EXPECT_FALSE(fs::is_symlink(target_ / "raus"));
+    EXPECT_EQ(tu::read_text_file(target_ / "datei.txt"), "b") << "over SSH a file link is content in this mode";
+    EXPECT_FALSE(fs::exists(target_ / "selbst")) << "a loop on the server";
+    EXPECT_FALSE(fs::exists(target_ / "raus" / "zurueck")) << "a loop that closes behind the followed link";
+    EXPECT_EQ(tu::read_text_file(target_ / "tot.txt"), "liegt schon da") << "a dead link on the server is no deleted file";
+
+    run(si, second);
+
+    EXPECT_EQ(second.copies, 0u);
+}
 #endif

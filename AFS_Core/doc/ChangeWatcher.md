@@ -103,3 +103,18 @@ it: it reaches the requests of the calling thread, and the request was issued by
 thread. CancelIoEx cancels it from any thread, and the wait for its result makes sure the
 system is done with the memory before the Watch is freed. ERROR_NOT_FOUND means that nothing
 was pending, so there is nothing to wait for.
+
+## followed-links
+
+An item that follows directory links (SyncBase.md#follows_links) reads files that lie behind
+those links, so a change there is a change of the item. On Linux, where every directory has a
+watch of its own, the linked directories are collected as well, with the guard the pass uses
+(SymlinkUtil.md#LinkTrail), so a link back onto the way does not make the collecting run
+without end. A watch set on a link's path watches the directory it leads to. A link to a
+directory that appears later is noticed as a new entry that is no directory itself, so it is
+asked what it leads to. The trail for a directory added later starts at that directory; a
+link back above it is entered once and ends at the first directory met twice. The target tree
+is no limit here: watching it twice costs nothing, the system keeps one watch per directory.
+
+FSEvents on macOS and ReadDirectoryChangesW on Windows watch a tree as a whole and do not
+enter links; there a change behind a followed link is found by the next regular pass.

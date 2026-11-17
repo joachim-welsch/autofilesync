@@ -192,3 +192,11 @@ The libssh2 branch asks for links like the libssh one, but does not create them 
 argument order wrong, a server would create a link named like the text, somewhere below the
 user's directory, and that cannot be tried out without a Windows build. Until then a link to
 an SFTP target counts as "not supported there" on Windows.
+
+## real-path
+
+Where a path really lies on the server, with every link in it resolved, or nothing when the
+path is not there or the server does not say. A server resolves a missing path lexically
+instead of refusing, so the path is asked for first. The walk that follows links needs it once
+for the root and once per directory link (SyncTree.md#followed-links); SshLink::resolves
+tells a link that leads somewhere from a dead one without that call.

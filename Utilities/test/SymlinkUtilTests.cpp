@@ -259,4 +259,20 @@ TEST_F(LinkTrailTest, ChainOfLinksEndsAtTheLimit)  // [SymlinkUtilTests.md#LinkT
     trail.leave();
     EXPECT_EQ(trail.refusal(here / "weiter"), symlink_util::FollowRefusal::None) << "leaving a link gives its place back";
 }
+
+TEST(SymlinkUtilTests, TrailOfResolvedPathsJudgesWithoutTheFileSystem)  // [SymlinkUtilTests.md#LinkTrail-resolved]
+{
+    symlink_util::LinkTrail trail = symlink_util::LinkTrail::of_resolved("/srv/daten", fs::path("/srv/sicherung"));
+    trail.enter_directory("a");
+
+    EXPECT_EQ(trail.refusal_of("/srv/anderes"), symlink_util::FollowRefusal::None);
+    EXPECT_EQ(trail.refusal_of("/srv/daten"), symlink_util::FollowRefusal::Loop);
+    EXPECT_EQ(trail.refusal_of("/srv/daten/a/"), symlink_util::FollowRefusal::Loop) << "a trailing separator changes nothing";
+    EXPECT_EQ(trail.refusal_of("/srv"), symlink_util::FollowRefusal::Loop) << "above the root";
+    EXPECT_EQ(trail.refusal_of("/srv/sicherung/alt"), symlink_util::FollowRefusal::IntoTarget);
+    trail.enter_resolved("/srv/anderes");
+    EXPECT_EQ(trail.refusal_of("/srv/anderes"), symlink_util::FollowRefusal::Loop);
+    trail.leave();
+    EXPECT_EQ(trail.refusal_of("/srv/anderes"), symlink_util::FollowRefusal::None);
+}
 #endif

@@ -45,10 +45,14 @@ namespace symlink_util {
         };
         std::optional<std::filesystem::path> target_root_;
         std::vector<Step> chain_;
+        LinkTrail() = default;
     public:
         LinkTrail(const std::filesystem::path& source_root, const std::optional<std::filesystem::path>& target_root);
+        static LinkTrail of_resolved(const std::filesystem::path& source_root, const std::optional<std::filesystem::path>& target_root);  // [SymlinkUtil.md#LinkTrail-resolved]
         FollowRefusal refusal(const std::filesystem::path& link) const;
+        FollowRefusal refusal_of(const std::filesystem::path& resolved_directory) const;  // [SymlinkUtil.md#LinkTrail-resolved]
         void enter_link(const std::filesystem::path& link);
+        void enter_resolved(const std::filesystem::path& resolved_directory);  // [SymlinkUtil.md#LinkTrail-resolved]
         void enter_directory(const std::filesystem::path& name);
         void leave();
     };

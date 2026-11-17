@@ -38,11 +38,19 @@ SyncDir::SyncDir(const SyncItem& si, std::size_t& copy_count, bool only_count, S
     : SyncBase(si, copy_count, only_count, state)
 {}
 
+bool SyncDir::followed_file_link(const SshDirEntry& entry, const wstring& source_path) const  // [SyncDir.md#followed-file-links]
+{
+    if (!entry.is_symlink || !follows_links())
+        return false;
+    const std::optional<SshLink> link = ssh_link_info(util::with_trailing_char(source_path, L'/') + entry.name);
+    return link && link->resolves && !link->to_directory;
+}
+
 void SyncDir::sync_ssh_dir_entry(const SshDirEntry& entry, const wstring& source_path, const wstring& wildcard, const wstring& destination)
 {
     log_debug(L"sync_ssh_dir_entry: " + entry.name);
     const bool as_link = entry.is_symlink && links_as_links();  // [SyncBase.md#links_as_links]
-    if ((!entry.is_regular_file && !as_link) || (!wildcard.empty() && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions()))
+    if ((!entry.is_regular_file && !as_link && !followed_file_link(entry, source_path)) || (!wildcard.empty() && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions()))
         return;
     const wstring fname = util::with_trailing_char(source_path, L'/') + entry.name;  // [SyncDir.md#ssh-source-local-target]
     const wstring dest = util::with_trailing_char(destination, sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR) + entry.name;

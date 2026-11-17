@@ -236,12 +236,17 @@ namespace {
     constexpr std::chrono::seconds SETTLE_TIME{2};  // [Synchronize.md#due]
     constexpr std::chrono::seconds WATCHED_SCAN_INTERVAL{600};
 
-    void watch_side(std::vector<WatchedDir>& dirs, const SyncItem& item, const wstring& side, bool ssh)  // [Synchronize.md#watcher_]
+    bool follows_links(const SyncItem& item)  // [SyncBase.md#follows_links]
+    {
+        return item.symlink_mode() == SymlinkMode::Follow && !item.two_way_sync() && !item.del_aftercopy();
+    }
+
+    void watch_side(std::vector<WatchedDir>& dirs, const SyncItem& item, const wstring& side, bool ssh, bool follow_links)  // [Synchronize.md#watcher_]
     {
         if (ssh)
             return;
         const fs::path path = without_volume_spec(side);
-        dirs.push_back({item.name(), item.sync_item_type() == SyncItemType::File ? path.parent_path() : path, item.sync_item_type() == SyncItemType::Tree});
+        dirs.push_back({item.name(), item.sync_item_type() == SyncItemType::File ? path.parent_path() : path, item.sync_item_type() == SyncItemType::Tree, follow_links});
     }
 }
 
@@ -253,8 +258,8 @@ void Synchronize::watch_items()  // [Synchronize.md#watcher_]
     for (const SyncItem& i : Config::instance().syncitems()) {
         if (!i.enabled() || !i.watch_changes())
             continue;
-        watch_side(dirs, i, i.source(), i.ssh_source());
-        watch_side(dirs, i, i.target(), i.ssh_target());
+        watch_side(dirs, i, i.source(), i.ssh_source(), follows_links(i));  // [ChangeWatcher.md#followed-links]
+        watch_side(dirs, i, i.target(), i.ssh_target(), false);
     }
     if (dirs.empty())
         return;

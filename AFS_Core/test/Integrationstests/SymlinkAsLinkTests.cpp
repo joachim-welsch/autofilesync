@@ -480,9 +480,11 @@ TEST_F(SymlinkAsLinkTest, LinkChangedOnBothSidesKeepsBothAsAConflictCopy)  // [S
     EXPECT_EQ(fs::read_symlink(target_ / "zeiger"), fs::path("echt/a.txt")) << "the source's link wins the name";
     ASSERT_EQ(names_in(target_).size(), 4u) << "b.txt, echt, zeiger and the conflict copy";
     EXPECT_EQ(names_in(source_), names_in(target_)) << "the conflict copy travels to the source with the next pass";
-    for (const std::string& name : names_in(target_))
-        if (name.starts_with("zeiger ("))
+    for (const std::string& name : names_in(target_)) {
+        if (name.starts_with("zeiger (")) {
             EXPECT_EQ(fs::read_symlink(target_ / name), fs::path("echt")) << "the target's link is kept under the conflict name";
+        }
+    }
 }
 
 TEST_F(SymlinkAsLinkTest, LinkChangedOnBothSidesWithoutConflictCopiesIsLeftAndReported)  // [SymlinkAsLinkTests.md#LinkChangedOnBothSidesWithoutConflictCopiesIsLeftAndReported]

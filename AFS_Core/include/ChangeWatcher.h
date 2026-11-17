@@ -32,6 +32,7 @@ struct WatchedDir {  // [ChangeWatcher.md#WatchedDir]
     std::wstring item;
     std::filesystem::path dir;
     bool recursive;
+    bool follow_links = false;  // [ChangeWatcher.md#followed-links]
 };
 
 class ChangeWatcher {  // [ChangeWatcher.md#ChangeWatcher]

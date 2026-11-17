@@ -89,3 +89,9 @@ something the user may well have on purpose. Directories entered by name are tol
 trail as well, because a link further down may point back to them. An excluded link is not
 entered, and a link in the target where the followed directory belongs is not written through
 (SyncBase.md#target_usable). A directory item does not descend, with or without a link.
+With the source behind SFTP the server is asked: what a link leads to with the one call that
+also tells a dead link, and for a directory where it really lies (SyncFileSsh.md#real-path) -
+one more round trip per directory link and one for the root. The trail then works on the
+server's answers (SymlinkUtil.md#LinkTrail-resolved). A link the server gives no answer for is
+left alone; without the root's real path nothing is followed in that pass. The target tree
+counts for the guard only when it lies on the same server.

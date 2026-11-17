@@ -42,6 +42,7 @@ struct SshLink {  // [SyncFileSsh.md#links]
     bool is_directory = false;
     bool to_directory = false;
     std::wstring text;
+    bool resolves = false;
 };
 
 std::optional<SshAccount> get_account_from_path(const std::wstring& path);
@@ -62,6 +63,7 @@ bool ssh_rename(const std::wstring& from, const std::wstring& to);  // [SyncFile
 std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path);
 bool ssh_keeps_links(const std::wstring& path);  // [SyncFileSsh.md#links]
 std::optional<SshLink> ssh_link_info(const std::wstring& path);  // [SyncFileSsh.md#links]
+std::optional<std::wstring> ssh_real_path(const std::wstring& path);  // [SyncFileSsh.md#real-path]
 fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring& at);  // [SyncFileSsh.md#links]
 
 #ifdef _TEST

@@ -206,20 +206,61 @@ LinkTally::Count* SyncTree::refused_links(symlink_util::FollowRefusal refusal)  
     return &link_tally_.too_deep;
 }
 
+SyncTree::LinkTarget SyncTree::remote_link_target(const wstring& source) const
+{
+    const std::optional<SshLink> info = ssh_link_info(source);
+    if (!info)
+        return {};
+    if (!info->resolves)
+        return {Leads::Nowhere, {}};
+    if (!info->to_directory)
+        return {Leads::ToFile, {}};
+    const std::optional<wstring> resolved = ssh_real_path(source);
+    return resolved ? LinkTarget{Leads::ToDirectory, *resolved} : LinkTarget{Leads::Nowhere, {}};
+}
+
+SyncTree::LinkTarget SyncTree::link_target(const Entry& entry, const wstring& source) const  // [SyncTree.md#followed-links]
+{
+    if (sync_item_.ssh_source())
+        return remote_link_target(source);
+    if (entry.is_regular_file)
+        return {Leads::ToFile, {}};
+    std::error_code ec;
+    const fs::path resolved = fs::canonical(source, ec);
+    return !ec && fs::is_directory(resolved, ec) ? LinkTarget{Leads::ToDirectory, resolved} : LinkTarget{Leads::Nowhere, {}};
+}
+
 void SyncTree::follow_link_entry(const Entry& entry, const wstring& source, const wstring& sourcename, const wstring& targetname, const wstring& wildcard, const Names& target_dirs)  // [SyncTree.md#followed-links]
 {
-    if (entry.is_regular_file)
+    const LinkTarget link = link_target(entry, source);
+    if (link.leads == Leads::ToFile)
         return sync_file_entry(entry.name, sourcename, targetname, wildcard);
-    if (is_excluded(entry.name, sync_item_.exclusions()))
+    if (link.leads == Leads::Unknown || is_excluded(entry.name, sync_item_.exclusions()))
         return;
-    if (LinkTally::Count* refused = refused_links(trail_->refusal(source)))
+    if (link.leads == Leads::Nowhere)
+        return link_tally_.dangling.add(source);
+    if (LinkTally::Count* refused = refused_links(trail_->refusal_of(link.directory)))
         return refused->add(source);
     const wstring target = with_trailing_char(targetname, target_separator()) + entry.name;
     if (!target_usable(target))
         return;
-    trail_->enter_link(source);
+    trail_->enter_resolved(link.directory);
     sync_tree(source, target, wildcard, subtree_state(entry.name, sourcename, target_dirs));
     trail_->leave();
+}
+
+void SyncTree::start_trail()  // [SyncTree.md#followed-links]
+{
+    const wstring source = root_path(sync_item_.source(), sync_item_.ssh_source()), target = root_path(sync_item_.target(), sync_item_.ssh_target());
+    if (!sync_item_.ssh_source()) {
+        trail_.emplace(source, sync_item_.ssh_target() ? std::nullopt : std::optional<fs::path>(target));
+        return;
+    }
+    const std::optional<wstring> root = ssh_real_path(source);
+    const auto source_account = get_account_from_path(source), target_account = sync_item_.ssh_target() ? get_account_from_path(target) : std::nullopt;
+    const std::optional<wstring> same_server_target = source_account && target_account && source_account->name() == target_account->name() ? ssh_real_path(target) : std::nullopt;
+    if (root)
+        trail_.emplace(symlink_util::LinkTrail::of_resolved(*root, same_server_target ? std::optional<fs::path>(*same_server_target) : std::nullopt));
 }
 
 void SyncTree::sync_subtree(const wstring& name, const wstring& sourcename, const wstring& targetname, const wstring& wildcard, const Names& target_dirs)
@@ -262,8 +303,8 @@ void SyncTree::sync_target_only_dirs(const wstring& sourcename, const wstring& t
 void SyncTree::operator()()
 {
     log_debug(L"SyncTree::operator()()");
-    if (follows_links())  // [SyncTree.md#followed-links]
-        trail_.emplace(root_path(sync_item_.source(), false), sync_item_.ssh_target() ? std::nullopt : std::optional<fs::path>(root_path(sync_item_.target(), false)));
+    if (follows_links())
+        start_trail();
     sync_tree(root_path(sync_item_.source(), sync_item_.ssh_source()), root_path(sync_item_.target(), sync_item_.ssh_target()), sync_item_.wildcard(), DirState::Both);
     finish_pass();
 }

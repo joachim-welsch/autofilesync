@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "ChangeWatcher.h"
+#include <SymlinkUtil.h>
 #include "Logging.h"
 #include "Translation.h"
 #include <chrono>
@@ -101,6 +102,7 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
         fs::path dir;
         bool recursive;
         bool root;  // [ChangeWatcher.md#root-directory-gone]
+        bool follow_links;  // [ChangeWatcher.md#followed-links]
     };
     static constexpr uint32_t EVENTS = IN_CREATE | IN_DELETE | IN_MODIFY | IN_CLOSE_WRITE | IN_MOVED_FROM | IN_MOVED_TO | IN_ATTRIB | IN_DELETE_SELF | IN_MOVE_SELF | IN_ONLYDIR;
     ChangeWatcher& owner;
@@ -120,7 +122,7 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
             return;
         }
         for (const WatchedDir& watched : dirs)
-            add(watched.item, watched.dir, watched.recursive, true);
+            add(watched.item, watched.dir, watched.recursive, true, watched.follow_links);
         thread = std::thread([this] { run(); });
     }
 
@@ -137,28 +139,49 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
             close(stop_fd);
     }
 
-    static void collect(const fs::path& dir, std::vector<fs::path>& dirs)
+    static bool entered(const fs::directory_entry& entry, symlink_util::LinkTrail* trail)  // [ChangeWatcher.md#followed-links]
+    {
+        std::error_code ec;
+        if (!entry.is_directory(ec))
+            return false;
+        if (!entry.is_symlink(ec)) {
+            if (trail != nullptr)
+                trail->enter_directory(entry.path().filename());
+            return true;
+        }
+        if (trail == nullptr || trail->refusal(entry.path()) != symlink_util::FollowRefusal::None)
+            return false;
+        trail->enter_link(entry.path());
+        return true;
+    }
+
+    static void collect(const fs::path& dir, std::vector<fs::path>& dirs, symlink_util::LinkTrail* trail)
     {
         std::error_code ec;
         for (fs::directory_iterator it(dir, fs::directory_options::skip_permission_denied, ec); !ec && it != fs::directory_iterator(); it.increment(ec))
-            if (it->is_directory(ec) && !it->is_symlink(ec)) {
+            if (entered(*it, trail)) {
                 dirs.push_back(it->path());
-                collect(it->path(), dirs);
+                collect(it->path(), dirs, trail);
+                if (trail != nullptr)
+                    trail->leave();
             }
     }
 
-    bool add(const wstring& item, const fs::path& dir, bool recursive, bool root)  // [ChangeWatcher.md#inotify-per-directory]
+    bool add(const wstring& item, const fs::path& dir, bool recursive, bool root, bool follow_links)  // [ChangeWatcher.md#inotify-per-directory]
     {
         std::vector<fs::path> dirs{dir};
+        std::optional<symlink_util::LinkTrail> trail;
+        if (follow_links)
+            trail.emplace(dir, std::nullopt);
         if (recursive)
-            collect(dir, dirs);  // listed before any watch exists: the listing itself updates access times, which a watch would report
+            collect(dir, dirs, trail ? &*trail : nullptr);  // listed before any watch exists: the listing itself updates access times, which a watch would report
         for (const fs::path& watched : dirs) {
             const int wd = inotify_add_watch(fd, watched.c_str(), EVENTS);
             if (wd < 0) {
                 owner.lost(item, watched);
                 return false;
             }
-            watches[wd] = {item, watched, recursive, root && watched == dir};
+            watches[wd] = {item, watched, recursive, root && watched == dir, follow_links};
         }
         return true;
     }
@@ -181,6 +204,14 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
         }
     }
 
+    static bool appeared_directory(const Watch& watch, const inotify_event& event)  // [ChangeWatcher.md#followed-links]
+    {
+        if (event.mask & IN_ISDIR)
+            return true;
+        std::error_code ec;
+        return watch.follow_links && fs::is_symlink(fs::symlink_status(watch.dir / event.name, ec)) && fs::is_directory(watch.dir / event.name, ec);
+    }
+
     void handle(const inotify_event& event)
     {
         if (event.mask & IN_Q_OVERFLOW) {  // [ChangeWatcher.md#overflow]
@@ -196,8 +227,8 @@ struct ChangeWatcher::Backend {  // [ChangeWatcher.md#Backend]
             watches.erase(found);
             if (watch.root)
                 owner.lost(watch.item, watch.dir);  // [ChangeWatcher.md#root-directory-gone]
-        } else if (watch.recursive && (event.mask & IN_ISDIR) && (event.mask & (IN_CREATE | IN_MOVED_TO)) && event.len > 0)
-            add(watch.item, watch.dir / event.name, true, false);  // a directory that appeared is watched from now on
+        } else if (watch.recursive && (event.mask & (IN_CREATE | IN_MOVED_TO)) && event.len > 0 && appeared_directory(watch, event))
+            add(watch.item, watch.dir / event.name, true, false, watch.follow_links);  // a directory that appeared is watched from now on
     }
 };
 

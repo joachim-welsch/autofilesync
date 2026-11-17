@@ -51,6 +51,14 @@ private:
     void sync_link_entry(const Entry& entry, const std::wstring& source, const std::wstring& targetname, const std::wstring& wildcard);  // [SyncTree.md#links-as-links]
     void follow_link_entry(const Entry& entry, const std::wstring& source, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);  // [SyncTree.md#followed-links]
     LinkTally::Count* refused_links(symlink_util::FollowRefusal refusal);  // [SyncTree.md#followed-links]
+    enum class Leads { Unknown, Nowhere, ToFile, ToDirectory };  // [SyncTree.md#followed-links]
+    struct LinkTarget {
+        Leads leads = Leads::Unknown;
+        std::filesystem::path directory;
+    };
+    LinkTarget link_target(const Entry& entry, const std::wstring& source) const;  // [SyncTree.md#followed-links]
+    LinkTarget remote_link_target(const std::wstring& source) const;
+    void start_trail();  // [SyncTree.md#followed-links]
     void sync_subtree(const std::wstring& name, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);
     void sync_file_entry(const std::wstring& name, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard);
     void sync_target_only_dirs(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard,

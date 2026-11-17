@@ -151,7 +151,7 @@ bool SyncBase::links_as_links() const  // [SyncBase.md#links_as_links]
 
 bool SyncBase::follows_links() const  // [SyncBase.md#follows_links]
 {
-    return sync_item_.symlink_mode() == SymlinkMode::Follow && !sync_item_.two_way_sync() && !sync_item_.del_aftercopy() && !sync_item_.ssh_source();
+    return sync_item_.symlink_mode() == SymlinkMode::Follow && !sync_item_.two_way_sync() && !sync_item_.del_aftercopy();
 }
 
 void SyncBase::report_mode_conflict() const  // [SyncBase.md#follows_links]

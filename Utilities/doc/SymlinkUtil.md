@@ -70,3 +70,11 @@ and a chain that long is more likely a trap than a wish). The loop is asked firs
 link above both trees is foremost a loop. Directories entered by name cost no call to the
 system; only a link is resolved. A target that is not on this machine is given as none; a link
 cannot lead into it.
+
+## LinkTrail-resolved
+
+The same guard for a tree this machine cannot resolve, such as one behind SFTP: the caller
+asks the other side where a root or a link really lies and hands the answers in. of_resolved()
+starts a trail from roots that are already resolved, refusal_of() judges a directory a link
+leads to, and enter_resolved() enters it. Nothing here touches the file system. The local
+refusal() and enter_link() resolve and then do the same.

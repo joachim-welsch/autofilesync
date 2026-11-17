@@ -164,8 +164,20 @@ FollowRefusal LinkTrail::refusal(const fs::path& link) const  // [SymlinkUtil.md
 {
     std::error_code ec;
     const fs::path target = fs::canonical(link, ec);
-    if (ec || !fs::is_directory(target, ec))
-        return FollowRefusal::Unresolved;
+    return ec || !fs::is_directory(target, ec) ? FollowRefusal::Unresolved : refusal_of(target);
+}
+
+LinkTrail LinkTrail::of_resolved(const fs::path& source_root, const std::optional<fs::path>& target_root)  // [SymlinkUtil.md#LinkTrail-resolved]
+{
+    LinkTrail trail;
+    trail.target_root_ = target_root ? std::optional<fs::path>(plain(*target_root)) : std::nullopt;
+    trail.chain_.push_back({plain(source_root), false});
+    return trail;
+}
+
+FollowRefusal LinkTrail::refusal_of(const fs::path& resolved_directory) const  // [SymlinkUtil.md#LinkTrail-resolved]
+{
+    const fs::path target = plain(resolved_directory);
     if (std::ranges::any_of(chain_, [&](const Step& step) { return within(step.directory, target); }))
         return FollowRefusal::Loop;
     if (target_root_ && (within(target, *target_root_) || within(*target_root_, target)))
@@ -177,6 +189,11 @@ FollowRefusal LinkTrail::refusal(const fs::path& link) const  // [SymlinkUtil.md
 void LinkTrail::enter_link(const fs::path& link)
 {
     chain_.push_back({physical(link), true});
+}
+
+void LinkTrail::enter_resolved(const fs::path& resolved_directory)  // [SymlinkUtil.md#LinkTrail-resolved]
+{
+    chain_.push_back({plain(resolved_directory), true});
 }
 
 void LinkTrail::enter_directory(const fs::path& name)

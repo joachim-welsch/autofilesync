@@ -61,3 +61,11 @@ The directory of an item is removed while it is watched - a drive that is unplug
 that is replaced. The item must fall back to its tick (ChangeWatcher.md#root-directory-gone);
 a subdirectory of a tree that goes the same way is only a change. Linux only: the other
 backends are not built here and their behaviour is not known.
+
+## followed-links
+
+ChangeWatcher.md#followed-links, Linux only like the per-directory watches it is about. A tree
+with a link to a directory outside it and a link to its own parent: the watcher that follows
+links starts in spite of the loop and sees a file written two levels behind the link; one
+that does not follow sees nothing of it, within a wait that is short because nothing is
+expected. The second test creates the link while the watcher runs.

@@ -647,12 +647,24 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 static SshLink link_of(const SftpConnection& connection, const std::string& remote_path, const sftp_attributes_struct& entry)  // [SyncFileSsh.md#links]
 {
     if (entry.type != SSH_FILEXFER_TYPE_SYMLINK)
-        return {true, false, entry.type == SSH_FILEXFER_TYPE_DIRECTORY, false, {}};
+        return {true, false, entry.type == SSH_FILEXFER_TYPE_DIRECTORY, false, {}, true};
     char* text = sftp_readlink(connection.sftp(), remote_path.c_str());
     const SftpAttributes target = connection.stat(remote_path);
-    SshLink link{true, true, false, target && target->type == SSH_FILEXFER_TYPE_DIRECTORY, string_to_wstring(text != nullptr ? text : "")};
+    SshLink link{true, true, false, target && target->type == SSH_FILEXFER_TYPE_DIRECTORY, string_to_wstring(text != nullptr ? text : ""), target != nullptr};
     ssh_string_free_char(text);
     return link;
+}
+
+std::optional<std::wstring> ssh_real_path(const std::wstring& path)  // [SyncFileSsh.md#real-path]
+{
+    SftpConnection connection;
+    const auto remote_path = connect_to(path, connection);
+    if (!remote_path || !connection.stat(*remote_path))
+        return std::nullopt;
+    char* resolved = sftp_canonicalize_path(connection.sftp(), remote_path->c_str());
+    const std::optional<std::wstring> answer = resolved != nullptr ? std::optional<std::wstring>(string_to_wstring(resolved)) : std::nullopt;
+    ssh_string_free_char(resolved);
+    return answer;
 }
 
 std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.md#links]
@@ -1571,12 +1583,26 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 static SshLink link_of(LIBSSH2_SFTP* sftp, const std::string& remote, const LIBSSH2_SFTP_ATTRIBUTES& entry)  // [SyncFileSsh.md#links]
 {
     if (!LIBSSH2_SFTP_S_ISLNK(entry.permissions))
-        return {true, false, LIBSSH2_SFTP_S_ISDIR(entry.permissions) != 0, false, {}};
+        return {true, false, LIBSSH2_SFTP_S_ISDIR(entry.permissions) != 0, false, {}, true};
     char text[4096];
     const int length = libssh2_sftp_readlink(sftp, remote.c_str(), text, sizeof(text));
     LIBSSH2_SFTP_ATTRIBUTES target;
     const bool resolves = libssh2_sftp_stat(sftp, remote.c_str(), &target) == 0;
-    return {true, true, false, resolves && LIBSSH2_SFTP_S_ISDIR(target.permissions) != 0, string_to_wstring(std::string(text, length > 0 ? static_cast<std::size_t>(length) : 0))};
+    return {true, true, false, resolves && LIBSSH2_SFTP_S_ISDIR(target.permissions) != 0, string_to_wstring(std::string(text, length > 0 ? static_cast<std::size_t>(length) : 0)), resolves};
+}
+
+std::optional<std::wstring> ssh_real_path(const std::wstring& path)  // [SyncFileSsh.md#real-path]
+{
+    std::optional<std::wstring> answer;
+    ssh_sftp_call(path, [&](LIBSSH2_SFTP* sftp, const std::string& remote) {
+        char resolved[4096];
+        LIBSSH2_SFTP_ATTRIBUTES entry;
+        const int length = libssh2_sftp_stat(sftp, remote.c_str(), &entry) == 0 ? libssh2_sftp_realpath(sftp, remote.c_str(), resolved, sizeof(resolved)) : -1;
+        if (length > 0)
+            answer = string_to_wstring(std::string(resolved, static_cast<std::size_t>(length)));
+        return 0;
+    }, "remote_dir_open_error");
+    return answer;
 }
 
 std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.md#links]
@@ -1743,6 +1769,11 @@ bool ssh_keeps_links(const std::wstring& path)  // [SyncFileSsh.md#links]
 std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.md#links]
 {
     return webdav_account(path) ? std::nullopt : sftp_backend::ssh_link_info(path);
+}
+
+std::optional<std::wstring> ssh_real_path(const std::wstring& path)  // [SyncFileSsh.md#real-path]
+{
+    return webdav_account(path) ? std::nullopt : sftp_backend::ssh_real_path(path);
 }
 
 fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring& at)  // [SyncFileSsh.md#links]
