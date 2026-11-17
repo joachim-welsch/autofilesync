@@ -4,7 +4,7 @@ AutoFileSync copies, overwrites and deletes files and connects to remote servers
 
 ## Supported versions
 
-Security fixes are provided for the latest release and for the current `main` branch. Older releases are not patched; please update to the latest version.
+Security fixes are provided for the latest release and for the current `master` branch. Older releases are not patched; please update to the latest version.
 
 ## Reporting a vulnerability
 
