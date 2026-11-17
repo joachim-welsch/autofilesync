@@ -218,6 +218,10 @@ msgstr "Cannot read the file attributes"
 msgid "permission_denied"
 msgstr "Permission denied"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_locked"
+msgstr "The file is locked by another program"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Invalid file time"

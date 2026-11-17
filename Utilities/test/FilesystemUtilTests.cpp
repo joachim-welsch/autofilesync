@@ -164,16 +164,78 @@ TEST_F(FilesystemUtilTest, FileinfoOfAFileThatMayNotBeReadStillAnswers)  // [Fil
 }
 #endif
 
+TEST(FilesystemUtilTests, ReasonForFailureTellsLockedFromRefusedFromMissing)  // [FilesystemUtilTests.md#ReasonForFailureTellsLockedFromRefusedFromMissing]
+{
+    using fsu::FileInfoResult;
+    EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::permission_denied)), FileInfoResult::PermissionDenied);
+    EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::no_such_file_or_directory)), FileInfoResult::FileNotExist);
+    EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::io_error)), FileInfoResult::ErrorReadFileInfo);
+#ifdef _WIN32
+    EXPECT_EQ(fsu::reason_for_failure(std::error_code(32, std::system_category())), FileInfoResult::FileLocked) << "ERROR_SHARING_VIOLATION";
+    EXPECT_EQ(fsu::reason_for_failure(std::error_code(33, std::system_category())), FileInfoResult::FileLocked) << "ERROR_LOCK_VIOLATION";
+#else
+    EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::text_file_busy)), FileInfoResult::FileLocked);
+    EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::device_or_resource_busy)), FileInfoResult::FileLocked);
+#endif
+}
+
+TEST_F(FilesystemUtilTest, CompareContentTellsDifferentFromNotReadable)  // [FilesystemUtilTests.md#CompareContentTellsDifferentFromNotReadable]
+{
+    const fs::path original = create_file("a.bin", "content");
+    const fs::path copy = create_file("b.bin", "content");
+    const fs::path changed = create_file("c.bin", "c0ntent");
+    const std::wstring missing = (root_ / "missing.bin").wstring();
+
+    const fsu::ContentComparison same = fsu::compare_content(original.wstring(), copy.wstring());
+    const fsu::ContentComparison different = fsu::compare_content(original.wstring(), changed.wstring());
+    const fsu::ContentComparison second_missing = fsu::compare_content(original.wstring(), missing);
+    const fsu::ContentComparison first_missing = fsu::compare_content(missing, original.wstring());
+
+    EXPECT_TRUE(same.equal);
+    EXPECT_EQ(same.refusal, fsu::FileInfoResult::OK);
+    EXPECT_FALSE(different.equal);
+    EXPECT_EQ(different.refusal, fsu::FileInfoResult::OK) << "two files that differ were both read";
+    EXPECT_FALSE(second_missing.equal);
+    EXPECT_EQ(second_missing.refusal, fsu::FileInfoResult::FileNotExist);
+    EXPECT_EQ(second_missing.refused_file, missing);
+    EXPECT_EQ(first_missing.refusal, fsu::FileInfoResult::FileNotExist);
+    EXPECT_EQ(first_missing.refused_file, missing);
+}
+
+#ifndef _WIN32
+TEST_F(FilesystemUtilTest, FileThatDoesNotOpenIsRefusedNotDifferent)  // [FilesystemUtilTests.md#FileThatDoesNotOpenIsRefusedNotDifferent]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root is refused nothing";
+    const fs::path open = create_file("a.bin", "content");
+    const fs::path closed = create_file("b.bin", "content");
+    fs::permissions(closed, fs::perms::none);
+
+    const fsu::ContentComparison first = fsu::compare_content(closed.wstring(), open.wstring());
+    const fsu::ContentComparison second = fsu::compare_content(open.wstring(), closed.wstring());
+
+    EXPECT_EQ(fsu::read_refusal(open.wstring()), fsu::FileInfoResult::OK);
+    EXPECT_EQ(fsu::read_refusal(closed.wstring()), fsu::FileInfoResult::PermissionDenied);
+    EXPECT_EQ(fsu::read_refusal((root_ / "missing.bin").wstring()), fsu::FileInfoResult::FileNotExist);
+    EXPECT_EQ(first.refusal, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_EQ(first.refused_file, closed.wstring());
+    EXPECT_EQ(second.refusal, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_EQ(second.refused_file, closed.wstring());
+    EXPECT_FALSE(first.equal || second.equal);
+    EXPECT_FALSE(fsu::files_equal(open.wstring(), closed.wstring())) << "files_equal() keeps its answer for callers that only verify a copy";
+}
+#endif
+
 TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUtilTests.md#EveryFileInfoResultHasItsOwnMessage]
 {
     using fsu::FileInfoResult;
     std::set<std::wstring> messages;
 
     for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
-            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo })
+            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo })
         messages.insert(fsu::make_error_message(result));
 
-    EXPECT_EQ(messages.size(), 7u);
+    EXPECT_EQ(messages.size(), 8u);
     EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::OK))) << "no failure may share the text of the unknown error";
     EXPECT_FALSE(messages.contains(L""));
 }

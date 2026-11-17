@@ -218,6 +218,10 @@ msgstr "Неможливо прочитати атрибути файлу"
 msgid "permission_denied"
 msgstr "Доступ заборонено"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_locked"
+msgstr "Файл заблоковано іншою програмою"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Недійсний час файлу"

@@ -22,6 +22,7 @@
 #include "MountedDrives.h"
 #include "Translation.h"
 #include <StrUtil.h>
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -111,6 +112,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("file_attributes_unreadable");
     case FileInfoResult::PermissionDenied:
         return translation::translate("permission_denied");
+    case FileInfoResult::FileLocked:
+        return translation::translate("file_locked");
     case FileInfoResult::InvalidFileTime:
         return translation::translate("file_time_invalid");
     case FileInfoResult::ErrorReadFileInfo:
@@ -120,9 +123,31 @@ wstring make_error_message(FileInfoResult result)
     }
 }
 
-static FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil.md#reason_for_failure]
+static bool lock_error(const std::error_code& ec)  // [FilesystemUtil.md#lock_error]
 {
-    return ec == std::errc::permission_denied ? FileInfoResult::PermissionDenied : FileInfoResult::ErrorReadFileInfo;
+#ifdef WIN32
+    return ec.category() == std::system_category() && (ec.value() == ERROR_SHARING_VIOLATION || ec.value() == ERROR_LOCK_VIOLATION);
+#else
+    return ec == std::errc::text_file_busy || ec == std::errc::device_or_resource_busy;
+#endif
+}
+
+FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil.md#reason_for_failure]
+{
+    if (lock_error(ec))
+        return FileInfoResult::FileLocked;
+    if (ec == std::errc::permission_denied)
+        return FileInfoResult::PermissionDenied;
+    return ec == std::errc::no_such_file_or_directory ? FileInfoResult::FileNotExist : FileInfoResult::ErrorReadFileInfo;
+}
+
+static std::error_code last_stream_error()  // [FilesystemUtil.md#last_stream_error]
+{
+#ifdef WIN32
+    return std::error_code(static_cast<int>(_doserrno), std::system_category());
+#else
+    return std::error_code(errno, std::generic_category());
+#endif
 }
 
 static FileInfoResult reason_for_missing(const fs::path& file)  // [FilesystemUtil.md#reason_for_missing]
@@ -148,8 +173,10 @@ FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_
 
     _WIN32_FILE_ATTRIBUTE_DATA data{};
     BOOL rc = GetFileAttributesEx(fname.c_str(), GetFileExInfoStandard, &data);
-    if (!rc)
-        return GetLastError() == ERROR_ACCESS_DENIED ? FileInfoResult::PermissionDenied : FileInfoResult::CannotReadFileAttributes;
+    if (!rc) {
+        const FileInfoResult reason = reason_for_failure(std::error_code(static_cast<int>(GetLastError()), std::system_category()));
+        return reason == FileInfoResult::ErrorReadFileInfo ? FileInfoResult::CannotReadFileAttributes : reason;
+    }
     SYSTEMTIME st_utc;
     if (!FileTimeToSystemTime(&data.ftLastWriteTime, &st_utc))
         return FileInfoResult::InvalidFileTime;
@@ -409,7 +436,7 @@ void handle_last_error(std::filesystem::filesystem_error const& ex)
 namespace {
     using FilePtr = std::unique_ptr<FILE, int(*)(FILE*)>;
 
-    FilePtr open_for_reading(const wstring& name)
+    FilePtr open_for_reading(const wstring& name, std::error_code& ec)
     {
         FILE* file = nullptr;
 #ifdef WIN32
@@ -417,42 +444,64 @@ namespace {
 #else
         file = std::fopen(wstring_to_string(name).c_str(), "rb");
 #endif
+        if (file == nullptr)
+            ec = last_stream_error();
         return FilePtr(file, std::fclose);
     }
+
+    bool same_block(FILE* file1, FILE* file2)
+    {
+        constexpr size_t BLOCK_BYTES = 4096;
+        char block1[BLOCK_BYTES];
+        char block2[BLOCK_BYTES];
+        const size_t read1 = std::fread(block1, 1, BLOCK_BYTES, file1);
+        const size_t read2 = std::fread(block2, 1, BLOCK_BYTES, file2);
+        return read1 == read2 && std::memcmp(block1, block2, read1) == 0;
+    }
+}
+
+FileInfoResult read_refusal(const wstring& file)  // [FilesystemUtil.md#read_refusal]
+{
+    std::error_code ec;
+    return open_for_reading(file, ec) ? FileInfoResult::OK : reason_for_failure(ec);
+}
+
+ContentComparison compare_content(const wstring& input1, const wstring& input2)  // [FilesystemUtil.md#compare_content]
+{
+    std::error_code ec1, ec2;
+    const FilePtr f1 = open_for_reading(input1, ec1);
+    const FilePtr f2 = open_for_reading(input2, ec2);
+    if (!f1)
+        return {false, reason_for_failure(ec1), input1};
+    if (!f2)
+        return {false, reason_for_failure(ec2), input2};
+    bool same = true;
+    while (same && !(std::feof(f1.get()) && std::feof(f2.get())))
+        same = same_block(f1.get(), f2.get());
+    if (std::ferror(f1.get()) || std::ferror(f2.get()))
+        return {false, reason_for_failure(last_stream_error()), std::ferror(f1.get()) ? input1 : input2};
+    return {same, FileInfoResult::OK, {}};
 }
 
 bool files_equal(const wstring& input1, const wstring& input2)
 {
-    const FilePtr f1 = open_for_reading(input1);
-    const FilePtr f2 = open_for_reading(input2);
-    if (!f1 || !f2)
-        return false;
-    constexpr size_t N = 4096;
-    char buf1[N];
-    char buf2[N];
-    do {
-        const size_t r1 = std::fread(buf1, 1, N, f1.get());
-        const size_t r2 = std::fread(buf2, 1, N, f2.get());
-        if (r1 != r2 || std::memcmp(buf1, buf2, r1) != 0)
-            return false;
-    } while (!std::feof(f1.get()) || !std::feof(f2.get()));
-    return std::feof(f1.get()) && std::feof(f2.get());
+    return compare_content(input1, input2).equal;
+}
+
+FileInfoResult rename_refusal(const std::wstring& oldname, const std::wstring& newname)  // [FilesystemUtil.md#rename_refusal]
+{
+    log_info(L"rename_file", oldname, newname);
+    std::error_code ec;
+    fs::rename(oldname, newname, ec);
+    if (!ec)
+        return FileInfoResult::OK;
+    log_error(translation::translate("file_rename_error") + oldname + L" -> " + newname + L": " + string_to_wstring(ec.message()));
+    return reason_for_failure(ec);
 }
 
 bool rename_file(const std::wstring& oldname, const std::wstring& newname)
 {
-    log_info(L"rename_file", oldname, newname);
-    try {
-        fs::rename(oldname, newname);
-        return true;
-    }
-    catch (const fs::filesystem_error& ex) {
-        log_error(translation::translate("file_rename_error") + string_to_wstring(ex.what()));
-    }
-    catch (...) {
-        log_error(translation::translate("file_rename_error"), oldname, translation::translate("unknown_error"));
-    }
-    return false;
+    return rename_refusal(oldname, newname) == FileInfoResult::OK;
 }
 
 bool remove_file(const std::wstring& name, LogLevel ll)

@@ -218,8 +218,10 @@ constexpr std::size_t COPY_BLOCK_BYTES = 1 << 20;
 static CopyResult copy_local_file(const wstring& src, const wstring& dest)  // [SyncFile.md#copy_local_file]
 {
     std::ifstream in(fs::path(src), std::ios::binary);
+    if (!in)
+        return CopyResult::Error;
     std::ofstream out(fs::path(dest), std::ios::binary | std::ios::trunc);
-    if (!in || !out)
+    if (!out)
         return CopyResult::Error;
     std::vector<char> block(COPY_BLOCK_BYTES);
     uint64_t copied = 0;
@@ -287,16 +289,29 @@ static void discard_backup(const wstring& bak_filename)  // [SyncFile.md#discard
         fsu::remove_file(bak_filename);
 }
 
+bool SyncFile::refused(const wstring& file, fsu::FileInfoResult refusal) const  // [SyncFile.md#refused]
+{
+    if (refusal == fsu::FileInfoResult::OK)
+        return false;
+    const wstring message = fsu::make_error_message(refusal) + L": " + file;
+    log_error(message);
+    report_sync_error(message);
+    return true;
+}
+
+bool SyncFile::read_refused(const wstring& file) const  // [SyncFile.md#refused]
+{
+    return !get_account_from_path(file).has_value() && refused(file, fsu::read_refusal(file));
+}
+
 bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
 {
     log_debug(L"save_copy_file");
+    if (read_refused(src))
+        return false;
     const wstring bak_filename = free_backup_name(dest);
-    if (file_exists(dest)) {
-        if (!fsu::rename_file(dest, bak_filename)) {  // [SyncFile.md#backup-rename-failure]
-            report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest);
-            return false;
-        }
-    }
+    if (file_exists(dest) && refused(dest, fsu::rename_refusal(dest, bak_filename)))  // [SyncFile.md#backup-rename-failure]
+        return false;
     const CopyResult copy_ok = core_copy_function(src, dest);
     if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK) {  // [SyncFile.md#ssh-skips-verification-only]
         discard_backup(bak_filename);
@@ -582,11 +597,13 @@ bool SyncFile::resolve_conflict(PlannedAction action, const FileDifference& fd, 
     const bool source_wins = action == PlannedAction::ConflictCopyToTarget;
     const wstring& loser = source_wins ? destination : source;
     const bool loser_ssh = source_wins ? ssh_dest() : ssh_source();
+    const wstring& winner = source_wins ? source : destination;
+    if (read_refused(winner))  // [SyncFile.md#refused]
+        return false;
     const wstring copy = conflict_copy_name(loser, loser_ssh);
     if (!rename_path(loser, copy, loser_ssh, !source_wins))
         return false;
     const wstring copy_name = copy.substr(copy.find_last_of(L"/\\") + 1);
-    const wstring& winner = source_wins ? source : destination;
     const wstring twin = winner.substr(0, winner.find_last_of(L"/\\") + 1) + copy_name;  // the conflict copy's place on the winning side
     log_warning(translation::translate("conflict_copy_made", {loser, copy_name}));
     Synchronize::note(LogLevel::Warning, translation::translate("conflict_copy_made", {loser, copy_name}));  // [Synchronize.md#notes]

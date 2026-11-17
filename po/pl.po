@@ -218,6 +218,10 @@ msgstr "Nie można odczytać atrybutów pliku"
 msgid "permission_denied"
 msgstr "Odmowa dostępu"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_locked"
+msgstr "Plik jest zablokowany przez inny program"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Nieprawidłowy czas pliku"

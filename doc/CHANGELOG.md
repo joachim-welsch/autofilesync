@@ -21,6 +21,16 @@
   gelöscht, bei einem ganzen Ordner ohne jede Fehlermeldung. Eine Datei, die
   sich nicht abfragen lässt, wird jetzt weder kopiert noch gelöscht; der
   Durchlauf meldet sie mit Namen und Grund als Fehler.
+- Behoben: Ließ sich beim Vergleich nach Inhalt eine der beiden Dateien nicht
+  öffnen (von einem anderen Programm gesperrt oder ohne Leserecht), galt das
+  als „Inhalt verschieden“. Daraus wurde ein Kopierversuch in jedem Durchlauf
+  oder, bei Zwei-Wege-Synchronisation, eine Konfliktkopie gleicher Dateien.
+  Jetzt bleibt alles unverändert, und der Durchlauf nennt die Datei und den
+  Grund („Datei ist von einem anderen Programm gesperrt“, „Zugriff
+  verweigert“).
+- Vor dem Kopieren wird geprüft, ob sich die Quelle öffnen lässt; erst dann
+  wird das alte Ziel angefasst. Statt „Kopieren fehlgeschlagen“ nennt die
+  Meldung die Datei und den Grund, auch bei einem gesperrten Ziel.
 - Cloud-Ordner als Ziel: Im Dialog einer Synchronisation steht neben dem Ziel
   „Cloud…“. Die Schaltfläche zeigt die Ordner, die die Programme der
   Cloud-Anbieter auf dem Rechner angelegt haben (Dropbox und Nextcloud überall,

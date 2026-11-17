@@ -78,3 +78,35 @@ without any permission and once listable only. Nothing may be deleted or copied,
 counts as failed, and the state still knows the file, so that the pass after unlocking finds
 everything in sync instead of taking the file for new. The File item is the same case with
 the directory of its one file locked.
+
+## names
+
+The error has to name the file that would not open and say why. "Copy failed" alone sends the
+user looking at the wrong side.
+
+## ContentComparisonWithAFileThatDoesNotOpenChangesNothing
+
+Two identical files, compared by content, and one of them does not open: without read
+permission here, which is how a file locked by another program behaves on Windows
+(LockedFileTests.md). Opening it used to fail silently and read as "different". One-way that
+meant a copy attempt per pass with an error that named no reason, or the target overwritten;
+two-way with equal times it was a content conflict, which renamed the target file to a
+conflict copy and carried that copy to the other side. All eight combinations of direction,
+closed side and times must leave both directories with their one file, report one error per
+pass that names the closed file, and find everything equal once it opens again.
+
+## SourceThatDoesNotOpenIsNamedAndTheTargetIsNotTouched
+
+The source is newer and does not open. The copy used to find that out last, after the target
+had been renamed to ".bak" and opened for writing, and then put everything back. Here the
+target directory is locked too, so the old order would fail at the rename and blame the
+target; the error has to name the source, which proves the source was tried first. The
+two-way test is the same for a copy back from the target.
+
+## ConflictWhoseWinnerDoesNotOpenRenamesNothing
+
+Both sides were edited since the last pass, so the newer one wins and the older one is renamed
+to a conflict copy first (SyncFile.md#conflict-copies). When the winner does not open, that
+rename would leave the losing side without the file under its name and with nothing to
+replace it. Nothing may be renamed, and once the winner opens the conflict is settled as
+usual: the winner over, the conflict copy back.

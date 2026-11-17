@@ -250,8 +250,15 @@ void FileDifference::compare_content(fs::file_time_type sourcetime, fs::file_tim
         os << translation::translate("comparing") << L'\n' << source_ << L'\n' << translation::translate("comparing_with") << L'\n' << dest_ << L"...";
         Synchronize::set_progress_message(os.str(), L"", sourcesize_);
     }
-    if (fsu::files_equal(source_, dest_))
+    const fsu::ContentComparison comparison = fsu::compare_content(source_, dest_);
+    if (comparison.equal)
         return;
+    if (comparison.refusal != fsu::FileInfoResult::OK) {  // [FileDifference.md#not-readable]
+        result_ = comparison.refused_file == source_ ? Result::SourceNotReadable : Result::DestNotReadable;
+        read_error_ = fsu::make_error_message(comparison.refusal) + L": " + comparison.refused_file;
+        log_info(read_error_);
+        return;
+    }
     if (two_way_sync_ && sourcesize_ == destsize_ && !newer(sourcetime, desttime) && !newer(desttime, sourcetime))
         result_ = Result::ContentConflict;  // [FileDifference.md#content-conflict]
     else

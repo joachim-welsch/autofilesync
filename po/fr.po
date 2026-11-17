@@ -218,6 +218,10 @@ msgstr "Impossible de lire les attributs du fichier"
 msgid "permission_denied"
 msgstr "Accès refusé"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_locked"
+msgstr "Le fichier est verrouillé par un autre programme"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Date du fichier non valide"

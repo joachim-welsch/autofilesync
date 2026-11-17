@@ -108,3 +108,11 @@ The file cannot be asked for, so nothing is known about it. Every result that st
 "missing" leads to an action - a copy, a copy back, or with "delete in target" and with a state
 a deletion - and none of them is right here. The combinations with a missing file on the other
 side are the dangerous ones: the readable side must not decide alone.
+
+## ContentOfAFileThatDoesNotOpenIsNotReadableAndNeverDifferent
+
+Both files are the same and the comparison is by content, which has to open them. One of them
+does not open - without read permission here, locked by another program on Windows. That used
+to count as "the contents differ" and became SourceModified, DestModified or a content
+conflict, each of which copies or renames. It is a side that cannot be read
+(FileDifference.md#not-readable), for one-way and two-way items, with and without a base.

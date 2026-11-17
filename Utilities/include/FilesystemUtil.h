@@ -18,6 +18,7 @@
  */
 #pragma once
 #include <UtilitiesConfig.h>
+#include <system_error>
 #include <filesystem>
 #include <string>
 #include <string_view>
@@ -28,7 +29,7 @@ namespace Utilities {
 
 namespace FilesystemUtil
 {
-	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, PermissionDenied, InvalidFileTime, ErrorReadFileInfo };
+	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo };
 
 	bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
@@ -42,7 +43,16 @@ namespace FilesystemUtil
     bool volume_exists(const std::wstring& drive_name, const std::wstring& volume_name);
     bool drive_exists(const std::wstring& drive_name);
     void handle_last_error(std::filesystem::filesystem_error const& ex);
+    struct ContentComparison {  // [FilesystemUtil.md#compare_content]
+        bool equal = false;
+        FileInfoResult refusal = FileInfoResult::OK;
+        std::wstring refused_file;
+    };
+    FileInfoResult reason_for_failure(const std::error_code& ec);  // [FilesystemUtil.md#reason_for_failure]
+    FileInfoResult read_refusal(const std::wstring& file);  // [FilesystemUtil.md#read_refusal]
+    ContentComparison compare_content(const std::wstring& input1, const std::wstring& input2);  // [FilesystemUtil.md#compare_content]
     bool files_equal(const std::wstring& input1, const std::wstring& input2);
+    FileInfoResult rename_refusal(const std::wstring& oldname, const std::wstring& newname);  // [FilesystemUtil.md#rename_refusal]
     bool rename_file(const std::wstring& oldname, const std::wstring& newname);
     bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
     bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);

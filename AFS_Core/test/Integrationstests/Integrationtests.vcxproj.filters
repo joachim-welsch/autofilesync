@@ -428,6 +428,9 @@
     <ClCompile Include="MissingDirectoryTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="LockedFileTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="PasswordCryptoTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

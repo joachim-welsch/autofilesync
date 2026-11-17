@@ -449,6 +449,30 @@ TEST_F(ThreeWayTest, AFileBehindALockedDirectoryIsNotReadableAndNeverMissing)  /
 }
 #endif
 
+#ifndef _WIN32
+TEST_F(ThreeWayTest, ContentOfAFileThatDoesNotOpenIsNotReadableAndNeverDifferent)  // [FileDifferenceTests.md#ContentOfAFileThatDoesNotOpenIsNotReadableAndNeverDifferent]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root is refused nothing";
+    CompareItems ci;
+    ci.content(true);
+    ci.time(false);
+    ci.size(false);
+    for (const bool source_closed : {true, false})
+        for (const bool two_way : {true, false})
+            for (const FileState* base : {static_cast<const FileState*>(nullptr), static_cast<const FileState*>(&base_)}) {
+                const fs::path& closed = source_closed ? source_ : dest_;
+                fs::permissions(closed, fs::perms::none);
+                FileDifference fd(source_w_, dest_w_, ci, SSHPATH::none, two_way, base);
+                fd();
+                fs::permissions(closed, fs::perms::owner_all);
+
+                EXPECT_EQ(fd.result(), source_closed ? Result::SourceNotReadable : Result::DestNotReadable) << source_closed << two_way << (base != nullptr);
+                EXPECT_NE(fd.read_error().find(closed.wstring()), std::wstring::npos) << source_closed << two_way << (base != nullptr);
+            }
+}
+#endif
+
 TEST_F(ThreeWayTest, BothSidesMissingIsNeitherExists)
 {
     fs::remove(source_);

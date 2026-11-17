@@ -218,6 +218,10 @@ msgstr "Kann Dateiattribute nicht lesen"
 msgid "permission_denied"
 msgstr "Zugriff verweigert"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_locked"
+msgstr "Datei ist von einem anderen Programm gesperrt"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Ungueltige Dateizeit"

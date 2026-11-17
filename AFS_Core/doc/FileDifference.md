@@ -115,6 +115,13 @@ lead to no action at all, and read_error() names the file and the reason for the
 one readable side must not decide alone; an unmounted drive on either side comes before both.
 Behind SSH a failed read is reported as an unreachable side instead (ssh-error-is-not-absence).
 
+The comparison by content meets the same case one step later: size and time were answered,
+but the file does not open, because another program has locked it (FileLocked) or the right
+to read it is missing. "Could not be compared" is not "differs" - read that way it became a
+changed source, a changed target or a content conflict, and the conflict renamed a file on one
+side for a copy that could not be made. It gets the same two results
+(FilesystemUtil.md#compare_content).
+
 ## observe_file
 
 Size and write time of one side as read_file_info() reads them for the comparison, so the

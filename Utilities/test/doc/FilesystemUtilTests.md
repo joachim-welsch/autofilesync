@@ -27,6 +27,25 @@ Size and write time come from the directory entry, not from the content. A file 
 permission is therefore no PermissionDenied here; the copy is what fails
 (LocalPermissionTests.md#UnreadableSourceKeepsTheOldTargetAndReportsTheError).
 
+## ReasonForFailureTellsLockedFromRefusedFromMissing
+
+The mapping from the system's error to the reason the user reads. A locked file cannot be
+produced on Unix, where locks are advisory and a file another program holds open still reads;
+so the codes that mean "in use" are fed in directly. On Windows they are the two sharing and
+lock violations, which the generic conditions would lump together with "permission denied".
+
+## CompareContentTellsDifferentFromNotReadable
+
+"Not equal" has two meanings that must not be mixed: both files were read and differ, or one
+of them could not be read. Only the first is a difference. The refusal carries the reason and
+the file it belongs to, here a missing one.
+
+## FileThatDoesNotOpenIsRefusedNotDifferent
+
+A file without read permission is the Unix stand-in for a file another program has locked: it
+is there, its size and time can be asked for, and opening it fails. read_refusal() and
+compare_content() have to say so and name the right one of the two files.
+
 ## EveryFileInfoResultHasItsOwnMessage
 
 The message is all the user gets to see of a failed fileinfo(). Two results sharing one text - a

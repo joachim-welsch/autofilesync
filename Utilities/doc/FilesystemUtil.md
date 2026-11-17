@@ -76,7 +76,41 @@ A directory that refuses the question is PermissionDenied, not a missing one.
 
 ## reason_for_failure
 
-The file may be there, but the system would not say: PermissionDenied when it refused, as a
-directory without search permission does for everything below it, ErrorReadFileInfo for any
-other failure. Neither says anything about the existence of the file, and the caller must not
-read them as "missing" (FileDifference.md#not-readable).
+The reason behind a system error, for fileinfo() and for everything that opens or renames a
+file. FileLocked when another program holds the file (lock_error); PermissionDenied when the
+system refused, as a directory without search permission does for everything below it;
+FileNotExist when the file is gone; ErrorReadFileInfo for any other failure. Only FileNotExist
+says anything about the existence of the file, and the caller must not read the others as
+"missing" (FileDifference.md#not-readable).
+
+## lock_error
+
+On Windows a program that opens a file can keep all others out; the system then answers
+ERROR_SHARING_VIOLATION for the whole file or ERROR_LOCK_VIOLATION for a locked range. The
+portable error conditions map both to "permission denied", so the system's own codes are
+looked at first. Unix locks are advisory and do not stop a read; the codes that come closest
+are "text file busy" and "device or resource busy".
+
+## last_stream_error
+
+The error behind a failed fopen() or fread(). On Windows the C runtime keeps the system's code
+in _doserrno next to the errno it derives from it; errno alone would no longer tell a lock
+from a missing right.
+
+## read_refusal
+
+Why a file does not open for reading, or OK when it does. Asked before a copy moves the old
+target aside (SyncFile.md#refused): a file can have a size and a time and still not open.
+
+## compare_content
+
+Compares two files block by block and keeps apart what files_equal() cannot: "equal" false
+with refusal OK means both were read and differ; with any other refusal one of them could not
+be opened or read, refused_file says which, and nothing is known about their contents.
+files_equal() remains for callers that verify a copy they have just made, where "could not
+read it back" and "differs" are the same failure.
+
+## rename_refusal
+
+rename_file() with the reason for a failure, so that the caller can tell the user that the
+file is locked or the directory write-protected instead of only that something failed.

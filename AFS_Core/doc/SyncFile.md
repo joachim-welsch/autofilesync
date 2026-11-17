@@ -28,7 +28,8 @@ can be cleared, not the old content restored.
 The rename of the old target to ".bak" is the first step of the copy, and a target directory
 without write permission refuses it. rename_file() logs that, but the item was only reported
 as failed when the copy itself failed - so the proof file and the last-run record claimed a
-clean run while the target stayed old. Reported like a failed copy, under the same message.
+clean run while the target stayed old. It is reported with its reason and the target's name
+(refused): on Windows the usual one is a target another program has open.
 
 ## free_backup_name
 
@@ -108,6 +109,18 @@ A side that could not be read (FileDifference.md#not-readable) ends the work on 
 before anything is decided: nothing is copied, deleted or planned, and the state keeps what it
 knows, so the pass after the cause is gone finds the file as it was. The file and the reason go
 into the report, because a run that could not look at a file must not count as successful.
+
+## refused
+
+A file can have a size and a time and still not open: another program has locked it, or the
+right to read it is missing. The copy used to find that out last - after the old target had
+been renamed to ".bak" and the new one opened for writing - and then put everything back, with
+"copy failed" as the only word to the user. Now the source is opened before anything on the
+other side is touched, and a refusal is reported with its reason and the file it belongs to
+(FilesystemUtil.md#read_refusal). The same check stands before a conflict is resolved: the
+losing file is renamed to its conflict name first, and with a winner that cannot be read the
+losing side would be left without the file under its own name. Paths behind SSH or in a cloud
+are not asked this way; their transfer reports its own failures.
 
 ## only-count-touches-nothing
 

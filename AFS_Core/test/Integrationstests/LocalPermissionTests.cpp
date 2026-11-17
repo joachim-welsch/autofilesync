@@ -25,6 +25,8 @@
 #include "SyncRunner.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
+#include "Translation.h"
+#include <set>
 #include <chrono>
 #include <filesystem>
 #include <unistd.h>
@@ -103,6 +105,19 @@ protected:
         SyncReportGuard guard(&outcome.report);
         outcome.copies = tu::run_sync(si);
         return outcome;
+    }
+
+    static std::set<std::string> names_in(const fs::path& dir)
+    {
+        std::set<std::string> names;
+        for (const fs::directory_entry& entry : fs::directory_iterator(dir))
+            names.insert(entry.path().filename().string());
+        return names;
+    }
+
+    static bool names(const std::wstring& message, const fs::path& file)  // [LocalPermissionTests.md#names]
+    {
+        return message.find(file.wstring()) != std::wstring::npos && message.find(translation::translate("permission_denied")) != std::wstring::npos;
     }
 
     static void lock(const fs::path& path, fs::perms kept = fs::perms::owner_read | fs::perms::owner_exec)
@@ -329,6 +344,128 @@ TEST_F(LocalPermissionTest, TwoWayFileItemWithALockedSideDeletesAndCopiesNothing
         EXPECT_EQ(outcome.report.errors().size(), 1u) << source_locked;
         EXPECT_TRUE(fs::exists(source_dir_ / "a.txt") && fs::exists(target_dir_ / "a.txt")) << source_locked;
         EXPECT_NE(state.find(L"a.txt"), nullptr) << source_locked;
+    }
+}
+
+TEST_F(LocalPermissionTest, ContentComparisonWithAFileThatDoesNotOpenChangesNothing)  // [LocalPermissionTests.md#ContentComparisonWithAFileThatDoesNotOpenChangesNothing]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    CompareItems by_content;
+    by_content.content(true);
+    by_content.time(false);
+    by_content.size(false);
+    for (int variant = 0; variant < 8; ++variant) {
+        const bool two_way = variant & 4, source_closed = variant & 2, same_time = variant & 1;
+        const std::string which = std::string(two_way ? "Zwei-Wege" : "Ein-Weg") + (source_closed ? ", Quelle zu" : ", Ziel zu") + (same_time ? ", gleiche Zeit" : ", Ziel aelter");
+        fs::remove_all(source_dir_);
+        fs::remove_all(target_dir_);
+        tu::write_text_file(source_dir_ / "a.txt", "gleich", seconds(3600));
+        tu::write_text_file(target_dir_ / "a.txt", "gleich", seconds(same_time ? 3600 : 7200));
+        if (same_time)
+            fs::last_write_time(target_dir_ / "a.txt", fs::last_write_time(source_dir_ / "a.txt"));
+        SyncItem si = file_item("a.txt");
+        si.compare_items(by_content);
+        si.two_way_sync(two_way);
+        si.conflict_copies(two_way);
+        const fs::path closed = (source_closed ? source_dir_ : target_dir_) / "a.txt";
+        lock(closed, fs::perms::none);
+        SyncState state(si.source(), si.target());
+        for (int pass = 0; pass < 2; ++pass) {
+            Outcome outcome;
+            {
+                SyncReportGuard guard(&outcome.report);
+                outcome.copies = tu::run_sync(si, two_way ? &state : nullptr);
+            }
+            EXPECT_EQ(outcome.copies, 0u) << which;
+            ASSERT_EQ(outcome.report.errors().size(), 1u) << which;
+            EXPECT_TRUE(names(outcome.report.errors().front(), closed)) << which << ": " << outcome.report.errors().front();
+        }
+        fs::permissions(closed, fs::perms::owner_all);
+
+        EXPECT_EQ(names_in(source_dir_), std::set<std::string>{"a.txt"}) << which;
+        EXPECT_EQ(names_in(target_dir_), std::set<std::string>{"a.txt"}) << which;
+        EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "gleich") << which;
+        EXPECT_EQ(tu::run_sync(si, two_way ? &state : nullptr), 0u) << "wieder lesbar ist alles gleich: " << which;
+    }
+}
+
+TEST_F(LocalPermissionTest, SourceThatDoesNotOpenIsNamedAndTheTargetIsNotTouched)  // [LocalPermissionTests.md#SourceThatDoesNotOpenIsNamedAndTheTargetIsNotTouched]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "neu");
+    tu::write_text_file(target_dir_ / "a.txt", "alt", seconds(3600));
+    lock(source_dir_ / "a.txt", fs::perms::none);
+    lock(target_dir_);
+
+    const Outcome outcome = run(file_item("a.txt"));
+
+    EXPECT_EQ(outcome.copies, 0u);
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_TRUE(names(outcome.report.errors().front(), source_dir_ / "a.txt")) << outcome.report.errors().front();
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "alt");
+}
+
+TEST_F(LocalPermissionTest, MoveOfASourceThatDoesNotOpenKeepsTheSource)
+{
+    tu::write_text_file(source_dir_ / "a.txt", "neu");
+    lock(source_dir_ / "a.txt", fs::perms::none);
+    SyncItem si = file_item("a.txt");
+    si.del_aftercopy(true);
+
+    const Outcome outcome = run(si);
+
+    EXPECT_EQ(outcome.copies, 0u);
+    EXPECT_FALSE(outcome.report.successful());
+    EXPECT_TRUE(fs::exists(source_dir_ / "a.txt"));
+    EXPECT_TRUE(fs::is_empty(target_dir_)) << "auch kein leerer Dateirest";
+}
+
+TEST_F(LocalPermissionTest, TwoWayCopyBackFromATargetThatDoesNotOpenKeepsTheSource)  // [LocalPermissionTests.md#SourceThatDoesNotOpenIsNamedAndTheTargetIsNotTouched]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "alt", seconds(3600));
+    tu::write_text_file(target_dir_ / "a.txt", "neu im Ziel");
+    lock(target_dir_ / "a.txt", fs::perms::none);
+    SyncItem si = file_item("a.txt");
+    si.two_way_sync(true);
+
+    const Outcome outcome = run(si);
+
+    EXPECT_EQ(outcome.copies, 0u);
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_TRUE(names(outcome.report.errors().front(), target_dir_ / "a.txt")) << outcome.report.errors().front();
+    EXPECT_EQ(tu::read_text_file(source_dir_ / "a.txt"), "alt");
+    EXPECT_EQ(names_in(source_dir_), std::set<std::string>{"a.txt"}) << "keine .bak-Datei";
+}
+
+TEST_F(LocalPermissionTest, ConflictWhoseWinnerDoesNotOpenRenamesNothing)  // [LocalPermissionTests.md#ConflictWhoseWinnerDoesNotOpenRenamesNothing]
+{
+    for (const bool source_wins : {true, false}) {
+        fs::remove_all(source_dir_);
+        fs::remove_all(target_dir_);
+        fs::create_directories(target_dir_);
+        tu::write_text_file(source_dir_ / "c.txt", "v1", seconds(7200));
+        SyncItem si = dir_item(target_dir_);
+        si.two_way_sync(true);
+        SyncState state(si.source(), si.target());
+        ASSERT_EQ(tu::run_sync(si, state), 1u);
+        tu::write_text_file(source_dir_ / "c.txt", "Quelle v2", seconds(source_wins ? 0 : 3600));
+        tu::write_text_file(target_dir_ / "c.txt", "Ziel Fassung 2", seconds(source_wins ? 3600 : 0));
+        const fs::path winner = (source_wins ? source_dir_ : target_dir_) / "c.txt";
+        lock(winner, fs::perms::none);
+        Outcome outcome;
+        {
+            SyncReportGuard guard(&outcome.report);
+            outcome.copies = tu::run_sync(si, state);
+        }
+        fs::permissions(winner, fs::perms::owner_all);
+
+        EXPECT_EQ(outcome.copies, 0u) << source_wins;
+        ASSERT_FALSE(outcome.report.errors().empty()) << source_wins;
+        EXPECT_TRUE(names(outcome.report.errors().front(), winner)) << outcome.report.errors().front();
+        EXPECT_EQ(names_in(source_dir_), std::set<std::string>{"c.txt"}) << source_wins;
+        EXPECT_EQ(names_in(target_dir_), std::set<std::string>{"c.txt"}) << source_wins;
+        EXPECT_EQ(tu::read_text_file(source_dir_ / "c.txt"), "Quelle v2") << source_wins;
+        EXPECT_EQ(tu::read_text_file(target_dir_ / "c.txt"), "Ziel Fassung 2") << source_wins;
+        EXPECT_EQ(tu::run_sync(si, state), 2u) << "wieder lesbar wird der Konflikt wie immer geloest: " << source_wins;
     }
 }
 #endif
