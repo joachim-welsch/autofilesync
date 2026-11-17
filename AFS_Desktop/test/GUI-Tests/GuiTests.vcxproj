@@ -166,6 +166,7 @@
     <ClInclude Include="..\..\..\AFS_Core\include\Languages.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\UtilitiesConfig.h" />
     <ClInclude Include="..\..\..\Utilities\include\FileTime.h" />
+    <ClInclude Include="..\..\..\Utilities\include\SymlinkUtil.h" />
     <ClInclude Include="..\..\..\Utilities\include\FileName.h" />
     <ClInclude Include="..\..\..\Utilities\include\SystemInfo.h" />
     <ClInclude Include="..\..\include\App.h" />
@@ -364,6 +365,7 @@
     <ClCompile Include="..\..\src\TreeCtrl.cpp" />
     <ClCompile Include="..\..\src\TreeItemData.cpp" />
     <ClCompile Include="..\..\..\Utilities\src\FileTime.cpp" />
+    <ClCompile Include="..\..\..\Utilities\src\SymlinkUtil.cpp" />
     <ClCompile Include="..\..\..\Utilities\src\FileName.cpp" />
     <ClCompile Include="..\..\..\Utilities\src\SystemInfo.cpp" />
     <ClCompile Include="..\..\..\Utilities\src\SmtpMailer.cpp" />

@@ -188,6 +188,7 @@
     <ClCompile Include="LlamaClientTests.cpp" />
     <ClCompile Include="HelpKnowledgeTests.cpp" />
     <ClCompile Include="..\..\..\Utilities\test\FileTimeTests.cpp" />
+    <ClCompile Include="..\..\..\Utilities\test\SymlinkUtilTests.cpp" />
     <ClCompile Include="..\..\..\Utilities\test\FileNameTests.cpp" />
     <ClCompile Include="..\..\..\Utilities\test\SystemInfoTests.cpp" />
     <ClCompile Include="..\..\..\Utilities\test\FilesystemUtilTests.cpp" />
@@ -286,6 +287,7 @@
     <ClCompile Include="$(LibDir)\..\Utilities\src\Hex.cpp" />
     <ClCompile Include="$(LibDir)\..\Utilities\src\PercentEncoding.cpp" />
     <ClCompile Include="$(LibDir)\..\Utilities\src\FileTime.cpp" />
+    <ClCompile Include="$(LibDir)\..\Utilities\src\SymlinkUtil.cpp" />
     <ClCompile Include="$(LibDir)\..\Utilities\src\FileName.cpp" />
     <ClCompile Include="$(LibDir)\..\Utilities\src\SystemInfo.cpp" />
     <ClCompile Include="$(LibDir)\..\Utilities\src\MountedDrives.cpp" />
@@ -427,6 +429,7 @@
     <ClInclude Include="$(LibDir)\include\Languages.h" />
     <ClInclude Include="$(LibDir)\include\UtilitiesConfig.h" />
     <ClInclude Include="$(LibDir)\..\Utilities\include\FileTime.h" />
+    <ClInclude Include="$(LibDir)\..\Utilities\include\SymlinkUtil.h" />
     <ClInclude Include="$(LibDir)\..\Utilities\include\FileName.h" />
     <ClInclude Include="$(LibDir)\..\Utilities\include\SystemInfo.h" />
   </ItemGroup>

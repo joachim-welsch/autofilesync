@@ -19,6 +19,7 @@
 #include "pch.h"
 #ifdef _UNIX
 #include "Config.h"
+#include "CopyLog.h"
 #include "FileUtil.h"
 #include "ScopedLog.h"
 #include "SshTest.h"
@@ -75,10 +76,22 @@ protected:
         return si;
     }
 
+    SyncItem file_item(const char* name) const
+    {
+        SyncItem si = item(SyncItemType::File, (source_ / name).wstring());
+        si.target((target_ / name).wstring());
+        return si;
+    }
+
     int skipped_links() const  // [SymlinkTests.md#skipped_links]
     {
+        return logged("symlink_not_followed");
+    }
+
+    int logged(const char* message_id) const  // [SymlinkTests.md#skipped_links]
+    {
         std::ifstream in(log_.path());
-        const std::string message = translation::translate_utf8("symlink_not_followed");
+        const std::string message = translation::translate_utf8(message_id);
         int count = 0;
         for (std::string line; std::getline(in, line);)
             if (line.find(message) != std::string::npos)
@@ -134,5 +147,60 @@ TEST_F(SymlinkTest, TreeSyncFromSshSkipsEverySymlink)  // [SymlinkTests.md#TreeS
     EXPECT_FALSE(fs::exists(target_ / "filelink.txt")) << "ueber SSH wird auch ein Datei-Symlink uebersprungen";
     EXPECT_FALSE(fs::exists(target_ / "dirlink"));
     EXPECT_EQ(skipped_links(), 2);
+}
+
+TEST_F(SymlinkTest, DanglingSourceLinkNeverDeletesTheTargetFile)  // [SymlinkTests.md#dangling-links]
+{
+    fs::create_symlink(source_ / "weg.txt", source_ / "tot.txt");
+    for (const SyncItemType type : {SyncItemType::Dir, SyncItemType::Tree, SyncItemType::File}) {
+        tu::write_text_file(target_ / "tot.txt", "bleibt");
+        SyncItem si = type == SyncItemType::File ? file_item("tot.txt") : item(type, source_.wstring());
+        si.delete_in_target(true);
+
+        tu::run_sync(si);
+
+        ASSERT_TRUE(fs::exists(target_ / "tot.txt")) << "a link that leads nowhere is no deleted file: " << static_cast<int>(type);
+        EXPECT_EQ(tu::read_text_file(target_ / "tot.txt"), "bleibt");
+    }
+}
+
+TEST_F(SymlinkTest, TwoWaySyncNeverWritesThroughADanglingSourceLink)  // [SymlinkTests.md#dangling-links]
+{
+    fs::create_symlink(source_ / "weg.txt", source_ / "tot.txt");
+    tu::write_text_file(target_ / "tot.txt", "bleibt");
+    SyncItem si = item(SyncItemType::Dir, source_.wstring());
+    si.two_way_sync(true);
+
+    tu::run_sync(si);
+
+    EXPECT_FALSE(fs::exists(source_ / "weg.txt")) << "the copy back would create the file the link points to";
+    EXPECT_TRUE(fs::is_symlink(source_ / "tot.txt"));
+    EXPECT_EQ(tu::read_text_file(target_ / "tot.txt"), "bleibt");
+}
+
+TEST_F(SymlinkTest, CopyNeverWritesThroughADanglingTargetLink)  // [SymlinkTests.md#dangling-links]
+{
+    fs::create_symlink(root_ / "anderswo.txt", target_ / "b.txt");
+
+    tu::run_sync(item(SyncItemType::Dir, source_.wstring()));
+
+    EXPECT_FALSE(fs::exists(root_ / "anderswo.txt")) << "the copy would land where the link points, outside the target";
+    EXPECT_TRUE(fs::is_symlink(target_ / "b.txt"));
+    EXPECT_EQ(tu::read_text_file(target_ / "filelink.txt"), "b") << "the other files are still copied";
+}
+
+TEST_F(SymlinkTest, DanglingLinkIsAWarningSaidOnceAndNoError)  // [SymlinkTests.md#DanglingLinkIsAWarningSaidOnceAndNoError]
+{
+    fs::create_symlink(source_ / "weg.txt", source_ / "einmal.txt");  // [SymlinkTests.md#DanglingLinkIsAWarningSaidOnceAndNoError]
+    fs::create_symlink("kreis.txt", source_ / "kreis.txt");
+    SyncReport report;
+    {
+        SyncReportGuard guard(&report);
+        tu::run_sync(item(SyncItemType::Dir, source_.wstring()));
+        tu::run_sync(item(SyncItemType::Dir, source_.wstring()));
+    }
+
+    EXPECT_TRUE(report.successful()) << "a link that leads nowhere or in a circle is nothing the run failed at";
+    EXPECT_EQ(logged("symlink_dangling"), 2) << "one line per link, not one per pass";
 }
 #endif

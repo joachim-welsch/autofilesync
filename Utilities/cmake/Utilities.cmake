@@ -45,6 +45,7 @@ set(UTILITIES_SOURCES
     Translation.cpp
     MountedDrives.cpp
     FilesystemUtil.cpp
+    SymlinkUtil.cpp
     RecycleBin.cpp
 )
 list(TRANSFORM UTILITIES_SOURCES PREPEND ${UTILITIES_DIR}/src/)
@@ -69,6 +70,7 @@ set(UTILITIES_TEST_SOURCES
     LogCutTests.cpp
     TranslationTests.cpp
     FilesystemUtilTests.cpp
+    SymlinkUtilTests.cpp
     RecycleBinTests.cpp
     MountedDrivesTests.cpp
     ThreadSaveStackTests.cpp

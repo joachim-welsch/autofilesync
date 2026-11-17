@@ -979,6 +979,10 @@ msgstr "Arborescence"
 msgid "symlink_not_followed"
 msgstr "Le lien symbolique n'est pas suivi : "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "symlink_dangling"
+msgstr "Le lien symbolique ne mène nulle part et est ignoré : "
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "Aucune synchronisation active."

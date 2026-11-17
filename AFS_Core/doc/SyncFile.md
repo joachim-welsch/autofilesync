@@ -219,6 +219,19 @@ writes the time the file was meant to get instead of the one it has: with the re
 state would call the pair in sync for good, with the intended one the next pass sees the side
 as changed and comes here.
 
+## dangling-links
+
+A symbolic link whose target is missing, or that runs in a circle, reads as a missing file to
+everything that follows links (SymlinkUtil.md#dangling_link). Taken at its word, a dangling
+link in the source deleted the file of the same name in the target ("delete in target", two-way
+sync), a two-way sync copied the target back through the link and created a file wherever it
+pointed, and a dangling link in the target sent the copy outside the target directory. So a
+local pair with such a link on either side is left alone before anything is compared: nothing
+is copied, deleted or planned. It is a warning, said once per link and not in every pass, and
+no error - a dead link is the user's to mend, not something the run failed at. The state has
+seen the path, so the pass after the link was mended finds what it knew. Links behind SSH are
+not asked this way yet.
+
 ## reported-once
 
 A target that is newer than its source is left alone unless the item copies

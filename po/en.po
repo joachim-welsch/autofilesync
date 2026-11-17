@@ -991,6 +991,10 @@ msgstr "Directory tree"
 msgid "symlink_not_followed"
 msgstr "The symlink is not followed: "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "symlink_dangling"
+msgstr "The symlink leads nowhere and is skipped: "
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "No synchronisation is active."

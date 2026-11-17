@@ -979,6 +979,10 @@ msgstr "Albero di cartelle"
 msgid "symlink_not_followed"
 msgstr "Il collegamento simbolico non viene seguito: "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "symlink_dangling"
+msgstr "Il collegamento simbolico non porta da nessuna parte e viene saltato: "
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "Nessuna sincronizzazione attiva."

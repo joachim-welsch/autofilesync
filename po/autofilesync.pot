@@ -978,6 +978,10 @@ msgstr ""
 msgid "symlink_not_followed"
 msgstr ""
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "symlink_dangling"
+msgstr ""
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr ""

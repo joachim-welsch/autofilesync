@@ -237,6 +237,9 @@
     <ClInclude Include="..\Utilities\include\FileTime.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utilities\include\SymlinkUtil.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
     <ClInclude Include="..\Utilities\include\FileName.h">
       <Filter>Utilities</Filter>
     </ClInclude>
@@ -582,6 +585,9 @@
       <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\Utilities\src\FileTime.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\src\SymlinkUtil.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="..\Utilities\src\FileName.cpp">

@@ -2,6 +2,16 @@
 
 ## 0.5.0 – in Arbeit
 
+- Behoben: Ein symbolischer Link, der ins Leere führt (Ziel gelöscht oder Link
+  im Kreis), galt als fehlende Datei. Mit „Gelöschte Dateien im Ziel ebenfalls
+  löschen“ oder Zwei-Wege-Synchronisation wurde dann die gleichnamige Datei im
+  Ziel gelöscht oder durch den Link hindurch an eine fremde Stelle kopiert. Ein
+  solcher Link wird jetzt übersprungen und einmal als Warnung gemeldet.
+- Lässt sich nach dem Kopieren die Dateizeit oder lassen sich die Dateirechte
+  nicht setzen, steht das als Fehler im Bericht; bisher galt der Durchlauf als
+  fehlerfrei. Die Kopie zählt trotzdem. Der nächste Durchlauf gleicht die
+  Dateizeit an, ohne erneut zu kopieren – auch bei einer Zieldatei mit gleichem
+  Inhalt, die nur eine neuere Zeit trägt.
 - Fehlende Verzeichnisse: Ist bei einer Zwei-Wege-Synchronisation der ganze
   Zielordner verschwunden (umbenannt, verschoben, Freigabe neu angelegt), wird
   er neu angelegt und aus der Quelle gefüllt; bisher konnte das als Löschung

@@ -156,6 +156,7 @@
     <ClCompile Include="..\AFS_Core\src\SyncTree.cpp" />
     <ClCompile Include="..\Utilities\src\Translation.cpp" />
     <ClCompile Include="..\Utilities\src\FileTime.cpp" />
+    <ClCompile Include="..\Utilities\src\SymlinkUtil.cpp" />
     <ClCompile Include="..\Utilities\src\FileName.cpp" />
     <ClCompile Include="..\Utilities\src\SystemInfo.cpp" />
   </ItemGroup>

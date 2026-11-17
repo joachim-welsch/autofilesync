@@ -16,8 +16,8 @@ the SSH user.
 
 ## skipped_links
 
-The message is logged with the path as a second argument, so the search text is the
-translated message alone; translate_utf8() gives the same text the logger used whether or
+logged() counts the lines of one message. The message is logged with the path as a second
+argument, so the search text is the translated message alone; translate_utf8() gives the same text the logger used whether or
 not a catalogue is loaded.
 
 ## TreeSyncSkipsADirectorySymlinkAndSaysSo
@@ -35,3 +35,18 @@ SyncDir treats a directory symlink like any directory, i.e. it ignores it withou
 
 An SFTP listing reports a symlink only as a symlink, not what it points to, so over SSH the
 file link is skipped as well, and both links are named in the log.
+
+## dangling-links
+
+A link that leads nowhere must not pass for a missing file (SyncFile.md#dangling-links). The
+three tests are the three ways it used to do harm: the target file of the same name was
+deleted - for a Dir and a File item; the Tree item skipped the link already and is there so
+that it stays that way -, the two-way copy back created the file the source link points to,
+and a copy onto a dangling target link landed outside the target directory.
+
+## DanglingLinkIsAWarningSaidOnceAndNoError
+
+Two passes over a missing target and a link to itself: the report stays clean and each link
+is named once, since a daemon passes every minute. The links bear names no other test uses:
+what was reported is remembered for the whole process, so a name another test already had
+reported would not be logged here again.

@@ -991,6 +991,10 @@ msgstr "Verzeichnisbaum"
 msgid "symlink_not_followed"
 msgstr "Symlink wird nicht verfolgt: "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "symlink_dangling"
+msgstr "Symlink führt ins Leere und wird übersprungen: "
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "Keine Synchronisation aktiv."

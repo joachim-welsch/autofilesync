@@ -312,6 +312,9 @@
     <ClInclude Include="$(LibDir)\..\Utilities\include\FileTime.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\..\Utilities\include\SymlinkUtil.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\..\Utilities\include\FileName.h">
       <Filter>Utilities</Filter>
     </ClInclude>
@@ -560,6 +563,9 @@
     <ClCompile Include="..\..\..\Utilities\test\FileTimeTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Utilities\test\SymlinkUtilTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Utilities\test\FileNameTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -762,6 +768,9 @@
       <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\..\Utilities\src\FileTime.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\..\Utilities\src\SymlinkUtil.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\..\Utilities\src\FileName.cpp">

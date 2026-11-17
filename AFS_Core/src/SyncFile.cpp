@@ -32,6 +32,7 @@
 #include "SystemInfo.h"
 #include <chrono>
 #include <FilesystemUtil.h>
+#include <SymlinkUtil.h>
 #include "FileDifference.h"
 #include "Logging.h"
 #include "Config.h"
@@ -70,6 +71,15 @@ ReportedOnce newer_targets;
 ReportedOnce content_conflicts;
 ReportedOnce both_modified;
 ReportedOnce kept_files;
+ReportedOnce dangling_links;
+
+bool leads_nowhere(const wstring& path, bool ssh)  // [SyncFile.md#dangling-links]
+{
+    const bool dangling = !ssh && symlink_util::dangling_link(path);
+    if (dangling_links.first_report(path, dangling))
+        log_warning(translation::translate("symlink_dangling"), path);
+    return dangling;
+}
 
 void report_newer_target(const wstring& source, const wstring& destination, bool target_newer)
 {
@@ -832,6 +842,8 @@ void SyncFile::operator()()
         state_key_ = state_key(source);  // [SyncFile.md#state]
         if (state_ != nullptr)
             state_->seen(state_key_);
+        if (leads_nowhere(source, ssh_source()) || leads_nowhere(destination, ssh_dest()))
+            return;
         FileDifference fd(source, destination, sync_item_.compare_items(), ssh_, sync_item_.two_way_sync(), state_ ? state_->find(state_key_) : nullptr);
         const auto filesize = fd();
         sync_difference(fd, source, destination, filesize);
