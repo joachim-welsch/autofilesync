@@ -222,6 +222,10 @@ msgstr "Accès refusé"
 msgid "file_locked"
 msgstr "Le fichier est verrouillé par un autre programme"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_creatable"
+msgstr "Impossible de créer le dossier"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Date du fichier non valide"
@@ -962,6 +966,10 @@ msgstr "Source ou cible inaccessible : "
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_dir_vanished"
 msgstr "%1 : le dossier cible %2 n'existe plus. Il est recréé et rempli à partir de la source ; rien n'est supprimé dans la source."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "sync_aborted"
+msgstr "Synchronisation interrompue : "
 
 #: AFS_Core/src/Synchronize.cpp:260
 msgid "watching_changes"

@@ -46,6 +46,20 @@ A file without read permission is the Unix stand-in for a file another program h
 is there, its size and time can be asked for, and opening it fails. read_refusal() and
 compare_content() have to say so and name the right one of the two files.
 
+## CreateDirectoryRefusalSaysWhyADirectoryIsNotThere
+
+OK means the directory is there afterwards, created with every missing level or found.
+CannotCreateDirectory is the answer when no better reason is known, as with a plain file that
+bears the name of the directory or of a level above it; the file stays what it was, and the
+error code goes back to the caller for the text. A directory that refuses the creation is
+PermissionDenied (second test, Unix only).
+
+## FailureTextNamesKnownReasonsAndFallsBackToTheSystem
+
+The text behind an error code for the report. Reasons the program knows are said in the
+user's language; for everything else the system's own text is better than "unknown error" -
+"No space left on device" tells the user what to do.
+
 ## EveryFileInfoResultHasItsOwnMessage
 
 The message is all the user gets to see of a failed fileinfo(). Two results sharing one text - a

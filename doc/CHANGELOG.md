@@ -31,6 +31,18 @@
 - Vor dem Kopieren wird geprüft, ob sich die Quelle öffnen lässt; erst dann
   wird das alte Ziel angefasst. Statt „Kopieren fehlgeschlagen“ nennt die
   Meldung die Datei und den Grund, auch bei einem gesperrten Ziel.
+- Behoben: Ließ sich ein Zielordner nicht anlegen, versuchte der Durchlauf
+  trotzdem jeden Unterordner und jede Datei darunter und meldete jeden
+  einzeln – bei einem großen Baum Tausende Fehler aus einer Ursache. Jetzt
+  wird dieser Ordner mit einer Meldung übersprungen, die den Grund nennt
+  (etwa „Zugriff verweigert“ oder dass eine Datei gleichen Namens im Weg
+  steht); der Rest wird weiter synchronisiert.
+- Fehlermeldungen nennen den Grund: beim Schreiben einer Datei (zum Beispiel
+  ein voller Datenträger), beim Anlegen eines Ordners und wenn sich ein Ordner
+  nicht auflisten lässt. Ein Zielordner, der sich nicht auflisten ließ, galt
+  bei der Zwei-Wege-Synchronisation bisher stillschweigend als leer.
+- Bricht ein ganzer Durchlauf mit einem unerwarteten Fehler ab, erscheint das
+  jetzt als Hinweis im Programm und nicht mehr nur im Protokoll.
 - Cloud-Ordner als Ziel: Im Dialog einer Synchronisation steht neben dem Ziel
   „Cloud…“. Die Schaltfläche zeigt die Ordner, die die Programme der
   Cloud-Anbieter auf dem Rechner angelegt haben (Dropbox und Nextcloud überall,

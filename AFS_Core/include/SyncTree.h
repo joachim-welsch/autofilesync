@@ -40,7 +40,7 @@ private:
     Names list_target_dirs(const std::wstring& targetname) const;  // [SyncTree.md#target-only-directories]
     bool known_below(const std::wstring& sourcename) const;
     DirState subtree_state(const std::wstring& name, const std::wstring& sourcename, const Names& target_dirs) const;
-    void prepare(const std::wstring& sourcename, const std::wstring& targetname, DirState state);  // [SyncTree.md#prepare-and-settle]
+    bool prepare(const std::wstring& sourcename, const std::wstring& targetname, DirState state);  // [SyncTree.md#prepare-and-settle]
     void settle(const std::wstring& sourcename, const std::wstring& targetname, DirState state);
     void sync_tree(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, DirState state);
     Names sync_entries(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);

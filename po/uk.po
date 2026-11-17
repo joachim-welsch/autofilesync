@@ -222,6 +222,10 @@ msgstr "Доступ заборонено"
 msgid "file_locked"
 msgstr "Файл заблоковано іншою програмою"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_creatable"
+msgstr "Не вдається створити папку"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Недійсний час файлу"
@@ -962,6 +966,10 @@ msgstr "Джерело або призначення недоступне: "
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_dir_vanished"
 msgstr "%1: папки призначення %2 більше немає. Її буде створено знову й заповнено з джерела; у джерелі нічого не видаляється."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "sync_aborted"
+msgstr "Синхронізацію перервано: "
 
 #: AFS_Core/src/Synchronize.cpp:260
 msgid "watching_changes"

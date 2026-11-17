@@ -144,6 +144,12 @@ Fehler/Warnung/Info filters, and a user who switched the errors off would never 
 nothing was deleted. The notes travel to the controller next to the plan and the unreachable
 items; note() is static like report_copied_bytes(), since the sync classes know no instance.
 
+## pass-aborted
+
+An exception that no item caught ends the whole run. It used to go into the log as "fatal"
+and nowhere else, so the GUI showed a run that had simply finished. It is now also a note of
+the pass with the level Error, which the controller hands to the GUI like every other note.
+
 ## ssh-sessions
 
 Every SSH operation of the sync classes used to open its own session - connect, host key,

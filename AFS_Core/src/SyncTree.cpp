@@ -90,10 +90,12 @@ SyncTree::Names SyncTree::list_target_dirs(const wstring& targetname) const  // 
                 dirs.insert(entry.name);
         return dirs;
     }
-    std::error_code ec;
-    for (const fs::directory_entry& entry : fs::directory_iterator(targetname, ec))
+    std::error_code not_listed, ec;
+    for (const fs::directory_entry& entry : fs::directory_iterator(targetname, not_listed))
         if (entry.is_directory(ec) && !entry.is_symlink(ec))
             dirs.insert(entry.path().filename().wstring());
+    if (not_listed && not_listed != std::errc::no_such_file_or_directory)  // [SyncTree.md#target-only-directories]
+        throw fs::filesystem_error("target directory cannot be listed", targetname, not_listed);
     return dirs;
 }
 
@@ -109,12 +111,11 @@ SyncTree::DirState SyncTree::subtree_state(const wstring& name, const wstring& s
     return known_below(with_trailing_char(sourcename, source_separator()) + name) ? DirState::DeletedInTarget : DirState::NewInSource;
 }
 
-void SyncTree::prepare(const wstring& sourcename, const wstring& targetname, DirState state)  // [SyncTree.md#prepare-and-settle]
+bool SyncTree::prepare(const wstring& sourcename, const wstring& targetname, DirState state)  // [SyncTree.md#prepare-and-settle]
 {
     if (state == DirState::Both || state == DirState::NewInSource)
-        create_target_dir_if_not_exist(targetname);
-    else if (state == DirState::NewInTarget)
-        create_source_dir(sourcename);
+        return create_target_dir_if_not_exist(targetname);
+    return state != DirState::NewInTarget || create_source_dir(sourcename);
 }
 
 void SyncTree::settle(const wstring& sourcename, const wstring& targetname, DirState state)  // [SyncTree.md#prepare-and-settle]
@@ -135,7 +136,8 @@ void SyncTree::sync_tree(const wstring& sourcename, const wstring& targetname, c
     if (Synchronize::stopping())
         return;
     try {
-        prepare(sourcename, targetname, state);
+        if (!prepare(sourcename, targetname, state))
+            return;
         const Names target_dirs = sync_item_.two_way_sync() && target_present(state) ? list_target_dirs(targetname) : Names();
         const Names source_names = source_present(state) ? sync_entries(sourcename, targetname, wildcard, target_dirs) : Names();
         if (Synchronize::stopping())
@@ -145,6 +147,9 @@ void SyncTree::sync_tree(const wstring& sourcename, const wstring& targetname, c
         sync_target_only_dirs(sourcename, targetname, wildcard, source_names, target_dirs);
         if (!Synchronize::stopping())
             settle(sourcename, targetname, state);
+    }
+    catch (const fs::filesystem_error& e) {
+        report_failure(sourcename, e);
     }
     catch (const std::exception& e) {
         log_error(sourcename, targetname, string_to_wstring(e.what()));

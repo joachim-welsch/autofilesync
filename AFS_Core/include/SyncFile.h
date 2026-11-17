@@ -36,6 +36,7 @@ class SyncFile: public SyncBase {
     bool copy_dest_to_source(const std::wstring& destination, const std::wstring& source, uint64_t size);
     bool save_copy_file(const std::wstring& src, const std::wstring& dest);
     CopyResult core_copy_function(const std::wstring& src, const std::wstring& dest);
+    std::wstring copy_failure_;  // [SyncFile.md#copy-failure-reason]
     void pre_copy(const std::wstring& src, const std::wstring& dest);
     std::optional<PlannedAction> decide(const FileDifference& fd) const;  // [SyncFile.md#decide]
     bool not_readable(const FileDifference& fd) const;  // [SyncFile.md#not-readable]
@@ -47,7 +48,7 @@ class SyncFile: public SyncBase {
     bool perform(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination, uint64_t filesize);
     void update_state(PlannedAction action, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#state]
     void settle_state(const FileDifference& fd);
-    void ensure_parent_dir(PlannedAction action, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#parent-of-a-kept-file]
+    bool ensure_parent_dir(PlannedAction action, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#parent-of-a-kept-file]
     bool create_parent_dir(const std::wstring& path, bool ssh, bool in_source);
     bool rename_instead(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#renames]
     std::optional<std::wstring> rename_candidate(const FileDifference& fd, bool new_in_source) const;

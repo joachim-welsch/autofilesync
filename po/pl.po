@@ -222,6 +222,10 @@ msgstr "Odmowa dostępu"
 msgid "file_locked"
 msgstr "Plik jest zablokowany przez inny program"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_creatable"
+msgstr "Nie można utworzyć folderu"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Nieprawidłowy czas pliku"
@@ -962,6 +966,10 @@ msgstr "Źródło lub cel jest nieosiągalne: "
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_dir_vanished"
 msgstr "%1: folder docelowy %2 już nie istnieje. Zostanie utworzony ponownie i wypełniony ze źródła; w źródle nic nie zostanie usunięte."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "sync_aborted"
+msgstr "Synchronizacja przerwana: "
 
 #: AFS_Core/src/Synchronize.cpp:260
 msgid "watching_changes"

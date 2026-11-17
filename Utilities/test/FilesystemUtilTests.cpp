@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include <FilesystemUtil.h>
+#include <StrUtil.h>
 #include <FileTime.h>
 #include <SystemInfo.h>
 #include <chrono>
@@ -51,6 +52,12 @@ protected:
     void TearDown() override
     {
         fs::remove_all(root_);
+    }
+
+    static std::string tu_content(const fs::path& file)
+    {
+        std::ifstream in(file, std::ios::binary);
+        return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
     }
 
     fs::path create_file(const std::string& name, const std::string& content) const
@@ -226,16 +233,59 @@ TEST_F(FilesystemUtilTest, FileThatDoesNotOpenIsRefusedNotDifferent)  // [Filesy
 }
 #endif
 
+TEST_F(FilesystemUtilTest, CreateDirectoryRefusalSaysWhyADirectoryIsNotThere)  // [FilesystemUtilTests.md#CreateDirectoryRefusalSaysWhyADirectoryIsNotThere]
+{
+    std::error_code ec;
+    create_file("plain.txt", "content");
+
+    EXPECT_EQ(fsu::create_directory_refusal(root_ / "new" / "deeper", ec), fsu::FileInfoResult::OK);
+    EXPECT_TRUE(fs::is_directory(root_ / "new" / "deeper"));
+    EXPECT_EQ(fsu::create_directory_refusal(root_ / "new", ec), fsu::FileInfoResult::OK) << "a directory that is there needs no creating";
+    EXPECT_FALSE(ec);
+    EXPECT_EQ(fsu::create_directory_refusal(root_ / "plain.txt", ec), fsu::FileInfoResult::CannotCreateDirectory) << "a file bears the name";
+    EXPECT_TRUE(ec);
+    EXPECT_EQ(fsu::create_directory_refusal(root_ / "plain.txt" / "below", ec), fsu::FileInfoResult::CannotCreateDirectory);
+    EXPECT_EQ(tu_content(root_ / "plain.txt"), "content");
+}
+
+#ifndef _WIN32
+TEST_F(FilesystemUtilTest, CreateDirectoryRefusalTellsARefusalFromOtherFailures)
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root is refused nothing";
+    std::error_code ec;
+    fs::create_directories(root_ / "locked");
+    fs::permissions(root_ / "locked", fs::perms::owner_read | fs::perms::owner_exec);
+
+    const fsu::FileInfoResult refusal = fsu::create_directory_refusal(root_ / "locked" / "new", ec);
+    fs::permissions(root_ / "locked", fs::perms::owner_all);
+
+    EXPECT_EQ(refusal, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_FALSE(fs::exists(root_ / "locked" / "new"));
+}
+#endif
+
+TEST(FilesystemUtilTests, FailureTextNamesKnownReasonsAndFallsBackToTheSystem)  // [FilesystemUtilTests.md#FailureTextNamesKnownReasonsAndFallsBackToTheSystem]
+{
+    using fsu::FileInfoResult;
+    const std::error_code no_space = std::make_error_code(std::errc::no_space_on_device);
+
+    EXPECT_EQ(fsu::failure_text(std::make_error_code(std::errc::permission_denied)), fsu::make_error_message(FileInfoResult::PermissionDenied));
+    EXPECT_EQ(fsu::failure_text(std::make_error_code(std::errc::no_such_file_or_directory)), fsu::make_error_message(FileInfoResult::FileNotExist));
+    EXPECT_EQ(util::wstring_to_string(fsu::failure_text(no_space)), no_space.message()) << "an error without a text of its own keeps the system's";
+    EXPECT_EQ(fsu::failure_text(std::error_code()), fsu::make_error_message(FileInfoResult::OK)) << "no error code at all is the unknown error";
+}
+
 TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUtilTests.md#EveryFileInfoResultHasItsOwnMessage]
 {
     using fsu::FileInfoResult;
     std::set<std::wstring> messages;
 
     for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
-            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo })
+            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::CannotCreateDirectory })
         messages.insert(fsu::make_error_message(result));
 
-    EXPECT_EQ(messages.size(), 8u);
+    EXPECT_EQ(messages.size(), 9u);
     EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::OK))) << "no failure may share the text of the unknown error";
     EXPECT_FALSE(messages.contains(L""));
 }

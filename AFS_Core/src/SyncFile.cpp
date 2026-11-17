@@ -215,34 +215,40 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
 
 constexpr std::size_t COPY_BLOCK_BYTES = 1 << 20;
 
-static CopyResult copy_local_file(const wstring& src, const wstring& dest)  // [SyncFile.md#copy_local_file]
+static CopyResult failed(const wstring& file, wstring& failure)  // [SyncFile.md#copy-failure-reason]
+{
+    failure = fsu::failure_text(fsu::last_stream_error()) + L": " + file;
+    return CopyResult::Error;
+}
+
+static CopyResult copy_local_file(const wstring& src, const wstring& dest, wstring& failure)  // [SyncFile.md#copy_local_file]
 {
     std::ifstream in(fs::path(src), std::ios::binary);
     if (!in)
-        return CopyResult::Error;
+        return failed(src, failure);
     std::ofstream out(fs::path(dest), std::ios::binary | std::ios::trunc);
     if (!out)
-        return CopyResult::Error;
+        return failed(dest, failure);
     std::vector<char> block(COPY_BLOCK_BYTES);
     uint64_t copied = 0;
     while (in.read(block.data(), static_cast<std::streamsize>(block.size())) || in.gcount() > 0) {
         if (Synchronize::stopping())
             return CopyResult::Stopped;
         if (!out.write(block.data(), in.gcount()))
-            return CopyResult::Error;
+            return failed(dest, failure);
         Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(in.gcount()));
     }
     if (in.bad())
-        return CopyResult::Error;
+        return failed(src, failure);
     out.close();
     if (!out)
-        return CopyResult::Error;
+        return failed(dest, failure);
     std::error_code ec;
     fs::permissions(dest, fs::status(src, ec).permissions(), ec);  // [SyncFile.md#copy_local_file]
     return CopyResult::OK;
 }
 
-static CopyResult copy_normal_file(const wstring& src, const wstring& dest)  // [SyncFile.md#copy-direction-follows-the-paths]
+static CopyResult copy_normal_file(const wstring& src, const wstring& dest, wstring& failure)  // [SyncFile.md#copy-direction-follows-the-paths]
 {
     const bool ssh_src = get_account_from_path(src).has_value();
     const bool ssh_dest = get_account_from_path(dest).has_value();
@@ -252,12 +258,13 @@ static CopyResult copy_normal_file(const wstring& src, const wstring& dest)  // 
         return copy_ssh_to_fs(src, dest);
     if (ssh_dest)
         return copy_fs_to_ssh(src, dest);
-    return copy_local_file(src, dest);
+    return copy_local_file(src, dest, failure);
 }
 
 CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
 {
-    return copy_normal_file(src, dest);
+    copy_failure_.clear();
+    return copy_normal_file(src, dest, copy_failure_);
 }
 
 static void remove_partial_target(const wstring& dest)  // [SyncFile.md#restore_backup]
@@ -324,8 +331,8 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
         return false;
     }
     if (copy_ok == CopyResult::Error) {
-        log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_failed"));
-        report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest);
+        log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_failed") + L" " + copy_failure_);
+        report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest + (copy_failure_.empty() ? wstring() : L" (" + copy_failure_ + L")"));
         restore_backup(dest, bak_filename);
         return false;
     }
@@ -412,8 +419,8 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
         plan_step({sync_item_.name(), *action, source, destination, file_in_target(*action) ? fd.dest_size() : fd.source_size()});
         return;
     }
-    if (kept)
-        ensure_parent_dir(*action, source, destination);
+    if (kept && !ensure_parent_dir(*action, source, destination))
+        return;
     carry_out(*action, fd, source, destination, filesize);
 }
 
@@ -428,19 +435,22 @@ void SyncFile::carry_out(PlannedAction action, const FileDifference& fd, const w
         update_state(action, source, destination);
 }
 
-void SyncFile::ensure_parent_dir(PlannedAction action, const wstring& source, const wstring& destination)  // [SyncFile.md#parent-of-a-kept-file]
+bool SyncFile::ensure_parent_dir(PlannedAction action, const wstring& source, const wstring& destination)  // [SyncFile.md#parent-of-a-kept-file]
 {
     const bool into_source = action == PlannedAction::CopyToSource;
-    create_parent_dir(into_source ? source : destination, into_source ? ssh_source() : ssh_dest(), into_source);
+    return create_parent_dir(into_source ? source : destination, into_source ? ssh_source() : ssh_dest(), into_source);
 }
 
 bool SyncFile::create_parent_dir(const wstring& path, bool ssh, bool in_source)
 {
     const wstring parent = path.substr(0, path.find_last_of(L"/\\"));
-    std::error_code ec;
-    if (ssh ? ssh_mkdir_p(parent) : (fs::create_directories(parent, ec), !ec))
+    const char* message_id = in_source ? "source_dir_create_error" : "target_dir_create_error";
+    if (!ssh)
+        return local_dir_created(parent, message_id);
+    if (ssh_mkdir_p(parent))
         return true;
-    log_error(translation::translate(in_source ? "source_dir_create_error" : "target_dir_create_error"), parent, string_to_wstring(ec.message()));
+    log_error(translation::translate(message_id), parent);
+    report_sync_error(translation::translate(message_id) + parent);
     return false;
 }
 

@@ -29,7 +29,7 @@ namespace Utilities {
 
 namespace FilesystemUtil
 {
-	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo };
+	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, CannotCreateDirectory };
 
 	bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
@@ -49,6 +49,9 @@ namespace FilesystemUtil
         std::wstring refused_file;
     };
     FileInfoResult reason_for_failure(const std::error_code& ec);  // [FilesystemUtil.md#reason_for_failure]
+    std::error_code last_stream_error();  // [FilesystemUtil.md#last_stream_error]
+    std::wstring failure_text(const std::error_code& ec);  // [FilesystemUtil.md#failure_text]
+    FileInfoResult create_directory_refusal(const std::filesystem::path& directory, std::error_code& ec);  // [FilesystemUtil.md#create_directory_refusal]
     FileInfoResult read_refusal(const std::wstring& file);  // [FilesystemUtil.md#read_refusal]
     ContentComparison compare_content(const std::wstring& input1, const std::wstring& input2);  // [FilesystemUtil.md#compare_content]
     bool files_equal(const std::wstring& input1, const std::wstring& input2);

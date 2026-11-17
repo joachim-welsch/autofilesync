@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "SyncBase.h"
+#include <FilesystemUtil.h>
 #include "CopyLog.h"
 #include "Global.h"
 #include "Logging.h"
@@ -148,40 +149,53 @@ bool SyncBase::drive_not_exist(const wstring& pathname, bool ssh)
     return retval;
 }
 
-void SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)
+bool SyncBase::local_dir_created(const wstring& dir, const char* message_id)  // [SyncBase.md#local_dir_created]
+{
+    std::error_code ec;
+    if (fsu::create_directory_refusal(dir, ec) == fsu::FileInfoResult::OK)
+        return true;
+    const wstring message = translation::translate(message_id) + dir + L": " + fsu::failure_text(ec);
+    log_error(message);
+    report_sync_error(message);
+    return false;
+}
+
+void SyncBase::report_failure(const wstring& where, const fs::filesystem_error& failure)  // [SyncBase.md#report_failure]
+{
+    const wstring message = fsu::failure_text(failure.code()) + L": " + (failure.path1().empty() ? where : failure.path1().wstring());
+    log_error(message);
+    report_sync_error(message);
+}
+
+bool SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)  // [SyncBase.md#create_target_dir_if_not_exist]
 {
     log_debug(L"create_target_dir_if_not_exist: " + targetdir);
     if (only_count_)
-        return;
+        return true;
     const wstring destination = targetdir.empty() ? sync_item_.target() : targetdir;
-    if (drive_not_exist(destination, sync_item_.ssh_target()))  // [SyncBase.md#create_target_dir_if_not_exist]
-        return;
-    if (sync_item_.ssh_target()) {
-        if (!ssh_mkdir_p(destination)) {
-            log_error(translation::translate("ssh_dir_create_error") + destination);
-            report_sync_error(translation::translate("ssh_target_dir_not_creatable") + destination);
-        }
-        return;
-    }
-    std::error_code ec;
-    fs::create_directories(without_volume_spec(destination), ec);
-    if (ec) {
-        log_error(translation::translate("target_dir_create_error"), destination, string_to_wstring(ec.message()));
-        report_sync_error(translation::translate("target_dir_not_creatable") + destination);
-    }
+    if (drive_not_exist(destination, sync_item_.ssh_target()))
+        return true;
+    if (!sync_item_.ssh_target())
+        return local_dir_created(without_volume_spec(destination), "target_dir_not_creatable");
+    if (ssh_mkdir_p(destination))
+        return true;
+    log_error(translation::translate("ssh_dir_create_error") + destination);
+    report_sync_error(translation::translate("ssh_target_dir_not_creatable") + destination);
+    return false;
 }
 
-void SyncBase::create_source_dir(const wstring& dir)  // [SyncBase.md#create_source_dir]
+bool SyncBase::create_source_dir(const wstring& dir)  // [SyncBase.md#create_source_dir]
 {
     log_debug(L"create_source_dir: " + dir);
     if (only_count_)
-        return;
-    std::error_code ec;
-    const bool created = sync_item_.ssh_source() ? ssh_mkdir_p(dir) : (fs::create_directories(dir, ec), !ec);
-    if (created)
-        return;
-    log_error(translation::translate("source_dir_create_error"), dir, string_to_wstring(ec.message()));
+        return true;
+    if (!sync_item_.ssh_source())
+        return local_dir_created(dir, "source_dir_create_error");
+    if (ssh_mkdir_p(dir))
+        return true;
+    log_error(translation::translate("source_dir_create_error"), dir);
     report_sync_error(translation::translate("source_dir_create_error") + dir);
+    return false;
 }
 
 void SyncBase::remove_dir_if_empty(const wstring& dir, bool ssh)  // [SyncBase.md#remove_dir_if_empty]
@@ -209,6 +223,8 @@ void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstri
         SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard, Exclusions(),
                           sync_item_.flags(), sync_item_.compare_items()),
                  copy_count_, only_count_, false, state_, state_root_, target_root_)();
+    } catch (const fs::filesystem_error& e) {
+        report_failure(source, e);
     } catch (const std::exception& e) {
         log_error(source, dest, string_to_wstring(e.what()));
         report_sync_error(source + L": " + string_to_wstring(e.what()));

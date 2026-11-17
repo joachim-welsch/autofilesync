@@ -120,6 +120,14 @@ protected:
         return message.find(file.wstring()) != std::wstring::npos && message.find(translation::translate("permission_denied")) != std::wstring::npos;
     }
 
+    void write_source_tree() const  // [LocalPermissionTests.md#write_source_tree]
+    {
+        tu::write_text_file(source_dir_ / "a.txt", "a");
+        tu::write_text_file(source_dir_ / "s1" / "b.txt", "b");
+        tu::write_text_file(source_dir_ / "s1" / "s2" / "c.txt", "c");
+        tu::write_text_file(source_dir_ / "s3" / "d.txt", "d");
+    }
+
     static void lock(const fs::path& path, fs::perms kept = fs::perms::owner_read | fs::perms::owner_exec)
     {
         fs::permissions(path, kept);
@@ -466,6 +474,134 @@ TEST_F(LocalPermissionTest, ConflictWhoseWinnerDoesNotOpenRenamesNothing)  // [L
         EXPECT_EQ(tu::read_text_file(source_dir_ / "c.txt"), "Quelle v2") << source_wins;
         EXPECT_EQ(tu::read_text_file(target_dir_ / "c.txt"), "Ziel Fassung 2") << source_wins;
         EXPECT_EQ(tu::run_sync(si, state), 2u) << "wieder lesbar wird der Konflikt wie immer geloest: " << source_wins;
+    }
+}
+
+TEST_F(LocalPermissionTest, UncreatableTargetDirectoryIsOneErrorWithItsReason)  // [LocalPermissionTests.md#UncreatableTargetDirectoryIsOneErrorWithItsReason]
+{
+    write_source_tree();
+    fs::create_directories(root_ / "gesperrt");
+    lock(root_ / "gesperrt");
+    const fs::path target = root_ / "gesperrt" / "ziel";
+    for (const SyncItemType type : {SyncItemType::Dir, SyncItemType::Tree}) {
+        SyncItem si = dir_item(target);
+        si.sync_item_type(type);
+
+        const Outcome outcome = run(si);
+
+        EXPECT_EQ(outcome.copies, 0u) << static_cast<int>(type);
+        ASSERT_EQ(outcome.report.errors().size(), 1u) << "eine Ursache, eine Meldung: " << static_cast<int>(type);
+        EXPECT_TRUE(names(outcome.report.errors().front(), target)) << outcome.report.errors().front();
+        EXPECT_FALSE(fs::exists(target)) << static_cast<int>(type);
+    }
+}
+
+TEST_F(LocalPermissionTest, FileInThePlaceOfATargetDirectorySkipsOnlyThatSubtree)  // [LocalPermissionTests.md#FileInThePlaceOfATargetDirectorySkipsOnlyThatSubtree]
+{
+    write_source_tree();
+    tu::write_text_file(target_dir_ / "s1", "eine Datei");
+    SyncItem si = dir_item(target_dir_);
+    si.sync_item_type(SyncItemType::Tree);
+    si.delete_in_target(true);
+
+    const Outcome outcome = run(si);
+
+    EXPECT_EQ(outcome.copies, 2u) << "was neben dem versperrten Ordner liegt, wird kopiert";
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_NE(outcome.report.errors().front().find((target_dir_ / "s1").wstring()), std::wstring::npos) << outcome.report.errors().front();
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "s1"), "eine Datei") << "die Datei im Weg bleibt, auch mit Loeschen im Ziel";
+    EXPECT_TRUE(fs::exists(target_dir_ / "a.txt"));
+    EXPECT_TRUE(fs::exists(target_dir_ / "s3" / "d.txt"));
+}
+
+TEST_F(LocalPermissionTest, UncreatableSourceDirectoryOfATwoWayItemIsOneErrorAndKeepsTheTarget)  // [LocalPermissionTests.md#UncreatableSourceDirectoryOfATwoWayItemIsOneErrorAndKeepsTheTarget]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "a", seconds(3600));
+    tu::write_text_file(target_dir_ / "a.txt", "a", seconds(3600));
+    fs::last_write_time(target_dir_ / "a.txt", fs::last_write_time(source_dir_ / "a.txt"));
+    tu::write_text_file(target_dir_ / "neu" / "x.txt", "x");
+    tu::write_text_file(target_dir_ / "neu" / "tief" / "y.txt", "y");
+    lock(source_dir_);
+    SyncItem si = dir_item(target_dir_);
+    si.sync_item_type(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    Outcome outcome;
+    {
+        SyncReportGuard guard(&outcome.report);
+        outcome.copies = tu::run_sync(si, state);
+    }
+
+    EXPECT_EQ(outcome.copies, 0u);
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_TRUE(names(outcome.report.errors().front(), source_dir_ / "neu")) << outcome.report.errors().front();
+    EXPECT_TRUE(fs::exists(target_dir_ / "neu" / "x.txt"));
+    EXPECT_TRUE(fs::exists(target_dir_ / "neu" / "tief" / "y.txt"));
+    EXPECT_NE(state.find(L"a.txt"), nullptr) << "was daneben liegt, wird abgeglichen";
+}
+
+TEST_F(LocalPermissionTest, UncreatableParentOfAFileCopiedBackIsOneErrorWithItsReason)  // [LocalPermissionTests.md#UncreatableParentOfAFileCopiedBackIsOneErrorWithItsReason]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "sub" / "b.txt", "v1", seconds(7200));
+    SyncItem si = dir_item(target_dir_);
+    si.sync_item_type(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    fs::remove_all(target_dir_ / "sub");
+    tu::write_text_file(source_dir_ / "sub" / "b.txt", "seither bearbeitet");
+    lock(target_dir_);
+    Outcome outcome;
+    {
+        SyncReportGuard guard(&outcome.report);
+        outcome.copies = tu::run_sync(si, state);
+    }
+
+    EXPECT_EQ(outcome.copies, 0u);
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_TRUE(names(outcome.report.errors().front(), target_dir_ / "sub")) << outcome.report.errors().front();
+    EXPECT_EQ(tu::read_text_file(source_dir_ / "sub" / "b.txt"), "seither bearbeitet") << "die bearbeitete Datei darf der Loeschung nicht folgen";
+}
+
+TEST_F(LocalPermissionTest, FileThatCannotBeWrittenNamesItsReason)  // [LocalPermissionTests.md#FileThatCannotBeWrittenNamesItsReason]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "a");
+    lock(target_dir_);
+
+    const Outcome outcome = run(file_item("a.txt"));
+
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_TRUE(names(outcome.report.errors().front(), target_dir_ / "a.txt")) << outcome.report.errors().front();
+}
+
+TEST_F(LocalPermissionTest, TwoWayDirectoryThatCannotBeListedIsOneError)  // [LocalPermissionTests.md#TwoWayDirectoryThatCannotBeListedIsOneError]
+{
+    for (const bool source_locked : {true, false}) {
+        std::error_code ec;
+        fs::remove_all(source_dir_, ec);
+        fs::remove_all(target_dir_, ec);
+        fs::create_directories(target_dir_);
+        tu::write_text_file(source_dir_ / "sub" / "b.txt", "b", seconds(3600));
+        tu::write_text_file(source_dir_ / "sub" / "tief" / "c.txt", "c", seconds(3600));
+        SyncItem si = dir_item(target_dir_);
+        si.sync_item_type(SyncItemType::Tree);
+        si.two_way_sync(true);
+        SyncState state(si.source(), si.target());
+        ASSERT_EQ(tu::run_sync(si, state), 2u);
+        const fs::path locked = (source_locked ? source_dir_ : target_dir_) / "sub";
+        lock(locked, fs::perms::none);
+        Outcome outcome;
+        {
+            SyncReportGuard guard(&outcome.report);
+            outcome.copies = tu::run_sync(si, state);
+        }
+        fs::permissions(locked, fs::perms::owner_all);
+
+        ASSERT_EQ(outcome.report.errors().size(), 1u) << source_locked;
+        EXPECT_NE(outcome.report.errors().front().find(locked.wstring()), std::wstring::npos) << outcome.report.errors().front();
+        EXPECT_NE(outcome.report.errors().front().find(translation::translate("permission_denied")), std::wstring::npos) << outcome.report.errors().front();
+        EXPECT_TRUE(fs::exists(source_dir_ / "sub" / "tief" / "c.txt") && fs::exists(target_dir_ / "sub" / "tief" / "c.txt")) << source_locked;
     }
 }
 #endif

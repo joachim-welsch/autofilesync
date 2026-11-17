@@ -30,13 +30,20 @@ copied back - and what is left empty is removed. The same per-file decision serv
 directory the target side deleted, from the source listing. The second listing costs one
 more round trip per directory on an SSH target; a one-way item pays nothing.
 
+A target directory that cannot be listed ends the work on this directory with one error. It
+used to pass for an empty one without a word: its files were then asked for one by one, which
+kept them from being deleted, but a directory new in the target went unseen. A target that is
+simply not there is no error - a preview has not created it.
+
 ## prepare-and-settle
 
 prepare() creates the side a new directory lacks before the files are compared, and settle()
 removes the side a deleted directory leaves empty after they are - only after, so that a file
 edited since the deletion keeps its directory on both sides (SyncFile.md#parent-of-a-kept-file),
 and never on a counting pass or a preview, which touch nothing. A stopped pass does not settle
-either: a directory whose files were not all visited is not known to be empty.
+either: a directory whose files were not all visited is not known to be empty. When prepare()
+cannot create the directory, this directory and everything below it is given up
+(SyncBase.md#create_target_dir_if_not_exist).
 
 ## sync_entries
 

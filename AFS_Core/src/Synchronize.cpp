@@ -492,6 +492,13 @@ void Synchronize::run_sync_item(SyncItem& i)
         Config::instance().refresh_last_sync(i.name());  // [Synchronize.md#snapshot-vs-config]
 }
 
+void Synchronize::pass_aborted(const wstring& reason)  // [Synchronize.md#pass-aborted]
+{
+    const wstring message = translation::translate("sync_aborted") + reason;
+    log_fatal(message);
+    notes_.push_back({LogLevel::Error, util::wstring_to_string(message)});
+}
+
 void Synchronize::operator()()
 {
     log_debug(L"Synchronize::operator()()");
@@ -515,10 +522,10 @@ void Synchronize::operator()()
         } while (sync_type_ == SyncType::Continuous && !stop_);
     }
     catch (const std::exception& ex) {
-        log_fatal(string_to_wstring(ex.what()));
+        pass_aborted(string_to_wstring(ex.what()));
     }
     catch (...) {
-        log_fatal(L"Unknown error caught in Synchronize::operator()()");
+        pass_aborted(translation::translate("unknown_error"));
     }
     arbiter_.release();
 

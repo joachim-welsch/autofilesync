@@ -90,6 +90,7 @@ class Synchronize {
     void run_sync_item(SyncItem& i);
     void report_unreachable(const SyncItem& i);
     bool target_vanished(const SyncItem& i) const;  // [Synchronize.md#vanished-target]
+    void pass_aborted(const std::wstring& reason);  // [Synchronize.md#pass-aborted]
     void report_sync_item(SyncItem& i);  // [Synchronize.md#record_last_run]
     LastRun last_run_of(const SyncItem& i, const SyncReport& report) const;
 #ifdef _TEST

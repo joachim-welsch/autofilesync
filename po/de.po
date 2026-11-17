@@ -222,6 +222,10 @@ msgstr "Zugriff verweigert"
 msgid "file_locked"
 msgstr "Datei ist von einem anderen Programm gesperrt"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_creatable"
+msgstr "Verzeichnis kann nicht angelegt werden"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Ungueltige Dateizeit"
@@ -974,6 +978,10 @@ msgstr "Quelle oder Ziel nicht erreichbar: "
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_dir_vanished"
 msgstr "%1: Das Zielverzeichnis %2 ist nicht mehr vorhanden. Es wird neu angelegt und aus der Quelle gefüllt; in der Quelle wird nichts gelöscht."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "sync_aborted"
+msgstr "Synchronisation abgebrochen: "
 
 #: AFS_Core/src/Synchronize.cpp:260
 msgid "watching_changes"

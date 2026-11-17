@@ -79,12 +79,31 @@ Nothing is created on a drive that is not mounted, just as no file is copied the
 the disk above it, and the tree of the source would grow there, unseen, until that disk is
 full.
 
+The answer tells the caller whether to go on. False means the directory is not there and
+cannot be made: SyncDir and SyncTree then give up this directory and everything below it,
+because every subdirectory and every file in it would fail for the same cause and each would
+be reported - a tree of ten thousand files made ten thousand errors out of one write-protected
+folder. A counting pass and an unmounted drive answer true: the first creates nothing by
+design, behind the second each file reports the drive itself.
+
+## local_dir_created
+
+Creates a local directory and reports a failure once, with the directory and the reason
+(FilesystemUtil.md#create_directory_refusal): "permission denied" and "a file is in the way"
+ask the user for different things.
+
+## report_failure
+
+A file system error that ended the work on a directory or a file, reported with the reason in
+the user's language and the path the system named, in place of the exception's English
+sentence.
+
 ## create_source_dir
 
 The counterpart of create_target_dir_if_not_exist() for a directory that exists only in the
 target of a two-way item (SyncTree.md#target-only-directories): it is new there and gets its
 mirror in the source, with every missing level. Like the target side, nothing is created on a
-counting pass.
+counting pass, and false gives up the directory.
 
 ## remove_dir_if_empty
 

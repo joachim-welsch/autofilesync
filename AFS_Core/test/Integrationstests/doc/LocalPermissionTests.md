@@ -110,3 +110,46 @@ to a conflict copy first (SyncFile.md#conflict-copies). When the winner does not
 rename would leave the losing side without the file under its name and with nothing to
 replace it. Nothing may be renamed, and once the winner opens the conflict is settled as
 usual: the winner over, the conflict copy back.
+
+## write_source_tree
+
+Four files on three levels: enough for a failure at the top to multiply, if the pass goes on
+below it.
+
+## UncreatableTargetDirectoryIsOneErrorWithItsReason
+
+The target directory cannot be created. The pass used to go on regardless: it tried every
+subdirectory and every file below and reported each of them, eight errors for these four files
+and as many as the tree has entries in general, with the reason only in the log. One cause is
+one error, and it says why.
+
+## FileInThePlaceOfATargetDirectorySkipsOnlyThatSubtree
+
+A plain file bears the name of a subdirectory of the target. Only that subtree is given up:
+its one error names the path, the file in the way is neither replaced nor - with "delete in
+target" - deleted, and the rest of the tree is copied.
+
+## UncreatableSourceDirectoryOfATwoWayItemIsOneErrorAndKeepsTheTarget
+
+The mirror image for a directory that is new in the target and has to be created in the
+source, which is write-protected. One error for the directory, its files stay in the target,
+and the file beside it is synchronised as usual.
+
+## UncreatableParentOfAFileCopiedBackIsOneErrorWithItsReason
+
+A directory was deleted in the target, but one of its files was edited in the source since, so
+the file is kept and copied back, for which its directory has to be created again
+(SyncFile.md#parent-of-a-kept-file). When that fails the copy used to be tried anyway and
+reported as a bare "copy failed"; the failed directory was only in the log. The edited file
+must stay in the source.
+
+## FileThatCannotBeWrittenNamesItsReason
+
+The copy cannot open its target for writing. The error names the target, as
+NewFileInAnUnwritableTargetDirectoryIsReported asks, and now also the reason.
+
+## TwoWayDirectoryThatCannotBeListedIsOneError
+
+A two-way pass lists both sides of a directory. When either listing fails the directory is
+given up with one error that names it and the reason; a target that could not be listed used
+to pass for an empty one, silently.

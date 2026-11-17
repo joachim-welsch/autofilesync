@@ -122,6 +122,14 @@ losing file is renamed to its conflict name first, and with a winner that cannot
 losing side would be left without the file under its own name. Paths behind SSH or in a cloud
 are not asked this way; their transfer reports its own failures.
 
+## copy-failure-reason
+
+Why a local copy failed, with the file the failure belongs to: the target that cannot be
+opened for writing, the disk that is full, the source that stops reading. The stream only says
+that it failed; the reason is the system's error at that moment
+(FilesystemUtil.md#failure_text), and it is added to the "copy failed" report in brackets. The
+transfers behind SSH and in a cloud log their own reasons and leave this empty.
+
 ## only-count-touches-nothing
 
 only_count_ means "count only" - it must not touch the filesystem, the way
@@ -232,7 +240,9 @@ A file edited on one side after its directory was deleted on the other is copied
 (kept-instead-of-deleted above) into a directory that no longer exists there - SyncTree does
 not recreate a deleted directory (SyncTree.md#prepare-and-settle), only the file's own copy
 does, with every missing level. Only this case pays for the check; the ordinary copy relies on
-the directory the tree pass created.
+the directory the tree pass created. A directory that cannot be created is reported with its
+reason (SyncBase.md#local_dir_created) and the copy is not tried: it could only fail, and
+"copy failed" would hide the cause.
 
 ## deferred-deletions
 

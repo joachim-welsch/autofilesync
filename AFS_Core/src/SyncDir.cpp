@@ -58,7 +58,8 @@ void SyncDir::operator()()
     const wstring wildcard = sync_item_.wildcard();
     std::set<wstring> source_names;  // [SyncDir.md#source-names]
     try {
-        create_target_dir_if_not_exist();
+        if (!create_target_dir_if_not_exist())
+            return;
         if (sync_item_.ssh_source()) {
             for (const auto& entry : ssh_list_dir(source)) {
                 source_names.insert(entry.name);
@@ -78,6 +79,9 @@ void SyncDir::operator()()
         if (!stop_requested())
             sync_target_only_entries(source, destination, wildcard, source_names);
         finish_pass();
+    }
+    catch (const fs::filesystem_error& e) {
+        report_failure(source, e);
     }
     catch (const std::exception& e) {
         log_error(source, destination, string_to_wstring(e.what()));

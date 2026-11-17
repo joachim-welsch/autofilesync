@@ -118,6 +118,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("file_time_invalid");
     case FileInfoResult::ErrorReadFileInfo:
         return translation::translate("file_info_read_error");
+    case FileInfoResult::CannotCreateDirectory:
+        return translation::translate("directory_not_creatable");
     default:
         return translation::translate("unknown_error");
     }
@@ -141,7 +143,26 @@ FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil
     return ec == std::errc::no_such_file_or_directory ? FileInfoResult::FileNotExist : FileInfoResult::ErrorReadFileInfo;
 }
 
-static std::error_code last_stream_error()  // [FilesystemUtil.md#last_stream_error]
+std::wstring failure_text(const std::error_code& ec)  // [FilesystemUtil.md#failure_text]
+{
+    const FileInfoResult reason = reason_for_failure(ec);
+    if (reason != FileInfoResult::ErrorReadFileInfo)
+        return make_error_message(reason);
+    return ec ? string_to_wstring(ec.message()) : translation::translate("unknown_error");
+}
+
+FileInfoResult create_directory_refusal(const fs::path& directory, std::error_code& ec)  // [FilesystemUtil.md#create_directory_refusal]
+{
+    fs::create_directories(directory, ec);
+    if (!ec && fs::is_directory(directory, ec))
+        return FileInfoResult::OK;
+    if (!ec)
+        ec = std::make_error_code(std::errc::not_a_directory);
+    const FileInfoResult reason = reason_for_failure(ec);
+    return reason == FileInfoResult::PermissionDenied || reason == FileInfoResult::FileLocked ? reason : FileInfoResult::CannotCreateDirectory;
+}
+
+std::error_code last_stream_error()  // [FilesystemUtil.md#last_stream_error]
 {
 #ifdef WIN32
     return std::error_code(static_cast<int>(_doserrno), std::system_category());

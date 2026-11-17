@@ -114,3 +114,19 @@ read it back" and "differs" are the same failure.
 
 rename_file() with the reason for a failure, so that the caller can tell the user that the
 file is locked or the directory write-protected instead of only that something failed.
+
+## failure_text
+
+The words for an error code in a report. The reasons the program knows are said in the user's
+language (reason_for_failure); for the rest the system's own text is kept, because "No space
+left on device" helps where "unknown error" does not. Only no error code at all is the unknown
+error.
+
+## create_directory_refusal
+
+Creates a directory with every missing level and says why when it is not there afterwards:
+PermissionDenied or FileLocked when the system gives that reason, CannotCreateDirectory for
+everything else - most often a plain file that bears the name of the directory or of a level
+above it. create_directories() does not agree with itself across platforms on whether that
+case is an error, so the result is checked: no directory, no success. The error code goes back
+for failure_text().
