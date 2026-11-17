@@ -145,9 +145,62 @@ TEST_F(SyncStateTest, UnreadableFileMeansNoState)  // [SyncStateTests.md#Unreada
     EXPECT_TRUE(fs::exists(state_file()));
 }
 
+TEST_F(SyncStateTest, LinkEntriesRoundTripWithTheirText)  // [SyncStateTests.md#links]
+{
+    SyncState written = filled_state();
+    written.record(L"aktuell", FileState{0, {}, {}, L"2026/Berichte"});
+    written.record(L"Ordner/mit\tTab", FileState{0, {}, {}, L"../Ziel\tmit\nUmbruch\\"});
+    written.record(L"leer", FileState{0, {}, {}, L""});
+    ASSERT_TRUE(write_sync_state(state_file(), written));
+
+    const std::optional<SyncState> read = this->read();
+
+    ASSERT_TRUE(read.has_value());
+    EXPECT_EQ(read->files(), written.files());
+    ASSERT_NE(read->find(L"aktuell"), nullptr);
+    EXPECT_EQ(read->find(L"aktuell")->link, std::optional<wstring>(L"2026/Berichte"));
+    EXPECT_FALSE(read->find(L"Grüße/Äpfel.txt")->link.has_value()) << "a file is no link";
+    EXPECT_EQ(read->find(L"leer")->link, std::optional<wstring>(L"")) << "an empty text is still a link";
+}
+
+TEST_F(SyncStateTest, StateWithoutLinksKeepsTheFormatOlderVersionsRead)  // [SyncStateTests.md#links]
+{
+    ASSERT_TRUE(write_sync_state(state_file(), filled_state()));
+    EXPECT_TRUE(file_bytes(state_file()).starts_with("autofilesync-sync-state 1\n"));
+    SyncState linked = filled_state();
+    linked.record(L"aktuell", FileState{0, {}, {}, L"2026"});
+
+    ASSERT_TRUE(write_sync_state(state_file(), linked));
+
+    EXPECT_TRUE(file_bytes(state_file()).starts_with("autofilesync-sync-state 2\n"));
+}
+
+TEST_F(SyncStateTest, LinkLinesAreReadAndABrokenOneDiscardsTheFile)  // [SyncStateTests.md#links]
+{
+    const wstring version_two = L"autofilesync-sync-state 2\nsource\t" + source_ + L"\ntarget\t" + target_ + L"\n";
+    write_text(version_two + L"12\t34\t56\tDatei.txt\nlink\t../x\taktuell\n");
+    const std::optional<SyncState> read = this->read();
+    ASSERT_TRUE(read.has_value());
+    EXPECT_EQ(read->files().size(), 2u);
+    EXPECT_EQ(read->find(L"aktuell")->link, std::optional<wstring>(L"../x"));
+
+    write_text(version_two + L"link\tnur-ein-Feld\n");
+
+    EXPECT_FALSE(this->read().has_value());
+}
+
+TEST_F(SyncStateTest, LinksAreNotCandidatesForRenameDetection)  // [SyncStateTests.md#links]
+{
+    SyncState state(source_, target_);
+    state.record(L"leer.txt", state_at(0, 1, 1));
+    state.record(L"aktuell", FileState{0, {}, {}, L"2026"});
+
+    EXPECT_EQ(state.with_size(0), std::vector<wstring>{L"leer.txt"});
+}
+
 TEST_F(SyncStateTest, FileOfANewerFormatIsNotTrusted)
 {
-    write_text(L"autofilesync-sync-state 2\nsource\t" + source_ + L"\ntarget\t" + target_ + L"\n");
+    write_text(L"autofilesync-sync-state 3\nsource\t" + source_ + L"\ntarget\t" + target_ + L"\n");
     EXPECT_FALSE(read().has_value());
 }
 

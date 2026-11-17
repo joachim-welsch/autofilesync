@@ -51,7 +51,19 @@ one of them for new.
 
 The first line names the format and its version. A file from a newer version of the program is
 refused rather than half understood: the unreadable path leaves the state out, the next pass runs
-without it and writes the current format.
+without it and writes the current format. Version 2 added the link lines (links); a file of
+version 1 is read as before.
+
+## links
+
+An entry for a symbolic link that was carried over as a link (SyncLink.md) has no size and no
+times, only the text both sides agreed on, in its portable form. Its line is
+"link", the text and the path, separated by tabs and escaped like a path; the path stays last.
+A size cannot begin with a letter, so the first field tells the two kinds of line apart. A
+state that holds no link is still written as version 1: a user who never chose the mode can go
+back to an older program without losing the state, which that program would refuse as "newer".
+Links are left out of the size index - an empty file and a link both have size 0, and a link is
+no candidate for a renamed file.
 
 ## sync_state_dir
 

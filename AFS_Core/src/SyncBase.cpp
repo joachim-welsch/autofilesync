@@ -144,6 +144,20 @@ bool SyncBase::links_as_links() const  // [SyncBase.md#links_as_links]
     return sync_item_.symlink_mode() == SymlinkMode::AsLink && !sync_item_.ssh_source();
 }
 
+bool SyncBase::target_usable(const wstring& target)  // [SyncBase.md#target_usable]
+{
+    std::error_code ec;
+    if (!links_as_links() || only_count_ || sync_item_.ssh_target() || !fs::is_symlink(fs::symlink_status(target, ec)))
+        return true;
+    if (sync_item_.delete_in_target() && fs::remove(target, ec)) {
+        log_info(translation::translate("target_link_replaced"), target);
+        return true;
+    }
+    log_error(translation::translate("target_is_link"), target);
+    report_sync_error(translation::translate("target_is_link") + target);
+    return false;
+}
+
 bool SyncBase::system_link_skipped(const wstring& path)  // [SyncBase.md#system_link_skipped]
 {
     if (sync_item_.ssh_source() || !symlink_util::system_link(path))
@@ -318,7 +332,7 @@ void SyncBase::sync_dir_entry(const fs::directory_entry& dir_entry, const wstrin
     const wstring target = with_trailing_char(destination, sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR) + filename;
     if (as_link)
         sync_link(dir_entry.path().wstring(), target);
-    else
+    else if (target_usable(target))
         sync_file(dir_entry.path().wstring(), target, wildcard);
 }
 
@@ -335,6 +349,12 @@ void SyncBase::sync_target_only_entries(const wstring& source_dir, const wstring
             return;
         sync_file(with_trailing_char(source_dir, source_separator) + name, target_path, wildcard);
     };
+    auto handle_link = [&](const wstring& name, const wstring& target_path, bool directory) {  // [SyncBase.md#target-only-links]
+        if (source_names.count(name) || (!wildcard.empty() && !directory && !wildmatch(name, wildcard))
+            || is_excluded(name, sync_item_.exclusions()) || father_son_backup(name))
+            return;
+        sync_link(with_trailing_char(source_dir, source_separator) + name, target_path);
+    };
     if (sync_item_.ssh_target()) {
         for (const auto& entry : ssh_list_dir(target_dir)) {
             if (entry.is_regular_file)
@@ -349,7 +369,9 @@ void SyncBase::sync_target_only_entries(const wstring& source_dir, const wstring
     if (!fs::exists(local_target_dir, ec))
         return;
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(local_target_dir)) {
-        if (dir_entry.is_regular_file(ec))
+        if (links_as_links() && dir_entry.is_symlink(ec))
+            handle_link(dir_entry.path().filename().wstring(), dir_entry.path().wstring(), dir_entry.is_directory(ec));
+        else if (dir_entry.is_regular_file(ec))
             handle_entry(dir_entry.path().filename().wstring(), dir_entry.path().wstring());
         if (stop_requested())
             break;

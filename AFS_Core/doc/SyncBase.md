@@ -165,3 +165,21 @@ group appears and again only after a pass in which it was empty; the note for th
 (Synchronize.md#notes) is given in every run. The links created inside the tree are asked only
 now whether they lead somewhere - the files they point to were copied by the same pass. A
 pass that only counts has created nothing and says nothing.
+
+## target-only-links
+
+When links are kept as links, the pass over what only the target has hands a symbolic link to
+sync_link() instead of taking it for the file it leads to: a link to a file used to be copied
+back as content, and a link to a directory or to nothing was not seen at all, so it could
+neither be deleted nor carried to the source. Names of the generation principle are left out
+as for files, here whether or not the principle is on, since SyncLink parks under them.
+
+## target_usable
+
+When links are kept as links, a link in the target under the name of a real file or directory
+of the source is not what the source has, and writing "into" it would put the content wherever
+it points - outside the target tree, or over a file the link merely refers to. With "delete in
+target" the link gives way: it is removed and the file or directory takes its place. Otherwise
+the user has not allowed anything in the target to be removed, so it is one error and the
+entry is left out. The item's own target directory may be a link; the user named it. A pass
+that only counts touches nothing.

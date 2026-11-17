@@ -23,6 +23,7 @@
 #include "ScopedDeleteMode.h"
 #include "ScopedLog.h"
 #include "SyncRunner.h"
+#include "SyncState.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
 #include "Translation.h"
@@ -86,10 +87,17 @@ protected:
         return si;
     }
 
-    static void run(const SyncItem& si, Outcome& outcome)  // [DiskFullTests.md#run]
+    static void run(const SyncItem& si, Outcome& outcome, SyncState* state = nullptr)  // [DiskFullTests.md#run]
     {
         SyncReportGuard guard(&outcome.report);
-        outcome.copies = tu::run_sync(si);
+        outcome.copies = tu::run_sync(si, state);
+    }
+
+    SyncItem two_way_item(SyncItemType type = SyncItemType::Tree) const
+    {
+        SyncItem si = item(type);
+        si.two_way_sync(true);
+        return si;
     }
 
     int logged(const char* message_id) const  // [SymlinkTests.md#skipped_links]
@@ -351,6 +359,181 @@ TEST_F(SymlinkAsLinkTest, TargetDirectoryThatIsALinkIsNotWrittenThrough)  // [Sy
     EXPECT_FALSE(fs::is_symlink(target_ / "echt")) << "with deletions allowed the link gives way to the directory";
     EXPECT_EQ(tu::read_text_file(target_ / "echt" / "a.txt"), "a");
     EXPECT_TRUE(fs::is_empty(root_ / "anderswo"));
+}
+
+TEST_F(SymlinkAsLinkTest, DeleteInTargetRemovesLinksTheSourceNoLongerHas)  // [SymlinkAsLinkTests.md#DeleteInTargetRemovesLinksTheSourceNoLongerHas]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    fs::create_directories(target_ / "echt");
+    tu::write_text_file(target_ / "b.txt", "b");
+    fs::create_symlink("b.txt", target_ / "datei.txt");
+    fs::create_directory_symlink("echt", target_ / "ordner");
+    fs::create_symlink("weg.txt", target_ / "tot.txt");
+    Outcome kept, removed;
+
+    run(item(), kept);
+
+    EXPECT_TRUE(fs::is_symlink(target_ / "datei.txt")) << "without the option nothing in the target is deleted";
+    SyncItem si = item();
+    si.delete_in_target(true);
+
+    run(si, removed);
+
+    EXPECT_TRUE(removed.report.successful());
+    EXPECT_EQ(names_in(target_), (std::set<std::string>{"b.txt", "echt"})) << "the links go, also the one to a directory and the dead one";
+    EXPECT_EQ(tu::read_text_file(target_ / "echt" / "a.txt"), "a") << "what a removed link pointed to is not touched";
+}
+
+TEST_F(SymlinkAsLinkTest, TwoWaySyncCarriesANewTargetLinkToTheSource)  // [SymlinkAsLinkTests.md#TwoWaySyncCarriesANewTargetLinkToTheSource]
+{
+    const SyncItem si = two_way_item();
+    SyncState state(si.source(), si.target());
+    Outcome first, second, third;
+    run(si, first, &state);
+    fs::create_symlink(target_ / "b.txt", target_ / "neu.txt");
+    fs::create_directory_symlink("echt", target_ / "ordner");
+
+    run(si, second, &state);
+
+    EXPECT_TRUE(second.report.successful());
+    EXPECT_EQ(fs::read_symlink(source_ / "neu.txt"), fs::path("b.txt")) << "relative on the way back as well";
+    EXPECT_EQ(fs::read_symlink(source_ / "ordner"), fs::path("echt"));
+    EXPECT_FALSE(fs::is_symlink(source_ / "echt"));
+
+    run(si, third, &state);
+
+    EXPECT_EQ(third.copies, 0u) << "the pair has settled";
+    ASSERT_NE(state.find(L"neu.txt"), nullptr);
+    EXPECT_EQ(state.find(L"neu.txt")->link, std::optional<std::wstring>(L"b.txt"));
+}
+
+TEST_F(SymlinkAsLinkTest, TwoWaySyncDeletesTheLinkOnTheOtherSide)  // [SymlinkAsLinkTests.md#TwoWaySyncDeletesTheLinkOnTheOtherSide]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    fs::create_symlink("b.txt", source_ / "eins.txt");
+    fs::create_symlink("b.txt", source_ / "zwei.txt");
+    const SyncItem si = two_way_item();
+    SyncState state(si.source(), si.target());
+    Outcome first, second;
+    run(si, first, &state);
+    ASSERT_TRUE(fs::is_symlink(target_ / "eins.txt"));
+    fs::remove(source_ / "eins.txt");
+    fs::remove(target_ / "zwei.txt");
+
+    run(si, second, &state);
+
+    EXPECT_TRUE(second.report.successful());
+    EXPECT_FALSE(fs::is_symlink(target_ / "eins.txt")) << "deleted in the source, so it goes in the target";
+    EXPECT_FALSE(fs::is_symlink(source_ / "zwei.txt")) << "deleted in the target, so it goes in the source";
+    EXPECT_EQ(tu::read_text_file(source_ / "b.txt"), "b");
+    EXPECT_EQ(state.find(L"eins.txt"), nullptr);
+}
+
+TEST_F(SymlinkAsLinkTest, TwoWaySyncWithoutStateBringsAMissingLinkBackInsteadOfDeleting)  // [SymlinkAsLinkTests.md#TwoWaySyncWithoutStateBringsAMissingLinkBackInsteadOfDeleting]
+{
+    fs::create_symlink("b.txt", source_ / "eins.txt");
+    Outcome outcome;
+
+    run(two_way_item(), outcome);
+
+    EXPECT_TRUE(fs::is_symlink(source_ / "eins.txt"));
+    EXPECT_TRUE(fs::is_symlink(target_ / "eins.txt")) << "nothing says the link was ever in the target";
+}
+
+TEST_F(SymlinkAsLinkTest, TwoWaySyncCarriesTheChangedTextToTheSideThatDidNotChange)  // [SymlinkAsLinkTests.md#TwoWaySyncCarriesTheChangedTextToTheSideThatDidNotChange]
+{
+    fs::create_symlink("b.txt", source_ / "eins.txt");
+    fs::create_symlink("b.txt", source_ / "zwei.txt");
+    const SyncItem si = two_way_item();
+    SyncState state(si.source(), si.target());
+    Outcome first, second;
+    run(si, first, &state);
+    fs::remove(source_ / "eins.txt");
+    fs::create_symlink("echt/a.txt", source_ / "eins.txt");
+    fs::remove(target_ / "zwei.txt");
+    fs::create_symlink("echt/a.txt", target_ / "zwei.txt");
+
+    run(si, second, &state);
+
+    EXPECT_TRUE(second.report.successful());
+    EXPECT_EQ(fs::read_symlink(target_ / "eins.txt"), fs::path("echt/a.txt"));
+    EXPECT_EQ(fs::read_symlink(source_ / "zwei.txt"), fs::path("echt/a.txt"));
+    EXPECT_EQ(names_in(source_), (std::set<std::string>{"b.txt", "echt", "eins.txt", "zwei.txt"})) << "nothing parked is left";
+}
+
+TEST_F(SymlinkAsLinkTest, LinkChangedOnBothSidesKeepsBothAsAConflictCopy)  // [SymlinkAsLinkTests.md#LinkChangedOnBothSidesKeepsBothAsAConflictCopy]
+{
+    fs::create_symlink("b.txt", source_ / "zeiger");
+    const SyncItem si = two_way_item();
+    SyncState state(si.source(), si.target());
+    Outcome first, second, third;
+    run(si, first, &state);
+    fs::remove(source_ / "zeiger");
+    fs::create_symlink("echt/a.txt", source_ / "zeiger");
+    fs::remove(target_ / "zeiger");
+    fs::create_symlink("echt", target_ / "zeiger");
+
+    run(si, second, &state);
+    run(si, third, &state);
+
+    EXPECT_EQ(fs::read_symlink(source_ / "zeiger"), fs::path("echt/a.txt"));
+    EXPECT_EQ(fs::read_symlink(target_ / "zeiger"), fs::path("echt/a.txt")) << "the source's link wins the name";
+    ASSERT_EQ(names_in(target_).size(), 4u) << "b.txt, echt, zeiger and the conflict copy";
+    EXPECT_EQ(names_in(source_), names_in(target_)) << "the conflict copy travels to the source with the next pass";
+    for (const std::string& name : names_in(target_))
+        if (name.starts_with("zeiger ("))
+            EXPECT_EQ(fs::read_symlink(target_ / name), fs::path("echt")) << "the target's link is kept under the conflict name";
+}
+
+TEST_F(SymlinkAsLinkTest, LinkChangedOnBothSidesWithoutConflictCopiesIsLeftAndReported)  // [SymlinkAsLinkTests.md#LinkChangedOnBothSidesWithoutConflictCopiesIsLeftAndReported]
+{
+    fs::create_symlink("b.txt", source_ / "streit");
+    fs::create_symlink("echt", target_ / "streit");
+    SyncItem si = two_way_item();
+    si.conflict_copies(false);
+    Outcome outcome;
+
+    run(si, outcome);
+
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_EQ(fs::read_symlink(source_ / "streit"), fs::path("b.txt"));
+    EXPECT_EQ(fs::read_symlink(target_ / "streit"), fs::path("echt"));
+}
+
+TEST_F(SymlinkAsLinkTest, FileIsNotWrittenThroughALinkInTheTarget)  // [SymlinkAsLinkTests.md#FileIsNotWrittenThroughALinkInTheTarget]
+{
+    tu::write_text_file(root_ / "anderswo.txt", "fremd");
+    fs::create_symlink(root_ / "anderswo.txt", target_ / "b.txt");
+    Outcome kept, replaced;
+
+    run(item(), kept);
+
+    ASSERT_EQ(kept.report.errors().size(), 1u);
+    EXPECT_EQ(tu::read_text_file(root_ / "anderswo.txt"), "fremd") << "the copy must not land where the link points";
+    EXPECT_TRUE(fs::is_symlink(target_ / "b.txt"));
+    SyncItem si = item();
+    si.delete_in_target(true);
+
+    run(si, replaced);
+
+    EXPECT_TRUE(replaced.report.successful());
+    EXPECT_FALSE(fs::is_symlink(target_ / "b.txt"));
+    EXPECT_EQ(tu::read_text_file(target_ / "b.txt"), "b");
+    EXPECT_EQ(tu::read_text_file(root_ / "anderswo.txt"), "fremd");
+}
+
+TEST_F(SymlinkAsLinkTest, DefaultModeStillTakesATargetOnlyFileLinkForAFile)  // [SymlinkAsLinkTests.md#DefaultModeStillTakesATargetOnlyFileLinkForAFile]
+{
+    tu::write_text_file(root_ / "anderswo.txt", "fremd");
+    fs::create_symlink(root_ / "anderswo.txt", target_ / "nur-im-ziel.txt");
+    SyncItem si = two_way_item();
+    si.symlink_mode(SymlinkMode::FileContent);
+    Outcome outcome;
+
+    run(si, outcome);
+
+    EXPECT_FALSE(fs::is_symlink(source_ / "nur-im-ziel.txt")) << "the default mode copies content, as before";
+    EXPECT_EQ(tu::read_text_file(source_ / "nur-im-ziel.txt"), "fremd");
 }
 
 #ifdef __linux__

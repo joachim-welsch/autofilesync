@@ -992,6 +992,10 @@ msgid "link_created"
 msgstr "Collegamento creato:"
 
 #: AFS_Core/src/SyncLink.cpp
+msgid "link_removed"
+msgstr "Collegamento rimosso:"
+
+#: AFS_Core/src/SyncLink.cpp
 msgid "link_blocked_by_directory"
 msgstr "Collegamento non creato, nella destinazione c'è una cartella con lo stesso nome: "
 
@@ -1000,12 +1004,12 @@ msgid "link_create_failed"
 msgstr "Impossibile creare il collegamento: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_dir_is_link"
-msgstr "La cartella di destinazione è un collegamento simbolico e non viene modificata: "
+msgid "target_is_link"
+msgstr "Nella destinazione c'è un collegamento simbolico attraverso il quale non si scrive: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_link_replaced_by_dir"
-msgstr "Collegamento simbolico nella destinazione sostituito da una cartella:"
+msgid "target_link_replaced"
+msgstr "Collegamento simbolico nella destinazione sostituito:"
 
 #: AFS_Core/src/SyncLink.cpp
 msgid "links_not_supported_skipped"

@@ -62,6 +62,7 @@ class SyncFile: public SyncBase {
     bool perform(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination, uint64_t filesize);
     void update_state(PlannedAction action, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#state]
     void settle_state(const FileDifference& fd);
+    const FileState* file_base() const;  // [SyncFile.md#file-base]
     bool ensure_parent_dir(PlannedAction action, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#parent-of-a-kept-file]
     bool create_parent_dir(const std::wstring& path, bool ssh, bool in_source);
     bool rename_instead(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#renames]
@@ -70,7 +71,6 @@ class SyncFile: public SyncBase {
     bool rename_path(const std::wstring& from, const std::wstring& to, bool ssh, bool in_source);
     bool defer_deletion(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#deferred-deletions]
     bool resolve_conflict(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#conflict-copies]
-    std::wstring conflict_copy_name(const std::wstring& path, bool ssh) const;  // [SyncFile.md#conflict-copy-name]
     void record_pair(const std::wstring& key, const std::wstring& source, const std::wstring& destination);
     bool delete_target_file(const std::wstring& source, const std::wstring& destination);
     bool delete_source_file(const std::wstring& source, const std::wstring& destination);
@@ -87,6 +87,8 @@ public:
     void test_copy_dest_to_source(const std::wstring& destination, const std::wstring& source, uint64_t size = 0) { copy_dest_to_source(destination, source, size); }
 #endif
 };
+
+std::wstring conflict_copy_name(const std::wstring& path, bool ssh);  // [SyncFile.md#conflict-copy-name]
 
 #ifdef _TEST
 extern std::atomic<int> wait_for_updated_filetime_call_count;

@@ -991,6 +991,10 @@ msgid "link_created"
 msgstr ""
 
 #: AFS_Core/src/SyncLink.cpp
+msgid "link_removed"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
 msgid "link_blocked_by_directory"
 msgstr ""
 
@@ -999,11 +1003,11 @@ msgid "link_create_failed"
 msgstr ""
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_dir_is_link"
+msgid "target_is_link"
 msgstr ""
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_link_replaced_by_dir"
+msgid "target_link_replaced"
 msgstr ""
 
 #: AFS_Core/src/SyncLink.cpp

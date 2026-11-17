@@ -47,6 +47,9 @@ namespace {
     constexpr wchar_t EXTENSION[] = L".tsv";
     constexpr std::size_t HEADER_LINES = 3;
     constexpr std::size_t FILE_FIELDS = 4;
+    constexpr std::size_t LINK_FIELDS = 3;
+    constexpr wstring_view LINK_KEY = L"link";  // [SyncState.md#links]
+    constexpr int VERSION_WITHOUT_LINKS = 1;
     constexpr std::size_t MAX_DIGITS = 20;  // length of INT64_MIN and UINT64_MAX
 
     void append_escaped(wstring& text, wstring_view raw)  // [SyncState.md#line-format]
@@ -75,8 +78,20 @@ namespace {
         text += L'\n';
     }
 
+    void append_link(wstring& text, const wstring& path, const wstring& link)  // [SyncState.md#links]
+    {
+        text += LINK_KEY;
+        text += L'\t';
+        append_escaped(text, link);
+        text += L'\t';
+        append_escaped(text, path);
+        text += L'\n';
+    }
+
     void append_file(wstring& text, const wstring& path, const FileState& file)
     {
+        if (file.link)
+            return append_link(text, path, *file.link);
         append_field(text, file.size);
         append_field(text, file_time::to_unix_nanoseconds(file.source_time));
         append_field(text, file_time::to_unix_nanoseconds(file.target_time));
@@ -105,7 +120,8 @@ namespace {
 
     wstring text_of(const SyncState& state)
     {
-        wstring text = wstring(MAGIC) + L' ' + std::to_wstring(SyncState::FORMAT_VERSION) + L'\n';
+        const bool links = std::ranges::any_of(state.files(), [](const auto& file) { return file.second.link.has_value(); });
+        wstring text = wstring(MAGIC) + L' ' + std::to_wstring(links ? SyncState::FORMAT_VERSION : VERSION_WITHOUT_LINKS) + L'\n';  // [SyncState.md#links]
         append_header(text, SOURCE_KEY, state.source());
         append_header(text, TARGET_KEY, state.target());
         for (const auto& [path, file] : state.files())
@@ -177,6 +193,23 @@ namespace {
             throw std::runtime_error("written by a newer version of the program");
     }
 
+    bool link_line(wstring_view line)  // [SyncState.md#links]
+    {
+        return line.starts_with(LINK_KEY) && line.size() > LINK_KEY.size() && line[LINK_KEY.size()] == L'\t';
+    }
+
+    void add_line(FileStates& files, wstring_view line)
+    {
+        if (link_line(line)) {
+            const auto fields = fields_of<LINK_FIELDS>(line);
+            files.insert_or_assign(files.end(), unescaped(fields[2]), FileState{0, {}, {}, unescaped(fields[1])});
+            return;
+        }
+        const auto fields = fields_of<FILE_FIELDS>(line);
+        files.insert_or_assign(files.end(), unescaped(fields[3]), FileState{integer<uint64_t>(fields[0]),
+            file_time::from_unix_nanoseconds(integer<int64_t>(fields[1])), file_time::from_unix_nanoseconds(integer<int64_t>(fields[2])), std::nullopt});  // [SyncState.md#sorted-lines]
+    }
+
     SyncState state_of(const wstring& text)
     {
         const std::vector<wstring_view> lines = lines_of(text);
@@ -184,11 +217,8 @@ namespace {
             throw std::runtime_error("header incomplete");
         check_version(lines[0]);
         FileStates files;
-        for (std::size_t i = HEADER_LINES; i < lines.size(); ++i) {
-            const auto fields = fields_of<FILE_FIELDS>(lines[i]);
-            files.insert_or_assign(files.end(), unescaped(fields[3]), FileState{integer<uint64_t>(fields[0]),
-                file_time::from_unix_nanoseconds(integer<int64_t>(fields[1])), file_time::from_unix_nanoseconds(integer<int64_t>(fields[2]))});  // [SyncState.md#sorted-lines]
-        }
+        for (std::size_t i = HEADER_LINES; i < lines.size(); ++i)
+            add_line(files, lines[i]);
         return SyncState(header_value(lines[1], SOURCE_KEY), header_value(lines[2], TARGET_KEY), std::move(files));
     }
 }
@@ -197,7 +227,8 @@ SyncState::SyncState(wstring source, wstring target, FileStates files)
     : source_(std::move(source)), target_(std::move(target)), files_(std::move(files))
 {
     for (const auto& [path, file] : files_)
-        by_size_.emplace(file.size, path);
+        if (!file.link)  // [SyncState.md#links]
+            by_size_.emplace(file.size, path);
 }
 
 void SyncState::unindex(const wstring& path)
@@ -275,7 +306,8 @@ void SyncState::record(const wstring& path, const FileState& state)  // [SyncSta
     const auto [entry, inserted] = files_.try_emplace(path, state);
     changed_ = changed_ || inserted || entry->second != state;
     entry->second = state;
-    by_size_.emplace(state.size, path);
+    if (!state.link)  // [SyncState.md#links]
+        by_size_.emplace(state.size, path);
     seen_.insert(path);
 }
 

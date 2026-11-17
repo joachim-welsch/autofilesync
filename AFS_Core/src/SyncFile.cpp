@@ -673,7 +673,7 @@ void SyncFile::record_pair(const wstring& key, const wstring& source, const wstr
     state_->record(key, {observed_source->size, observed_source->time, observed_dest->time});
 }
 
-wstring SyncFile::conflict_copy_name(const wstring& path, bool ssh) const  // [SyncFile.md#conflict-copy-name]
+wstring conflict_copy_name(const wstring& path, bool ssh)  // [SyncFile.md#conflict-copy-name]
 {
     const std::size_t slash = path.find_last_of(L"/\\") + 1;
     const wstring dir = path.substr(0, slash), file = path.substr(slash);
@@ -829,6 +829,12 @@ bool SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     return true;
 }
 
+const FileState* SyncFile::file_base() const  // [SyncFile.md#file-base]
+{
+    const FileState* known = state_ != nullptr ? state_->find(state_key_) : nullptr;
+    return known != nullptr && known->link ? nullptr : known;
+}
+
 void SyncFile::operator()()
 {
     log_debug(L"SyncFile::operator()()");
@@ -844,7 +850,7 @@ void SyncFile::operator()()
             state_->seen(state_key_);
         if (leads_nowhere(source, ssh_source()) || leads_nowhere(destination, ssh_dest()))
             return;
-        FileDifference fd(source, destination, sync_item_.compare_items(), ssh_, sync_item_.two_way_sync(), state_ ? state_->find(state_key_) : nullptr);
+        FileDifference fd(source, destination, sync_item_.compare_items(), ssh_, sync_item_.two_way_sync(), file_base());
         const auto filesize = fd();
         sync_difference(fd, source, destination, filesize);
     } catch (const std::exception& ex) {

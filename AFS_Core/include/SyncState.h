@@ -31,6 +31,7 @@ struct FileState {  // [SyncState.md#FileState]
     uint64_t size = 0;
     std::filesystem::file_time_type source_time{};
     std::filesystem::file_time_type target_time{};
+    std::optional<std::wstring> link{};  // [SyncState.md#links]
     bool operator==(const FileState&) const = default;
 };
 
@@ -62,7 +63,7 @@ class SyncState {  // [SyncState.md#SyncState]
     bool pass_only_ = false;  // [SyncState.md#pass-only]
     void unindex(const std::wstring& path);
 public:
-    static constexpr int FORMAT_VERSION = 1;  // [SyncState.md#FORMAT_VERSION]
+    static constexpr int FORMAT_VERSION = 2;  // [SyncState.md#FORMAT_VERSION]
     SyncState() = default;
     SyncState(std::wstring source, std::wstring target, FileStates files = {});
     const std::wstring& source() const { return source_; }

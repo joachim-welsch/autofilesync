@@ -992,6 +992,10 @@ msgid "link_created"
 msgstr "Utworzono dowiązanie:"
 
 #: AFS_Core/src/SyncLink.cpp
+msgid "link_removed"
+msgstr "Usunięto dowiązanie:"
+
+#: AFS_Core/src/SyncLink.cpp
 msgid "link_blocked_by_directory"
 msgstr "Nie utworzono dowiązania, w miejscu docelowym jest folder o tej samej nazwie: "
 
@@ -1000,12 +1004,12 @@ msgid "link_create_failed"
 msgstr "Nie udało się utworzyć dowiązania: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_dir_is_link"
-msgstr "Folder docelowy jest dowiązaniem symbolicznym i nie jest zapisywany: "
+msgid "target_is_link"
+msgstr "W miejscu docelowym jest dowiązanie symboliczne, przez które nic nie jest zapisywane: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_link_replaced_by_dir"
-msgstr "Dowiązanie symboliczne w miejscu docelowym zastąpiono folderem:"
+msgid "target_link_replaced"
+msgstr "Zastąpiono dowiązanie symboliczne w miejscu docelowym:"
 
 #: AFS_Core/src/SyncLink.cpp
 msgid "links_not_supported_skipped"

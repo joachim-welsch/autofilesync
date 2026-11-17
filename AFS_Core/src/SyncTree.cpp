@@ -192,25 +192,11 @@ void SyncTree::sync_link_entry(const Entry& entry, const wstring& source, const 
     sync_link(source, with_trailing_char(targetname, target_separator()) + entry.name);
 }
 
-bool SyncTree::target_dir_usable(const wstring& target)  // [SyncTree.md#target-directory-is-a-link]
-{
-    std::error_code ec;
-    if (!links_as_links() || only_count_ || sync_item_.ssh_target() || !fs::is_symlink(fs::symlink_status(target, ec)))
-        return true;
-    if (sync_item_.delete_in_target() && fs::remove(target, ec)) {
-        log_info(translation::translate("target_link_replaced_by_dir"), target);
-        return true;
-    }
-    log_error(translation::translate("target_dir_is_link"), target);
-    report_sync_error(translation::translate("target_dir_is_link") + target);
-    return false;
-}
-
 void SyncTree::sync_subtree(const wstring& name, const wstring& sourcename, const wstring& targetname, const wstring& wildcard, const Names& target_dirs)
 {
     if (is_excluded(name, sync_item_.exclusions()))  // [SyncTree.md#excluded-directories]
         log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + name);
-    else if (target_dir_usable(with_trailing_char(targetname, target_separator()) + name))
+    else if (target_usable(with_trailing_char(targetname, target_separator()) + name))
         sync_tree(with_trailing_char(sourcename, source_separator()) + name, with_trailing_char(targetname, target_separator()) + name, wildcard,
             subtree_state(name, sourcename, target_dirs));
 }
@@ -219,7 +205,9 @@ void SyncTree::sync_file_entry(const wstring& name, const wstring& sourcename, c
 {
     if ((!wildcard.empty() && !wildmatch(name, wildcard)) || is_excluded(name, sync_item_.exclusions()))
         return;
-    sync_file(with_trailing_char(sourcename, source_separator()) + name, with_trailing_char(targetname, target_separator()) + name, wildcard);
+    const wstring target = with_trailing_char(targetname, target_separator()) + name;
+    if (target_usable(target))  // [SyncBase.md#target_usable]
+        sync_file(with_trailing_char(sourcename, source_separator()) + name, target, wildcard);
 }
 
 void SyncTree::sync_target_only_dirs(const wstring& sourcename, const wstring& targetname, const wstring& wildcard,

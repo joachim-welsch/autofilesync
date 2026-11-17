@@ -232,6 +232,12 @@ no error - a dead link is the user's to mend, not something the run failed at. T
 seen the path, so the pass after the link was mended finds what it knew. Links behind SSH are
 not asked this way yet.
 
+## file-base
+
+The state's entry for a path is the base of the three-way comparison only when it describes a
+file. An entry left by a link (SyncState.md#links) has no size and no times; taken as a base it
+would make both sides look changed.
+
 ## reported-once
 
 A target that is newer than its source is left alone unless the item copies

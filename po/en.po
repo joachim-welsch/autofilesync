@@ -1004,6 +1004,10 @@ msgid "link_created"
 msgstr "Link created:"
 
 #: AFS_Core/src/SyncLink.cpp
+msgid "link_removed"
+msgstr "Link removed:"
+
+#: AFS_Core/src/SyncLink.cpp
 msgid "link_blocked_by_directory"
 msgstr "Link not created, the target has a folder of the same name: "
 
@@ -1012,12 +1016,12 @@ msgid "link_create_failed"
 msgstr "The link could not be created: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_dir_is_link"
-msgstr "The target folder is a symbolic link and is not written to: "
+msgid "target_is_link"
+msgstr "The target holds a symbolic link that is not written through: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_link_replaced_by_dir"
-msgstr "Symbolic link in the target replaced by a folder:"
+msgid "target_link_replaced"
+msgstr "Symbolic link in the target replaced:"
 
 #: AFS_Core/src/SyncLink.cpp
 msgid "links_not_supported_skipped"

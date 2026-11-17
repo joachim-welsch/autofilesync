@@ -82,3 +82,11 @@ unseen to prune.
 The deferred deletions and directory removals (SyncState.md#pass-notebook): a claim takes a
 deletion out once, a deletion for a renamed key is dropped, take_*() hands everything over and
 empties the notebook, and none of it marks the state as changed.
+
+## links
+
+SyncState.md#links. The round trip includes a text with a tab, a line break and a backslash
+and an empty text, which is still a link. A state without links must start with version 1 and
+one with a link with version 2. A link line is read from a hand-written file, and one with too
+few fields discards the file like any malformed line. The size index must not offer a link
+where an empty file is looked for.

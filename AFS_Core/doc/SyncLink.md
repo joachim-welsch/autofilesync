@@ -7,8 +7,7 @@ Module comment for SyncLink.h / SyncLink.cpp.
 Carries one symbolic link to the other side as a link, for an item whose links are to be kept
 as links (SyncItem.md#symlink_mode_). It is the counterpart of SyncFile for an entry that has
 no content, no size and no time worth comparing: the only thing two links can differ in is
-their text. The source is the master; the state, the way back and deletions are not handled
-here yet.
+their text (decide).
 
 The text that is compared and written is the portable one (SymlinkUtil.md#portable_link_text):
 an absolute link into the synchronised tree becomes relative, so the link in the target leads
@@ -16,6 +15,38 @@ to the copy and not back into the source, and the link in the source is never re
 target's link is read through the same rule with the target's root, so a pair that was brought
 in line stays equal. A link that leads nowhere is carried over like any other - whether it
 leads somewhere is the user's business, and it may well do so on the other side.
+
+## decide
+
+What is done with a pair, from what lies on each side under the name - a link with its portable
+text, something else, or nothing - and, for a two-way item, the text the state remembers
+(SyncState.md#links). Two links with the same text are settled: the state records the text.
+One-way, the source's link goes to the target whatever is there, and a link only the target
+has is left alone unless "delete in target" is set. Two-way, the state tells a change from the
+other side's change and a missing link from a deleted one: the side that still has the
+remembered text is the one that did not change, so the other side's text is carried to it, or
+the other side's deletion repeated on it. Without a remembered text a link that only one side
+has is new and is created on the other - never deleted, since nothing says it was ever there.
+Two links that both differ from the remembered text, or differ with nothing remembered, and a
+link that meets a file in a two-way item, are a conflict. A name that holds something else
+than a link in the source is not this module's business; the file pass handles it
+(SyncBase.md#target_usable).
+
+## remove
+
+A deletion is put off to the end of the pass like a file's when the item keeps a state
+(SyncFile.md#deferred-deletions), with zero bytes: it then counts for the guard against mass
+deletions and is carried out by the same code, which removes the link itself and never what it
+points to. Without a state it is carried out or planned at once.
+
+## conflict
+
+With conflict copies the target's entry is renamed to the conflict name a file would get
+(SyncFile.md#conflict-copy-name) and the source's link takes the name; the renamed entry is
+then new in the target and travels to the source with the next pass, like any new link or
+file. A link has no time that could say which side is newer, so the source wins the name by
+rule, and nothing is lost either way. Without conflict copies both sides stay as they are and
+the pair is an error of every run until the user settles it; the log gets the line once.
 
 ## local-only
 

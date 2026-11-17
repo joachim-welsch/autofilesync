@@ -1004,6 +1004,10 @@ msgid "link_created"
 msgstr "Verweis angelegt:"
 
 #: AFS_Core/src/SyncLink.cpp
+msgid "link_removed"
+msgstr "Verweis entfernt:"
+
+#: AFS_Core/src/SyncLink.cpp
 msgid "link_blocked_by_directory"
 msgstr "Verweis nicht angelegt, im Ziel liegt ein Verzeichnis gleichen Namens: "
 
@@ -1012,12 +1016,12 @@ msgid "link_create_failed"
 msgstr "Verweis konnte nicht angelegt werden: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_dir_is_link"
-msgstr "Zielverzeichnis ist ein symbolischer Link und wird nicht beschrieben: "
+msgid "target_is_link"
+msgstr "Im Ziel liegt ein symbolischer Link, durch den nicht geschrieben wird: "
 
 #: AFS_Core/src/SyncLink.cpp
-msgid "target_link_replaced_by_dir"
-msgstr "Symbolischer Link im Ziel durch Verzeichnis ersetzt:"
+msgid "target_link_replaced"
+msgstr "Symbolischer Link im Ziel ersetzt:"
 
 #: AFS_Core/src/SyncLink.cpp
 msgid "links_not_supported_skipped"

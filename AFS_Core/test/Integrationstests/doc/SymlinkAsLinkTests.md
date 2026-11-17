@@ -2,7 +2,7 @@
 
 Module comment for SymlinkAsLinkTests.cpp.
 
-The mode that carries symbolic links over as links (SyncLink.md), local and one-way. Unix
+The mode that carries symbolic links over as links (SyncLink.md), local. Unix
 only: creating a symbolic link is a privilege on Windows.
 
 ## LinkError
@@ -85,8 +85,51 @@ Exclusions hold for a link to a file and for one to a directory.
 
 ## TargetDirectoryThatIsALinkIsNotWrittenThrough
 
-SyncTree.md#target-directory-is-a-link, both halves: without "delete in target" an error and
+SyncBase.md#target_usable, both halves: without "delete in target" an error and
 nothing where the link points, with it the link replaced by the real directory.
+
+## DeleteInTargetRemovesLinksTheSourceNoLongerHas
+
+Three links only the target has - to a file, to a directory, to nothing. Without the option
+they stay; with it all three go and what they pointed to stays (SyncBase.md#target-only-links).
+
+## TwoWaySyncCarriesANewTargetLinkToTheSource
+
+A link made in the target after the first pass arrives in the source, the absolute one made
+relative by the target's root; the third pass is idle and the state holds the text.
+
+## TwoWaySyncDeletesTheLinkOnTheOtherSide
+
+Both directions in one pass: the state remembers the text, so the link that is gone on one
+side was deleted there and goes on the other (SyncLink.md#decide).
+
+## TwoWaySyncWithoutStateBringsAMissingLinkBackInsteadOfDeleting
+
+The safe reading without a state: a link only one side has is new.
+
+## TwoWaySyncCarriesTheChangedTextToTheSideThatDidNotChange
+
+One link retargeted in the source, another in the target; each change arrives on the other
+side and nothing parked is left in the source.
+
+## LinkChangedOnBothSidesKeepsBothAsAConflictCopy
+
+SyncLink.md#conflict. The conflict name holds the date and the host, so the test looks for the
+entry that begins like the link; after the second pass both sides hold the same four names.
+
+## LinkChangedOnBothSidesWithoutConflictCopiesIsLeftAndReported
+
+No state and two different texts: nothing says which is newer, both stay, one error.
+
+## FileIsNotWrittenThroughALinkInTheTarget
+
+The file counterpart of TargetDirectoryThatIsALinkIsNotWrittenThrough: the file the target's
+link points to keeps its content in both halves.
+
+## DefaultModeStillTakesATargetOnlyFileLinkForAFile
+
+The reverse pass changed for the mode "as link" only; the default mode copies the content
+back as it always did.
 
 ## SystemLinksAreSkippedAndNamedOnce
 

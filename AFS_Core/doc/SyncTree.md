@@ -71,15 +71,6 @@ nothing - is handed to SyncLink (SyncBase.md#sync_link) instead of being followe
 An excluded name is left out like any other; the wildcard applies to a link to a file, not to
 one to a directory, as it does not apply to directories.
 
-## target-directory-is-a-link
-
-When links are kept as links, a link in the target under the name of a real source directory
-is not the directory the source has, and writing "into" it would put the files wherever it
-points - outside the target tree. With "delete in target" the link gives way: it is removed
-and the directory created in its place. Otherwise the user has not allowed anything in the
-target to be removed, so it is one error and the subtree is left out. The item's own target
-directory may be a link; the user named it.
-
 ## excluded-directories
 
 An excluded directory is skipped as a whole, not filtered per contained file: a subtree like
