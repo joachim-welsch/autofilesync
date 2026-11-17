@@ -229,7 +229,11 @@ TEST(CheckPathTests, LocalSourceHasToExistAndTargetOnlyItsDirectory)  // [CheckP
     EXPECT_TRUE(CheckPath()(source, (tree.path / "ziel").wstring(), false));
     EXPECT_TRUE(CheckPath()(source, (tree.path / "neu").wstring(), false)) << "the sync creates a missing target directory itself";
     EXPECT_TRUE(CheckPath()(source, (tree.path / "neu").wstring() + L"/", false)) << "a trailing separator names the same directory";
+#ifdef _UNIX
     EXPECT_FALSE(CheckPath()(source, (tree.path / "fehlt" / "neu").wstring(), false)) << "a target below a missing directory is not there";
+#else
+    EXPECT_TRUE(CheckPath()(source, (tree.path / "fehlt" / "neu").wstring(), false)) << "the drive letter alone proves the drive";
+#endif
     EXPECT_FALSE(CheckPath()((tree.path / "fehlt").wstring(), (tree.path / "ziel").wstring(), false));
     EXPECT_FALSE(fs::exists(tree.path / "neu")) << "the check itself creates nothing";
 }

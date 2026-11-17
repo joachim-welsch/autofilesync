@@ -1639,13 +1639,18 @@ static fsu::FileInfoResult link_refusal(LIBSSH2_SFTP* sftp)
     return refusal == LIBSSH2_FX_NO_SUCH_FILE ? fsu::FileInfoResult::FileNotExist : fsu::FileInfoResult::ErrorWriteFileInfo;
 }
 
+static int sftp_symlink(LIBSSH2_SFTP* sftp, const std::string& first, std::string second)  // by value: libssh2 before 1.11 declares the second path as char*
+{
+    return libssh2_sftp_symlink(sftp, first.c_str(), second.data());
+}
+
 static fsu::FileInfoResult created_link(LIBSSH2_SFTP* sftp, const std::string& text, const std::string& at)  // [SyncFileSsh.md#links-windows]
 {
-    if (libssh2_sftp_symlink(sftp, text.c_str(), at.c_str()) != 0)
+    if (sftp_symlink(sftp, text, at) != 0)
         return link_refusal(sftp);
     if (link_text_at(sftp, at) == text)
         return fsu::FileInfoResult::OK;
-    if (!stray_link_removed(sftp, text, at) || libssh2_sftp_symlink(sftp, at.c_str(), text.c_str()) != 0)
+    if (!stray_link_removed(sftp, text, at) || sftp_symlink(sftp, at, text) != 0)
         return fsu::FileInfoResult::ErrorWriteFileInfo;
     return link_text_at(sftp, at) == text ? fsu::FileInfoResult::OK : fsu::FileInfoResult::ErrorWriteFileInfo;
 }

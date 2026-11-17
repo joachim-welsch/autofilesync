@@ -200,7 +200,11 @@ TEST(FilesystemUtilTests, ReasonForWriteFailureKeepsKnownReasonsAndCallsTheRestA
     EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::permission_denied)), FileInfoResult::PermissionDenied);
     EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::no_such_file_or_directory)), FileInfoResult::FileNotExist);
     EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::no_space_on_device)), FileInfoResult::DiskFull);
-    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::device_or_resource_busy)), fsu::reason_for_failure(std::make_error_code(std::errc::device_or_resource_busy)));
+#ifdef WIN32
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::device_or_resource_busy)), FileInfoResult::ErrorWriteFileInfo);
+#else
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::device_or_resource_busy)), FileInfoResult::FileLocked);
+#endif
 }
 
 TEST_F(FilesystemUtilTest, WriteTimeRefusalSetsTheTimeOrSaysWhyNot)  // [FilesystemUtilTests.md#WriteTimeRefusalSetsTheTimeOrSaysWhyNot]

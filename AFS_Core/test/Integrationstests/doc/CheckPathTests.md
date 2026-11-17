@@ -101,4 +101,5 @@ SyncDir and SyncTree themselves.
 ## LocalSourceHasToExistAndTargetOnlyItsDirectory
 
 The local rules of CheckPath.md#path_exists on a mounted drive. A fresh CheckPath per
-question keeps the cache of operator()() out of it.
+question keeps the cache of operator()() out of it. A target below a missing directory is
+refused on Unix only; on Windows the existing drive is enough (CheckPath.md#target-need-not-exist).

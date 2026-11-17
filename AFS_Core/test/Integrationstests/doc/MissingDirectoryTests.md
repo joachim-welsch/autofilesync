@@ -27,6 +27,13 @@ user creating the folder by hand.
 
 More than the target directory itself is missing: this is how a drive looks that was pulled
 and that no fstab knows. Creating the whole chain would put the backup on the wrong disk.
+Unix only; Windows has its own rule (TargetBelowAMissingDirectoryIsCreatedOnAnExistingDrive).
+
+## TargetBelowAMissingDirectoryIsCreatedOnAnExistingDrive
+
+Windows only: a pulled drive takes its letter with it, so a path on an existing drive cannot
+lie on the wrong disk (CheckPath.md#target-need-not-exist). The whole missing chain is created
+and filled.
 
 ## MissingSourceDirectoryDeletesNothingInTheTarget
 

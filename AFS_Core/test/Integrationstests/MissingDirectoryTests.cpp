@@ -147,6 +147,7 @@ TEST_F(MissingDirectoryTest, MissingTargetFileOfAFileItemIsCopied)
     EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "a");
 }
 
+#ifdef _UNIX
 TEST_F(MissingDirectoryTest, TargetBelowAMissingDirectoryIsUnreachableAndCreatesNothing)  // [MissingDirectoryTests.md#TargetBelowAMissingDirectoryIsUnreachableAndCreatesNothing]
 {
     write_three_source_files();
@@ -159,6 +160,20 @@ TEST_F(MissingDirectoryTest, TargetBelowAMissingDirectoryIsUnreachableAndCreates
     EXPECT_FALSE(run.reachable);
     EXPECT_FALSE(fs::exists(root_ / "fehlt"));
 }
+#else
+TEST_F(MissingDirectoryTest, TargetBelowAMissingDirectoryIsCreatedOnAnExistingDrive)  // [MissingDirectoryTests.md#TargetBelowAMissingDirectoryIsCreatedOnAnExistingDrive]
+{
+    write_three_source_files();
+    SyncItem si = item(SyncItemType::Tree);
+    si.target((root_ / "fehlt" / "target").wstring());
+    Config::instance().add(si);
+
+    const LastRun run = run_pass();
+
+    EXPECT_TRUE(run.reachable);
+    EXPECT_TRUE(three_files_in(root_ / "fehlt" / "target"));
+}
+#endif
 
 TEST_F(MissingDirectoryTest, MissingSourceDirectoryDeletesNothingInTheTarget)  // [MissingDirectoryTests.md#MissingSourceDirectoryDeletesNothingInTheTarget]
 {

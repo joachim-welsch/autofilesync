@@ -70,7 +70,8 @@ the test takes it back (DiskFullTests.md#FreeSpace).
 
 A failed write must not be reported as a read error, and a reason the system does name -
 no right, no room, a lock, a missing file - must not disappear behind the general one. The
-busy device is compared with reason_for_failure() because only Unix counts it as a lock.
+busy device is a lock on Unix only; Windows does not count it as one, so there it is one of
+"the rest" and has to come out as a write error.
 
 ## WriteTimeRefusalSetsTheTimeOrSaysWhyNot
 
