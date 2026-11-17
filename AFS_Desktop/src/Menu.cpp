@@ -67,7 +67,6 @@ wxMenu* Menu::create_file_menu()
     wxMenu* file_menu = new wxMenu;  // [Menu.md#structure]
     file_menu->Append(tul(id::File_new_Synchronization), with_shortcut(translate("menu_new_synchronisation"), "Ctrl+N"));
     file_menu->Append(tul(id::File_new_SshConnection), translate("menu_new_ssh_connection"));
-    file_menu->Append(tul(id::File_new_StorageBoxConnection), translate("menu_new_storage_box_connection"));
     file_menu->Append(tul(id::File_new_WebDavConnection), translate("menu_new_webdav_connection"));
     file_menu->Append(tul(id::File_new_GoogleDriveConnection), translate("menu_new_google_drive_connection"));
     file_menu->Append(tul(id::File_new_OneDriveConnection), translate("menu_new_one_drive_connection"));

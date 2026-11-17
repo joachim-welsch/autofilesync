@@ -2413,22 +2413,6 @@ msgstr "S3: сховища не існує; створіть його в пос�
 msgid "s3_folder_not_renamable"
 msgstr "S3: папки не можна перейменовувати: "
 
-#: AFS_Desktop/src/Menu.cpp
-msgid "menu_new_storage_box_connection"
-msgstr "Нове з'єднання Hetzner Storage Box…"
-
-#: AFS_Desktop/include/TextResources.h
-msgid "title_add_storage_box_connection"
-msgstr "Додати Hetzner Storage Box"
-
-#: AFS_Desktop/src/SshAccountDialog.cpp
-msgid "storage_box_hint"
-msgstr "Ім'я користувача й пароль показано в консолі Hetzner біля Storage Box, наприклад u123456 або u123456-sub1 для субоблікового запису. Там має бути ввімкнено «зовнішню доступність». Адреса сервера випливає з імені користувача."
-
-#: AFS_Desktop/src/SshAccountDialog.cpp
-msgid "storage_box_user_invalid"
-msgstr "Ім'я користувача Storage Box має вигляд u123456 або u123456-sub1."
-
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Телефон"

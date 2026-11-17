@@ -58,11 +58,6 @@
   Teilen hoch. S3 hat keinen Papierkorb: Gelöschtes ist weg, außer der
   Anbieter führt Versionen. Eine Registrierung beim Anbieter des Programms ist
   hier nicht nötig.
-- Hetzner Storage Box: „Datei → Neue Hetzner-Storage-Box-Verbindung…“ legt
-  eine SFTP-Verbindung zu einer Storage Box an und fragt dafür nur nach
-  Benutzername (etwa u123456 oder u123456-sub1) und Passwort; Adresse und Port
-  ergeben sich daraus. Die Verbindung ist danach eine gewöhnliche
-  SSH-Verbindung.
 - Behoben: Die Anmeldung an einer Nextcloud scheiterte mit „HTTP 405“, wenn
   die Adresse des Servers statt der WebDAV-Adresse eingetragen war. Die
   Verbindungsprüfung findet die WebDAV-Adresse bei Nextcloud und ownCloud jetzt

@@ -2392,22 +2392,6 @@ msgstr ""
 msgid "s3_folder_not_renamable"
 msgstr ""
 
-#: AFS_Desktop/src/Menu.cpp
-msgid "menu_new_storage_box_connection"
-msgstr ""
-
-#: AFS_Desktop/include/TextResources.h
-msgid "title_add_storage_box_connection"
-msgstr ""
-
-#: AFS_Desktop/src/SshAccountDialog.cpp
-msgid "storage_box_hint"
-msgstr ""
-
-#: AFS_Desktop/src/SshAccountDialog.cpp
-msgid "storage_box_user_invalid"
-msgstr ""
-
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr ""

@@ -31,9 +31,7 @@ namespace AFS_Core { class SshAccount; }
 
 using namespace AFS_Core;
 
-std::optional<wxString> validate_ssh_account_name(const wxString& name);
-bool storage_box_user(const wxString& user);  // [SshAccountDialog.md#storage-box]
-wxString storage_box_host(const wxString& user);  // [SshAccountDialog.md#storage-box]  // [SshAccountDialog.md#validate_ssh_account_name]
+std::optional<wxString> validate_ssh_account_name(const wxString& name);  // [SshAccountDialog.md#validate_ssh_account_name]
 
 class SshAccountDialog : public wxDialog {
 public:
@@ -52,7 +50,6 @@ public:
     wxString password() const { return password_; }
 
     void save_data(SshAccount& account);
-    void use_storage_box_preset();  // [SshAccountDialog.md#storage-box]
 
 private:
     bool TransferDataToWindow() override;
@@ -61,7 +58,6 @@ private:
 
     void on_update_ok_button(wxUpdateUIEvent& event);
     void set_data(const SshAccount& account);
-    bool storage_box_address_filled();  // [SshAccountDialog.md#storage-box]
     bool host_key_confirmed();  // [SshAccountDialog.md#host-key-confirmation]
 
     wxString name_;
@@ -75,8 +71,6 @@ private:
     wxTextCtrl* user_box_ = nullptr;
     wxTextCtrl* host_box_ = nullptr;
     wxSpinCtrl* port_box_ = nullptr;
-    wxSizer* host_row_ = nullptr;
-    bool storage_box_ = false;  // [SshAccountDialog.md#storage-box]
     wxTextCtrl* password_box_ = nullptr;
 
     DECLARE_EVENT_TABLE()

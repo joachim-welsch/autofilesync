@@ -42,7 +42,6 @@ inline wxString add_dropbox_connection() { return Utilities::translation::transl
 inline wxString edit_dropbox_connection() { return Utilities::translation::translate("title_edit_dropbox_connection"); }
 inline wxString add_s3_connection() { return Utilities::translation::translate("title_add_s3_connection"); }
 inline wxString edit_s3_connection() { return Utilities::translation::translate("title_edit_s3_connection"); }
-inline wxString add_storage_box_connection() { return Utilities::translation::translate("title_add_storage_box_connection"); }
 inline wxString restore_files() { return Utilities::translation::translate("title_restore_files"); }
 inline wxString phone_templates() { return Utilities::translation::translate("title_phone_templates"); }
 inline wxString settings() { return Utilities::translation::translate("title_settings"); }

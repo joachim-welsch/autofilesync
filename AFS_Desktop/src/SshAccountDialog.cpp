@@ -23,7 +23,6 @@
 #include "Translation.h"
 #include "StrUtil.h"
 #include "utilwx.h"
-#include <algorithm>
 
 using namespace AFS_Core;
 
@@ -60,7 +59,6 @@ SshAccountDialog::SshAccountDialog(SshAccount* ssh_account, wxWindow* parent, wx
     port_box_ = new wxSpinCtrl(this, ID_SSH_PORT_BOX, "22", wxDefaultPosition, wxSize(FromDIP(90), -1), wxSP_ARROW_KEYS, 1, 65535, 22);
     host_sizer->Add(port_box_, 0, wxLEFT, 4);
     main_sizer->Add(host_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
-    host_row_ = host_sizer;
 
     wxBoxSizer* user_sizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* user_label = new wxStaticText(this, wxID_STATIC, utilwx::field_label("user"));
@@ -153,61 +151,8 @@ std::optional<wxString> validate_ssh_account_name(const wxString& name)
     return std::nullopt;
 }
 
-namespace {
-constexpr char STORAGE_BOX_DOMAIN[] = ".your-storagebox.de";
-constexpr int STORAGE_BOX_PORT = 22;  // [SshAccountDialog.md#storage-box]
-constexpr char STORAGE_BOX_SUB_ACCOUNT[] = "-sub";
-constexpr int STORAGE_BOX_HINT_WIDTH = 390;
-
-bool digits(const wxString& text)
-{
-    return !text.empty() && std::all_of(text.begin(), text.end(), [](wxUniChar c) { return c >= '0' && c <= '9'; });
-}
-}
-
-bool storage_box_user(const wxString& user)  // [SshAccountDialog.md#storage-box]
-{
-    if (!user.StartsWith("u"))
-        return false;
-    const wxString number = user.Mid(1).BeforeFirst('-');
-    const wxString rest = user.Mid(1 + number.length());
-    return digits(number) && (rest.empty() || (rest.StartsWith(STORAGE_BOX_SUB_ACCOUNT) && digits(rest.Mid(std::char_traits<char>::length(STORAGE_BOX_SUB_ACCOUNT)))));
-}
-
-wxString storage_box_host(const wxString& user)
-{
-    return user + STORAGE_BOX_DOMAIN;
-}
-
-void SshAccountDialog::use_storage_box_preset()  // [SshAccountDialog.md#storage-box]
-{
-    storage_box_ = true;
-    GetSizer()->Hide(host_row_);
-    wxStaticText* hint = new wxStaticText(this, wxID_STATIC, translation::translate("storage_box_hint"));
-    hint->Wrap(FromDIP(STORAGE_BOX_HINT_WIDTH));
-    GetSizer()->Insert(GetSizer()->GetItemCount() - 1, hint, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
-    Layout();
-    Fit();
-}
-
-bool SshAccountDialog::storage_box_address_filled()  // [SshAccountDialog.md#storage-box]
-{
-    const wxString user = user_box_->GetValue().Strip(wxString::both).Lower();
-    if (!storage_box_user(user)) {
-        wxMessageBox(translation::translate("storage_box_user_invalid"), translation::translate("validation_error"), wxOK | wxICON_WARNING, this);
-        user_box_->SetFocus();
-        return false;
-    }
-    user_box_->ChangeValue(user);
-    host_box_->ChangeValue(storage_box_host(user));
-    port_box_->SetValue(STORAGE_BOX_PORT);
-    return true;
-}
-
 bool SshAccountDialog::Validate()
 {
-    if (storage_box_ && !storage_box_address_filled())
-        return false;
     wxString name = name_box_->GetValue();
 
     if (auto err = validate_ssh_account_name(name)) {
@@ -265,5 +210,5 @@ bool SshAccountDialog::host_key_confirmed()  // [SshAccountDialog.md#host-key-co
 
 void SshAccountDialog::on_update_ok_button(wxUpdateUIEvent& event)
 {
-    event.Enable((storage_box_ || !host_box_->GetValue().IsEmpty()) && !user_box_->GetValue().IsEmpty());
+    event.Enable(!host_box_->GetValue().IsEmpty() && !user_box_->GetValue().IsEmpty());
 }

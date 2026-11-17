@@ -56,15 +56,3 @@ from a process with no user to ask at all. A changed key for an account that alr
 gets the alarming wording: a reinstalled server is the harmless reason, an attack the other one.
 When the server cannot be reached the user may still save: a connection is often set up before
 the NAS is switched on, and the key is then taken at the first contact as before.
-
-## storage-box
-
-A Hetzner Storage Box is an SFTP server like any other, and the SSH connection reaches it
-without any change to the engine: it uses nothing but the SFTP subsystem and a password. What a
-newcomer does not know is the address, so "Datei → Neue Hetzner-Storage-Box-Verbindung…" opens
-this dialog without the fields for host and port and works them out. The host is the user name
-followed by ".your-storagebox.de", for the main account ("u123456") and for a sub-account
-("u123456-sub1") alike. The port is 22, where the box offers SFTP as soon as "external
-reachability" is switched on; port 23 would need the box's separate SSH support. A name of
-another shape is refused before any connection is tried, since it would lead to a host that
-does not exist. The saved connection is an ordinary SSH connection and is edited as one.

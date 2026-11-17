@@ -252,7 +252,6 @@
     <ClCompile Include="RestoreDialogTest.cpp" />
     <ClCompile Include="WebDavAccountTest.cpp" />
     <ClCompile Include="S3AccountTest.cpp" />
-    <ClCompile Include="StorageBoxTest.cpp" />
     <ClCompile Include="OAuthAccountTest.cpp" />
     <ClCompile Include="ViewsTest.cpp" />
     <ClCompile Include="ConfigFileTest.cpp" />

@@ -2413,22 +2413,6 @@ msgstr "S3: el contenedor no existe; créalo con tu proveedor: "
 msgid "s3_folder_not_renamable"
 msgstr "S3: las carpetas no se pueden renombrar: "
 
-#: AFS_Desktop/src/Menu.cpp
-msgid "menu_new_storage_box_connection"
-msgstr "Nueva conexión de Hetzner Storage Box…"
-
-#: AFS_Desktop/include/TextResources.h
-msgid "title_add_storage_box_connection"
-msgstr "Añadir Hetzner Storage Box"
-
-#: AFS_Desktop/src/SshAccountDialog.cpp
-msgid "storage_box_hint"
-msgstr "El nombre de usuario y la contraseña están en la consola de Hetzner, en la Storage Box, por ejemplo u123456 o u123456-sub1 para una subcuenta. Allí debe estar activada la «accesibilidad externa». La dirección del servidor se deduce del nombre de usuario."
-
-#: AFS_Desktop/src/SshAccountDialog.cpp
-msgid "storage_box_user_invalid"
-msgstr "El nombre de usuario de una Storage Box tiene la forma u123456 o u123456-sub1."
-
 #: AFS_Desktop/src/PhoneDirDialog.cpp
 msgid "phone_dir_phone"
 msgstr "Móvil"
