@@ -103,3 +103,17 @@ right away: a backup rarely belongs in the top level of a cloud folder, and the 
 Google Drive cannot be written to at all, only "My Drive" below it. The button stands at the
 target only. A cloud folder as the source can hold files that exist only online, and reading
 them would download the whole cloud; whoever wants that can still pick the folder by hand.
+
+## symlink-mode
+
+How the item treats symbolic links (SyncItem.md#symlink_mode_): a choice of the three modes on
+the options page, with the default first, and under it one line that says what the chosen mode
+costs - that a target without links skips them, or that following a link may copy far more
+than the folder that was chosen. The default needs no line, so none is shown for it.
+
+The locks: with the type "file" there is nothing to choose, because the file the item names is
+always followed; the choice falls back to the default and is disabled. "Follow the link"
+unticks and locks two-way sync and "delete after copying", like the other options that rule
+each other out, since the core does not follow links for such an item
+(SyncBase.md#follows_links). A stored item that has both anyway is shown with the default
+mode, which is how the core runs it.

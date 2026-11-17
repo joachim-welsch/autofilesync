@@ -218,4 +218,28 @@ TEST_F(GuiTest, VorschauZeigtUmbenennungUndLoeschungInDerQuelleBeiZweiWege)  // 
     EXPECT_EQ(tree.entries(), before) << "Die Vorschau hat das Dateisystem verändert.";
 }
 
+#ifdef _UNIX
+TEST_F(GuiTest, VorschauKennzeichnetEinenVerweis)  // [PreviewTest.md#VorschauKennzeichnetEinenVerweis]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "vorschau-verweis", {{"quelle/b.txt", "b"}, {"ziel/b.txt", "b"}});
+    std::filesystem::last_write_time(tree.path("ziel/b.txt"), std::filesystem::last_write_time(tree.path("quelle/b.txt")));
+    std::filesystem::create_symlink("b.txt", tree.path("quelle/zeiger.txt"));
+    SyncItemInput input = dir_sync(tree, "guitest-vorschau-verweis");
+    input.options.symlink_mode = SymlinkMode::AsLink;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+
+    std::vector<ShownStep> steps;
+    ModalDialogWatcher::instance().expect(translation::translate("preview_title"), [&](wxDialog& dialog) {
+        steps = shown_steps(dialog);
+        click_on(find(dialog, wxID_CANCEL));
+    });
+    ASSERT_TRUE(preview(main_window())) << "Die Vorschau kam nicht zur Ruhe.";
+
+    ASSERT_EQ(steps.size(), 1u) << "Nur der Link fehlt im Ziel.";
+    EXPECT_EQ(steps[0].action, wxString(translation::translate("preview_copy_to_target") + L" " + translation::translate("preview_link_suffix")));
+    EXPECT_EQ(steps[0].file, "zeiger.txt");
+    EXPECT_FALSE(std::filesystem::exists(std::filesystem::symlink_status(tree.path("ziel/zeiger.txt")))) << "Die Vorschau hat den Link angelegt.";
+}
+#endif
+
 }

@@ -155,6 +155,23 @@ tolerancję na 0, o ile obie strony zapisują czas z tą samą dokładnością.<
     <td>Czas oczekiwania między dwoma przebiegami synchronizacji ciągłej,
         ustawiany od 1 do 60 sekund. Krótkie przerwy szybciej wykrywają zmiany,
         ale bardziej obciążają nośniki i sieć.</td></tr>
+
+<tr><td valign="top"><b><a name="symlinks"></a>Dowiązania symboliczne</b></td>
+    <td>Co dzieje się z dowiązaniami symbolicznymi. <b>Kopiuj dowiązania do plików
+        jako pliki, pomijaj dowiązania do folderów</b> to ustawienie domyślne i
+        dotychczasowe zachowanie. <b>Zachowaj jako dowiązania</b> tworzy w miejscu
+        docelowym ponownie dowiązanie: dowiązanie wskazujące do synchronizowanego
+        folderu staje się względne, aby prowadziło do kopii; dowiązanie wskazujące
+        poza folder pozostaje bez zmian i jest zgłaszane. Miejsca docelowe bez
+        dowiązań symbolicznych – chmura, dyski FAT i exFAT – pomijają je z jednym
+        ostrzeżeniem na przebieg; zawartość nie jest kopiowana w zamian.
+        <b>Podążaj za dowiązaniem</b> kopiuje także to, co znajduje się za
+        dowiązaniem do folderu – może to być znacznie więcej niż wybrany folder.
+        Dowiązania tworzące pętlę lub prowadzące do folderu docelowego nie są
+        odwiedzane. Tego ustawienia nie ma razem z synchronizacją dwukierunkową
+        ani z usuwaniem źródła po skopiowaniu. Dowiązania do katalogów systemowych
+        i prowadzące donikąd są zawsze pomijane. Przy typie Plik nie ma czego
+        wybierać.</td></tr>
 </table>
 
 <h2><a name="twoway"></a>Synchronizacja dwukierunkowa w szczegółach</h2>

@@ -71,6 +71,10 @@
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Liens symboliques">
+      <PARAM name="Local" value="options.html#symlinks">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Mode de suppression et corbeille">
       <PARAM name="Local" value="settings.html">
     </OBJECT></LI>

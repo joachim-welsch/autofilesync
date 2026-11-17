@@ -78,6 +78,10 @@ bool enter_options(wxDialog& dialog, const SyncItemOptions& options)  // [SyncIt
         { options.conflict_copies, ID_CONFLICT_COPIES_CHECK, "Bei Konflikten beide Fassungen behalten" },
         { options.watch_changes, ID_WATCH_CHANGES_CHECK, "Änderungen sofort übernehmen" },
     };
+    if (options.symlink_mode && !select_entry(find(dialog, ID_SYMLINK_MODE_CHOICE), symlink_mode_to_str(*options.symlink_mode))) {  // [SyncItemDialogDriver.md#enter_options]
+        ADD_FAILURE() << "Die Behandlung symbolischer Links konnte nicht ausgewählt werden.";
+        return false;
+    }
     for (const auto& box : boxes) {
         if (box.wanted && !set_check_box(find(dialog, box.id), *box.wanted)) {
             ADD_FAILURE() << "Die Option \"" << box.label << "\" konnte nicht gesetzt werden.";

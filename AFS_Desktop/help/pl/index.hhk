@@ -23,6 +23,10 @@
       <PARAM name="Local" value="assistant.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Dowiązania symboliczne">
+      <PARAM name="Local" value="options.html#symlinks">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Dowód kopii zapasowej">
       <PARAM name="Local" value="backupproof.html">
     </OBJECT></LI>

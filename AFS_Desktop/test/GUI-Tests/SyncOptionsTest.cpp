@@ -354,4 +354,37 @@ TEST_F(GuiTest, ZweiWegeKonfliktBehaeltBeideFassungen)  // [SyncOptionsTest.md#c
     EXPECT_TRUE(ModalDialogWatcher::instance().unexpected_dialogs().empty()) << "Ein unerwarteter Dialog erschien.";
 }
 
+#ifdef _UNIX
+TEST_F(GuiTest, SymbolischerLinkKommtAlsVerweisInsZiel)  // [SyncOptionsTest.md#symlink-mode]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "verweis", {{"quelle/b.txt", "b"}, {"ziel/alt.txt", "alt"}});
+    fs::create_symlink("b.txt", tree.path("quelle/zeiger.txt"));
+    SyncItemInput input = dir_sync(tree, "guitest-verweis");
+    input.options.symlink_mode = SymlinkMode::AsLink;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+
+    ASSERT_TRUE(sync_once(main_window()));
+
+    ASSERT_TRUE(fs::is_symlink(tree.path("ziel/zeiger.txt"))) << "Im Ziel liegt kein Link.";
+    EXPECT_EQ(fs::read_symlink(tree.path("ziel/zeiger.txt")), fs::path("b.txt"));
+    ASSERT_EQ(Config::instance().syncitems().size(), 1u);
+    EXPECT_EQ(Config::instance().syncitems()[0].symlink_mode(), SymlinkMode::AsLink) << "Die Auswahl wurde nicht gespeichert.";
+}
+
+TEST_F(GuiTest, DemLinkFolgenKopiertWasHinterDemLinkLiegt)  // [SyncOptionsTest.md#symlink-mode]
+{
+    const SandboxTree tree(GuiTestSandbox::root() / "folgen", {{"quelle/b.txt", "b"}, {"fremd/f.txt", "f"}, {"ziel/alt.txt", "alt"}});
+    fs::create_directory_symlink("../fremd", tree.path("quelle/raus"));
+    SyncItemInput input = dir_sync(tree, "guitest-folgen");
+    input.type = SyncItemType::Tree;
+    input.options.symlink_mode = SymlinkMode::Follow;
+    ASSERT_TRUE(add_sync_item(main_window(), input));
+
+    ASSERT_TRUE(sync_once(main_window()));
+
+    EXPECT_FALSE(fs::is_symlink(tree.path("ziel/raus"))) << "Im Ziel soll ein Verzeichnis liegen, kein Link.";
+    EXPECT_TRUE(fs::exists(tree.path("ziel/raus/f.txt"))) << "Der Inhalt hinter dem Link wurde nicht kopiert.";
+}
+#endif
+
 }

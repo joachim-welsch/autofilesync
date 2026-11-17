@@ -59,6 +59,10 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Enlaces simbólicos">
+      <PARAM name="Local" value="options.html#symlinks">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Exclusiones">
       <PARAM name="Local" value="syncitems.html">
     </OBJECT></LI>

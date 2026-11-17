@@ -46,9 +46,10 @@ that the right place can be found without typing.</p>
 <h2>What is different</h2>
 
 <ul>
-<li><b>Symbolic links</b> on the remote computer are not followed. They are
-    skipped, so that a link to a parent directory cannot cause an endless
-    loop.</li>
+<li><b>Symbolic links</b> on the remote computer are skipped by default. With
+    <b>Keep as links</b> they arrive as links, with <b>Follow the link</b> their
+    content is copied; a link to a parent directory does not cause an endless
+    loop. See <a href="options.html">Options</a>.</li>
 <li><b>Deleting is permanent.</b> The recycle bin is only available locally; a
     remote file would first have to be downloaded to be moved there. This
     concerns <b>Also delete deleted files in the target</b> as well as

@@ -1075,6 +1075,14 @@ msgstr "Als Verweis übernehmen"
 msgid "symlink_mode_follow"
 msgstr "Dem Link folgen"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_as_link"
+msgstr "Im Ziel entsteht ein Link statt einer Kopie. Ziele ohne symbolische Links – Cloud-Speicher, FAT-Laufwerke – überspringen ihn; der Durchlauf meldet das."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_follow"
+msgstr "Was hinter einem Link liegt, wird mitkopiert – das kann viel mehr sein als der gewählte Ordner. Nicht zusammen mit Zwei-Wege-Synchronisation oder Verschieben."
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "Keine Synchronisation aktiv."

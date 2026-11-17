@@ -288,4 +288,51 @@ TEST_F(GuiTest, AenderungenSofortUebernehmenIstFuerNeueSynchronisationenVoreinge
     });
 }
 
+TEST_F(GuiTest, SymbolischeLinksStehenAufWieBisherUndSindBeimTypDateiGesperrt)  // [SyncItemDialogRulesTest.md#symlink-mode]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxChoice* links = dynamic_cast<wxChoice*>(find(dialog, ID_SYMLINK_MODE_CHOICE));
+        ASSERT_NE(links, nullptr);
+        EXPECT_EQ(links->GetStringSelection(), wxString(symlink_mode_to_str(SymlinkMode::FileContent))) << "Eine neue Synchronisation soll Links wie bisher behandeln.";
+        EXPECT_EQ(links->GetCount(), 3u);
+        EXPECT_FALSE(links->IsEnabled()) << "Beim Typ Datei gibt es nichts zu wählen: der benannten Datei wird immer gefolgt.";
+        EXPECT_FALSE(find(dialog, ID_SYMLINK_HINT)->IsShown()) << "Die Standardeinstellung braucht keinen Hinweis.";
+
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_general")));
+        ASSERT_TRUE(select_entry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::Tree)));
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        EXPECT_TRUE(links->IsEnabled());
+        ASSERT_TRUE(select_entry(links, symlink_mode_to_str(SymlinkMode::AsLink)));
+        EXPECT_TRUE(find(dialog, ID_SYMLINK_HINT)->IsShown()) << "Der Hinweis zu Zielen ohne Links fehlt.";
+
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_general")));
+        ASSERT_TRUE(select_entry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::File)));
+        EXPECT_EQ(links->GetStringSelection(), wxString(symlink_mode_to_str(SymlinkMode::FileContent))) << "Der Wechsel zu Datei nimmt die Auswahl nicht zurück.";
+    });
+}
+
+TEST_F(GuiTest, DemLinkFolgenSperrtZweiWegeSyncUndVerschieben)  // [SyncItemDialogRulesTest.md#symlink-mode]
+{
+    open_new_sync_item_dialog(main_window(), [](wxDialog& dialog) {
+        ASSERT_TRUE(select_entry(find(dialog, ID_TYPE_CHOICE), sync_item_type_to_str(SyncItemType::Tree)));
+        ASSERT_TRUE(show_notebook_page(dialog, translation::translate("tab_options")));
+        wxWindow* links = find(dialog, ID_SYMLINK_MODE_CHOICE);
+        wxWindow* two_way = find(dialog, ID_TWO_WAY_SYNC_CHECK);
+        wxWindow* move = find(dialog, ID_DEL_SOURCE_AFTER_CHECK);
+        ASSERT_TRUE(set_check_box(two_way, true));
+
+        ASSERT_TRUE(select_entry(links, symlink_mode_to_str(SymlinkMode::Follow)));
+
+        EXPECT_FALSE(two_way->IsEnabled()) << "Zwei-Wege-Sync bleibt neben \"dem Link folgen\" bedienbar.";
+        EXPECT_FALSE(static_cast<wxCheckBox*>(two_way)->GetValue()) << "Zwei-Wege-Sync bleibt neben \"dem Link folgen\" angehakt.";
+        EXPECT_FALSE(move->IsEnabled()) << "Verschieben bleibt neben \"dem Link folgen\" bedienbar.";
+
+        ASSERT_TRUE(select_entry(links, symlink_mode_to_str(SymlinkMode::AsLink)));
+
+        EXPECT_TRUE(two_way->IsEnabled()) << "Zwei-Wege-Sync wird mit \"als Verweis\" nicht wieder frei.";
+        EXPECT_TRUE(move->IsEnabled());
+    });
+}
+
 }

@@ -1063,6 +1063,14 @@ msgstr "Зберігати як посилання"
 msgid "symlink_mode_follow"
 msgstr "Переходити за посиланням"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_as_link"
+msgstr "У цілі створюється посилання замість копії. Цілі без символьних посилань – хмарні сховища, диски FAT – пропускають його; прохід повідомляє про це."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_follow"
+msgstr "Копіюється також те, що лежить за посиланням, – це може бути значно більше, ніж вибрана папка. Не разом із двосторонньою синхронізацією чи переміщенням."
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "Жодна синхронізація не активна."

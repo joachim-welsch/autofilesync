@@ -156,6 +156,22 @@ succession, it is best to also switch on <b>Size</b>, or to set the tolerance to
     <td>Waiting time between two runs of a continuous synchronisation,
         adjustable from 1 to 60 seconds. Short pauses notice changes sooner and
         put more load on drives and network.</td></tr>
+
+<tr><td valign="top"><b><a name="symlinks"></a>Symbolic links</b></td>
+    <td>What happens to symbolic links. <b>Copy file links as files, skip folder
+        links</b> is the default and what the program always did. <b>Keep as
+        links</b> creates a link in the target again: a link that points into the
+        synchronised folder becomes relative, so that it leads to the copy in the
+        target; a link that points out of it stays unchanged and is reported.
+        Targets without symbolic links – cloud storage, FAT and exFAT drives –
+        skip such links with one warning per run; the content is not copied in
+        their place. <b>Follow the link</b> also copies what lies behind a folder
+        link – that can be far more than the chosen folder. Links that lead in a
+        circle or into the target folder are not entered. This setting is not
+        available together with two-way synchronisation or <b>Delete source after
+        copying</b>. Links into system directories and links that lead nowhere
+        are skipped in every setting. With the type File there is nothing to
+        choose.</td></tr>
 </table>
 
 <h2><a name="twoway"></a>Two-way synchronisation in detail</h2>

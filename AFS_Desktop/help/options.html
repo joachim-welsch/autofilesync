@@ -161,6 +161,23 @@ Toleranz auf 0, sofern beide Seiten die Zeit gleich genau speichern.</p>
     <td>Wartezeit zwischen zwei Durchläufen bei fortlaufender Synchronisation,
         einstellbar von 1 bis 60 Sekunden. Kurze Pausen erkennen Änderungen
         schneller und belasten Datenträger und Netz stärker.</td></tr>
+
+<tr><td valign="top"><b><a name="symlinks"></a>Symbolische Links</b></td>
+    <td>Was mit symbolischen Links (Verknüpfungen im Dateisystem) geschieht.
+        <b>Datei-Links als Datei kopieren, Ordner-Links überspringen</b> ist die
+        Voreinstellung und das bisherige Verhalten. <b>Als Verweis übernehmen</b>
+        legt im Ziel wieder einen Link an: Ein Link, der in den synchronisierten
+        Ordner zeigt, wird dabei relativ, damit er im Ziel auf die Kopie führt;
+        ein Link, der hinauszeigt, bleibt unverändert und wird gemeldet. Ziele
+        ohne symbolische Links – Cloud-Speicher, FAT- und exFAT-Laufwerke –
+        überspringen solche Links mit einer Warnung je Durchlauf; der Inhalt wird
+        nicht ersatzweise kopiert. <b>Dem Link folgen</b> kopiert auch, was hinter
+        einem Ordner-Link liegt – das kann viel mehr sein als der gewählte Ordner.
+        Links, die im Kreis oder in den Zielordner führen, werden dabei nicht
+        betreten. Diese Einstellung gibt es nicht zusammen mit
+        Zwei-Wege-Synchronisation oder <b>Quelle nach dem Kopieren löschen</b>.
+        Links in Systemverzeichnisse und Links ins Leere werden in jeder
+        Einstellung übersprungen. Beim Typ Datei gibt es nichts zu wählen.</td></tr>
 </table>
 
 <h2><a name="twoway"></a>Zwei-Wege-Synchronisation im Einzelnen</h2>

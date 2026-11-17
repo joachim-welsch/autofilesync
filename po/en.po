@@ -1075,6 +1075,14 @@ msgstr "Keep as links"
 msgid "symlink_mode_follow"
 msgstr "Follow the link"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_as_link"
+msgstr "The target gets a link instead of a copy. Targets without symbolic links – cloud storage, FAT drives – skip it; the run says so."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_follow"
+msgstr "What lies behind a link is copied as well – that can be far more than the chosen folder. Not together with two-way synchronisation or moving."
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "No synchronisation is active."

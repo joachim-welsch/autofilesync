@@ -169,6 +169,24 @@ precisione.</p>
     <td>Tempo di attesa tra due esecuzioni della sincronizzazione continua,
         regolabile da 1 a 60 secondi. Pause brevi notano prima le modifiche e
         caricano di più unità e rete.</td></tr>
+
+<tr><td valign="top"><b><a name="symlinks"></a>Collegamenti simbolici</b></td>
+    <td>Che cosa accade ai collegamenti simbolici. <b>Copiare i collegamenti a file
+        come file, saltare quelli a cartelle</b> è l'impostazione predefinita e il
+        comportamento di sempre. <b>Mantenere come collegamenti</b> ricrea un
+        collegamento nella destinazione: un collegamento che punta dentro la
+        cartella sincronizzata diventa relativo, così porta alla copia; uno che
+        punta fuori resta invariato e viene segnalato. Le destinazioni senza
+        collegamenti simbolici (archivi cloud, unità FAT ed exFAT) li saltano con
+        un avviso per passaggio; il contenuto non viene copiato al loro posto.
+        <b>Seguire il collegamento</b> copia anche ciò che si trova dietro un
+        collegamento a una cartella, che può essere molto più della cartella
+        scelta. Non si entra nei collegamenti che formano un ciclo o portano alla
+        cartella di destinazione. Questa impostazione non è disponibile insieme
+        alla sincronizzazione bidirezionale o all'eliminazione dell'origine dopo
+        la copia. I collegamenti a cartelle di sistema e quelli che non portano da
+        nessuna parte vengono sempre saltati. Con il tipo File non c'è nulla da
+        scegliere.</td></tr>
 </table>
 
 <h2><a name="twoway"></a>La sincronizzazione bidirezionale in dettaglio</h2>

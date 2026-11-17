@@ -165,6 +165,49 @@ SyncItemDialog::SyncItemDialog(SyncItem* sync_item, wxWindow* parent, wxWindowID
     event_bindings();
 }
 
+void SyncItemDialog::add_symlink_choice(wxPanel* page, wxSizer* sizer)  // [SyncItemDialog.md#symlink-mode]
+{
+    wxArrayString modes;
+    for (const SymlinkMode mode : {SymlinkMode::FileContent, SymlinkMode::AsLink, SymlinkMode::Follow})
+        modes.push_back(symlink_mode_to_str(mode));
+    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+    row->Add(new wxStaticText(page, wxID_STATIC, translation::translate("symlink_mode_label") + L":"), 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
+    symlink_mode_choice_ = new wxChoice(page, ID_SYMLINK_MODE_CHOICE, wxDefaultPosition, wxDefaultSize, modes);
+    row->Add(symlink_mode_choice_, 1);
+    sizer->Add(row, 0, wxEXPAND | wxBOTTOM, 5);
+    symlink_hint_ = new wxStaticText(page, ID_SYMLINK_HINT, wxEmptyString);
+    symlink_hint_->Hide();
+    sizer->Add(symlink_hint_, 0, wxBOTTOM, 5);
+}
+
+SymlinkMode SyncItemDialog::chosen_symlink_mode() const
+{
+    return str_to_symlink_mode(symlink_mode_choice_->GetStringSelection().ToStdWstring());
+}
+
+void SyncItemDialog::choose_symlink_mode(SymlinkMode mode)
+{
+    symlink_mode_choice_->SetStringSelection(symlink_mode_to_str(mode));
+}
+
+void SyncItemDialog::update_symlink_lock()  // [SyncItemDialog.md#symlink-mode]
+{
+    const bool file_item = act_sync_item_type(type_choice_) == SyncItemType::File;
+    if (file_item)
+        choose_symlink_mode(SymlinkMode::FileContent);
+    symlink_mode_choice_->Enable(!file_item);
+    const SymlinkMode mode = chosen_symlink_mode();
+    if (mode == SymlinkMode::Follow)
+        del_source_after_check_->SetValue(false);
+    const wxString hint = mode == SymlinkMode::FileContent ? wxString() : wxString(translation::translate(mode == SymlinkMode::AsLink ? "symlink_hint_as_link" : "symlink_hint_follow"));
+    if (symlink_hint_->GetLabel() == hint)
+        return;
+    symlink_hint_->SetLabel(hint);
+    symlink_hint_->Wrap(FromDIP(HINT_WRAP_WIDTH));
+    symlink_hint_->Show(!hint.empty());
+    symlink_hint_->GetParent()->Layout();
+}
+
 wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItemDialog.md#options-grouped]
 {
     wxPanel* page = new wxPanel(notebook);
@@ -189,6 +232,7 @@ wxPanel* SyncItemDialog::create_options_page(wxNotebook* notebook)  // [SyncItem
     two_way_hint_ = new wxStaticText(page, ID_TWO_WAY_HINT, translation::translate("two_way_hint"));  // [SyncItemDialog.md#two-way-hint]
     two_way_hint_->Wrap(FromDIP(HINT_WRAP_WIDTH));
     behaviour_sizer->Add(two_way_hint_, 0, wxBOTTOM, 5);
+    add_symlink_choice(page, behaviour_sizer);
     wxBoxSizer* sync_cycle_sizer = new wxBoxSizer(wxHORIZONTAL);
     sync_cycle_sizer->Add(new wxStaticText(page, wxID_STATIC, translation::translate("pause_seconds")), 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 5);
     sync_cycle_spin_ = new wxSpinCtrl(page, ID_SYNC_CYCLE_SPIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 60, 1);
@@ -223,13 +267,15 @@ void lock(wxCheckBox* check, bool locked)  // [SyncItemDialog.md#option-locks]
 
 void SyncItemDialog::update_option_locks()  // [SyncItemDialog.md#option-locks]
 {
+    update_symlink_lock();
+    const bool follow = chosen_symlink_mode() == SymlinkMode::Follow;  // [SyncItemDialog.md#symlink-mode]
     const bool move = del_source_after_check_->GetValue();
-    lock(two_way_sync_check_, move);
+    lock(two_way_sync_check_, move || follow);
     lock(delete_in_target_check_, move || act_sync_item_type(type_choice_) == SyncItemType::File);
     const bool two_way = two_way_sync_check_->GetValue();
     lock(copy_when_target_newer_check_, two_way || !(compare_date_check_->GetValue() || compare_size_check_->GetValue()));
-    two_way_sync_check_->Enable(!move && !copy_when_target_newer_check_->GetValue());
-    del_source_after_check_->Enable(!two_way && !delete_in_target_check_->GetValue());
+    two_way_sync_check_->Enable(!move && !follow && !copy_when_target_newer_check_->GetValue());
+    del_source_after_check_->Enable(!two_way && !follow && !delete_in_target_check_->GetValue());
     time_tolerance_spin_->Enable(compare_date_check_->GetValue());
     if (two_way)  // [SyncItemDialog.md#track-moves-implied]
         track_moves_check_->SetValue(true);
@@ -245,6 +291,7 @@ void SyncItemDialog::event_bindings()
                               compare_date_check_, compare_size_check_, compare_content_check_})
         check->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) { update_option_locks(); });
     type_choice_->Bind(wxEVT_CHOICE, [this](wxCommandEvent&) { update_option_locks(); });
+    symlink_mode_choice_->Bind(wxEVT_CHOICE, [this](wxCommandEvent&) { update_option_locks(); });
 }
 
 SyncItemDialog::~SyncItemDialog()
@@ -279,6 +326,7 @@ void SyncItemDialog::set_data(const SyncItem& si)
     track_moves_ = si.track_moves();
     conflict_copies_ = si.conflict_copies();
     watch_changes_ = si.watch_changes();
+    symlink_mode_ = si.symlink_mode();
     sync_cycle_ = si.sync_cycle();
     
 }
@@ -318,6 +366,7 @@ void SyncItemDialog::save_data(SyncItem& si)
     si.track_moves(track_moves_);
     si.conflict_copies(conflict_copies_);
     si.watch_changes(watch_changes_);
+    si.symlink_mode(symlink_mode_);
     si.sync_cycle(sync_cycle_);
 }
 
@@ -356,6 +405,8 @@ bool SyncItemDialog::TransferDataToWindow()
     track_moves_check_->SetValue(track_moves_);
     conflict_copies_check_->SetValue(conflict_copies_);
     watch_changes_check_->SetValue(watch_changes_);
+    const bool follow_ruled_out = symlink_mode_ == SymlinkMode::Follow && (two_way_sync_ || del_source_after_);  // [SyncItemDialog.md#symlink-mode]
+    choose_symlink_mode(follow_ruled_out ? SymlinkMode::FileContent : symlink_mode_);
     sync_cycle_spin_->SetValue(sync_cycle_);
     time_tolerance_spin_->SetValue(time_tolerance_seconds_);
     update_option_locks();
@@ -389,6 +440,7 @@ bool SyncItemDialog::TransferDataFromWindow()
     track_moves_ = track_moves_check_->GetValue();
     conflict_copies_ = conflict_copies_check_->GetValue();
     watch_changes_ = watch_changes_check_->GetValue();
+    symlink_mode_ = chosen_symlink_mode();
     sync_cycle_ = sync_cycle_spin_->GetValue();
     time_tolerance_seconds_ = static_cast<uint16_t>(time_tolerance_spin_->GetValue());
     return true;

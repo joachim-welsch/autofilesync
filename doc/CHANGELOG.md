@@ -2,6 +2,15 @@
 
 ## 0.5.0 – in Arbeit
 
+- Neue Einstellung **Symbolische Links** je Synchronisation. Neben dem
+  bisherigen Verhalten (Datei-Links als Datei kopieren, Ordner-Links
+  überspringen) gibt es **Als Verweis übernehmen** – im Ziel entsteht wieder
+  ein Link, auch über SSH und bei Zwei-Wege-Synchronisation – und **Dem Link
+  folgen**, das auch den Inhalt hinter Ordner-Links kopiert, mit Schutz vor
+  Links, die im Kreis oder in den Zielordner führen. Ziele ohne symbolische
+  Links (Cloud-Speicher, FAT-Laufwerke) überspringen Verweise mit einer Warnung
+  je Durchlauf. Bestehende Synchronisationen behalten das bisherige Verhalten.
+  Unter Windows werden über SSH noch keine Links angelegt.
 - Symbolische Links, die in Systemverzeichnisse führen (unter Linux `/proc`,
   `/sys`, `/dev`, `/run`, `/snap`) oder auf ein Gerät zeigen, werden
   übersprungen und einmal pro Durchlauf gemeldet. Bisher wurde ein solcher

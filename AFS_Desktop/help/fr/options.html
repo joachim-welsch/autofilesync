@@ -168,6 +168,23 @@ enregistrent l'heure avec la même précision.</p>
         réglable de 1 à 60 secondes. Des pauses courtes détectent les
         modifications plus vite et sollicitent davantage disques et
         réseau.</td></tr>
+
+<tr><td valign="top"><b><a name="symlinks"></a>Liens symboliques</b></td>
+    <td>Ce qu'il advient des liens symboliques. <b>Copier les liens vers des
+        fichiers comme fichiers, ignorer les liens vers des dossiers</b> est le
+        réglage par défaut et le comportement habituel. <b>Conserver comme
+        liens</b> recrée un lien dans la cible : un lien qui pointe dans le dossier
+        synchronisé devient relatif afin de mener à la copie ; un lien qui pointe
+        au-dehors reste inchangé et est signalé. Les cibles sans liens symboliques
+        – stockage cloud, lecteurs FAT et exFAT – ignorent ces liens avec un
+        avertissement par passage ; le contenu n'est pas copié à leur place.
+        <b>Suivre le lien</b> copie aussi ce qui se trouve derrière un lien vers un
+        dossier, ce qui peut être bien plus que le dossier choisi. Les liens qui
+        forment une boucle ou mènent au dossier cible ne sont pas parcourus. Ce
+        réglage n'existe pas avec la synchronisation bidirectionnelle ni avec la
+        suppression de la source après copie. Les liens vers des répertoires
+        système et ceux qui ne mènent nulle part sont toujours ignorés. Avec le
+        type Fichier, il n'y a rien à choisir.</td></tr>
 </table>
 
 <h2><a name="twoway"></a>La synchronisation bidirectionnelle en détail</h2>

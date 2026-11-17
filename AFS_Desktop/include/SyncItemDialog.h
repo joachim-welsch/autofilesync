@@ -64,6 +64,10 @@ public:
 private:
     void event_bindings();
     void update_option_locks();
+    void update_symlink_lock();  // [SyncItemDialog.md#symlink-mode]
+    void add_symlink_choice(wxPanel* page, wxSizer* sizer);  // [SyncItemDialog.md#symlink-mode]
+    SymlinkMode chosen_symlink_mode() const;
+    void choose_symlink_mode(SymlinkMode mode);
     wxPanel* create_options_page(wxNotebook* notebook);
 
     bool TransferDataToWindow() override;
@@ -103,6 +107,7 @@ private:
     bool     track_moves_ = false;
     bool     conflict_copies_ = true;
     bool     watch_changes_ = true;  // [SyncItem.md#watch_changes_] on for a new item
+    SymlinkMode symlink_mode_ = SymlinkMode::FileContent;  // [SyncItem.md#symlink_mode_]
     bool     compare_date_ = true;
     bool     compare_size_ = false;
     bool     compare_content_ = false;
@@ -131,6 +136,8 @@ private:
     wxCheckBox* conflict_copies_check_ = nullptr;
     wxCheckBox* watch_changes_check_ = nullptr;
     wxStaticText* two_way_hint_ = nullptr;  // [SyncItemDialog.md#two-way-hint]
+    wxChoice* symlink_mode_choice_ = nullptr;  // [SyncItemDialog.md#symlink-mode]
+    wxStaticText* symlink_hint_ = nullptr;
     wxSpinCtrl* sync_cycle_spin_ = nullptr;
     wxSpinCtrl* time_tolerance_spin_ = nullptr;
 
@@ -167,6 +174,8 @@ enum {
     ID_CONFLICT_COPIES_CHECK,
     ID_WATCH_CHANGES_CHECK,
     ID_TWO_WAY_HINT,
+    ID_SYMLINK_MODE_CHOICE,
+    ID_SYMLINK_HINT,
     ID_SYNC_CYCLE_SPIN,
     ID_TIME_TOLERANCE_SPIN
 };

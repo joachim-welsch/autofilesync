@@ -76,3 +76,9 @@ the item with a warning and a preview answers with a message box instead of the 
 test that waits for the dialog waits for good, since the box is no dialog the watcher could
 close. Every test whose sandbox tree has no file on the target side therefore creates the empty
 target directory first, as a user would have an existing folder.
+
+## VorschauKennzeichnetEinenVerweis
+
+PreviewDialog.md#link-steps: the one step of an item in the mode "as link" whose target lacks
+only the link is shown as a copy with "(link)" behind it, and the preview creates nothing.
+Unix only.

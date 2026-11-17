@@ -71,6 +71,10 @@
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Symbolische Links">
+      <PARAM name="Local" value="options.html#symlinks">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Warnung bei nicht vorhandenem Laufwerk oder SSH-Verbindung">
       <PARAM name="Local" value="options.html">
     </OBJECT></LI>

@@ -40,6 +40,7 @@ struct SyncItemOptions {  // [SyncItemDialogDriver.md#SyncItemOptions]
     std::optional<bool> track_moves;
     std::optional<bool> conflict_copies;
     std::optional<bool> watch_changes;
+    std::optional<AFS_Core::SymlinkMode> symlink_mode;  // [SyncItemDialogDriver.md#enter_options]
     std::optional<bool> compare_date;
     std::optional<bool> compare_size;
     std::optional<bool> compare_content;

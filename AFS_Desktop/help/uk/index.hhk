@@ -51,6 +51,10 @@
       <PARAM name="Local" value="options.html#twoway">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Символьні посилання">
+      <PARAM name="Local" value="options.html#symlinks">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Стан синхронізації">
       <PARAM name="Local" value="options.html#twoway">
     </OBJECT></LI>

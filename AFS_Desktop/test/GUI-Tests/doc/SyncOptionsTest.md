@@ -65,3 +65,10 @@ A conflict through the GUI (SyncFile.md#conflict-copies): both sides edited, the
 minutes later, so the target wins and the source's version turns up as a conflict copy on both
 sides - two entries whose name begins with "text (" - and the box after the run names the copy
 as a warning past the sandbox's switched-off message filter (Synchronize.md#notes).
+
+## symlink-mode
+
+The two new modes from the dialog to the file system: an item set to "as link" puts a link
+with the same text into the target and stores the choice, and one set to "follow the link"
+copies what lies behind a directory link into a real directory. Unix only, since the tests
+create symbolic links.

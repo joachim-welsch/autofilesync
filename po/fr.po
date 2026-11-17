@@ -1063,6 +1063,14 @@ msgstr "Conserver comme liens"
 msgid "symlink_mode_follow"
 msgstr "Suivre le lien"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_as_link"
+msgstr "La cible reçoit un lien au lieu d'une copie. Les cibles sans liens symboliques – stockage cloud, lecteurs FAT – l'ignorent ; le passage le signale."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_follow"
+msgstr "Ce qui se trouve derrière un lien est copié aussi – cela peut être bien plus que le dossier choisi. Pas avec la synchronisation bidirectionnelle ni le déplacement."
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "Aucune synchronisation active."

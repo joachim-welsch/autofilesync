@@ -1063,6 +1063,14 @@ msgstr "Zachowaj jako dowiązania"
 msgid "symlink_mode_follow"
 msgstr "Podążaj za dowiązaniem"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_as_link"
+msgstr "W miejscu docelowym powstaje dowiązanie zamiast kopii. Miejsca docelowe bez dowiązań symbolicznych – chmura, dyski FAT – pomijają je; przebieg to zgłasza."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_follow"
+msgstr "Kopiowane jest także to, co znajduje się za dowiązaniem – może to być znacznie więcej niż wybrany folder. Nie razem z synchronizacją dwukierunkową ani przenoszeniem."
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "Żadna synchronizacja nie jest aktywna."

@@ -103,6 +103,10 @@
       <PARAM name="Local" value="runsync.html">
     </OBJECT></LI>
     <LI> <OBJECT type="text/sitemap">
+      <PARAM name="Name" value="Symbolic links">
+      <PARAM name="Local" value="options.html#symlinks">
+    </OBJECT></LI>
+    <LI> <OBJECT type="text/sitemap">
       <PARAM name="Name" value="Synchronise once">
       <PARAM name="Local" value="synconce.html">
     </OBJECT></LI>

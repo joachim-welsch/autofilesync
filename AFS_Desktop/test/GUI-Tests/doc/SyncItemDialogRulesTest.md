@@ -45,3 +45,10 @@ sync (SyncItemDialog.md#conflict-copies-two-way-only); greying it out keeps its 
 
 "Änderungen sofort übernehmen" is ticked for a new item (SyncItem.md#watch_changes_) and
 never locked: a side over SSH is simply not watched, the help says so.
+
+## symlink-mode
+
+SyncItemDialog.md#symlink-mode. A new item treats links as before; with the type "file" the
+choice is locked and falls back to the default, since the named file is always followed. The
+hint appears only for a mode that needs one. "Follow the link" unticks and locks two-way sync
+and moving, and choosing another mode frees them again.

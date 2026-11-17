@@ -165,6 +165,23 @@ ambos lados guardan la hora con la misma precisión.</p>
     <td>Tiempo de espera entre dos ejecuciones de una sincronización continua,
         ajustable de 1 a 60 segundos. Las pausas cortas detectan antes los
         cambios y cargan más las unidades y la red.</td></tr>
+
+<tr><td valign="top"><b><a name="symlinks"></a>Enlaces simbólicos</b></td>
+    <td>Qué ocurre con los enlaces simbólicos. <b>Copiar enlaces a archivos como
+        archivos, omitir enlaces a carpetas</b> es el valor predeterminado y el
+        comportamiento de siempre. <b>Conservar como enlaces</b> vuelve a crear un
+        enlace en el destino: un enlace que apunta dentro de la carpeta
+        sincronizada se hace relativo para que lleve a la copia; uno que apunta
+        fuera queda sin cambios y se indica. Los destinos sin enlaces simbólicos
+        (almacenamiento en la nube, unidades FAT y exFAT) omiten esos enlaces con
+        una advertencia por pasada; el contenido no se copia en su lugar.
+        <b>Seguir el enlace</b> copia también lo que hay detrás de un enlace a una
+        carpeta, que puede ser mucho más que la carpeta elegida. No se entra en
+        los enlaces que forman un bucle o llevan a la carpeta de destino. Este
+        ajuste no se combina con la sincronización bidireccional ni con eliminar
+        el origen tras copiar. Los enlaces a directorios del sistema y los que no
+        llevan a ninguna parte se omiten siempre. Con el tipo Archivo no hay nada
+        que elegir.</td></tr>
 </table>
 
 <h2><a name="twoway"></a>La sincronización bidireccional en detalle</h2>

@@ -1063,6 +1063,14 @@ msgstr "Conservar como enlaces"
 msgid "symlink_mode_follow"
 msgstr "Seguir el enlace"
 
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_as_link"
+msgstr "En el destino se crea un enlace en lugar de una copia. Los destinos sin enlaces simbólicos (almacenamiento en la nube, unidades FAT) lo omiten; la pasada lo indica."
+
+#: AFS_Desktop/src/SyncItemDialog.cpp
+msgid "symlink_hint_follow"
+msgstr "Lo que hay detrás de un enlace también se copia; puede ser mucho más que la carpeta elegida. No se combina con la sincronización bidireccional ni con mover."
+
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"
 msgstr "No hay ninguna sincronización activa."
