@@ -171,3 +171,24 @@ A copy between two remote sides of which at least one is WebDAV goes through a f
 directory: download, then upload. SFTP to SFTP streams directly, but there is no common stream
 between the two libraries, and a server-side copy would only cover the case of one account on
 both sides. The file is removed when the copy ends, however it ends.
+
+## links
+
+What SyncLink needs of a server (SyncLink.md#places). ssh_link_info() asks for the entry itself
+(lstat) and, for a link, its text and whether it leads to a directory; an entry that is not
+there is an answer, a question that failed is none, and the caller must not take the one for
+the other. ssh_create_link() creates a link with a text. A server that answers "not supported"
+or "permission denied" does not let links be created there - OpenSSH passes on the "operation
+not permitted" of a FAT drive as "permission denied" - and that is LinksNotSupported, which the
+caller reports once per pass instead of once per link; a directory that is really read-only
+shows itself in the files of the same pass. OpenSSH takes the two arguments of the request in
+the reverse order of the protocol; libssh knows that, and SyncLink reads every link back
+before it uses it. A cloud account has no links: ssh_keeps_links() says so, and the two calls
+answer accordingly.
+
+## links-windows
+
+The libssh2 branch asks for links like the libssh one, but does not create them yet: with the
+argument order wrong, a server would create a link named like the text, somewhere below the
+user's directory, and that cannot be tried out without a Windows build. Until then a link to
+an SFTP target counts as "not supported there" on Windows.

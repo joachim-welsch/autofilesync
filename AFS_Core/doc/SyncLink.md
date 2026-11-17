@@ -48,11 +48,31 @@ file. A link has no time that could say which side is newer, so the source wins 
 rule, and nothing is lost either way. A preview plans it as a conflict copy into the target. Without conflict copies both sides stay as they are and
 the pair is an error of every run until the user settles it; the log gets the line once.
 
-## local-only
+## places
 
-Both sides have to be local. A link whose source or target lies behind SSH or in a cloud is
+Each side of the pair is a place: its path, the root of its tree and whether it lies behind
+SFTP. A local place is asked through SymlinkUtil, a remote one through the link calls of the
+SSH layer (SyncFileSsh.md#links); renaming, removing and creating go the same two ways. The
+rules about a link's text work on the path as the side itself sees it, so for a remote place
+the account prefix is taken off first. A link's text is a path of the machine it lies on: a
+relative one means the same on both sides, an absolute one that leaves the tree is copied as
+it is and reported like any link that leaves the tree.
+
+A side that could not be asked - the server did not answer - is not a side without a link.
+Nothing is decided for the pair then, since "nothing there" would create or delete. Where
+only a free name is looked for, no answer counts as free: the rename that follows fails and
+is reported, while "taken" would search without end.
+
+## no-links-there
+
+A side in a cloud has no symbolic links at all. A link whose source or target lies there is
 counted as "not supported there" and left alone; the content is never copied in its place,
 since a file that came back from such a target would replace the link in a two-way item.
+
+## move
+
+"Delete after copying" removes the source link once the target link is in place, but only a
+local one, as for files: nothing behind SSH is deleted for a move.
 
 ## blocked-by-directory
 

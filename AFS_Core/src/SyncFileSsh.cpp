@@ -643,6 +643,44 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
         listing_failed(translation::translate("remote_dir_read_incomplete") + string_to_wstring(*remote_path) + L" - " + string_to_wstring(connection.error()));
     return entries;
 }
+
+static SshLink link_of(const SftpConnection& connection, const std::string& remote_path, const sftp_attributes_struct& entry)  // [SyncFileSsh.md#links]
+{
+    if (entry.type != SSH_FILEXFER_TYPE_SYMLINK)
+        return {true, false, entry.type == SSH_FILEXFER_TYPE_DIRECTORY, false, {}};
+    char* text = sftp_readlink(connection.sftp(), remote_path.c_str());
+    const SftpAttributes target = connection.stat(remote_path);
+    SshLink link{true, true, false, target && target->type == SSH_FILEXFER_TYPE_DIRECTORY, string_to_wstring(text != nullptr ? text : "")};
+    ssh_string_free_char(text);
+    return link;
+}
+
+std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.md#links]
+{
+    SftpConnection connection;
+    const auto remote_path = connect_to(path, connection);
+    if (!remote_path)
+        return std::nullopt;
+    const SftpAttributes entry(sftp_lstat(connection.sftp(), remote_path->c_str()), sftp_attributes_free);
+    if (entry)
+        return link_of(connection, *remote_path, *entry);
+    return sftp_get_error(connection.sftp()) == SSH_FX_NO_SUCH_FILE ? std::optional<SshLink>(SshLink{}) : std::nullopt;
+}
+
+fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring& at)  // [SyncFileSsh.md#links]
+{
+    SftpConnection connection;
+    const auto remote_path = connect_to(at, connection);
+    if (!remote_path)
+        return fsu::FileInfoResult::ErrorWriteFileInfo;
+    if (sftp_symlink(connection.sftp(), util::wstring_to_string(text).c_str(), remote_path->c_str()) == SSH_OK)
+        return fsu::FileInfoResult::OK;
+    const int refusal = sftp_get_error(connection.sftp());
+    log_debug(L"ssh_create_link: " + at + L" - " + string_to_wstring(connection.error()));
+    if (refusal == SSH_FX_OP_UNSUPPORTED || refusal == SSH_FX_PERMISSION_DENIED)  // [SyncFileSsh.md#links]
+        return fsu::FileInfoResult::LinksNotSupported;
+    return refusal == SSH_FX_NO_SUCH_FILE ? fsu::FileInfoResult::FileNotExist : fsu::FileInfoResult::ErrorWriteFileInfo;
+}
 #else
 #ifdef _WIN32
 CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
@@ -1530,6 +1568,36 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     return entries;
 }
 
+static SshLink link_of(LIBSSH2_SFTP* sftp, const std::string& remote, const LIBSSH2_SFTP_ATTRIBUTES& entry)  // [SyncFileSsh.md#links]
+{
+    if (!LIBSSH2_SFTP_S_ISLNK(entry.permissions))
+        return {true, false, LIBSSH2_SFTP_S_ISDIR(entry.permissions) != 0, false, {}};
+    char text[4096];
+    const int length = libssh2_sftp_readlink(sftp, remote.c_str(), text, sizeof(text));
+    LIBSSH2_SFTP_ATTRIBUTES target;
+    const bool resolves = libssh2_sftp_stat(sftp, remote.c_str(), &target) == 0;
+    return {true, true, false, resolves && LIBSSH2_SFTP_S_ISDIR(target.permissions) != 0, string_to_wstring(std::string(text, length > 0 ? static_cast<std::size_t>(length) : 0))};
+}
+
+std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.md#links]
+{
+    std::optional<SshLink> info;
+    const bool asked = ssh_sftp_call(path, [&](LIBSSH2_SFTP* sftp, const std::string& remote) {
+        LIBSSH2_SFTP_ATTRIBUTES entry;
+        if (libssh2_sftp_lstat(sftp, remote.c_str(), &entry) == 0)
+            info = link_of(sftp, remote, entry);
+        else if (libssh2_sftp_last_error(sftp) == LIBSSH2_FX_NO_SUCH_FILE)
+            info = SshLink{};
+        return info ? 0 : -1;
+    }, "remote_dir_open_error");
+    return asked ? info : std::nullopt;
+}
+
+fsu::FileInfoResult ssh_create_link(const std::wstring&, const std::wstring&)  // [SyncFileSsh.md#links-windows]
+{
+    return fsu::FileInfoResult::LinksNotSupported;
+}
+
 #endif
 #endif
 }
@@ -1665,6 +1733,21 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
 {
     const auto account = webdav_account(path);
     return account ? webdav_list_dir(*account, path) : sftp_backend::ssh_list_dir(path);
+}
+
+bool ssh_keeps_links(const std::wstring& path)  // [SyncFileSsh.md#links]
+{
+    return !webdav_account(path).has_value();
+}
+
+std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.md#links]
+{
+    return webdav_account(path) ? std::nullopt : sftp_backend::ssh_link_info(path);
+}
+
+fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring& at)  // [SyncFileSsh.md#links]
+{
+    return webdav_account(at) ? fsu::FileInfoResult::LinksNotSupported : sftp_backend::ssh_create_link(text, at);
 }
 
 bool ssh_mkdir_p(const std::wstring& path)  // [SyncFileSsh.md#ssh_mkdir_p]

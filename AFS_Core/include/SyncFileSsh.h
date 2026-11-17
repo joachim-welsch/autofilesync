@@ -24,6 +24,7 @@
 #include <atomic>
 #include "SshAccount.h"
 #include "SyncBase.h"
+#include <FilesystemUtil.h>
 
 namespace AFS_Core {
 
@@ -33,6 +34,14 @@ struct SshDirEntry {
     bool is_regular_file = false;
     bool is_symlink = false;
     uint64_t size = 0;
+};
+
+struct SshLink {  // [SyncFileSsh.md#links]
+    bool present = false;
+    bool is_link = false;
+    bool is_directory = false;
+    bool to_directory = false;
+    std::wstring text;
 };
 
 std::optional<SshAccount> get_account_from_path(const std::wstring& path);
@@ -51,6 +60,9 @@ bool ssh_remove_file(const std::wstring& path);
 bool ssh_rmdir(const std::wstring& path);  // [SyncFileSsh.md#ssh_rmdir]
 bool ssh_rename(const std::wstring& from, const std::wstring& to);  // [SyncFileSsh.md#ssh_rename]
 std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path);
+bool ssh_keeps_links(const std::wstring& path);  // [SyncFileSsh.md#links]
+std::optional<SshLink> ssh_link_info(const std::wstring& path);  // [SyncFileSsh.md#links]
+fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring& at);  // [SyncFileSsh.md#links]
 
 #ifdef _TEST
 extern std::atomic<int> ssh_is_directory_call_count;  // [SyncFileSsh.md#ssh_is_directory_call_count]

@@ -22,6 +22,7 @@
 #include "FileDelete.h"
 #include "Logging.h"
 #include "SyncFile.h"
+#include "SyncFileSsh.h"
 #include "SyncPlan.h"
 #include "Synchronize.h"
 #include <mutex>
@@ -39,19 +40,63 @@ namespace {
 constexpr wchar_t PREPARED_SUFFIX[] = L".afs-link";  // [SyncLink.md#create]
 constexpr wchar_t PARKED_SUFFIX[] = L".bak";  // [SyncLink.md#park]
 
-bool taken(const wstring& path)
+fs::path textual(const wstring& path, bool ssh)  // [SyncLink.md#places]
 {
+    return ssh ? fs::path(get_remote_path(path)) : fs::path(path);
+}
+
+bool taken(const wstring& path, bool ssh)
+{
+    if (ssh) {
+        const std::optional<SshLink> info = ssh_link_info(path);
+        return info && info->present;  // [SyncLink.md#places]
+    }
     std::error_code ec;
     return fs::exists(fs::symlink_status(path, ec));
 }
 
-wstring free_name(const wstring& base, int first_number)  // [SyncLink.md#park]
+wstring free_name(const wstring& base, int first_number, bool ssh)  // [SyncLink.md#park]
 {
     for (int number = first_number;; ++number) {
         const wstring candidate = number == 0 ? base : base + std::to_wstring(number);
-        if (!taken(candidate))
+        if (!taken(candidate, ssh))
             return candidate;
     }
+}
+
+FileInfoResult renamed(const wstring& from, const wstring& to, bool ssh)
+{
+    if (!ssh)
+        return fsu::rename_refusal(from, to);
+    return ssh_rename(from, to) ? FileInfoResult::OK : FileInfoResult::ErrorWriteFileInfo;
+}
+
+void discard(const wstring& path, bool ssh)
+{
+    if (!ssh)
+        fsu::remove_file(path);
+    else if (taken(path, ssh))
+        ssh_remove_file(path);
+}
+
+FileInfoResult link_made(const fs::path& text, const wstring& at, bool to_directory, bool ssh)
+{
+    return ssh ? ssh_create_link(text.generic_wstring(), at) : symlink_util::create_link_refusal(text, at, to_directory);
+}
+
+fs::path stored_text(const wstring& at, bool ssh)
+{
+    return ssh ? fs::path(ssh_link_info(at).value_or(SshLink{}).text) : symlink_util::link_info(at).text;
+}
+
+FileInfoResult created_and_read_back(const fs::path& text, const wstring& at, bool to_directory, bool ssh)  // [SyncLink.md#create]
+{
+    discard(at, ssh);
+    const FileInfoResult refusal = link_made(text, at, to_directory, ssh);
+    if (refusal != FileInfoResult::OK || stored_text(at, ssh) == text)
+        return refusal;
+    discard(at, ssh);
+    return FileInfoResult::ErrorWriteFileInfo;
 }
 
 void report(const wstring& message)
@@ -84,15 +129,25 @@ void LinkTally::Count::add(const wstring& link)
 SyncLink::SyncLink(const SyncItem& si, std::size_t& copy_count, bool only_count, LinkTally& tally, SyncState* state,
     const wstring& state_root, const wstring& target_root)
     : SyncBase(si, copy_count, only_count, state, state_root, target_root), tally_(tally)
+    , source_{without_volume_spec(si.source()), state_root_, si.ssh_source()}
+    , target_{without_volume_spec(si.target()), target_root_, si.ssh_target()}
 {
 }
 
-SyncLink::Side SyncLink::side(const wstring& path, const wstring& root) const
+std::optional<SyncLink::Side> SyncLink::side(const Place& place) const  // [SyncLink.md#places]
 {
-    const symlink_util::LinkInfo info = symlink_util::link_info(path);
+    const auto portable = [&](const fs::path& text) { return symlink_util::portable_link_text(textual(place.path, place.ssh), text, textual(place.root, place.ssh)); };
+    if (place.ssh) {
+        const std::optional<SshLink> info = ssh_link_info(place.path);
+        if (!info)
+            return std::nullopt;
+        return Side{info->is_link, info->present, info->is_directory, info->to_directory, info->is_link ? portable(info->text) : fs::path()};
+    }
+    const symlink_util::LinkInfo info = symlink_util::link_info(place.path);
+    std::error_code ec;
     if (!info.is_link)
-        return {false, taken(path), false, {}};
-    return {true, true, info.to_directory, symlink_util::portable_link_text(path, info.text, root)};
+        return Side{false, taken(place.path, false), fs::is_directory(fs::symlink_status(place.path, ec)), false, {}};
+    return Side{true, true, false, info.to_directory, portable(info.text)};
 }
 
 std::optional<fs::path> SyncLink::base() const  // [SyncLink.md#decide]
@@ -137,174 +192,171 @@ SyncLink::Action SyncLink::decide(const Side& here, const Side& there) const  //
     return known && same(*known, here.text) ? Action::DeleteInSource : Action::ToTarget;
 }
 
-bool SyncLink::blocked_by_directory(const wstring& at) const  // [SyncLink.md#blocked-by-directory]
+bool SyncLink::blocked_by_directory(const Side& side, const Place& place) const  // [SyncLink.md#blocked-by-directory]
 {
-    std::error_code ec;
-    if (!fs::is_directory(fs::symlink_status(at, ec)))
+    if (!side.directory)
         return false;
-    report(translation::translate("link_blocked_by_directory") + at);
+    report(translation::translate("link_blocked_by_directory") + place.path);
     return true;
 }
 
 void SyncLink::settle(const fs::path& text)
 {
     if (state_ != nullptr && !only_count_)
-        state_->record(key_, FileState{0, {}, {}, text.wstring()});
+        state_->record(key_, FileState{0, {}, {}, text.generic_wstring()});
 }
 
-FileInfoResult SyncLink::create_verified(const fs::path& text, const wstring& at, bool to_directory) const  // [SyncLink.md#create]
+std::optional<wstring> SyncLink::park(const Place& at) const  // [SyncLink.md#park]
 {
-    fsu::remove_file(at);
-    const FileInfoResult refusal = symlink_util::create_link_refusal(text, at, to_directory);
-    if (refusal != FileInfoResult::OK || symlink_util::link_info(at).text == text)
-        return refusal;
-    fsu::remove_file(at);
-    return FileInfoResult::ErrorWriteFileInfo;
-}
-
-std::optional<wstring> SyncLink::park(const wstring& destination) const  // [SyncLink.md#park]
-{
-    if (!taken(destination))
+    if (!taken(at.path, at.ssh))
         return wstring();
-    const wstring parked = sync_item_.father_son_principle() ? free_name(destination + FATHER_SON_SUFFIX, 1) : free_name(destination + PARKED_SUFFIX, 0);
-    const FileInfoResult refusal = fsu::rename_refusal(destination, parked);
+    const wstring parked = sync_item_.father_son_principle() ? free_name(at.path + FATHER_SON_SUFFIX, 1, at.ssh) : free_name(at.path + PARKED_SUFFIX, 0, at.ssh);
+    const FileInfoResult refusal = renamed(at.path, parked, at.ssh);
     if (refusal == FileInfoResult::OK)
         return parked;
-    report(fsu::make_error_message(refusal) + L": " + destination);
+    report(fsu::make_error_message(refusal) + L": " + at.path);
     return std::nullopt;
 }
 
-bool SyncLink::put_in_place(const wstring& prepared, const wstring& destination) const
+bool SyncLink::put_in_place(const wstring& prepared, const Place& at) const
 {
-    const std::optional<wstring> parked = park(destination);
+    const std::optional<wstring> parked = park(at);
     if (!parked)
         return false;
-    const FileInfoResult refusal = fsu::rename_refusal(prepared, destination);
+    const FileInfoResult refusal = renamed(prepared, at.path, at.ssh);
     if (refusal != FileInfoResult::OK) {
-        report(translation::translate("link_create_failed") + destination + L" (" + fsu::make_error_message(refusal) + L")");
+        report(translation::translate("link_create_failed") + at.path + L" (" + fsu::make_error_message(refusal) + L")");
         if (!parked->empty())
-            fsu::rename_file(*parked, destination);
+            renamed(*parked, at.path, at.ssh);
         return false;
     }
     if (!parked->empty() && !sync_item_.father_son_principle())
-        fsu::remove_file(*parked);
+        discard(*parked, at.ssh);
     return true;
 }
 
-void SyncLink::refused(const wstring& destination, FileInfoResult refusal)
+void SyncLink::refused(const Place& at, FileInfoResult refusal)
 {
     if (refusal == FileInfoResult::LinksNotSupported)
-        tally_.unsupported.add(destination);
+        tally_.unsupported.add(at.path);
     else
-        report(translation::translate("link_create_failed") + destination + L" (" + fsu::make_error_message(refusal) + L")");
+        report(translation::translate("link_create_failed") + at.path + L" (" + fsu::make_error_message(refusal) + L")");
 }
 
-bool SyncLink::create(const fs::path& text, const wstring& destination, bool to_directory)  // [SyncLink.md#create]
+bool SyncLink::create(const fs::path& text, bool to_directory, const Place& at)  // [SyncLink.md#create]
 {
-    const wstring prepared = destination + PREPARED_SUFFIX;
-    const FileInfoResult refusal = create_verified(text, prepared, to_directory);
+    const wstring prepared = at.path + PREPARED_SUFFIX;
+    const FileInfoResult refusal = created_and_read_back(text, prepared, to_directory, at.ssh);
     if (refusal != FileInfoResult::OK) {
-        refused(destination, refusal);
+        refused(at, refusal);
         return false;
     }
-    if (put_in_place(prepared, destination))
+    if (put_in_place(prepared, at))
         return true;
-    fsu::remove_file(prepared);
+    discard(prepared, at.ssh);
     return false;
 }
 
-void SyncLink::carry(const Side& from, const wstring& from_path, const wstring& to_path, bool to_target)  // [SyncLink.md#create]
+void SyncLink::plan(const Place& destination) const
 {
-    if (blocked_by_directory(to_path))
-        return;
-    if (only_count_) {
-        ++copy_count_;
-        const PlannedAction action = !to_target ? PlannedAction::CopyToSource : sync_item_.del_aftercopy() ? PlannedAction::MoveToTarget : PlannedAction::CopyToTarget;
-        plan_step({sync_item_.name(), action, to_target ? from_path : to_path, to_target ? to_path : from_path, 0, true});
-        return;
-    }
-    if (!create(from.text, to_path, from.to_directory))
-        return;
+    const bool to_target = &destination == &target_;
+    const PlannedAction action = !to_target ? PlannedAction::CopyToSource : sync_item_.del_aftercopy() ? PlannedAction::MoveToTarget : PlannedAction::CopyToTarget;
+    plan_step({sync_item_.name(), action, source_.path, target_.path, 0, true});
+}
+
+void SyncLink::carried(const Side& from, const Place& origin, const Place& destination)
+{
     ++copy_count_;
-    log_info(translation::translate("link_created"), from_path, L"->", to_path);
-    if (symlink_util::leaves_root(from_path, from.text, to_target ? state_root_ : target_root_))
-        tally_.outside.add(from_path);
-    else
-        tally_.created.push_back(to_path);
+    log_info(translation::translate("link_created"), origin.path, L"->", destination.path);
+    if (symlink_util::leaves_root(textual(origin.path, origin.ssh), from.text, textual(origin.root, origin.ssh)))
+        tally_.outside.add(origin.path);
+    else if (!destination.ssh)
+        tally_.created.push_back(destination.path);
     settle(from.text);
-    if (to_target && sync_item_.del_aftercopy() && delete_file(from_path) && state_ != nullptr)
+    if (&destination == &target_ && sync_item_.del_aftercopy() && !origin.ssh && delete_file(origin.path) && state_ != nullptr)  // [SyncLink.md#move]
         state_->forget(key_);
 }
 
-void SyncLink::remove(const wstring& source, const wstring& destination, bool in_target)  // [SyncLink.md#remove]
+void SyncLink::carry(const Side& from, const Place& origin, const Side& to, const Place& destination)  // [SyncLink.md#create]
 {
-    const wstring& doomed = in_target ? destination : source;
+    if (blocked_by_directory(to, destination))
+        return;
+    if (only_count_) {
+        ++copy_count_;
+        return plan(destination);
+    }
+    if (create(from.text, from.to_directory, destination))
+        carried(from, origin, destination);
+}
+
+void SyncLink::remove(bool in_target)  // [SyncLink.md#remove]
+{
+    const Place& doomed = in_target ? target_ : source_;
     if (state_ != nullptr && sync_item_.sync_item_type() != SyncItemType::File) {
-        state_->defer({key_, source, destination, in_target, 0, true});
+        state_->defer({key_, source_.path, target_.path, in_target, 0, true});
         return;
     }
     if (only_count_) {
         ++copy_count_;
-        plan_step({sync_item_.name(), in_target ? PlannedAction::DeleteInTarget : PlannedAction::DeleteInSource, source, destination, 0, true});
+        plan_step({sync_item_.name(), in_target ? PlannedAction::DeleteInTarget : PlannedAction::DeleteInSource, source_.path, target_.path, 0, true});
         return;
     }
-    if (delete_file(doomed))
-        log_info(translation::translate("link_removed"), doomed);
+    if (doomed.ssh ? ssh_remove_file(doomed.path) : delete_file(doomed.path))
+        log_info(translation::translate("link_removed"), doomed.path);
     else
-        report(translation::translate(in_target ? "target_delete_failed" : "source_delete_failed") + doomed);
+        report(translation::translate(in_target ? "target_delete_failed" : "source_delete_failed") + doomed.path);
 }
 
-void SyncLink::resolve_conflict(const wstring& source, const wstring& destination, const Side& here)  // [SyncLink.md#conflict]
+void SyncLink::resolve_conflict(const Side& here, const Side& there)  // [SyncLink.md#conflict]
 {
     if (!sync_item_.conflict_copies()) {
-        const wstring message = translation::translate("both_modified_not_copied") + L" " + source + L" <-> " + destination;
-        if (first_conflict(destination))
+        const wstring message = translation::translate("both_modified_not_copied") + L" " + source_.path + L" <-> " + target_.path;
+        if (first_conflict(target_.path))
             log_error(message);
         report_sync_error(message);
         return;
     }
-    if (blocked_by_directory(destination))
+    if (blocked_by_directory(there, target_))
         return;
     if (only_count_) {
         ++copy_count_;
-        return plan_step({sync_item_.name(), PlannedAction::ConflictCopyToTarget, source, destination, 0, true});
+        return plan_step({sync_item_.name(), PlannedAction::ConflictCopyToTarget, source_.path, target_.path, 0, true});
     }
-    const wstring copy = conflict_copy_name(destination, false);
-    const FileInfoResult refusal = fsu::rename_refusal(destination, copy);
+    const wstring copy = conflict_copy_name(target_.path, target_.ssh);
+    const FileInfoResult refusal = renamed(target_.path, copy, target_.ssh);
     if (refusal != FileInfoResult::OK)
-        return report(fsu::make_error_message(refusal) + L": " + destination);
-    const wstring made = translation::translate("conflict_copy_made", {destination, copy.substr(copy.find_last_of(L"/\\") + 1)});
+        return report(fsu::make_error_message(refusal) + L": " + target_.path);
+    const wstring made = translation::translate("conflict_copy_made", {target_.path, copy.substr(copy.find_last_of(L"/\\") + 1)});
     log_warning(made);
     Synchronize::note(LogLevel::Warning, made);  // [Synchronize.md#notes]
-    carry(here, source, destination, true);
+    carry(here, source_, Side{}, target_);
 }
 
-void SyncLink::carry_out(Action action, const wstring& source, const wstring& destination, const Side& here, const Side& there)
+void SyncLink::carry_out(Action action, const Side& here, const Side& there)
 {
     switch (action) {
     case Action::Leave: return;
     case Action::Settle: return settle(here.text);
-    case Action::ToTarget: return carry(here, source, destination, true);
-    case Action::ToSource: return carry(there, destination, source, false);
-    case Action::DeleteInTarget: return remove(source, destination, true);
-    case Action::DeleteInSource: return remove(source, destination, false);
-    case Action::Conflict: return resolve_conflict(source, destination, here);
+    case Action::ToTarget: return carry(here, source_, there, target_);
+    case Action::ToSource: return carry(there, target_, here, source_);
+    case Action::DeleteInTarget: return remove(true);
+    case Action::DeleteInSource: return remove(false);
+    case Action::Conflict: return resolve_conflict(here, there);
     }
 }
 
 void SyncLink::operator()()
 {
-    const wstring source = without_volume_spec(sync_item_.source());
-    const wstring destination = without_volume_spec(sync_item_.target());
-    if (sync_item_.ssh_source() || sync_item_.ssh_target()) {  // [SyncLink.md#local-only]
-        tally_.unsupported.add(source);
+    if ((source_.ssh && !ssh_keeps_links(source_.path)) || (target_.ssh && !ssh_keeps_links(target_.path))) {  // [SyncLink.md#no-links-there]
+        tally_.unsupported.add(source_.path);
         return;
     }
-    key_ = state_key(source);
+    key_ = state_key(source_.path);
     if (state_ != nullptr)
         state_->seen(key_);
-    const Side here = side(source, state_root_), there = side(destination, target_root_);
-    carry_out(decide(here, there), source, destination, here, there);
+    const std::optional<Side> here = side(source_), there = side(target_);
+    if (here && there)  // [SyncLink.md#places]
+        carry_out(decide(*here, *there), *here, *there);
 }
 
 } // namespace AFS_Core

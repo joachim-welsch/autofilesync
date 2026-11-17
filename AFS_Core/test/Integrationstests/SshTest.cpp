@@ -76,7 +76,7 @@ SshAccount test_account()
 
 void remove_tree(const SftpConnection& connection, const std::string& path)
 {
-	const SftpAttributes attributes = connection.stat(path);
+	const SftpAttributes attributes(sftp_lstat(connection.sftp(), path.c_str()), sftp_attributes_free);  // [SshTest.md#remove_remote_tree]
 	if (!attributes)
 		return;
 	if (attributes->type != SSH_FILEXFER_TYPE_DIRECTORY) {

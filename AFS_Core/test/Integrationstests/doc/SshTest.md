@@ -29,6 +29,8 @@ removes a file or a whole directory tree through SFTP as the test user. It talks
 to the server with the fixed test account instead of one from Config, because it
 runs after the test, when Config may already be reset. Errors are ignored: it is
 clean-up, and the leftover check of TestMain.cpp reports what stayed behind.
+The entries are asked for themselves (lstat): a link is removed as a link, also one that
+leads nowhere or to a directory, which would otherwise be skipped or followed.
 
 ## remove_remote_tree-windows
 

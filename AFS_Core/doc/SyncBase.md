@@ -146,9 +146,9 @@ nothing counts the link without looking at the target, as it does with a file.
 
 ## links_as_links
 
-Whether the pass carries links over as links: the item says so and the source is local. Behind
-SSH a listing names a link but not its text, so there the links are still skipped
-(SyncTree.md#symlinks-never-followed).
+Whether the pass carries links over as links: the item says so. It holds for a local source
+and for one behind SFTP, whose listing names the links; a cloud never lists one. In the other
+modes a link behind SSH is still skipped (SyncTree.md#symlinks-never-followed).
 
 ## system_link_skipped
 

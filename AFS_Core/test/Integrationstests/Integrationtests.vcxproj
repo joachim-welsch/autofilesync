@@ -210,6 +210,7 @@
     <!-- SymlinkTests.cpp legt Symlinks an (unter Windows ein Privileg); komplett in #ifdef _UNIX. -->
     <ClCompile Include="SymlinkTests.cpp" />
     <ClCompile Include="SymlinkAsLinkTests.cpp" />
+    <ClCompile Include="SymlinkSshTests.cpp" />
     <!-- MountedDrivesTests.cpp prueft /etc/fstab bzw. /proc/mounts und ruft
          MountedDrives::setFstabPathForTest(), das es im Windows-Zweig nicht gibt.
          Solange der Test nicht portiert ist, kann er hier ausgeschlossen werden:

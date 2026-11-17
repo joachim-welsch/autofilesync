@@ -141,7 +141,7 @@ void SyncBase::report_links()  // [SyncBase.md#report_links]
 
 bool SyncBase::links_as_links() const  // [SyncBase.md#links_as_links]
 {
-    return sync_item_.symlink_mode() == SymlinkMode::AsLink && !sync_item_.ssh_source();
+    return sync_item_.symlink_mode() == SymlinkMode::AsLink;
 }
 
 bool SyncBase::target_usable(const wstring& target)  // [SyncBase.md#target_usable]
@@ -357,7 +357,9 @@ void SyncBase::sync_target_only_entries(const wstring& source_dir, const wstring
     };
     if (sync_item_.ssh_target()) {
         for (const auto& entry : ssh_list_dir(target_dir)) {
-            if (entry.is_regular_file)
+            if (entry.is_symlink && links_as_links())
+                handle_link(entry.name, with_trailing_char(target_dir, L'/') + entry.name, false);
+            else if (entry.is_regular_file)
                 handle_entry(entry.name, with_trailing_char(target_dir, L'/') + entry.name);
             if (stop_requested())
                 break;
