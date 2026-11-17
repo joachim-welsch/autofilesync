@@ -554,6 +554,9 @@
     <ClCompile Include="SymlinkSshTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="SymlinkCloudTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="SshHostKeyTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
