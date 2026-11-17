@@ -177,7 +177,11 @@ if (-not $NoBuild) {
     $linkArgs = @("/OUT:`"$exe`"", '/SUBSYSTEM:CONSOLE', '/DEBUG',
                   "/LIBPATH:`"$gtestLibDir`"", "/LIBPATH:`"$vcpkgLibDir`"", "/LIBPATH:`"$wxLibDir`"",
                   "/LIBPATH:`"$llamaLibDir`"", "/LIBPATH:`"$ggmlLibDir`"", "/LIBPATH:`"$curlLibDir`"")
-    foreach ($o in (Get-ChildItem "$buildDir\*.obj")) { $linkArgs += "`"$($o.FullName)`"" }
+    # Nur die Objekte der Projektquellen: im Verzeichnis liegen noch die Objekte
+    # inzwischen entfernter Quellen, deren Verweise niemand mehr aufloest.
+    foreach ($s in (Get-ProjectSources)) {
+        $linkArgs += "`"$(Join-Path $buildDir ([IO.Path]::GetFileNameWithoutExtension($s) + '.obj'))`""
+    }
     $linkArgs += "`"$res`""
     $linkArgs += 'gtest.lib', 'libssh2.lib', 'libssl.lib', 'libcrypto.lib', 'ws2_32.lib', 'iphlpapi.lib', 'crypt32.lib', 'intl.lib'
     $linkArgs += 'llama.lib', 'ggml.lib', 'ggml-cpu.lib', 'ggml-base.lib'
