@@ -32,7 +32,12 @@ public:
     bool running() const { return port_ > 0; }
     std::string url() const { return "http://127.0.0.1:" + std::to_string(port_); }
 private:
+#ifdef _WIN32
+    void* process_ = nullptr;
+    void* job_ = nullptr;  // [WebDavTestServer.md#windows-job]
+#else
     int process_ = -1;
+#endif
     int port_ = 0;
 };
 

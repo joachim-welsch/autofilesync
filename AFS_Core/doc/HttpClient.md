@@ -53,6 +53,15 @@ file of known size. The "Expect: 100-continue" handshake is switched off: it onl
 upload the server would refuse, and some servers do not answer it, which costs a second of
 waiting per file.
 
+## rewind
+
+libcurl sends a request again by itself when the reused connection (connection-reuse) turns
+out to have been closed by the server in the meantime, which it may only notice after the
+first bytes of the file are gone. It then asks for the file to be set back; without an answer
+the upload fails with "necessary data rewind was not possible". The file is set back to where
+it stood when upload_from() was called - an upload in pieces starts in the middle of the file -
+and the count of bytes still to send starts again.
+
 ## stop
 
 Only transfers ask whether the user stopped the run, and they report the bytes moved so far to

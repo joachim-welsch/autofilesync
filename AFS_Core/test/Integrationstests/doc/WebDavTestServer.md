@@ -20,9 +20,36 @@ The server binds to a free port and prints it as its first line; the constructor
 that line has arrived, so the server is ready when the test goes on. No line means the server
 did not start, and running() is false.
 
-## windows
+## windows-python
 
-Not implemented for Windows: the tests that need the server are skipped there.
+Windows has no python3 on the PATH as a rule: the installer of python.org brings the launcher
+py and python.exe, and python3.exe is often only the alias of the Store that starts nothing.
+The candidates are tried in this order until one of them prints a port; one that is missing or
+ends without a port is passed over. Without any Python running() is false and the tests are
+skipped, as elsewhere.
+
+## windows-quoting
+
+CreateProcessW takes one command line, which Python splits again by the rules of the C runtime:
+an argument with a space, tab or quote is put in quotes, a quote inside is escaped with a
+backslash, and backslashes are doubled only in front of a quote, including the closing one.
+
+## windows-handles
+
+The server gets a handle list naming its output pipe and the null device and nothing else. A
+child that inherits every inheritable handle would keep the redirected output of the test
+program open for as long as it lives (GUI-Tests UsbPhone.md#inherited-handles). Errors of the
+server go to the null device: nobody reads them, and a pipe nobody reads would fill and stop
+the server.
+
+## windows-job
+
+The launcher py starts the real python.exe as a child of its own, so ending the process that
+was started would leave the server running. The process is therefore put into a job before it
+runs a single instruction (started suspended), and the job ends everything in it when its
+handle is closed - also when the test program dies without reaching the destructor. The
+destructor then waits for the started process, so the port and the files of the served
+directory are free when it returns.
 
 ## PythonTestServer
 

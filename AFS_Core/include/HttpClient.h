@@ -52,6 +52,8 @@ class Request {  // [HttpClient.md#Request]
     struct UploadSource {  // [HttpClient.md#transfers]
         std::ifstream* file = nullptr;
         std::uintmax_t remaining = 0;
+        std::uintmax_t size = 0;
+        std::streamoff start = 0;  // [HttpClient.md#rewind]
     } upload_;
     std::uintmax_t progress_offset_ = 0;
 public:

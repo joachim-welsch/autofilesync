@@ -138,7 +138,10 @@ if (-not $NoBuild) {
     # /utf-8 wie in den vcxproj-Dateien: die Quellen sind UTF-8 ohne BOM, sonst
     # liest cl sie in der ANSI-Codepage und Umlaute in L"..."-Literalen werden
     # zu Buchstabensalat in der Oberflaeche.
-    $clArgs = @('/nologo', '/c', '/EHsc', '/std:c++20', '/MP', '/utf-8')
+    # /FC: __FILE__ wird zum vollen Pfad. WebDavTestServer.cpp findet darueber die
+    # Testserver-Skripte; der relative Pfad aus dem Projekt gaelte zur Laufzeit nur
+    # im Verzeichnis der GUI-Tests.
+    $clArgs = @('/nologo', '/c', '/EHsc', '/std:c++20', '/MP', '/utf-8', '/FC')
     if ($debug) { $clArgs += '/MDd', '/Zi' } else { $clArgs += '/MD', '/O2' }
     foreach ($d in $defines) { $clArgs += "/D$d" }
     # UsbPhone liest die Knopftexte der App aus deren Quellen; Schraegstriche,

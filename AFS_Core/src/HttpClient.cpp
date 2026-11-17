@@ -129,6 +129,17 @@ struct Request::UploadReader {  // [HttpClient.md#transfers]
         upload->remaining -= static_cast<std::uintmax_t>(upload->file->gcount());
         return static_cast<std::size_t>(upload->file->gcount());
     }
+    static int seek(void* source, curl_off_t offset, int origin)  // [HttpClient.md#rewind]
+    {
+        auto* upload = static_cast<UploadSource*>(source);
+        if (origin != SEEK_SET || offset < 0 || static_cast<std::uintmax_t>(offset) > upload->size)
+            return CURL_SEEKFUNC_CANTSEEK;
+        upload->file->clear();
+        if (!upload->file->seekg(upload->start + static_cast<std::streamoff>(offset)))
+            return CURL_SEEKFUNC_FAIL;
+        upload->remaining = upload->size - static_cast<std::uintmax_t>(offset);
+        return CURL_SEEKFUNC_OK;
+    }
 };
 
 std::time_t parse_date(const std::string& text)
@@ -197,10 +208,12 @@ void Request::upload_from(std::ifstream& file, std::uintmax_t size, std::uintmax
     CURL* curl = handle_of(curl_);
     header("Expect:");  // [HttpClient.md#transfers]
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-    upload_ = {&file, size};
+    upload_ = {&file, size, size, static_cast<std::streamoff>(file.tellg())};
     progress_offset_ = already_sent;
     curl_easy_setopt(curl, CURLOPT_READFUNCTION, UploadReader::read);
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_);
+    curl_easy_setopt(curl, CURLOPT_SEEKFUNCTION, UploadReader::seek);
+    curl_easy_setopt(curl, CURLOPT_SEEKDATA, &upload_);
     curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(size));
     watch_transfer(curl, &progress_offset_);
 }

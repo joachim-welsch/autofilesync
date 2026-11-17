@@ -137,7 +137,7 @@ TEST_F(WebDavTest, StatTellsFileDirectoryAndAbsenceApart)
 TEST_F(WebDavTest, ListNamesTheEntriesButNotTheDirectoryItself)  // [WebDavTests.md#difficult-names]
 {
     write(remote_ / "ordner" / "mit leer zeichen.txt", "a");
-    write(remote_ / "ordner" / "Gr\xC3\xB6\xC3\x9F" "e 100%.txt", "bb");
+    write(remote_ / "ordner" / util::string_to_wstring("Gr\xC3\xB6\xC3\x9F" "e 100%.txt"), "bb");  // a narrow string would be read in the ANSI code page on Windows
     fs::create_directories(remote_ / "ordner" / "unter");
     std::vector<webdav::Entry> entries = webdav::list(account_, "/ordner");
     std::ranges::sort(entries, {}, &webdav::Entry::name);
