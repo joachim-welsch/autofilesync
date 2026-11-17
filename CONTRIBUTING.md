@@ -78,7 +78,7 @@ All tests must pass before you open a pull request. If a test is flaky on your p
 
 ## Making changes
 
-1. Fork the repository and create a branch from `main`:
+1. Fork the repository and create a branch from `master`:
    `git checkout -b fix/short-description`
 2. Make your change in small, focused commits.
 3. Add or update tests for the behaviour you changed.
