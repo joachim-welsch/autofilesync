@@ -109,6 +109,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("drive_not_mounted");
     case FileInfoResult::CannotReadFileAttributes:
         return translation::translate("file_attributes_unreadable");
+    case FileInfoResult::PermissionDenied:
+        return translation::translate("permission_denied");
     case FileInfoResult::InvalidFileTime:
         return translation::translate("file_time_invalid");
     case FileInfoResult::ErrorReadFileInfo:
@@ -118,26 +120,36 @@ wstring make_error_message(FileInfoResult result)
     }
 }
 
+static FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil.md#reason_for_failure]
+{
+    return ec == std::errc::permission_denied ? FileInfoResult::PermissionDenied : FileInfoResult::ErrorReadFileInfo;
+}
+
 static FileInfoResult reason_for_missing(const fs::path& file)  // [FilesystemUtil.md#reason_for_missing]
 {
     if (!MountedDrives::instance().drive_mounted(file))
         return FileInfoResult::DriveNotMounted;
     const fs::path directory = file.parent_path();
     std::error_code ec;
-    return directory.empty() || fs::is_directory(directory, ec) ? FileInfoResult::FileNotExist : FileInfoResult::DirectoryNotExist;
+    if (directory.empty() || fs::is_directory(directory, ec))
+        return FileInfoResult::FileNotExist;
+    return ec == std::errc::permission_denied ? FileInfoResult::PermissionDenied : FileInfoResult::DirectoryNotExist;
 }
 
 #ifdef WIN32
 
 FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
-    if (!file_exists(fname))
+    std::error_code ec;
+    if (fs::status(fname, ec).type() == fs::file_type::not_found)
         return reason_for_missing(fname);
+    if (ec)
+        return reason_for_failure(ec);
 
     _WIN32_FILE_ATTRIBUTE_DATA data{};
     BOOL rc = GetFileAttributesEx(fname.c_str(), GetFileExInfoStandard, &data);
     if (!rc)
-        return FileInfoResult::CannotReadFileAttributes;
+        return GetLastError() == ERROR_ACCESS_DENIED ? FileInfoResult::PermissionDenied : FileInfoResult::CannotReadFileAttributes;
     SYSTEMTIME st_utc;
     if (!FileTimeToSystemTime(&data.ftLastWriteTime, &st_utc))
         return FileInfoResult::InvalidFileTime;
@@ -153,13 +165,18 @@ FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_
 #else
 FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
+    std::error_code ec;
+    if (fs::status(fpathname, ec).type() == fs::file_type::not_found)
+        return reason_for_missing(fpathname);
+    if (ec)
+        return reason_for_failure(ec);
     try {
-        if (!fs::exists(fpathname))
-            return reason_for_missing(fpathname);
-
         filesize = fs::file_size(fpathname);
         last_write_time = fs::last_write_time(fpathname);
         return FileInfoResult::OK;
+    }
+    catch (const fs::filesystem_error& e) {
+        return reason_for_failure(e.code());
     }
     catch (const std::exception&) {
         return FileInfoResult::ErrorReadFileInfo;

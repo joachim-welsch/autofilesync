@@ -101,3 +101,10 @@ A directory deleted on one side takes its files with it, and SyncTree asks about
 (SyncTree.md#DirState). The answer has to be the one for a missing file, or a deleted
 directory would be copied back instead of deleted on the other side. Whether the root of the
 item itself is gone is not decided here (Synchronize.md#vanished-target).
+
+## AFileBehindALockedDirectoryIsNotReadableAndNeverMissing
+
+The file cannot be asked for, so nothing is known about it. Every result that stands for
+"missing" leads to an action - a copy, a copy back, or with "delete in target" and with a state
+a deletion - and none of them is right here. The combinations with a missing file on the other
+side are the dangerous ones: the readable side must not decide alone.

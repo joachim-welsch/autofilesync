@@ -130,16 +130,51 @@ TEST_F(FilesystemUtilTest, FileinfoOfADirectoryThatExistsIsNotAMissingDirectory)
     EXPECT_EQ(fsu::fileinfo((root_ / "there" / "missing.txt").wstring(), filesize, last_write_time), fsu::FileInfoResult::FileNotExist);
 }
 
+#ifndef _WIN32
+TEST_F(FilesystemUtilTest, FileinfoTellsARefusedFileFromAMissingOne)  // [FilesystemUtilTests.md#FileinfoTellsARefusedFileFromAMissingOne]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root is refused nothing";
+    uint64_t filesize = 42;
+    fs::file_time_type last_write_time;
+    fs::create_directories(root_ / "locked" / "deeper");
+    std::ofstream(root_ / "locked" / "there.txt") << "content";
+    fs::permissions(root_ / "locked", fs::perms::none);
+
+    const fsu::FileInfoResult there = fsu::fileinfo((root_ / "locked" / "there.txt").wstring(), filesize, last_write_time);
+    const fsu::FileInfoResult missing = fsu::fileinfo((root_ / "locked" / "missing.txt").wstring(), filesize, last_write_time);
+    const fsu::FileInfoResult deeper = fsu::fileinfo((root_ / "locked" / "deeper" / "missing.txt").wstring(), filesize, last_write_time);
+    fs::permissions(root_ / "locked", fs::perms::owner_all);
+
+    EXPECT_EQ(there, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_EQ(missing, fsu::FileInfoResult::PermissionDenied) << "behind a locked directory nothing is known to be missing";
+    EXPECT_EQ(deeper, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_EQ(filesize, 42u);
+}
+
+TEST_F(FilesystemUtilTest, FileinfoOfAFileThatMayNotBeReadStillAnswers)  // [FilesystemUtilTests.md#FileinfoOfAFileThatMayNotBeReadStillAnswers]
+{
+    uint64_t filesize = 0;
+    fs::file_time_type last_write_time;
+    const fs::path pathname = create_file("secret.txt", "content");
+    fs::permissions(pathname, fs::perms::none);
+
+    EXPECT_EQ(fsu::fileinfo(pathname.wstring(), filesize, last_write_time), fsu::FileInfoResult::OK);
+    EXPECT_EQ(filesize, 7u);
+}
+#endif
+
 TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUtilTests.md#EveryFileInfoResultHasItsOwnMessage]
 {
     using fsu::FileInfoResult;
     std::set<std::wstring> messages;
 
     for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
-            FileInfoResult::CannotReadFileAttributes, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo })
+            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo })
         messages.insert(fsu::make_error_message(result));
 
-    EXPECT_EQ(messages.size(), 6u);
+    EXPECT_EQ(messages.size(), 7u);
+    EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::OK))) << "no failure may share the text of the unknown error";
     EXPECT_FALSE(messages.contains(L""));
 }
 

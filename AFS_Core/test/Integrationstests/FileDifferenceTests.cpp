@@ -17,6 +17,9 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pch.h"
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include "FileDifference.h"
 #include "FileUtil.h"
 #include "Config.h"
@@ -414,6 +417,37 @@ TEST_F(ThreeWayTest, AFileInAMissingDirectoryCountsAsMissing)  // [FileDifferenc
     EXPECT_EQ(result_of(gone, dest_w_, nullptr), Result::SourceNotExits);
     EXPECT_EQ(result_of(gone, gone, &base_), Result::NeitherExists);
 }
+
+#ifndef _WIN32
+TEST_F(ThreeWayTest, AFileBehindALockedDirectoryIsNotReadableAndNeverMissing)  // [FileDifferenceTests.md#AFileBehindALockedDirectoryIsNotReadableAndNeverMissing]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root is refused nothing";
+    CompareItems ci;
+    ci.content(false);
+    const fs::path locked_dir = dir_ / "locked";
+    const std::wstring locked = (locked_dir / "file.txt").wstring();
+    const std::wstring missing = (dir_ / "missing.txt").wstring();
+    tu::write_text_file(locked_dir / "file.txt", "v1", std::chrono::seconds(3600));
+    fs::permissions(locked_dir, fs::perms::none);
+    std::vector<Result> results;
+    std::wstring read_error;
+    for (const FileState* base : {static_cast<const FileState*>(nullptr), static_cast<const FileState*>(&base_)})
+        for (const auto& [source, dest] : {std::pair(locked, dest_w_), std::pair(source_w_, locked), std::pair(locked, missing), std::pair(missing, locked)}) {
+            FileDifference fd(source, dest, ci, SSHPATH::none, true, base);
+            fd();
+            results.push_back(fd.result());
+            read_error = fd.read_error();
+        }
+    fs::permissions(locked_dir, fs::perms::owner_all);
+
+    const std::vector<Result> one_pass{Result::SourceNotReadable, Result::DestNotReadable, Result::SourceNotReadable, Result::DestNotReadable};
+    std::vector<Result> expected = one_pass;
+    expected.insert(expected.end(), one_pass.begin(), one_pass.end());
+    EXPECT_EQ(results, expected) << "with or without a base, and whatever the other side looks like";
+    EXPECT_NE(read_error.find(locked), std::wstring::npos) << "the error names the file";
+}
+#endif
 
 TEST_F(ThreeWayTest, BothSidesMissingIsNeitherExists)
 {

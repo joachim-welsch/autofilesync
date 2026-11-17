@@ -15,6 +15,12 @@
   auch keine Unterordner mehr angelegt.
 - Das Protokoll unterscheidet „Verzeichnis existiert nicht“ von „Datei
   existiert nicht“.
+- Behoben: Konnte eine Quelldatei wegen fehlender Rechte am Quellordner nicht
+  abgefragt werden („Zugriff verweigert“), galt sie als nicht vorhanden. Mit
+  „Gelöschte Dateien im Ziel ebenfalls löschen“ wurde dann ihre Kopie im Ziel
+  gelöscht, bei einem ganzen Ordner ohne jede Fehlermeldung. Eine Datei, die
+  sich nicht abfragen lässt, wird jetzt weder kopiert noch gelöscht; der
+  Durchlauf meldet sie mit Namen und Grund als Fehler.
 - Cloud-Ordner als Ziel: Im Dialog einer Synchronisation steht neben dem Ziel
   „Cloud…“. Die Schaltfläche zeigt die Ordner, die die Programme der
   Cloud-Anbieter auf dem Rechner angelegt haben (Dropbox und Nextcloud überall,

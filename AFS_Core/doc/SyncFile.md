@@ -102,6 +102,13 @@ there, copy it back, or leave it alone - so the counting pass, the preview and t
 cannot drift apart. The real run carries the decision out, the counting pass counts it, the
 preview records it (SyncPlan.md#SyncPlan).
 
+## not-readable
+
+A side that could not be read (FileDifference.md#not-readable) ends the work on this file
+before anything is decided: nothing is copied, deleted or planned, and the state keeps what it
+knows, so the pass after the cause is gone finds the file as it was. The file and the reason go
+into the report, because a run that could not look at a file must not count as successful.
+
 ## only-count-touches-nothing
 
 only_count_ means "count only" - it must not touch the filesystem, the way

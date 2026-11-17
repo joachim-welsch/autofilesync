@@ -214,6 +214,10 @@ msgstr "L'unità non è montata"
 msgid "file_attributes_unreadable"
 msgstr "Impossibile leggere gli attributi del file"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "permission_denied"
+msgstr "Accesso negato"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Data del file non valida"

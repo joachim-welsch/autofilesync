@@ -93,14 +93,27 @@ for it, and the state is updated.
 
 ## absent
 
-Only a file the file system (or the SFTP server) confirms as missing may count as deleted; a
-file whose attributes cannot be read is still there and merely yields the old DestNotExists
-or SourceNotExits, as before, which copies instead of deleting. A file whose directory is
+What reading one side can come to: the file is Readable, it is Absent, its drive is Unmounted,
+or it is NotReadable. Only a file the file system (or the SFTP server) confirms as missing is
+Absent and may count as missing or deleted (not-readable has the rest). A file whose directory is
 missing (DirectoryNotExist) is confirmed missing as well: a directory deleted on one side takes
 its files with it, and SyncTree asks about each of them. An unmounted drive is neither, it
 comes back as DriveNotMounted before the directory is looked at
 (FilesystemUtil.md#reason_for_missing). The root of an item is another matter and is settled
 before any file is compared (Synchronize.md#vanished-target).
+
+## not-readable
+
+The system would not say whether the file is there: the directory refuses the question
+(PermissionDenied), or the attributes cannot be read for another reason. Such a file used to
+come out as SourceNotExits or DestNotExists, on the grounds that this copies instead of
+deleting. It does not: with "delete in target" SourceNotExits deletes the target file, and a
+whole target directory went that way when its source could be listed but not entered. So a
+side that cannot be read has results of its own, SourceNotReadable and DestNotReadable, which
+lead to no action at all, and read_error() names the file and the reason for the report
+(SyncFile.md#not-readable). They take precedence over a missing file on the other side, since
+one readable side must not decide alone; an unmounted drive on either side comes before both.
+Behind SSH a failed read is reported as an unreachable side instead (ssh-error-is-not-absence).
 
 ## observe_file
 

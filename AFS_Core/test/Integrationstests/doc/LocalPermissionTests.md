@@ -52,3 +52,29 @@ error names the target directory, the file-level errors that follow are noise be
 
 The directory iterator throws before any file is seen; SyncDir catches it once for the whole
 item.
+
+## locked-source-is-no-deletion
+
+A directory that may be listed but not entered (r--) gives the names of its files and refuses
+everything else about them; without any permission a File item cannot even ask for its one
+file. Either way the file is there. With "delete in target" the pass used to take it for gone
+and deleted its copy in the target, the Dir pass without a single error. The tests ask for
+the target to stay, for the run to count as failed, and - after the directory is unlocked -
+for the next pass to do what it would have done: copy the newer file and delete what is
+superfluous in the target. Deletions are permanent here, so a failing test leaves nothing in
+a recycle bin.
+
+## FileBehindALockedTargetDirectoryIsReportedAndNothingIsCopied
+
+The mirror image for the target: the pass cannot tell whether the target file is there, so it
+does not copy over it blindly, and the one error names the file it could not ask for. The
+directory is unlocked before the content is read back.
+
+## TwoWayWithALockedDirectoryDeletesAndCopiesNothing
+
+With a state the stakes are higher: a file the state knows and that is "gone" on one side was
+deleted there, and the other side follows. The locked side is the source or the target, once
+without any permission and once listable only. Nothing may be deleted or copied, the run
+counts as failed, and the state still knows the file, so that the pass after unlocking finds
+everything in sync instead of taking the file for new. The File item is the same case with
+the directory of its one file locked.

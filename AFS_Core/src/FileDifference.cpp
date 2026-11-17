@@ -53,6 +53,8 @@ static wstring to_wstring(FileDifference::Result r)
     case Result::DestDeleted: return L"DestDeleted";
     case Result::BothModified: return L"BothModified";
     case Result::NeitherExists: return L"NeitherExists";
+    case Result::SourceNotReadable: return L"SourceNotReadable";
+    case Result::DestNotReadable: return L"DestNotReadable";
     case Result::Undefined: break;
     }
     return L"Undefined";
@@ -114,42 +116,73 @@ static bool read_ssh_file_info(const std::wstring& fname, bool& drive_mounted, b
     }
 }
 
-static bool read_file_info(const std::wstring& fname, bool& drive_mounted, bool& absent, uint64_t& filesize, fs::file_time_type& last_write_time, bool ssh)
+using Side = FileDifference::Side;
+
+static Side read_ssh_side(const std::wstring& fname, uint64_t& filesize, fs::file_time_type& last_write_time)
+{
+    bool drive_mounted = true, absent = false;
+    if (read_ssh_file_info(fname, drive_mounted, absent, filesize, last_write_time))
+        return Side::Readable;
+    return absent ? Side::Absent : Side::Unmounted;  // [FileDifference.md#ssh-error-is-not-absence]
+}
+
+static Side side_of(fsu::FileInfoResult result)  // [FileDifference.md#absent]
+{
+    switch (result) {
+    case fsu::FileInfoResult::OK: return Side::Readable;
+    case fsu::FileInfoResult::FileNotExist:
+    case fsu::FileInfoResult::DirectoryNotExist: return Side::Absent;
+    case fsu::FileInfoResult::DriveNotMounted: return Side::Unmounted;
+    default: return Side::NotReadable;
+    }
+}
+
+static Side read_file_info(const std::wstring& fname, uint64_t& filesize, fs::file_time_type& last_write_time, bool ssh, wstring& read_error)
 {
     if (ssh)
-        return read_ssh_file_info(fname, drive_mounted, absent, filesize, last_write_time);
-    fsu::FileInfoResult result = fsu::fileinfo(fname, filesize, last_write_time);
-    if (result != fsu::FileInfoResult::OK) {
-        if (result == fsu::FileInfoResult::DriveNotMounted)
-            drive_mounted = false;
-        absent = result == fsu::FileInfoResult::FileNotExist || result == fsu::FileInfoResult::DirectoryNotExist;  // [FileDifference.md#absent]
-        const wstring error_message = fsu::make_error_message(result) + L": ";
-        log_info(error_message, fname);
-        return false;
-    }
-    return true;
+        return read_ssh_side(fname, filesize, last_write_time);
+    const fsu::FileInfoResult result = fsu::fileinfo(fname, filesize, last_write_time);
+    const Side side = side_of(result);
+    if (side == Side::Readable)
+        return side;
+    const wstring message = fsu::make_error_message(result) + L": " + fname;
+    log_info(message);
+    if (side == Side::NotReadable && read_error.empty())
+        read_error = message;
+    return side;
 }
 
 std::optional<ObservedFile> observe_file(const wstring& path, bool ssh)  // [FileDifference.md#observe_file]
 {
-    bool drive_mounted = true, absent = false;
     ObservedFile observed;
-    if (!read_file_info(path, drive_mounted, absent, observed.size, observed.time, ssh))
+    wstring read_error;
+    if (read_file_info(path, observed.size, observed.time, ssh, read_error) != Side::Readable)
         return std::nullopt;
     return observed;
 }
 
+FileDifference::Result FileDifference::result_of(Side source, Side dest) const  // [FileDifference.md#not-readable]
+{
+    if (source == Side::Unmounted)
+        return Result::SourceDriveNotMounted;
+    if (dest == Side::Unmounted)
+        return Result::DestDriveNotMounted;
+    if (source == Side::NotReadable)
+        return Result::SourceNotReadable;
+    if (dest == Side::NotReadable)
+        return Result::DestNotReadable;
+    if (source == Side::Absent)
+        return source_missing(dest == Side::Absent);
+    if (dest == Side::Absent)
+        return dest_missing();
+    return base_ ? compare_with_base() : compare_metadata(sourcetime_, desttime_);
+}
+
 uint64_t FileDifference::operator()()
 {
-    bool source_drive_mounted = true, dest_drive_mounted = true, source_absent = false, dest_absent = false;
-    const bool source_ok = read_file_info(source_, source_drive_mounted, source_absent, sourcesize_, sourcetime_, ssh_ == SSHPATH::source || ssh_ == SSHPATH::both);
-    const bool dest_ok = read_file_info(dest_, dest_drive_mounted, dest_absent, destsize_, desttime_, ssh_ == SSHPATH::dest || ssh_ == SSHPATH::both);
-    if (!source_ok)
-        result_ = !source_drive_mounted ? Result::SourceDriveNotMounted : source_absent ? source_missing(dest_absent) : Result::SourceNotExits;
-    else if (!dest_ok)
-        result_ = !dest_drive_mounted ? Result::DestDriveNotMounted : dest_absent ? dest_missing() : Result::DestNotExists;
-    else
-        result_ = base_ ? compare_with_base() : compare_metadata(sourcetime_, desttime_);
+    const Side source = read_file_info(source_, sourcesize_, sourcetime_, ssh_ == SSHPATH::source || ssh_ == SSHPATH::both, read_error_);
+    const Side dest = read_file_info(dest_, destsize_, desttime_, ssh_ == SSHPATH::dest || ssh_ == SSHPATH::both, read_error_);
+    result_ = result_of(source, dest);
     if (result_ == Result::Equal && ci_.content())
         compare_content(sourcetime_, desttime_);
     log_debug(wstring(L"FileDifference result: ") + to_wstring(result_));

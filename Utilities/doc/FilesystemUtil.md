@@ -72,3 +72,11 @@ drive comes first: everything below it is missing, and none of it was deleted. T
 directory the file should lie in: DirectoryNotExist when it is missing or is not a directory.
 Only a file that is missing from a directory that is there is FileNotExist. A name without a
 directory part lies in the current directory, which exists.
+A directory that refuses the question is PermissionDenied, not a missing one.
+
+## reason_for_failure
+
+The file may be there, but the system would not say: PermissionDenied when it refused, as a
+directory without search permission does for everything below it, ErrorReadFileInfo for any
+other failure. Neither says anything about the existence of the file, and the caller must not
+read them as "missing" (FileDifference.md#not-readable).

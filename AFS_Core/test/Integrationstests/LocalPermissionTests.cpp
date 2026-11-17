@@ -20,6 +20,8 @@
 #ifdef _UNIX
 #include "CopyLog.h"
 #include "FileUtil.h"
+#include "ScopedDeleteMode.h"
+#include "SyncState.h"
 #include "SyncRunner.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
@@ -191,5 +193,142 @@ TEST_F(LocalPermissionTest, UnreadableSourceDirectoryIsReportedAndCopiesNothing)
     ASSERT_EQ(outcome.report.errors().size(), 1u);
     EXPECT_NE(outcome.report.errors().front().find(source_dir_.wstring()), std::wstring::npos);
     EXPECT_TRUE(fs::is_empty(target_dir_));
+}
+
+TEST_F(LocalPermissionTest, FileBehindALockedSourceDirectoryIsNotDeletedInTheTarget)  // [LocalPermissionTests.md#locked-source-is-no-deletion]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "a.txt", "wertvoll", seconds(3600));
+    tu::write_text_file(target_dir_ / "a.txt", "wertvoll", seconds(3600));
+    lock(source_dir_, fs::perms::none);
+    SyncItem si = file_item("a.txt");
+    si.delete_in_target(true);
+
+    const Outcome outcome = run(si);
+
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "wertvoll") << "die Quelle ist gesperrt, nicht geloescht";
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_NE(outcome.report.errors().front().find((source_dir_ / "a.txt").wstring()), std::wstring::npos) << outcome.report.errors().front();
+}
+
+TEST_F(LocalPermissionTest, ListableButLockedSourceDirectoryDeletesNothingInTheTarget)  // [LocalPermissionTests.md#locked-source-is-no-deletion]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    for (const SyncItemType type : {SyncItemType::Dir, SyncItemType::Tree}) {
+        fs::permissions(source_dir_, fs::perms::owner_all);
+        tu::write_text_file(source_dir_ / "a.txt", "wertvoll", seconds(3600));
+        tu::write_text_file(source_dir_ / "sub" / "b.txt", "wertvoll", seconds(3600));
+        tu::write_text_file(target_dir_ / "a.txt", "wertvoll", seconds(3600));
+        tu::write_text_file(target_dir_ / "sub" / "b.txt", "wertvoll", seconds(3600));
+        lock(source_dir_, fs::perms::owner_read);
+        SyncItem si = dir_item(target_dir_);
+        si.sync_item_type(type);
+        si.delete_in_target(true);
+
+        const Outcome outcome = run(si);
+
+        EXPECT_TRUE(fs::exists(target_dir_ / "a.txt")) << static_cast<int>(type);
+        EXPECT_TRUE(fs::exists(target_dir_ / "sub" / "b.txt")) << static_cast<int>(type);
+        EXPECT_EQ(outcome.copies, 0u) << static_cast<int>(type);
+        EXPECT_FALSE(outcome.report.successful()) << "ein Durchlauf, der die Quelle nicht lesen konnte, ist kein Erfolg: " << static_cast<int>(type);
+    }
+}
+
+TEST_F(LocalPermissionTest, UnlockedSourceSyncsAgainWithoutLoss)  // [LocalPermissionTests.md#locked-source-is-no-deletion]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "a.txt", "neu");
+    tu::write_text_file(target_dir_ / "a.txt", "alt", seconds(3600));
+    tu::write_text_file(target_dir_ / "weg.txt", "nur im Ziel", seconds(3600));
+    lock(source_dir_, fs::perms::owner_read);
+    SyncItem si = dir_item(target_dir_);
+    si.delete_in_target(true);
+    run(si);
+    ASSERT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "alt");
+    ASSERT_TRUE(fs::exists(target_dir_ / "weg.txt")) << "solange die Quelle gesperrt ist, wird auch Ueberzaehliges nicht geloescht";
+    fs::permissions(source_dir_, fs::perms::owner_all);
+
+    const Outcome outcome = run(si);
+
+    EXPECT_TRUE(outcome.report.successful());
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "neu");
+    EXPECT_FALSE(fs::exists(target_dir_ / "weg.txt")) << "mit lesbarer Quelle gilt das Loeschen im Ziel wieder";
+}
+
+TEST_F(LocalPermissionTest, FileBehindALockedTargetDirectoryIsReportedAndNothingIsCopied)  // [LocalPermissionTests.md#FileBehindALockedTargetDirectoryIsReportedAndNothingIsCopied]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "neu");
+    tu::write_text_file(target_dir_ / "a.txt", "alt", seconds(3600));
+    lock(target_dir_, fs::perms::none);
+
+    const Outcome outcome = run(file_item("a.txt"));
+
+    fs::permissions(target_dir_, fs::perms::owner_all);
+    EXPECT_EQ(outcome.copies, 0u);
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_NE(outcome.report.errors().front().find((target_dir_ / "a.txt").wstring()), std::wstring::npos) << outcome.report.errors().front();
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "alt");
+}
+
+TEST_F(LocalPermissionTest, TwoWayWithALockedDirectoryDeletesAndCopiesNothing)  // [LocalPermissionTests.md#TwoWayWithALockedDirectoryDeletesAndCopiesNothing]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    for (const bool source_locked : {true, false})
+        for (const fs::perms kept : {fs::perms::none, fs::perms::owner_read}) {
+            std::error_code ec;
+            fs::remove_all(source_dir_, ec);
+            fs::remove_all(target_dir_, ec);
+            fs::create_directories(target_dir_);
+            tu::write_text_file(source_dir_ / "a.txt", "a", seconds(3600));
+            tu::write_text_file(source_dir_ / "sub" / "b.txt", "b", seconds(3600));
+            SyncItem si = dir_item(target_dir_);
+            si.sync_item_type(SyncItemType::Tree);
+            si.two_way_sync(true);
+            SyncState state(si.source(), si.target());
+            ASSERT_EQ(tu::run_sync(si, state), 2u);
+            const fs::path locked = (source_locked ? source_dir_ : target_dir_) / "sub";
+            lock(locked, kept);
+            Outcome outcome;
+            {
+                SyncReportGuard guard(&outcome.report);
+                outcome.copies = tu::run_sync(si, state);
+            }
+            fs::permissions(locked, fs::perms::owner_all);
+            const std::string which = std::string(source_locked ? "Quelle" : "Ziel") + (kept == fs::perms::none ? " ohne Rechte" : " nur lesbar");
+
+            EXPECT_EQ(outcome.copies, 0u) << which;
+            EXPECT_FALSE(outcome.report.successful()) << which;
+            EXPECT_EQ(tu::read_text_file(source_dir_ / "sub" / "b.txt"), "b") << which;
+            EXPECT_EQ(tu::read_text_file(target_dir_ / "sub" / "b.txt"), "b") << which;
+            EXPECT_NE(state.find(L"sub/b.txt"), nullptr) << "der Stand darf die gesperrte Datei nicht vergessen: " << which;
+            EXPECT_EQ(tu::run_sync(si, state), 0u) << "nach dem Entsperren ist alles wie zuvor: " << which;
+            EXPECT_TRUE(fs::exists(source_dir_ / "sub" / "b.txt") && fs::exists(target_dir_ / "sub" / "b.txt")) << which;
+        }
+}
+
+TEST_F(LocalPermissionTest, TwoWayFileItemWithALockedSideDeletesAndCopiesNothing)  // [LocalPermissionTests.md#TwoWayWithALockedDirectoryDeletesAndCopiesNothing]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    for (const bool source_locked : {true, false}) {
+        tu::write_text_file(source_dir_ / "a.txt", "a", seconds(3600));
+        fs::remove(target_dir_ / "a.txt");
+        SyncItem si = file_item("a.txt");
+        si.two_way_sync(true);
+        SyncState state(si.source(), si.target());
+        ASSERT_EQ(tu::run_sync(si, state), 1u);
+        const fs::path locked = source_locked ? source_dir_ : target_dir_;
+        lock(locked, fs::perms::none);
+        Outcome outcome;
+        {
+            SyncReportGuard guard(&outcome.report);
+            outcome.copies = tu::run_sync(si, state);
+        }
+        fs::permissions(locked, fs::perms::owner_all);
+
+        EXPECT_EQ(outcome.copies, 0u) << source_locked;
+        EXPECT_EQ(outcome.report.errors().size(), 1u) << source_locked;
+        EXPECT_TRUE(fs::exists(source_dir_ / "a.txt") && fs::exists(target_dir_ / "a.txt")) << source_locked;
+        EXPECT_NE(state.find(L"a.txt"), nullptr) << source_locked;
+    }
 }
 #endif

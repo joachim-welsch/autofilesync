@@ -214,6 +214,10 @@ msgstr "The drive is not mounted"
 msgid "file_attributes_unreadable"
 msgstr "Cannot read the file attributes"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "permission_denied"
+msgstr "Permission denied"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Invalid file time"

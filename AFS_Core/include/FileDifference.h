@@ -35,7 +35,9 @@ class FileDifference {
 public:
     enum class Result { Equal, SourceModified, DestModified, DestNotExists, SourceNotExits,
                         SourceDriveNotMounted, DestDriveNotMounted, ContentConflict,
-                        SourceDeleted, DestDeleted, BothModified, NeitherExists, Undefined };  // [FileDifference.md#three-way]
+                        SourceDeleted, DestDeleted, BothModified, NeitherExists,
+                        SourceNotReadable, DestNotReadable, Undefined };  // [FileDifference.md#three-way]
+    enum class Side { Readable, Absent, Unmounted, NotReadable };  // [FileDifference.md#absent]
 private:
     const std::wstring  source_;
     const std::wstring  dest_;
@@ -46,6 +48,8 @@ private:
     bool                two_way_sync_ = false;
     const FileState*    base_ = nullptr;  // [FileDifference.md#three-way]
     Result              result_ = Result::Equal;
+    std::wstring        read_error_;  // [FileDifference.md#not-readable]
+    Result result_of(Side source, Side dest) const;
     bool newer(std::filesystem::file_time_type a, std::filesystem::file_time_type b) const;
     bool unchanged(uint64_t size, std::filesystem::file_time_type time, std::filesystem::file_time_type base_time) const;  // [FileDifference.md#unchanged]
     bool alike() const;
@@ -59,6 +63,7 @@ public:
         bool two_way_sync = false, const FileState* base = nullptr);
     uint64_t operator()();
     Result result() const { return result_; }
+    const std::wstring& read_error() const { return read_error_; }  // [FileDifference.md#not-readable]
     bool has_base() const { return base_ != nullptr; }
     bool same_time(std::filesystem::file_time_type a, std::filesystem::file_time_type b) const { return !newer(a, b) && !newer(b, a); }  // within the item's tolerance
     bool dest_newer() const { return newer(desttime_, sourcetime_); }  // beyond the tolerance; a tie is not newer

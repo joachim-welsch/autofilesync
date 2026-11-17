@@ -214,6 +214,10 @@ msgstr "Le lecteur n'est pas monté"
 msgid "file_attributes_unreadable"
 msgstr "Impossible de lire les attributs du fichier"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "permission_denied"
+msgstr "Accès refusé"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Date du fichier non valide"

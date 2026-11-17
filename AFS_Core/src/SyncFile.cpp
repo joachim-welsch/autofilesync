@@ -365,8 +365,19 @@ bool SyncFile::empty_file_skipped(const FileDifference& fd, PlannedAction action
     return (winner_in_target(action) ? fd.dest_size() : fd.source_size()) == 0;
 }
 
+bool SyncFile::not_readable(const FileDifference& fd) const  // [SyncFile.md#not-readable]
+{
+    if (fd.result() != FDResult::SourceNotReadable && fd.result() != FDResult::DestNotReadable)
+        return false;
+    log_error(fd.read_error());
+    report_sync_error(fd.read_error());
+    return true;
+}
+
 void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, const wstring& destination, uint64_t filesize)
 {
+    if (not_readable(fd))
+        return;
     const std::optional<PlannedAction> action = decide(fd);
     if (!action) {
         report_newer_target(source, destination, fd.result() == FDResult::DestModified);

@@ -214,6 +214,10 @@ msgstr "Dysk nie jest zamontowany"
 msgid "file_attributes_unreadable"
 msgstr "Nie można odczytać atrybutów pliku"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "permission_denied"
+msgstr "Odmowa dostępu"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Nieprawidłowy czas pliku"

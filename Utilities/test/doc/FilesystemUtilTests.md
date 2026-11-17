@@ -13,6 +13,20 @@ DirectoryNotExist is the answer whenever the directory the file should lie in is
 directory: it is missing, a level above it is missing, or a plain file bears its name. The
 output stays untouched as for a missing file.
 
+## FileinfoTellsARefusedFileFromAMissingOne
+
+A directory without any permission hides whether a file in it exists. PermissionDenied is the
+answer for the file that is there, for the one that is not, and for one a level deeper: none of
+them is known to be missing. Unix only and skipped as root, like every test that locks
+something with chmod. The permission is given back before the assertions, so that a failing
+test can still be cleaned up.
+
+## FileinfoOfAFileThatMayNotBeReadStillAnswers
+
+Size and write time come from the directory entry, not from the content. A file without read
+permission is therefore no PermissionDenied here; the copy is what fails
+(LocalPermissionTests.md#UnreadableSourceKeepsTheOldTargetAndReportsTheError).
+
 ## EveryFileInfoResultHasItsOwnMessage
 
 The message is all the user gets to see of a failed fileinfo(). Two results sharing one text - a
