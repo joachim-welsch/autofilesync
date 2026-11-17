@@ -234,6 +234,10 @@ msgstr "Impossibile creare la cartella"
 msgid "disk_full"
 msgstr "Spazio esaurito sul supporto"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "links_not_supported"
+msgstr "I collegamenti simbolici qui non sono supportati"
+
 #: AFS_Core/src/CopyLog.cpp
 msgid "disk_full_needs"
 msgstr "richiede %1, liberi %2"
@@ -982,6 +986,22 @@ msgstr "Il collegamento simbolico non viene seguito: "
 #: AFS_Core/src/SyncFile.cpp
 msgid "symlink_dangling"
 msgstr "Il collegamento simbolico non porta da nessuna parte e viene saltato: "
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_label"
+msgstr "Collegamenti simbolici"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_file_content"
+msgstr "Copiare i collegamenti a file come file, saltare quelli a cartelle"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_as_link"
+msgstr "Mantenere come collegamenti"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_follow"
+msgstr "Seguire il collegamento"
 
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"

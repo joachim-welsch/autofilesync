@@ -87,6 +87,8 @@ wstring describe_item(const SyncItem& item)  // [ConfigSummary.md#describe_item]
     parts.push_back(translate("compare_by") + L" " + compared_by(item));
     if (const wstring options = enabled_options(item); !options.empty())
         parts.push_back(translate("tab_options") + L": " + options);
+    if (item.symlink_mode() != SymlinkMode::FileContent)
+        parts.push_back(translate("symlink_mode_label") + L": " + symlink_mode_to_str(item.symlink_mode()));
     parts.push_back(last_sync_text(item));
     const std::optional<LastRun>& run = item.last_run();
     if (run && !run->reachable)

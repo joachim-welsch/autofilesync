@@ -368,10 +368,10 @@ TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUt
     std::set<std::wstring> messages;
 
     for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
-            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::ErrorWriteFileInfo, FileInfoResult::CannotSetFileAttributes, FileInfoResult::CannotCreateDirectory, FileInfoResult::DiskFull })
+            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::ErrorWriteFileInfo, FileInfoResult::CannotSetFileAttributes, FileInfoResult::CannotCreateDirectory, FileInfoResult::DiskFull, FileInfoResult::LinksNotSupported })
         messages.insert(fsu::make_error_message(result));
 
-    EXPECT_EQ(messages.size(), 12u);
+    EXPECT_EQ(messages.size(), 13u);
     EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::OK))) << "no failure may share the text of the unknown error";
     EXPECT_FALSE(messages.contains(L""));
 }

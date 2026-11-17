@@ -18,13 +18,50 @@
  */
 #pragma once
 #include <UtilitiesConfig.h>
+#include <FilesystemUtil.h>
 #include <filesystem>
+#include <optional>
+#include <system_error>
+#include <vector>
 
 namespace Utilities {
 
 namespace symlink_util {
 
+    struct LinkInfo {  // [SymlinkUtil.md#link_info]
+        bool is_link = false;
+        std::filesystem::path text;
+        bool resolves = false;
+        bool to_directory = false;
+    };
+
+    inline constexpr int MAX_FOLLOWED_LINKS = 16;  // [SymlinkUtil.md#LinkTrail]
+    enum class FollowRefusal { None, Unresolved, Loop, IntoTarget, TooManyLinks };  // [SymlinkUtil.md#LinkTrail]
+
+    class LinkTrail {  // [SymlinkUtil.md#LinkTrail]
+        struct Step {
+            std::filesystem::path directory;
+            bool through_link;
+        };
+        std::filesystem::path target_root_;
+        std::vector<Step> chain_;
+    public:
+        LinkTrail(const std::filesystem::path& source_root, const std::filesystem::path& target_root);
+        FollowRefusal refusal(const std::filesystem::path& link) const;
+        void enter_link(const std::filesystem::path& link);
+        void enter_directory(const std::filesystem::path& name);
+        void leave();
+    };
+
     bool dangling_link(const std::filesystem::path& path);  // [SymlinkUtil.md#dangling_link]
+    LinkInfo link_info(const std::filesystem::path& path);  // [SymlinkUtil.md#link_info]
+    std::filesystem::path portable_link_text(const std::filesystem::path& link, const std::filesystem::path& text, const std::filesystem::path& root);  // [SymlinkUtil.md#portable_link_text]
+    bool leaves_root(const std::filesystem::path& link, const std::filesystem::path& text, const std::filesystem::path& root);  // [SymlinkUtil.md#leaves_root]
+    bool system_link(const std::filesystem::path& link);  // [SymlinkUtil.md#system_link]
+    FilesystemUtil::FileInfoResult create_link_refusal(const std::filesystem::path& text, const std::filesystem::path& at, bool to_directory);  // [SymlinkUtil.md#create_link_refusal]
+#ifdef _TEST
+    void set_link_error_for_test(std::optional<std::error_code> error);  // [SymlinkUtil.md#create_link_refusal]
+#endif
 }
 
 } // namespace Utilities

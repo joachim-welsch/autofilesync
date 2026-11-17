@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pch.h"
+#include <sstream>
 #include "Config.h"
 #include "Logging.h"
 #include "ScopedLoggingSetup.h"
@@ -1440,6 +1441,66 @@ TEST_F(ConfigPathTest, ConflictCopiesIsOnByDefaultAndRoundTripsOff)
     ASSERT_EQ(items.size(), 1u);
     EXPECT_FALSE(items[0].conflict_copies());
     Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, SymlinkModeIsFileContentByDefaultAndRoundTrips)  // [ConfigTests.md#SymlinkModeIsFileContentByDefaultAndRoundTrips]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    for (const SymlinkMode mode : {SymlinkMode::AsLink, SymlinkMode::Follow, SymlinkMode::FileContent}) {
+        Config::instance().reset();
+        SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
+            SyncFlags(false, false, false, false, true), CompareItems());
+        ASSERT_EQ(si.symlink_mode(), SymlinkMode::FileContent);
+        si.symlink_mode(mode);
+        Config::instance().add(si);
+        ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+
+        Config::instance().reset();
+        ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+        ASSERT_EQ(Config::instance().syncitems().size(), 1u);
+        EXPECT_EQ(Config::instance().syncitems()[0].symlink_mode(), mode);
+    }
+    Config::instance().reset();
+}
+
+TEST_F(ConfigPathTest, UnknownOrMissingSymlinkModeReadsAsFileContent)  // [ConfigTests.md#UnknownOrMissingSymlinkModeReadsAsFileContent]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    for (const char* replacement : {"\"symlinks\": \"irgendwas\"", "\"fremd\": \"asLink\""}) {
+        Config::instance().reset();
+        SyncItem si(L"item", SyncItemType::Tree, L"/src", L"/dst", L"", Exclusions(),
+            SyncFlags(false, false, false, false, true), CompareItems());
+        si.symlink_mode(SymlinkMode::AsLink);
+        Config::instance().add(si);
+        ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+        std::string text = (std::stringstream() << std::ifstream(target_path).rdbuf()).str();
+        const std::string written = "\"symlinks\": \"asLink\"";
+        ASSERT_NE(text.find(written), std::string::npos) << text;
+        text.replace(text.find(written), written.size(), replacement);
+        std::ofstream(target_path) << text;
+
+        Config::instance().reset();
+        ASSERT_TRUE(Config::instance().read(target_path.wstring()));
+
+        ASSERT_EQ(Config::instance().syncitems().size(), 1u);
+        EXPECT_EQ(Config::instance().syncitems()[0].symlink_mode(), SymlinkMode::FileContent) << replacement;
+    }
+    Config::instance().reset();
+}
+
+TEST(SymlinkModeTests, KeyIsUntranslatedAndEverySpellingIsUnderstood)  // [ConfigTests.md#SymlinkModeNames]
+{
+    EXPECT_EQ(symlink_mode_key(SymlinkMode::FileContent), L"fileContent");
+    EXPECT_EQ(symlink_mode_key(SymlinkMode::AsLink), L"asLink");
+    EXPECT_EQ(symlink_mode_key(SymlinkMode::Follow), L"follow");
+    for (const SymlinkMode mode : {SymlinkMode::FileContent, SymlinkMode::AsLink, SymlinkMode::Follow}) {
+        EXPECT_EQ(str_to_symlink_mode(symlink_mode_key(mode)), mode);
+        EXPECT_EQ(str_to_symlink_mode(symlink_mode_to_str(mode)), mode) << "what the dialog shows must be read back";
+    }
+    EXPECT_EQ(str_to_symlink_mode(L""), SymlinkMode::FileContent);
+    EXPECT_EQ(str_to_symlink_mode(L"irgendwas"), SymlinkMode::FileContent);
+    EXPECT_NE(symlink_mode_to_str(SymlinkMode::AsLink), symlink_mode_to_str(SymlinkMode::Follow));
 }
 
 TEST_F(ConfigPathTest, WatchChangesIsOffByDefaultAndRoundTripsOn)

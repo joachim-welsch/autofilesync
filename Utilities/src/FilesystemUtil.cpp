@@ -126,6 +126,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("directory_not_creatable");
     case FileInfoResult::DiskFull:
         return translation::translate("disk_full");
+    case FileInfoResult::LinksNotSupported:
+        return translation::translate("links_not_supported");
     default:
         return translation::translate("unknown_error");
     }

@@ -234,6 +234,10 @@ msgstr "Verzeichnis kann nicht angelegt werden"
 msgid "disk_full"
 msgstr "Kein Speicherplatz mehr auf dem Datenträger"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "links_not_supported"
+msgstr "Symbolische Links werden hier nicht unterstützt"
+
 #: AFS_Core/src/CopyLog.cpp
 msgid "disk_full_needs"
 msgstr "benötigt %1, frei %2"
@@ -994,6 +998,22 @@ msgstr "Symlink wird nicht verfolgt: "
 #: AFS_Core/src/SyncFile.cpp
 msgid "symlink_dangling"
 msgstr "Symlink führt ins Leere und wird übersprungen: "
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_label"
+msgstr "Symbolische Links"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_file_content"
+msgstr "Datei-Links als Datei kopieren, Ordner-Links überspringen"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_as_link"
+msgstr "Als Verweis übernehmen"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_follow"
+msgstr "Dem Link folgen"
 
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"

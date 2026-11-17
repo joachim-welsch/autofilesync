@@ -234,6 +234,10 @@ msgstr "Nie można utworzyć folderu"
 msgid "disk_full"
 msgstr "Brak miejsca na nośniku"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "links_not_supported"
+msgstr "Dowiązania symboliczne nie są tu obsługiwane"
+
 #: AFS_Core/src/CopyLog.cpp
 msgid "disk_full_needs"
 msgstr "wymaga %1, wolne %2"
@@ -982,6 +986,22 @@ msgstr "Dowiązanie symboliczne nie jest śledzone: "
 #: AFS_Core/src/SyncFile.cpp
 msgid "symlink_dangling"
 msgstr "Dowiązanie symboliczne prowadzi donikąd i zostaje pominięte: "
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_label"
+msgstr "Dowiązania symboliczne"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_file_content"
+msgstr "Kopiuj dowiązania do plików jako pliki, pomijaj dowiązania do folderów"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_as_link"
+msgstr "Zachowaj jako dowiązania"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_follow"
+msgstr "Podążaj za dowiązaniem"
 
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"

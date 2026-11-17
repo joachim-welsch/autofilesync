@@ -70,6 +70,18 @@ TEST(ConfigSummaryTests, DescribesNamePathsStateAndOptions)
     EXPECT_FALSE(contains(summary, translate("option_father_son_principle"))) << summary;  // [ConfigSummaryTests.md#only-enabled-options]
 }
 
+TEST(ConfigSummaryTests, SymlinkModeIsNamedOnlyWhenItIsNotTheDefault)  // [ConfigSummaryTests.md#SymlinkModeIsNamedOnlyWhenItIsNotTheDefault]
+{
+    SyncItems items = items_named(2);
+    items[1].symlink_mode(SymlinkMode::AsLink);
+
+    const wstring plain = config_summary::describe({items[0]}, {});
+    const wstring linked = config_summary::describe({items[1]}, {});
+
+    EXPECT_FALSE(contains(plain, translate("symlink_mode_label"))) << plain;
+    EXPECT_TRUE(contains(linked, translate("symlink_mode_label") + L": " + symlink_mode_to_str(SymlinkMode::AsLink))) << linked;
+}
+
 TEST(ConfigSummaryTests, SameConfigurationRendersIdentically)  // [ConfigSummaryTests.md#SameConfigurationRendersIdentically]
 {
     const SyncItems items = items_named(3);

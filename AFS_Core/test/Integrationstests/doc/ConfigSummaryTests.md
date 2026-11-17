@@ -37,3 +37,8 @@ context window. Compared by its start only, since the cut is the point of the te
 
 The count comes from the LastRun (SyncItem.md#known_files) and is named only when there is
 one: an item without a state must not claim to track deletions.
+
+## SymlinkModeIsNamedOnlyWhenItIsNotTheDefault
+
+Like an option that is off, the default way of treating links is not named; a chosen one is,
+with the words the dialog uses.

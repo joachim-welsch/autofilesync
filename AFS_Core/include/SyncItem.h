@@ -30,6 +30,12 @@ namespace AFS_Core {
 
 enum class SSHPATH {none, source, dest, both};
 
+enum class SymlinkMode { FileContent, AsLink, Follow };  // [SyncItem.md#symlink_mode_]
+
+std::wstring symlink_mode_to_str(SymlinkMode);  // translated, for display
+std::wstring symlink_mode_key(SymlinkMode);  // untranslated, for the configuration file
+SymlinkMode str_to_symlink_mode(const std::wstring&);  // [SyncItem.md#symlink_mode_]
+
 class SyncFlags {
     bool    del_aftercopy_ = false;
     bool    two_way_sync_ = false;
@@ -43,6 +49,7 @@ class SyncFlags {
     bool    conflict_copies_ = true;  // [SyncItem.md#conflict_copies_]
     bool    watch_changes_ = false;  // [SyncItem.md#watch_changes_]
     bool    enabled_ = true;
+    SymlinkMode symlink_mode_ = SymlinkMode::FileContent;  // [SyncItem.md#symlink_mode_]
     uint16_t sync_cycle_ = 60;
 public:
     SyncFlags() = default;
@@ -69,6 +76,8 @@ public:
     void conflict_copies(bool v);
     bool watch_changes() const;
     void watch_changes(bool v);
+    SymlinkMode symlink_mode() const;
+    void symlink_mode(SymlinkMode v);
     bool enabled() const;
     void enabled(bool v);
 };
@@ -215,6 +224,8 @@ public:
     void conflict_copies(bool c);
     bool watch_changes() const;  // [SyncItem.md#watch_changes_]
     void watch_changes(bool w);
+    SymlinkMode symlink_mode() const;  // [SyncItem.md#symlink_mode_]
+    void symlink_mode(SymlinkMode m);
     bool enabled() const;
     void enabled(bool e);
     SyncItemType sync_item_type() const;
@@ -262,6 +273,8 @@ inline bool SyncFlags::conflict_copies() const { return conflict_copies_; }
 inline void SyncFlags::conflict_copies(bool v) { conflict_copies_ = v; }
 inline bool SyncFlags::watch_changes() const { return watch_changes_; }
 inline void SyncFlags::watch_changes(bool v) { watch_changes_ = v; }
+inline SymlinkMode SyncFlags::symlink_mode() const { return symlink_mode_; }
+inline void SyncFlags::symlink_mode(SymlinkMode v) { symlink_mode_ = v; }
 inline bool SyncFlags::enabled() const { return enabled_; }
 inline void SyncFlags::enabled(bool v) { enabled_ = v; }
 
@@ -300,6 +313,8 @@ inline bool SyncItem::conflict_copies() const { return flags_.conflict_copies();
 inline void SyncItem::conflict_copies(bool c) { flags_.conflict_copies(c); }
 inline bool SyncItem::watch_changes() const { return flags_.watch_changes(); }
 inline void SyncItem::watch_changes(bool w) { flags_.watch_changes(w); }
+inline SymlinkMode SyncItem::symlink_mode() const { return flags_.symlink_mode(); }
+inline void SyncItem::symlink_mode(SymlinkMode m) { flags_.symlink_mode(m); }
 inline bool SyncItem::enabled() const { return flags_.enabled(); }
 inline void SyncItem::enabled(bool e) { flags_.enabled(e); }
 inline std::wstring SyncItem::item_type_str() const { return sync_item_type_to_str(type_); }

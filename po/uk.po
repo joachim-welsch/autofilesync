@@ -234,6 +234,10 @@ msgstr "Не вдається створити папку"
 msgid "disk_full"
 msgstr "На носії не залишилося місця"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "links_not_supported"
+msgstr "Символьні посилання тут не підтримуються"
+
 #: AFS_Core/src/CopyLog.cpp
 msgid "disk_full_needs"
 msgstr "потрібно %1, вільно %2"
@@ -982,6 +986,22 @@ msgstr "Символьне посилання не відстежується: "
 #: AFS_Core/src/SyncFile.cpp
 msgid "symlink_dangling"
 msgstr "Символьне посилання нікуди не веде і пропускається: "
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_label"
+msgstr "Символьні посилання"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_file_content"
+msgstr "Копіювати посилання на файли як файли, пропускати посилання на папки"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_as_link"
+msgstr "Зберігати як посилання"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_follow"
+msgstr "Переходити за посиланням"
 
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"

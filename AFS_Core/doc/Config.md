@@ -43,7 +43,9 @@ Default instead of the throwing get<>(): config files written before this flag e
 loading, and off is the documented default - except warnIfUnreachable, whose default is on
 (SyncItem.md#warn_if_unreachable_). The time tolerance reads the same way, with
 DEFAULT_TIME_TOLERANCE_SECONDS, so that an existing backup to NTFS or FAT stops copying
-everything on every pass with the update that introduced it.
+everything on every pass with the update that introduced it. The way symbolic links are
+treated reads as the mode that changes nothing when the key is missing or its value unknown
+(SyncItem.md#symlink_mode_).
 
 ## delete-mode-default
 

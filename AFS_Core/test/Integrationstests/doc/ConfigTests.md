@@ -287,3 +287,19 @@ anything over.
 
 The host key the account dialog pins (Config.md#ssh-host-key) must survive a save and a reload,
 otherwise every restart would fall back to trust-on-first-use.
+
+## SymlinkModeIsFileContentByDefaultAndRoundTrips
+
+All three values, the default included: an item that was set back to the default must not come
+back with the value it had before.
+
+## UnknownOrMissingSymlinkModeReadsAsFileContent
+
+The written file is edited as text: once the value becomes a word no version knows, once the
+key itself is gone, as in a configuration from before the option. Both must read as the mode
+that changes nothing (SyncItem.md#symlink_mode_).
+
+## SymlinkModeNames
+
+The key in the configuration file is fixed English, whatever language the program runs in,
+and the text the dialog shows is read back to the mode it stands for.

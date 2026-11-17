@@ -151,6 +151,42 @@ SyncItemType str_to_sync_item_type(const std::wstring& str)
     return SyncItemType::Undefined;
 }
 
+struct SymlinkModeNames {  // [SyncItem.md#symlink_mode_]
+    SymlinkMode mode;
+    const char* key;
+    const char* msgid;
+};
+
+constexpr SymlinkModeNames SYMLINK_MODE_NAMES[] = {
+    {SymlinkMode::FileContent, "fileContent", translation::msgid("symlink_mode_file_content")},
+    {SymlinkMode::AsLink, "asLink", translation::msgid("symlink_mode_as_link")},
+    {SymlinkMode::Follow, "follow", translation::msgid("symlink_mode_follow")},
+};
+
+wstring symlink_mode_key(SymlinkMode symlink_mode)
+{
+    for (const auto& [mode, key, msgid] : SYMLINK_MODE_NAMES)
+        if (mode == symlink_mode)
+            return util::string_to_wstring(key);
+    return L"";
+}
+
+wstring symlink_mode_to_str(SymlinkMode symlink_mode)
+{
+    for (const auto& [mode, key, msgid] : SYMLINK_MODE_NAMES)
+        if (mode == symlink_mode)
+            return translation::translate(msgid);
+    return L"";
+}
+
+SymlinkMode str_to_symlink_mode(const std::wstring& str)  // [SyncItem.md#symlink_mode_]
+{
+    for (const auto& [mode, key, msgid] : SYMLINK_MODE_NAMES)
+        if (str == util::string_to_wstring(key) || str == translation::translate(msgid))
+            return mode;
+    return SymlinkMode::FileContent;
+}
+
 CompareItems::CompareItems() : std::set<CompareItem>{CompareItem::content}
 {}
 

@@ -234,6 +234,10 @@ msgstr "Impossible de créer le dossier"
 msgid "disk_full"
 msgstr "Plus d'espace disponible sur le support"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "links_not_supported"
+msgstr "Les liens symboliques ne sont pas pris en charge ici"
+
 #: AFS_Core/src/CopyLog.cpp
 msgid "disk_full_needs"
 msgstr "nécessite %1, libre %2"
@@ -982,6 +986,22 @@ msgstr "Le lien symbolique n'est pas suivi : "
 #: AFS_Core/src/SyncFile.cpp
 msgid "symlink_dangling"
 msgstr "Le lien symbolique ne mène nulle part et est ignoré : "
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_label"
+msgstr "Liens symboliques"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_file_content"
+msgstr "Copier les liens vers des fichiers comme fichiers, ignorer les liens vers des dossiers"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_as_link"
+msgstr "Conserver comme liens"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_follow"
+msgstr "Suivre le lien"
 
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"

@@ -234,6 +234,10 @@ msgstr "The directory cannot be created"
 msgid "disk_full"
 msgstr "No space left on the drive"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "links_not_supported"
+msgstr "Symbolic links are not supported here"
+
 #: AFS_Core/src/CopyLog.cpp
 msgid "disk_full_needs"
 msgstr "needs %1, free %2"
@@ -994,6 +998,22 @@ msgstr "The symlink is not followed: "
 #: AFS_Core/src/SyncFile.cpp
 msgid "symlink_dangling"
 msgstr "The symlink leads nowhere and is skipped: "
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_label"
+msgstr "Symbolic links"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_file_content"
+msgstr "Copy file links as files, skip folder links"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_as_link"
+msgstr "Keep as links"
+
+#: AFS_Core/src/SyncItem.cpp
+msgid "symlink_mode_follow"
+msgstr "Follow the link"
 
 #: AFS_Core/src/Synchronize.cpp:73
 msgid "no_sync_active"

@@ -30,7 +30,7 @@ namespace Utilities {
 namespace FilesystemUtil
 {
 	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, CannotSetFileAttributes,
-        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull };
+        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull, LinksNotSupported };
 
 	bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);

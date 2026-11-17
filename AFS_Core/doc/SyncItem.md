@@ -106,3 +106,14 @@ soon as one has settled, instead of waiting for the next tick (Synchronize.md#du
 flags themselves, so that a configuration from before the option and every test that builds
 items by hand keep the tick they were written for; the dialog ticks it for a new item, since
 reacting at once is what a user expects of a program that keeps two places the same.
+
+## symlink_mode_
+
+What a pass does with symbolic links. FileContent is what the program always did, and it is
+the default for a configuration from before the option, for a value no version knows and for a
+new item: a link to a file is copied as the file it leads to, a link to a directory is
+skipped. No existing item changes on its own - a followed directory link can pull in a tree
+many times the size of the one the user chose. AsLink carries the link itself to the other
+side; Follow enters directory links as well. The key in the configuration file is fixed
+English and separate from the message id, for the reason given under SYNC_ITEM_TYPE_NAMES.
+Unlike an unknown item type, an unknown mode is not an error: it reads as the default.
