@@ -215,13 +215,14 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
 
 constexpr std::size_t COPY_BLOCK_BYTES = 1 << 20;
 
-static CopyResult failed(const wstring& file, wstring& failure)  // [SyncFile.md#copy-failure-reason]
+static CopyResult failed(const wstring& file, CopyFailure& failure)  // [SyncFile.md#copy-failure-reason]
 {
-    failure = fsu::failure_text(fsu::last_stream_error()) + L": " + file;
+    const std::error_code ec = fsu::last_stream_error();
+    failure = {fsu::reason_for_failure(ec), fsu::failure_text(ec) + L": " + file};
     return CopyResult::Error;
 }
 
-static CopyResult copy_local_file(const wstring& src, const wstring& dest, wstring& failure)  // [SyncFile.md#copy_local_file]
+static CopyResult copy_local_file(const wstring& src, const wstring& dest, CopyFailure& failure)  // [SyncFile.md#copy_local_file]
 {
     std::ifstream in(fs::path(src), std::ios::binary);
     if (!in)
@@ -248,7 +249,7 @@ static CopyResult copy_local_file(const wstring& src, const wstring& dest, wstri
     return CopyResult::OK;
 }
 
-static CopyResult copy_normal_file(const wstring& src, const wstring& dest, wstring& failure)  // [SyncFile.md#copy-direction-follows-the-paths]
+static CopyResult copy_normal_file(const wstring& src, const wstring& dest, CopyFailure& failure)  // [SyncFile.md#copy-direction-follows-the-paths]
 {
     const bool ssh_src = get_account_from_path(src).has_value();
     const bool ssh_dest = get_account_from_path(dest).has_value();
@@ -263,7 +264,7 @@ static CopyResult copy_normal_file(const wstring& src, const wstring& dest, wstr
 
 CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
 {
-    copy_failure_.clear();
+    copy_failure_ = {};
     return copy_normal_file(src, dest, copy_failure_);
 }
 
@@ -311,11 +312,37 @@ bool SyncFile::read_refused(const wstring& file) const  // [SyncFile.md#refused]
     return !get_account_from_path(file).has_value() && refused(file, fsu::read_refusal(file));
 }
 
+bool SyncFile::space_short(const wstring& file, uint64_t needed) const  // [SyncFile.md#disk-full]
+{
+    if (get_account_from_path(file).has_value())
+        return false;
+    const std::optional<uint64_t> available = fsu::free_space(fs::path(file).parent_path());
+    if (!available || needed <= *available)
+        return false;
+    log_warning(fsu::make_error_message(fsu::FileInfoResult::DiskFull) + L": " + file);
+    report_sync_shortage(file, needed, *available);
+    return true;
+}
+
+bool SyncFile::copy_refused(const wstring& src, const wstring& dest, uint64_t size) const  // [SyncFile.md#refused]
+{
+    return read_refused(src) || space_short(dest, size);
+}
+
+void SyncFile::report_failed_copy(const wstring& src, const wstring& dest) const  // [SyncFile.md#copy-failure-reason]
+{
+    log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_failed") + L" " + copy_failure_.text);
+    if (copy_failure_.reason == fsu::FileInfoResult::DiskFull) {
+        std::error_code ec;
+        report_sync_shortage(dest, fs::file_size(src, ec), fsu::free_space(fs::path(dest).parent_path()).value_or(0));
+        return;
+    }
+    report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest + (copy_failure_.text.empty() ? wstring() : L" (" + copy_failure_.text + L")"));
+}
+
 bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
 {
     log_debug(L"save_copy_file");
-    if (read_refused(src))
-        return false;
     const wstring bak_filename = free_backup_name(dest);
     if (file_exists(dest) && refused(dest, fsu::rename_refusal(dest, bak_filename)))  // [SyncFile.md#backup-rename-failure]
         return false;
@@ -331,8 +358,7 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
         return false;
     }
     if (copy_ok == CopyResult::Error) {
-        log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_failed") + L" " + copy_failure_);
-        report_sync_error(translation::translate("copy_failed_for") + src + L" -> " + dest + (copy_failure_.empty() ? wstring() : L" (" + copy_failure_ + L")"));
+        report_failed_copy(src, dest);
         restore_backup(dest, bak_filename);
         return false;
     }
@@ -666,6 +692,8 @@ bool SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     #ifdef _WXWIDGETS
         Synchronize::set_progress_message(translation::translate("copy_progress", {source, destination}), source, size);
     #endif
+    if (copy_refused(source, destination, size))
+        return false;
     try {  // [SyncFile.md#failures-return-early]
         pre_copy(source, destination);
         if (!save_copy_file(source, destination))
@@ -704,6 +732,8 @@ bool SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     #ifdef _WXWIDGETS
         Synchronize::set_progress_message(translation::translate("copy_progress", {destination, source}), destination, size);
     #endif
+    if (copy_refused(destination, source, size))
+        return false;
     try {
         pre_copy(destination, source);
         fs::file_time_type modify_time{};  // fs::last_write_time() only resolves a local path - see copy_source_to_dest()

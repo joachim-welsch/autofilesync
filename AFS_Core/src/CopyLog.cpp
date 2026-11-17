@@ -158,6 +158,36 @@ SyncReportGuard::~SyncReportGuard()
     current_report = previous_;
 }
 
+namespace {
+wstring megabytes(uint64_t bytes)  // [CopyLog.md#shortage]
+{
+    constexpr double BYTES_PER_MEGABYTE = 1000000.0;
+    std::wostringstream text;
+    text << std::fixed << std::setprecision(1) << static_cast<double>(bytes) / BYTES_PER_MEGABYTE << L" MB";
+    return text.str();
+}
+}
+
+void SyncReport::shortage(const wstring& file, uint64_t needed, uint64_t available)  // [CopyLog.md#shortage]
+{
+    const wstring disk_full = fsu::make_error_message(fsu::FileInfoResult::DiskFull) + L": ";
+    shortage_.bytes += needed;
+    if (++shortage_.files == 1) {
+        shortage_.first_file = file;
+        if (errors_.size() < MAX_ERRORS)
+            shortage_.entry = errors_.size();
+        error(disk_full + file + L" (" + translation::translate("disk_full_needs", {megabytes(needed), megabytes(available)}) + L")");
+    }
+    else if (shortage_.entry)
+        errors_[*shortage_.entry] = disk_full + translation::translate("disk_full_files", {std::to_wstring(shortage_.files), megabytes(shortage_.bytes), shortage_.first_file});
+}
+
+void report_sync_shortage(const wstring& file, uint64_t needed, uint64_t available)
+{
+    if (current_report != nullptr)
+        current_report->shortage(file, needed, available);
+}
+
 void report_sync_error(const wstring& message)
 {
     if (current_report != nullptr)

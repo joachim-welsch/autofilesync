@@ -226,6 +226,18 @@ msgstr "The file is locked by another program"
 msgid "directory_not_creatable"
 msgstr "The directory cannot be created"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr "No space left on the drive"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr "needs %1, free %2"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr "%1 files (%2 in total) were not copied, the first being %3"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Invalid file time"

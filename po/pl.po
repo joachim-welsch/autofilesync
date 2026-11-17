@@ -226,6 +226,18 @@ msgstr "Plik jest zablokowany przez inny program"
 msgid "directory_not_creatable"
 msgstr "Nie można utworzyć folderu"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr "Brak miejsca na nośniku"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr "wymaga %1, wolne %2"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr "Nie skopiowano %1 plików (łącznie %2); pierwszy to %3"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Nieprawidłowy czas pliku"

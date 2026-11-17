@@ -604,4 +604,20 @@ TEST_F(LocalPermissionTest, TwoWayDirectoryThatCannotBeListedIsOneError)  // [Lo
         EXPECT_TRUE(fs::exists(source_dir_ / "sub" / "tief" / "c.txt") && fs::exists(target_dir_ / "sub" / "tief" / "c.txt")) << source_locked;
     }
 }
+
+TEST_F(LocalPermissionTest, SourceThatDoesNotOpenLeavesTheGenerationsAlone)  // [LocalPermissionTests.md#SourceThatDoesNotOpenLeavesTheGenerationsAlone]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "neu");
+    tu::write_text_file(target_dir_ / "a.txt", "alt", seconds(3600));
+    lock(source_dir_ / "a.txt", fs::perms::none);
+    SyncItem si = file_item("a.txt");
+    si.father_son_principle(true);
+
+    const Outcome outcome = run(si);
+
+    EXPECT_EQ(outcome.copies, 0u);
+    EXPECT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_EQ(names_in(target_dir_), std::set<std::string>{"a.txt"}) << "kein Generationswechsel fuer eine Kopie, die nicht stattfindet";
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "alt");
+}
 #endif

@@ -226,6 +226,18 @@ msgstr "Datei ist von einem anderen Programm gesperrt"
 msgid "directory_not_creatable"
 msgstr "Verzeichnis kann nicht angelegt werden"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr "Kein Speicherplatz mehr auf dem Datenträger"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr "benötigt %1, frei %2"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr "%1 Dateien (zusammen %2) wurden nicht kopiert, als erste %3"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Ungueltige Dateizeit"

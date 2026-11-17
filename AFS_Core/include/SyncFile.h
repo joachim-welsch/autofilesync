@@ -28,6 +28,11 @@
 
 namespace AFS_Core {
 
+struct CopyFailure {  // [SyncFile.md#copy-failure-reason]
+    fsu::FileInfoResult reason = fsu::FileInfoResult::OK;
+    std::wstring text;
+};
+
 class SyncFile: public SyncBase {
     bool transfer_filename_ = false;
     std::wstring state_key_;  // [SyncFile.md#state]
@@ -36,12 +41,15 @@ class SyncFile: public SyncBase {
     bool copy_dest_to_source(const std::wstring& destination, const std::wstring& source, uint64_t size);
     bool save_copy_file(const std::wstring& src, const std::wstring& dest);
     CopyResult core_copy_function(const std::wstring& src, const std::wstring& dest);
-    std::wstring copy_failure_;  // [SyncFile.md#copy-failure-reason]
+    CopyFailure copy_failure_;  // [SyncFile.md#copy-failure-reason]
     void pre_copy(const std::wstring& src, const std::wstring& dest);
     std::optional<PlannedAction> decide(const FileDifference& fd) const;  // [SyncFile.md#decide]
     bool not_readable(const FileDifference& fd) const;  // [SyncFile.md#not-readable]
     bool refused(const std::wstring& file, fsu::FileInfoResult refusal) const;  // [SyncFile.md#refused]
     bool read_refused(const std::wstring& file) const;  // [SyncFile.md#refused]
+    bool space_short(const std::wstring& file, uint64_t needed) const;  // [SyncFile.md#disk-full]
+    void report_failed_copy(const std::wstring& src, const std::wstring& dest) const;  // [SyncFile.md#copy-failure-reason]
+    bool copy_refused(const std::wstring& src, const std::wstring& dest, uint64_t size) const;  // [SyncFile.md#refused]
     bool empty_file_skipped(const FileDifference& fd, PlannedAction action) const;  // [SyncFile.md#empty-source-file]
     void sync_difference(const FileDifference& fd, const std::wstring& source, const std::wstring& destination, uint64_t filesize);
     void carry_out(PlannedAction action, const FileDifference& fd, const std::wstring& source, const std::wstring& destination, uint64_t filesize);

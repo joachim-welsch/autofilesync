@@ -21,6 +21,7 @@
 #include <StrUtil.h>
 #include <FileTime.h>
 #include <SystemInfo.h>
+#include <cerrno>
 #include <chrono>
 #include <stdexcept>
 #include <FileTime.h>
@@ -177,10 +178,15 @@ TEST(FilesystemUtilTests, ReasonForFailureTellsLockedFromRefusedFromMissing)  //
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::permission_denied)), FileInfoResult::PermissionDenied);
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::no_such_file_or_directory)), FileInfoResult::FileNotExist);
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::io_error)), FileInfoResult::ErrorReadFileInfo);
+    EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::no_space_on_device)), FileInfoResult::DiskFull);
 #ifdef _WIN32
+    EXPECT_EQ(fsu::reason_for_failure(std::error_code(112, std::system_category())), FileInfoResult::DiskFull) << "ERROR_DISK_FULL";
+    EXPECT_EQ(fsu::reason_for_failure(std::error_code(39, std::system_category())), FileInfoResult::DiskFull) << "ERROR_HANDLE_DISK_FULL";
+    EXPECT_EQ(fsu::reason_for_failure(std::error_code(1295, std::system_category())), FileInfoResult::DiskFull) << "ERROR_DISK_QUOTA_EXCEEDED";
     EXPECT_EQ(fsu::reason_for_failure(std::error_code(32, std::system_category())), FileInfoResult::FileLocked) << "ERROR_SHARING_VIOLATION";
     EXPECT_EQ(fsu::reason_for_failure(std::error_code(33, std::system_category())), FileInfoResult::FileLocked) << "ERROR_LOCK_VIOLATION";
 #else
+    EXPECT_EQ(fsu::reason_for_failure(std::error_code(EDQUOT, std::generic_category())), FileInfoResult::DiskFull) << "a used-up quota is a full disk to the user";
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::text_file_busy)), FileInfoResult::FileLocked);
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::device_or_resource_busy)), FileInfoResult::FileLocked);
 #endif
@@ -268,12 +274,27 @@ TEST_F(FilesystemUtilTest, CreateDirectoryRefusalTellsARefusalFromOtherFailures)
 TEST(FilesystemUtilTests, FailureTextNamesKnownReasonsAndFallsBackToTheSystem)  // [FilesystemUtilTests.md#FailureTextNamesKnownReasonsAndFallsBackToTheSystem]
 {
     using fsu::FileInfoResult;
-    const std::error_code no_space = std::make_error_code(std::errc::no_space_on_device);
+    const std::error_code too_large = std::make_error_code(std::errc::file_too_large);
 
     EXPECT_EQ(fsu::failure_text(std::make_error_code(std::errc::permission_denied)), fsu::make_error_message(FileInfoResult::PermissionDenied));
     EXPECT_EQ(fsu::failure_text(std::make_error_code(std::errc::no_such_file_or_directory)), fsu::make_error_message(FileInfoResult::FileNotExist));
-    EXPECT_EQ(util::wstring_to_string(fsu::failure_text(no_space)), no_space.message()) << "an error without a text of its own keeps the system's";
+    EXPECT_EQ(fsu::failure_text(std::make_error_code(std::errc::no_space_on_device)), fsu::make_error_message(FileInfoResult::DiskFull));
+    EXPECT_EQ(util::wstring_to_string(fsu::failure_text(too_large)), too_large.message()) << "an error without a text of its own keeps the system's";
     EXPECT_EQ(fsu::failure_text(std::error_code()), fsu::make_error_message(FileInfoResult::OK)) << "no error code at all is the unknown error";
+}
+
+TEST_F(FilesystemUtilTest, FreeSpaceAnswersForADirectoryAndFollowsTheTestValue)  // [FilesystemUtilTests.md#FreeSpaceAnswersForADirectoryAndFollowsTheTestValue]
+{
+    const std::optional<uint64_t> real = fsu::free_space(root_);
+    fsu::set_free_space_for_test(4711);
+    const std::optional<uint64_t> told = fsu::free_space(root_);
+    fsu::set_free_space_for_test(std::nullopt);
+
+    ASSERT_TRUE(real.has_value());
+    EXPECT_GT(*real, 0u);
+    EXPECT_EQ(told, 4711u);
+    EXPECT_FALSE(fsu::free_space(root_ / "missing" / "deeper").has_value()) << "no answer is not zero bytes";
+    EXPECT_NE(fsu::free_space(root_), 4711u) << "the test value is gone again";
 }
 
 TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUtilTests.md#EveryFileInfoResultHasItsOwnMessage]
@@ -282,10 +303,10 @@ TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUt
     std::set<std::wstring> messages;
 
     for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
-            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::CannotCreateDirectory })
+            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::CannotCreateDirectory, FileInfoResult::DiskFull })
         messages.insert(fsu::make_error_message(result));
 
-    EXPECT_EQ(messages.size(), 9u);
+    EXPECT_EQ(messages.size(), 10u);
     EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::OK))) << "no failure may share the text of the unknown error";
     EXPECT_FALSE(messages.contains(L""));
 }

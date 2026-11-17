@@ -120,6 +120,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("file_info_read_error");
     case FileInfoResult::CannotCreateDirectory:
         return translation::translate("directory_not_creatable");
+    case FileInfoResult::DiskFull:
+        return translation::translate("disk_full");
     default:
         return translation::translate("unknown_error");
     }
@@ -134,10 +136,24 @@ static bool lock_error(const std::error_code& ec)  // [FilesystemUtil.md#lock_er
 #endif
 }
 
+static bool space_error(const std::error_code& ec)  // [FilesystemUtil.md#space_error]
+{
+#ifdef WIN32
+    if (ec.category() == std::system_category() && (ec.value() == ERROR_DISK_FULL || ec.value() == ERROR_HANDLE_DISK_FULL || ec.value() == ERROR_DISK_QUOTA_EXCEEDED))
+        return true;
+#else
+    if (ec == std::error_code(EDQUOT, std::generic_category()))
+        return true;
+#endif
+    return ec == std::errc::no_space_on_device;
+}
+
 FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil.md#reason_for_failure]
 {
     if (lock_error(ec))
         return FileInfoResult::FileLocked;
+    if (space_error(ec))
+        return FileInfoResult::DiskFull;
     if (ec == std::errc::permission_denied)
         return FileInfoResult::PermissionDenied;
     return ec == std::errc::no_such_file_or_directory ? FileInfoResult::FileNotExist : FileInfoResult::ErrorReadFileInfo;
@@ -159,7 +175,28 @@ FileInfoResult create_directory_refusal(const fs::path& directory, std::error_co
     if (!ec)
         ec = std::make_error_code(std::errc::not_a_directory);
     const FileInfoResult reason = reason_for_failure(ec);
-    return reason == FileInfoResult::PermissionDenied || reason == FileInfoResult::FileLocked ? reason : FileInfoResult::CannotCreateDirectory;
+    const bool told = reason == FileInfoResult::PermissionDenied || reason == FileInfoResult::FileLocked || reason == FileInfoResult::DiskFull;
+    return told ? reason : FileInfoResult::CannotCreateDirectory;
+}
+
+#ifdef _TEST
+static std::optional<uint64_t> free_space_for_test;
+
+void set_free_space_for_test(std::optional<uint64_t> bytes)  // [FilesystemUtil.md#free_space]
+{
+    free_space_for_test = bytes;
+}
+#endif
+
+std::optional<uint64_t> free_space(const fs::path& directory)  // [FilesystemUtil.md#free_space]
+{
+#ifdef _TEST
+    if (free_space_for_test)
+        return free_space_for_test;
+#endif
+    std::error_code ec;
+    const fs::space_info space = fs::space(directory, ec);
+    return ec ? std::nullopt : std::optional<uint64_t>(space.available);
 }
 
 std::error_code last_stream_error()  // [FilesystemUtil.md#last_stream_error]

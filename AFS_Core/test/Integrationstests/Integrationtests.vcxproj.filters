@@ -431,6 +431,9 @@
     <ClCompile Include="LockedFileTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="DiskFullTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="PasswordCryptoTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

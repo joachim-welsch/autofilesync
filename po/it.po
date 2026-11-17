@@ -226,6 +226,18 @@ msgstr "Il file è bloccato da un altro programma"
 msgid "directory_not_creatable"
 msgstr "Impossibile creare la cartella"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr "Spazio esaurito sul supporto"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr "richiede %1, liberi %2"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr "%1 file (%2 in totale) non sono stati copiati; il primo è %3"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Data del file non valida"

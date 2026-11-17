@@ -41,6 +41,13 @@
   ein voller Datenträger), beim Anlegen eines Ordners und wenn sich ein Ordner
   nicht auflisten lässt. Ein Zielordner, der sich nicht auflisten ließ, galt
   bei der Zwei-Wege-Synchronisation bisher stillschweigend als leer.
+- Voller Datenträger: Vor dem Kopieren wird geprüft, ob die Datei auf das
+  Ziel passt. Passt sie nicht, bleibt das alte Ziel unberührt; bisher wurde es
+  beiseitegelegt, bis zum Platzmangel geschrieben und dann zurückgeholt. Der
+  Durchlauf kopiert weiter, was noch passt, und führt Löschungen aus. Alle
+  Dateien, die nicht passen, stehen in einer einzigen Meldung („Kein
+  Speicherplatz mehr auf dem Datenträger“) mit Anzahl und benötigtem Platz
+  statt in einer Meldung je Datei.
 - Bricht ein ganzer Durchlauf mit einem unerwarteten Fehler ab, erscheint das
   jetzt als Hinweis im Programm und nicht mehr nur im Protokoll.
 - Cloud-Ordner als Ziel: Im Dialog einer Synchronisation steht neben dem Ziel

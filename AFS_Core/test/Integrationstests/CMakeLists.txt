@@ -66,6 +66,7 @@ set(SOURCES
     UnpluggedDriveTests.cpp
     MissingDirectoryTests.cpp
     LockedFileTests.cpp
+    DiskFullTests.cpp
     SynchronizeTests.cpp
     SyncArbiterTests.cpp
     CheckPathTests.cpp

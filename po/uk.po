@@ -226,6 +226,18 @@ msgstr "Файл заблоковано іншою програмою"
 msgid "directory_not_creatable"
 msgstr "Не вдається створити папку"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr "На носії не залишилося місця"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr "потрібно %1, вільно %2"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr "Не скопійовано %1 файлів (разом %2); перший — %3"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Недійсний час файлу"

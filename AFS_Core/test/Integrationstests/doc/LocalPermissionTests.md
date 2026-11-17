@@ -153,3 +153,9 @@ NewFileInAnUnwritableTargetDirectoryIsReported asks, and now also the reason.
 A two-way pass lists both sides of a directory. When either listing fails the directory is
 given up with one error that names it and the reason; a target that could not be listed used
 to pass for an empty one, silently.
+
+## SourceThatDoesNotOpenLeavesTheGenerationsAlone
+
+With the generation principle the old target is moved to its backup name before the copy.
+When the source cannot be read that move must not happen: the target would be left without
+the file under its name, and every failed pass would push the generations on by one.

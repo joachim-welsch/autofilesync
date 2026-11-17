@@ -226,6 +226,18 @@ msgstr "Le fichier est verrouillé par un autre programme"
 msgid "directory_not_creatable"
 msgstr "Impossible de créer le dossier"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr "Plus d'espace disponible sur le support"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr "nécessite %1, libre %2"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr "%1 fichiers (%2 au total) n'ont pas été copiés, le premier étant %3"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Date du fichier non valide"

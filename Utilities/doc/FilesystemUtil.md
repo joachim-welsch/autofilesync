@@ -76,8 +76,9 @@ A directory that refuses the question is PermissionDenied, not a missing one.
 
 ## reason_for_failure
 
-The reason behind a system error, for fileinfo() and for everything that opens or renames a
-file. FileLocked when another program holds the file (lock_error); PermissionDenied when the
+The reason behind a system error, for fileinfo() and for everything that opens, writes or
+renames a file. FileLocked when another program holds the file (lock_error); DiskFull when the
+drive or the user's quota has no room left (space_error); PermissionDenied when the
 system refused, as a directory without search permission does for everything below it;
 FileNotExist when the file is gone; ErrorReadFileInfo for any other failure. Only FileNotExist
 says anything about the existence of the file, and the caller must not read the others as
@@ -130,3 +131,17 @@ everything else - most often a plain file that bears the name of the directory o
 above it. create_directories() does not agree with itself across platforms on whether that
 case is an error, so the result is checked: no directory, no success. The error code goes back
 for failure_text().
+
+## space_error
+
+"No space left on device" and a used-up quota are the same thing to the user: the file does
+not fit, and room has to be made. Windows has codes of its own for both, which the portable
+conditions do not all cover.
+
+## free_space
+
+The bytes a file may still take on the drive a directory lies on - what is available to the
+user, which can be less than what is free. No answer (the directory is not there, the drive
+does not say) is not zero: the caller then simply tries. Tests set the answer, because a disk
+cannot be filled for a test (DiskFullTests.md#FreeSpace); the override exists in test builds
+only and holds for every directory until it is taken back.

@@ -226,6 +226,18 @@ msgstr "El archivo está bloqueado por otro programa"
 msgid "directory_not_creatable"
 msgstr "No se puede crear la carpeta"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr "No queda espacio en la unidad"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr "necesita %1, libre %2"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr "%1 archivos (%2 en total) no se copiaron; el primero es %3"
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr "Fecha del archivo no válida"

@@ -60,6 +60,12 @@ The text behind an error code for the report. Reasons the program knows are said
 user's language; for everything else the system's own text is better than "unknown error" -
 "No space left on device" tells the user what to do.
 
+## FreeSpaceAnswersForADirectoryAndFollowsTheTestValue
+
+free_space() answers for the drive a directory lies on, has no answer for a directory that is
+not there - which callers must not take for "no room" - and gives the value a test set until
+the test takes it back (DiskFullTests.md#FreeSpace).
+
 ## EveryFileInfoResultHasItsOwnMessage
 
 The message is all the user gets to see of a failed fileinfo(). Two results sharing one text - a

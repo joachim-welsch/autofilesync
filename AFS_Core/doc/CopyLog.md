@@ -55,3 +55,13 @@ second file for the same sync item after a change of language.
 Repeated in every entry although the file name already carries it: as_file_name() may have
 changed the name, and an entry that is copied out of the file has to stay attributable on its
 own.
+
+## shortage
+
+A file that does not fit on the drive it should go to. A full backup disk refuses every file
+of the pass, and one error per file would bury the one fact the user needs under thousands of
+lines. So the report keeps a single entry for it: the first file with the room it needs and
+the room there is, and from the second file on a summary in the same place - how many files,
+how much they need together, and the first of them as an example. The entry keeps its
+position among the other errors. Megabytes are decimal, as file managers show them. Past the
+error limit no entry is kept, and successful() asks the count as well, so the run still fails.

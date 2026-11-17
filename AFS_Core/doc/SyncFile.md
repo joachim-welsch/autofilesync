@@ -116,7 +116,8 @@ A file can have a size and a time and still not open: another program has locked
 right to read it is missing. The copy used to find that out last - after the old target had
 been renamed to ".bak" and the new one opened for writing - and then put everything back, with
 "copy failed" as the only word to the user. Now the source is opened before anything on the
-other side is touched, and a refusal is reported with its reason and the file it belongs to
+other side is touched - before pre_copy() as well, which with the generation principle moves
+the old target to its backup name - and a refusal is reported with its reason and the file it belongs to
 (FilesystemUtil.md#read_refusal). The same check stands before a conflict is resolved: the
 losing file is renamed to its conflict name first, and with a winner that cannot be read the
 losing side would be left without the file under its own name. Paths behind SSH or in a cloud
@@ -128,7 +129,21 @@ Why a local copy failed, with the file the failure belongs to: the target that c
 opened for writing, the disk that is full, the source that stops reading. The stream only says
 that it failed; the reason is the system's error at that moment
 (FilesystemUtil.md#failure_text), and it is added to the "copy failed" report in brackets. The
-transfers behind SSH and in a cloud log their own reasons and leave this empty.
+transfers behind SSH and in a cloud log their own reasons and leave this empty. A write that
+ran out of room is no "copy failed" but a shortage like the one found beforehand (disk-full).
+
+## disk-full
+
+Before a local copy the room on the receiving drive is asked for
+(FilesystemUtil.md#free_space). A file larger than that is not tried: the try would rename the
+old target to ".bak", write until the disk is full, remove the half file and put the old one
+back - a lot of writing on a disk that has no room, for nothing. The whole file has to fit
+next to the old target, because the old one stays until the new one is verified; that is the
+price of getting it back when a copy fails. The pass goes on, since smaller files may still
+fit and deletions make room, and the files that do not fit are summed up in one entry of the
+report (CopyLog.md#shortage); each is a warning in the log. No answer about the room means
+try: a quota or a drive that does not say shows itself in the write, which is reported the
+same way.
 
 ## only-count-touches-nothing
 

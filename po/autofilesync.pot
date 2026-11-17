@@ -241,6 +241,18 @@ msgstr ""
 msgid "directory_not_creatable"
 msgstr ""
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "disk_full"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_needs"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "disk_full_files"
+msgstr ""
+
 #: AFS_Core/src/FilesystemUtil.cpp:79
 msgid "file_time_invalid"
 msgstr ""
