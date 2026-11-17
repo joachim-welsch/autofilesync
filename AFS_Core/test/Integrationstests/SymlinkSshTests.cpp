@@ -280,4 +280,50 @@ TEST_F(SymlinkSshTest, FollowModeEntersTheDirectoryLinksOfAnSftpSource)  // [Sym
 
     EXPECT_EQ(second.copies, 0u);
 }
+
+TEST_F(SymlinkSshTest, FileIsNotWrittenThroughALinkOnAnSftpTarget)  // [SymlinkSshTests.md#FileIsNotWrittenThroughALinkOnAnSftpTarget]
+{
+    SKIP_WITHOUT_SSH_SERVER();
+    tu::write_text_file(root_ / "anderswo.txt", "fremd");
+    fs::permissions(root_ / "anderswo.txt", fs::perms::all);
+    fs::create_symlink(root_ / "anderswo.txt", target_ / "b.txt");
+    fs::create_directories(root_ / "anderswo");
+    fs::permissions(root_ / "anderswo", fs::perms::all);
+    fs::create_directory_symlink(root_ / "anderswo", target_ / "echt");
+    Outcome kept, replaced;
+
+    run(to_remote(), kept);
+
+    EXPECT_EQ(kept.report.errors().size(), 2u) << "one for the file and one for the directory";
+    EXPECT_EQ(tu::read_text_file(root_ / "anderswo.txt"), "fremd") << "the upload must not land where the link points";
+    EXPECT_TRUE(fs::is_empty(root_ / "anderswo"));
+    SyncItem si = to_remote();
+    si.delete_in_target(true);
+
+    run(si, replaced);
+
+    EXPECT_TRUE(replaced.report.successful());
+    EXPECT_FALSE(fs::is_symlink(target_ / "b.txt"));
+    EXPECT_EQ(tu::read_text_file(target_ / "b.txt"), "b");
+    EXPECT_FALSE(fs::is_symlink(target_ / "echt"));
+    EXPECT_EQ(tu::read_text_file(target_ / "echt" / "a.txt"), "a");
+    EXPECT_EQ(tu::read_text_file(root_ / "anderswo.txt"), "fremd");
+}
+
+TEST_F(SymlinkSshTest, WildcardSparesADirectoryLinkOfAnSftpSource)  // [SymlinkSshTests.md#WildcardSparesADirectoryLinkOfAnSftpSource]
+{
+    SKIP_WITHOUT_SSH_SERVER();
+    fs::create_directory_symlink("echt", source_ / "ordner");
+    fs::create_symlink("b.txt", source_ / "zeiger.dat");
+    fs::create_symlink("b.txt", source_ / "zeiger.txt");
+    SyncItem si = from_remote();
+    si.wildcard(L"*.txt");
+    Outcome outcome;
+
+    run(si, outcome);
+
+    EXPECT_TRUE(fs::is_symlink(target_ / "ordner")) << "the wildcard is for files, as with a local source";
+    EXPECT_TRUE(fs::is_symlink(target_ / "zeiger.txt"));
+    EXPECT_FALSE(fs::exists(fs::symlink_status(target_ / "zeiger.dat"))) << "a link to a file is filtered like a file";
+}
 #endif

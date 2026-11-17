@@ -46,13 +46,20 @@ bool SyncDir::followed_file_link(const SshDirEntry& entry, const wstring& source
     return link && link->resolves && !link->to_directory;
 }
 
+bool SyncDir::filtered(const SshDirEntry& entry, const wstring& source_path, const wstring& wildcard) const
+{
+    if (!entry.is_regular_file && !followed_file_link(entry, source_path))
+        return true;
+    return (!wildcard.empty() && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions());
+}
+
 void SyncDir::sync_ssh_dir_entry(const SshDirEntry& entry, const wstring& source_path, const wstring& wildcard, const wstring& destination)
 {
     log_debug(L"sync_ssh_dir_entry: " + entry.name);
     const bool as_link = entry.is_symlink && links_as_links();  // [SyncBase.md#links_as_links]
-    if ((!entry.is_regular_file && !as_link && !followed_file_link(entry, source_path)) || (!wildcard.empty() && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions()))
-        return;
     const wstring fname = util::with_trailing_char(source_path, L'/') + entry.name;  // [SyncDir.md#ssh-source-local-target]
+    if (as_link ? link_filtered(entry.name, fname, true, false, wildcard) : filtered(entry, source_path, wildcard))
+        return;
     const wstring dest = util::with_trailing_char(destination, sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR) + entry.name;
     if (as_link)
         sync_link(fname, dest);

@@ -73,6 +73,27 @@ ReportedOnce both_modified;
 ReportedOnce kept_files;
 ReportedOnce dangling_links;
 
+class OpenRights {  // [SyncFile.md#rights-catch-up]
+    std::mutex mutex_;
+    std::set<wstring> targets_;
+public:
+    void note(const wstring& target, bool open)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (open)
+            targets_.insert(target);
+        else
+            targets_.erase(target);
+    }
+    bool open(const wstring& target)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return targets_.contains(target);
+    }
+};
+
+OpenRights open_rights;
+
 bool leads_nowhere(const wstring& path, bool ssh)  // [SyncFile.md#dangling-links]
 {
     const bool dangling = !ssh && symlink_util::dangling_link(path);
@@ -339,6 +360,7 @@ void SyncFile::carry_rights(const wstring& src, const wstring& dest) const  // [
     std::error_code ec;
     const fs::perms rights = fs::status(src, ec).permissions();
     const fsu::FileInfoResult refusal = ec ? fsu::FileInfoResult::OK : fsu::permissions_refusal(dest, rights);
+    open_rights.note(dest, refusal != fsu::FileInfoResult::OK);  // [SyncFile.md#rights-catch-up]
     if (refusal == fsu::FileInfoResult::OK)
         return;
     log_error(attribute_message(dest, refusal));
@@ -491,6 +513,8 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
         report_content_conflict(source, destination, fd.result() == FDResult::ContentConflict);
         report_both_modified(source, destination, fd.result() == FDResult::BothModified);
         settle_state(fd);
+        if (fd.result() == FDResult::Equal && !only_count_ && ssh_ == SSHPATH::none && open_rights.open(destination))  // [SyncFile.md#rights-catch-up]
+            carry_rights(source, destination);
         return;
     }
     const bool kept = fd.has_base() && (fd.result() == FDResult::SourceNotExits || fd.result() == FDResult::DestNotExists);

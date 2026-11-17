@@ -247,6 +247,11 @@ namespace {
             return;
         const fs::path path = without_volume_spec(side);
         dirs.push_back({item.name(), item.sync_item_type() == SyncItemType::File ? path.parent_path() : path, item.sync_item_type() == SyncItemType::Tree, follow_links});
+#ifndef __linux__
+        if (follow_links && item.sync_item_type() == SyncItemType::Tree)  // [ChangeWatcher.md#directories_behind_links]
+            for (const fs::path& linked : directories_behind_links(path))
+                dirs.push_back({item.name(), linked, true, false});
+#endif
     }
 }
 

@@ -200,7 +200,16 @@ target then had the rights the umask gave it, a script lost its execute bit or a
 became readable for others, and the run still counted as clean. It is an error of the report
 now, with the file and - when the system names one - the reason
 (FilesystemUtil.md#permissions_refusal). As with the file time the copy counts, because the
-content is there. A later pass does not catch up on the rights: they are not compared.
+content is there.
+
+## rights-catch-up
+
+A target whose rights could not be set is remembered, and the next pass that finds the pair
+equal tries again: the rights are set without a copy, or the error is reported again. Rights
+are not compared from pass to pass - a target the user made read-only on purpose would be
+reset every time - so only a pair that failed is retried, and once its rights were set they
+are the user's to change. The memory lasts as long as the program runs: after a restart a
+target with other rights than its source stays as it is until the file is copied again.
 
 ## restamp
 

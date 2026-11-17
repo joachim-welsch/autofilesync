@@ -392,6 +392,35 @@ TEST_F(WriteErrorTest, CopyCarriesTheRightsOfTheSourceAndReportsNoError)  // [Wr
     EXPECT_EQ(fs::status(target_dir_ / "a.txt").permissions(), rights);
 }
 
+TEST_F(WriteErrorTest, PassAfterwardsSetsTheRightsWithoutCopyingAgain)  // [WriteErrorTests.md#PassAfterwardsSetsTheRightsWithoutCopyingAgain]
+{
+    tu::write_text_file(source_dir_ / "a.txt", "neu", seconds(60));
+    const fs::perms rights = fs::perms::owner_read | fs::perms::owner_write | fs::perms::group_read;
+    fs::permissions(source_dir_ / "a.txt", rights);
+    const SyncItem si = file_item("a.txt");
+    Outcome failed, still_failing, caught_up, settled;
+    {
+        const RightsError refused(std::errc::io_error);
+        run(si, failed);
+        run(si, still_failing);
+    }
+    ASSERT_FALSE(failed.report.successful());
+    EXPECT_FALSE(still_failing.report.successful()) << "the target still has other rights than its source";
+    EXPECT_EQ(still_failing.copies, 0u);
+    ASSERT_NE(fs::status(target_dir_ / "a.txt").permissions(), rights);
+
+    run(si, caught_up);
+
+    EXPECT_TRUE(caught_up.report.successful());
+    EXPECT_EQ(caught_up.copies, 0u) << "the content is there already, only its rights were missing";
+    EXPECT_EQ(fs::status(target_dir_ / "a.txt").permissions(), rights);
+    fs::permissions(target_dir_ / "a.txt", fs::perms::owner_read | fs::perms::owner_write);
+
+    run(si, settled);
+
+    EXPECT_EQ(fs::status(target_dir_ / "a.txt").permissions(), fs::perms::owner_read | fs::perms::owner_write) << "rights that were set once are the user's to change afterwards";
+}
+
 TEST_F(WriteErrorTest, RenameRefusedForAnotherReasonIsAWriteErrorNotAReadError)  // [WriteErrorTests.md#RenameRefusedForAnotherReasonIsAWriteErrorNotAReadError]
 {
     const long longest = pathconf(target_dir_.c_str(), _PC_NAME_MAX);

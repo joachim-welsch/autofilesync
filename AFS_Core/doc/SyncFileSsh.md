@@ -188,10 +188,14 @@ answer accordingly.
 
 ## links-windows
 
-The libssh2 branch asks for links like the libssh one, but does not create them yet: with the
-argument order wrong, a server would create a link named like the text, somewhere below the
-user's directory, and that cannot be tried out without a Windows build. Until then a link to
-an SFTP target counts as "not supported there" on Windows.
+The libssh2 branch does what the libssh one does, with one difference: libssh2 does not know
+that OpenSSH takes the two arguments of the request in the reverse order. So the link is
+created with the text first, as OpenSSH wants it, and read back. If no link with that text
+lies at the place, a server that kept to the protocol has created a link named like the text
+that points to the place; when such a stray link is found it is removed, and the request is
+made once more the other way round and read back again. Anything else is a failure, and
+SyncLink then leaves the old target alone. This branch was written without a Windows build:
+it has never been compiled or run, against any server.
 
 ## real-path
 

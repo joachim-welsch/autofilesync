@@ -206,3 +206,22 @@ TEST_F(ChangeWatcherTest, ADirectoryLinkCreatedLaterIsWatchedWhenLinksAreFollowe
 }
 #endif
 
+#ifdef _UNIX
+TEST_F(ChangeWatcherTest, DirectoriesBehindLinksAreFoundOnceAndLoopsEnd)  // [ChangeWatcherTests.md#directories_behind_links]
+{
+    fs::create_directories(root_ / "elsewhere" / "deep");
+    fs::create_directories(root_ / "further");
+    fs::create_directory_symlink(root_ / "elsewhere", root_ / "tree" / "one");
+    fs::create_directory_symlink(root_ / "elsewhere", root_ / "tree" / "sub" / "two");
+    fs::create_directory_symlink(root_ / "further", root_ / "elsewhere" / "deep" / "on");
+    fs::create_directory_symlink(root_ / "tree", root_ / "further" / "back");
+    fs::create_directory_symlink("sub", root_ / "tree" / "inside");
+    fs::create_symlink(root_ / "missing", root_ / "tree" / "dead");
+
+    const std::vector<fs::path> found = directories_behind_links(root_ / "tree");
+
+    EXPECT_EQ(found, (std::vector<fs::path>{fs::canonical(root_ / "elsewhere"), fs::canonical(root_ / "further")}))
+        << "each directory outside the tree once, in the order met; not the link into the tree itself, not the dead one, and the link back ends the walk";
+}
+#endif
+

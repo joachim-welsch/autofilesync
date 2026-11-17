@@ -196,7 +196,7 @@ void SyncTree::sync_entry(const Entry& entry, const wstring& sourcename, const w
 
 void SyncTree::sync_link_entry(const Entry& entry, const wstring& source, const wstring& targetname, const wstring& wildcard)  // [SyncTree.md#links-as-links]
 {
-    if ((!wildcard.empty() && !entry.is_directory && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions()))
+    if (link_filtered(entry.name, source, sync_item_.ssh_source(), entry.is_directory, wildcard))  // [SyncBase.md#link_filtered]
         return;
     if (!sync_item_.ssh_source() && symlink_util::junction(source))  // [SyncTree.md#junctions]
         return link_tally_.junctions.add(source);

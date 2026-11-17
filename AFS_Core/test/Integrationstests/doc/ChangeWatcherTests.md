@@ -69,3 +69,10 @@ with a link to a directory outside it and a link to its own parent: the watcher 
 links starts in spite of the loop and sees a file written two levels behind the link; one
 that does not follow sees nothing of it, within a wait that is short because nothing is
 expected. The second test creates the link while the watcher runs.
+
+## directories_behind_links
+
+ChangeWatcher.md#directories_behind_links, the part of the watching on macOS and Windows that
+runs everywhere. Two links to the same directory, a link behind a link, a link back to the
+tree, one into the tree itself and a dead one: the result names the two directories outside
+the tree once each and nothing else.

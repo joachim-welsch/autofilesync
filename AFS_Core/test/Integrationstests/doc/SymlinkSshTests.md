@@ -57,3 +57,14 @@ directory link is entered and the file link copied as content, which the default
 over SSH. Two loops - one in the tree, one that closes behind the followed link - are not
 entered, and a dead link on the server does not delete the file of its name in the target,
 although "delete in target" is set.
+
+## FileIsNotWrittenThroughALinkOnAnSftpTarget
+
+SyncBase.md#target_usable for a target behind SFTP: a link on the server under the name of a
+real source file, and one under the name of a real source directory. Without "delete in
+target" both are errors and nothing lands where they point; with it both give way.
+
+## WildcardSparesADirectoryLinkOfAnSftpSource
+
+SyncBase.md#link_filtered: a listing over SFTP does not say what a link leads to, so the
+server is asked for the link the wildcard would otherwise filter out.

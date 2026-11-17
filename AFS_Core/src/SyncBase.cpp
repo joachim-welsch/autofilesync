@@ -164,12 +164,50 @@ void SyncBase::report_mode_conflict() const  // [SyncBase.md#follows_links]
     Synchronize::note(LogLevel::Warning, translation::translate("symlink_follow_needs_one_way") + L" " + sync_item_.name());
 }
 
-bool SyncBase::target_usable(const wstring& target)  // [SyncBase.md#target_usable]
+bool SyncBase::target_is_link(const wstring& target)  // [SyncBase.md#target_usable]
 {
     std::error_code ec;
-    if ((!links_as_links() && !follows_links()) || only_count_ || sync_item_.ssh_target() || !fs::is_symlink(fs::symlink_status(target, ec)))
+    if (!sync_item_.ssh_target())
+        return fs::is_symlink(fs::symlink_status(target, ec));
+    if (!ssh_keeps_links(target))
+        return false;
+    const std::size_t slash = target.find_last_of(L'/');
+    const wstring dir = target.substr(0, slash);
+    auto listed = remote_target_links_.find(dir);
+    if (listed == remote_target_links_.end()) {
+        listed = remote_target_links_.emplace(dir, std::set<wstring>()).first;
+        for (const SshDirEntry& entry : ssh_list_dir(dir))
+            if (entry.is_symlink)
+                listed->second.insert(entry.name);
+    }
+    return listed->second.contains(target.substr(slash + 1));
+}
+
+bool SyncBase::link_removed(const wstring& target)
+{
+    std::error_code ec;
+    if (!sync_item_.ssh_target())
+        return fs::remove(target, ec);
+    const std::size_t slash = target.find_last_of(L'/');
+    remote_target_links_[target.substr(0, slash)].erase(target.substr(slash + 1));
+    return ssh_remove_file(target);
+}
+
+bool SyncBase::link_filtered(const wstring& name, const wstring& path, bool ssh, bool directory, const wstring& wildcard) const  // [SyncBase.md#link_filtered]
+{
+    if (is_excluded(name, sync_item_.exclusions()))
         return true;
-    if (sync_item_.delete_in_target() && fs::remove(target, ec)) {
+    if (wildcard.empty() || directory || wildmatch(name, wildcard))
+        return false;
+    const std::optional<SshLink> link = ssh ? ssh_link_info(path) : std::nullopt;
+    return !(link && link->to_directory);
+}
+
+bool SyncBase::target_usable(const wstring& target)  // [SyncBase.md#target_usable]
+{
+    if ((!links_as_links() && !follows_links()) || only_count_ || !target_is_link(target))
+        return true;
+    if (sync_item_.delete_in_target() && link_removed(target)) {
         log_info(translation::translate("target_link_replaced"), target);
         return true;
     }
@@ -370,8 +408,7 @@ void SyncBase::sync_target_only_entries(const wstring& source_dir, const wstring
         sync_file(with_trailing_char(source_dir, source_separator) + name, target_path, wildcard);
     };
     auto handle_link = [&](const wstring& name, const wstring& target_path, bool directory) {  // [SyncBase.md#target-only-links]
-        if (source_names.count(name) || (!wildcard.empty() && !directory && !wildmatch(name, wildcard))
-            || is_excluded(name, sync_item_.exclusions()) || father_son_backup(name))
+        if (source_names.count(name) || father_son_backup(name) || link_filtered(name, target_path, sync_item_.ssh_target(), directory, wildcard))
             return;
         sync_link(with_trailing_char(source_dir, source_separator) + name, target_path);
     };

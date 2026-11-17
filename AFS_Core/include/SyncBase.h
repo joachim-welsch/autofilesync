@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <filesystem>
 #include <functional>
+#include <map>
 #include <vector>
 #include <set>
 #include "StrUtil.h"
@@ -57,6 +58,7 @@ protected:
 	const std::wstring state_root_;
 	const std::wstring target_root_;
 	LinkTally link_tally_;  // [SyncLink.md#LinkTally]
+	std::map<std::wstring, std::set<std::wstring>> remote_target_links_;  // [SyncBase.md#target_usable]
 
 	std::wstring state_key(const std::wstring& source) const;  // [SyncBase.md#state_key]
 	std::wstring side_path(const std::wstring& key, bool in_target) const;  // [SyncBase.md#side_path]
@@ -68,6 +70,9 @@ protected:
 	bool follows_links() const;  // [SyncBase.md#follows_links]
 	void report_mode_conflict() const;  // [SyncBase.md#follows_links]
 	bool target_usable(const std::wstring& target);  // [SyncBase.md#target_usable]
+	bool target_is_link(const std::wstring& target);  // [SyncBase.md#target_usable]
+	bool link_removed(const std::wstring& target);
+	bool link_filtered(const std::wstring& name, const std::wstring& path, bool ssh, bool directory, const std::wstring& wildcard) const;  // [SyncBase.md#link_filtered]
 	bool system_link_skipped(const std::wstring& path);  // [SyncBase.md#system_link_skipped]
 	void sync_link(const std::wstring& source, const std::wstring& dest);  // [SyncBase.md#sync_link]
 	void guarded(const std::wstring& source, const std::wstring& dest, const std::function<void()>& work);  // [SyncBase.md#sync_file]

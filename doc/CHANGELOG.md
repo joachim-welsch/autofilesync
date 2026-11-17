@@ -10,7 +10,6 @@
   Links, die im Kreis oder in den Zielordner führen. Ziele ohne symbolische
   Links (Cloud-Speicher, FAT-Laufwerke) überspringen Verweise mit einer Warnung
   je Durchlauf. Bestehende Synchronisationen behalten das bisherige Verhalten.
-  Unter Windows werden über SSH noch keine Links angelegt.
 - Symbolische Links, die in Systemverzeichnisse führen (unter Linux `/proc`,
   `/sys`, `/dev`, `/run`, `/snap`) oder auf ein Gerät zeigen, werden
   übersprungen und einmal pro Durchlauf gemeldet. Bisher wurde ein solcher

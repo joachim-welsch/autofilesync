@@ -187,6 +187,11 @@ the user has not allowed anything in the target to be removed, so it is one erro
 entry is left out. The item's own target directory may be a link; the user named it. A pass
 that only counts touches nothing.
 
+Behind SFTP the question "is there a link under this name" would cost a round trip per file,
+so the target directory is listed once and the names of its links are kept for the pass; a
+link that gave way is taken out of that list. A cloud has no links and is not listed for
+this.
+
 ## follows_links
 
 Whether the pass follows directory links: the item says so, it is one-way and no move. With two-way sync or "delete after copying" the item's writes and
@@ -194,3 +199,11 @@ deletions would travel through the link into places outside the item, and conten
 twice would conflict with itself. The dialog does not offer the combination; a configuration
 that has it anyway is run as in the default mode, and the pass says so once
 (report_mode_conflict).
+
+## link_filtered
+
+Whether a link that is to be kept as a link is left out: by an exclusion, or by the wildcard
+when it is a link to a file. The wildcard is for files; a link to a directory is spared like
+a directory. A listing over SFTP does not say what a link leads to, so the server is asked -
+only for a link the wildcard would otherwise filter out, which keeps the extra round trips to
+the links that do not match.

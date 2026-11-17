@@ -117,4 +117,16 @@ link back above it is entered once and ends at the first directory met twice. Th
 is no limit here: watching it twice costs nothing, the system keeps one watch per directory.
 
 FSEvents on macOS and ReadDirectoryChangesW on Windows watch a tree as a whole and do not
-enter links; there a change behind a followed link is found by the next regular pass.
+enter links (directories_behind_links).
+
+## directories_behind_links
+
+Where the system watches a tree as a whole, a directory behind a link lies outside what is
+watched. So for an item that follows links the tree is walked once when the watching starts,
+with the guard against loops, and every directory a link leads to outside the tree is watched
+as a tree of its own for the same item; a directory inside the tree is watched already. The
+walk goes on behind each link, so a link behind a link is found, and each directory is named
+once. A link that appears later is not watched until the watching starts again - the regular
+full pass finds what changes behind it. On Windows every watched tree takes one of the 63
+places a watcher has. The function runs on every platform and is tested on Linux; the call in
+Synchronize::watch_items is compiled for macOS and Windows only and has never run there.

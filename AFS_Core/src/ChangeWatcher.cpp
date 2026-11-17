@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "ChangeWatcher.h"
+#include <algorithm>
 #include <SymlinkUtil.h>
 #include "Logging.h"
 #include "Translation.h"
@@ -92,6 +93,46 @@ void ChangeWatcher::clear(const wstring& item, TimePoint before)  // [ChangeWatc
     const auto found = items_.find(item);
     if (found != items_.end() && found->second.last_change < before)
         found->second.last_change.reset();
+}
+
+namespace {
+void collect_behind_links(const fs::path& dir, symlink_util::LinkTrail& trail, std::vector<fs::path>& found)  // [ChangeWatcher.md#directories_behind_links]
+{
+    std::error_code ec;
+    for (fs::directory_iterator it(dir, fs::directory_options::skip_permission_denied, ec); !ec && it != fs::directory_iterator(); it.increment(ec)) {
+        if (!it->is_directory(ec))
+            continue;
+        const bool link = it->is_symlink(ec);
+        if (link && trail.refusal(it->path()) != symlink_util::FollowRefusal::None)
+            continue;
+        const fs::path resolved = link ? fs::canonical(it->path(), ec) : fs::path();
+        if (link && std::ranges::find(found, resolved) != found.end())
+            continue;
+        if (link)
+            found.push_back(resolved);
+        link ? trail.enter_link(it->path()) : trail.enter_directory(it->path().filename());
+        collect_behind_links(it->path(), trail, found);
+        trail.leave();
+    }
+}
+
+bool inside(const fs::path& path, const fs::path& dir)
+{
+    return std::mismatch(dir.begin(), dir.end(), path.begin(), path.end()).first == dir.end();
+}
+}
+
+std::vector<fs::path> directories_behind_links(const fs::path& root)  // [ChangeWatcher.md#directories_behind_links]
+{
+    std::error_code ec;
+    const fs::path real_root = fs::canonical(root, ec);
+    if (ec)
+        return {};
+    symlink_util::LinkTrail trail(root, std::nullopt);
+    std::vector<fs::path> found;
+    collect_behind_links(root, trail, found);
+    std::erase_if(found, [&](const fs::path& dir) { return inside(dir, real_root); });
+    return found;
 }
 
 #if defined(__linux__)

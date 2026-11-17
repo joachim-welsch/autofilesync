@@ -27,6 +27,7 @@ namespace AFS_Core {
 class SyncDir: public SyncBase {
 private:
     bool followed_file_link(const SshDirEntry& entry, const std::wstring& source_path) const;  // [SyncDir.md#followed-file-links]
+    bool filtered(const SshDirEntry& entry, const std::wstring& source_path, const std::wstring& wildcard) const;
     void sync_ssh_dir_entry(const SshDirEntry& entry, const std::wstring& source_path, const std::wstring& wildcard, const std::wstring& destination);
 public:
     SyncDir(const SyncItem& si, std::size_t& copy_count, bool only_count, SyncState* state = nullptr);

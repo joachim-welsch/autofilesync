@@ -103,3 +103,10 @@ A target whose name is as long as the file system allows cannot be parked as "<n
 the rename fails with "file name too long", which is none of the reasons the program knows.
 The length is asked of the file system, since not every one allows 255 bytes. Unix only:
 Windows answers a name of that length differently.
+
+## PassAfterwardsSetsTheRightsWithoutCopyingAgain
+
+SyncFile.md#rights-catch-up. While the rights cannot be set every pass says so; the pass after
+that sets them and copies nothing. The last pass shows where the catching up ends: rights the
+user changes in the target afterwards are left alone, because only a pair whose rights failed
+is remembered. Sits among the Unix tests, as it compares permission bits.

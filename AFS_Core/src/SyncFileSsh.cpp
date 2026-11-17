@@ -1619,9 +1619,45 @@ std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.
     return asked ? info : std::nullopt;
 }
 
-fsu::FileInfoResult ssh_create_link(const std::wstring&, const std::wstring&)  // [SyncFileSsh.md#links-windows]
+static std::string link_text_at(LIBSSH2_SFTP* sftp, const std::string& path)
 {
-    return fsu::FileInfoResult::LinksNotSupported;
+    char text[4096];
+    const int length = libssh2_sftp_readlink(sftp, path.c_str(), text, sizeof(text));
+    return std::string(text, length > 0 ? static_cast<std::size_t>(length) : 0);
+}
+
+static bool stray_link_removed(LIBSSH2_SFTP* sftp, const std::string& text, const std::string& at)  // [SyncFileSsh.md#links-windows]
+{
+    return link_text_at(sftp, text) == at && libssh2_sftp_unlink(sftp, text.c_str()) == 0;
+}
+
+static fsu::FileInfoResult link_refusal(LIBSSH2_SFTP* sftp)
+{
+    const unsigned long refusal = libssh2_sftp_last_error(sftp);
+    if (refusal == LIBSSH2_FX_OP_UNSUPPORTED || refusal == LIBSSH2_FX_PERMISSION_DENIED)
+        return fsu::FileInfoResult::LinksNotSupported;
+    return refusal == LIBSSH2_FX_NO_SUCH_FILE ? fsu::FileInfoResult::FileNotExist : fsu::FileInfoResult::ErrorWriteFileInfo;
+}
+
+static fsu::FileInfoResult created_link(LIBSSH2_SFTP* sftp, const std::string& text, const std::string& at)  // [SyncFileSsh.md#links-windows]
+{
+    if (libssh2_sftp_symlink(sftp, text.c_str(), at.c_str()) != 0)
+        return link_refusal(sftp);
+    if (link_text_at(sftp, at) == text)
+        return fsu::FileInfoResult::OK;
+    if (!stray_link_removed(sftp, text, at) || libssh2_sftp_symlink(sftp, at.c_str(), text.c_str()) != 0)
+        return fsu::FileInfoResult::ErrorWriteFileInfo;
+    return link_text_at(sftp, at) == text ? fsu::FileInfoResult::OK : fsu::FileInfoResult::ErrorWriteFileInfo;
+}
+
+fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring& at)  // [SyncFileSsh.md#links-windows]
+{
+    fsu::FileInfoResult result = fsu::FileInfoResult::ErrorWriteFileInfo;
+    ssh_sftp_call(at, [&](LIBSSH2_SFTP* sftp, const std::string& remote) {
+        result = created_link(sftp, util::wstring_to_string(text), remote);
+        return 0;
+    }, "remote_dir_open_error");
+    return result;
 }
 
 #endif

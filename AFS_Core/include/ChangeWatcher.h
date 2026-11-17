@@ -35,6 +35,8 @@ struct WatchedDir {  // [ChangeWatcher.md#WatchedDir]
     bool follow_links = false;  // [ChangeWatcher.md#followed-links]
 };
 
+std::vector<std::filesystem::path> directories_behind_links(const std::filesystem::path& root);  // [ChangeWatcher.md#directories_behind_links]
+
 class ChangeWatcher {  // [ChangeWatcher.md#ChangeWatcher]
 public:
     using TimePoint = std::chrono::steady_clock::time_point;
