@@ -154,6 +154,7 @@
     <ClInclude Include="..\..\..\AFS_Core\include\SyncBase.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncControler.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncDir.h" />
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncLink.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncFile.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\SyncFileSsh.h" />
     <ClInclude Include="..\..\..\AFS_Core\include\Synchronize.h" />
@@ -347,6 +348,7 @@
     <ClCompile Include="..\..\..\AFS_Core\src\SyncBase.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncControler.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncDir.cpp" />
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncLink.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\FileDelete.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncFile.cpp" />
     <ClCompile Include="..\..\..\AFS_Core\src\SyncFileSsh.cpp" />

@@ -72,11 +72,8 @@ std::vector<SyncTree::Entry> SyncTree::list_source(const wstring& sourcename) co
         return entries;
     }
     for (const fs::directory_entry& entry : fs::directory_iterator(with_trailing_char(sourcename, DIR_SEPARATOR))) {
-        try {
-            entries.push_back({entry.path().filename().wstring(), entry.is_directory(), entry.is_regular_file(), entry.is_symlink()});
-        } catch (const std::exception& e) {  // one unreadable entry must not hide the rest of the directory
-            log_error(sourcename, string_to_wstring(e.what()));
-        }
+        std::error_code ec;  // [SyncTree.md#list_source]
+        entries.push_back({entry.path().filename().wstring(), entry.is_directory(ec), entry.is_regular_file(ec), entry.is_symlink(ec)});
     }
     return entries;
 }
@@ -175,19 +172,45 @@ SyncTree::Names SyncTree::sync_entries(const wstring& sourcename, const wstring&
 
 void SyncTree::sync_entry(const Entry& entry, const wstring& sourcename, const wstring& targetname, const wstring& wildcard, const Names& target_dirs)
 {
-    if (entry.is_symlink && !entry.is_regular_file)  // [SyncTree.md#symlinks-never-followed]
-        log_info(translation::translate("symlink_not_followed"), with_trailing_char(sourcename, source_separator()) + entry.name);
+    const wstring source = with_trailing_char(sourcename, source_separator()) + entry.name;
+    if (entry.is_symlink && system_link_skipped(source))  // [SyncBase.md#system_link_skipped]
+        return;
+    if (entry.is_symlink && links_as_links())  // [SyncTree.md#links-as-links]
+        sync_link_entry(entry, source, targetname, wildcard);
+    else if (entry.is_symlink && !entry.is_regular_file)  // [SyncTree.md#symlinks-never-followed]
+        log_info(translation::translate("symlink_not_followed"), source);
     else if (entry.is_directory)
         sync_subtree(entry.name, sourcename, targetname, wildcard, target_dirs);
     else if (entry.is_regular_file)
         sync_file_entry(entry.name, sourcename, targetname, wildcard);
 }
 
+void SyncTree::sync_link_entry(const Entry& entry, const wstring& source, const wstring& targetname, const wstring& wildcard)  // [SyncTree.md#links-as-links]
+{
+    if ((!wildcard.empty() && !entry.is_directory && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions()))
+        return;
+    sync_link(source, with_trailing_char(targetname, target_separator()) + entry.name);
+}
+
+bool SyncTree::target_dir_usable(const wstring& target)  // [SyncTree.md#target-directory-is-a-link]
+{
+    std::error_code ec;
+    if (!links_as_links() || only_count_ || sync_item_.ssh_target() || !fs::is_symlink(fs::symlink_status(target, ec)))
+        return true;
+    if (sync_item_.delete_in_target() && fs::remove(target, ec)) {
+        log_info(translation::translate("target_link_replaced_by_dir"), target);
+        return true;
+    }
+    log_error(translation::translate("target_dir_is_link"), target);
+    report_sync_error(translation::translate("target_dir_is_link") + target);
+    return false;
+}
+
 void SyncTree::sync_subtree(const wstring& name, const wstring& sourcename, const wstring& targetname, const wstring& wildcard, const Names& target_dirs)
 {
     if (is_excluded(name, sync_item_.exclusions()))  // [SyncTree.md#excluded-directories]
         log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + name);
-    else
+    else if (target_dir_usable(with_trailing_char(targetname, target_separator()) + name))
         sync_tree(with_trailing_char(sourcename, source_separator()) + name, with_trailing_char(targetname, target_separator()) + name, wildcard,
             subtree_state(name, sourcename, target_dirs));
 }

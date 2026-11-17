@@ -987,6 +987,42 @@ msgstr "No se sigue el enlace simbólico: "
 msgid "symlink_dangling"
 msgstr "El enlace simbólico no lleva a ninguna parte y se omite: "
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr "Enlace creado:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr "Enlace no creado, en el destino hay una carpeta con el mismo nombre: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr "No se pudo crear el enlace: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr "La carpeta de destino es un enlace simbólico y no se escribe en ella: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr "Enlace simbólico del destino sustituido por una carpeta:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr "Enlaces simbólicos omitidos porque el destino no los admite:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr "Enlaces simbólicos del sistema omitidos:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr "Hay enlaces simbólicos que apuntan fuera de la carpeta sincronizada y se conservaron sin cambios:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr "Enlaces simbólicos que no llevan a ninguna parte en el destino:"
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr "Enlaces simbólicos"

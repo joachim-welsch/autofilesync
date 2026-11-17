@@ -70,6 +70,7 @@ set(AFS_CORE_SOURCES
     SyncControler.cpp
     SyncDir.cpp
     SyncFile.cpp
+    SyncLink.cpp
     SyncFileSsh.cpp
     SyncMessage.cpp
     SyncPlan.cpp

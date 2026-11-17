@@ -21,12 +21,26 @@
 #include "SyncState.h"
 #include <stdexcept>
 #include <filesystem>
+#include <functional>
+#include <vector>
 #include <set>
 #include "StrUtil.h"
 
 namespace AFS_Core {
 
 enum class CopyResult { Undefined, OK, Error, Stopped };
+
+struct LinkTally {  // [SyncLink.md#LinkTally]
+	struct Count {
+		std::size_t links = 0;
+		std::wstring first;
+		void add(const std::wstring& link);
+	};
+	Count unsupported;
+	Count system;
+	Count outside;
+	std::vector<std::wstring> created;
+};
 
 class SyncBase {
 protected:
@@ -37,10 +51,18 @@ protected:
 	SyncState*		state_;  // [SyncBase.md#state_]
 	const std::wstring state_root_;
 	const std::wstring target_root_;
+	LinkTally link_tally_;  // [SyncLink.md#LinkTally]
 
 	std::wstring state_key(const std::wstring& source) const;  // [SyncBase.md#state_key]
 	std::wstring side_path(const std::wstring& key, bool in_target) const;  // [SyncBase.md#side_path]
 	void finish_pass();  // [SyncBase.md#finish_pass]
+	void carry_out_deferred();  // [SyncBase.md#finish_pass]
+	void report_links();  // [SyncBase.md#report_links]
+	void report_link_count(const LinkTally::Count& count, const char* message_id) const;  // [SyncBase.md#report_links]
+	bool links_as_links() const;  // [SyncBase.md#links_as_links]
+	bool system_link_skipped(const std::wstring& path);  // [SyncBase.md#system_link_skipped]
+	void sync_link(const std::wstring& source, const std::wstring& dest);  // [SyncBase.md#sync_link]
+	void guarded(const std::wstring& source, const std::wstring& dest, const std::function<void()>& work);  // [SyncBase.md#sync_file]
 	bool deletions_refused(const std::vector<PendingDeletion>& deletions);  // [SyncBase.md#mass-deletion]
 	bool create_target_dir_if_not_exist(const std::wstring& targetdir = L"");  // [SyncBase.md#create_target_dir_if_not_exist]
 	bool create_source_dir(const std::wstring& dir);  // [SyncBase.md#create_source_dir]

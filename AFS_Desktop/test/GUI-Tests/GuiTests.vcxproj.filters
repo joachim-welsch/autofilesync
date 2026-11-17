@@ -249,6 +249,9 @@
     <ClInclude Include="..\..\..\AFS_Core\include\SyncDir.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\AFS_Core\include\SyncLink.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\AFS_Core\include\SyncFile.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -714,6 +717,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\SyncDir.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\AFS_Core\src\SyncLink.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\AFS_Core\src\SyncFile.cpp">

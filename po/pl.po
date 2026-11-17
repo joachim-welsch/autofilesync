@@ -987,6 +987,42 @@ msgstr "Dowiązanie symboliczne nie jest śledzone: "
 msgid "symlink_dangling"
 msgstr "Dowiązanie symboliczne prowadzi donikąd i zostaje pominięte: "
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr "Utworzono dowiązanie:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr "Nie utworzono dowiązania, w miejscu docelowym jest folder o tej samej nazwie: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr "Nie udało się utworzyć dowiązania: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr "Folder docelowy jest dowiązaniem symbolicznym i nie jest zapisywany: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr "Dowiązanie symboliczne w miejscu docelowym zastąpiono folderem:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr "Pominięto dowiązania symboliczne, bo miejsce docelowe ich nie obsługuje:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr "Pominięto systemowe dowiązania symboliczne:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr "Dowiązania symboliczne wskazują poza synchronizowany folder i zostały zachowane bez zmian:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr "Dowiązania symboliczne prowadzą donikąd w miejscu docelowym:"
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr "Dowiązania symboliczne"

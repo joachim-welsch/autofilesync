@@ -987,6 +987,42 @@ msgstr "Il collegamento simbolico non viene seguito: "
 msgid "symlink_dangling"
 msgstr "Il collegamento simbolico non porta da nessuna parte e viene saltato: "
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr "Collegamento creato:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr "Collegamento non creato, nella destinazione c'è una cartella con lo stesso nome: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr "Impossibile creare il collegamento: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr "La cartella di destinazione è un collegamento simbolico e non viene modificata: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr "Collegamento simbolico nella destinazione sostituito da una cartella:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr "Collegamenti simbolici saltati perché la destinazione non li supporta:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr "Collegamenti simbolici di sistema saltati:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr "Alcuni collegamenti simbolici puntano fuori dalla cartella sincronizzata e sono stati mantenuti invariati:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr "Collegamenti simbolici che nella destinazione non portano da nessuna parte:"
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr "Collegamenti simbolici"

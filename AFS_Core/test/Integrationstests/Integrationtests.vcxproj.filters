@@ -276,6 +276,9 @@
     <ClInclude Include="$(LibDir)\include\SyncDir.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
+    <ClInclude Include="$(LibDir)\include\SyncLink.h">
+      <Filter>AFS_Core\include</Filter>
+    </ClInclude>
     <ClInclude Include="$(LibDir)\include\SyncFile.h">
       <Filter>AFS_Core\include</Filter>
     </ClInclude>
@@ -545,6 +548,9 @@
     <ClCompile Include="SymlinkTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="SymlinkAsLinkTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="SshHostKeyTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
@@ -741,6 +747,9 @@
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\SyncDir.cpp">
+      <Filter>AFS_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="$(LibDir)\src\SyncLink.cpp">
       <Filter>AFS_Core</Filter>
     </ClCompile>
     <ClCompile Include="$(LibDir)\src\SyncFile.cpp">

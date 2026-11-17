@@ -25,6 +25,8 @@
 #include "MountedDrives.h"
 #include "SyncFile.h"
 #include "SyncFileSsh.h"
+#include "SyncLink.h"
+#include <SymlinkUtil.h>
 #include "SyncPlan.h"
 #include "Synchronize.h"
 #include "Translation.h"
@@ -108,6 +110,49 @@ bool SyncBase::deletions_refused(const std::vector<PendingDeletion>& deletions) 
 }
 
 void SyncBase::finish_pass()  // [SyncBase.md#finish_pass]
+{
+    carry_out_deferred();
+    report_links();
+}
+
+void SyncBase::report_link_count(const LinkTally::Count& count, const char* message_id) const  // [SyncBase.md#report_links]
+{
+    if (!first_refusal(sync_item_.name() + L"|" + string_to_wstring(message_id), count.links > 0))
+        return;
+    const wstring detail = std::to_wstring(count.links) + L" (" + count.first + L")";
+    log_warning(translation::translate(message_id), detail);
+    Synchronize::note(LogLevel::Warning, translation::translate(message_id) + L" " + detail);
+}
+
+void SyncBase::report_links()  // [SyncBase.md#report_links]
+{
+    if (only_count_)
+        return;
+    LinkTally::Count unresolved;
+    for (const wstring& link : link_tally_.created)
+        if (symlink_util::dangling_link(link))
+            unresolved.add(link);
+    report_link_count(link_tally_.unsupported, "links_not_supported_skipped");
+    report_link_count(link_tally_.system, "system_links_skipped");
+    report_link_count(link_tally_.outside, "links_leave_tree");
+    report_link_count(unresolved, "links_unresolved_in_target");
+    link_tally_ = {};
+}
+
+bool SyncBase::links_as_links() const  // [SyncBase.md#links_as_links]
+{
+    return sync_item_.symlink_mode() == SymlinkMode::AsLink && !sync_item_.ssh_source();
+}
+
+bool SyncBase::system_link_skipped(const wstring& path)  // [SyncBase.md#system_link_skipped]
+{
+    if (sync_item_.ssh_source() || !symlink_util::system_link(path))
+        return false;
+    link_tally_.system.add(path);
+    return true;
+}
+
+void SyncBase::carry_out_deferred()  // [SyncBase.md#finish_pass]
 {
     if (state_ == nullptr)
         return;
@@ -213,16 +258,10 @@ void SyncBase::remove_dir_if_empty(const wstring& dir, bool ssh)  // [SyncBase.m
     report_sync_error(translation::translate("dir_delete_failed") + dir);
 }
 
-void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstring& wildcard)
+void SyncBase::guarded(const wstring& source, const wstring& dest, const std::function<void()>& work)  // [SyncBase.md#sync_file]
 {
-    if (only_count_ && !planning()) {  // [SyncPlan.md#planning]
-        ++copy_count_;
-        return;
-    }
     try {
-        SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard, Exclusions(),
-                          sync_item_.flags(), sync_item_.compare_items()),
-                 copy_count_, only_count_, false, state_, state_root_, target_root_)();
+        work();
     } catch (const fs::filesystem_error& e) {
         report_failure(source, e);
     } catch (const std::exception& e) {
@@ -234,19 +273,53 @@ void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstri
     }
 }
 
+void SyncBase::sync_file(const wstring& source, const wstring& dest, const wstring& wildcard)
+{
+    if (only_count_ && !planning()) {  // [SyncPlan.md#planning]
+        ++copy_count_;
+        return;
+    }
+    guarded(source, dest, [&] {
+        SyncFile(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, wildcard, Exclusions(),
+                          sync_item_.flags(), sync_item_.compare_items()),
+                 copy_count_, only_count_, false, state_, state_root_, target_root_)();
+    });
+}
+
+void SyncBase::sync_link(const wstring& source, const wstring& dest)  // [SyncBase.md#sync_link]
+{
+    if (only_count_ && !planning()) {  // [SyncPlan.md#planning]
+        ++copy_count_;
+        return;
+    }
+    guarded(source, dest, [&] {
+        SyncLink(SyncItem(sync_item_.name(), sync_item_.sync_item_type(), source, dest, L"", Exclusions(),
+                          sync_item_.flags(), sync_item_.compare_items()),
+                 copy_count_, only_count_, link_tally_, state_, state_root_, target_root_)();
+    });
+}
+
 void SyncBase::sync_dir_entry(const fs::directory_entry& dir_entry, const wstring& wildcard, const wstring& destination)
 {
     log_debug(L"sync_dir_entry: " + dir_entry.path().wstring());
     std::error_code ec;
-    if (dir_entry.is_directory(ec) || !dir_entry.path().has_filename())
+    const bool symlink = dir_entry.is_symlink(ec);
+    const bool directory = dir_entry.is_directory(ec);
+    const bool as_link = symlink && links_as_links();  // [SyncBase.md#links_as_links]
+    if ((directory && !as_link) || !dir_entry.path().has_filename())
         return;
     const wstring filename = dir_entry.path().filename().wstring();
-    if ((!wildcard.empty() && !wildmatch(filename, wildcard)) || is_excluded(filename, sync_item_.exclusions())) {
+    if ((!wildcard.empty() && !directory && !wildmatch(filename, wildcard)) || is_excluded(filename, sync_item_.exclusions())) {
         log_debug(L"sync_dir_entry: uebersprungen " + filename);
         return;
     }
-    const wchar_t separator = sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR;
-    sync_file(dir_entry.path().wstring(), with_trailing_char(destination, separator) + filename, wildcard);
+    if (symlink && system_link_skipped(dir_entry.path().wstring()))
+        return;
+    const wstring target = with_trailing_char(destination, sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR) + filename;
+    if (as_link)
+        sync_link(dir_entry.path().wstring(), target);
+    else
+        sync_file(dir_entry.path().wstring(), target, wildcard);
 }
 
 void SyncBase::sync_target_only_entries(const wstring& source_dir, const wstring& target_dir,

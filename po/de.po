@@ -999,6 +999,42 @@ msgstr "Symlink wird nicht verfolgt: "
 msgid "symlink_dangling"
 msgstr "Symlink führt ins Leere und wird übersprungen: "
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr "Verweis angelegt:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr "Verweis nicht angelegt, im Ziel liegt ein Verzeichnis gleichen Namens: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr "Verweis konnte nicht angelegt werden: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr "Zielverzeichnis ist ein symbolischer Link und wird nicht beschrieben: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr "Symbolischer Link im Ziel durch Verzeichnis ersetzt:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr "Symbolische Links übersprungen, weil das Ziel keine kennt:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr "Symbolische Links des Systems übersprungen:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr "Symbolische Links zeigen aus dem synchronisierten Ordner hinaus und wurden unverändert übernommen:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr "Symbolische Links führen im Ziel ins Leere:"
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr "Symbolische Links"

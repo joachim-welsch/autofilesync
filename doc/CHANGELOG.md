@@ -2,6 +2,10 @@
 
 ## 0.5.0 – in Arbeit
 
+- Symbolische Links, die in Systemverzeichnisse führen (unter Linux `/proc`,
+  `/sys`, `/dev`, `/run`, `/snap`) oder auf ein Gerät zeigen, werden
+  übersprungen und einmal pro Durchlauf gemeldet. Bisher wurde ein solcher
+  Link auf eine Datei als deren Inhalt kopiert.
 - Behoben: Ein symbolischer Link, der ins Leere führt (Ziel gelöscht oder Link
   im Kreis), galt als fehlende Datei. Mit „Gelöschte Dateien im Ziel ebenfalls
   löschen“ oder Zwei-Wege-Synchronisation wurde dann die gleichnamige Datei im

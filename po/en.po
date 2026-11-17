@@ -999,6 +999,42 @@ msgstr "The symlink is not followed: "
 msgid "symlink_dangling"
 msgstr "The symlink leads nowhere and is skipped: "
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr "Link created:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr "Link not created, the target has a folder of the same name: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr "The link could not be created: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr "The target folder is a symbolic link and is not written to: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr "Symbolic link in the target replaced by a folder:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr "Symbolic links skipped because the target has none:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr "Symbolic links of the system skipped:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr "Symbolic links point out of the synchronised folder and were kept unchanged:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr "Symbolic links lead nowhere in the target:"
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr "Symbolic links"

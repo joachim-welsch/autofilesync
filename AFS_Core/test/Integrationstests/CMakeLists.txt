@@ -63,6 +63,7 @@ set(SOURCES
     CopyFailureTests.cpp
     SyncSshFailureTests.cpp
     SymlinkTests.cpp
+    SymlinkAsLinkTests.cpp
     UnpluggedDriveTests.cpp
     MissingDirectoryTests.cpp
     LockedFileTests.cpp

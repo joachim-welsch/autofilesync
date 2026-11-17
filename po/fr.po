@@ -987,6 +987,42 @@ msgstr "Le lien symbolique n'est pas suivi : "
 msgid "symlink_dangling"
 msgstr "Le lien symbolique ne mène nulle part et est ignoré : "
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr "Lien créé :"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr "Lien non créé, la cible contient un dossier du même nom : "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr "Le lien n'a pas pu être créé : "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr "Le dossier cible est un lien symbolique et n'est pas modifié : "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr "Lien symbolique de la cible remplacé par un dossier :"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr "Liens symboliques ignorés, car la cible ne les prend pas en charge :"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr "Liens symboliques du système ignorés :"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr "Des liens symboliques pointent hors du dossier synchronisé et ont été conservés tels quels :"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr "Liens symboliques qui ne mènent nulle part dans la cible :"
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr "Liens symboliques"

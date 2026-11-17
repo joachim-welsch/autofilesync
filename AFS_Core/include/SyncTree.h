@@ -45,6 +45,8 @@ private:
     void sync_tree(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, DirState state);
     Names sync_entries(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);
     void sync_entry(const Entry& entry, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);
+    void sync_link_entry(const Entry& entry, const std::wstring& source, const std::wstring& targetname, const std::wstring& wildcard);  // [SyncTree.md#links-as-links]
+    bool target_dir_usable(const std::wstring& target);  // [SyncTree.md#target-directory-is-a-link]
     void sync_subtree(const std::wstring& name, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);
     void sync_file_entry(const std::wstring& name, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard);
     void sync_target_only_dirs(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard,

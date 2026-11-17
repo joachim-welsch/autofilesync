@@ -147,6 +147,7 @@
     <ClCompile Include="..\AFS_Core\src\SyncBase.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncControler.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncDir.cpp" />
+    <ClCompile Include="..\AFS_Core\src\SyncLink.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncFile.cpp" />
     <ClCompile Include="..\AFS_Core\src\SyncFileSsh.cpp" />
     <ClCompile Include="..\AFS_Core\src\Synchronize.cpp" />

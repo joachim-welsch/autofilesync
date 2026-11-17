@@ -65,7 +65,8 @@ look at the old name on both sides (SyncFile.md#renames).
 ## finish_pass
 
 The end of a pass, run once by the SyncDir or SyncTree that started it, after the whole tree
-was compared; without a state there is nothing to finish. With one: first the deletions the
+was compared: the deferred work (carry_out_deferred) and then what the pass has to say about
+its links (report_links). Without a state there is no deferred work. With one: first the deletions the
 pass put off (SyncFile.md#deferred-deletions), all of them or - after a refused mass deletion -
 none, then the directories that were to be removed once empty (SyncTree.md#prepare-and-settle).
 The directories come last because they are only empty after the deletions; when the deletions
@@ -135,3 +136,32 @@ deletion is one of its entries, so the sum is just its size; a pass-only state k
 files this pass found in place or copied (SyncFile.md#state), never the ones it is about to
 delete, so those are added - otherwise twelve deletions next to twelve kept files would count
 as twelve out of twelve.
+
+## sync_link
+
+The counterpart of sync_file() for an entry that is carried over as a link (SyncLink.md). Both
+run their work through guarded(), which turns whatever one entry throws into an error of the
+report, so that the pass goes on with the next entry. A pass that only counts and plans
+nothing counts the link without looking at the target, as it does with a file.
+
+## links_as_links
+
+Whether the pass carries links over as links: the item says so and the source is local. Behind
+SSH a listing names a link but not its text, so there the links are still skipped
+(SyncTree.md#symlinks-never-followed).
+
+## system_link_skipped
+
+A link of the system (SymlinkUtil.md#system_link) is skipped in every mode and counted for the
+one message at the end of the pass. In the default mode a link to a file below /proc used to
+be copied as that file; nothing in such a place is the user's to back up.
+
+## report_links
+
+One warning per group of the tally (SyncLink.md#LinkTally), with the number of links and the
+first of them, instead of a line per link: a drive without links would otherwise fill the log
+with as many lines as the tree has links, pass after pass. The log gets the line when the
+group appears and again only after a pass in which it was empty; the note for the user
+(Synchronize.md#notes) is given in every run. The links created inside the tree are asked only
+now whether they lead somewhere - the files they point to were copied by the same pass. A
+pass that only counts has created nothing and says nothing.

@@ -986,6 +986,42 @@ msgstr ""
 msgid "symlink_dangling"
 msgstr ""
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr ""
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr ""
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr ""

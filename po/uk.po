@@ -987,6 +987,42 @@ msgstr "Символьне посилання не відстежується: "
 msgid "symlink_dangling"
 msgstr "Символьне посилання нікуди не веде і пропускається: "
 
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_created"
+msgstr "Посилання створено:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_blocked_by_directory"
+msgstr "Посилання не створено, у цілі є папка з такою самою назвою: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "link_create_failed"
+msgstr "Не вдалося створити посилання: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_dir_is_link"
+msgstr "Цільова папка є символьним посиланням, запис у неї не виконується: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "target_link_replaced_by_dir"
+msgstr "Символьне посилання в цілі замінено папкою:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_not_supported_skipped"
+msgstr "Символьні посилання пропущено, бо ціль їх не підтримує:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "system_links_skipped"
+msgstr "Системні символьні посилання пропущено:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_leave_tree"
+msgstr "Символьні посилання вказують за межі синхронізованої папки й збережені без змін:"
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "links_unresolved_in_target"
+msgstr "Символьні посилання в цілі нікуди не ведуть:"
+
 #: AFS_Core/src/SyncItem.cpp
 msgid "symlink_mode_label"
 msgstr "Символьні посилання"
