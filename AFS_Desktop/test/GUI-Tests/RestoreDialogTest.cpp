@@ -77,6 +77,25 @@ bool search_finished(wxDialog& dialog)
     return wait_until([&dialog] { return status_of(dialog) != wxString(translation::translate("restore_searching")); }, SEARCH_TIMEOUT_MILLISECONDS);
 }
 
+wxString folder_shown_for(const fs::path& folder)  // [RestoreDialogTest.md#place-on-windows]
+{
+#ifdef _WIN32
+    static_cast<void>(folder);
+    return translation::translate("restore_folder_unknown");
+#else
+    return folder.wstring();
+#endif
+}
+
+void answer_place_question(const fs::path& folder)  // [RestoreDialogTest.md#place-on-windows]
+{
+#ifdef _WIN32
+    ModalDialogWatcher::instance().choose_path(translation::translate("restore_choose_dir_title"), folder.wstring());
+#else
+    static_cast<void>(folder);
+#endif
+}
+
 bool restore_row(wxDialog& dialog, long row, int button = ID_RESTORE_PUT_BACK)
 {
     const bool clicked = click_on(list_of(dialog), row) && click_when_enabled(find(dialog, button));
@@ -138,9 +157,10 @@ TEST_F(RestoreDialogTest, GeloeschteDateiKommtAnIhrenPlatzZurueck)
         ASSERT_TRUE(shows_rows(dialog, 1));
         wxListCtrl& list = list_of(dialog);
         EXPECT_EQ(list.GetItemText(0, RESTORE_COLUMN_FILE), "anna.txt");
-        EXPECT_EQ(list.GetItemText(0, RESTORE_COLUMN_FOLDER), wxString(tree.path("briefe").wstring()));
+        EXPECT_EQ(list.GetItemText(0, RESTORE_COLUMN_FOLDER), folder_shown_for(tree.path("briefe")));
         EXPECT_EQ(list.GetItemText(0, RESTORE_COLUMN_KIND), wxString(translation::translate("restore_kind_deleted")));
 
+        answer_place_question(tree.path("briefe"));
         ASSERT_TRUE(restore_row(dialog, 0));
         EXPECT_EQ(tree.read("briefe/anna.txt"), "liebe anna");
         EXPECT_EQ(list.GetItemCount(), 0) << "Die wiederhergestellte Datei steht noch in der Liste.";
@@ -155,6 +175,7 @@ TEST_F(RestoreDialogTest, VorhandeneDateiWirdNichtUeberschrieben)
     tree.write("bericht.txt", "neu");
     in_restore_dialog([&tree](wxDialog& dialog) {
         ASSERT_TRUE(shows_rows(dialog, 1));
+        answer_place_question(tree.root());
         ASSERT_TRUE(restore_row(dialog, 0));
         EXPECT_EQ(tree.read("bericht.txt"), "neu");
         const std::vector<std::string> entries = tree.entries();

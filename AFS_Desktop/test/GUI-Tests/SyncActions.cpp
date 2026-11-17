@@ -63,13 +63,20 @@ bool sync_menu_item_enabled(MainWindow& window, int menu_item_id)
     return window.menu().sync_menu()->IsEnabled(menu_item_id);
 }
 
-ProgressDialog* progress_dialog()
+namespace {
+ProgressDialog* progress_dialog_if(bool shown)
 {
     for (wxWindow* window : wxTopLevelWindows) {
-        if (auto* dialog = dynamic_cast<ProgressDialog*>(window); dialog != nullptr && dialog->IsShown())
+        if (auto* dialog = dynamic_cast<ProgressDialog*>(window); dialog != nullptr && dialog->IsShown() == shown)
             return dialog;
     }
     return nullptr;
+}
+}
+
+ProgressDialog* progress_dialog()
+{
+    return progress_dialog_if(true);
 }
 
 wxString current_file_shown(ProgressDialog& dialog)
@@ -105,6 +112,8 @@ std::optional<ProgressWatch> watch_progress_dialog(int timeout_milliseconds)  //
     }, timeout_milliseconds);
     if (!closed)
         return std::nullopt;
+    if (ProgressDialog* hidden = progress_dialog_if(false))  // [SyncActions.md#bar-at-the-end]
+        watch.bar_values.push_back(gauge_of(*hidden)->GetValue());
     return watch;
 }
 

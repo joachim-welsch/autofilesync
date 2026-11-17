@@ -48,3 +48,11 @@ label whenever it changes. A single look at the dialog could fall before the fir
 or after the last one, so the tests judge the whole course instead - a bar that moves, rises
 monotonically and ends full, and a label that names the files one after the other. Returns
 nothing when the dialog is still open at the timeout.
+
+## bar-at-the-end
+
+The program fills the bar and hides the dialog in one step (SyncInterface.md#reuse-progress-dialog),
+so no sample of the shown dialog can be relied on to see the full bar: the last one shows
+whatever the last timer tick left, a few files short on a fast machine. The hidden dialog is
+kept for the next run and still holds the value it was hidden with, which is taken as the last
+value of the course.

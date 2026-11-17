@@ -21,6 +21,13 @@ line to change instead of reading the list at once.
 The status line is wrapped to the dialog's width, which puts line breaks into the label; they
 are turned back into spaces so the text can be compared with the translation.
 
+## place-on-windows
+
+On Windows the bin does not record the drive, so a deleted file no synchronisation covers has
+no known place (Restore.md#home_of): the list says the place will be asked for, and "put back"
+opens the directory dialog, which the test answers with the folder the file came from.
+Elsewhere the list names the folder and nothing is asked.
+
 ## FruehereFassung
 
 The synchronisation is only added, never run: the earlier version is laid into the target by

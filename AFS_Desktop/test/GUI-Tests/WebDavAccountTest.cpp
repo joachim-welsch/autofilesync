@@ -68,7 +68,7 @@ protected:
                 ModalDialogWatcher::instance().answer(answered_dialog, answer);
             EXPECT_TRUE(fill_and_confirm(dialog, url)) << "Der Dialog ließ sich nicht ausfüllen.";
             pump();
-            if (dialog.IsModal())
+            if (dialog.IsShown())  // [ModalDialogWatcher.md#left-open]
                 dialog.EndModal(wxID_CANCEL);
         });
         activate_menu_item(main_window(), tul(id::File_new_WebDavConnection));

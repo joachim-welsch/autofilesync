@@ -179,20 +179,49 @@ std::optional<Pipe> child_pipe(bool child_reads)
     return pipe;
 }
 
+struct AttributeListCloser {
+    void operator()(LPPROC_THREAD_ATTRIBUTE_LIST list) const
+    {
+        DeleteProcThreadAttributeList(list);
+        delete[] reinterpret_cast<char*>(list);
+    }
+};
+using AttributeList = std::unique_ptr<_PROC_THREAD_ATTRIBUTE_LIST, AttributeListCloser>;
+
+AttributeList inheriting_only(std::array<HANDLE, 2>& handles)  // [UsbPhone.md#inherited-handles]
+{
+    SIZE_T size = 0;
+    InitializeProcThreadAttributeList(nullptr, 1, 0, &size);
+    const auto list = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(new char[size]);
+    if (!InitializeProcThreadAttributeList(list, 1, 0, &size)) {
+        delete[] reinterpret_cast<char*>(list);
+        return nullptr;
+    }
+    AttributeList attributes(list);
+    if (!UpdateProcThreadAttribute(list, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, handles.data(), sizeof(HANDLE) * handles.size(), nullptr, nullptr))
+        attributes.reset();
+    return attributes;
+}
+
 Handle start(const Command& command, HANDLE input, HANDLE output)
 {
     std::string line;
     for (const auto& argument : command)
         line += (line.empty() ? "" : " ") + argv_quoted(argument);
     std::wstring wide_line = wide(line);
-    STARTUPINFOW startup{};
-    startup.cb = sizeof(startup);
-    startup.dwFlags = STARTF_USESTDHANDLES;
-    startup.hStdInput = input;
-    startup.hStdOutput = output;
-    startup.hStdError = output;
+    std::array<HANDLE, 2> handles{input, output};
+    const AttributeList attributes = inheriting_only(handles);
+    if (!attributes)
+        return Handle(INVALID_HANDLE_VALUE);
+    STARTUPINFOEXW startup{};
+    startup.StartupInfo.cb = sizeof(startup);
+    startup.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+    startup.StartupInfo.hStdInput = input;
+    startup.StartupInfo.hStdOutput = output;
+    startup.StartupInfo.hStdError = output;
+    startup.lpAttributeList = attributes.get();
     PROCESS_INFORMATION process{};
-    if (!CreateProcessW(nullptr, wide_line.data(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &startup, &process))
+    if (!CreateProcessW(nullptr, wide_line.data(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, nullptr, nullptr, &startup.StartupInfo, &process))
         return Handle(INVALID_HANDLE_VALUE);
     CloseHandle(process.hThread);
     return Handle(process.hProcess);

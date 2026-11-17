@@ -56,7 +56,7 @@ protected:
                 && click_when_enabled(find(dialog, wxID_OK));
             EXPECT_TRUE(filled) << "Der Dialog ließ sich nicht ausfüllen.";
             pump();
-            if (dialog.IsModal())
+            if (dialog.IsShown())  // [ModalDialogWatcher.md#left-open]
                 dialog.EndModal(wxID_CANCEL);
         });
         activate_menu_item(main_window(), tul(id::File_new_S3Connection));

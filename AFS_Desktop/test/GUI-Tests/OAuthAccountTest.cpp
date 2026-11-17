@@ -127,7 +127,7 @@ TEST_F(OAuthAccountTest, AnmeldungImBrowserSpeichertDieVerbindungUndZeigtIhreOrd
         ASSERT_TRUE(click_on(find(dialog, ID_OAUTH_LOGIN_BUTTON)));
         EXPECT_TRUE(click_when_enabled(find(dialog, wxID_OK), LOGIN_TIMEOUT_MILLISECONDS)) << "Die Anmeldung kam nicht an.";
         pump();
-        if (dialog.IsModal())
+        if (dialog.IsShown())  // [ModalDialogWatcher.md#left-open]
             dialog.EndModal(wxID_CANCEL);
     });
     activate_menu_item(main_window(), tul(id::File_new_GoogleDriveConnection));
@@ -162,7 +162,7 @@ TEST_F(OAuthAccountTest, AnmeldungBeiMicrosoftSpeichertEineOneDriveVerbindung)  
         ASSERT_TRUE(click_on(find(dialog, ID_OAUTH_LOGIN_BUTTON)));
         EXPECT_TRUE(click_when_enabled(find(dialog, wxID_OK), LOGIN_TIMEOUT_MILLISECONDS)) << "Die Anmeldung kam nicht an.";
         pump();
-        if (dialog.IsModal())
+        if (dialog.IsShown())  // [ModalDialogWatcher.md#left-open]
             dialog.EndModal(wxID_CANCEL);
     });
     activate_menu_item(main_window(), tul(id::File_new_OneDriveConnection));
@@ -197,7 +197,7 @@ TEST_F(OAuthAccountTest, AnmeldungBeiDropboxSpeichertEineDropboxVerbindung)  // 
         ASSERT_TRUE(click_on(find(dialog, ID_OAUTH_LOGIN_BUTTON)));
         EXPECT_TRUE(click_when_enabled(find(dialog, wxID_OK), LOGIN_TIMEOUT_MILLISECONDS)) << "Die Anmeldung kam nicht an.";
         pump();
-        if (dialog.IsModal())
+        if (dialog.IsShown())  // [ModalDialogWatcher.md#left-open]
             dialog.EndModal(wxID_CANCEL);
     });
     activate_menu_item(main_window(), tul(id::File_new_DropboxConnection));

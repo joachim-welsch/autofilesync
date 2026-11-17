@@ -85,6 +85,14 @@ CreateProcessW takes one command line, which adb splits again by the rules of th
 an argument with a space, tab or quote is put in quotes, a quote inside is escaped with a
 backslash, and backslashes are doubled only in front of a quote, including the closing one.
 
+## inherited-handles
+
+The first adb call starts the adb server, which outlives the tests and keeps every handle it
+was born with. A child that inherits all inheritable handles hands the server the output of the
+test program too; redirected into a pipe or a file by the caller, that output then never ends
+and the caller of the tests waits for ever although every test has finished. The child
+therefore gets a handle list naming its own input and output and nothing else.
+
 ## adb_program
 
 adb is taken from the Android SDK if one is found (ANDROID_HOME, ANDROID_SDK_ROOT, then the
