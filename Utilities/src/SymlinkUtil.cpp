@@ -155,8 +155,8 @@ FileInfoResult create_link_refusal(const fs::path& text, const fs::path& at, boo
     return reason_for_link_failure(ec);
 }
 
-LinkTrail::LinkTrail(const fs::path& source_root, const fs::path& target_root)
-    : target_root_(physical(target_root)), chain_{{physical(source_root), false}}
+LinkTrail::LinkTrail(const fs::path& source_root, const std::optional<fs::path>& target_root)
+    : target_root_(target_root ? std::optional<fs::path>(physical(*target_root)) : std::nullopt), chain_{{physical(source_root), false}}
 {
 }
 
@@ -168,7 +168,7 @@ FollowRefusal LinkTrail::refusal(const fs::path& link) const  // [SymlinkUtil.md
         return FollowRefusal::Unresolved;
     if (std::ranges::any_of(chain_, [&](const Step& step) { return within(step.directory, target); }))
         return FollowRefusal::Loop;
-    if (within(target, target_root_) || within(target_root_, target))
+    if (target_root_ && (within(target, *target_root_) || within(*target_root_, target)))
         return FollowRefusal::IntoTarget;
     const auto links = std::ranges::count_if(chain_, [](const Step& step) { return step.through_link; });
     return links >= MAX_FOLLOWED_LINKS ? FollowRefusal::TooManyLinks : FollowRefusal::None;

@@ -999,6 +999,26 @@ msgstr "Symlink wird nicht verfolgt: "
 msgid "symlink_dangling"
 msgstr "Symlink führt ins Leere und wird übersprungen: "
 
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_loop_skipped"
+msgstr "Symbolische Links nicht verfolgt, weil sie im Kreis führen:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_into_target_skipped"
+msgstr "Symbolische Links nicht verfolgt, weil sie in den Zielordner führen:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_too_deep_skipped"
+msgstr "Symbolische Links nicht verfolgt, weil zu viele Links hintereinander liegen:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_dangling_skipped"
+msgstr "Symbolische Links übersprungen, weil sie ins Leere führen:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "symlink_follow_needs_one_way"
+msgstr "„Dem Link folgen“ gilt nicht zusammen mit Zwei-Wege-Synchronisation oder Verschieben; symbolische Links werden wie in der Standardeinstellung behandelt:"
+
 #: AFS_Core/src/SyncLink.cpp
 msgid "link_created"
 msgstr "Verweis angelegt:"

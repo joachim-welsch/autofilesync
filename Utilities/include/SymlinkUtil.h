@@ -43,10 +43,10 @@ namespace symlink_util {
             std::filesystem::path directory;
             bool through_link;
         };
-        std::filesystem::path target_root_;
+        std::optional<std::filesystem::path> target_root_;
         std::vector<Step> chain_;
     public:
-        LinkTrail(const std::filesystem::path& source_root, const std::filesystem::path& target_root);
+        LinkTrail(const std::filesystem::path& source_root, const std::optional<std::filesystem::path>& target_root);
         FollowRefusal refusal(const std::filesystem::path& link) const;
         void enter_link(const std::filesystem::path& link);
         void enter_directory(const std::filesystem::path& name);

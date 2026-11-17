@@ -987,6 +987,26 @@ msgstr "Dowiązanie symboliczne nie jest śledzone: "
 msgid "symlink_dangling"
 msgstr "Dowiązanie symboliczne prowadzi donikąd i zostaje pominięte: "
 
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_loop_skipped"
+msgstr "Nie podążono za dowiązaniami symbolicznymi, bo tworzą pętlę:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_into_target_skipped"
+msgstr "Nie podążono za dowiązaniami symbolicznymi, bo prowadzą do folderu docelowego:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_too_deep_skipped"
+msgstr "Nie podążono za dowiązaniami symbolicznymi, bo zbyt wiele dowiązań następuje po sobie:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_dangling_skipped"
+msgstr "Pominięto dowiązania symboliczne, bo prowadzą donikąd:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "symlink_follow_needs_one_way"
+msgstr "„Podążaj za dowiązaniem” nie działa razem z synchronizacją dwukierunkową ani przenoszeniem; dowiązania symboliczne są traktowane jak w ustawieniu domyślnym:"
+
 #: AFS_Core/src/SyncLink.cpp
 msgid "link_created"
 msgstr "Utworzono dowiązanie:"

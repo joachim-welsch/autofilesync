@@ -39,6 +39,10 @@ struct LinkTally {  // [SyncLink.md#LinkTally]
 	Count unsupported;
 	Count system;
 	Count outside;
+	Count loops;
+	Count into_target;
+	Count too_deep;
+	Count dangling;
 	std::vector<std::wstring> created;
 };
 
@@ -60,6 +64,8 @@ protected:
 	void report_links();  // [SyncBase.md#report_links]
 	void report_link_count(const LinkTally::Count& count, const char* message_id) const;  // [SyncBase.md#report_links]
 	bool links_as_links() const;  // [SyncBase.md#links_as_links]
+	bool follows_links() const;  // [SyncBase.md#follows_links]
+	void report_mode_conflict() const;  // [SyncBase.md#follows_links]
 	bool target_usable(const std::wstring& target);  // [SyncBase.md#target_usable]
 	bool system_link_skipped(const std::wstring& path);  // [SyncBase.md#system_link_skipped]
 	void sync_link(const std::wstring& source, const std::wstring& dest);  // [SyncBase.md#sync_link]

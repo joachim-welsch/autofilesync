@@ -68,4 +68,5 @@ the target tree (IntoTarget: what is copied would be read again, without end), o
 already leads through MAX_FOLLOWED_LINKS links (TooManyLinks: no real tree is that indirect,
 and a chain that long is more likely a trap than a wish). The loop is asked first, since a
 link above both trees is foremost a loop. Directories entered by name cost no call to the
-system; only a link is resolved.
+system; only a link is resolved. A target that is not on this machine is given as none; a link
+cannot lead into it.

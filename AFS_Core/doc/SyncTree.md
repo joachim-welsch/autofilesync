@@ -75,3 +75,17 @@ one to a directory, as it does not apply to directories.
 
 An excluded directory is skipped as a whole, not filtered per contained file: a subtree like
 "node_modules" is never entered.
+
+## followed-links
+
+With the mode "follow the link" (SyncBase.md#follows_links) a link to a directory is entered
+like a directory: its content is copied under the link's name, and the target gets a real
+directory. A link to a file is copied as its content, as in the default mode. The walk keeps
+a LinkTrail (SymlinkUtil.md#LinkTrail) of the directories it is in, and asks it before every
+link: a link back onto the way, one into or above the target tree and one behind too many
+others are not entered, and neither is one that leads nowhere. Each kind is counted and named
+once at the end of the pass (SyncBase.md#report_links) and is no error - a loop in a tree is
+something the user may well have on purpose. Directories entered by name are told to the
+trail as well, because a link further down may point back to them. An excluded link is not
+entered, and a link in the target where the followed directory belongs is not written through
+(SyncBase.md#target_usable). A directory item does not descend, with or without a link.

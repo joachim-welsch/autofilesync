@@ -18,6 +18,8 @@
  */
 #pragma once
 #include "SyncBase.h"
+#include <SymlinkUtil.h>
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -34,6 +36,7 @@ private:
         bool is_symlink;
     };
     using Names = std::set<std::wstring>;
+    std::optional<symlink_util::LinkTrail> trail_;  // [SyncTree.md#followed-links]
     wchar_t source_separator() const;
     wchar_t target_separator() const;
     std::vector<Entry> list_source(const std::wstring& sourcename) const;
@@ -46,6 +49,8 @@ private:
     Names sync_entries(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);
     void sync_entry(const Entry& entry, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);
     void sync_link_entry(const Entry& entry, const std::wstring& source, const std::wstring& targetname, const std::wstring& wildcard);  // [SyncTree.md#links-as-links]
+    void follow_link_entry(const Entry& entry, const std::wstring& source, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);  // [SyncTree.md#followed-links]
+    LinkTally::Count* refused_links(symlink_util::FollowRefusal refusal);  // [SyncTree.md#followed-links]
     void sync_subtree(const std::wstring& name, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard, const Names& target_dirs);
     void sync_file_entry(const std::wstring& name, const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard);
     void sync_target_only_dirs(const std::wstring& sourcename, const std::wstring& targetname, const std::wstring& wildcard,

@@ -999,6 +999,26 @@ msgstr "The symlink is not followed: "
 msgid "symlink_dangling"
 msgstr "The symlink leads nowhere and is skipped: "
 
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_loop_skipped"
+msgstr "Symbolic links not followed because they lead in a circle:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_into_target_skipped"
+msgstr "Symbolic links not followed because they lead into the target folder:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_too_deep_skipped"
+msgstr "Symbolic links not followed because too many links lie one behind the other:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_dangling_skipped"
+msgstr "Symbolic links skipped because they lead nowhere:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "symlink_follow_needs_one_way"
+msgstr "“Follow the link” does not apply together with two-way synchronisation or moving; symbolic links are treated as in the default setting:"
+
 #: AFS_Core/src/SyncLink.cpp
 msgid "link_created"
 msgstr "Link created:"

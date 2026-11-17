@@ -164,7 +164,9 @@ with as many lines as the tree has links, pass after pass. The log gets the line
 group appears and again only after a pass in which it was empty; the note for the user
 (Synchronize.md#notes) is given in every run. The links created inside the tree are asked only
 now whether they lead somewhere - the files they point to were copied by the same pass. A
-pass that only counts has created nothing and says nothing.
+pass that only counts has created nothing and says nothing. The groups of the mode "follow the
+link" - loops, links into the target, chains that are too long and links that lead nowhere -
+are reported the same way (SyncTree.md#followed-links).
 
 ## target-only-links
 
@@ -176,10 +178,19 @@ as for files, here whether or not the principle is on, since SyncLink parks unde
 
 ## target_usable
 
-When links are kept as links, a link in the target under the name of a real file or directory
-of the source is not what the source has, and writing "into" it would put the content wherever
+When links are kept as links or followed, a link in the target under the name of a real file or
+directory of the source is not what the source has, and writing "into" it would put the content wherever
 it points - outside the target tree, or over a file the link merely refers to. With "delete in
 target" the link gives way: it is removed and the file or directory takes its place. Otherwise
 the user has not allowed anything in the target to be removed, so it is one error and the
 entry is left out. The item's own target directory may be a link; the user named it. A pass
 that only counts touches nothing.
+
+## follows_links
+
+Whether the pass follows directory links: the item says so, it is one-way and no move, and
+the source is local. With two-way sync or "delete after copying" the item's writes and
+deletions would travel through the link into places outside the item, and content reached
+twice would conflict with itself. The dialog does not offer the combination; a configuration
+that has it anyway is run as in the default mode, and the pass says so once
+(report_mode_conflict). Behind SSH a link is not followed yet.

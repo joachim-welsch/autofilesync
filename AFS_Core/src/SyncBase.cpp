@@ -113,6 +113,7 @@ void SyncBase::finish_pass()  // [SyncBase.md#finish_pass]
 {
     carry_out_deferred();
     report_links();
+    report_mode_conflict();
 }
 
 void SyncBase::report_link_count(const LinkTally::Count& count, const char* message_id) const  // [SyncBase.md#report_links]
@@ -136,6 +137,10 @@ void SyncBase::report_links()  // [SyncBase.md#report_links]
     report_link_count(link_tally_.system, "system_links_skipped");
     report_link_count(link_tally_.outside, "links_leave_tree");
     report_link_count(unresolved, "links_unresolved_in_target");
+    report_link_count(link_tally_.loops, "links_loop_skipped");
+    report_link_count(link_tally_.into_target, "links_into_target_skipped");
+    report_link_count(link_tally_.too_deep, "links_too_deep_skipped");
+    report_link_count(link_tally_.dangling, "links_dangling_skipped");
     link_tally_ = {};
 }
 
@@ -144,10 +149,24 @@ bool SyncBase::links_as_links() const  // [SyncBase.md#links_as_links]
     return sync_item_.symlink_mode() == SymlinkMode::AsLink;
 }
 
+bool SyncBase::follows_links() const  // [SyncBase.md#follows_links]
+{
+    return sync_item_.symlink_mode() == SymlinkMode::Follow && !sync_item_.two_way_sync() && !sync_item_.del_aftercopy() && !sync_item_.ssh_source();
+}
+
+void SyncBase::report_mode_conflict() const  // [SyncBase.md#follows_links]
+{
+    const bool conflict = sync_item_.symlink_mode() == SymlinkMode::Follow && (sync_item_.two_way_sync() || sync_item_.del_aftercopy());
+    if (only_count_ || !first_refusal(sync_item_.name() + L"|symlink_follow_needs_one_way", conflict))
+        return;
+    log_warning(translation::translate("symlink_follow_needs_one_way"), sync_item_.name());
+    Synchronize::note(LogLevel::Warning, translation::translate("symlink_follow_needs_one_way") + L" " + sync_item_.name());
+}
+
 bool SyncBase::target_usable(const wstring& target)  // [SyncBase.md#target_usable]
 {
     std::error_code ec;
-    if (!links_as_links() || only_count_ || sync_item_.ssh_target() || !fs::is_symlink(fs::symlink_status(target, ec)))
+    if ((!links_as_links() && !follows_links()) || only_count_ || sync_item_.ssh_target() || !fs::is_symlink(fs::symlink_status(target, ec)))
         return true;
     if (sync_item_.delete_in_target() && fs::remove(target, ec)) {
         log_info(translation::translate("target_link_replaced"), target);

@@ -177,6 +177,8 @@ void SyncTree::sync_entry(const Entry& entry, const wstring& sourcename, const w
         return;
     if (entry.is_symlink && links_as_links())  // [SyncTree.md#links-as-links]
         sync_link_entry(entry, source, targetname, wildcard);
+    else if (entry.is_symlink && trail_)  // [SyncTree.md#followed-links]
+        follow_link_entry(entry, source, sourcename, targetname, wildcard, target_dirs);
     else if (entry.is_symlink && !entry.is_regular_file)  // [SyncTree.md#symlinks-never-followed]
         log_info(translation::translate("symlink_not_followed"), source);
     else if (entry.is_directory)
@@ -192,13 +194,46 @@ void SyncTree::sync_link_entry(const Entry& entry, const wstring& source, const 
     sync_link(source, with_trailing_char(targetname, target_separator()) + entry.name);
 }
 
+LinkTally::Count* SyncTree::refused_links(symlink_util::FollowRefusal refusal)  // [SyncTree.md#followed-links]
+{
+    switch (refusal) {
+    case symlink_util::FollowRefusal::None: return nullptr;
+    case symlink_util::FollowRefusal::Unresolved: return &link_tally_.dangling;
+    case symlink_util::FollowRefusal::Loop: return &link_tally_.loops;
+    case symlink_util::FollowRefusal::IntoTarget: return &link_tally_.into_target;
+    case symlink_util::FollowRefusal::TooManyLinks: break;
+    }
+    return &link_tally_.too_deep;
+}
+
+void SyncTree::follow_link_entry(const Entry& entry, const wstring& source, const wstring& sourcename, const wstring& targetname, const wstring& wildcard, const Names& target_dirs)  // [SyncTree.md#followed-links]
+{
+    if (entry.is_regular_file)
+        return sync_file_entry(entry.name, sourcename, targetname, wildcard);
+    if (is_excluded(entry.name, sync_item_.exclusions()))
+        return;
+    if (LinkTally::Count* refused = refused_links(trail_->refusal(source)))
+        return refused->add(source);
+    const wstring target = with_trailing_char(targetname, target_separator()) + entry.name;
+    if (!target_usable(target))
+        return;
+    trail_->enter_link(source);
+    sync_tree(source, target, wildcard, subtree_state(entry.name, sourcename, target_dirs));
+    trail_->leave();
+}
+
 void SyncTree::sync_subtree(const wstring& name, const wstring& sourcename, const wstring& targetname, const wstring& wildcard, const Names& target_dirs)
 {
     if (is_excluded(name, sync_item_.exclusions()))  // [SyncTree.md#excluded-directories]
-        log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + name);
-    else if (target_usable(with_trailing_char(targetname, target_separator()) + name))
-        sync_tree(with_trailing_char(sourcename, source_separator()) + name, with_trailing_char(targetname, target_separator()) + name, wildcard,
+        return log_debug(L"Ausgeschlossenes Verzeichnis wird uebersprungen: " + name);
+    if (!target_usable(with_trailing_char(targetname, target_separator()) + name))
+        return;
+    if (trail_)
+        trail_->enter_directory(name);
+    sync_tree(with_trailing_char(sourcename, source_separator()) + name, with_trailing_char(targetname, target_separator()) + name, wildcard,
             subtree_state(name, sourcename, target_dirs));
+    if (trail_)
+        trail_->leave();
 }
 
 void SyncTree::sync_file_entry(const wstring& name, const wstring& sourcename, const wstring& targetname, const wstring& wildcard)
@@ -227,6 +262,8 @@ void SyncTree::sync_target_only_dirs(const wstring& sourcename, const wstring& t
 void SyncTree::operator()()
 {
     log_debug(L"SyncTree::operator()()");
+    if (follows_links())  // [SyncTree.md#followed-links]
+        trail_.emplace(root_path(sync_item_.source(), false), sync_item_.ssh_target() ? std::nullopt : std::optional<fs::path>(root_path(sync_item_.target(), false)));
     sync_tree(root_path(sync_item_.source(), sync_item_.ssh_source()), root_path(sync_item_.target(), sync_item_.ssh_target()), sync_item_.wildcard(), DirState::Both);
     finish_pass();
 }

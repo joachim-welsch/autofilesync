@@ -108,5 +108,6 @@ What a pass has to say about its links once, not per link: those the target coul
 those of the system that were skipped (SymlinkUtil.md#system_link), those that point out of the
 synchronised tree and were copied as they are, and the links created inside the tree, which
 are asked at the end of the pass whether they lead somewhere - only then are the files they
-point to copied as well. Each group keeps its number and its first link for the message
+point to copied as well. The mode that follows links adds the links it did not enter
+(SyncTree.md#followed-links). Each group keeps its number and its first link for the message
 (SyncBase.md#report_links). The pass owns the tally; every SyncLink of the pass adds to it.

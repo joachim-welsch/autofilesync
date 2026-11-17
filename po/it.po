@@ -987,6 +987,26 @@ msgstr "Il collegamento simbolico non viene seguito: "
 msgid "symlink_dangling"
 msgstr "Il collegamento simbolico non porta da nessuna parte e viene saltato: "
 
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_loop_skipped"
+msgstr "Collegamenti simbolici non seguiti perché formano un ciclo:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_into_target_skipped"
+msgstr "Collegamenti simbolici non seguiti perché portano nella cartella di destinazione:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_too_deep_skipped"
+msgstr "Collegamenti simbolici non seguiti perché ci sono troppi collegamenti in catena:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "links_dangling_skipped"
+msgstr "Collegamenti simbolici saltati perché non portano da nessuna parte:"
+
+#: AFS_Core/src/SyncBase.cpp
+msgid "symlink_follow_needs_one_way"
+msgstr "«Seguire il collegamento» non vale insieme alla sincronizzazione bidirezionale o allo spostamento; i collegamenti simbolici sono trattati come nell'impostazione predefinita:"
+
 #: AFS_Core/src/SyncLink.cpp
 msgid "link_created"
 msgstr "Collegamento creato:"
