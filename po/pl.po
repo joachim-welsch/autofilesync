@@ -214,6 +214,10 @@ msgstr "Dysk nie jest zamontowany"
 msgid "file_attributes_unreadable"
 msgstr "Nie można odczytać atrybutów pliku"
 
+#: AFS_Core/src/FilesystemUtil.cpp:77
+msgid "file_attributes_not_settable"
+msgstr "Nie można ustawić atrybutów pliku"
+
 #: Utilities/src/FilesystemUtil.cpp
 msgid "permission_denied"
 msgstr "Odmowa dostępu"
@@ -245,6 +249,10 @@ msgstr "Nieprawidłowy czas pliku"
 #: AFS_Core/src/FilesystemUtil.cpp:81
 msgid "file_info_read_error"
 msgstr "Błąd odczytu informacji o pliku"
+
+#: AFS_Core/src/FilesystemUtil.cpp:81
+msgid "file_info_write_error"
+msgstr "Błąd zapisu informacji o pliku"
 
 #: AFS_Core/src/FilesystemUtil.cpp:83 AFS_Core/src/SyncBase.cpp:88
 #: AFS_Core/src/SyncDir.cpp:85 AFS_Core/src/SyncFile.cpp:326
@@ -717,6 +725,10 @@ msgstr "Błąd: %1, podczas zmiany nazwy %2 na %3"
 #: AFS_Core/src/SyncFileSsh.cpp:108 AFS_Core/src/SyncFileSsh.cpp:291
 msgid "file_time_not_settable"
 msgstr "Nie udało się ustawić czasu pliku: "
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "file_time_adjusted"
+msgstr "Dostosowano czas pliku:"
 
 #: AFS_Core/src/SyncFile.cpp:225 AFS_Core/src/SyncFile.cpp:231
 #: AFS_Core/src/SyncFile.cpp:321 AFS_Core/src/SyncFile.cpp:326

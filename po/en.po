@@ -214,6 +214,10 @@ msgstr "The drive is not mounted"
 msgid "file_attributes_unreadable"
 msgstr "Cannot read the file attributes"
 
+#: AFS_Core/src/FilesystemUtil.cpp:77
+msgid "file_attributes_not_settable"
+msgstr "Cannot set the file attributes"
+
 #: Utilities/src/FilesystemUtil.cpp
 msgid "permission_denied"
 msgstr "Permission denied"
@@ -245,6 +249,10 @@ msgstr "Invalid file time"
 #: AFS_Core/src/FilesystemUtil.cpp:81
 msgid "file_info_read_error"
 msgstr "Error reading the file information"
+
+#: AFS_Core/src/FilesystemUtil.cpp:81
+msgid "file_info_write_error"
+msgstr "Error writing the file information"
 
 #: AFS_Core/src/FilesystemUtil.cpp:83 AFS_Core/src/SyncBase.cpp:88
 #: AFS_Core/src/SyncDir.cpp:85 AFS_Core/src/SyncFile.cpp:326
@@ -725,6 +733,10 @@ msgstr "Error: %1, while renaming %2 to %3"
 #: AFS_Core/src/SyncFileSsh.cpp:108 AFS_Core/src/SyncFileSsh.cpp:291
 msgid "file_time_not_settable"
 msgstr "The file time could not be set: "
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "file_time_adjusted"
+msgstr "File time adjusted:"
 
 #: AFS_Core/src/SyncFile.cpp:225 AFS_Core/src/SyncFile.cpp:231
 #: AFS_Core/src/SyncFile.cpp:321 AFS_Core/src/SyncFile.cpp:326

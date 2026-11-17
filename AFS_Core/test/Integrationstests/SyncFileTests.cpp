@@ -206,14 +206,15 @@ TEST(SyncFileTests, FailedSshCopyRestoresBackupAndReportsFailure)  // [SyncFileT
         if (accounts[i].name() == "afx_bad_ssh") { Config::instance().remove_ssh_account(i); break; }
 }
 
-namespace AFS_Core { void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait); }  // [SyncFileTests.md#set_last_write_time]
+namespace AFS_Core { fsu::FileInfoResult set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait); }  // [SyncFileTests.md#set_last_write_time]
 
 TEST(SyncFileTests, SetLastWriteTimeGivesUpOnPersistentError)  // [SyncFileTests.md#SetLastWriteTimeGivesUpOnPersistentError]
 {
     Synchronize::start(); // stop not requested: the bounded retry path itself must terminate
     const auto start = std::chrono::steady_clock::now();
-    set_last_write_time(L"/nonexistent_afx_dir/nonexistent.txt", fs::file_time_type::clock::now(), false);
+    const fsu::FileInfoResult refusal = set_last_write_time(L"/nonexistent_afx_dir/nonexistent.txt", fs::file_time_type::clock::now(), false);
     const auto elapsed = duration_cast<seconds>(std::chrono::steady_clock::now() - start);
+    EXPECT_EQ(refusal, fsu::FileInfoResult::FileNotExist);
     EXPECT_LT(elapsed.count(), 10); // bounded (~1s with 10 x 100ms retries), not an endless loop
 }
 

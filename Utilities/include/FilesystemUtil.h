@@ -29,7 +29,8 @@ namespace Utilities {
 
 namespace FilesystemUtil
 {
-	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, CannotCreateDirectory, DiskFull };
+	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, CannotSetFileAttributes,
+        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull };
 
 	bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
@@ -49,6 +50,7 @@ namespace FilesystemUtil
         std::wstring refused_file;
     };
     FileInfoResult reason_for_failure(const std::error_code& ec);  // [FilesystemUtil.md#reason_for_failure]
+    FileInfoResult reason_for_write_failure(const std::error_code& ec);  // [FilesystemUtil.md#reason_for_write_failure]
     std::error_code last_stream_error();  // [FilesystemUtil.md#last_stream_error]
     std::wstring failure_text(const std::error_code& ec);  // [FilesystemUtil.md#failure_text]
     FileInfoResult create_directory_refusal(const std::filesystem::path& directory, std::error_code& ec);  // [FilesystemUtil.md#create_directory_refusal]
@@ -63,6 +65,14 @@ namespace FilesystemUtil
     bool rename_file(const std::wstring& oldname, const std::wstring& newname);
     bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
     bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
+    FileInfoResult write_time_refusal(const std::wstring& file, const std::filesystem::file_time_type& time);  // [FilesystemUtil.md#write_time_refusal]
+#ifdef _TEST
+    void set_write_time_error_for_test(std::optional<std::error_code> error);  // [FilesystemUtil.md#write_time_refusal]
+#endif
+    FileInfoResult permissions_refusal(const std::wstring& file, std::filesystem::perms permissions);  // [FilesystemUtil.md#permissions_refusal]
+#ifdef _TEST
+    void set_permissions_error_for_test(std::optional<std::error_code> error);  // [FilesystemUtil.md#permissions_refusal]
+#endif
     std::wstring read_utf8_file(const std::filesystem::path& file);  // [FilesystemUtil.md#utf8-files]
     void write_utf8_file(const std::filesystem::path& file, const std::wstring& text);  // [FilesystemUtil.md#utf8-files]
     bool write_private_file(const std::filesystem::path& file, std::string_view bytes);  // [FilesystemUtil.md#private-files]

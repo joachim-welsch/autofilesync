@@ -214,6 +214,10 @@ msgstr "Le lecteur n'est pas monté"
 msgid "file_attributes_unreadable"
 msgstr "Impossible de lire les attributs du fichier"
 
+#: AFS_Core/src/FilesystemUtil.cpp:77
+msgid "file_attributes_not_settable"
+msgstr "Impossible de définir les attributs du fichier"
+
 #: Utilities/src/FilesystemUtil.cpp
 msgid "permission_denied"
 msgstr "Accès refusé"
@@ -245,6 +249,10 @@ msgstr "Date du fichier non valide"
 #: AFS_Core/src/FilesystemUtil.cpp:81
 msgid "file_info_read_error"
 msgstr "Erreur lors de la lecture des informations du fichier"
+
+#: AFS_Core/src/FilesystemUtil.cpp:81
+msgid "file_info_write_error"
+msgstr "Erreur lors de l'écriture des informations du fichier"
 
 #: AFS_Core/src/FilesystemUtil.cpp:83 AFS_Core/src/SyncBase.cpp:88
 #: AFS_Core/src/SyncDir.cpp:85 AFS_Core/src/SyncFile.cpp:326
@@ -717,6 +725,10 @@ msgstr "Erreur : %1, lors du renommage de %2 en %3"
 #: AFS_Core/src/SyncFileSsh.cpp:108 AFS_Core/src/SyncFileSsh.cpp:291
 msgid "file_time_not_settable"
 msgstr "La date du fichier n'a pas pu être définie : "
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "file_time_adjusted"
+msgstr "Date du fichier ajustée :"
 
 #: AFS_Core/src/SyncFile.cpp:225 AFS_Core/src/SyncFile.cpp:231
 #: AFS_Core/src/SyncFile.cpp:321 AFS_Core/src/SyncFile.cpp:326

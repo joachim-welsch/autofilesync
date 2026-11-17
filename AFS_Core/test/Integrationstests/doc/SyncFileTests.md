@@ -48,7 +48,8 @@ process".
 ## set_last_write_time
 
 Reaches the file-local helper in SyncFile.cpp; no header declares it. The default argument
-(call_wait = true) lives at the definition, so it must be passed explicitly here.
+(call_wait = true) lives at the definition, so it must be passed explicitly here. It answers
+with the reason of its last attempt (SyncFile.md#file-time-failure).
 
 ## SetLastWriteTimeGivesUpOnPersistentError
 

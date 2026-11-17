@@ -161,25 +161,22 @@ void SyncFile::set_ssh()
 
 void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& modify_time);
 
-void set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait = true)
+fsu::FileInfoResult set_last_write_time(const fs::path& fn, const fs::file_time_type& modify_time, bool call_wait = true)  // [SyncFile.md#file-time-failure]
 {
     log_debug(L"set_last_write_time " + fn.wstring() + L" filetime: " + string_to_wstring(util::to_string(modify_time)));
-    std::error_code ec;
+    fsu::FileInfoResult refusal = fsu::FileInfoResult::OK;
     for (int attempt = 0; attempt < 10; ++attempt) {  // [SyncFile.md#bounded-retries]
-        fs::last_write_time(fn, modify_time, ec);
-        if (!ec)
+        refusal = fsu::write_time_refusal(fn.wstring(), modify_time);
+        if (refusal == fsu::FileInfoResult::OK)
             break;
         if (Synchronize::stopping())
-            return;
-        log_debug(L"set_last_write_time: " + util::to_string(ec.value()));
+            return fsu::FileInfoResult::OK;
+        log_debug(L"set_last_write_time: " + fsu::make_error_message(refusal));
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    if (ec) {
-        log_error(translation::translate("file_time_not_settable"), fn.wstring(), string_to_wstring(ec.message()));
-        return;
-    }
-    if (call_wait)
+    if (refusal == fsu::FileInfoResult::OK && call_wait)
         wait_for_updated_filetime(fn, modify_time);
+    return refusal;
 }
 
 void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& modify_time)
@@ -215,10 +212,17 @@ void wait_for_updated_filetime(const fs::path& fn, const fs::file_time_type& mod
 
 constexpr std::size_t COPY_BLOCK_BYTES = 1 << 20;
 
-static CopyResult failed(const wstring& file, CopyFailure& failure)  // [SyncFile.md#copy-failure-reason]
+static CopyResult read_failed(const wstring& file, CopyFailure& failure)  // [SyncFile.md#copy-failure-reason]
 {
     const std::error_code ec = fsu::last_stream_error();
     failure = {fsu::reason_for_failure(ec), fsu::failure_text(ec) + L": " + file};
+    return CopyResult::Error;
+}
+
+static CopyResult write_failed(const wstring& file, CopyFailure& failure)  // [SyncFile.md#copy-failure-reason]
+{
+    const std::error_code ec = fsu::last_stream_error();
+    failure = {fsu::reason_for_write_failure(ec), fsu::failure_text(ec) + L": " + file};
     return CopyResult::Error;
 }
 
@@ -226,27 +230,23 @@ static CopyResult copy_local_file(const wstring& src, const wstring& dest, CopyF
 {
     std::ifstream in(fs::path(src), std::ios::binary);
     if (!in)
-        return failed(src, failure);
+        return read_failed(src, failure);
     std::ofstream out(fs::path(dest), std::ios::binary | std::ios::trunc);
     if (!out)
-        return failed(dest, failure);
+        return write_failed(dest, failure);
     std::vector<char> block(COPY_BLOCK_BYTES);
     uint64_t copied = 0;
     while (in.read(block.data(), static_cast<std::streamsize>(block.size())) || in.gcount() > 0) {
         if (Synchronize::stopping())
             return CopyResult::Stopped;
         if (!out.write(block.data(), in.gcount()))
-            return failed(dest, failure);
+            return write_failed(dest, failure);
         Synchronize::report_copied_bytes(copied += static_cast<uint64_t>(in.gcount()));
     }
     if (in.bad())
-        return failed(src, failure);
+        return read_failed(src, failure);
     out.close();
-    if (!out)
-        return failed(dest, failure);
-    std::error_code ec;
-    fs::permissions(dest, fs::status(src, ec).permissions(), ec);  // [SyncFile.md#copy_local_file]
-    return CopyResult::OK;
+    return out ? CopyResult::OK : write_failed(dest, failure);
 }
 
 static CopyResult copy_normal_file(const wstring& src, const wstring& dest, CopyFailure& failure)  // [SyncFile.md#copy-direction-follows-the-paths]
@@ -305,6 +305,34 @@ bool SyncFile::refused(const wstring& file, fsu::FileInfoResult refusal) const  
     log_error(message);
     report_sync_error(message);
     return true;
+}
+
+bool SyncFile::time_refused(const wstring& file, fsu::FileInfoResult refusal)  // [SyncFile.md#file-time-failure]
+{
+    if (refusal == fsu::FileInfoResult::OK)
+        return false;
+    unstamped_.insert(file);
+    const wstring message = translation::translate("file_time_not_settable") + file + L" (" + fsu::make_error_message(refusal) + L")";
+    log_error(message);
+    report_sync_error(message);
+    return true;
+}
+
+static wstring attribute_message(const wstring& file, fsu::FileInfoResult refusal)  // [SyncFile.md#attribute-failure]
+{
+    const wstring what = fsu::make_error_message(fsu::FileInfoResult::CannotSetFileAttributes) + L": " + file;
+    return refusal == fsu::FileInfoResult::CannotSetFileAttributes ? what : what + L" (" + fsu::make_error_message(refusal) + L")";
+}
+
+void SyncFile::carry_rights(const wstring& src, const wstring& dest) const  // [SyncFile.md#attribute-failure]
+{
+    std::error_code ec;
+    const fs::perms rights = fs::status(src, ec).permissions();
+    const fsu::FileInfoResult refusal = ec ? fsu::FileInfoResult::OK : fsu::permissions_refusal(dest, rights);
+    if (refusal == fsu::FileInfoResult::OK)
+        return;
+    log_error(attribute_message(dest, refusal));
+    report_sync_error(attribute_message(dest, refusal));
 }
 
 bool SyncFile::read_refused(const wstring& file) const  // [SyncFile.md#refused]
@@ -367,11 +395,12 @@ bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
         restore_backup(dest, bak_filename);
         return false;
     }
+    carry_rights(src, dest);
     discard_backup(bak_filename);
     return true;
 }
 
-void SyncFile::pre_copy(const wstring& src, const wstring& dest)  // [SyncFile.md#pre_copy]
+void SyncFile::pre_copy(const wstring& dest)  // [SyncFile.md#pre_copy]
 {
     if (get_account_from_path(dest).has_value()) {
         if (sync_item_.father_son_principle())
@@ -380,10 +409,9 @@ void SyncFile::pre_copy(const wstring& src, const wstring& dest)  // [SyncFile.m
     }
     if (!file_exists(dest))
         return;
-    std::error_code ec;
-    fs::permissions(dest, fs::perms::owner_all, ec);
-    if (ec)
-        log_error(translation::translate("file_attributes_change"), src, string_to_wstring(ec.message()));
+    const fsu::FileInfoResult refusal = fsu::permissions_refusal(dest, fs::perms::owner_all);
+    if (refusal != fsu::FileInfoResult::OK)
+        log_error(attribute_message(dest, refusal));
     if (sync_item_.father_son_principle())
         move_file_to_backup(dest);
 }
@@ -422,9 +450,30 @@ bool SyncFile::not_readable(const FileDifference& fd) const  // [SyncFile.md#not
     return true;
 }
 
+bool SyncFile::only_time_differs(const FileDifference& fd, const wstring& source, const wstring& destination) const  // [SyncFile.md#restamp]
+{
+    const bool one_side_changed = fd.result() == FDResult::DestModified || (fd.result() == FDResult::SourceModified && fd.has_base());
+    return ssh_ == SSHPATH::none && one_side_changed && fd.source_size() == fd.dest_size() && files_equal(source, destination);
+}
+
+bool SyncFile::restamped(const FileDifference& fd, const wstring& source, const wstring& destination)  // [SyncFile.md#restamp]
+{
+    if (!only_time_differs(fd, source, destination))
+        return false;
+    if (only_count_)
+        return true;
+    const bool target_stale = fd.result() == FDResult::DestModified;
+    const wstring& stale = target_stale ? destination : source;
+    if (time_refused(stale, fsu::write_time_refusal(stale, target_stale ? fd.source_time() : fd.dest_time())))
+        return true;
+    log_info(translation::translate("file_time_adjusted"), stale);
+    record_pair(state_key_, source, destination);
+    return true;
+}
+
 void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, const wstring& destination, uint64_t filesize)
 {
-    if (not_readable(fd))
+    if (not_readable(fd) || restamped(fd, source, destination))
         return;
     const std::optional<PlannedAction> action = decide(fd);
     if (!action) {
@@ -603,10 +652,15 @@ void SyncFile::update_state(PlannedAction action, const wstring& source, const w
 
 void SyncFile::record_pair(const wstring& key, const wstring& source, const wstring& destination)
 {
-    const std::optional<ObservedFile> observed_source = observe_file(source, ssh_source());
-    const std::optional<ObservedFile> observed_dest = observe_file(destination, ssh_dest());
-    if (state_ != nullptr && observed_source && observed_dest)
-        state_->record(key, {observed_source->size, observed_source->time, observed_dest->time});
+    std::optional<ObservedFile> observed_source = observe_file(source, ssh_source());
+    std::optional<ObservedFile> observed_dest = observe_file(destination, ssh_dest());
+    if (state_ == nullptr || !observed_source || !observed_dest)
+        return;
+    if (unstamped_.contains(destination))  // [SyncFile.md#restamp]
+        observed_dest->time = observed_source->time;
+    if (unstamped_.contains(source))
+        observed_source->time = observed_dest->time;
+    state_->record(key, {observed_source->size, observed_source->time, observed_dest->time});
 }
 
 wstring SyncFile::conflict_copy_name(const wstring& path, bool ssh) const  // [SyncFile.md#conflict-copy-name]
@@ -695,11 +749,11 @@ bool SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     if (copy_refused(source, destination, size))
         return false;
     try {  // [SyncFile.md#failures-return-early]
-        pre_copy(source, destination);
+        pre_copy(destination);
         if (!save_copy_file(source, destination))
             return false;
         if (ssh_ == SSHPATH::none)  // [SyncFile.md#local-only-filetime]
-            fsu::set_last_write_time(destination, fs::last_write_time(source));
+            time_refused(destination, fsu::write_time_refusal(destination, fs::last_write_time(source)));
         log_info(translation::translate("copied_source_to_target"), source, translation::translate("to_label"), destination);
     }
     catch (const fs::filesystem_error& ex) {
@@ -735,14 +789,14 @@ bool SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     if (copy_refused(destination, source, size))
         return false;
     try {
-        pre_copy(destination, source);
+        pre_copy(source);
         fs::file_time_type modify_time{};  // fs::last_write_time() only resolves a local path - see copy_source_to_dest()
         if (ssh_ == SSHPATH::none)
             modify_time = fs::last_write_time(destination);
         if (!save_copy_file(destination, source))
             return false;
         if (ssh_ == SSHPATH::none)  // [SyncFile.md#local-only-filetime]
-            set_last_write_time(source, modify_time);
+            time_refused(source, set_last_write_time(source, modify_time));
         log_info(translation::translate("copied_target_to_source"), destination, translation::translate("to_label"), source);
     }
     catch (const fs::filesystem_error& ex) {

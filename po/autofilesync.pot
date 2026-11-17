@@ -229,6 +229,10 @@ msgstr ""
 msgid "file_attributes_unreadable"
 msgstr ""
 
+#: AFS_Core/src/FilesystemUtil.cpp:77
+msgid "file_attributes_not_settable"
+msgstr ""
+
 #: Utilities/src/FilesystemUtil.cpp
 msgid "permission_denied"
 msgstr ""
@@ -259,6 +263,10 @@ msgstr ""
 
 #: AFS_Core/src/FilesystemUtil.cpp:81
 msgid "file_info_read_error"
+msgstr ""
+
+#: AFS_Core/src/FilesystemUtil.cpp:81
+msgid "file_info_write_error"
 msgstr ""
 
 #: AFS_Core/src/FilesystemUtil.cpp:83 AFS_Core/src/SyncBase.cpp:88
@@ -731,6 +739,10 @@ msgstr ""
 #: AFS_Core/src/SyncFile.cpp:140 AFS_Core/src/SyncFileSsh.cpp:76
 #: AFS_Core/src/SyncFileSsh.cpp:108 AFS_Core/src/SyncFileSsh.cpp:291
 msgid "file_time_not_settable"
+msgstr ""
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "file_time_adjusted"
 msgstr ""
 
 #: AFS_Core/src/SyncFile.cpp:225 AFS_Core/src/SyncFile.cpp:231

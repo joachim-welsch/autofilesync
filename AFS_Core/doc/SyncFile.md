@@ -59,9 +59,8 @@ classification SyncItem uses when it builds its paths.
 fs::copy_file copied in one call: nothing for the progress bar until the file was through, and
 no way to stop inside a large file. The block loop reports the bytes after every block
 (Synchronize.md#copied_bytes_) and checks the stop flag, so Cancel ends inside the file and
-save_copy_file()'s Stopped path removes the partial target. The source's permission bits are
-set afterwards as fs::copy_file did; a failure there is no failed copy, and the file time
-follows separately in copy_source_to_dest().
+save_copy_file()'s Stopped path removes the partial target. The source's permission bits and
+the file time follow separately (attribute-failure, file-time-failure).
 
 ## move_file_to_backup
 
@@ -84,7 +83,8 @@ that get_remote_path() translates later.
 ## pre_copy
 
 Makes an existing target replaceable before the copy: the owner gets all rights so a read-only
-target no longer refuses the backup rename, and the father-son principle moves the old target
+target no longer refuses the backup rename (a failure is only logged, with the target's name:
+if it matters, the rename fails next and is reported), and the father-son principle moves the old target
 aside. The chmod is a local operation, so a remote target only gets the father-son backup here
 (remote-father-son); its write bit is restored by the upload itself when the open is refused
 (SyncFileSsh.md#read-only-target-made-writable). A download from an SSH source to a local target
@@ -131,6 +131,8 @@ that it failed; the reason is the system's error at that moment
 (FilesystemUtil.md#failure_text), and it is added to the "copy failed" report in brackets. The
 transfers behind SSH and in a cloud log their own reasons and leave this empty. A write that
 ran out of room is no "copy failed" but a shortage like the one found beforehand (disk-full).
+A failure on the target is judged as a write (FilesystemUtil.md#reason_for_write_failure), one
+on the source as a read.
 
 ## disk-full
 
@@ -178,6 +180,44 @@ count as done nor let del_aftercopy delete the source.
 fs::last_write_time() only resolves a local path, so the time is stamped here only when both
 sides are local. Every transfer with an SSH side brings the modification time along itself (see
 SyncFileSsh.md#transfer-keeps-the-modification-time).
+
+## file-time-failure
+
+The copy is only finished when the new file bears the time of the one it was copied from: the
+comparison by time takes a file with another time for a changed one. A time that cannot be set
+used to be a line in the log and nothing else, so the report and the proof file claimed a
+clean run. Now it is an error of the report, with the file and the reason
+(FilesystemUtil.md#write_time_refusal). The copy still counts: the content arrived and was
+verified, and taking it back would leave the user with the older file. The free
+set_last_write_time() hands the reason of its last attempt back for that; a stop request
+during the retries is no failure.
+
+## attribute-failure
+
+fs::copy_file gave the new file the permission bits of its source, and the block loop that
+replaced it does the same once the copy is verified. A failure used to be swallowed: the
+target then had the rights the umask gave it, a script lost its execute bit or a private file
+became readable for others, and the run still counted as clean. It is an error of the report
+now, with the file and - when the system names one - the reason
+(FilesystemUtil.md#permissions_refusal). As with the file time the copy counts, because the
+content is there. A later pass does not catch up on the rights: they are not compared.
+
+## restamp
+
+Two local files of the same size and the same content, of which one has another time than
+expected, differ in nothing that a copy could mend: the time is set and nothing is copied.
+This is how the pass after a file-time-failure catches up, and it does not depend on a state
+that a plain one-way item does not have. The side that looks changed gets the time of the
+other: the target when it is the newer one (DestModified), the source only when a state says
+that it changed and the target did not. A one-way source that looks newer is copied as before.
+The contents are compared first, so a target the user edited keeps its time and is handled as
+a newer target. A refusal is reported again and ends the work on the file. The preview makes
+the same comparison and plans nothing for such a pair.
+
+unstamped_ holds the files whose time could not be set in this pass. For them record_pair()
+writes the time the file was meant to get instead of the one it has: with the real time the
+state would call the pair in sync for good, with the intended one the next pass sees the side
+as changed and comes here.
 
 ## reported-once
 

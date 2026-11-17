@@ -84,6 +84,12 @@ FileNotExist when the file is gone; ErrorReadFileInfo for any other failure. Onl
 says anything about the existence of the file, and the caller must not read the others as
 "missing" (FileDifference.md#not-readable).
 
+## reason_for_write_failure
+
+The same for an attempt to change something: a rename, a write, a new file time. The reasons
+the system names stay what they are; only the rest is ErrorWriteFileInfo instead of
+ErrorReadFileInfo, so that the user is not told of a read error where nothing was read.
+
 ## lock_error
 
 On Windows a program that opens a file can keep all others out; the system then answers
@@ -115,6 +121,15 @@ read it back" and "differs" are the same failure.
 
 rename_file() with the reason for a failure, so that the caller can tell the user that the
 file is locked or the directory write-protected instead of only that something failed.
+A failure the system gives no known reason for is a write error (reason_for_write_failure).
+
+## write_time_refusal
+
+Sets the last write time and says why when that fails, where set_last_write_time() only says
+that it did. The copy needs the reason for its report (SyncFile.md#file-time-failure). A file
+the user owns never refuses a new time, so tests set the error instead: in test builds every
+call answers with the reason for that error and leaves the file alone until the override is
+taken back.
 
 ## failure_text
 
@@ -145,3 +160,11 @@ user, which can be less than what is free. No answer (the directory is not there
 does not say) is not zero: the caller then simply tries. Tests set the answer, because a disk
 cannot be filled for a test (DiskFullTests.md#FreeSpace); the override exists in test builds
 only and holds for every directory until it is taken back.
+
+## permissions_refusal
+
+Sets the permission bits of a file and says why when that fails: the reason the system names,
+or CannotSetFileAttributes for the rest. A file system that answers "not supported" keeps no
+such rights, so there are none to lose and the answer is OK - otherwise every copy onto such
+a drive would be an error. Like the file time, the rights of a file the user owns are never
+refused, so tests set the error (write_time_refusal).

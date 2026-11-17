@@ -110,6 +110,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("drive_not_mounted");
     case FileInfoResult::CannotReadFileAttributes:
         return translation::translate("file_attributes_unreadable");
+    case FileInfoResult::CannotSetFileAttributes:
+        return translation::translate("file_attributes_not_settable");
     case FileInfoResult::PermissionDenied:
         return translation::translate("permission_denied");
     case FileInfoResult::FileLocked:
@@ -118,6 +120,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("file_time_invalid");
     case FileInfoResult::ErrorReadFileInfo:
         return translation::translate("file_info_read_error");
+    case FileInfoResult::ErrorWriteFileInfo:
+        return translation::translate("file_info_write_error");
     case FileInfoResult::CannotCreateDirectory:
         return translation::translate("directory_not_creatable");
     case FileInfoResult::DiskFull:
@@ -157,6 +161,12 @@ FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil
     if (ec == std::errc::permission_denied)
         return FileInfoResult::PermissionDenied;
     return ec == std::errc::no_such_file_or_directory ? FileInfoResult::FileNotExist : FileInfoResult::ErrorReadFileInfo;
+}
+
+FileInfoResult reason_for_write_failure(const std::error_code& ec)  // [FilesystemUtil.md#reason_for_write_failure]
+{
+    const FileInfoResult reason = reason_for_failure(ec);
+    return reason == FileInfoResult::ErrorReadFileInfo ? FileInfoResult::ErrorWriteFileInfo : reason;
 }
 
 std::wstring failure_text(const std::error_code& ec)  // [FilesystemUtil.md#failure_text]
@@ -554,7 +564,7 @@ FileInfoResult rename_refusal(const std::wstring& oldname, const std::wstring& n
     if (!ec)
         return FileInfoResult::OK;
     log_error(translation::translate("file_rename_error") + oldname + L" -> " + newname + L": " + string_to_wstring(ec.message()));
-    return reason_for_failure(ec);
+    return reason_for_write_failure(ec);
 }
 
 bool rename_file(const std::wstring& oldname, const std::wstring& newname)
@@ -591,6 +601,59 @@ bool set_last_write_time(const std::wstring& fn, const fs::file_time_type& modif
         log_error(L"set_last_write_time: ", fn, translation::translate("unknown_error"));
     }
     return false;
+}
+
+#ifdef _TEST
+static std::optional<std::error_code> write_time_error_for_test;
+
+void set_write_time_error_for_test(std::optional<std::error_code> error)  // [FilesystemUtil.md#write_time_refusal]
+{
+    write_time_error_for_test = error;
+}
+#endif
+
+FileInfoResult write_time_refusal(const std::wstring& file, const fs::file_time_type& time)  // [FilesystemUtil.md#write_time_refusal]
+{
+#ifdef _TEST
+    if (write_time_error_for_test)
+        return reason_for_write_failure(*write_time_error_for_test);
+#endif
+    std::error_code ec;
+    fs::last_write_time(file, time, ec);
+    return ec ? reason_for_write_failure(ec) : FileInfoResult::OK;
+}
+
+#ifdef _TEST
+static std::optional<std::error_code> permissions_error_for_test;
+
+void set_permissions_error_for_test(std::optional<std::error_code> error)  // [FilesystemUtil.md#permissions_refusal]
+{
+    permissions_error_for_test = error;
+}
+#endif
+
+static bool rights_unknown_to_filesystem(const std::error_code& ec)  // [FilesystemUtil.md#permissions_refusal]
+{
+    return ec == std::errc::not_supported || ec == std::errc::operation_not_supported || ec == std::errc::function_not_supported;
+}
+
+static FileInfoResult reason_for_permissions_failure(const std::error_code& ec)  // [FilesystemUtil.md#permissions_refusal]
+{
+    if (!ec || rights_unknown_to_filesystem(ec))
+        return FileInfoResult::OK;
+    const FileInfoResult reason = reason_for_write_failure(ec);
+    return reason == FileInfoResult::ErrorWriteFileInfo ? FileInfoResult::CannotSetFileAttributes : reason;
+}
+
+FileInfoResult permissions_refusal(const std::wstring& file, fs::perms permissions)  // [FilesystemUtil.md#permissions_refusal]
+{
+#ifdef _TEST
+    if (permissions_error_for_test)
+        return reason_for_permissions_failure(*permissions_error_for_test);
+#endif
+    std::error_code ec;
+    fs::permissions(file, permissions, ec);
+    return reason_for_permissions_failure(ec);
 }
 
 std::wstring read_utf8_file(const fs::path& file)

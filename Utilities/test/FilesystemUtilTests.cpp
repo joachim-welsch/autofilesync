@@ -192,6 +192,41 @@ TEST(FilesystemUtilTests, ReasonForFailureTellsLockedFromRefusedFromMissing)  //
 #endif
 }
 
+TEST(FilesystemUtilTests, ReasonForWriteFailureKeepsKnownReasonsAndCallsTheRestAWriteError)  // [FilesystemUtilTests.md#ReasonForWriteFailureKeepsKnownReasonsAndCallsTheRestAWriteError]
+{
+    using fsu::FileInfoResult;
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::io_error)), FileInfoResult::ErrorWriteFileInfo);
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::filename_too_long)), FileInfoResult::ErrorWriteFileInfo);
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::permission_denied)), FileInfoResult::PermissionDenied);
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::no_such_file_or_directory)), FileInfoResult::FileNotExist);
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::no_space_on_device)), FileInfoResult::DiskFull);
+    EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(std::errc::device_or_resource_busy)), fsu::reason_for_failure(std::make_error_code(std::errc::device_or_resource_busy)));
+}
+
+TEST_F(FilesystemUtilTest, WriteTimeRefusalSetsTheTimeOrSaysWhyNot)  // [FilesystemUtilTests.md#WriteTimeRefusalSetsTheTimeOrSaysWhyNot]
+{
+    const fs::path file = create_file("stamped.txt", "content");
+    const fs::file_time_type hour_ago = fs::last_write_time(file) - std::chrono::hours(1);
+
+    EXPECT_EQ(fsu::write_time_refusal(file.wstring(), hour_ago), fsu::FileInfoResult::OK);
+    EXPECT_EQ(fs::last_write_time(file), hour_ago);
+    EXPECT_EQ(fsu::write_time_refusal((root_ / "missing.txt").wstring(), hour_ago), fsu::FileInfoResult::FileNotExist);
+}
+
+TEST_F(FilesystemUtilTest, WriteTimeErrorForTestRefusesWithoutTouchingTheFile)  // [FilesystemUtilTests.md#WriteTimeErrorForTestRefusesWithoutTouchingTheFile]
+{
+    const fs::path file = create_file("stamped.txt", "content");
+    const fs::file_time_type before = fs::last_write_time(file);
+
+    fsu::set_write_time_error_for_test(std::make_error_code(std::errc::io_error));
+    const fsu::FileInfoResult refused = fsu::write_time_refusal(file.wstring(), before - std::chrono::hours(1));
+    fsu::set_write_time_error_for_test(std::nullopt);
+
+    EXPECT_EQ(refused, fsu::FileInfoResult::ErrorWriteFileInfo);
+    EXPECT_EQ(fs::last_write_time(file), before);
+    EXPECT_EQ(fsu::write_time_refusal(file.wstring(), before - std::chrono::hours(1)), fsu::FileInfoResult::OK) << "the test value is gone again";
+}
+
 TEST_F(FilesystemUtilTest, CompareContentTellsDifferentFromNotReadable)  // [FilesystemUtilTests.md#CompareContentTellsDifferentFromNotReadable]
 {
     const fs::path original = create_file("a.bin", "content");
@@ -297,16 +332,46 @@ TEST_F(FilesystemUtilTest, FreeSpaceAnswersForADirectoryAndFollowsTheTestValue) 
     EXPECT_NE(fsu::free_space(root_), 4711u) << "the test value is gone again";
 }
 
+TEST_F(FilesystemUtilTest, PermissionsRefusalSetsTheRightsOrSaysWhyNot)  // [FilesystemUtilTests.md#PermissionsRefusalSetsTheRightsOrSaysWhyNot]
+{
+    const fs::path file = create_file("rights.txt", "content");
+    const fs::perms read_only = fs::perms::owner_read | fs::perms::group_read | fs::perms::others_read;
+
+    EXPECT_EQ(fsu::permissions_refusal(file.wstring(), read_only), fsu::FileInfoResult::OK);
+    EXPECT_EQ(fs::status(file).permissions() & fs::perms::owner_write, fs::perms::none);
+    EXPECT_EQ(fsu::permissions_refusal((root_ / "missing.txt").wstring(), read_only), fsu::FileInfoResult::FileNotExist);
+    fs::permissions(file, fs::perms::owner_write, fs::perm_options::add);
+}
+
+TEST_F(FilesystemUtilTest, PermissionsErrorForTestRefusesWithoutTouchingTheFile)  // [FilesystemUtilTests.md#PermissionsErrorForTestRefusesWithoutTouchingTheFile]
+{
+    const fs::path file = create_file("rights.txt", "content");
+    const fs::perms before = fs::status(file).permissions();
+
+    fsu::set_permissions_error_for_test(std::make_error_code(std::errc::io_error));
+    const fsu::FileInfoResult refused = fsu::permissions_refusal(file.wstring(), fs::perms::owner_read);
+    fsu::set_permissions_error_for_test(std::make_error_code(std::errc::permission_denied));
+    const fsu::FileInfoResult denied = fsu::permissions_refusal(file.wstring(), fs::perms::owner_read);
+    fsu::set_permissions_error_for_test(std::make_error_code(std::errc::not_supported));
+    const fsu::FileInfoResult unsupported = fsu::permissions_refusal(file.wstring(), fs::perms::owner_read);
+    fsu::set_permissions_error_for_test(std::nullopt);
+
+    EXPECT_EQ(refused, fsu::FileInfoResult::CannotSetFileAttributes);
+    EXPECT_EQ(denied, fsu::FileInfoResult::PermissionDenied) << "a reason the system names is kept";
+    EXPECT_EQ(unsupported, fsu::FileInfoResult::OK) << "a file system without rights has none to lose";
+    EXPECT_EQ(fs::status(file).permissions(), before);
+}
+
 TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUtilTests.md#EveryFileInfoResultHasItsOwnMessage]
 {
     using fsu::FileInfoResult;
     std::set<std::wstring> messages;
 
     for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
-            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::CannotCreateDirectory, FileInfoResult::DiskFull })
+            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::ErrorWriteFileInfo, FileInfoResult::CannotSetFileAttributes, FileInfoResult::CannotCreateDirectory, FileInfoResult::DiskFull })
         messages.insert(fsu::make_error_message(result));
 
-    EXPECT_EQ(messages.size(), 10u);
+    EXPECT_EQ(messages.size(), 12u);
     EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::OK))) << "no failure may share the text of the unknown error";
     EXPECT_FALSE(messages.contains(L""));
 }

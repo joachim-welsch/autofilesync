@@ -22,6 +22,7 @@
 #include "SyncPlan.h"
 #include <FilesystemUtil.h>
 #include <optional>
+#include <set>
 #ifdef _TEST
 #include <atomic>
 #endif
@@ -42,10 +43,15 @@ class SyncFile: public SyncBase {
     bool save_copy_file(const std::wstring& src, const std::wstring& dest);
     CopyResult core_copy_function(const std::wstring& src, const std::wstring& dest);
     CopyFailure copy_failure_;  // [SyncFile.md#copy-failure-reason]
-    void pre_copy(const std::wstring& src, const std::wstring& dest);
+    void pre_copy(const std::wstring& dest);
+    void carry_rights(const std::wstring& src, const std::wstring& dest) const;  // [SyncFile.md#attribute-failure]
     std::optional<PlannedAction> decide(const FileDifference& fd) const;  // [SyncFile.md#decide]
     bool not_readable(const FileDifference& fd) const;  // [SyncFile.md#not-readable]
     bool refused(const std::wstring& file, fsu::FileInfoResult refusal) const;  // [SyncFile.md#refused]
+    std::set<std::wstring> unstamped_;  // [SyncFile.md#restamp]
+    bool time_refused(const std::wstring& file, fsu::FileInfoResult refusal);  // [SyncFile.md#file-time-failure]
+    bool only_time_differs(const FileDifference& fd, const std::wstring& source, const std::wstring& destination) const;  // [SyncFile.md#restamp]
+    bool restamped(const FileDifference& fd, const std::wstring& source, const std::wstring& destination);  // [SyncFile.md#restamp]
     bool read_refused(const std::wstring& file) const;  // [SyncFile.md#refused]
     bool space_short(const std::wstring& file, uint64_t needed) const;  // [SyncFile.md#disk-full]
     void report_failed_copy(const std::wstring& src, const std::wstring& dest) const;  // [SyncFile.md#copy-failure-reason]

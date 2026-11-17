@@ -66,6 +66,31 @@ free_space() answers for the drive a directory lies on, has no answer for a dire
 not there - which callers must not take for "no room" - and gives the value a test set until
 the test takes it back (DiskFullTests.md#FreeSpace).
 
+## ReasonForWriteFailureKeepsKnownReasonsAndCallsTheRestAWriteError
+
+A failed write must not be reported as a read error, and a reason the system does name -
+no right, no room, a lock, a missing file - must not disappear behind the general one. The
+busy device is compared with reason_for_failure() because only Unix counts it as a lock.
+
+## WriteTimeRefusalSetsTheTimeOrSaysWhyNot
+
+The real path: the time arrives, and a missing file is said to be missing.
+
+## WriteTimeErrorForTestRefusesWithoutTouchingTheFile
+
+The override the sync tests rely on (WriteErrorTests.md#WriteTimeError): while it is set the
+file keeps its time, and once it is taken back the next call works again.
+
+## PermissionsRefusalSetsTheRightsOrSaysWhyNot
+
+The real path: the write bit goes, and a missing file is said to be missing. The bit comes
+back at the end so that TearDown can remove the file on every platform.
+
+## PermissionsErrorForTestRefusesWithoutTouchingTheFile
+
+The three answers the override can provoke: the general one, a reason the system names, and
+"not supported", which is no failure (FilesystemUtil.md#permissions_refusal).
+
 ## EveryFileInfoResultHasItsOwnMessage
 
 The message is all the user gets to see of a failed fileinfo(). Two results sharing one text - a
