@@ -2,6 +2,19 @@
 
 ## 0.5.0 – in Arbeit
 
+- Fehlende Verzeichnisse: Ist bei einer Zwei-Wege-Synchronisation der ganze
+  Zielordner verschwunden (umbenannt, verschoben, Freigabe neu angelegt), wird
+  er neu angelegt und aus der Quelle gefüllt; bisher konnte das als Löschung
+  aller Dateien gelten und die Quelle leeren. Ein gelöschter Unterordner oder
+  eine gelöschte Datei wird weiterhin auf der anderen Seite gelöscht.
+- Behoben (Linux, macOS): Eine Synchronisation, deren Zielordner noch nicht
+  existiert, lief nie an („Quelle oder Ziel nicht erreichbar“). Der Zielordner
+  wird jetzt angelegt, sofern der Ordner darüber vorhanden ist. Fehlt mehr als
+  der Zielordner selbst oder ist das Laufwerk nicht eingehängt, gilt das Ziel
+  weiter als nicht erreichbar, und auf einem nicht eingehängten Laufwerk werden
+  auch keine Unterordner mehr angelegt.
+- Das Protokoll unterscheidet „Verzeichnis existiert nicht“ von „Datei
+  existiert nicht“.
 - Cloud-Ordner als Ziel: Im Dialog einer Synchronisation steht neben dem Ziel
   „Cloud…“. Die Schaltfläche zeigt die Ordner, die die Programme der
   Cloud-Anbieter auf dem Rechner angelegt haben (Dropbox und Nextcloud überall,

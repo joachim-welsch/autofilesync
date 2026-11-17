@@ -54,6 +54,17 @@ namespace {
         remote_path = path.substr(colon_pos + 1);
         return account;
     }
+
+#ifdef _UNIX
+    bool target_usable(const fs::path& target)  // [CheckPath.md#path_exists]
+    {
+        if (!MountedDrives::instance().drive_mounted(target))
+            return false;
+        const fs::path directory = target.has_filename() ? target : target.parent_path();
+        std::error_code ec;
+        return fs::exists(directory, ec) || fs::is_directory(directory.parent_path(), ec);
+    }
+#endif
 }
 
 bool path_contains_volume_name(const wstring& path)
@@ -86,7 +97,8 @@ bool CheckPath::path_exists(const wstring& pathname, bool must_exist) const
 {
     log_debug(L"CheckPath::path_exists()");
 #ifdef _UNIX
-    (void)must_exist;
+    if (!must_exist)
+        return target_usable(pathname);
     std::error_code ec;
     return fs::exists(pathname, ec);
 #else

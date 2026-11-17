@@ -202,6 +202,10 @@ msgstr "with"
 msgid "file_not_exist"
 msgstr "The file does not exist"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_exist"
+msgstr "The directory does not exist"
+
 #: AFS_Core/src/FilesystemUtil.cpp:75
 msgid "drive_not_mounted"
 msgstr "The drive is not mounted"
@@ -958,6 +962,10 @@ msgstr "No synchronisation is active."
 #: AFS_Core/src/Synchronize.cpp:244
 msgid "source_or_target_not_reachable"
 msgstr "Source or target not reachable: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_dir_vanished"
+msgstr "%1: The target directory %2 is no longer there. It is created again and filled from the source; nothing is deleted in the source."
 
 #: AFS_Core/src/Synchronize.cpp:260
 msgid "watching_changes"

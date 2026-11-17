@@ -94,3 +94,10 @@ and the source does not.
 
 Both sides changed since the base: a conflict while they differ from each other, Equal once
 they agree (FileDifference.md#both-changed-alike).
+
+## AFileInAMissingDirectoryCountsAsMissing
+
+A directory deleted on one side takes its files with it, and SyncTree asks about each of them
+(SyncTree.md#DirState). The answer has to be the one for a missing file, or a deleted
+directory would be copied back instead of deleted on the other side. Whether the root of the
+item itself is gone is not decided here (Synchronize.md#vanished-target).

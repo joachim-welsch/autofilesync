@@ -64,3 +64,11 @@ it is owner-only from the moment it exists; a chmod() after an ordinary ofstream
 a window in which the umask, usually 022, made the secret readable for every account on the
 machine. fchmod() also narrows a file that an earlier version left wider. On Windows the file
 inherits the ACL of the user's profile directory, which already excludes other users.
+
+## reason_for_missing
+
+Why fileinfo() found no file, in the order that matters to the synchronisation. An unmounted
+drive comes first: everything below it is missing, and none of it was deleted. Then the
+directory the file should lie in: DirectoryNotExist when it is missing or is not a directory.
+Only a file that is missing from a directory that is there is FileNotExist. A name without a
+directory part lies in the current directory, which exists.

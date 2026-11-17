@@ -215,6 +215,7 @@
     <ClCompile Include="..\..\..\Utilities\test\MountedDrivesTests.cpp" />
     <ClCompile Include="..\..\..\Utilities\test\ThreadSaveStackTests.cpp" />
     <ClCompile Include="UnpluggedDriveTests.cpp" />
+    <ClCompile Include="MissingDirectoryTests.cpp" />
     <!-- SshHostKeyTests.cpp prueft den libssh-Zweig von verify_ssh_host_key() und ist
          komplett in #ifdef _UNIX eingeschlossen; der libssh2-Zweig fuer Windows hat
          noch keinen Test. -->

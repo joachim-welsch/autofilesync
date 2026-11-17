@@ -154,6 +154,8 @@ void SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)
     if (only_count_)
         return;
     const wstring destination = targetdir.empty() ? sync_item_.target() : targetdir;
+    if (drive_not_exist(destination, sync_item_.ssh_target()))  // [SyncBase.md#create_target_dir_if_not_exist]
+        return;
     if (sync_item_.ssh_target()) {
         if (!ssh_mkdir_p(destination)) {
             log_error(translation::translate("ssh_dir_create_error") + destination);

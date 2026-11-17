@@ -103,6 +103,8 @@ wstring make_error_message(FileInfoResult result)
     switch (result) {
     case FileInfoResult::FileNotExist:
         return translation::translate("file_not_exist");
+    case FileInfoResult::DirectoryNotExist:
+        return translation::translate("directory_not_exist");
     case FileInfoResult::DriveNotMounted:
         return translation::translate("drive_not_mounted");
     case FileInfoResult::CannotReadFileAttributes:
@@ -116,18 +118,21 @@ wstring make_error_message(FileInfoResult result)
     }
 }
 
+static FileInfoResult reason_for_missing(const fs::path& file)  // [FilesystemUtil.md#reason_for_missing]
+{
+    if (!MountedDrives::instance().drive_mounted(file))
+        return FileInfoResult::DriveNotMounted;
+    const fs::path directory = file.parent_path();
+    std::error_code ec;
+    return directory.empty() || fs::is_directory(directory, ec) ? FileInfoResult::FileNotExist : FileInfoResult::DirectoryNotExist;
+}
+
 #ifdef WIN32
 
 FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
-    if (!file_exists(fname)) {
-        fs::path file_path(fname);
-        auto& mounted_drives = MountedDrives::instance();
-        if (!mounted_drives.drive_mounted(file_path)) {
-            return FileInfoResult::DriveNotMounted;
-        }
-        return FileInfoResult::FileNotExist;
-    }
+    if (!file_exists(fname))
+        return reason_for_missing(fname);
 
     _WIN32_FILE_ATTRIBUTE_DATA data{};
     BOOL rc = GetFileAttributesEx(fname.c_str(), GetFileExInfoStandard, &data);
@@ -149,13 +154,8 @@ FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_
 FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
     try {
-        if (!fs::exists(fpathname)) {
-            auto& mounted_drives = MountedDrives::instance();
-            if (!mounted_drives.drive_mounted(fpathname)) {
-                return FileInfoResult::DriveNotMounted;
-            }
-            return FileInfoResult::FileNotExist;
-        }
+        if (!fs::exists(fpathname))
+            return reason_for_missing(fpathname);
 
         filesize = fs::file_size(fpathname);
         last_write_time = fs::last_write_time(fpathname);

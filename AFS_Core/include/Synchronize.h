@@ -89,6 +89,7 @@ class Synchronize {
     bool due(const SyncItem& i);  // [Synchronize.md#due]
     void run_sync_item(SyncItem& i);
     void report_unreachable(const SyncItem& i);
+    bool target_vanished(const SyncItem& i) const;  // [Synchronize.md#vanished-target]
     void report_sync_item(SyncItem& i);  // [Synchronize.md#record_last_run]
     LastRun last_run_of(const SyncItem& i, const SyncReport& report) const;
 #ifdef _TEST

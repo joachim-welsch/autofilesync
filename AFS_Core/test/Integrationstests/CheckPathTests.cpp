@@ -218,3 +218,18 @@ TEST_F(CheckPathSshTest, MissingRemoteTargetPathIsStillReachable)  // [CheckPath
     const std::wstring missing = L"localhost:" + tu::temp_dir_w() + L"/gibt_es_sicher_nicht_4711";
     EXPECT_TRUE(check_path.ssh_path_reachable(missing, false));
 }
+
+TEST(CheckPathTests, LocalSourceHasToExistAndTargetOnlyItsDirectory)  // [CheckPathTests.md#LocalSourceHasToExistAndTargetOnlyItsDirectory]
+{
+    const TempTree tree(fs::temp_directory_path() / ("afx_checkpath_local_" + std::to_string(system_info::current_pid())));
+    fs::create_directories(tree.path / "quelle");
+    fs::create_directories(tree.path / "ziel");
+    const std::wstring source = (tree.path / "quelle").wstring();
+
+    EXPECT_TRUE(CheckPath()(source, (tree.path / "ziel").wstring(), false));
+    EXPECT_TRUE(CheckPath()(source, (tree.path / "neu").wstring(), false)) << "the sync creates a missing target directory itself";
+    EXPECT_TRUE(CheckPath()(source, (tree.path / "neu").wstring() + L"/", false)) << "a trailing separator names the same directory";
+    EXPECT_FALSE(CheckPath()(source, (tree.path / "fehlt" / "neu").wstring(), false)) << "a target below a missing directory is not there";
+    EXPECT_FALSE(CheckPath()((tree.path / "fehlt").wstring(), (tree.path / "ziel").wstring(), false));
+    EXPECT_FALSE(fs::exists(tree.path / "neu")) << "the check itself creates nothing";
+}

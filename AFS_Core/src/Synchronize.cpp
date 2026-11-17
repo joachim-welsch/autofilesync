@@ -396,12 +396,30 @@ public:
     SyncStateKeeper(const SyncStateKeeper&) = delete;
     SyncStateKeeper& operator=(const SyncStateKeeper&) = delete;
     SyncState* state() { return state_ ? &*state_ : nullptr; }
+    bool knows_files() const { return state_ && !state_->pass_only() && !state_->empty(); }
+    void start_over() { state_.emplace(item_.source(), item_.target()); }  // [Synchronize.md#vanished-target]
     void complete()  // [Synchronize.md#complete-pass]
     {
         if (state_)
             state_->forget_unseen();
     }
 };
+}
+
+namespace {
+bool names_a_directory(const SyncItem& i)  // [Synchronize.md#vanished-target]
+{
+    return i.sync_item_type() != SyncItemType::File || fs::path(i.target()).filename() != fs::path(i.source()).filename();
+}
+}
+
+bool Synchronize::target_vanished(const SyncItem& i) const  // [Synchronize.md#vanished-target]
+{
+    if (i.ssh_target())
+        return i.sync_item_type() != SyncItemType::File && !ssh_is_directory(i.target());
+    const fs::path target = without_volume_spec(i.target());
+    std::error_code ec;
+    return !fs::exists(names_a_directory(i) ? target : target.parent_path(), ec);
 }
 
 void Synchronize::report_sync_item(SyncItem& i)
@@ -428,6 +446,12 @@ void Synchronize::run_sync_item(SyncItem& i)
         }
         item_reachable_[i.name()] = true;
         SyncStateKeeper keeper(i, state_kind(i, sync_type_), !touches_nothing());  // [Synchronize.md#sync-state]
+        if (i.two_way_sync() && keeper.knows_files() && target_vanished(i)) {  // [Synchronize.md#vanished-target]
+            const wstring message = translation::translate("target_dir_vanished", {i.name(), i.target()});
+            log_warning(message);
+            note(LogLevel::Warning, message);
+            keeper.start_over();
+        }
         if (keeper.state() != nullptr && mass_deletion_approved_)  // [Synchronize.md#mass-deletion-approved]
             keeper.state()->approve_mass_deletion();
         if (i.sync_item_type() == SyncItemType::Dir) {

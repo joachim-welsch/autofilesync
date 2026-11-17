@@ -217,6 +217,10 @@ msgstr ""
 msgid "file_not_exist"
 msgstr ""
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_exist"
+msgstr ""
+
 #: AFS_Core/src/FilesystemUtil.cpp:75
 msgid "drive_not_mounted"
 msgstr ""
@@ -944,6 +948,10 @@ msgstr ""
 
 #: AFS_Core/src/Synchronize.cpp:244
 msgid "source_or_target_not_reachable"
+msgstr ""
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_dir_vanished"
 msgstr ""
 
 #: AFS_Core/src/Synchronize.cpp:260

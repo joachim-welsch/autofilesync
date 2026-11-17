@@ -202,6 +202,10 @@ msgstr "з"
 msgid "file_not_exist"
 msgstr "Файл не існує"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_exist"
+msgstr "Папка не існує"
+
 #: AFS_Core/src/FilesystemUtil.cpp:75
 msgid "drive_not_mounted"
 msgstr "Диск не змонтовано"
@@ -946,6 +950,10 @@ msgstr "Жодна синхронізація не активна."
 #: AFS_Core/src/Synchronize.cpp:244
 msgid "source_or_target_not_reachable"
 msgstr "Джерело або призначення недоступне: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_dir_vanished"
+msgstr "%1: папки призначення %2 більше немає. Її буде створено знову й заповнено з джерела; у джерелі нічого не видаляється."
 
 #: AFS_Core/src/Synchronize.cpp:260
 msgid "watching_changes"

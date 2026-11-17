@@ -95,7 +95,12 @@ for it, and the state is updated.
 
 Only a file the file system (or the SFTP server) confirms as missing may count as deleted; a
 file whose attributes cannot be read is still there and merely yields the old DestNotExists
-or SourceNotExits, as before, which copies instead of deleting.
+or SourceNotExits, as before, which copies instead of deleting. A file whose directory is
+missing (DirectoryNotExist) is confirmed missing as well: a directory deleted on one side takes
+its files with it, and SyncTree asks about each of them. An unmounted drive is neither, it
+comes back as DriveNotMounted before the directory is looked at
+(FilesystemUtil.md#reason_for_missing). The root of an item is another matter and is settled
+before any file is compared (Synchronize.md#vanished-target).
 
 ## observe_file
 

@@ -46,8 +46,9 @@ checks that the run records the item as unreachable but without an error
 
 ## unmounted_dir
 
-A target that cannot be reached. On Unix a missing directory is enough, because CheckPath asks
-for the path itself. On Windows CheckPath only asks for the drive, since a missing target is
+A target that cannot be reached. On Unix the directory above the target is missing as well,
+which is what a pulled drive looks like there; a target that is merely missing would be created
+(CheckPath.md#path_exists). On Windows CheckPath only asks for the drive, since a missing target is
 created (CheckPath.md#target-need-not-exist), so the target goes on a drive letter that is not
 assigned.
 

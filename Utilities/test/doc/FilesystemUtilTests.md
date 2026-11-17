@@ -7,6 +7,12 @@ Module comment for FilesystemUtilTests.cpp.
 The temp directory lies on a mounted drive, so the answer has to be FileNotExist and not
 DriveNotMounted - the synchronisation waits for a drive but skips a missing file.
 
+## FileinfoTellsAMissingDirectoryFromAMissingFile
+
+DirectoryNotExist is the answer whenever the directory the file should lie in is not a
+directory: it is missing, a level above it is missing, or a plain file bears its name. The
+output stays untouched as for a missing file.
+
 ## EveryFileInfoResultHasItsOwnMessage
 
 The message is all the user gets to see of a failed fileinfo(). Two results sharing one text - a

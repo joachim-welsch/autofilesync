@@ -4,14 +4,20 @@ Module comment for CheckPath.h / CheckPath.cpp.
 
 ## path_exists
 
-must_exist only affects the Windows branch: a source must actually be there, but a local target
-that sync itself still has to create must not be rejected for not existing yet - see
-side_reachable().
+A source (must_exist) has to be there. A local target may be missing, because the sync creates
+it, but only the target itself: the directory it is to be created in has to exist, and the
+drive has to be mounted. A target with more than one level missing is what a pulled drive looks
+like that no fstab lists - "/media/anna/Backup/Fotos" without the stick - and creating the
+whole chain would put the backup on the disk the mount point lies on. The same holds for a
+mount point that is still there as an empty directory, which the mount table tells apart. A
+File item names a file as target; the rule is the same, the file may be missing but not its
+directory. Windows keeps its own rule (target-need-not-exist): a drive letter says reliably
+whether the drive is there.
 
 ## side_reachable
 
-Reachability of one side regardless of whether it is local or behind SSH; must_exist only
-applies to SSH (locally path_exists decides).
+Reachability of one side regardless of whether it is local or behind SSH; must_exist tells the
+source, which has to exist, from the target, which the sync may still have to create.
 
 ## ssh_path_reachable
 

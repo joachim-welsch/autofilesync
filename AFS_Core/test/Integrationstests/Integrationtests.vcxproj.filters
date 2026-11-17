@@ -425,6 +425,9 @@
     <ClCompile Include="UnpluggedDriveTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="MissingDirectoryTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="PasswordCryptoTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

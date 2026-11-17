@@ -397,6 +397,24 @@ TEST_F(ThreeWayTest, MissingTargetIsADeletionOnlyWhileTheSourceIsUnchanged)
     EXPECT_EQ(with_base(), Result::DestNotExists);
 }
 
+TEST_F(ThreeWayTest, AFileInAMissingDirectoryCountsAsMissing)  // [FileDifferenceTests.md#AFileInAMissingDirectoryCountsAsMissing]
+{
+    CompareItems ci;
+    ci.content(false);
+    const std::wstring gone = (dir_ / "gone" / "file.txt").wstring();
+    const auto result_of = [&](const std::wstring& source, const std::wstring& dest, const FileState* base) {
+        FileDifference fd(source, dest, ci, SSHPATH::none, true, base);
+        fd();
+        return fd.result();
+    };
+
+    EXPECT_EQ(result_of(source_w_, gone, &base_), Result::DestDeleted);
+    EXPECT_EQ(result_of(source_w_, gone, nullptr), Result::DestNotExists);
+    EXPECT_EQ(result_of(gone, dest_w_, &base_), Result::SourceDeleted);
+    EXPECT_EQ(result_of(gone, dest_w_, nullptr), Result::SourceNotExits);
+    EXPECT_EQ(result_of(gone, gone, &base_), Result::NeitherExists);
+}
+
 TEST_F(ThreeWayTest, BothSidesMissingIsNeitherExists)
 {
     fs::remove(source_);

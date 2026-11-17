@@ -64,6 +64,7 @@ set(SOURCES
     SyncSshFailureTests.cpp
     SymlinkTests.cpp
     UnpluggedDriveTests.cpp
+    MissingDirectoryTests.cpp
     SynchronizeTests.cpp
     SyncArbiterTests.cpp
     CheckPathTests.cpp

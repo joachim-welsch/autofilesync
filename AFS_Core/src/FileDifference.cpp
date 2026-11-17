@@ -122,7 +122,7 @@ static bool read_file_info(const std::wstring& fname, bool& drive_mounted, bool&
     if (result != fsu::FileInfoResult::OK) {
         if (result == fsu::FileInfoResult::DriveNotMounted)
             drive_mounted = false;
-        absent = result == fsu::FileInfoResult::FileNotExist;  // [FileDifference.md#absent]
+        absent = result == fsu::FileInfoResult::FileNotExist || result == fsu::FileInfoResult::DirectoryNotExist;  // [FileDifference.md#absent]
         const wstring error_message = fsu::make_error_message(result) + L": ";
         log_info(error_message, fname);
         return false;

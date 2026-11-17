@@ -202,6 +202,10 @@ msgstr "z"
 msgid "file_not_exist"
 msgstr "Plik nie istnieje"
 
+#: Utilities/src/FilesystemUtil.cpp
+msgid "directory_not_exist"
+msgstr "Folder nie istnieje"
+
 #: AFS_Core/src/FilesystemUtil.cpp:75
 msgid "drive_not_mounted"
 msgstr "Dysk nie jest zamontowany"
@@ -946,6 +950,10 @@ msgstr "Żadna synchronizacja nie jest aktywna."
 #: AFS_Core/src/Synchronize.cpp:244
 msgid "source_or_target_not_reachable"
 msgstr "Źródło lub cel jest nieosiągalne: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_dir_vanished"
+msgstr "%1: folder docelowy %2 już nie istnieje. Zostanie utworzony ponownie i wypełniony ze źródła; w źródle nic nie zostanie usunięte."
 
 #: AFS_Core/src/Synchronize.cpp:260
 msgid "watching_changes"

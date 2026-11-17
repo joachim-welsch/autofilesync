@@ -72,6 +72,13 @@ The directories come last because they are only empty after the deletions; when 
 were refused, they stay as well. A stop request ends the loop between two files, and what was
 not deleted is found again by the next pass.
 
+## create_target_dir_if_not_exist
+
+Nothing is created on a drive that is not mounted, just as no file is copied there
+(SyncFile::copy_source_to_dest): the mount point of a pulled drive is an ordinary directory of
+the disk above it, and the tree of the source would grow there, unseen, until that disk is
+full.
+
 ## create_source_dir
 
 The counterpart of create_target_dir_if_not_exist() for a directory that exists only in the

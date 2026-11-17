@@ -56,7 +56,7 @@ fs::path unmounted_dir(const fs::path& root)  // [SyncPlanTests.md#unmounted_dir
         if (const fs::path drive = std::wstring{letter, L':', L'\\'}; !fs::exists(drive, ec))
             return drive / "not-mounted";
 #endif
-    return root / "not-mounted";
+    return root / "unplugged" / "not-mounted";
 }
 
 class SyncPlanTest: public ::testing::Test {

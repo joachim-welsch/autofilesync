@@ -92,6 +92,26 @@ kept state knows goes into the item's LastRun, so the assistant can say that the
 tracking deletions (ConfigSummary.md#known-files); a pass-only state tracks nothing between
 passes and leaves LastRun without that number.
 
+## vanished-target
+
+To the state of a two-way item a file that was there last time and is gone now was deleted,
+and the deletion travels to the other side. That is right for a file and for a directory
+inside the item, but not for the root of the target: when the whole target is gone - the
+folder was renamed or moved, the share was set up anew, a drive came back empty under the old
+path - the state would read every file as deleted there and empty the source. Nobody deletes
+a synchronisation by removing its target folder. So a target root that is missing while the
+state knows files is taken for new: the pass starts over with an empty state, says so in a
+warning, creates the target and fills it from the source. Nothing is deleted, and the state
+written afterwards is as good as any. The old state file is replaced only when that pass
+records something, so a check that failed for a passing reason costs nothing.
+
+For a File item the root is the directory the target file lies in; a target file that is
+merely missing from its directory was deleted and is treated as such. When the target of a
+File item bears another name than the source file it may name a directory, and then the
+missing path itself counts. Behind SSH the directory is asked for once per pass and only for
+Dir and Tree items. A missing source needs none of this, it makes the item unreachable
+(CheckPath.md#reachability-rules).
+
 ## pass-only-state
 
 A one-way item with delete_in_target empties its target as readily as a two-way item when the

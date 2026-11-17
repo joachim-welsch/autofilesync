@@ -107,16 +107,39 @@ TEST_F(FilesystemUtilTest, FileinfoLeavesTheOutputUntouchedForAMissingFile)  // 
     EXPECT_EQ(filesize, 42u);
 }
 
+TEST_F(FilesystemUtilTest, FileinfoTellsAMissingDirectoryFromAMissingFile)  // [FilesystemUtilTests.md#FileinfoTellsAMissingDirectoryFromAMissingFile]
+{
+    uint64_t filesize = 42;
+    fs::file_time_type last_write_time;
+    create_file("plain.txt", "content");
+
+    EXPECT_EQ(fsu::fileinfo((root_ / "gone" / "missing.txt").wstring(), filesize, last_write_time), fsu::FileInfoResult::DirectoryNotExist);
+    EXPECT_EQ(fsu::fileinfo((root_ / "gone" / "deeper" / "missing.txt").wstring(), filesize, last_write_time), fsu::FileInfoResult::DirectoryNotExist);
+    EXPECT_EQ(fsu::fileinfo((root_ / "plain.txt" / "missing.txt").wstring(), filesize, last_write_time), fsu::FileInfoResult::DirectoryNotExist)
+        << "a file where the directory should be is no directory either";
+    EXPECT_EQ(fsu::fileinfo((root_ / "missing.txt").wstring(), filesize, last_write_time), fsu::FileInfoResult::FileNotExist);
+    EXPECT_EQ(filesize, 42u);
+}
+
+TEST_F(FilesystemUtilTest, FileinfoOfADirectoryThatExistsIsNotAMissingDirectory)
+{
+    uint64_t filesize = 0;
+    fs::file_time_type last_write_time;
+    fs::create_directories(root_ / "there");
+
+    EXPECT_EQ(fsu::fileinfo((root_ / "there" / "missing.txt").wstring(), filesize, last_write_time), fsu::FileInfoResult::FileNotExist);
+}
+
 TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUtilTests.md#EveryFileInfoResultHasItsOwnMessage]
 {
     using fsu::FileInfoResult;
     std::set<std::wstring> messages;
 
-    for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DriveNotMounted,
+    for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
             FileInfoResult::CannotReadFileAttributes, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo })
         messages.insert(fsu::make_error_message(result));
 
-    EXPECT_EQ(messages.size(), 5u);
+    EXPECT_EQ(messages.size(), 6u);
     EXPECT_FALSE(messages.contains(L""));
 }
 

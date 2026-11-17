@@ -97,3 +97,8 @@ löschen".
 
 For a target the connection is enough: a target directory that does not exist yet is created by
 SyncDir and SyncTree themselves.
+
+## LocalSourceHasToExistAndTargetOnlyItsDirectory
+
+The local rules of CheckPath.md#path_exists on a mounted drive. A fresh CheckPath per
+question keeps the cache of operator()() out of it.

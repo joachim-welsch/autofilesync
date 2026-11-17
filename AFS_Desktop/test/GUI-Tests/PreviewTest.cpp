@@ -65,7 +65,7 @@ std::filesystem::path unmounted_dir(const SandboxTree& tree)  // [PreviewTest.md
         if (const std::filesystem::path drive = std::wstring{letter, L':', L'\\'}; !std::filesystem::exists(drive, ec))
             return drive / "nicht-angeschlossen";
 #endif
-    return tree.path("nicht-angeschlossen");
+    return tree.path("abgezogen") / "nicht-angeschlossen";
 }
 
 bool preview(MainWindow& window)  // [PreviewTest.md#preview]
