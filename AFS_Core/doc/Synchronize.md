@@ -92,6 +92,24 @@ kept state knows goes into the item's LastRun, so the assistant can say that the
 tracking deletions (ConfigSummary.md#known-files); a pass-only state tracks nothing between
 passes and leaves LastRun without that number.
 
+## write-protected
+
+Before an item runs, the sides it writes to are asked whether their drive takes writes
+(FilesystemUtil.md#read_only_filesystem): the target always, the source of a two-way item
+too. A read-only one is a single error that names the side, and the item is left alone -
+instead of one failed copy per file, and instead of "disk full" on media that report no free
+space because they have none to give. It is an error of every pass, like any other failed
+one, and the pause until the next pass counts as usual. SSH sides are not asked; a server
+that refuses is found out by the first write (CopyLog.md#abandon), as is a drive that turns
+read-only during the pass. Counting and the preview write nothing and are not held back.
+
+## move-from-a-protected-source
+
+A moving item whose source is read-only - the camera card with its switch set - still copies:
+the files are safe in the target, which is most of what was asked. The source is not touched
+(SyncBase.md#moves_) and the pass says once that the files were copied but not removed, where
+every file used to be an error of its own, again with each pass that tried to finish the move.
+
 ## vanished-target
 
 To the state of a two-way item a file that was there last time and is gone now was deleted,

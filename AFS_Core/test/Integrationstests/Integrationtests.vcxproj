@@ -223,6 +223,7 @@
     <ClCompile Include="MissingDirectoryTests.cpp" />
     <ClCompile Include="LockedFileTests.cpp" />
     <ClCompile Include="DiskFullTests.cpp" />
+    <ClCompile Include="ReadOnlyFilesystemTests.cpp" />
     <ClCompile Include="WriteErrorTests.cpp" />
     <!-- SshHostKeyTests.cpp prueft den libssh-Zweig von verify_ssh_host_key() und ist
          komplett in #ifdef _UNIX eingeschlossen; der libssh2-Zweig fuer Windows hat

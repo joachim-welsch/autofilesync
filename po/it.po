@@ -2900,3 +2900,23 @@ msgstr "%1 non è raggiungibile: %2\nSalvare comunque la connessione? La sua chi
 #: AFS_Core/src/Logging.cpp
 msgid "smtp_unencrypted"
 msgstr "%1 non offre TLS, la notifica è partita in chiaro"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "filesystem_read_only"
+msgstr "Il file system è di sola lettura"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "remaining_files_skipped"
+msgstr "I file rimanenti di questo elemento sono stati saltati."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_read_only"
+msgstr "La destinazione è di sola lettura, non è stato sincronizzato nulla: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only"
+msgstr "L'origine è di sola lettura, non è stato sincronizzato nulla: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only_not_moved"
+msgstr "L'origine è di sola lettura, i file vengono copiati ma non eliminati dall'origine: "

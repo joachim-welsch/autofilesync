@@ -71,6 +71,7 @@ set(SOURCES
     MissingDirectoryTests.cpp
     LockedFileTests.cpp
     DiskFullTests.cpp
+    ReadOnlyFilesystemTests.cpp
     WriteErrorTests.cpp
     SynchronizeTests.cpp
     SyncArbiterTests.cpp

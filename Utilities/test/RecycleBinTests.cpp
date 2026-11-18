@@ -256,6 +256,21 @@ TEST_F(RecycleBinTest, AddRefusalSaysWhyAnItemDidNotGoIn)  // [RecycleBinTests.m
     EXPECT_FALSE(fs::exists("data.txt"));
 }
 
+TEST_F(RecycleBinTest, AnItemOnAReadOnlyFilesystemIsRefusedBeforeAnythingIsCopied)  // [RecycleBinTests.md#AnItemOnAReadOnlyFilesystemIsRefusedBeforeAnythingIsCopied]
+{
+    const fs::path file = root_ / "work" / "data.txt";
+    create_file(file);
+    fsu::set_read_only_filesystem_for_test(root_ / "work");
+    const fsu::FileInfoResult refusal = RecycleBin::instance().add_refusal(file, "data.txt");
+    const fsu::FileInfoResult gone = RecycleBin::instance().add_refusal(root_ / "work" / "gone.txt", "gone.txt");
+    fsu::set_read_only_filesystem_for_test(std::nullopt);
+
+    EXPECT_EQ(refusal, fsu::FileInfoResult::ReadOnlyFilesystem);
+    EXPECT_EQ(gone, fsu::FileInfoResult::FileNotExist) << "was fehlt, ist auch dort nicht mehr zu loeschen";
+    EXPECT_TRUE(fs::exists(file));
+    EXPECT_FALSE(fs::exists(bin_)) << "weder der Papierkorb noch eine Kopie darin darf entstanden sein";
+}
+
 #ifdef __linux__
 class RecycleBinOnAnotherFilesystemTest : public RecycleBinTest {  // [RecycleBinTests.md#RecycleBinOnAnotherFilesystemTest]
 protected:

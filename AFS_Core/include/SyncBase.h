@@ -54,6 +54,8 @@ protected:
 	std::size_t&	copy_count_;
 	const bool		only_count_;
 	SSHPATH			ssh_ {SSHPATH::none};
+	const bool		source_kept_;  // [SyncBase.md#moves_]
+	const bool		moves_;  // [SyncBase.md#moves_]
 	SyncState*		state_;  // [SyncBase.md#state_]
 	const std::wstring state_root_;
 	const std::wstring target_root_;

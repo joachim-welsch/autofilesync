@@ -2900,3 +2900,23 @@ msgstr "%1 n'est pas joignable : %2\nEnregistrer quand même la connexion ? Sa c
 #: AFS_Core/src/Logging.cpp
 msgid "smtp_unencrypted"
 msgstr "%1 ne propose pas TLS, la notification est partie en clair"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "filesystem_read_only"
+msgstr "Le système de fichiers est en lecture seule"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "remaining_files_skipped"
+msgstr "Les autres fichiers de cet élément ont été ignorés."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_read_only"
+msgstr "La cible est en lecture seule, rien n'a été synchronisé : "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only"
+msgstr "La source est en lecture seule, rien n'a été synchronisé : "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only_not_moved"
+msgstr "La source est en lecture seule, les fichiers sont copiés mais pas supprimés de la source : "

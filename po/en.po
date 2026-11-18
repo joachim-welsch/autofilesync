@@ -2933,3 +2933,23 @@ msgstr "%1 is not reachable: %2\nSave the connection anyway? Its host key is the
 #: AFS_Core/src/Logging.cpp
 msgid "smtp_unencrypted"
 msgstr "%1 offers no TLS, the notification went unencrypted"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "filesystem_read_only"
+msgstr "File system is read-only"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "remaining_files_skipped"
+msgstr "The remaining files of this item were skipped."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_read_only"
+msgstr "Target is read-only, nothing was synchronized: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only"
+msgstr "Source is read-only, nothing was synchronized: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only_not_moved"
+msgstr "Source is read-only, the files are copied but not deleted from the source: "

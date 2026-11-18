@@ -13,6 +13,18 @@ Synchronize::create()).
 No-ops while no proof is being collected, so the call sites deep in the sync classes need no
 condition of their own.
 
+## abandon
+
+A refusal that holds for the whole drive ends the item's pass: after "read-only file system"
+(FilesystemUtil.md#read_only_error) every further file would fail the same way and fill the
+report up to its limit. report_sync_refusal() takes the reason along with the message; for
+this reason the report keeps the message once, with the note that the remaining files were
+skipped, and counts as abandoned. Synchronize::stopping() then answers yes for the rest of
+this report's life, so every loop that honours a stop leaves the item alone - and the next
+item, which has a report of its own, runs as usual. The pass is not marked complete, so the
+state forgets nothing it did not see. Without a report (counting, preview, a caller that
+collects none) the refusal is an ordinary error and nothing is abandoned.
+
 ## write_copy_log
 
 Appends one entry to <directory>/<sanitised item name>.json, creating the file and the directory

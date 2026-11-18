@@ -2899,3 +2899,23 @@ msgstr ""
 #: AFS_Core/src/Logging.cpp
 msgid "smtp_unencrypted"
 msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "filesystem_read_only"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "remaining_files_skipped"
+msgstr ""
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_read_only"
+msgstr ""
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only"
+msgstr ""
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only_not_moved"
+msgstr ""

@@ -159,6 +159,8 @@ fsu::FileInfoResult RecycleBin::add_refusal(const fs::path& source, const fs::pa
         log_error(translation::translate("recycle_bin_file_not_exist"), source.wstring());
         return fsu::reason_for_write_failure(ec);
     }
+    if (fsu::read_only_filesystem(source.parent_path()))  // [RecycleBin.md#read-only-source]
+        return fsu::FileInfoResult::ReadOnlyFilesystem;
     const fs::path target = path_ / item.lexically_normal();
     if (entry_exists(target)) {  // [RecycleBin.md#add_item-never-replaces]
         log_error(translation::translate("recycle_bin_target_exists"), target.wstring());

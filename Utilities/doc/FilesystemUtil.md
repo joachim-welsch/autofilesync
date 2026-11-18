@@ -85,11 +85,34 @@ A directory that refuses the question is PermissionDenied, not a missing one.
 
 The reason behind a system error, for fileinfo() and for everything that opens, writes or
 renames a file. FileLocked when another program holds the file (lock_error); DiskFull when the
-drive or the user's quota has no room left (space_error); PermissionDenied when the
+drive or the user's quota has no room left (space_error); ReadOnlyFilesystem when the drive
+takes no writes at all (read_only_error); PermissionDenied when the
 system refused, as a directory without search permission does for everything below it;
 FileNotExist when the file is gone; ErrorReadFileInfo for any other failure. Only FileNotExist
 says anything about the existence of the file, and the caller must not read the others as
 "missing" (FileDifference.md#not-readable).
+
+## read_only_error
+
+"Read-only file system" is what every change answers on a medium that takes none: a card with
+its write-protect switch set, a CD, an image, a drive the system remounted read-only after an
+error. It is a reason of its own because it holds for the whole drive, not for one file - the
+caller can stop instead of failing file by file (CopyLog.md#abandon) - and because "permission
+denied" would send the user looking at rights that are not the cause. Windows reports
+ERROR_WRITE_PROTECT, which the portable conditions fold into "permission denied"; so the check
+stands before the one for permissions.
+
+## read_only_filesystem
+
+Whether the drive a path lies on is mounted read-only, asked before anything is tried
+(Synchronize.md#write-protected, RecycleBin.md#read-only-source). A path that does not exist
+yet is measured by the part of it that does, since the question is about the drive the file
+would be created on. No answer - the drive is gone, the path is relative and empty - is
+"writable": the attempt then tells. Tests name a directory tree that counts as read-only,
+because a file system cannot be mounted read-only for a test without root
+(ReadOnlyFilesystemTests.md#ReadOnly); the override exists in test builds only. It changes the
+answer of this question alone - the files below can still be written, which is how a test
+sees that nothing was tried.
 
 ## reason_for_write_failure
 
@@ -148,7 +171,7 @@ error.
 ## create_directory_refusal
 
 Creates a directory with every missing level and says why when it is not there afterwards:
-PermissionDenied or FileLocked when the system gives that reason, CannotCreateDirectory for
+PermissionDenied, FileLocked, DiskFull or ReadOnlyFilesystem when the system gives that reason, CannotCreateDirectory for
 everything else - most often a plain file that bears the name of the directory or of a level
 above it. create_directories() does not agree with itself across platforms on whether that
 case is an error, so the result is checked: no directory, no success. The error code goes back

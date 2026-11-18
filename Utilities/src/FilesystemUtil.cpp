@@ -44,6 +44,7 @@
 #else
     #include <fcntl.h>
     #include <sys/stat.h>
+    #include <sys/statvfs.h>
     #include <sys/types.h>
     #include <pwd.h>
     #include <unistd.h>
@@ -130,6 +131,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("links_not_supported");
     case FileInfoResult::ServerUnreachable:
         return translation::translate("server_connect_failed");
+    case FileInfoResult::ReadOnlyFilesystem:
+        return translation::translate("filesystem_read_only");
     default:
         return translation::translate("unknown_error");
     }
@@ -156,10 +159,21 @@ static bool space_error(const std::error_code& ec)  // [FilesystemUtil.md#space_
     return ec == std::errc::no_space_on_device;
 }
 
+static bool read_only_error(const std::error_code& ec)  // [FilesystemUtil.md#read_only_error]
+{
+#ifdef WIN32
+    if (ec.category() == std::system_category() && ec.value() == ERROR_WRITE_PROTECT)
+        return true;
+#endif
+    return ec == std::errc::read_only_file_system;
+}
+
 FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil.md#reason_for_failure]
 {
     if (lock_error(ec))
         return FileInfoResult::FileLocked;
+    if (read_only_error(ec))  // [FilesystemUtil.md#read_only_error] before the permission check
+        return FileInfoResult::ReadOnlyFilesystem;
     if (space_error(ec))
         return FileInfoResult::DiskFull;
     if (ec == std::errc::permission_denied)
@@ -189,7 +203,8 @@ FileInfoResult create_directory_refusal(const fs::path& directory, std::error_co
     if (!ec)
         ec = std::make_error_code(std::errc::not_a_directory);
     const FileInfoResult reason = reason_for_failure(ec);
-    const bool told = reason == FileInfoResult::PermissionDenied || reason == FileInfoResult::FileLocked || reason == FileInfoResult::DiskFull;
+    const bool told = reason == FileInfoResult::PermissionDenied || reason == FileInfoResult::FileLocked || reason == FileInfoResult::DiskFull
+        || reason == FileInfoResult::ReadOnlyFilesystem;
     return told ? reason : FileInfoResult::CannotCreateDirectory;
 }
 
@@ -211,6 +226,49 @@ std::optional<uint64_t> free_space(const fs::path& directory)  // [FilesystemUti
     std::error_code ec;
     const fs::space_info space = fs::space(directory, ec);
     return ec ? std::nullopt : std::optional<uint64_t>(space.available);
+}
+
+static fs::path existing_part(fs::path path)  // [FilesystemUtil.md#read_only_filesystem]
+{
+    std::error_code ec;
+    while (!fs::exists(path, ec) && path.has_relative_path() && path != path.parent_path())
+        path = path.parent_path();
+    return path;
+}
+
+#ifdef _TEST
+static std::optional<fs::path> read_only_root_for_test;
+
+void set_read_only_filesystem_for_test(std::optional<fs::path> root)  // [FilesystemUtil.md#read_only_filesystem]
+{
+    read_only_root_for_test = std::move(root);
+}
+
+static bool below_read_only_root_for_test(const fs::path& path)
+{
+    if (!read_only_root_for_test)
+        return false;
+    const fs::path relative = path.lexically_normal().lexically_relative(read_only_root_for_test->lexically_normal());
+    return !relative.empty() && *relative.begin() != "..";
+}
+#endif
+
+bool read_only_filesystem(const fs::path& path)  // [FilesystemUtil.md#read_only_filesystem]
+{
+#ifdef _TEST
+    if (below_read_only_root_for_test(path))
+        return true;
+#endif
+    const fs::path existing = existing_part(path);
+#ifdef WIN32
+    wchar_t volume[MAX_PATH + 1] = {};
+    DWORD flags = 0;
+    return GetVolumePathNameW(existing.c_str(), volume, MAX_PATH + 1) && GetVolumeInformationW(volume, nullptr, 0, nullptr, nullptr, &flags, nullptr, 0)
+        && (flags & FILE_READ_ONLY_VOLUME) != 0;
+#else
+    struct statvfs volume {};
+    return statvfs(existing.c_str(), &volume) == 0 && (volume.f_flag & ST_RDONLY) != 0;
+#endif
 }
 
 std::error_code last_stream_error()  // [FilesystemUtil.md#last_stream_error]

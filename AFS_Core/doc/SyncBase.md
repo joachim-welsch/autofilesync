@@ -123,6 +123,15 @@ SyncFileSsh.md#removal-refusal). A write error is the answer for "no reason know
 out: "error writing the file information" would tell the user something that is not true. An
 SSH deletion stays a permanent delete (SyncFile.md#ssh-target-delete).
 
+## moves_
+
+Whether the item removes what it copied: "delete after copying", a local source, and a drive
+that lets go of files. A read-only source (source_kept_) turns the move into a copy for this
+pass - the deletion could only fail, in recycle-bin mode after a full copy into the bin - and
+the pass is told once (Synchronize.md#move-from-a-protected-source). The plan says "copy"
+accordingly. The drive is asked per object, which costs one system call and keeps the answer
+true when a card is unlocked between two passes.
+
 ## completes_moves
 
 Whether a file or link found alike on both sides is deleted in the source: the item moves

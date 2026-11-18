@@ -440,6 +440,9 @@
     <ClCompile Include="DiskFullTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>
+    <ClCompile Include="ReadOnlyFilesystemTests.cpp">
+      <Filter>Integrationtests</Filter>
+    </ClCompile>
     <ClCompile Include="WriteErrorTests.cpp">
       <Filter>Integrationtests</Filter>
     </ClCompile>

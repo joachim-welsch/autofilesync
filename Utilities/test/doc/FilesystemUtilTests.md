@@ -170,3 +170,21 @@ string misinterpreted as a bogus local path, or any other path that simply didn'
 
 The three answers a deletion reports: the file was never there, the directory does not let it
 go (not on Windows, and not as root, who is not refused), and removed.
+
+## AReadOnlyFilesystemIsAReasonOfItsOwn
+
+The error code maps to the reason for reads and writes, has words of its own, and survives
+the two places that otherwise rename an unknown write failure: setting rights and setting the
+file time.
+
+## ReadOnlyFilesystemIsToldForTheTestRootAndEverythingBelow
+
+The temp directory is writable, a path that does not exist is measured by what exists of it,
+and the override for tests covers its root and what lies below - not a sibling whose name
+merely starts the same.
+
+## ARealReadOnlyMountIsRecognized
+
+The one test against the system's own answer: the first file system that /proc/self/mounts
+lists as "ro" (a snap image, most often) must be recognized, also for a path below it that
+does not exist. Skipped where nothing is mounted read-only.

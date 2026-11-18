@@ -74,7 +74,9 @@ namespace {
 }
 
 SyncBase::SyncBase(const SyncItem& sync_item, std::size_t& copy_count, bool only_count, SyncState* state, const wstring& state_root, const wstring& target_root)
-    : sync_item_(sync_item), copy_count_(copy_count), only_count_(only_count), state_(state)
+    : sync_item_(sync_item), copy_count_(copy_count), only_count_(only_count)
+    , source_kept_(sync_item.del_aftercopy() && !sync_item.ssh_source() && fsu::read_only_filesystem(without_volume_spec(sync_item.source())))
+    , moves_(sync_item.del_aftercopy() && !sync_item.ssh_source() && !source_kept_), state_(state)
     , state_root_(state_root.empty() ? root_of(sync_item) : state_root)
     , target_root_(target_root.empty() ? target_root_of(sync_item) : target_root)
 {}
@@ -274,7 +276,7 @@ bool SyncBase::local_dir_created(const wstring& dir, const char* message_id)  //
         return true;
     const wstring message = translation::translate(message_id) + dir + L": " + fsu::failure_text(ec);
     log_error(message);
-    report_sync_error(message);
+    report_sync_refusal(message, fsu::reason_for_failure(ec));
     return false;
 }
 
@@ -282,7 +284,7 @@ void SyncBase::report_failure(const wstring& where, const fs::filesystem_error& 
 {
     const wstring message = fsu::failure_text(failure.code()) + L": " + (failure.path1().empty() ? where : failure.path1().wstring());
     log_error(message);
-    report_sync_error(message);
+    report_sync_refusal(message, fsu::reason_for_failure(failure.code()));
 }
 
 bool SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)  // [SyncBase.md#create_target_dir_if_not_exist]
@@ -335,7 +337,7 @@ void SyncBase::remove_dir_if_empty(const wstring& dir, bool ssh)  // [SyncBase.m
         return;
     const wstring message = translation::translate("dir_delete_failed") + dir + known_reason(refusal);
     log_error(message);
-    report_sync_error(message);
+    report_sync_refusal(message, refusal);
 }
 
 bool SyncBase::deleted(const wstring& file, bool ssh, const char* message_id)  // [SyncBase.md#deleted]
@@ -349,13 +351,13 @@ bool SyncBase::deleted(const wstring& file, bool ssh, const char* message_id)  /
     }
     const wstring message = translation::translate(message_id) + file + known_reason(refusal);
     log_error(message);
-    report_sync_error(message);
+    report_sync_refusal(message, refusal);
     return false;
 }
 
 bool SyncBase::completes_moves() const  // [SyncBase.md#completes_moves]
 {
-    return sync_item_.del_aftercopy() && !sync_item_.ssh_source() && !sync_item_.two_way_sync() && !sync_item_.delete_in_target();
+    return moves_ && !sync_item_.two_way_sync() && !sync_item_.delete_in_target();
 }
 
 void SyncBase::guarded(const wstring& source, const wstring& dest, const std::function<void()>& work)  // [SyncBase.md#sync_file]

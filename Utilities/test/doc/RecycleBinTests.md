@@ -66,3 +66,10 @@ before, the rename replaced the binned file without a word.
 
 A missing source and a taken name are told apart, and neither moves anything; a free name
 takes the file.
+
+## AnItemOnAReadOnlyFilesystemIsRefusedBeforeAnythingIsCopied
+
+The test's override only changes what the drive says of itself (FilesystemUtil.md#read_only_filesystem),
+so a bin that copied first would succeed here and the file would be gone: the file still
+being there, and no bin directory, is the proof that nothing was tried. A missing file stays
+"not there" on such a drive.

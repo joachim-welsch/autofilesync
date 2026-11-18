@@ -24,6 +24,7 @@
 #include <vector>
 #include "SyncItem.h"
 #include "Global.h"
+#include <FilesystemUtil.h>
 
 namespace AFS_Core {
 
@@ -36,10 +37,13 @@ class SyncReport {
         std::wstring first_file;
         std::optional<std::size_t> entry;
     } shortage_;
+    bool abandoned_ = false;  // [CopyLog.md#abandon]
 public:
     static constexpr std::size_t MAX_ERRORS = 100;
     void transferred(uint64_t bytes) { bytes_transfered_ += bytes; }
     void error(const std::wstring& message);
+    void abandon(const std::wstring& message);  // [CopyLog.md#abandon]
+    bool abandoned() const { return abandoned_; }
     void shortage(const std::wstring& file, uint64_t needed, uint64_t available);  // [CopyLog.md#shortage]
     uint64_t bytes_transferd() const { return bytes_transfered_; }
     const WStringVector& errors() const { return errors_; }
@@ -57,6 +61,8 @@ public:
 };
 
 void report_sync_error(const std::wstring& message);  // [CopyLog.md#report_sync_error]
+void report_sync_refusal(const std::wstring& message, fsu::FileInfoResult refusal);  // [CopyLog.md#abandon]
+bool sync_abandoned();  // [CopyLog.md#abandon]
 void report_sync_shortage(const std::wstring& file, uint64_t needed, uint64_t available);  // [CopyLog.md#shortage]
 void report_sync_volume(uint64_t bytes);
 

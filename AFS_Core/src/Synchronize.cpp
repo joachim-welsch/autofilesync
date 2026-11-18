@@ -67,7 +67,7 @@ bool Synchronize::has_instance()
 
 bool Synchronize::stopping()
 {
-    return stop_;
+    return stop_ || sync_abandoned();  // [CopyLog.md#abandon]
 }
 
 Synchronize& Synchronize::instance()
@@ -447,6 +447,35 @@ void Synchronize::report_sync_item(SyncItem& i)
     write_copy_log(Config::instance().settings().backup_proof_path(), i, files, report);
 }
 
+namespace {
+bool read_only(const wstring& path, bool ssh)  // [Synchronize.md#write-protected]
+{
+    return !ssh && fsu::read_only_filesystem(without_volume_spec(path));
+}
+
+void report_protected(const char* message_id, const wstring& path)
+{
+    const wstring message = translation::translate(message_id) + path;
+    log_error(message);
+    report_sync_error(message);
+}
+}
+
+bool Synchronize::write_protected(const SyncItem& i) const  // [Synchronize.md#write-protected]
+{
+    const bool source = read_only(i.source(), i.ssh_source());
+    if (read_only(i.target(), i.ssh_target()))
+        report_protected("target_read_only", i.target());
+    else if (source && i.two_way_sync())
+        report_protected("source_read_only", i.source());
+    else {
+        if (source && i.del_aftercopy())  // [Synchronize.md#move-from-a-protected-source]
+            report_protected("source_read_only_not_moved", i.source());
+        return false;
+    }
+    return true;
+}
+
 void Synchronize::run_sync_item(SyncItem& i)
 {
     try {
@@ -455,32 +484,8 @@ void Synchronize::run_sync_item(SyncItem& i)
             return;
         }
         item_reachable_[i.name()] = true;
-        SyncStateKeeper keeper(i, state_kind(i, sync_type_), !touches_nothing());  // [Synchronize.md#sync-state]
-        if (i.two_way_sync() && keeper.knows_files() && target_vanished(i)) {  // [Synchronize.md#vanished-target]
-            const wstring message = translation::translate("target_dir_vanished", {i.name(), i.target()});
-            log_warning(message);
-            note(LogLevel::Warning, message);
-            keeper.start_over();
-        }
-        if (keeper.state() != nullptr && mass_deletion_approved_)  // [Synchronize.md#mass-deletion-approved]
-            keeper.state()->approve_mass_deletion();
-        if (i.sync_item_type() == SyncItemType::Dir) {
-            SyncDir sd(i, count_files_, touches_nothing(), keeper.state());
-            sd();
-        }
-        else if (i.sync_item_type() == SyncItemType::File) {
-            std::error_code ec;
-            const bool is_target_dir = i.ssh_target() ? is_ssh_target_dir(i.target()) : fs::is_directory(without_volume_spec(i.target()), ec);
-            SyncFile(i, count_files_, touches_nothing(), is_target_dir, keeper.state())();
-        }
-        else if (i.sync_item_type() == SyncItemType::Tree) {
-            SyncTree sync(i, count_files_, touches_nothing(), keeper.state());
-            sync();
-        }
-        if (!stopping() && !stop_requested())
-            keeper.complete();
-        if (keeper.state() != nullptr && !keeper.state()->pass_only())
-            known_files_[i.name()] = keeper.state()->files().size();
+        if (touches_nothing() || !write_protected(i))
+            run_reachable_item(i);
     }
     catch (std::filesystem::filesystem_error const& ex) {
         fsu::handle_last_error(ex);
@@ -500,6 +505,36 @@ void Synchronize::run_sync_item(SyncItem& i)
     }
     if (!touches_nothing())
         Config::instance().refresh_last_sync(i.name());  // [Synchronize.md#snapshot-vs-config]
+}
+
+void Synchronize::run_reachable_item(const SyncItem& i)
+{
+    SyncStateKeeper keeper(i, state_kind(i, sync_type_), !touches_nothing());  // [Synchronize.md#sync-state]
+    if (i.two_way_sync() && keeper.knows_files() && target_vanished(i)) {  // [Synchronize.md#vanished-target]
+        const wstring message = translation::translate("target_dir_vanished", {i.name(), i.target()});
+        log_warning(message);
+        note(LogLevel::Warning, message);
+        keeper.start_over();
+    }
+    if (keeper.state() != nullptr && mass_deletion_approved_)  // [Synchronize.md#mass-deletion-approved]
+        keeper.state()->approve_mass_deletion();
+    if (i.sync_item_type() == SyncItemType::Dir) {
+        SyncDir sd(i, count_files_, touches_nothing(), keeper.state());
+        sd();
+    }
+    else if (i.sync_item_type() == SyncItemType::File) {
+        std::error_code ec;
+        const bool is_target_dir = i.ssh_target() ? is_ssh_target_dir(i.target()) : fs::is_directory(without_volume_spec(i.target()), ec);
+        SyncFile(i, count_files_, touches_nothing(), is_target_dir, keeper.state())();
+    }
+    else if (i.sync_item_type() == SyncItemType::Tree) {
+        SyncTree sync(i, count_files_, touches_nothing(), keeper.state());
+        sync();
+    }
+    if (!stopping() && !stop_requested())
+        keeper.complete();
+    if (keeper.state() != nullptr && !keeper.state()->pass_only())
+        known_files_[i.name()] = keeper.state()->files().size();
 }
 
 void Synchronize::pass_aborted(const wstring& reason)  // [Synchronize.md#pass-aborted]

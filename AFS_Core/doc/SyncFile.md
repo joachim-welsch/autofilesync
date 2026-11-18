@@ -11,7 +11,8 @@ caller waiting for the same filetime confirmation twice.
 
 Bounded retries: transient errors right after a copy settle quickly, but a persistent one
 (target drive unplugged) must not spin forever - the GUI's stop_sync() busy-waits for this
-thread to finish.
+thread to finish. A read-only file system is not tried again at all: waiting does not lift a
+write protection, and ten attempts are a second per file.
 
 ## restore_backup
 

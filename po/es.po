@@ -2900,3 +2900,23 @@ msgstr "%1 no es accesible: %2\n¿Guardar la conexión de todos modos? Su clave 
 #: AFS_Core/src/Logging.cpp
 msgid "smtp_unencrypted"
 msgstr "%1 no ofrece TLS, la notificación se envió sin cifrar"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "filesystem_read_only"
+msgstr "El sistema de archivos es de solo lectura"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "remaining_files_skipped"
+msgstr "Se omitieron los demás archivos de este elemento."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_read_only"
+msgstr "El destino es de solo lectura, no se sincronizó nada: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only"
+msgstr "El origen es de solo lectura, no se sincronizó nada: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only_not_moved"
+msgstr "El origen es de solo lectura, los archivos se copian pero no se eliminan del origen: "

@@ -30,7 +30,7 @@ namespace Utilities {
 namespace FilesystemUtil
 {
 	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, CannotSetFileAttributes,
-        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull, LinksNotSupported, ServerUnreachable };
+        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull, LinksNotSupported, ServerUnreachable, ReadOnlyFilesystem };
 
 	bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
@@ -57,6 +57,10 @@ namespace FilesystemUtil
     std::optional<uint64_t> free_space(const std::filesystem::path& directory);  // [FilesystemUtil.md#free_space]
 #ifdef _TEST
     void set_free_space_for_test(std::optional<uint64_t> bytes);  // [FilesystemUtil.md#free_space]
+#endif
+    bool read_only_filesystem(const std::filesystem::path& path);  // [FilesystemUtil.md#read_only_filesystem]
+#ifdef _TEST
+    void set_read_only_filesystem_for_test(std::optional<std::filesystem::path> root);  // [FilesystemUtil.md#read_only_filesystem]
 #endif
     FileInfoResult read_refusal(const std::wstring& file);  // [FilesystemUtil.md#read_refusal]
     ContentComparison compare_content(const std::wstring& input1, const std::wstring& input2);  // [FilesystemUtil.md#compare_content]

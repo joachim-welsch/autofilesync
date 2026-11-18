@@ -2900,3 +2900,23 @@ msgstr "%1 недоступний: %2\nВсе одно зберегти з'єд�
 #: AFS_Core/src/Logging.cpp
 msgid "smtp_unencrypted"
 msgstr "%1 не пропонує TLS, сповіщення надіслано без шифрування"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "filesystem_read_only"
+msgstr "Файлова система доступна лише для читання"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "remaining_files_skipped"
+msgstr "Решту файлів цього елемента пропущено."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_read_only"
+msgstr "Ціль доступна лише для читання, нічого не синхронізовано: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only"
+msgstr "Джерело доступне лише для читання, нічого не синхронізовано: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only_not_moved"
+msgstr "Джерело доступне лише для читання, файли копіюються, але не видаляються з джерела: "

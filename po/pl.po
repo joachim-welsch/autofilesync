@@ -2900,3 +2900,23 @@ msgstr "%1 jest nieosiągalny: %2\nZapisać połączenie mimo to? Jego klucz hos
 #: AFS_Core/src/Logging.cpp
 msgid "smtp_unencrypted"
 msgstr "%1 nie oferuje TLS, powiadomienie wysłano bez szyfrowania"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "filesystem_read_only"
+msgstr "System plików jest tylko do odczytu"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "remaining_files_skipped"
+msgstr "Pozostałe pliki tego elementu zostały pominięte."
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "target_read_only"
+msgstr "Cel jest tylko do odczytu, niczego nie zsynchronizowano: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only"
+msgstr "Źródło jest tylko do odczytu, niczego nie zsynchronizowano: "
+
+#: AFS_Core/src/Synchronize.cpp
+msgid "source_read_only_not_moved"
+msgstr "Źródło jest tylko do odczytu, pliki są kopiowane, ale nie usuwane ze źródła: "

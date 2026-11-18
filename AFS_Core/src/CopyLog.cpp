@@ -147,6 +147,12 @@ void SyncReport::error(const wstring& message)
     errors_.push_back(message);
 }
 
+void SyncReport::abandon(const wstring& message)  // [CopyLog.md#abandon]
+{
+    if (!std::exchange(abandoned_, true))
+        error(message + L" " + translation::translate("remaining_files_skipped"));
+}
+
 SyncReportGuard::SyncReportGuard(SyncReport* report)
     : previous_(current_report)
 {
@@ -192,6 +198,18 @@ void report_sync_error(const wstring& message)
 {
     if (current_report != nullptr)
         current_report->error(message);
+}
+
+void report_sync_refusal(const wstring& message, fsu::FileInfoResult refusal)  // [CopyLog.md#abandon]
+{
+    if (current_report == nullptr || refusal != fsu::FileInfoResult::ReadOnlyFilesystem)
+        return report_sync_error(message);
+    current_report->abandon(message);
+}
+
+bool sync_abandoned()  // [CopyLog.md#abandon]
+{
+    return current_report != nullptr && current_report->abandoned();
 }
 
 void report_sync_volume(uint64_t bytes)

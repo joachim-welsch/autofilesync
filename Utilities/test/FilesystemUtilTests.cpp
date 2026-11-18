@@ -19,6 +19,7 @@
 #include "pch.h"
 #include <FilesystemUtil.h>
 #include <StrUtil.h>
+#include <Translation.h>
 #include <FileTime.h>
 #include <SystemInfo.h>
 #include <cerrno>
@@ -191,6 +192,70 @@ TEST(FilesystemUtilTests, ReasonForFailureTellsLockedFromRefusedFromMissing)  //
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::device_or_resource_busy)), FileInfoResult::FileLocked);
 #endif
 }
+
+TEST(FilesystemUtilTests, AReadOnlyFilesystemIsAReasonOfItsOwn)  // [FilesystemUtilTests.md#AReadOnlyFilesystemIsAReasonOfItsOwn]
+{
+    using fsu::FileInfoResult;
+    const std::error_code read_only = std::make_error_code(std::errc::read_only_file_system);
+    EXPECT_EQ(fsu::reason_for_failure(read_only), FileInfoResult::ReadOnlyFilesystem);
+    EXPECT_EQ(fsu::reason_for_write_failure(read_only), FileInfoResult::ReadOnlyFilesystem);
+    EXPECT_EQ(fsu::failure_text(read_only), translation::translate("filesystem_read_only"));
+    EXPECT_EQ(fsu::make_error_message(FileInfoResult::ReadOnlyFilesystem), translation::translate("filesystem_read_only"));
+#ifdef _WIN32
+    EXPECT_EQ(fsu::reason_for_failure(std::error_code(19, std::system_category())), FileInfoResult::ReadOnlyFilesystem) << "ERROR_WRITE_PROTECT";
+#endif
+    fsu::set_permissions_error_for_test(read_only);
+    const FileInfoResult rights = fsu::permissions_refusal(L"egal", std::filesystem::perms::owner_all);
+    fsu::set_permissions_error_for_test(std::nullopt);
+    fsu::set_write_time_error_for_test(read_only);
+    const FileInfoResult time = fsu::write_time_refusal(L"egal", std::filesystem::file_time_type::clock::now());
+    fsu::set_write_time_error_for_test(std::nullopt);
+    EXPECT_EQ(rights, FileInfoResult::ReadOnlyFilesystem) << "nicht CannotSetFileAttributes: der Grund gilt fuer das ganze Laufwerk";
+    EXPECT_EQ(time, FileInfoResult::ReadOnlyFilesystem);
+}
+
+TEST(FilesystemUtilTests, ReadOnlyFilesystemIsToldForTheTestRootAndEverythingBelow)  // [FilesystemUtilTests.md#ReadOnlyFilesystemIsToldForTheTestRootAndEverythingBelow]
+{
+    const std::filesystem::path root = std::filesystem::temp_directory_path() / "afs_read_only_root";
+    EXPECT_FALSE(fsu::read_only_filesystem(std::filesystem::temp_directory_path()));
+    EXPECT_FALSE(fsu::read_only_filesystem(root / "gibt" / "es" / "nicht")) << "ein fehlender Pfad wird am vorhandenen Teil gemessen";
+    EXPECT_FALSE(fsu::read_only_filesystem({}));
+    fsu::set_read_only_filesystem_for_test(root);
+    const bool at_root = fsu::read_only_filesystem(root);
+    const bool below = fsu::read_only_filesystem(root / "a" / "b.txt");
+    const bool beside = fsu::read_only_filesystem(std::filesystem::temp_directory_path() / "afs_read_only_root_daneben");
+    fsu::set_read_only_filesystem_for_test(std::nullopt);
+    EXPECT_TRUE(at_root);
+    EXPECT_TRUE(below);
+    EXPECT_FALSE(beside) << "ein Name mit gleichem Anfang liegt nicht darunter";
+    EXPECT_FALSE(fsu::read_only_filesystem(root)) << "die Vorgabe ist zurueckgenommen";
+}
+
+#ifdef __linux__
+namespace {
+std::optional<std::filesystem::path> read_only_mount()  // [FilesystemUtilTests.md#ARealReadOnlyMountIsRecognized]
+{
+    std::ifstream mounts("/proc/self/mounts");
+    std::string device, directory, type, options;
+    for (std::string rest; mounts >> device >> directory >> type >> options && std::getline(mounts, rest);) {
+        const bool read_only = options == "ro" || options.rfind("ro,", 0) == 0;
+        std::error_code ec;
+        if (read_only && directory.find('\\') == std::string::npos && std::filesystem::is_directory(directory, ec))
+            return directory;
+    }
+    return std::nullopt;
+}
+}
+
+TEST(FilesystemUtilTests, ARealReadOnlyMountIsRecognized)  // [FilesystemUtilTests.md#ARealReadOnlyMountIsRecognized]
+{
+    const std::optional<std::filesystem::path> mount = read_only_mount();
+    if (!mount)
+        GTEST_SKIP() << "auf diesem Rechner ist kein Dateisystem nur lesbar eingehaengt";
+    EXPECT_TRUE(fsu::read_only_filesystem(*mount)) << mount->string();
+    EXPECT_TRUE(fsu::read_only_filesystem(*mount / "afs-gibt-es-nicht" / "datei.txt")) << mount->string();
+}
+#endif
 
 TEST(FilesystemUtilTests, ReasonForWriteFailureKeepsKnownReasonsAndCallsTheRestAWriteError)  // [FilesystemUtilTests.md#ReasonForWriteFailureKeepsKnownReasonsAndCallsTheRestAWriteError]
 {

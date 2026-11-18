@@ -30,6 +30,14 @@ source that cannot be looked at, behind a directory without search permission, g
 reason instead, because the caller reads FileNotExist as "nothing left to delete"
 (SyncBase.md#deleted).
 
+## read-only-source
+
+A file on a read-only drive cannot be moved into the bin, and the attempt was costly: the
+rename failed for the other drive, the whole file was copied into the bin, its original would
+not go, and the copy was removed again - once per file and pass. So the drive is asked first
+(FilesystemUtil.md#read_only_filesystem) and the answer is the refusal. A source that is
+missing is still FileNotExist: there is nothing left to delete, whatever the drive allows.
+
 ## take_item
 
 Moves an item out of the bin to any destination, which restore_item() does for the place the
