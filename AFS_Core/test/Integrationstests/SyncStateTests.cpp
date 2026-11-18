@@ -90,6 +90,21 @@ TEST_F(SyncStateTest, NoFileMeansNoState)
     EXPECT_FALSE(fs::exists(state_file()));
 }
 
+#ifdef __linux__
+TEST_F(SyncStateTest, AStateThatDoesNotReachTheDiskLeavesTheOldOneInPlace)  // [SyncStateTests.md#AStateThatDoesNotReachTheDiskLeavesTheOldOneInPlace]
+{
+    ASSERT_TRUE(write_sync_state(state_file(), filled_state()));
+    const std::string before = file_bytes(state_file());
+    fs::create_symlink("/dev/full", state_file().string() + ".tmp");
+
+    const bool written = write_sync_state(state_file(), SyncState(source_, target_));
+
+    EXPECT_FALSE(written);
+    EXPECT_EQ(file_bytes(state_file()), before) << "ein voller Datentraeger darf den alten Stand nicht durch einen leeren ersetzen";
+    EXPECT_FALSE(fs::exists(fs::symlink_status(state_file().string() + ".tmp")));
+}
+#endif
+
 TEST_F(SyncStateTest, RoundTripKeepsEveryEntry)  // [SyncStateTests.md#RoundTripKeepsEveryEntry]
 {
     const SyncState written = filled_state();

@@ -191,7 +191,9 @@ conditions do not all cover.
 
 The bytes a file may still take on the drive a directory lies on - what is available to the
 user, which can be less than what is free. No answer (the directory is not there, the drive
-does not say) is not zero: the caller then simply tries. Tests set the answer, because a disk
+does not say) is not zero: the caller then simply tries. A drive that gives its own size as
+zero does not say either - the mount point of the desktop's network shares answers "0 of 0
+bytes free" - and taking that for a full disk would refuse every file untried. Tests set the answer, because a disk
 cannot be filled for a test (DiskFullTests.md#FreeSpace); the override exists in test builds
 only and holds for every directory until it is taken back.
 
@@ -202,3 +204,13 @@ or CannotSetFileAttributes for the rest. A file system that answers "not support
 such rights, so there are none to lose and the answer is OK - otherwise every copy onto such
 a drive would be an error. Like the file time, the rights of a file the user owns are never
 refused, so tests set the error (write_time_refusal).
+
+## utf8-written
+
+write_utf8_file() closes the file itself and lets the close throw. A text shorter than the
+stream's buffer is not written by write() but by the close, and the destructor that would
+otherwise do it swallows the failure: on a full disk the call returned as if all were well
+and left an empty file. The callers write a ".tmp" file and rename it over the real one
+(the configuration, the state of an item, the proof of a backup), so an unnoticed failure
+replaced the real file with an empty one. write_private_file() checks the close on Windows
+for the same reason; on other systems it always did.

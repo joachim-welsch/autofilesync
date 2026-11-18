@@ -134,6 +134,17 @@ the report names the write protection instead of nothing (removal-refusal); serv
 send "write protect" are taken at their word. A copy and a new directory that failed ask it
 as well (SyncFile.md#remote-copy-failure-reason, SyncBase.md#report_remote_dir).
 
+## ssh_room_for
+
+The bytes a file may take at a place on the server, for the check before an upload
+(SyncFile.md#disk-full-on-a-server): what the statvfs extension gives as available in the
+file's directory, plus the size of the file that lies there now when the upload overwrites
+it in place and so gets its room back. That room is not counted when the old file stays -
+the generation principle renames it aside - or when the copy goes through a part file
+beside it (part-files). No answer - no extension, a drive that gives its size as zero, a
+WebDAV or cloud store - means try. Tests set the answer, because a server's disk cannot be
+filled for a test.
+
 ## ssh_mkdir_p
 
 sftp_mkdir() makes one level. A copy back into a directory the source side no longer has

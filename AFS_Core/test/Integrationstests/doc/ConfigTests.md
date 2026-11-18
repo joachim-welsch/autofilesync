@@ -303,3 +303,9 @@ that changes nothing (SyncItem.md#symlink_mode_).
 
 The key in the configuration file is fixed English, whatever language the program runs in,
 and the text the dialog shows is read back to the mode it stands for.
+
+## AConfigurationThatDoesNotReachTheDiskLeavesTheOldFileInPlace
+
+The same for the configuration (SyncStateTests.md#AStateThatDoesNotReachTheDiskLeavesTheOldOneInPlace):
+with its ".tmp" name leading to /dev/full, write() answers false and the configuration that
+was there keeps its content. A full disk used to leave an empty file in its place.

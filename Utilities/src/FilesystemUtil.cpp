@@ -133,6 +133,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("server_connect_failed");
     case FileInfoResult::ReadOnlyFilesystem:
         return translation::translate("filesystem_read_only");
+    case FileInfoResult::RecycleBinFull:
+        return translation::translate("recycle_bin_full");
     default:
         return translation::translate("unknown_error");
     }
@@ -225,7 +227,7 @@ std::optional<uint64_t> free_space(const fs::path& directory)  // [FilesystemUti
 #endif
     std::error_code ec;
     const fs::space_info space = fs::space(directory, ec);
-    return ec ? std::nullopt : std::optional<uint64_t>(space.available);
+    return ec || space.capacity == 0 ? std::nullopt : std::optional<uint64_t>(space.available);  // [FilesystemUtil.md#free_space] a drive without a size does not say
 }
 
 static fs::path existing_part(fs::path path)  // [FilesystemUtil.md#read_only_filesystem]
@@ -768,6 +770,7 @@ void write_utf8_file(const fs::path& file, const std::wstring& text)
     std::ofstream os(file, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);  // [FilesystemUtil.md#utf8-line-ends]
     os.exceptions(std::ios::failbit | std::ios::badbit);
     os.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+    os.close();  // [FilesystemUtil.md#utf8-written] a short text only reaches the disk here, and the destructor would keep quiet about it
 }
 
 bool write_private_file(const fs::path& file, std::string_view bytes)  // [FilesystemUtil.md#private-files]
@@ -775,6 +778,7 @@ bool write_private_file(const fs::path& file, std::string_view bytes)  // [Files
 #ifdef _WIN32
     std::ofstream os(file, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     os.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+    os.close();  // [FilesystemUtil.md#utf8-written]
     return static_cast<bool>(os);
 #else
     const int fd = open(file.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);

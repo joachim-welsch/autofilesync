@@ -2924,3 +2924,7 @@ msgstr "Джерело доступне лише для читання, файл
 #: AFS_Core/src/SyncLink.cpp
 msgid "previous_target_kept_as"
 msgstr "Попередня ціль тепер зберігається як: "
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "recycle_bin_full"
+msgstr "Немає місця на диску кошика"

@@ -159,6 +159,23 @@ report (CopyLog.md#shortage); each is a warning in the log. No answer about the 
 try: a quota or a drive that does not say shows itself in the write, which is reported the
 same way.
 
+## disk-full-on-a-server
+
+An upload asks the server for the room first (SyncFileSsh.md#ssh_room_for) and is handled
+like a local copy that does not fit. It matters more there than locally: an ordinary SSH
+target is written in place, so an upload that runs out of room has already emptied the old
+file, and the cleanup then removes what is left (restore_backup) - a full NAS lost the
+previous version of every file that had changed, and the report said "copy failed" a
+hundred times without a reason. Now such a file is not touched and the files that do not
+fit are the one summed-up entry. The question costs a request per upload.
+
+## no-room-on-a-read-only-drive
+
+A read-only medium - a CD, an image, a server's snapshot - reports no room, and it is not
+room that it lacks. A file that does not fit is therefore asked first whether its drive is
+read-only (FilesystemUtil.md#read_only_filesystem, SyncFileSsh.md#ssh_read_only_filesystem);
+if so that is the error, and the item's pass ends (CopyLog.md#abandon).
+
 ## only-count-touches-nothing
 
 only_count_ means "count only" - it must not touch the filesystem, the way

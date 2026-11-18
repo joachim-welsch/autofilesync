@@ -88,6 +88,16 @@ static void discard_copy(const fs::path& copy)  // [RecycleBin.md#move-takes-the
     fs::remove_all(copy, ec);
 }
 
+static bool lacks_room(const fs::path& from, const fs::path& to)  // [RecycleBin.md#no-room]
+{
+    std::error_code ec;
+    if (!fs::is_regular_file(fs::symlink_status(from, ec)))
+        return false;
+    const std::uintmax_t size = fs::file_size(from, ec);
+    const std::optional<uint64_t> room = fsu::free_space(to.parent_path());
+    return !ec && room && size > *room;
+}
+
 static void keep_write_times(const fs::path& from, const fs::path& to)  // [RecycleBin.md#move]
 {
     std::error_code ec;
@@ -107,6 +117,8 @@ fsu::FileInfoResult RecycleBin::move(const fs::path& from, const fs::path& to) c
     fs::rename(from, to, ec);
     if (!ec)
         return fsu::FileInfoResult::OK;
+    if (lacks_room(from, to))  // [RecycleBin.md#no-room]
+        return fsu::FileInfoResult::DiskFull;
     fs::copy(from, to, fs::copy_options::recursive | fs::copy_options::copy_symlinks | fs::copy_options::overwrite_existing, ec);
     if (ec) {
         log_error(translation::translate("recycle_bin_move_failed"), from.wstring(), to.wstring(), util::string_to_wstring(ec.message()));
@@ -170,7 +182,7 @@ fsu::FileInfoResult RecycleBin::add_refusal(const fs::path& source, const fs::pa
     const fsu::FileInfoResult refusal = no_parent == fsu::FileInfoResult::OK ? move(source, target) : no_parent;
     if (refusal == fsu::FileInfoResult::OK)
         log_debug(L"Papierkorb: verschoben " + source.wstring());
-    return refusal;
+    return refusal == fsu::FileInfoResult::DiskFull ? fsu::FileInfoResult::RecycleBinFull : refusal;  // [RecycleBin.md#no-room]
 }
 
 bool RecycleBin::has_item(const fs::path& item) const

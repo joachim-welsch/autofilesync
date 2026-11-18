@@ -62,6 +62,20 @@ then nothing is refused.
 The counterpart: a file the SSH user creates is its own, time and rights are set, and the
 report stays empty - the new errors must not appear on an ordinary upload.
 
+## TheServerTellsTheRoomAFileHasAndCountsTheFileItReplaces
+
+The server is this machine, so its answer can be held against the local one: the room for a
+new file is what the drive has available, the room for a file that overwrites one of 32
+mebibytes is that much more, and it is not more when the old file stays (generation
+principle) or the copy goes through a part file (the pinned account). Eight mebibytes of
+tolerance allow for what else writes to the disk between the questions.
+
+## AnUploadTheServerHasNoRoomForIsNotTriedAndTheOldFileStays
+
+The server is said to have five bytes. The upload used to empty the old file, fail and
+remove the rest; now it is not started, the old content is still on the server and the
+report has the shortage (SyncFile.md#disk-full-on-a-server).
+
 ## ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks
 
 The server directory belongs to the user who runs the tests, so the SSH test user may not
@@ -105,8 +119,15 @@ The sync classes run without the check before the pass, which stands for a serve
 turns read-only in the middle of one. Three files for a directory of the mount: the first
 copy fails, its error names the write protection and the skipped rest, and the other two are
 not tried. The wildcard keeps the pass to the test's own names in a directory that is not
-the test's.
+the test's. The server is said to have room, so that the copy is really tried: the
+mount itself reports none, which the check before an upload would find first.
 
 ## ADirectoryRefusedByAReadOnlyServerNamesTheReason
 
 The same for a target directory that would have to be created below the mount.
+
+## AReadOnlyServerWithoutRoomIsCalledReadOnlyAndNotFull
+
+The read-only mount has no room either, which the check before an upload finds first. The
+error must be the write protection, with the rest of the item skipped, and not "disk full"
+(SyncFile.md#no-room-on-a-read-only-drive).

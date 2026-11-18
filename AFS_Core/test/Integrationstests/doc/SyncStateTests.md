@@ -90,3 +90,10 @@ and an empty text, which is still a link. A state without links must start with 
 one with a link with version 2. A link line is read from a hand-written file, and one with too
 few fields discards the file like any malformed line. The size index must not offer a link
 where an empty file is looked for.
+
+## AStateThatDoesNotReachTheDiskLeavesTheOldOneInPlace
+
+The ".tmp" name the state is written under is a link to /dev/full, which refuses every
+write - the nearest thing to a full disk a test can have. An empty state is short, so its
+failure only shows when the file is closed (FilesystemUtil.md#utf8-written): the write
+answers false, the old state file is unchanged and the ".tmp" name is gone.

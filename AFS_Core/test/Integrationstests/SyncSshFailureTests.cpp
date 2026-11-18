@@ -259,6 +259,48 @@ TEST_F(SyncSshFailureTest, AnUploadWhoseTimeAndRightsWereSetReportsNothing)  // 
     EXPECT_TRUE(outcome.report.errors().empty()) << util::wstring_to_string(outcome.report.errors().empty() ? std::wstring() : outcome.report.errors().front());
 }
 
+TEST_F(SyncSshFailureTest, TheServerTellsTheRoomAFileHasAndCountsTheFileItReplaces)  // [SyncSshFailureTests.md#TheServerTellsTheRoomAFileHasAndCountsTheFileItReplaces]
+{
+    constexpr std::uint64_t OLD_BYTES = 32u << 20, TOLERANCE = 8u << 20;
+    tu::write_large_file(server_dir_ / "alt.bin", OLD_BYTES);
+    const std::wstring old_file = on_server(PLAIN_ACCOUNT) + L"/alt.bin";
+
+    const std::optional<std::uint64_t> beside = ssh_room_for(on_server(PLAIN_ACCOUNT) + L"/neu.bin", false);
+    const std::optional<std::uint64_t> replacing = ssh_room_for(old_file, false);
+    const std::optional<std::uint64_t> keeping = ssh_room_for(old_file, true);
+    const std::optional<std::uint64_t> pinned = ssh_room_for(on_server(PINNED_ACCOUNT) + L"/alt.bin", false);
+    const std::uint64_t local = fs::space(server_dir_).available;
+
+    ASSERT_TRUE(beside && replacing && keeping && pinned);
+    const auto near = [&](std::uint64_t value, std::uint64_t expected) { return value + TOLERANCE > expected && value < expected + TOLERANCE; };
+    EXPECT_TRUE(near(*beside, local)) << *beside << " statt " << local;
+    EXPECT_TRUE(near(*replacing, local + OLD_BYTES)) << "die Datei, die ueberschrieben wird, gibt ihren Platz frei";
+    EXPECT_TRUE(near(*keeping, local)) << "mit dem Generationenprinzip bleibt die alte Datei liegen";
+    EXPECT_TRUE(near(*pinned, local)) << "eine Kopie ueber eine Teildatei braucht den Platz neben der alten";
+}
+
+TEST_F(SyncSshFailureTest, AnUploadTheServerHasNoRoomForIsNotTriedAndTheOldFileStays)  // [SyncSshFailureTests.md#AnUploadTheServerHasNoRoomForIsNotTriedAndTheOldFileStays]
+{
+    tu::write_text_file(local_dir_ / "a.txt", "neuer Inhalt, der nicht passt");
+    tu::write_text_file(server_dir_ / "a.txt", "alt", seconds(3600));
+    fs::permissions(server_dir_ / "a.txt", fs::perms::owner_read | fs::perms::owner_write | fs::perms::group_read | fs::perms::group_write | fs::perms::others_read | fs::perms::others_write);
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source((local_dir_ / "a.txt").wstring());
+    si.target(on_server(PLAIN_ACCOUNT) + L"/a.txt");
+    set_ssh_room_for_test(5);
+
+    const Outcome outcome = run(si);
+    set_ssh_room_for_test(std::nullopt);
+
+    EXPECT_EQ(outcome.copies, 0u);
+    EXPECT_EQ(tu::read_text_file(server_dir_ / "a.txt"), "alt") << "ein Upload, der nicht passt, darf die alte Datei nicht leeren";
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_NE(outcome.report.errors().front().find(fsu::make_error_message(fsu::FileInfoResult::DiskFull)), std::wstring::npos);
+    EXPECT_FALSE(outcome.report.successful());
+}
+
 TEST_F(SyncSshFailureTest, ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks)  // [SyncSshFailureTests.md#ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks]
 {
     fs::create_directories(server_dir_ / "offen");
@@ -355,8 +397,10 @@ TEST_F(SyncSshFailureTest, ACopyRefusedByAReadOnlyServerNamesTheReasonAndAbandon
         tu::write_text_file(local_dir_ / name, name);
     SyncItem si(L"server-schreibschutz", SyncItemType::Dir, local_dir_.wstring(), util::string_to_wstring(PLAIN_ACCOUNT + ":" + mount->string()), L"afs-*.txt");
     si.sync_cycle(0);
+    set_ssh_room_for_test(std::uint64_t(1) << 40);
 
     const Outcome outcome = run(si);
+    set_ssh_room_for_test(std::nullopt);
 
     ASSERT_EQ(outcome.report.errors().size(), 1u) << "die zweite und dritte Datei werden nicht mehr versucht";
     const std::wstring& error = outcome.report.errors().front();
@@ -364,6 +408,27 @@ TEST_F(SyncSshFailureTest, ACopyRefusedByAReadOnlyServerNamesTheReasonAndAbandon
     EXPECT_NE(error.find(translation::translate("filesystem_read_only")), std::wstring::npos) << error;
     EXPECT_NE(error.find(translation::translate("remaining_files_skipped")), std::wstring::npos) << error;
     EXPECT_EQ(outcome.copies, 0u);
+}
+
+TEST_F(SyncSshFailureTest, AReadOnlyServerWithoutRoomIsCalledReadOnlyAndNotFull)  // [SyncSshFailureTests.md#AReadOnlyServerWithoutRoomIsCalledReadOnlyAndNotFull]
+{
+    const std::optional<fs::path> mount = read_only_mount();
+    if (!mount)
+        GTEST_SKIP() << "auf diesem Rechner ist kein Dateisystem mit einer lesbaren Datei nur lesbar eingehaengt";
+    for (const char* name : {"afs-a.txt", "afs-b.txt", "afs-c.txt"})
+        tu::write_text_file(local_dir_ / name, name);
+    SyncItem si(L"server-schreibschutz", SyncItemType::Dir, local_dir_.wstring(), util::string_to_wstring(PLAIN_ACCOUNT + ":" + mount->string()), L"afs-*.txt");
+    si.sync_cycle(0);
+    set_ssh_room_for_test(0);
+
+    const Outcome outcome = run(si);
+    set_ssh_room_for_test(std::nullopt);
+
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    const std::wstring& error = outcome.report.errors().front();
+    EXPECT_NE(error.find(translation::translate("filesystem_read_only")), std::wstring::npos) << error;
+    EXPECT_NE(error.find(translation::translate("remaining_files_skipped")), std::wstring::npos) << error;
+    EXPECT_EQ(error.find(fsu::make_error_message(fsu::FileInfoResult::DiskFull)), std::wstring::npos) << "Platz ist nicht, was diesem Laufwerk fehlt";
 }
 
 TEST_F(SyncSshFailureTest, ADirectoryRefusedByAReadOnlyServerNamesTheReason)  // [SyncSshFailureTests.md#ADirectoryRefusedByAReadOnlyServerNamesTheReason]

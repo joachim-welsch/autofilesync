@@ -68,6 +68,7 @@ protected:
     {
         fsu::set_read_only_filesystem_for_test(std::nullopt);
         fsu::set_write_time_error_for_test(std::nullopt);
+        fsu::set_free_space_for_test(std::nullopt);
         if (Synchronize::has_instance())
             Synchronize::destroy();
         Config::instance().reset();
@@ -293,6 +294,25 @@ TEST_F(ReadOnlyFilesystemTest, AFileTimeRefusedByAReadOnlyFilesystemIsNotTriedAg
     EXPECT_TRUE(names(report.errors().front(), "filesystem_read_only"));
     EXPECT_TRUE(fs::exists(source_dir_ / "nur-im-ziel.txt")) << "die Kopie zurueck in die Quelle ist der Weg mit den Wiederholungen";
     EXPECT_LT(elapsed, milliseconds(800)) << "zehn Versuche im Abstand von 100 ms waeren eine Sekunde je Datei";
+}
+
+TEST_F(ReadOnlyFilesystemTest, AReadOnlyDriveWithoutRoomIsCalledReadOnlyAndNotFull)  // [ReadOnlyFilesystemTests.md#AReadOnlyDriveWithoutRoomIsCalledReadOnlyAndNotFull]
+{
+    write_three_source_files();
+    const ReadOnly target(target_dir_);
+    fsu::set_free_space_for_test(0);
+    SyncReport report;
+    {
+        SyncReportGuard guard(&report);
+        tu::run_sync(item());
+    }
+    fsu::set_free_space_for_test(std::nullopt);
+
+    ASSERT_EQ(report.errors().size(), 1u);
+    EXPECT_TRUE(names(report.errors().front(), "filesystem_read_only"));
+    EXPECT_TRUE(names(report.errors().front(), "remaining_files_skipped"));
+    EXPECT_FALSE(names(report.errors().front(), "disk_full")) << "eine CD hat keinen Platz, aber Platz ist nicht, was ihr fehlt";
+    EXPECT_EQ(entries_in(target_dir_), 0u);
 }
 
 TEST_F(ReadOnlyFilesystemTest, ADeletionOnAReadOnlyFilesystemNamesTheReasonAndCopiesNothingIntoTheBin)  // [ReadOnlyFilesystemTests.md#ADeletionOnAReadOnlyFilesystemNamesTheReasonAndCopiesNothingIntoTheBin]

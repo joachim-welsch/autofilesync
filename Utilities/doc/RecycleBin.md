@@ -38,6 +38,17 @@ not go, and the copy was removed again - once per file and pass. So the drive is
 (FilesystemUtil.md#read_only_filesystem) and the answer is the refusal. A source that is
 missing is still FileNotExist: there is nothing left to delete, whatever the drive allows.
 
+## no-room
+
+A file that cannot be renamed into the bin - the bin lies on another drive - is copied, and
+before that the bin's drive is asked whether the file fits (FilesystemUtil.md#free_space):
+copying until the disk is full and removing the half copy again, file after file, helps
+nobody. Directories are not measured; their copy shows it. add_refusal() answers
+RecycleBinFull for the bin's lack of room, in the check or in the copy, because the caller
+reports the refusal with the path of the file that was to be deleted and "disk full" would
+point at that file's drive - the one the user is trying to make room on. Nothing is asked
+where a rename does it: a bin on the file's own drive needs no room.
+
 ## take_item
 
 Moves an item out of the bin to any destination, which restore_item() does for the place the

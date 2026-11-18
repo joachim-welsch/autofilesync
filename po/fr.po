@@ -2924,3 +2924,7 @@ msgstr "La source est en lecture seule, les fichiers sont copiés mais pas suppr
 #: AFS_Core/src/SyncLink.cpp
 msgid "previous_target_kept_as"
 msgstr "L'ancienne cible se trouve maintenant sous : "
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "recycle_bin_full"
+msgstr "Plus d'espace sur le disque de la corbeille"

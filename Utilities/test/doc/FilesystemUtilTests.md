@@ -188,3 +188,15 @@ merely starts the same.
 The one test against the system's own answer: the first file system that /proc/self/mounts
 lists as "ro" (a snap image, most often) must be recognized, also for a path below it that
 does not exist. Skipped where nothing is mounted read-only.
+
+## WriteUtf8FileThrowsWhenAShortTextDoesNotReachTheDisk
+
+/dev/full takes every open and refuses every write with "no space left". A short text used
+to pass without an exception, because it only reaches the device when the file is closed; a
+long one always threw. Both throw now, and write_private_file() says no
+(FilesystemUtil.md#utf8-written).
+
+## FreeSpaceOfADriveWithoutASizeIsNoAnswer
+
+/proc is a file system of size zero. Its "0 bytes free" must come back as no answer, not as
+a full disk; the temp directory has an answer.

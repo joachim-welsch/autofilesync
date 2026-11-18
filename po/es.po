@@ -2924,3 +2924,7 @@ msgstr "El origen es de solo lectura, los archivos se copian pero no se eliminan
 #: AFS_Core/src/SyncLink.cpp
 msgid "previous_target_kept_as"
 msgstr "El destino anterior se encuentra ahora en: "
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "recycle_bin_full"
+msgstr "No queda espacio en la unidad de la papelera"

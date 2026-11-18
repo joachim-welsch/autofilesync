@@ -2957,3 +2957,7 @@ msgstr "Source is read-only, the files are copied but not deleted from the sourc
 #: AFS_Core/src/SyncLink.cpp
 msgid "previous_target_kept_as"
 msgstr "The previous target is now kept as: "
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "recycle_bin_full"
+msgstr "No space left on the drive of the recycle bin"

@@ -2957,3 +2957,7 @@ msgstr "Quelle ist schreibgeschützt, die Dateien werden kopiert, aber nicht aus
 #: AFS_Core/src/SyncLink.cpp
 msgid "previous_target_kept_as"
 msgstr "Das bisherige Ziel liegt jetzt unter: "
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "recycle_bin_full"
+msgstr "Kein Speicherplatz mehr auf dem Datenträger des Papierkorbs"

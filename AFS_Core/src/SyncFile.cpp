@@ -378,11 +378,12 @@ bool SyncFile::read_refused(const wstring& file) const  // [SyncFile.md#refused]
 
 bool SyncFile::space_short(const wstring& file, uint64_t needed) const  // [SyncFile.md#disk-full]
 {
-    if (get_account_from_path(file).has_value())
-        return false;
-    const std::optional<uint64_t> available = fsu::free_space(fs::path(file).parent_path());
+    const bool remote = get_account_from_path(file).has_value();
+    const std::optional<uint64_t> available = remote ? ssh_room_for(file, sync_item_.father_son_principle()) : fsu::free_space(fs::path(file).parent_path());  // [SyncFile.md#disk-full-on-a-server]
     if (!available || needed <= *available)
         return false;
+    if (remote ? ssh_read_only_filesystem(file) : fsu::read_only_filesystem(fs::path(file).parent_path()))  // [SyncFile.md#no-room-on-a-read-only-drive]
+        return refused(file, fsu::FileInfoResult::ReadOnlyFilesystem);
     log_warning(fsu::make_error_message(fsu::FileInfoResult::DiskFull) + L": " + file);
     report_sync_shortage(file, needed, *available);
     return true;

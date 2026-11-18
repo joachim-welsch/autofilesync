@@ -94,3 +94,10 @@ bin was never created.
 
 The report by itself: another reason abandons nothing, the first read-only refusal is kept
 with its note, the second adds nothing, and without a report the call is harmless.
+
+## AReadOnlyDriveWithoutRoomIsCalledReadOnlyAndNotFull
+
+A read-only drive that also has no room - every CD and image. The sync classes run without
+the check before the pass: the first file does not fit, and the error is the write
+protection with the note about the skipped rest, not a shortage
+(SyncFile.md#no-room-on-a-read-only-drive).

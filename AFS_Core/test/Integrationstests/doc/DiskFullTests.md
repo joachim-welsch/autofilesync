@@ -52,6 +52,13 @@ file on that side, and the state must not record the pair as in sync.
 "Delete in target" frees room and needs none. A pass that stopped at the first file that does
 not fit would never get to the deletions that could make it fit next time.
 
+## ADeletionTheRecycleBinHasNoRoomForNamesTheBin
+
+"Delete in target" with a recycle bin on another file system that is said to have three
+bytes. The file stays, nothing is copied into the bin, and the error names the bin's lack
+of room next to the file - "disk full" alone would point at the drive the user wants to make
+room on (RecycleBin.md#no-room). Skipped where /dev/shm is not another file system.
+
 ## SyncReportShortage
 
 The report keeps the first shortage as an ordinary error with the file's name and the room it

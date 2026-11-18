@@ -313,6 +313,30 @@ TEST_F(RecycleBinOnAnotherFilesystemTest, FileTravelsToTheBinAndBack)  // [Recyc
     EXPECT_TRUE(RecycleBin::instance().list_items().empty());
 }
 
+TEST_F(RecycleBinOnAnotherFilesystemTest, AFileTheBinHasNoRoomForStaysAndNothingIsCopied)  // [RecycleBinTests.md#AFileTheBinHasNoRoomForStaysAndNothingIsCopied]
+{
+    create_file("data.txt");
+    fsu::set_free_space_for_test(3);
+    const fsu::FileInfoResult refusal = RecycleBin::instance().add_refusal("data.txt", "data.txt");
+    fsu::set_free_space_for_test(7);
+    const fsu::FileInfoResult fits = RecycleBin::instance().add_refusal("data.txt", "data.txt");
+    fsu::set_free_space_for_test(std::nullopt);
+
+    EXPECT_EQ(refusal, fsu::FileInfoResult::RecycleBinFull) << "nicht DiskFull: voll ist der Papierkorb, nicht das Laufwerk der Datei";
+    EXPECT_EQ(fits, fsu::FileInfoResult::OK) << "sieben Bytes fuer sieben Bytes reichen";
+    EXPECT_EQ(content_of(other_ / "data.txt"), "content");
+}
+
+TEST_F(RecycleBinTest, RoomIsNotAskedForWhereTheFileIsOnlyRenamed)  // [RecycleBinTests.md#RoomIsNotAskedForWhereTheFileIsOnlyRenamed]
+{
+    create_file("data.txt");
+    fsu::set_free_space_for_test(0);
+    const fsu::FileInfoResult refusal = RecycleBin::instance().add_refusal("data.txt", "data.txt");
+    fsu::set_free_space_for_test(std::nullopt);
+
+    EXPECT_EQ(refusal, fsu::FileInfoResult::OK) << "auf demselben Laufwerk braucht der Papierkorb keinen Platz";
+}
+
 TEST_F(RecycleBinOnAnotherFilesystemTest, DirectoryTravelsToTheBin)  // [RecycleBinTests.md#DirectoryTravelsToTheBin]
 {
     create_file(fs::path("tree") / "inner" / "data.txt");

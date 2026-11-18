@@ -2923,3 +2923,7 @@ msgstr ""
 #: AFS_Core/src/SyncLink.cpp
 msgid "previous_target_kept_as"
 msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "recycle_bin_full"
+msgstr ""

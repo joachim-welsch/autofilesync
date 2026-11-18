@@ -73,3 +73,14 @@ The test's override only changes what the drive says of itself (FilesystemUtil.m
 so a bin that copied first would succeed here and the file would be gone: the file still
 being there, and no bin directory, is the proof that nothing was tried. A missing file stays
 "not there" on such a drive.
+
+## AFileTheBinHasNoRoomForStaysAndNothingIsCopied
+
+The bin on another file system and a drive said to have three bytes: the seven bytes of the
+file do not fit, the answer is RecycleBinFull and the file stays. With seven bytes of room
+the same file goes in (RecycleBin.md#no-room).
+
+## RoomIsNotAskedForWhereTheFileIsOnlyRenamed
+
+The bin on the file's own drive, said to be full: the file is renamed into the bin all the
+same, since that takes no room.

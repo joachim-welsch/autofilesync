@@ -217,6 +217,22 @@ TEST_F(ConfigPathTest, FileChangedOnDiskSeesAFileThatAppears)  // [ConfigTests.m
     EXPECT_TRUE(Config::instance().file_changed_on_disk()) << "The file's appearance was not noticed.";
 }
 
+#ifdef __linux__
+TEST_F(ConfigPathTest, AConfigurationThatDoesNotReachTheDiskLeavesTheOldFileInPlace)  // [ConfigTests.md#AConfigurationThatDoesNotReachTheDiskLeavesTheOldFileInPlace]
+{
+    const fs::path target_path = test_home_ / "autofilesync.json";
+    ASSERT_TRUE(Config::instance().write(target_path.wstring()));
+    const auto size_before = fs::file_size(target_path);
+    ASSERT_GT(size_before, 0u);
+    fs::create_symlink("/dev/full", target_path.string() + ".tmp");
+
+    const bool written = Config::instance().write(target_path.wstring());
+
+    EXPECT_FALSE(written);
+    EXPECT_EQ(fs::file_size(target_path), size_before) << "ein voller Datentraeger darf die Konfiguration nicht leeren";
+}
+#endif
+
 TEST_F(ConfigPathTest, WriteCreatesMissingDirectories)
 {
     const fs::path target_path = test_home_ / "does" / "not" / "exist" / "autofilesync.json";

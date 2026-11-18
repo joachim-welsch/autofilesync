@@ -201,6 +201,7 @@ TEST(FilesystemUtilTests, AReadOnlyFilesystemIsAReasonOfItsOwn)  // [FilesystemU
     EXPECT_EQ(fsu::reason_for_write_failure(read_only), FileInfoResult::ReadOnlyFilesystem);
     EXPECT_EQ(fsu::failure_text(read_only), translation::translate("filesystem_read_only"));
     EXPECT_EQ(fsu::make_error_message(FileInfoResult::ReadOnlyFilesystem), translation::translate("filesystem_read_only"));
+    EXPECT_EQ(fsu::make_error_message(FileInfoResult::RecycleBinFull), translation::translate("recycle_bin_full"));
 #ifdef _WIN32
     EXPECT_EQ(fsu::reason_for_failure(std::error_code(19, std::system_category())), FileInfoResult::ReadOnlyFilesystem) << "ERROR_WRITE_PROTECT";
 #endif
@@ -642,6 +643,21 @@ TEST_F(FilesystemUtilTest, DriveExistsFollowsTheDirectory)
     EXPECT_TRUE(fsu::drive_exists(root_.wstring()));
     EXPECT_FALSE(fsu::drive_exists((root_ / "missing").wstring()));
 }
+
+#ifdef __linux__
+TEST(FilesystemUtilTests, WriteUtf8FileThrowsWhenAShortTextDoesNotReachTheDisk)  // [FilesystemUtilTests.md#WriteUtf8FileThrowsWhenAShortTextDoesNotReachTheDisk]
+{
+    EXPECT_THROW(fsu::write_utf8_file("/dev/full", L"kurz"), std::exception) << "ein kurzer Text scheitert erst beim Schliessen";
+    EXPECT_THROW(fsu::write_utf8_file("/dev/full", std::wstring(100000, L'x')), std::exception);
+    EXPECT_FALSE(fsu::write_private_file("/dev/full", "kurz"));
+}
+
+TEST(FilesystemUtilTests, FreeSpaceOfADriveWithoutASizeIsNoAnswer)  // [FilesystemUtilTests.md#FreeSpaceOfADriveWithoutASizeIsNoAnswer]
+{
+    EXPECT_FALSE(fsu::free_space("/proc").has_value()) << "0 von 0 Bytes frei heisst: das Laufwerk sagt es nicht";
+    EXPECT_TRUE(fsu::free_space(std::filesystem::temp_directory_path()).has_value());
+}
+#endif
 
 TEST(FilesystemUtilTests, WriteUtf8FileWritesTheBytesAndThrowsWhereItCannotWrite)  // [FilesystemUtilTests.md#WriteUtf8FileWritesTheBytesAndThrowsWhereItCannotWrite]
 {

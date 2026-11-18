@@ -26,6 +26,8 @@
 #include "TestPaths.h"
 #include "Translation.h"
 #include <FilesystemUtil.h>
+#include <RecycleBin.h>
+#include <StrUtil.h>
 #include <chrono>
 #include <cstdint>
 #include <filesystem>
@@ -235,6 +237,39 @@ TEST_F(DiskFullTest, DeletionsStillHappenOnAFullDisk)  // [DiskFullTests.md#Dele
     EXPECT_FALSE(fs::exists(target_dir_ / "weg.txt")) << "deleting is what makes room";
     EXPECT_EQ(outcome.report.errors().size(), 1u);
 }
+
+#ifdef __linux__
+TEST_F(DiskFullTest, ADeletionTheRecycleBinHasNoRoomForNamesTheBin)  // [DiskFullTests.md#ADeletionTheRecycleBinHasNoRoomForNamesTheBin]
+{
+    const fs::path bin = fs::path("/dev/shm") / ("autofilesync_disk_full_bin_" + std::to_string(TestPaths::process_id()));
+    std::error_code ec;
+    if (fs::rename(target_dir_, bin, ec); !ec || ec != std::errc::cross_device_link) {
+        fs::remove_all(bin, ec);
+        GTEST_SKIP() << "kein zweites Dateisystem unter /dev/shm";
+    }
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::RecycleBin);
+    const fs::path previous_bin = RecycleBin::instance().bin_path();
+    RecycleBin::instance().bin_path(bin);
+    tu::write_text_file(target_dir_ / "weg.txt", "nur im Ziel", seconds(3600));
+    SyncItem si = item(SyncItemType::Dir);
+    si.delete_in_target(true);
+    Outcome outcome;
+    {
+        const FreeSpace three_bytes(3);
+        run(si, outcome);
+    }
+    RecycleBin::instance().bin_path(previous_bin);
+    const bool bin_made = fs::exists(bin / "weg.txt");
+    fs::remove_all(bin, ec);
+
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    const std::wstring& error = outcome.report.errors().front();
+    EXPECT_NE(error.find(translation::translate("target_delete_failed") + (target_dir_ / "weg.txt").wstring()), std::wstring::npos) << util::wstring_to_string(error);
+    EXPECT_NE(error.find(translation::translate("recycle_bin_full")), std::wstring::npos) << util::wstring_to_string(error);
+    EXPECT_TRUE(fs::exists(target_dir_ / "weg.txt"));
+    EXPECT_FALSE(bin_made);
+}
+#endif
 
 TEST(SyncReportShortage, FirstShortageNamesItsFileAndLaterOnesAreSummedUpInItsPlace)  // [DiskFullTests.md#SyncReportShortage]
 {

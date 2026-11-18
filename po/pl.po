@@ -2924,3 +2924,7 @@ msgstr "Źródło jest tylko do odczytu, pliki są kopiowane, ale nie usuwane ze
 #: AFS_Core/src/SyncLink.cpp
 msgid "previous_target_kept_as"
 msgstr "Dotychczasowy cel znajduje się teraz pod nazwą: "
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "recycle_bin_full"
+msgstr "Brak miejsca na dysku kosza"

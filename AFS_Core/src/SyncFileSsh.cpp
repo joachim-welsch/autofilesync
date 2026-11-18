@@ -651,6 +651,24 @@ bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_
     return remote_path && remote_read_only(connection, *remote_path);
 }
 
+std::optional<uint64_t> ssh_room_for(const std::wstring& file, bool old_file_stays)  // [SyncFileSsh.md#ssh_room_for]
+{
+    SftpConnection connection;
+    const auto remote_path = connect_to(file, connection);
+    if (!remote_path)
+        return std::nullopt;
+    const std::string directory = remote_path->substr(0, std::max<std::size_t>(remote_path->find_last_of('/'), 1));
+    const sftp_statvfs_t volume = sftp_statvfs(connection.sftp(), directory.c_str());
+    if (volume == nullptr)
+        return std::nullopt;
+    const uint64_t size = volume->f_blocks, available = volume->f_bavail * volume->f_frsize;
+    sftp_statvfs_free(volume);
+    if (size == 0)
+        return std::nullopt;
+    const SftpAttributes old_file = old_file_stays || writes_through_part(file) ? SftpAttributes(nullptr, sftp_attributes_free) : connection.stat(*remote_path);
+    return available + (old_file ? old_file->size : 0);
+}
+
 fsu::FileInfoResult ssh_remove_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]
 {
     log_debug(L"ssh_remove_file: " + path);
@@ -1550,6 +1568,22 @@ bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_
     return read_only;
 }
 
+std::optional<uint64_t> ssh_room_for(const std::wstring& file, bool old_file_stays)  // [SyncFileSsh.md#ssh_room_for]
+{
+    std::optional<uint64_t> room;
+    ssh_sftp_call(file, [&](LIBSSH2_SFTP* sftp, const std::string& remote) {
+        const std::string directory = remote.substr(0, std::max<std::size_t>(remote.find_last_of('/'), 1));
+        LIBSSH2_SFTP_STATVFS volume {};
+        if (libssh2_sftp_statvfs(sftp, directory.c_str(), directory.size(), &volume) != 0 || volume.f_blocks == 0)
+            return 0;
+        LIBSSH2_SFTP_ATTRIBUTES old_file {};
+        const bool replaced = !old_file_stays && libssh2_sftp_stat(sftp, remote.c_str(), &old_file) == 0 && (old_file.flags & LIBSSH2_SFTP_ATTR_SIZE) != 0;
+        room = static_cast<uint64_t>(volume.f_bavail) * volume.f_frsize + (replaced ? old_file.filesize : 0);
+        return 0;
+    }, "remote_file_delete_error");
+    return room;
+}
+
 static fsu::FileInfoResult removal_refusal(const std::wstring& path, const std::function<int(LIBSSH2_SFTP*, const std::string&)>& remove, const char* error_msgid)  // [SyncFileSsh.md#removal-refusal]
 {
     fsu::FileInfoResult refusal = fsu::FileInfoResult::ErrorWriteFileInfo;
@@ -1923,6 +1957,24 @@ bool ssh_remove_file(const std::wstring& path)
 bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_read_only_filesystem]
 {
     return !webdav_account(path) && sftp_backend::ssh_read_only_filesystem(path);
+}
+
+#ifdef _TEST
+static std::optional<uint64_t> ssh_room_for_test;
+
+void set_ssh_room_for_test(std::optional<uint64_t> bytes)  // [SyncFileSsh.md#ssh_room_for]
+{
+    ssh_room_for_test = bytes;
+}
+#endif
+
+std::optional<uint64_t> ssh_room_for(const std::wstring& file, bool old_file_stays)  // [SyncFileSsh.md#ssh_room_for]
+{
+#ifdef _TEST
+    if (ssh_room_for_test)
+        return ssh_room_for_test;
+#endif
+    return webdav_account(file) ? std::nullopt : sftp_backend::ssh_room_for(file, old_file_stays);
 }
 
 fsu::FileInfoResult ssh_rmdir_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]
