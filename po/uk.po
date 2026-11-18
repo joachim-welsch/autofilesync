@@ -2920,3 +2920,7 @@ msgstr "Джерело доступне лише для читання, елем
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"
 msgstr "Джерело доступне лише для читання, файли копіюються, але не видаляються з джерела: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "previous_target_kept_as"
+msgstr "Попередня ціль тепер зберігається як: "

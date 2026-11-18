@@ -233,9 +233,9 @@ bool SyncLink::put_in_place(const wstring& prepared, const Place& at) const
         return false;
     const FileInfoResult refusal = renamed(prepared, at.path, at.ssh);
     if (refusal != FileInfoResult::OK) {
-        report(translation::translate("link_create_failed") + at.path + L" (" + fsu::make_error_message(refusal) + L")", refusal);
-        if (!parked->empty())
-            renamed(*parked, at.path, at.ssh);
+        const bool stranded = !parked->empty() && renamed(*parked, at.path, at.ssh) != FileInfoResult::OK;  // [SyncLink.md#stranded]
+        const wstring where = stranded ? L" " + translation::translate("previous_target_kept_as") + *parked : wstring();
+        report(translation::translate("link_create_failed") + at.path + L" (" + fsu::make_error_message(refusal) + L")" + where, refusal);
         return false;
     }
     if (!parked->empty() && !sync_item_.father_son_principle())

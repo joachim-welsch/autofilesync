@@ -152,6 +152,10 @@ read it back" and "differs" are the same failure.
 rename_file() with the reason for a failure, so that the caller can tell the user that the
 file is locked or the directory write-protected instead of only that something failed.
 A failure the system gives no known reason for is a write error (reason_for_write_failure).
+Tests set an error for chosen renames - so many succeed first, then so many fail - because
+the second of two renames in one directory cannot be made to fail by rights or a lock while
+the first goes through (SymlinkAsLinkTests.md#AnOldTargetThatCannotComeBackIsNamedWhereItLies);
+the override exists in test builds only.
 
 ## write_time_refusal
 

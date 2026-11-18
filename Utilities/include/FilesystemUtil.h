@@ -66,6 +66,9 @@ namespace FilesystemUtil
     ContentComparison compare_content(const std::wstring& input1, const std::wstring& input2);  // [FilesystemUtil.md#compare_content]
     bool files_equal(const std::wstring& input1, const std::wstring& input2);
     FileInfoResult rename_refusal(const std::wstring& oldname, const std::wstring& newname);  // [FilesystemUtil.md#rename_refusal]
+#ifdef _TEST
+    void set_rename_error_for_test(std::optional<std::error_code> error, int succeeding_first = 0, int failing = 1);  // [FilesystemUtil.md#rename_refusal]
+#endif
     bool rename_file(const std::wstring& oldname, const std::wstring& newname);
     bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
     FileInfoResult remove_refusal(const std::wstring& name);  // [FilesystemUtil.md#remove_refusal]

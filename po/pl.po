@@ -2920,3 +2920,7 @@ msgstr "Źródło jest tylko do odczytu, elementu nie można zsynchronizować: "
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"
 msgstr "Źródło jest tylko do odczytu, pliki są kopiowane, ale nie usuwane ze źródła: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "previous_target_kept_as"
+msgstr "Dotychczasowy cel znajduje się teraz pod nazwą: "

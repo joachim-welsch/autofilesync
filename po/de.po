@@ -2953,3 +2953,7 @@ msgstr "Quelle ist schreibgeschützt, das Element kann nicht synchronisiert werd
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"
 msgstr "Quelle ist schreibgeschützt, die Dateien werden kopiert, aber nicht aus der Quelle gelöscht: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "previous_target_kept_as"
+msgstr "Das bisherige Ziel liegt jetzt unter: "

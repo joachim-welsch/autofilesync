@@ -158,3 +158,17 @@ happen away from the user's.
 
 The same from the other side for a mirroring item ("delete in target"): a source directory
 that cannot be searched must not make the target link look orphaned.
+
+## AnOldTargetThatCannotComeBackIsNamedWhereItLies
+
+A file in the target where the source has a link. Of the three renames the pass makes - the
+file aside, the link into place, the file back - the first goes through and the other two
+are refused (FilesystemUtil.md#rename_refusal). The place is then empty, the old content
+lies under ".bak", and the one error names that path (SyncLink.md#stranded). The prepared
+link is cleared away. A first pass brings the files over, so that the renames counted are
+the link's.
+
+## AnOldTargetThatComesBackIsNotNamed
+
+The counterpart: only the rename into place is refused. The old file is back at its place
+with its content, no ".bak" is left, and the error says nothing about another name.

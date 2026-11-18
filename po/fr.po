@@ -2920,3 +2920,7 @@ msgstr "La source est en lecture seule, l'élément ne peut pas être synchronis
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"
 msgstr "La source est en lecture seule, les fichiers sont copiés mais pas supprimés de la source : "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "previous_target_kept_as"
+msgstr "L'ancienne cible se trouve maintenant sous : "

@@ -2953,3 +2953,7 @@ msgstr "Source is read-only, the item cannot be synchronized: "
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"
 msgstr "Source is read-only, the files are copied but not deleted from the source: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "previous_target_kept_as"
+msgstr "The previous target is now kept as: "

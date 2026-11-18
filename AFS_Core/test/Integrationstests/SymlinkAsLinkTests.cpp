@@ -74,6 +74,7 @@ protected:
     void TearDown() override
     {
         symlink_util::set_link_error_for_test(std::nullopt);
+        fsu::set_rename_error_for_test(std::nullopt);
         std::error_code ec;
         fs::remove_all(root_, ec);
     }
@@ -573,6 +574,44 @@ TEST_F(SymlinkAsLinkTest, SystemLinksAreSkippedAndNamedOnce)  // [SymlinkAsLinkT
     EXPECT_EQ(logged("system_links_skipped"), 1);
 }
 #endif
+
+TEST_F(SymlinkAsLinkTest, AnOldTargetThatCannotComeBackIsNamedWhereItLies)  // [SymlinkAsLinkTests.md#AnOldTargetThatCannotComeBackIsNamedWhereItLies]
+{
+    Outcome first, second;
+    run(item(), first);
+    fs::create_symlink("b.txt", source_ / "datei.txt");
+    tu::write_text_file(target_ / "datei.txt", "alt");
+    fsu::set_rename_error_for_test(std::make_error_code(std::errc::io_error), 1, 2);
+
+    run(item(), second);
+    fsu::set_rename_error_for_test(std::nullopt);
+
+    const std::wstring parked = (target_ / "datei.txt").wstring() + L".bak";
+    ASSERT_EQ(second.report.errors().size(), 1u);
+    const std::wstring& error = second.report.errors().front();
+    EXPECT_NE(error.find(translation::translate("link_create_failed") + (target_ / "datei.txt").wstring()), std::wstring::npos) << util::wstring_to_string(error);
+    EXPECT_NE(error.find(translation::translate("previous_target_kept_as") + parked), std::wstring::npos) << util::wstring_to_string(error);
+    EXPECT_FALSE(fs::exists(fs::symlink_status(target_ / "datei.txt"))) << "weder der Link noch die alte Datei liegt am Platz";
+    EXPECT_EQ(tu::read_text_file(parked), "alt") << "die alte Datei ist nicht verloren, und die Meldung sagt, wo sie liegt";
+    EXPECT_FALSE(fs::exists(fs::symlink_status(target_ / "datei.txt.afs-link"))) << "der vorbereitete Link wird aufgeraeumt";
+}
+
+TEST_F(SymlinkAsLinkTest, AnOldTargetThatComesBackIsNotNamed)  // [SymlinkAsLinkTests.md#AnOldTargetThatComesBackIsNotNamed]
+{
+    Outcome first, second;
+    run(item(), first);
+    fs::create_symlink("b.txt", source_ / "datei.txt");
+    tu::write_text_file(target_ / "datei.txt", "alt");
+    fsu::set_rename_error_for_test(std::make_error_code(std::errc::io_error), 1, 1);
+
+    run(item(), second);
+    fsu::set_rename_error_for_test(std::nullopt);
+
+    ASSERT_EQ(second.report.errors().size(), 1u);
+    EXPECT_EQ(second.report.errors().front().find(translation::translate("previous_target_kept_as")), std::wstring::npos);
+    EXPECT_EQ(tu::read_text_file(target_ / "datei.txt"), "alt") << "das alte Ziel ist zurueck an seinem Platz";
+    EXPECT_FALSE(fs::exists(target_ / "datei.txt.bak"));
+}
 
 #ifdef _UNIX
 TEST_F(SymlinkAsLinkTest, ALinkWhoseTargetSideCannotBeAskedIsReportedAndNotDeletedInTheSource)  // [SymlinkAsLinkTests.md#ALinkWhoseTargetSideCannotBeAskedIsReportedAndNotDeletedInTheSource]

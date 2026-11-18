@@ -115,6 +115,14 @@ the generation principle to the next "<name>.bak.<n>", which stays as with a rep
 (SyncFile.md#move_file_to_backup). "Free" asks for the name itself, so a dangling link of that
 name counts as taken.
 
+## stranded
+
+When the prepared link cannot be renamed into place, the parked target is renamed back. If
+that fails as well, the place is empty and what lay there has another name. The file is not
+lost, but a user who only reads "link could not be created" looks for it in vain: so the
+error then says under which name the previous target now lies. The outcome of the way back
+used to be ignored.
+
 ## LinkTally
 
 What a pass has to say about its links once, not per link: those the target could not take,

@@ -2920,3 +2920,7 @@ msgstr "L'origine è di sola lettura, l'elemento non può essere sincronizzato: 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"
 msgstr "L'origine è di sola lettura, i file vengono copiati ma non eliminati dall'origine: "
+
+#: AFS_Core/src/SyncLink.cpp
+msgid "previous_target_kept_as"
+msgstr "La destinazione precedente si trova ora in: "

@@ -618,9 +618,33 @@ bool files_equal(const wstring& input1, const wstring& input2)
     return compare_content(input1, input2).equal;
 }
 
+#ifdef _TEST
+static std::optional<std::error_code> rename_error_for_test;
+static int renames_before_error_for_test = 0;
+static int rename_errors_left_for_test = 0;
+
+void set_rename_error_for_test(std::optional<std::error_code> error, int succeeding_first, int failing)  // [FilesystemUtil.md#rename_refusal]
+{
+    rename_error_for_test = error;
+    renames_before_error_for_test = succeeding_first;
+    rename_errors_left_for_test = failing;
+}
+
+static bool rename_fails_for_test()
+{
+    if (!rename_error_for_test || renames_before_error_for_test-- > 0)
+        return false;
+    return rename_errors_left_for_test-- > 0;
+}
+#endif
+
 FileInfoResult rename_refusal(const std::wstring& oldname, const std::wstring& newname)  // [FilesystemUtil.md#rename_refusal]
 {
     log_info(L"rename_file", oldname, newname);
+#ifdef _TEST
+    if (rename_fails_for_test())
+        return reason_for_write_failure(*rename_error_for_test);
+#endif
     std::error_code ec;
     fs::rename(oldname, newname, ec);
     if (!ec)
