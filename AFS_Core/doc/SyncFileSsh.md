@@ -46,9 +46,21 @@ original it came from, which makes every comparison by time over SSH useless - s
 FileDifference.md#ssh-content-fallback.
 
 The stamp happens after the handle of the written file is closed: a server that updates the
-modification time when it closes the file would otherwise overwrite it again. A failed stamp is
-logged but leaves the result at OK - the file itself arrived, and reporting an error would make
-the caller restore its backup over a perfectly good copy.
+modification time when it closes the file would otherwise overwrite it again. A failed stamp
+leaves the result at OK - the file itself arrived, and a failed copy would make the caller
+restore its backup over a perfectly good one - but it is reported (unkept-is-reported).
+
+## unkept-is-reported
+
+A time or rights the server would not set used to stand in the log only. The time matters
+beyond itself: the copy bears the moment of the upload, looks newer than its original to
+every comparison by time, and is copied again by the next pass - for good, and without the
+report ever saying why. So both are errors of the pass, one line each with the file as the
+user knows it, while the copy stays and counts. They are reported once the file is in its
+place: a part file that could not be published is a failed copy and has nothing else to
+say. Most often the cause is a file on the server that belongs to another user - it can be
+written when its rights allow, but only its owner may set its time and rights. The Windows
+backend sets no rights on an upload and reports the time only.
 
 ## copy-from-ssh-keeps-the-permissions
 

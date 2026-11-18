@@ -104,6 +104,14 @@ namespace {
         const auto time = std::filesystem::last_write_time(path, ec);
         return ec ? 0 : file_time::to_time_t(time);
     }
+
+    void report_unkept(const wstring& dest, bool time_kept, bool rights_kept)  // [SyncFileSsh.md#unkept-is-reported]
+    {
+        if (!time_kept)
+            report_sync_error(translation::translate("file_time_not_settable") + dest);
+        if (!rights_kept)
+            report_sync_error(fsu::make_error_message(fsu::FileInfoResult::CannotSetFileAttributes) + L": " + dest);
+    }
 }
 
 #ifdef _WIN32
@@ -120,14 +128,16 @@ namespace {
         return true;
     }
 
-    void keep_remote_time(LIBSSH2_SFTP* sftp, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    bool keep_remote_time(LIBSSH2_SFTP* sftp, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
     {
         LIBSSH2_SFTP_ATTRIBUTES attributes{};
         attributes.flags = LIBSSH2_SFTP_ATTR_ACMODTIME;
         attributes.atime = static_cast<unsigned long>(mtime);
         attributes.mtime = static_cast<unsigned long>(mtime);
-        if (libssh2_sftp_setstat(sftp, remote_path.c_str(), &attributes) != 0)
-            log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
+        if (libssh2_sftp_setstat(sftp, remote_path.c_str(), &attributes) == 0)
+            return true;
+        log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
+        return false;
     }
 
     constexpr unsigned long WRITE_FLAGS = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC;
@@ -442,13 +452,15 @@ namespace {
         return static_cast<uint32_t>(status.permissions()) & PERMISSION_BITS;
     }
 
-    void keep_remote_permissions(const SftpConnection& connection, const std::string& remote_path, uint32_t permissions)  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
+    bool keep_remote_permissions(const SftpConnection& connection, const std::string& remote_path, uint32_t permissions)  // [SyncFileSsh.md#copy-from-ssh-keeps-the-permissions]
     {
         sftp_attributes_struct attributes{};
         attributes.flags = SSH_FILEXFER_ATTR_PERMISSIONS;
         attributes.permissions = (permissions & PERMISSION_BITS) | S_IWUSR;  // [SyncFileSsh.md#remote-target-stays-writable]
-        if (sftp_setstat(connection.sftp(), remote_path.c_str(), &attributes) != SSH_OK)
-            log_error(translation::translate("file_attributes_change"), string_to_wstring(remote_path), string_to_wstring(connection.error()));
+        if (sftp_setstat(connection.sftp(), remote_path.c_str(), &attributes) == SSH_OK)
+            return true;
+        log_error(translation::translate("file_attributes_change"), string_to_wstring(remote_path), string_to_wstring(connection.error()));
+        return false;
     }
 
     SftpFile open_for_write(const SftpConnection& connection, const std::string& remote_path, mode_t mode)  // [SyncFileSsh.md#read-only-target-made-writable]
@@ -463,14 +475,16 @@ namespace {
         return connection.open(remote_path, WRITE_FLAGS, mode);
     }
 
-    void keep_remote_time(const SftpConnection& connection, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
+    bool keep_remote_time(const SftpConnection& connection, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
     {
         sftp_attributes_struct attributes{};
         attributes.flags = SSH_FILEXFER_ATTR_ACMODTIME;
         attributes.atime = static_cast<uint32_t>(mtime);
         attributes.mtime = static_cast<uint32_t>(mtime);
-        if (sftp_setstat(connection.sftp(), remote_path.c_str(), &attributes) != SSH_OK)
-            log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
+        if (sftp_setstat(connection.sftp(), remote_path.c_str(), &attributes) == SSH_OK)
+            return true;
+        log_error(translation::translate("file_time_not_settable"), string_to_wstring(remote_path));
+        return false;
     }
 
     bool writes_through_part(const wstring& dest)  // [SyncFileSsh.md#part-files]
@@ -554,11 +568,15 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
             return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(write_path));
         result = transfer(src_file.get(), dest_file.get());
     }
+    bool time_kept = true, rights_kept = true;
     if (result == CopyResult::OK && attributes) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
-        keep_remote_permissions(target, write_path, attributes->permissions);
-        keep_remote_time(target, write_path, attributes->mtime);
+        rights_kept = keep_remote_permissions(target, write_path, attributes->permissions);
+        time_kept = keep_remote_time(target, write_path, attributes->mtime);
     }
-    return through_part ? publish_part(target, write_path, *dest_path, result) : result;
+    const CopyResult outcome = through_part ? publish_part(target, write_path, *dest_path, result) : result;
+    if (outcome == CopyResult::OK)  // [SyncFileSsh.md#unkept-is-reported]
+        report_unkept(dest, time_kept, rights_kept);
+    return outcome;
 }
 
 CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
@@ -580,12 +598,16 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
             return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(remote_path));
         result = upload(local_file, remote_file.get());
     }
+    bool time_kept = true, rights_kept = true;
     if (result == CopyResult::OK) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
         if (const auto permissions = local_permissions_of(src))  // [SyncFileSsh.md#upload-keeps-the-permissions]
-            keep_remote_permissions(connection, remote_path, *permissions);
-        keep_remote_time(connection, remote_path, local_time_of(src));
+            rights_kept = keep_remote_permissions(connection, remote_path, *permissions);
+        time_kept = keep_remote_time(connection, remote_path, local_time_of(src));
     }
-    return through_part ? publish_part(connection, remote_path, *final_path, result) : result;
+    const CopyResult outcome = through_part ? publish_part(connection, remote_path, *final_path, result) : result;
+    if (outcome == CopyResult::OK)  // [SyncFileSsh.md#unkept-is-reported]
+        report_unkept(dest, time_kept, rights_kept);
+    return outcome;
 }
 
 bool ssh_exists(const std::wstring& path)
@@ -1060,7 +1082,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
 
     libssh2_sftp_close(dest_file);
     if (result == CopyResult::OK && attributes_read)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
-        keep_remote_time(dest_sftp_session, dest_remote_path, static_cast<std::time_t>(attributes.mtime));
+        report_unkept(dest, keep_remote_time(dest_sftp_session, dest_remote_path, static_cast<std::time_t>(attributes.mtime)), true);
     libssh2_sftp_close(src_file);
     libssh2_sftp_shutdown(dest_sftp_session);
     libssh2_session_disconnect(dest_session, "Normal Shutdown");
@@ -1180,7 +1202,7 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
     local_file.close();
     libssh2_sftp_close(remote_file);
     if (result == CopyResult::OK)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
-        keep_remote_time(sftp_session, remote_path, local_time_of(src));
+        report_unkept(dest, keep_remote_time(sftp_session, remote_path, local_time_of(src)), true);
     libssh2_sftp_shutdown(sftp_session);
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

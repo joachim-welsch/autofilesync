@@ -35,6 +35,8 @@
 #include <fstream>
 #include <optional>
 #include <thread>
+#include <pwd.h>
+#include <sys/stat.h>
 
 using namespace AFS_Core;
 using namespace SSHTest;
@@ -127,6 +129,13 @@ protected:
         return std::nullopt;
     }
 
+    static bool owned_by_another_than_the_ssh_user(const fs::path& file)  // [SyncSshFailureTests.md#TimeAndRightsTheServerWouldNotSetAreReportedAndTheCopyStays]
+    {
+        struct stat info {};
+        const passwd* ssh_user = getpwnam(SSH_USER);
+        return ssh_user != nullptr && stat(file.c_str(), &info) == 0 && info.st_uid != ssh_user->pw_uid;
+    }
+
     static Outcome run(const SyncItem& si)  // [LocalPermissionTests.md#run]
     {
         Outcome outcome;
@@ -198,6 +207,46 @@ TEST_F(SyncSshFailureTest, RemoteFileAndDirectoryThatCannotBeRemovedNameTheirRea
     EXPECT_TRUE(fs::exists(server_dir_ / "a.txt"));
     EXPECT_EQ(ssh_rmdir_refusal(on_server(PLAIN_ACCOUNT) + L"/leer"), fsu::FileInfoResult::PermissionDenied);
     EXPECT_TRUE(fs::exists(server_dir_ / "leer"));
+}
+
+TEST_F(SyncSshFailureTest, TimeAndRightsTheServerWouldNotSetAreReportedAndTheCopyStays)  // [SyncSshFailureTests.md#TimeAndRightsTheServerWouldNotSetAreReportedAndTheCopyStays]
+{
+    tu::write_text_file(local_dir_ / "a.txt", "neuer Inhalt", seconds(7200));
+    tu::write_text_file(server_dir_ / "a.txt", "alt");
+    fs::permissions(server_dir_ / "a.txt", fs::perms::owner_read | fs::perms::owner_write | fs::perms::group_read | fs::perms::group_write | fs::perms::others_read | fs::perms::others_write);
+    if (!owned_by_another_than_the_ssh_user(server_dir_ / "a.txt"))
+        GTEST_SKIP() << "der SSH-Testbenutzer ist der Besitzer der Datei und darf Zeit und Rechte setzen";
+    const std::wstring target = on_server(PLAIN_ACCOUNT) + L"/a.txt";
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source((local_dir_ / "a.txt").wstring());
+    si.target(target);
+    si.copy_when_target_newer(true);
+
+    const Outcome outcome = run(si);
+
+    EXPECT_EQ(outcome.copies, 1u) << "die Datei ist angekommen und zaehlt";
+    EXPECT_EQ(tu::read_text_file(server_dir_ / "a.txt"), "neuer Inhalt") << "die Kopie wird nicht zurueckgenommen";
+    ASSERT_EQ(outcome.report.errors().size(), 2u);
+    EXPECT_EQ(outcome.report.errors()[0], translation::translate("file_time_not_settable") + target);
+    EXPECT_EQ(outcome.report.errors()[1], fsu::make_error_message(fsu::FileInfoResult::CannotSetFileAttributes) + L": " + target);
+}
+
+TEST_F(SyncSshFailureTest, AnUploadWhoseTimeAndRightsWereSetReportsNothing)  // [SyncSshFailureTests.md#AnUploadWhoseTimeAndRightsWereSetReportsNothing]
+{
+    tu::write_text_file(local_dir_ / "a.txt", "neu", seconds(7200));
+    fs::permissions(server_dir_, fs::perms::all);
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source((local_dir_ / "a.txt").wstring());
+    si.target(on_server(PLAIN_ACCOUNT) + L"/a.txt");
+
+    const Outcome outcome = run(si);
+
+    EXPECT_EQ(outcome.copies, 1u);
+    EXPECT_TRUE(outcome.report.errors().empty()) << util::wstring_to_string(outcome.report.errors().empty() ? std::wstring() : outcome.report.errors().front());
 }
 
 TEST_F(SyncSshFailureTest, AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedForARefusedRemoval)  // [SyncSshFailureTests.md#AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedForARefusedRemoval]

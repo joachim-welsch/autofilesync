@@ -48,6 +48,20 @@ permission, so the server refuses both removals. The mirror's deletion is report
 remote file and "permission denied" instead of only "deleting failed", and the removal of an
 empty directory gives the same reason (SyncFileSsh.md#removal-refusal).
 
+## TimeAndRightsTheServerWouldNotSetAreReportedAndTheCopyStays
+
+The file on the server belongs to the user who runs the tests and is writable for everyone,
+so the SSH test user can overwrite it but may set neither its time nor its rights - a real
+refusal by the system, no injected one. The new content is there and counts as a copy, and
+the pass reports both, each with the path the user configured
+(SyncFileSsh.md#unkept-is-reported). Skipped where the SSH test user owns the file, because
+then nothing is refused.
+
+## AnUploadWhoseTimeAndRightsWereSetReportsNothing
+
+The counterpart: a file the SSH user creates is its own, time and rights are set, and the
+report stays empty - the new errors must not appear on an ordinary upload.
+
 ## read_only_mount
 
 The SSH test server is this machine, so a file system that is mounted read-only here is one
