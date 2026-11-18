@@ -14,6 +14,56 @@ Bounded retries: transient errors right after a copy settle quickly, but a persi
 thread to finish. A read-only file system is not tried again at all: waiting does not lift a
 write protection, and ten attempts are a second per file.
 
+## file-times-not-supported
+
+A place that cannot store file times at all answers "not supported" to every file. That is
+a hint of the pass, not an error per file (CopyLog.md#hints), and it is not retried. The
+hint says what follows from it: with a comparison by time such a copy looks newer than its
+source and is made again by every pass, so the item should compare by content.
+
+## compared
+
+What the comparison saw of both files - size and time, or that a file was not there - is
+kept for the copy that follows from it. A copy is made on the strength of that comparison,
+and between the two anything can happen to either file: an editor saves, another program
+writes, the other side of a two-way item is worked on. So the copy holds both files against
+what was seen (target-changed, copy-verified). A copy that does not come from a comparison
+of this pair - the two halves of a conflict copy, whose renames change both places on
+purpose - has nothing to hold them against and is not checked that way.
+
+## target-changed
+
+Right before a file is overwritten it is looked at once more. If it is no longer what the
+comparison saw - changed, or there where nothing was - it is left alone and reported as
+TargetFileChanged: overwriting it would destroy something nobody decided about. The next
+pass compares again, and a two-way item then sees the conflict it is. A target on a server
+is only asked again for a two-way item; a one-way item overwrites what is there by its
+nature, and the question costs a request per file.
+
+## copy-verified
+
+A copy counts once the two files are what they should be. The source is looked at again
+after the copy: if it is not what the comparison saw, the copy is of a file in motion and
+is discarded as SourceFileChanged - the next pass copies the file once it has come to rest.
+This also holds over SSH and for cloud stores, where a half-written source used to count as
+a success. Then the target: a local copy is compared byte by byte as before and named by
+what differs - FileSizeMismatch, or ChecksumMismatch for the same size with other content;
+a copy to or from a server is held by its size, which no store got wrong so far, where
+there was no check at all. Either way the old target comes back as after a failed copy.
+
+## torn-copy-on-a-server
+
+There is no old target to bring back on a server (restore_backup). A copy whose source
+changed under it therefore stays where it is: an upload that may be torn is more of a backup
+than no file at all, and removing it would leave a file that never rests - a log, a mailbox
+- missing on the server for good. It is still an error, and the next pass copies again.
+
+## copy-hooks
+
+Two calls a test can have made between the comparison and the copy and right after the
+copy, to do what another program would do at that moment: edit the target, edit the source,
+spoil what arrived. They exist in test builds only.
+
 ## restore_backup
 
 Removes a failed or aborted copy and puts the previous target back. The partial target lives
@@ -93,7 +143,8 @@ used to skip both, which silently dropped the father-son generations the user ha
 
 ## ssh-skips-verification-only
 
-SSH skips only the content verification below (TODO); Error/Stopped must still run the
+SSH skips only the content verification by bytes - size and source are checked for every
+copy (copy-verified); Error/Stopped must still run the
 cleanup/restore paths, or a failed transfer is reported as success - the caller would then e.g.
 delete the source (del_aftercopy).
 

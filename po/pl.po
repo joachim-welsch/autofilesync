@@ -2988,3 +2988,11 @@ msgstr "Zawartość nie zgadza się po skopiowaniu"
 #: Utilities/src/FilesystemUtil.cpp
 msgid "unsupported_operation"
 msgstr "Operacja nie jest tam obsługiwana"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "special_files_skipped"
+msgstr "Pominięto pliki specjalne (urządzenie, gniazdo, FIFO):"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "file_times_not_supported"
+msgstr "Nie można tam zapisać czasów plików; porównanie według czasu kopiuje te pliki ponownie przy każdym przebiegu:"

@@ -2987,3 +2987,11 @@ msgstr ""
 #: Utilities/src/FilesystemUtil.cpp
 msgid "unsupported_operation"
 msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "special_files_skipped"
+msgstr ""
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "file_times_not_supported"
+msgstr ""

@@ -112,7 +112,7 @@ void report_content_conflict(const wstring& source, const wstring& destination, 
     if (!content_conflicts.first_report(destination, conflict))
         return;
     log_error(translation::translate("content_conflict_not_copied"), source, L"<->", destination);
-    report_sync_error(translation::translate("content_conflict_not_copied") + L" " + source + L" <-> " + destination);
+    report_sync_refusal(translation::translate("content_conflict_not_copied") + L" " + source + L" <-> " + destination, fsu::FileInfoResult::FileConflict);
 }
 
 void report_both_modified(const wstring& source, const wstring& destination, bool conflict)  // [SyncFile.md#both-modified]
@@ -120,7 +120,7 @@ void report_both_modified(const wstring& source, const wstring& destination, boo
     if (!both_modified.first_report(destination, conflict))
         return;
     log_error(translation::translate("both_modified_not_copied"), source, L"<->", destination);
-    report_sync_error(translation::translate("both_modified_not_copied") + L" " + source + L" <-> " + destination);
+    report_sync_refusal(translation::translate("both_modified_not_copied") + L" " + source + L" <-> " + destination, fsu::FileInfoResult::FileConflict);
 }
 
 void report_kept_instead_of_deleted(const wstring& source, const wstring& destination, bool applies)  // [SyncFile.md#kept-instead-of-deleted]
@@ -202,7 +202,7 @@ fsu::FileInfoResult set_last_write_time(const fs::path& fn, const fs::file_time_
         if (Synchronize::stopping())
             return fsu::FileInfoResult::OK;
         log_debug(L"set_last_write_time: " + fsu::make_error_message(refusal));
-        if (refusal == fsu::FileInfoResult::ReadOnlyFilesystem)  // [SyncFile.md#bounded-retries] waiting does not lift a write protection
+        if (refusal == fsu::FileInfoResult::ReadOnlyFilesystem || refusal == fsu::FileInfoResult::UnsupportedOperation)  // [SyncFile.md#bounded-retries] waiting does not lift a write protection
             break;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -353,6 +353,11 @@ bool SyncFile::time_refused(const wstring& file, fsu::FileInfoResult refusal)  /
     if (refusal == fsu::FileInfoResult::OK)
         return false;
     unstamped_.insert(file);
+    if (refusal == fsu::FileInfoResult::UnsupportedOperation) {  // [SyncFile.md#file-times-not-supported]
+        log_info(translation::translate("file_time_not_settable") + file + L" (" + fsu::make_error_message(refusal) + L")");
+        report_sync_hint("file_times_not_supported", file);
+        return true;
+    }
     const wstring message = translation::translate("file_time_not_settable") + file + L" (" + fsu::make_error_message(refusal) + L")";
     log_error(message);
     report_sync_refusal(message, refusal);
@@ -414,22 +419,85 @@ void SyncFile::report_failed_copy(const wstring& src, const wstring& dest) const
     report_sync_refusal(translation::translate("copy_failed_for") + src + L" -> " + dest + (copy_failure_.text.empty() ? wstring() : L" (" + copy_failure_.text + L")"), copy_failure_.reason);
 }
 
+#ifdef _TEST
+static std::function<void()> before_copy_for_test, after_copy_for_test;
+
+void set_copy_hooks_for_test(std::function<void()> before, std::function<void()> after)  // [SyncFile.md#copy-hooks]
+{
+    before_copy_for_test = std::move(before);
+    after_copy_for_test = std::move(after);
+}
+#endif
+
+static bool same_state(const std::optional<ObservedFile>& one, const std::optional<ObservedFile>& other)  // [SyncFile.md#compared]
+{
+    if (!one || !other)
+        return one.has_value() == other.has_value();
+    return one->size == other->size && file_time::equal(one->time, other->time);
+}
+
+const std::optional<ObservedFile>* SyncFile::seen(const wstring& file) const  // [SyncFile.md#compared]
+{
+    if (!compared_ || (file != compared_->source && file != compared_->target))
+        return nullptr;
+    return file == compared_->source ? &compared_->source_seen : &compared_->target_seen;
+}
+
+bool SyncFile::target_changed(const wstring& dest) const  // [SyncFile.md#target-changed]
+{
+#ifdef _TEST
+    if (before_copy_for_test)
+        before_copy_for_test();
+#endif
+    const std::optional<ObservedFile>* compared = seen(dest);
+    const bool remote = get_account_from_path(dest).has_value();
+    if (compared == nullptr || (remote && !sync_item_.two_way_sync()))
+        return false;
+    return !same_state(*compared, observe_file(dest, remote)) && refused(dest, fsu::FileInfoResult::TargetFileChanged);
+}
+
+fsu::FileInfoResult SyncFile::copy_fault(const wstring& src, const wstring& dest, const std::optional<ObservedFile>& read) const  // [SyncFile.md#copy-verified]
+{
+    const bool src_remote = get_account_from_path(src).has_value();
+    const bool dest_remote = get_account_from_path(dest).has_value();
+    if (read && !same_state(read, observe_file(src, src_remote)))
+        return fsu::FileInfoResult::SourceFileChanged;
+    if (src_remote || dest_remote) {
+        const std::optional<ObservedFile> written = observe_file(dest, dest_remote);
+        return !read || (written && written->size == read->size) ? fsu::FileInfoResult::OK : fsu::FileInfoResult::FileSizeMismatch;
+    }
+    if (files_equal(src, dest))
+        return fsu::FileInfoResult::OK;
+    std::error_code ec;
+    return fs::file_size(src, ec) != fs::file_size(dest, ec) ? fsu::FileInfoResult::FileSizeMismatch : fsu::FileInfoResult::ChecksumMismatch;
+}
+
 bool SyncFile::save_copy_file(const wstring& src, const wstring& dest)
 {
     log_debug(L"save_copy_file");
+    const std::optional<ObservedFile>* compared = seen(src);
+    const std::optional<ObservedFile> read = compared != nullptr ? *compared : observe_file(src, get_account_from_path(src).has_value());  // [SyncFile.md#copy-verified]
     const wstring bak_filename = free_backup_name(dest);
     if (file_exists(dest) && refused(dest, fsu::rename_refusal(dest, bak_filename)))  // [SyncFile.md#backup-rename-failure]
         return false;
     const CopyResult copy_ok = core_copy_function(src, dest);
+#ifdef _TEST
+    if (copy_ok == CopyResult::OK && after_copy_for_test)
+        after_copy_for_test();
+#endif
+    const fsu::FileInfoResult fault = copy_ok == CopyResult::OK ? copy_fault(src, dest, read) : fsu::FileInfoResult::OK;
+    if (fault != fsu::FileInfoResult::OK) {  // [SyncFile.md#copy-verified]
+        log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_verification_differs"));
+        report_sync_refusal(fsu::make_error_message(fault) + L": " + (fault == fsu::FileInfoResult::SourceFileChanged ? src : dest), fault);
+        if (fault == fsu::FileInfoResult::SourceFileChanged && get_account_from_path(dest).has_value())  // [SyncFile.md#torn-copy-on-a-server]
+            discard_backup(bak_filename);
+        else
+            restore_backup(dest, bak_filename);
+        return false;
+    }
     if (ssh_ != SSHPATH::none && copy_ok == CopyResult::OK) {  // [SyncFile.md#ssh-skips-verification-only]
         discard_backup(bak_filename);
         return true;
-    }
-    if (copy_ok == CopyResult::OK && !files_equal(src, dest)) {
-        log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_verification_differs"));
-        report_sync_error(translation::translate("copied_file_differs") + dest);
-        restore_backup(dest, bak_filename);
-        return false;
     }
     if (copy_ok == CopyResult::Error) {
         report_failed_copy(src, dest);
@@ -544,6 +612,10 @@ void SyncFile::sync_difference(const FileDifference& fd, const wstring& source, 
     }
     if (kept && !ensure_parent_dir(*action, source, destination))
         return;
+    const bool source_there = fd.result() != FDResult::SourceNotExits && fd.result() != FDResult::SourceDeleted;
+    const bool target_there = fd.result() != FDResult::DestNotExists && fd.result() != FDResult::DestDeleted;
+    compared_ = Compared{source, destination, source_there ? std::optional(ObservedFile{fd.source_size(), fd.source_time()}) : std::nullopt,
+        target_there ? std::optional(ObservedFile{fd.dest_size(), fd.dest_time()}) : std::nullopt};  // [SyncFile.md#compared]
     carry_out(*action, fd, source, destination, filesize);
 }
 
@@ -678,7 +750,9 @@ bool SyncFile::perform(PlannedAction action, const FileDifference& fd, const wst
     case PlannedAction::DeleteInSource: return delete_source_file(source, destination);
     case PlannedAction::CopyToSource: return copy_dest_to_source(destination, source, fd.dest_size());  // [SyncFile.md#volume-is-target-size]
     case PlannedAction::ConflictCopyToTarget:
-    case PlannedAction::ConflictCopyToSource: return resolve_conflict(action, fd, source, destination);
+    case PlannedAction::ConflictCopyToSource:
+        compared_.reset();  // [SyncFile.md#compared] the renames of a conflict copy change both places on purpose
+        return resolve_conflict(action, fd, source, destination);
     case PlannedAction::RenameInTarget:
     case PlannedAction::RenameInSource:  // carried out by rename_instead() before anything reaches here
     case PlannedAction::CopyToTarget:
@@ -784,7 +858,7 @@ bool SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     #ifdef _WXWIDGETS
         Synchronize::set_progress_message(translation::translate("copy_progress", {source, destination}), source, size);
     #endif
-    if (copy_refused(source, destination, size))
+    if (copy_refused(source, destination, size) || target_changed(destination))
         return false;
     try {  // [SyncFile.md#failures-return-early]
         pre_copy(destination);
@@ -824,7 +898,7 @@ bool SyncFile::copy_dest_to_source(const wstring& destination, const wstring& so
     #ifdef _WXWIDGETS
         Synchronize::set_progress_message(translation::translate("copy_progress", {destination, source}), destination, size);
     #endif
-    if (copy_refused(destination, source, size))
+    if (copy_refused(destination, source, size) || target_changed(source))
         return false;
     try {
         pre_copy(source);

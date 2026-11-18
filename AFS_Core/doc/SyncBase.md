@@ -251,3 +251,13 @@ when it is a link to a file. The wildcard is for files; a link to a directory is
 a directory. A listing over SFTP does not say what a link leads to, so the server is asked -
 only for a link the wildcard would otherwise filter out, which keeps the extra round trips to
 the links that do not match.
+
+## special-files
+
+A socket, a FIFO or a device in the source is nothing to back up: it has no content that
+could be copied, and reading one can block for good. Every walk leaves them out the same
+way - they used to be an error in a directory item and nothing at all in a tree - and the
+pass says once how many there were (CopyLog.md#hints). A server's listing says of an entry
+only whether it is a file, a directory or a link, so there whatever is none of the three
+counts; locally the entry is asked, so that one that could not be looked at is not taken
+for a special file.

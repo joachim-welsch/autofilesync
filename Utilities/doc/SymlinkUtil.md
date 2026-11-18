@@ -27,7 +27,8 @@ listed but not searched names its entries and refuses every question about them;
 then gives no file type at all, and that - not the error code, which a missing entry sets as
 well - is what is taken for "no answer". The reason goes back in refusal, and nothing else
 in the answer means anything then. A link whose text cannot be read is refused the same way
-instead of being handed on with an empty text. The caller must not decide anything for such
+instead of being handed on with an empty text - with the reason the system gave, or as
+SymbolicLinkError when it gave none. The caller must not decide anything for such
 an entry (SyncLink.md#unasked).
 
 ## lexical

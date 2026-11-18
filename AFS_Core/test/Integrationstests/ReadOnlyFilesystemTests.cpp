@@ -355,6 +355,26 @@ TEST(SyncReportTests, AReadOnlyRefusalAbandonsTheReportOnce)  // [ReadOnlyFilesy
     EXPECT_FALSE(sync_abandoned());
 }
 
+TEST_F(ReadOnlyFilesystemTest, AHintOfAPassIsAWarningNoteAndNoError)  // [ReadOnlyFilesystemTests.md#AHintOfAPassIsAWarningNoteAndNoError]
+{
+    write_three_source_files();
+    fsu::set_write_time_error_for_test(std::make_error_code(std::errc::operation_not_supported));
+    Config::instance().reset();
+    Config::instance().add(item());
+
+    Synchronize* sync = Synchronize::create(SyncType::Single);
+    std::this_thread::sleep_for(milliseconds(800));
+    const std::vector<LogMessage> notes = sync->notes();
+    Synchronize::destroy();
+    const std::optional<LastRun> run = Config::instance().syncitems().at(0).last_run();
+
+    ASSERT_TRUE(run.has_value());
+    EXPECT_EQ(run->errors, 0u) << util::wstring_to_string(run->first_error);
+    ASSERT_EQ(notes.size(), 1u);
+    EXPECT_EQ(notes.front().level, LogLevel::Warning);
+    EXPECT_NE(notes.front().text.find(util::wstring_to_string(translation::translate("file_times_not_supported")) + " 3 ("), std::string::npos) << notes.front().text;
+}
+
 TEST(SyncReportTests, EveryReasonHasAReachAndTheItemWideOnesAbandon)  // [ReadOnlyFilesystemTests.md#EveryReasonHasAReachAndTheItemWideOnesAbandon]
 {
     using fsu::FileInfoResult;

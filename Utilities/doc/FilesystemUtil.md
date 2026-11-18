@@ -227,3 +227,19 @@ the last value - the test that every reason has a text of its own counts up to i
 The words for a reason, one text per value. The switch has no default branch, so the
 compiler names a value that was added without a text. OK and UnknownError share "unknown
 error": a caller that asks for the text of "no failure" has lost its reason.
+
+## unsupported
+
+"Not supported" is the answer of a place that cannot do what was asked - store a file time,
+keep rights, hold a link - and no failure of the file. reason_for_failure() names it
+UnsupportedOperation, so that the caller can tell it once for the pass instead of once per
+file (CopyLog.md#hints). The two callers that already knew the answer keep their own reading
+of it: no rights to lose (permissions_refusal), no links there (SymlinkUtil.md#create_link_refusal).
+
+## not-a-file
+
+fileinfo() answers for files. A directory, a socket, a FIFO or a device under the name is
+InvalidFileType: it has no size to compare and nothing to copy, and on Windows a directory
+used to pass for a file of no bytes - the copy that followed would have moved it aside as
+the old version of the file. The caller reports it for the side it lies on and leaves it
+alone (FileDifference.md#not-readable).

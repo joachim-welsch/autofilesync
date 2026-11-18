@@ -444,6 +444,10 @@ void Synchronize::report_sync_item(SyncItem& i)
         run_sync_item(i);
     }
     const std::size_t files = count_files_ - files_before;
+    for (const wstring& line : report.hint_lines()) {  // [CopyLog.md#hints]
+        log_warning(line);
+        note(LogLevel::Warning, line);
+    }
     Config::instance().record_last_run(i.name(), last_run_of(i, report));  // [Synchronize.md#record_last_run]
     if (!i.backup_proof() || Config::instance().settings().backup_proof_path().empty() || (files == 0 && report.empty()))
         return;

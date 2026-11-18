@@ -102,6 +102,11 @@ the check before the pass: the first file does not fit, and the error is the wri
 protection with the note about the skipped rest, not a shortage
 (SyncFile.md#no-room-on-a-read-only-drive).
 
+## AHintOfAPassIsAWarningNoteAndNoError
+
+One pass of the real Synchronize in which no file time can be stored: the last run has no
+error, and the pass leaves one warning note with the number of files (CopyLog.md#hints).
+
 ## EveryReasonHasAReachAndTheItemWideOnesAbandon
 
 The table of reaches by itself (CopyLog.md#reach): each reason that holds for the whole side

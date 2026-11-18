@@ -425,6 +425,8 @@ void SyncBase::sync_dir_entry(const fs::directory_entry& dir_entry, const wstrin
         log_debug(L"sync_dir_entry: uebersprungen " + filename);
         return;
     }
+    if (!symlink && dir_entry.is_other(ec))  // [SyncBase.md#special-files]
+        return report_sync_hint("special_files_skipped", dir_entry.path().wstring());
     if (symlink && system_link_skipped(dir_entry.path().wstring()))
         return;
     const wstring target = with_trailing_char(destination, sync_item_.ssh_target() ? L'/' : DIR_SEPARATOR) + filename;

@@ -21,6 +21,7 @@
 #include "FileDifference.h"
 #include "SyncPlan.h"
 #include <FilesystemUtil.h>
+#include <functional>
 #include <optional>
 #include <set>
 #ifdef _TEST
@@ -34,6 +35,10 @@ struct CopyFailure {  // [SyncFile.md#copy-failure-reason]
     std::wstring text;
 };
 
+#ifdef _TEST
+void set_copy_hooks_for_test(std::function<void()> before, std::function<void()> after);  // [SyncFile.md#copy-hooks]
+#endif
+
 class SyncFile: public SyncBase {
     bool transfer_filename_ = false;
     std::wstring state_key_;  // [SyncFile.md#state]
@@ -41,6 +46,16 @@ class SyncFile: public SyncBase {
     bool copy_source_to_dest(const std::wstring& source, const std::wstring& destination, uint64_t size);
     bool copy_dest_to_source(const std::wstring& destination, const std::wstring& source, uint64_t size);
     bool save_copy_file(const std::wstring& src, const std::wstring& dest);
+    struct Compared {  // [SyncFile.md#compared]
+        std::wstring source;
+        std::wstring target;
+        std::optional<ObservedFile> source_seen;
+        std::optional<ObservedFile> target_seen;
+    };
+    std::optional<Compared> compared_;  // [SyncFile.md#compared]
+    const std::optional<ObservedFile>* seen(const std::wstring& file) const;  // [SyncFile.md#compared]
+    bool target_changed(const std::wstring& dest) const;  // [SyncFile.md#target-changed]
+    fsu::FileInfoResult copy_fault(const std::wstring& src, const std::wstring& dest, const std::optional<ObservedFile>& read) const;  // [SyncFile.md#copy-verified]
     CopyResult core_copy_function(const std::wstring& src, const std::wstring& dest);
     CopyFailure copy_failure_;  // [SyncFile.md#copy-failure-reason]
     void pre_copy(const std::wstring& dest);

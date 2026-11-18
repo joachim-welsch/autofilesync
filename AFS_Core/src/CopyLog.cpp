@@ -232,6 +232,27 @@ void report_sync_refusal(const wstring& message, fsu::FileInfoResult refusal)  /
     current_report->abandon(message);
 }
 
+void SyncReport::hint(const char* message_id, const wstring& example)  // [CopyLog.md#hints]
+{
+    Hint& hint = hints_[message_id];
+    if (hint.count++ == 0)
+        hint.first = example;
+}
+
+std::vector<wstring> SyncReport::hint_lines() const  // [CopyLog.md#hints]
+{
+    std::vector<wstring> lines;
+    for (const auto& [message_id, hint] : hints_)
+        lines.push_back(translation::translate(message_id.c_str()) + L" " + std::to_wstring(hint.count) + L" (" + hint.first + L")");
+    return lines;
+}
+
+void report_sync_hint(const char* message_id, const wstring& example)  // [CopyLog.md#hints]
+{
+    if (current_report != nullptr)
+        current_report->hint(message_id, example);
+}
+
 bool sync_abandoned()  // [CopyLog.md#abandon]
 {
     return current_report != nullptr && current_report->abandoned();

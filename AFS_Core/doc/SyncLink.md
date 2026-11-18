@@ -99,7 +99,8 @@ The link is first created beside its place, under "<name>.afs-link", and read ba
 the text is what was asked for is the old target touched. A file system without links refuses
 at this first step, so on a FAT drive or without the privilege on Windows nothing in the
 target is renamed, pass after pass. The read-back also catches a file system or server that
-takes the request and stores something else. A leftover of that name from a run that was
+takes the request and stores something else, which is a SymbolicLinkError: the place took a
+link, only not this one. A leftover of that name from a run that was
 killed is the sync's own and is removed first. Then the old target is parked, the prepared
 link renamed into place and the parked target discarded; if the rename fails, the parked
 target comes back.

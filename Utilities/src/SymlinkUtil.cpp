@@ -146,7 +146,8 @@ LinkInfo link_info(const fs::path& path)  // [SymlinkUtil.md#link_info]
         return {};
     const fs::file_status target = fs::status(path, ec);
     const fs::path text = fs::read_symlink(path, ec);
-    return {true, text, fs::exists(target), fs::is_directory(target), ec ? FilesystemUtil::reason_for_failure(ec) : FileInfoResult::OK};
+    const FileInfoResult unread = ec ? FilesystemUtil::reason_for_failure(ec) : FileInfoResult::OK;
+    return {true, text, fs::exists(target), fs::is_directory(target), unread == FileInfoResult::ErrorReadFileInfo ? FileInfoResult::SymbolicLinkError : unread};  // [SymlinkUtil.md#link_info-refusal]
 }
 
 fs::path portable_link_text(const fs::path& link, const fs::path& text, const fs::path& root)  // [SymlinkUtil.md#portable_link_text]

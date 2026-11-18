@@ -21,6 +21,8 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include <map>
+#include <string>
 #include <vector>
 #include "SyncItem.h"
 #include "Global.h"
@@ -40,11 +42,21 @@ class SyncReport {
     } shortage_;
     bool abandoned_ = false;  // [CopyLog.md#abandon]
 public:
+    struct Hint {  // [CopyLog.md#hints]
+        std::size_t count = 0;
+        std::wstring first;
+    };
+private:
+    std::map<std::string, Hint> hints_;
+public:
     static constexpr std::size_t MAX_ERRORS = 100;
     void transferred(uint64_t bytes) { bytes_transfered_ += bytes; }
     void error(const std::wstring& message);
     void abandon(const std::wstring& message);  // [CopyLog.md#abandon]
     bool abandoned() const { return abandoned_; }
+    void hint(const char* message_id, const std::wstring& example);  // [CopyLog.md#hints]
+    const std::map<std::string, Hint>& hints() const { return hints_; }
+    std::vector<std::wstring> hint_lines() const;  // [CopyLog.md#hints]
     void shortage(const std::wstring& file, uint64_t needed, uint64_t available, fsu::FileInfoResult reason = fsu::FileInfoResult::DiskFull);  // [CopyLog.md#shortage]
     uint64_t bytes_transferd() const { return bytes_transfered_; }
     const WStringVector& errors() const { return errors_; }
@@ -66,6 +78,7 @@ Reach reach_of(fsu::FileInfoResult reason);  // [CopyLog.md#reach]
 void report_sync_error(const std::wstring& message);  // [CopyLog.md#report_sync_error]
 void report_sync_refusal(const std::wstring& message, fsu::FileInfoResult refusal);  // [CopyLog.md#abandon]
 bool sync_abandoned();  // [CopyLog.md#abandon]
+void report_sync_hint(const char* message_id, const std::wstring& example);  // [CopyLog.md#hints]
 void report_sync_shortage(const std::wstring& file, uint64_t needed, uint64_t available, fsu::FileInfoResult reason = fsu::FileInfoResult::DiskFull);  // [CopyLog.md#shortage]
 void report_sync_volume(uint64_t bytes);
 

@@ -2988,3 +2988,11 @@ msgstr "Вміст не збігається після копіювання"
 #: Utilities/src/FilesystemUtil.cpp
 msgid "unsupported_operation"
 msgstr "Операція там не підтримується"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "special_files_skipped"
+msgstr "Пропущено спеціальні файли (пристрій, сокет, FIFO):"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "file_times_not_supported"
+msgstr "Час файлів там не зберігається; порівняння за часом копіює ці файли знову під час кожного запуску:"

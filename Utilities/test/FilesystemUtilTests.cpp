@@ -23,6 +23,10 @@
 #include <FileTime.h>
 #include <SystemInfo.h>
 #include <cerrno>
+#ifndef _WIN32
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 #include <chrono>
 #include <stdexcept>
 #include <FileTime.h>
@@ -190,6 +194,25 @@ TEST(FilesystemUtilTests, ReasonForFailureTellsLockedFromRefusedFromMissing)  //
     EXPECT_EQ(fsu::reason_for_failure(std::error_code(EDQUOT, std::generic_category())), FileInfoResult::DiskFull) << "a used-up quota is a full disk to the user";
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::text_file_busy)), FileInfoResult::FileLocked);
     EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(std::errc::device_or_resource_busy)), FileInfoResult::FileLocked);
+#endif
+}
+
+TEST(FilesystemUtilTests, WhatThePlaceCannotDoAndWhatIsNoFileAreReasonsOfTheirOwn)  // [FilesystemUtilTests.md#WhatThePlaceCannotDoAndWhatIsNoFileAreReasonsOfTheirOwn]
+{
+    using fsu::FileInfoResult;
+    for (const std::errc unsupported : {std::errc::not_supported, std::errc::operation_not_supported, std::errc::function_not_supported}) {
+        EXPECT_EQ(fsu::reason_for_failure(std::make_error_code(unsupported)), FileInfoResult::UnsupportedOperation);
+        EXPECT_EQ(fsu::reason_for_write_failure(std::make_error_code(unsupported)), FileInfoResult::UnsupportedOperation);
+    }
+    uint64_t size = 0;
+    std::filesystem::file_time_type time;
+    EXPECT_EQ(fsu::fileinfo(std::filesystem::temp_directory_path().wstring(), size, time), FileInfoResult::InvalidFileType) << "ein Verzeichnis ist keine Datei";
+#ifndef _WIN32
+    const std::filesystem::path pipe = std::filesystem::temp_directory_path() / ("afs_fifo_" + std::to_string(getpid()));
+    ASSERT_EQ(mkfifo(pipe.c_str(), 0600), 0);
+    const FileInfoResult of_pipe = fsu::fileinfo(pipe.wstring(), size, time);
+    std::filesystem::remove(pipe);
+    EXPECT_EQ(of_pipe, FileInfoResult::InvalidFileType);
 #endif
 }
 

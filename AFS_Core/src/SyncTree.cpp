@@ -192,6 +192,14 @@ void SyncTree::sync_entry(const Entry& entry, const wstring& sourcename, const w
         sync_subtree(entry.name, sourcename, targetname, wildcard, target_dirs);
     else if (entry.is_regular_file)
         sync_file_entry(entry.name, sourcename, targetname, wildcard);
+    else if (!entry.is_symlink && special_file(source))  // [SyncBase.md#special-files]
+        report_sync_hint("special_files_skipped", source);
+}
+
+bool SyncTree::special_file(const wstring& source) const  // [SyncBase.md#special-files]
+{
+    std::error_code ec;
+    return sync_item_.ssh_source() || fs::is_other(fs::symlink_status(source, ec));
 }
 
 void SyncTree::sync_link_entry(const Entry& entry, const wstring& source, const wstring& targetname, const wstring& wildcard)  // [SyncTree.md#links-as-links]

@@ -203,3 +203,9 @@ long one always threw. Both throw now, and write_private_file() says no
 
 /proc is a file system of size zero. Its "0 bytes free" must come back as no answer, not as
 a full disk; the temp directory has an answer.
+
+## WhatThePlaceCannotDoAndWhatIsNoFileAreReasonsOfTheirOwn
+
+The three codes the systems have for "not supported" map to UnsupportedOperation for reads
+and writes. fileinfo() answers InvalidFileType for a directory and for a FIFO, which it
+must not open to find out (FilesystemUtil.md#not-a-file).

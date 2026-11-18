@@ -105,6 +105,19 @@ Two files for a server directory the SSH test user may not write to: each is "co
 with "permission denied" in brackets, and the pass goes on to the second - a missing right
 concerns the file, not the server.
 
+## AnUploadThatArrivedWithAnotherSizeIsAFailedCopy
+
+Right after the upload the file on the server is replaced by a shorter one. An upload that
+reported no error used to count whatever lay there; now the size is asked for, the copy is
+a FileSizeMismatch and the file is removed like a half-written one
+(SyncFile.md#copy-verified).
+
+## ASourceChangedDuringAnUploadIsReportedAndTheCopyStays
+
+The local source is rewritten right after the upload, as if it had still been written to.
+The pass reports SourceFileChanged and counts no copy, and what arrived on the server stays
+(SyncFile.md#torn-copy-on-a-server).
+
 ## ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks
 
 The server directory belongs to the user who runs the tests, so the SSH test user may not

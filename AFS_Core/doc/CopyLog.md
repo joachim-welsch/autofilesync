@@ -27,6 +27,17 @@ a size, a tally - so their callers report them through the calls made for that;
 report_sync_refusal() only acts on the reach "item" and takes every other reason for an
 ordinary error.
 
+## hints
+
+What a pass has to say that is no failure: something the place cannot do, something that was
+left out on purpose. A line per file would bury it, and an error would make a run fail that
+did all it could. So the report counts per kind and keeps the first example;
+Synchronize turns each kind into one warning with the number and that example, in the log
+and as a note for the user (Synchronize.md#notes), and the run stays successful. The sync
+classes report a hint from wherever they are, as they report an error; without a report it
+is dropped. The links have their own tally of this shape, kept by the pass itself
+(SyncBase.md#report_links).
+
 ## abandon
 
 A refusal that holds for the whole drive or server ends the item's pass (reach): after

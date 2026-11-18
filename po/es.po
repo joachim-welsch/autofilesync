@@ -2988,3 +2988,11 @@ msgstr "El contenido no coincide tras la copia"
 #: Utilities/src/FilesystemUtil.cpp
 msgid "unsupported_operation"
 msgstr "La operación no se admite allí"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "special_files_skipped"
+msgstr "Se omitieron archivos especiales (dispositivo, socket, FIFO):"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "file_times_not_supported"
+msgstr "Las fechas de archivo no se pueden guardar allí; una comparación por fecha vuelve a copiar estos archivos en cada ejecución:"

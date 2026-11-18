@@ -95,7 +95,7 @@ FileInfoResult created_and_read_back(const fs::path& text, const wstring& at, bo
     if (refusal != FileInfoResult::OK || stored_text(at, ssh) == text)
         return refusal;
     discard(at, ssh);
-    return FileInfoResult::ErrorWriteFileInfo;
+    return FileInfoResult::SymbolicLinkError;  // [SyncLink.md#create] a link is there, but not the one that was asked for
 }
 
 void report(const wstring& message, FileInfoResult refusal = FileInfoResult::ErrorWriteFileInfo)
@@ -319,7 +319,7 @@ void SyncLink::resolve_conflict(const Side& here, const Side& there)  // [SyncLi
         const wstring message = translation::translate("both_modified_not_copied") + L" " + source_.path + L" <-> " + target_.path;
         if (first_conflict(target_.path))
             log_error(message);
-        report_sync_error(message);
+        report_sync_refusal(message, FileInfoResult::FileConflict);
         return;
     }
     if (blocked_by_directory(there, target_))

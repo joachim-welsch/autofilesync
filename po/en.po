@@ -3021,3 +3021,11 @@ msgstr "Content does not match after copying"
 #: Utilities/src/FilesystemUtil.cpp
 msgid "unsupported_operation"
 msgstr "Operation is not supported there"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "special_files_skipped"
+msgstr "Special files (device, socket, FIFO) were skipped:"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "file_times_not_supported"
+msgstr "File times cannot be stored there; a comparison by time copies these files again with every run:"

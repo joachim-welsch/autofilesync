@@ -110,3 +110,40 @@ SyncFile.md#rights-catch-up. While the rights cannot be set every pass says so; 
 that sets them and copies nothing. The last pass shows where the catching up ends: rights the
 user changes in the target afterwards are left alone, because only a pair whose rights failed
 is remembered. Sits among the Unix tests, as it compares permission bits.
+
+## FileTimeThePlaceCannotStoreIsAHintAndNoError
+
+Two files copied to a place that answers "not supported" to the file time: the copies
+count, the report has no error, and the hint counts both files in one line
+(SyncFile.md#file-times-not-supported).
+
+## ASpecialFileIsSkippedWithAHintInDirectoryAndTreeItems
+
+A FIFO beside a file in the source, once as a directory item and once as a tree: both leave
+it out, report nothing as an error and count it as a hint - the directory item used to
+report "error reading the file information", the tree nothing (SyncBase.md#special-files).
+
+## ADirectoryWhereTheTargetFileShouldBeIsNamedAndLeftAlone
+
+A file in the source and a directory of the same name in the target. The pair is one error
+that names the target as "not a regular file"; the directory and what is in it stay, and
+nothing is moved aside (FilesystemUtil.md#not-a-file).
+
+## ATargetChangedSinceTheComparisonIsNotOverwritten
+
+Between the comparison and the copy the target gets new content (SyncFile.md#copy-hooks),
+once over an older file and once where no file was. Both times nothing is overwritten, the
+new content is still there and the error is TargetFileChanged with the target's path
+(SyncFile.md#target-changed).
+
+## ASourceChangedSinceTheComparisonIsNotTakenForCopied
+
+The source is rewritten between the comparison and the copy. The copy is discarded as
+SourceFileChanged with the source's path, and the pass after it, with nothing interfering,
+copies the new content and reports nothing (SyncFile.md#copy-verified).
+
+## ACopyOfAnotherSizeOrContentIsNamedAsSuchAndTheOldTargetComesBack
+
+Right after the copy the target is replaced by something shorter, then by something of the
+same length with other bytes: FileSizeMismatch and ChecksumMismatch, each with the target's
+path, and each time the old target is back in place.

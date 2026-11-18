@@ -2988,3 +2988,11 @@ msgstr "Le contenu ne correspond pas après la copie"
 #: Utilities/src/FilesystemUtil.cpp
 msgid "unsupported_operation"
 msgstr "Opération non prise en charge à cet endroit"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "special_files_skipped"
+msgstr "Fichiers spéciaux (périphérique, socket, FIFO) ignorés :"
+
+#: AFS_Core/src/CopyLog.cpp
+msgid "file_times_not_supported"
+msgstr "Les dates de fichier ne peuvent pas y être enregistrées ; une comparaison par date recopie ces fichiers à chaque exécution :"

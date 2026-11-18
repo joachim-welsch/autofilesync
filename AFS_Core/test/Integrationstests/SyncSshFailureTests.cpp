@@ -23,6 +23,7 @@
 #include "FileUtil.h"
 #include "SshHostKeyVerification.h"
 #include "SshTest.h"
+#include "SyncFile.h"
 #include "SyncFileSsh.h"
 #include "SyncItem.h"
 #include "SyncLink.h"
@@ -81,6 +82,7 @@ protected:
     {
         for (const std::string& name : {PLAIN_ACCOUNT, PINNED_ACCOUNT})
             remove_account(name);
+        set_copy_hooks_for_test(nullptr, nullptr);
         std::error_code ec;
         fs::permissions(server_dir_, fs::perms::owner_all, ec);
         fs::remove_all(root_, ec);
@@ -383,6 +385,46 @@ TEST_F(SyncSshFailureTest, AnUploadTheServerRefusesNamesTheReason)  // [SyncSshF
         EXPECT_NE(error.find(translation::translate("copy_failed_for")), std::wstring::npos) << error;
         EXPECT_NE(error.find(fsu::make_error_message(fsu::FileInfoResult::PermissionDenied)), std::wstring::npos) << error;
     }
+}
+
+TEST_F(SyncSshFailureTest, AnUploadThatArrivedWithAnotherSizeIsAFailedCopy)  // [SyncSshFailureTests.md#AnUploadThatArrivedWithAnotherSizeIsAFailedCopy]
+{
+    tu::write_text_file(local_dir_ / "a.txt", "zwanzig Bytes Inhalt.");
+    fs::permissions(server_dir_, fs::perms::all);
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source((local_dir_ / "a.txt").wstring());
+    si.target(on_server(PLAIN_ACCOUNT) + L"/a.txt");
+    set_copy_hooks_for_test(nullptr, [&] { fs::remove(server_dir_ / "a.txt"); std::ofstream(server_dir_ / "a.txt", std::ios::binary) << "kurz"; });
+
+    const Outcome outcome = run(si);
+    set_copy_hooks_for_test(nullptr, nullptr);
+
+    EXPECT_EQ(outcome.copies, 0u) << "bisher galt jede Uebertragung ohne Fehlermeldung als gelungen";
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_NE(outcome.report.errors().front().find(fsu::make_error_message(fsu::FileInfoResult::FileSizeMismatch)), std::wstring::npos) << outcome.report.errors().front();
+    EXPECT_FALSE(fs::exists(server_dir_ / "a.txt")) << "die abweichende Datei wird wie eine halbe entfernt";
+}
+
+TEST_F(SyncSshFailureTest, ASourceChangedDuringAnUploadIsReportedAndTheCopyStays)  // [SyncSshFailureTests.md#ASourceChangedDuringAnUploadIsReportedAndTheCopyStays]
+{
+    tu::write_text_file(local_dir_ / "a.txt", "erster Stand", seconds(60));
+    fs::permissions(server_dir_, fs::perms::all);
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source((local_dir_ / "a.txt").wstring());
+    si.target(on_server(PLAIN_ACCOUNT) + L"/a.txt");
+    set_copy_hooks_for_test(nullptr, [&] { tu::write_text_file(local_dir_ / "a.txt", "zweiter, laengerer Stand"); });
+
+    const Outcome outcome = run(si);
+    set_copy_hooks_for_test(nullptr, nullptr);
+
+    EXPECT_EQ(outcome.copies, 0u);
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    EXPECT_NE(outcome.report.errors().front().find(fsu::make_error_message(fsu::FileInfoResult::SourceFileChanged)), std::wstring::npos) << outcome.report.errors().front();
+    EXPECT_EQ(tu::read_text_file(server_dir_ / "a.txt"), "erster Stand") << "auf dem Server gibt es kein altes Ziel zum Zurueckholen: die Kopie bleibt";
 }
 
 TEST_F(SyncSshFailureTest, ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks)  // [SyncSshFailureTests.md#ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks]

@@ -212,6 +212,8 @@ FileInfoResult reason_for_failure(const std::error_code& ec)  // [FilesystemUtil
         return FileInfoResult::DiskFull;
     if (ec == std::errc::permission_denied)
         return FileInfoResult::PermissionDenied;
+    if (ec == std::errc::not_supported || ec == std::errc::operation_not_supported || ec == std::errc::function_not_supported)  // [FilesystemUtil.md#unsupported]
+        return FileInfoResult::UnsupportedOperation;
     return ec == std::errc::no_such_file_or_directory ? FileInfoResult::FileNotExist : FileInfoResult::ErrorReadFileInfo;
 }
 
@@ -341,6 +343,8 @@ FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_
         const FileInfoResult reason = reason_for_failure(std::error_code(static_cast<int>(GetLastError()), std::system_category()));
         return reason == FileInfoResult::ErrorReadFileInfo ? FileInfoResult::CannotReadFileAttributes : reason;
     }
+    if ((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)  // [FilesystemUtil.md#not-a-file]
+        return FileInfoResult::InvalidFileType;
     SYSTEMTIME st_utc;
     if (!FileTimeToSystemTime(&data.ftLastWriteTime, &st_utc))
         return FileInfoResult::InvalidFileTime;
@@ -357,10 +361,13 @@ FileInfoResult fileinfo(const std::wstring& fname, uint64_t& filesize, fs::file_
 FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, fs::file_time_type& last_write_time)
 {
     std::error_code ec;
-    if (fs::status(fpathname, ec).type() == fs::file_type::not_found)
+    const fs::file_status entry = fs::status(fpathname, ec);
+    if (entry.type() == fs::file_type::not_found)
         return reason_for_missing(fpathname);
     if (ec)
         return reason_for_failure(ec);
+    if (!fs::is_regular_file(entry))  // [FilesystemUtil.md#not-a-file]
+        return FileInfoResult::InvalidFileType;
     try {
         filesize = fs::file_size(fpathname);
         last_write_time = fs::last_write_time(fpathname);

@@ -48,6 +48,8 @@ bool SyncDir::followed_file_link(const SshDirEntry& entry, const wstring& source
 
 bool SyncDir::filtered(const SshDirEntry& entry, const wstring& source_path, const wstring& wildcard) const
 {
+    if (!entry.is_regular_file && !entry.is_directory && !entry.is_symlink)  // [SyncBase.md#special-files]
+        report_sync_hint("special_files_skipped", util::with_trailing_char(source_path, L'/') + entry.name);
     if (!entry.is_regular_file && !followed_file_link(entry, source_path))
         return true;
     return (!wildcard.empty() && !wildmatch(entry.name, wildcard)) || is_excluded(entry.name, sync_item_.exclusions());
