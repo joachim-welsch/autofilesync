@@ -216,17 +216,28 @@ What SyncLink needs of a server (SyncLink.md#places). ssh_link_info() asks for t
 (lstat) and, for a link, its text and whether it leads to a directory; an entry that is not
 there is an answer, a question that failed is none, and the caller must not take the one for
 the other. ssh_create_link() creates a link with a text. A server that answers "not supported"
-or "permission denied" does not let links be created there - OpenSSH passes on the "operation
-not permitted" of a FAT drive as "permission denied" - and that is LinksNotSupported, which the
-caller reports once per pass instead of once per link; a directory that is really read-only
-shows itself in the files of the same pass. OpenSSH takes the two arguments of the request in
+does not let links be created there, and that is LinksNotSupported, which the caller reports
+once per pass instead of once per link; "permission denied" can mean the same or not
+(links-refused). OpenSSH takes the two arguments of the request in
 the reverse order of the protocol; libssh knows that, and SyncLink reads every link back
 before it uses it. A cloud account has no links: ssh_keeps_links() says so, and the two calls
 answer accordingly.
 
+## links-refused
+
+OpenSSH passes on the "operation not permitted" of a FAT drive as "permission denied" - the
+same words it has for a directory the user may not write to. The two must not be mixed up:
+the first is a warning once per pass, the second an error that would otherwise never be
+told when the pass has nothing but links to carry there. So after "permission denied" the
+place is tried with an ordinary file, created under the name the link was to get - which is
+free, since it is the link's own preparation name (SyncLink.md#create) - and removed at
+once. A directory that takes the file has no links; one that refuses it too lacks the right,
+and that is PermissionDenied. Any other failure asks whether the drive is read-only
+(ssh_read_only_filesystem). The probe costs two requests per refused link.
+
 ## links-windows
 
-The libssh2 branch does what the libssh one does, with one difference: libssh2 does not know
+The libssh2 branch does what the libssh one does, links-refused included, with one difference: libssh2 does not know
 that OpenSSH takes the two arguments of the request in the reverse order. So the link is
 created with the text first, as OpenSSH wants it, and read back. If no link with that text
 lies at the place, a server that kept to the protocol has created a link named like the text

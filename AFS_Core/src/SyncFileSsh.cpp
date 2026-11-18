@@ -732,6 +732,14 @@ std::optional<SshLink> ssh_link_info(const std::wstring& path)  // [SyncFileSsh.
     return sftp_get_error(connection.sftp()) == SSH_FX_NO_SUCH_FILE ? std::optional<SshLink>(SshLink{}) : std::nullopt;
 }
 
+static bool takes_files(const SftpConnection& connection, const std::string& at)  // [SyncFileSsh.md#links-refused]
+{
+    const bool created = static_cast<bool>(connection.open(at, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR));
+    if (created)
+        sftp_unlink(connection.sftp(), at.c_str());
+    return created;
+}
+
 fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring& at)  // [SyncFileSsh.md#links]
 {
     SftpConnection connection;
@@ -742,9 +750,13 @@ fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring
         return fsu::FileInfoResult::OK;
     const int refusal = sftp_get_error(connection.sftp());
     log_debug(L"ssh_create_link: " + at + L" - " + string_to_wstring(connection.error()));
-    if (refusal == SSH_FX_OP_UNSUPPORTED || refusal == SSH_FX_PERMISSION_DENIED)  // [SyncFileSsh.md#links]
+    if (refusal == SSH_FX_OP_UNSUPPORTED)  // [SyncFileSsh.md#links]
         return fsu::FileInfoResult::LinksNotSupported;
-    return refusal == SSH_FX_NO_SUCH_FILE ? fsu::FileInfoResult::FileNotExist : fsu::FileInfoResult::ErrorWriteFileInfo;
+    if (refusal == SSH_FX_PERMISSION_DENIED)  // [SyncFileSsh.md#links-refused]
+        return takes_files(connection, *remote_path) ? fsu::FileInfoResult::LinksNotSupported : fsu::FileInfoResult::PermissionDenied;
+    if (refusal == SSH_FX_NO_SUCH_FILE)
+        return fsu::FileInfoResult::FileNotExist;
+    return remote_read_only(connection, *remote_path) ? fsu::FileInfoResult::ReadOnlyFilesystem : fsu::FileInfoResult::ErrorWriteFileInfo;
 }
 #else
 #ifdef _WIN32
@@ -1729,12 +1741,26 @@ static bool stray_link_removed(LIBSSH2_SFTP* sftp, const std::string& text, cons
     return link_text_at(sftp, text) == at && libssh2_sftp_unlink(sftp, text.c_str()) == 0;
 }
 
-static fsu::FileInfoResult link_refusal(LIBSSH2_SFTP* sftp)
+static bool takes_files(LIBSSH2_SFTP* sftp, const std::string& at)  // [SyncFileSsh.md#links-refused]
+{
+    LIBSSH2_SFTP_HANDLE* probe = libssh2_sftp_open(sftp, at.c_str(), LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_EXCL, LIBSSH2_SFTP_S_IRUSR | LIBSSH2_SFTP_S_IWUSR);
+    if (probe == nullptr)
+        return false;
+    libssh2_sftp_close(probe);
+    libssh2_sftp_unlink(sftp, at.c_str());
+    return true;
+}
+
+static fsu::FileInfoResult link_refusal(LIBSSH2_SFTP* sftp, const std::string& at)
 {
     const unsigned long refusal = libssh2_sftp_last_error(sftp);
-    if (refusal == LIBSSH2_FX_OP_UNSUPPORTED || refusal == LIBSSH2_FX_PERMISSION_DENIED)
+    if (refusal == LIBSSH2_FX_OP_UNSUPPORTED)
         return fsu::FileInfoResult::LinksNotSupported;
-    return refusal == LIBSSH2_FX_NO_SUCH_FILE ? fsu::FileInfoResult::FileNotExist : fsu::FileInfoResult::ErrorWriteFileInfo;
+    if (refusal == LIBSSH2_FX_PERMISSION_DENIED)  // [SyncFileSsh.md#links-refused]
+        return takes_files(sftp, at) ? fsu::FileInfoResult::LinksNotSupported : fsu::FileInfoResult::PermissionDenied;
+    if (refusal == LIBSSH2_FX_NO_SUCH_FILE)
+        return fsu::FileInfoResult::FileNotExist;
+    return remote_read_only(sftp, at) ? fsu::FileInfoResult::ReadOnlyFilesystem : fsu::FileInfoResult::ErrorWriteFileInfo;
 }
 
 static int sftp_symlink(LIBSSH2_SFTP* sftp, const std::string& first, std::string second)  // by value: libssh2 before 1.11 declares the second path as char*
@@ -1745,7 +1771,7 @@ static int sftp_symlink(LIBSSH2_SFTP* sftp, const std::string& first, std::strin
 static fsu::FileInfoResult created_link(LIBSSH2_SFTP* sftp, const std::string& text, const std::string& at)  // [SyncFileSsh.md#links-windows]
 {
     if (sftp_symlink(sftp, text, at) != 0)
-        return link_refusal(sftp);
+        return link_refusal(sftp, at);
     if (link_text_at(sftp, at) == text)
         return fsu::FileInfoResult::OK;
     if (!stray_link_removed(sftp, text, at) || sftp_symlink(sftp, at, text) != 0)

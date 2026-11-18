@@ -144,3 +144,17 @@ made, or the link was copied before the item moved. The source link goes
 (SyncBase.md#completes_moves); a link that says something else is carried over and then
 removed, as always.
 
+## ALinkWhoseTargetSideCannotBeAskedIsReportedAndNotDeletedInTheSource
+
+A two-way item whose link is in sync, then the target directory loses its search permission:
+the pass sees the name of the target link but gets no answer about it. That used to read as
+"deleted in the target", and the source link went into the recycle bin. Now the link is an
+error with its reason and both links are still there (SyncLink.md#unasked). The file beside
+it is refused as before and adds an error of its own, so the link's line is looked for
+rather than counted alone. A recycle bin of the test's own keeps a deletion that should not
+happen away from the user's.
+
+## ALinkWhoseSourceSideCannotBeAskedIsReportedAndNotDeletedInTheTarget
+
+The same from the other side for a mirroring item ("delete in target"): a source directory
+that cannot be searched must not make the target link look orphaned.

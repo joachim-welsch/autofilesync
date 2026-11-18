@@ -46,6 +46,7 @@ class SyncLink: public SyncBase {  // [SyncLink.md#SyncLink]
     Place target_;
 
     std::optional<Side> side(const Place& place) const;  // [SyncLink.md#places]
+    std::optional<Side> unasked(const Place& place, fsu::FileInfoResult refusal) const;  // [SyncLink.md#unasked]
     std::optional<std::filesystem::path> base() const;  // [SyncLink.md#decide]
     Action decide(const Side& here, const Side& there) const;  // [SyncLink.md#decide]
     Action decide_two_links(const Side& here, const Side& there) const;

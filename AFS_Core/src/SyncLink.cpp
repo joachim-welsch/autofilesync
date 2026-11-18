@@ -133,16 +133,25 @@ SyncLink::SyncLink(const SyncItem& si, std::size_t& copy_count, bool only_count,
 {
 }
 
+std::optional<SyncLink::Side> SyncLink::unasked(const Place& place, FileInfoResult refusal) const  // [SyncLink.md#unasked]
+{
+    if (!only_count_)
+        report(fsu::make_error_message(refusal) + L": " + place.path, refusal);
+    return std::nullopt;
+}
+
 std::optional<SyncLink::Side> SyncLink::side(const Place& place) const  // [SyncLink.md#places]
 {
     const auto portable = [&](const fs::path& text) { return symlink_util::portable_link_text(textual(place.path, place.ssh), text, textual(place.root, place.ssh)); };
     if (place.ssh) {
         const std::optional<SshLink> info = ssh_link_info(place.path);
         if (!info)
-            return std::nullopt;
+            return unasked(place, FileInfoResult::ErrorReadFileInfo);
         return Side{info->is_link, info->present, info->is_directory, info->to_directory, info->is_link ? portable(info->text) : fs::path()};
     }
     const symlink_util::LinkInfo info = symlink_util::link_info(place.path);
+    if (info.refusal != FileInfoResult::OK)
+        return unasked(place, info.refusal);
     std::error_code ec;
     if (!info.is_link)
         return Side{false, taken(place.path, false), fs::is_directory(fs::symlink_status(place.path, ec)), false, {}};

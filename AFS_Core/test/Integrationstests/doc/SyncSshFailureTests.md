@@ -62,6 +62,21 @@ then nothing is refused.
 The counterpart: a file the SSH user creates is its own, time and rights are set, and the
 report stays empty - the new errors must not appear on an ordinary upload.
 
+## ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks
+
+The server directory belongs to the user who runs the tests, so the SSH test user may not
+create anything in it: the link is refused with "permission denied", which used to count as
+"this server has no links" and was a warning only. It is PermissionDenied now, and the
+probe file left nothing behind (SyncFileSsh.md#links-refused). In a subdirectory open to
+everyone the same request creates the link. The other outcome of the probe - a drive that
+takes files but no links - needs a FAT drive on the server and is not tested.
+
+## ALinkWhoseServerSideCannotBeAskedIsReported
+
+A directory on the server the SSH test user may not look into: the question about the link
+in it fails, and the pair is an error instead of nothing at all (SyncLink.md#unasked).
+SyncLink is run by itself, since a directory pass would already stop at the directory.
+
 ## read_only_mount
 
 The SSH test server is this machine, so a file system that is mounted read-only here is one
@@ -75,7 +90,7 @@ nothing is mounted read-only.
 The server says "read-only" for the mount and for a path below it that does not exist, and
 not for the test's own directory. Removing a file of the mount is refused by the system
 itself - nothing can be lost - and the refusal carries the reason, although the server only
-answers "failure".
+answers "failure"; a link that was to be created there is refused with the same reason.
 
 ## AReadOnlyTargetOnTheServerIsOneErrorOfThePass
 

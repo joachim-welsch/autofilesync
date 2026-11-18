@@ -20,6 +20,16 @@ What a path is as a link: whether it is one, the text it stores - not what that 
 whether it leads to something and whether that is a directory. The last decides which kind of
 link Windows needs, and it is false for a link that leads nowhere.
 
+## link_info-refusal
+
+An entry that cannot be asked is not an entry that is not there. A directory that may be
+listed but not searched names its entries and refuses every question about them; the system
+then gives no file type at all, and that - not the error code, which a missing entry sets as
+well - is what is taken for "no answer". The reason goes back in refusal, and nothing else
+in the answer means anything then. A link whose text cannot be read is refused the same way
+instead of being handed on with an empty text. The caller must not decide anything for such
+an entry (SyncLink.md#unasked).
+
 ## lexical
 
 The rules about a link's text work on the text alone: dots are folded, a trailing separator

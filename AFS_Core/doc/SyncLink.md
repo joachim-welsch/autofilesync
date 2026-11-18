@@ -58,10 +58,21 @@ the account prefix is taken off first. A link's text is a path of the machine it
 relative one means the same on both sides, an absolute one that leaves the tree is copied as
 it is and reported like any link that leaves the tree.
 
-A side that could not be asked - the server did not answer - is not a side without a link.
-Nothing is decided for the pair then, since "nothing there" would create or delete. Where
+A side that could not be asked is not a side without a link. Nothing is decided for the pair
+then, since "nothing there" would create or delete (unasked). Where
 only a free name is looked for, no answer counts as free: the rename that follows fails and
 is reported, while "taken" would search without end.
+
+## unasked
+
+No answer about a side - the server did not reply or refused the question, a local directory
+may be listed but not searched (SymlinkUtil.md#link_info-refusal) - ends the work on the pair
+with an error that names the side and the reason. The local side used to take "no answer"
+for "no link": a two-way item then deleted the source link whose target link it could not
+see, and a mirroring item deleted the target link whose source link it could not see. The
+files of such a directory were always refused (SyncFile.md#not-readable); the links now are
+too. A server that gave no answer said nothing before, not even in the log, and the link
+stayed unsynchronized without a trace. A pass that only counts reports nothing, as elsewhere.
 
 ## no-links-there
 

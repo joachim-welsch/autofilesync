@@ -33,6 +33,7 @@ namespace symlink_util {
         std::filesystem::path text;
         bool resolves = false;
         bool to_directory = false;
+        FilesystemUtil::FileInfoResult refusal = FilesystemUtil::FileInfoResult::OK;  // [SymlinkUtil.md#link_info-refusal]
     };
 
     inline constexpr int MAX_FOLLOWED_LINKS = 16;  // [SymlinkUtil.md#LinkTrail]

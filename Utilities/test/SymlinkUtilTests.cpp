@@ -85,6 +85,29 @@ TEST_F(SymlinkUtilTest, LinkInfoTellsTheTextAndWhatTheLinkLeadsTo)  // [SymlinkU
     EXPECT_FALSE(symlink_util::link_info(root_ / "weg.txt").is_link);
 }
 
+#ifndef _WIN32
+TEST_F(SymlinkUtilTest, LinkInfoSaysWhenAnEntryCannotBeAsked)  // [SymlinkUtilTests.md#LinkInfoSaysWhenAnEntryCannotBeAsked]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root darf jedes Verzeichnis durchsuchen";
+    fs::create_directories(root_ / "zu");
+    fs::create_symlink("da.txt", root_ / "zu" / "link");
+    fs::permissions(root_ / "zu", fs::perms::owner_read);
+
+    const symlink_util::LinkInfo unasked = symlink_util::link_info(root_ / "zu" / "link");
+    fs::permissions(root_ / "zu", fs::perms::owner_all);
+    const symlink_util::LinkInfo asked = symlink_util::link_info(root_ / "zu" / "link");
+    const symlink_util::LinkInfo missing = symlink_util::link_info(root_ / "zu" / "fehlt");
+
+    EXPECT_EQ(unasked.refusal, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_FALSE(unasked.is_link) << "ohne Antwort ist nichts ueber den Eintrag bekannt";
+    EXPECT_EQ(asked.refusal, fsu::FileInfoResult::OK);
+    EXPECT_TRUE(asked.is_link);
+    EXPECT_EQ(missing.refusal, fsu::FileInfoResult::OK) << "ein fehlender Eintrag ist eine Antwort";
+    EXPECT_FALSE(missing.is_link);
+}
+#endif
+
 TEST(SymlinkUtilTests, PortableLinkTextKeepsRelativeTextAndMakesAbsoluteTextInsideTheRootRelative)  // [SymlinkUtilTests.md#portable_link_text]
 {
     const fs::path root = "/daten/quelle";

@@ -56,3 +56,10 @@ Made-up paths of a machine that does not exist: every answer comes from the path
 
 All this machine can say about junctions: there are none here, whatever the path is. The
 Windows side of the function has no test that runs anywhere yet.
+
+## LinkInfoSaysWhenAnEntryCannotBeAsked
+
+A directory with read but without search permission lists its link and refuses every
+question about it: the answer carries the reason and claims nothing about the entry. The
+same link asked with the permission back, and an entry that is missing, are answers without
+a refusal. Skipped for root, whom no directory refuses.

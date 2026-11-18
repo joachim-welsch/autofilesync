@@ -25,6 +25,7 @@
 #include "SshTest.h"
 #include "SyncFileSsh.h"
 #include "SyncItem.h"
+#include "SyncLink.h"
 #include "SyncRunner.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
@@ -34,6 +35,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <set>
 #include <thread>
 #include <pwd.h>
 #include <sys/stat.h>
@@ -134,6 +136,14 @@ protected:
         struct stat info {};
         const passwd* ssh_user = getpwnam(SSH_USER);
         return ssh_user != nullptr && stat(file.c_str(), &info) == 0 && info.st_uid != ssh_user->pw_uid;
+    }
+
+    static std::set<std::string> names_in(const fs::path& dir)
+    {
+        std::set<std::string> names;
+        for (const fs::directory_entry& entry : fs::directory_iterator(dir))
+            names.insert(entry.path().filename().string());
+        return names;
     }
 
     static Outcome run(const SyncItem& si)  // [LocalPermissionTests.md#run]
@@ -249,6 +259,52 @@ TEST_F(SyncSshFailureTest, AnUploadWhoseTimeAndRightsWereSetReportsNothing)  // 
     EXPECT_TRUE(outcome.report.errors().empty()) << util::wstring_to_string(outcome.report.errors().empty() ? std::wstring() : outcome.report.errors().front());
 }
 
+TEST_F(SyncSshFailureTest, ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks)  // [SyncSshFailureTests.md#ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks]
+{
+    fs::create_directories(server_dir_ / "offen");
+    fs::permissions(server_dir_ / "offen", fs::perms::all);
+    fs::permissions(server_dir_, fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec | fs::perms::others_read | fs::perms::others_exec);
+    if (!owned_by_another_than_the_ssh_user(server_dir_))
+        GTEST_SKIP() << "der SSH-Testbenutzer ist der Besitzer des Verzeichnisses und darf darin schreiben";
+
+    const fsu::FileInfoResult refused = ssh_create_link(L"a.txt", on_server(PLAIN_ACCOUNT) + L"/link");
+    const fsu::FileInfoResult made = ssh_create_link(L"a.txt", on_server(PLAIN_ACCOUNT) + L"/offen/link");
+
+    EXPECT_EQ(refused, fsu::FileInfoResult::PermissionDenied) << "nicht LinksNotSupported: das waere nur ein Hinweis";
+    EXPECT_EQ(names_in(server_dir_), (std::set<std::string>{"offen"})) << "die Probe darf nichts hinterlassen";
+    EXPECT_EQ(made, fsu::FileInfoResult::OK);
+    EXPECT_TRUE(fs::is_symlink(server_dir_ / "offen" / "link"));
+    SSHTest::remove_remote_tree((server_dir_ / "offen").string());
+}
+
+TEST_F(SyncSshFailureTest, ALinkWhoseServerSideCannotBeAskedIsReported)  // [SyncSshFailureTests.md#ALinkWhoseServerSideCannotBeAskedIsReported]
+{
+    fs::create_directories(server_dir_ / "zu");
+    fs::permissions(server_dir_ / "zu", fs::perms::owner_all);
+    if (!owned_by_another_than_the_ssh_user(server_dir_ / "zu"))
+        GTEST_SKIP() << "der SSH-Testbenutzer ist der Besitzer des Verzeichnisses und darf hineinsehen";
+    tu::write_text_file(local_dir_ / "a.txt", "a");
+    fs::create_symlink("a.txt", local_dir_ / "link");
+    const std::wstring target = on_server(PLAIN_ACCOUNT) + L"/zu/link";
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source((local_dir_ / "link").wstring());
+    si.target(target);
+    si.symlink_mode(SymlinkMode::AsLink);
+    std::size_t copies = 0;
+    LinkTally tally;
+    SyncReport report;
+    {
+        SyncReportGuard guard(&report);
+        SyncLink(si, copies, false, tally, nullptr, L"", L"")();
+    }
+
+    ASSERT_EQ(report.errors().size(), 1u) << "bisher geschah hier nichts, auch keine Meldung";
+    EXPECT_EQ(report.errors().front(), fsu::make_error_message(fsu::FileInfoResult::ErrorReadFileInfo) + L": " + target);
+    EXPECT_EQ(copies, 0u);
+}
+
 TEST_F(SyncSshFailureTest, AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedForARefusedRemoval)  // [SyncSshFailureTests.md#AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedForARefusedRemoval]
 {
     const std::optional<fs::path> mount = read_only_mount();
@@ -262,6 +318,7 @@ TEST_F(SyncSshFailureTest, AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedFor
     EXPECT_FALSE(ssh_read_only_filesystem(on_server(PLAIN_ACCOUNT)));
     EXPECT_FALSE(ssh_read_only_filesystem(on_server(PLAIN_ACCOUNT) + L"/afs-gibt-es-nicht/datei.txt"));
     EXPECT_EQ(ssh_remove_refusal(util::string_to_wstring(PLAIN_ACCOUNT + ":" + file.string())), fsu::FileInfoResult::ReadOnlyFilesystem) << file.string();
+    EXPECT_EQ(ssh_create_link(L"egal", remote_mount + L"/afs-link"), fsu::FileInfoResult::ReadOnlyFilesystem);
     EXPECT_TRUE(fs::exists(file));
 }
 

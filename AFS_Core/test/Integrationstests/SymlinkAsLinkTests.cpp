@@ -22,6 +22,7 @@
 #include "FileUtil.h"
 #include "ScopedDeleteMode.h"
 #include "ScopedLog.h"
+#include "ScopedRecycleBin.h"
 #include "SyncRunner.h"
 #include "SyncState.h"
 #include "Synchronize.h"
@@ -29,6 +30,7 @@
 #include "Translation.h"
 #include "Logging.h"
 #include <SymlinkUtil.h>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <set>
@@ -569,6 +571,50 @@ TEST_F(SymlinkAsLinkTest, SystemLinksAreSkippedAndNamedOnce)  // [SymlinkAsLinkT
     EXPECT_TRUE(outcome.report.successful());
     EXPECT_EQ(names_in(target_), (std::set<std::string>{"b.txt", "echt"}));
     EXPECT_EQ(logged("system_links_skipped"), 1);
+}
+#endif
+
+#ifdef _UNIX
+TEST_F(SymlinkAsLinkTest, ALinkWhoseTargetSideCannotBeAskedIsReportedAndNotDeletedInTheSource)  // [SymlinkAsLinkTests.md#ALinkWhoseTargetSideCannotBeAskedIsReportedAndNotDeletedInTheSource]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root darf jedes Verzeichnis durchsuchen";
+    const tu::ScopedRecycleBin bin;
+    fs::create_symlink("a.txt", source_ / "echt" / "l");
+    SyncState state(source_.wstring(), target_.wstring());
+    Outcome first, second;
+    run(two_way_item(), first, &state);
+    ASSERT_TRUE(fs::is_symlink(target_ / "echt" / "l"));
+    fs::permissions(target_ / "echt", fs::perms::owner_read);
+
+    run(two_way_item(), second, &state);
+    fs::permissions(target_ / "echt", fs::perms::owner_all);
+
+    EXPECT_TRUE(fs::is_symlink(source_ / "echt" / "l")) << "ein Ziel, das nicht antwortet, ist kein geloeschter Link";
+    EXPECT_TRUE(fs::is_symlink(target_ / "echt" / "l"));
+    const std::wstring expected = translation::translate("permission_denied") + L": " + (target_ / "echt" / "l").wstring();
+    EXPECT_EQ(std::ranges::count(second.report.errors(), expected), 1) << "der Link muss mit seinem Grund im Bericht stehen";
+}
+
+TEST_F(SymlinkAsLinkTest, ALinkWhoseSourceSideCannotBeAskedIsReportedAndNotDeletedInTheTarget)  // [SymlinkAsLinkTests.md#ALinkWhoseSourceSideCannotBeAskedIsReportedAndNotDeletedInTheTarget]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root darf jedes Verzeichnis durchsuchen";
+    const tu::ScopedRecycleBin bin;
+    fs::create_symlink("a.txt", source_ / "echt" / "l");
+    SyncItem si = item();
+    si.delete_in_target(true);
+    Outcome first, second;
+    run(si, first);
+    ASSERT_TRUE(fs::is_symlink(target_ / "echt" / "l"));
+    fs::permissions(source_ / "echt", fs::perms::owner_read);
+
+    run(si, second);
+    fs::permissions(source_ / "echt", fs::perms::owner_all);
+
+    EXPECT_TRUE(fs::is_symlink(target_ / "echt" / "l")) << "eine Quelle, die nicht antwortet, ist kein geloeschter Link";
+    const std::wstring expected = translation::translate("permission_denied") + L": " + (source_ / "echt" / "l").wstring();
+    EXPECT_EQ(std::ranges::count(second.report.errors(), expected), 1);
 }
 #endif
 
