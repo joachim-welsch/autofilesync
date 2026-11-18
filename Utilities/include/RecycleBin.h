@@ -18,6 +18,7 @@
  */
 #pragma once
 #include <UtilitiesConfig.h>
+#include <FilesystemUtil.h>
 #include <filesystem>
 #include <mutex>
 #include <vector>
@@ -35,13 +36,14 @@ private:
 	RecycleBin(const RecycleBin&) = delete;
 	RecycleBin& operator=(const RecycleBin&) = delete;
 	bool check_relative(const std::filesystem::path& item) const;  // the private helpers below assume a held mutex_
-	bool move(const std::filesystem::path& from, const std::filesystem::path& to) const;
+	fsu::FileInfoResult move(const std::filesystem::path& from, const std::filesystem::path& to) const;
 public:
 	static RecycleBin& instance();
 	void bin_path(const std::filesystem::path& path);
 	std::filesystem::path bin_path() const;
 	bool add_item(const std::filesystem::path& item);
 	bool add_item(const std::filesystem::path& source, const std::filesystem::path& item);  // [RecycleBin.md#add_item-outside-cwd]
+	fsu::FileInfoResult add_refusal(const std::filesystem::path& source, const std::filesystem::path& item);  // [RecycleBin.md#add_refusal]
 	bool has_item(const std::filesystem::path& item) const;
 	bool restore_item(const std::filesystem::path& item);
 	bool take_item(const std::filesystem::path& item, const std::filesystem::path& destination);  // [RecycleBin.md#take_item]

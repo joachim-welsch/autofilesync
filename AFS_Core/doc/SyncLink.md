@@ -72,7 +72,9 @@ since a file that came back from such a target would replace the link in a two-w
 ## move
 
 "Delete after copying" removes the source link once the target link is in place, but only a
-local one, as for files: nothing behind SSH is deleted for a move.
+local one, as for files: nothing behind SSH is deleted for a move. A source link that would
+not go is reported like a file's (SyncFile.md#move-keeps-the-copy), and a source link whose
+target link says the same is removed by the next pass (SyncBase.md#completes_moves).
 
 ## blocked-by-directory
 

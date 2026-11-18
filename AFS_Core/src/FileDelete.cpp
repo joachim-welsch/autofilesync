@@ -42,16 +42,21 @@ static fs::path free_bin_item(const fs::path& origin)  // [FileDelete.md#free_bi
 
 bool delete_file(const std::wstring& pathname)
 {
+    return delete_refusal(pathname) == fsu::FileInfoResult::OK;
+}
+
+fsu::FileInfoResult delete_refusal(const std::wstring& pathname)  // [FileDelete.md#delete_refusal]
+{
     if (Config::instance().settings().delete_mode() == DeleteMode::Permanent)
-        return fsu::remove_file(pathname, LogLevel::Error);
+        return fsu::remove_refusal(pathname);
     const fs::path source(pathname);
     const fs::path item = free_bin_item(source.relative_path());  // [FileDelete.md#recycle-bin-layout]
-    if (!RecycleBin::instance().add_item(source, item)) {
+    const fsu::FileInfoResult refusal = RecycleBin::instance().add_refusal(source, item);
+    if (refusal == fsu::FileInfoResult::OK)
+        log_info(translation::translate("file_moved_to_recycle_bin"), pathname);
+    else if (refusal != fsu::FileInfoResult::FileNotExist)  // [FileDelete.md#delete_refusal]
         log_error(translation::translate("file_move_to_recycle_bin_failed"), pathname);
-        return false;
-    }
-    log_info(translation::translate("file_moved_to_recycle_bin"), pathname);
-    return true;
+    return refusal;
 }
 
 } // namespace AFS_Core

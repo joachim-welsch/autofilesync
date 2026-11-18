@@ -30,7 +30,7 @@ namespace Utilities {
 namespace FilesystemUtil
 {
 	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, CannotSetFileAttributes,
-        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull, LinksNotSupported };
+        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull, LinksNotSupported, ServerUnreachable };
 
 	bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
@@ -64,6 +64,7 @@ namespace FilesystemUtil
     FileInfoResult rename_refusal(const std::wstring& oldname, const std::wstring& newname);  // [FilesystemUtil.md#rename_refusal]
     bool rename_file(const std::wstring& oldname, const std::wstring& newname);
     bool remove_file(const std::wstring& name, LogLevel ll = LogLevel::None);
+    FileInfoResult remove_refusal(const std::wstring& name);  // [FilesystemUtil.md#remove_refusal]
     bool set_last_write_time(const std::wstring& fn, const std::filesystem::file_time_type& modify_time, LogLevel ll = LogLevel::None);
     FileInfoResult write_time_refusal(const std::wstring& file, const std::filesystem::file_time_type& time);  // [FilesystemUtil.md#write_time_refusal]
 #ifdef _TEST

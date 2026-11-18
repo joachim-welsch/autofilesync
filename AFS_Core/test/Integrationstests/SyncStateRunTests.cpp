@@ -18,10 +18,13 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include "CopyLog.h"
 #include "FileUtil.h"
 #include "ScopedDeleteMode.h"
 #include "ScopedConfigHome.h"
 #include "ScopedLoggingSetup.h"
+#include "ScopedRecycleBin.h"
+#include "SyncFile.h"
 #include "SyncState.h"
 #include "Synchronize.h"
 #include "FileTime.h"
@@ -275,4 +278,26 @@ TEST_F(SyncStateRunTest, AMassDeletionWaitsForTheApprovedRun)  // [SyncStateRunT
     run_pass(SyncType::Single, true);
     EXPECT_EQ(std::distance(fs::directory_iterator(source_dir_), fs::directory_iterator()), 0) << "the approved run deletes";
     EXPECT_TRUE(stored_state()->empty());
+}
+
+TEST_F(SyncStateRunTest, ADeferredDeletionOfAFileAlreadyGoneIsNoError)  // [SyncStateRunTests.md#already-gone]
+{
+    const tu::ScopedRecycleBin bin;
+    const SyncItem si = two_way_tree();
+    for (const DeleteMode mode : {DeleteMode::Permanent, DeleteMode::RecycleBin})
+        for (const bool in_target : {true, false}) {
+            const tu::ScopedDeleteMode delete_mode(mode);
+            SyncState state(si.source(), si.target());
+            state.record(L"a.txt", {});
+            std::size_t copies = 0;
+            SyncReport report;
+            {
+                SyncReportGuard guard(&report);
+                SyncFile(si, copies, false, false, &state, si.source(), si.target())
+                    .carry_out_deferred({L"a.txt", (source_dir_ / "a.txt").wstring(), (target_dir_ / "a.txt").wstring(), in_target, 1});
+            }
+
+            EXPECT_TRUE(report.errors().empty()) << (report.errors().empty() ? L"" : report.errors().front());
+            EXPECT_EQ(state.find(L"a.txt"), nullptr) << "was weg ist, gilt als geloescht";
+        }
 }

@@ -220,7 +220,7 @@ namespace {
         report_sync_error(message);
     }
 
-    std::optional<std::string> connect_to(const wstring& path, SftpConnection& connection)  // [SyncFileSsh.md#connect_to]
+    std::optional<std::string> connect_to(const wstring& path, SftpConnection& connection, bool* unreachable = nullptr)  // [SyncFileSsh.md#connect_to]
     {
         const auto account = get_account_from_path(path);
         if (!account) {
@@ -231,12 +231,30 @@ namespace {
             connection.connect(*account);
         } catch (const SshUnreachable& e) {
             log_warning(L"SSH: " + string_to_wstring(e.what()));  // [SyncFileSsh.md#unreachable-is-a-warning]
+            if (unreachable != nullptr)
+                *unreachable = true;
             return std::nullopt;
         } catch (const std::exception& e) {
             log_error(L"SSH: " + string_to_wstring(e.what()));
             return std::nullopt;
         }
         return get_remote_path(path);
+    }
+
+    fsu::FileInfoResult removal_refusal(const wstring& path, int (*remove)(sftp_session, const char*), const char* message_id)  // [SyncFileSsh.md#removal-refusal]
+    {
+        SftpConnection connection;
+        bool unreachable = false;
+        const auto remote_path = connect_to(path, connection, &unreachable);
+        if (!remote_path)
+            return unreachable ? fsu::FileInfoResult::ServerUnreachable : fsu::FileInfoResult::ErrorWriteFileInfo;
+        if (remove(connection.sftp(), remote_path->c_str()) == SSH_OK)
+            return fsu::FileInfoResult::OK;
+        const int refusal = sftp_get_error(connection.sftp());
+        if (refusal == SSH_FX_NO_SUCH_FILE)
+            return fsu::FileInfoResult::FileNotExist;
+        log_error(translation::translate(message_id) + string_to_wstring(*remote_path));
+        return refusal == SSH_FX_PERMISSION_DENIED ? fsu::FileInfoResult::PermissionDenied : fsu::FileInfoResult::ErrorWriteFileInfo;
     }
 
     bool sftp_write_all(sftp_file file, const char* data, size_t length)  // [SyncFileSsh.md#short-write]
@@ -586,28 +604,16 @@ bool ssh_mkdir(const std::wstring& path)
     return true;
 }
 
-bool ssh_remove_file(const std::wstring& path)
+fsu::FileInfoResult ssh_remove_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]
 {
     log_debug(L"ssh_remove_file: " + path);
-    SftpConnection connection;
-    const auto remote_path = connect_to(path, connection);
-    if (!remote_path)
-        return false;
-    if (sftp_unlink(connection.sftp(), remote_path->c_str()) != SSH_OK)
-        return failed(translation::translate("remote_file_delete_error") + string_to_wstring(*remote_path));
-    return true;
+    return removal_refusal(path, sftp_unlink, "remote_file_delete_error");
 }
 
-bool ssh_rmdir(const std::wstring& path)  // [SyncFileSsh.md#ssh_rmdir]
+fsu::FileInfoResult ssh_rmdir_refusal(const std::wstring& path)  // [SyncFileSsh.md#ssh_rmdir]
 {
     log_debug(L"ssh_rmdir: " + path);
-    SftpConnection connection;
-    const auto remote_path = connect_to(path, connection);
-    if (!remote_path)
-        return false;
-    if (sftp_rmdir(connection.sftp(), remote_path->c_str()) != SSH_OK)
-        return failed(translation::translate("remote_dir_delete_error") + string_to_wstring(*remote_path));
-    return true;
+    return removal_refusal(path, sftp_rmdir, "remote_dir_delete_error");
 }
 
 bool ssh_rename(const std::wstring& from, const std::wstring& to)  // [SyncFileSsh.md#ssh_rename]
@@ -1387,7 +1393,7 @@ bool ssh_mkdir(const std::wstring& path)
     return success;
 }
 
-static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBSSH2_SFTP*, const std::string&)>& call, const char* error_msgid)  // [SyncFileSsh.md#ssh_rmdir]
+static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBSSH2_SFTP*, const std::string&)>& call, const char* error_msgid, bool* unreachable = nullptr)  // [SyncFileSsh.md#ssh_rmdir]
 {
     auto account_opt = get_account_from_path(path);
     if (!account_opt.has_value()) {
@@ -1400,6 +1406,8 @@ static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBS
     ensure_libssh2_initialized();
     const HostConnection attempt = connect_host(account.host(), account.port());  // [HostConnect.md#connect_host]
     SOCKET sock = attempt.socket;
+    if (attempt.failure != ConnectFailure::None && unreachable != nullptr)
+        *unreachable = true;
     if (attempt.failure == ConnectFailure::Resolve) {
         log_warning(translation::translate("host_name_not_resolvable") + string_to_wstring(account.host()));  // [SyncFileSsh.md#unreachable-is-a-warning]
         return false;
@@ -1460,16 +1468,34 @@ static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBS
     return success;
 }
 
-bool ssh_remove_file(const std::wstring& path)
+static fsu::FileInfoResult removal_refusal(const std::wstring& path, const std::function<int(LIBSSH2_SFTP*, const std::string&)>& remove, const char* error_msgid)  // [SyncFileSsh.md#removal-refusal]
 {
-    log_debug(L"ssh_remove_file: " + path);
-    return ssh_sftp_call(path, [](LIBSSH2_SFTP* sftp, const std::string& remote) { return libssh2_sftp_unlink(sftp, remote.c_str()); }, "remote_file_delete_error");
+    fsu::FileInfoResult refusal = fsu::FileInfoResult::ErrorWriteFileInfo;
+    bool unreachable = false;
+    ssh_sftp_call(path, [&](LIBSSH2_SFTP* sftp, const std::string& remote) {
+        const int failure = remove(sftp, remote);
+        const unsigned long reason = failure == 0 ? LIBSSH2_FX_OK : libssh2_sftp_last_error(sftp);
+        if (failure == 0)
+            refusal = fsu::FileInfoResult::OK;
+        else if (reason == LIBSSH2_FX_NO_SUCH_FILE)
+            refusal = fsu::FileInfoResult::FileNotExist;
+        else if (reason == LIBSSH2_FX_PERMISSION_DENIED)
+            refusal = fsu::FileInfoResult::PermissionDenied;
+        return refusal == fsu::FileInfoResult::FileNotExist ? 0 : failure;
+    }, error_msgid, &unreachable);
+    return unreachable ? fsu::FileInfoResult::ServerUnreachable : refusal;
 }
 
-bool ssh_rmdir(const std::wstring& path)  // [SyncFileSsh.md#ssh_rmdir]
+fsu::FileInfoResult ssh_remove_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]
+{
+    log_debug(L"ssh_remove_file: " + path);
+    return removal_refusal(path, [](LIBSSH2_SFTP* sftp, const std::string& remote) { return libssh2_sftp_unlink(sftp, remote.c_str()); }, "remote_file_delete_error");
+}
+
+fsu::FileInfoResult ssh_rmdir_refusal(const std::wstring& path)  // [SyncFileSsh.md#ssh_rmdir]
 {
     log_debug(L"ssh_rmdir: " + path);
-    return ssh_sftp_call(path, [](LIBSSH2_SFTP* sftp, const std::string& remote) { return libssh2_sftp_rmdir(sftp, remote.c_str()); }, "remote_dir_delete_error");
+    return removal_refusal(path, [](LIBSSH2_SFTP* sftp, const std::string& remote) { return libssh2_sftp_rmdir(sftp, remote.c_str()); }, "remote_dir_delete_error");
 }
 
 bool ssh_rename(const std::wstring& from, const std::wstring& to)  // [SyncFileSsh.md#ssh_rename]
@@ -1677,17 +1703,24 @@ std::optional<SshAccount> webdav_account(const wstring& path)  // [SyncFileSsh.m
 }
 
 template <typename Action>
-bool webdav_done(const wstring& path, Action action)  // [SyncFileSsh.md#webdav-errors]
+fsu::FileInfoResult webdav_refusal(const wstring& path, Action action)  // [SyncFileSsh.md#webdav-errors]
 {
     try {
         action();
-        return true;
+        return fsu::FileInfoResult::OK;
     } catch (const SshUnreachable& e) {
         log_warning(L"WebDAV: " + path + L": " + string_to_wstring(e.what()));
+        return fsu::FileInfoResult::ServerUnreachable;
     } catch (const std::exception& e) {
         log_error(L"WebDAV: " + path + L": " + string_to_wstring(e.what()));
     }
-    return false;
+    return fsu::FileInfoResult::ErrorWriteFileInfo;
+}
+
+template <typename Action>
+bool webdav_done(const wstring& path, Action action)  // [SyncFileSsh.md#webdav-errors]
+{
+    return webdav_refusal(path, action) == fsu::FileInfoResult::OK;
 }
 
 template <typename Transfer>
@@ -1778,16 +1811,26 @@ bool ssh_mkdir(const std::wstring& path)
     return account ? webdav_done(path, [&] { cloud_store::make_directory(*account, get_remote_path(path)); }) : sftp_backend::ssh_mkdir(path);
 }
 
-bool ssh_remove_file(const std::wstring& path)
+fsu::FileInfoResult ssh_remove_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]
 {
     const auto account = webdav_account(path);
-    return account ? webdav_done(path, [&] { cloud_store::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_remove_file(path);
+    return account ? webdav_refusal(path, [&] { cloud_store::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_remove_refusal(path);
+}
+
+bool ssh_remove_file(const std::wstring& path)
+{
+    return ssh_remove_refusal(path) == fsu::FileInfoResult::OK;
+}
+
+fsu::FileInfoResult ssh_rmdir_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]
+{
+    const auto account = webdav_account(path);
+    return account ? webdav_refusal(path, [&] { cloud_store::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_rmdir_refusal(path);
 }
 
 bool ssh_rmdir(const std::wstring& path)
 {
-    const auto account = webdav_account(path);
-    return account ? webdav_done(path, [&] { cloud_store::remove(*account, get_remote_path(path)); }) : sftp_backend::ssh_rmdir(path);
+    return ssh_rmdir_refusal(path) == fsu::FileInfoResult::OK;
 }
 
 bool ssh_rename(const std::wstring& from, const std::wstring& to)

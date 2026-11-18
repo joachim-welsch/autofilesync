@@ -112,7 +112,36 @@ A directory the other side deleted is emptied file by file (SyncTree.md#prepare-
 and only then, if nothing is left, removed - a file that survived because it was edited, or a
 ".bak" generation, keeps the directory on both sides. An empty directory holds nothing to
 recover, so it is removed outright rather than through the recycle bin; a non-empty one is
-simply left, without a message, because that is the ordinary outcome.
+simply left, without a message, because that is the ordinary outcome. A removal that fails is
+reported with the directory and the reason, like a file's (deleted).
+
+## deleted
+
+Every deletion of a file or link of the user goes through here, so that none can fail unseen:
+the failure is logged and reported with the file and the reason (FileDelete.md#delete_refusal,
+SyncFileSsh.md#removal-refusal). A write error is the answer for "no reason known" and is left
+out: "error writing the file information" would tell the user something that is not true. An
+SSH deletion stays a permanent delete (SyncFile.md#ssh-target-delete).
+
+## completes_moves
+
+Whether a file or link found alike on both sides is deleted in the source: the item moves
+("delete after copying"). An equal pair is a move that stopped half way - the copy arrived,
+the source would not go (SyncFile.md#move-keeps-the-copy) - or a file that was copied before
+the item became a move; either way the user asked for the source to be empty of what the
+target has. Not behind SSH, where a move deletes nothing, and not together with two-way sync
+or "delete in target": there the source's deletion would travel on and take the target's file
+with it. The dialog does not offer those combinations; a configuration that has one anyway
+keeps its equal files.
+
+## already-gone
+
+A local file or directory that is no longer there when its deletion comes is what the deletion
+wanted, not a failure: between the comparison and the deletions put off to the end of the pass
+(finish_pass) the user or another program may have removed it. It counts as deleted, without a
+line in the report. Only a system that says "not found" is believed
+(RecycleBin.md#add_refusal, SyncFileSsh.md#removal-refusal): a server that did not answer
+has deleted nothing.
 
 ## mass-deletion
 

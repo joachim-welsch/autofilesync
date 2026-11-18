@@ -628,3 +628,22 @@ TEST(FilesystemUtilTests, RemoveFileReturnsWhetherSomethingWasActuallyRemoved)  
     const std::wstring non_existent = L"/nonexistent_afx_dir/nonexistent_afx_file.txt";
     EXPECT_FALSE(fsu::remove_file(non_existent, LogLevel::None));
 }
+
+TEST_F(FilesystemUtilTest, RemoveRefusalRemovesTheFileOrSaysWhyNot)  // [FilesystemUtilTests.md#RemoveRefusalRemovesTheFileOrSaysWhyNot]
+{
+    const fs::path file = root_ / "locked" / "data.txt";
+    fs::create_directories(file.parent_path());
+    std::ofstream(file) << "x";
+
+    EXPECT_EQ(fsu::remove_refusal((root_ / "gone.txt").wstring()), fsu::FileInfoResult::FileNotExist);
+#ifndef _WIN32
+    if (geteuid() != 0) {
+        fs::permissions(file.parent_path(), fs::perms::owner_read | fs::perms::owner_exec);
+        EXPECT_EQ(fsu::remove_refusal(file.wstring()), fsu::FileInfoResult::PermissionDenied);
+        fs::permissions(file.parent_path(), fs::perms::owner_all);
+        EXPECT_TRUE(fs::exists(file));
+    }
+#endif
+    EXPECT_EQ(fsu::remove_refusal(file.wstring()), fsu::FileInfoResult::OK);
+    EXPECT_FALSE(fs::exists(file));
+}

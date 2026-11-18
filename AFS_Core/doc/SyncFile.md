@@ -175,6 +175,21 @@ targets stay a permanent delete.
 Every failure returns before the bookkeeping below: a copy that did not happen must neither
 count as done nor let del_aftercopy delete the source.
 
+## move-keeps-the-copy
+
+"Delete after copying" may fail at its second half: the copy is in the target, the source
+would not go. The copy stays and counts, since it is complete, but the failure is reported
+with the source and the reason (SyncBase.md#deleted) - a run that left the source behind must
+not look like a finished move. The next pass tries the deletion again (move-catch-up).
+
+## move-catch-up
+
+A moving item deletes a source file that the comparison finds equal to its target
+(SyncBase.md#completes_moves), so a move whose deletion failed is finished by the next pass
+instead of leaving the source behind for good. It is an ordinary deletion in the source: the
+preview shows it, it goes to the recycle bin unless the user chose otherwise, and a failure is
+reported. "Equal" is what the item's comparison settings call equal.
+
 ## local-only-filetime
 
 fs::last_write_time() only resolves a local path, so the time is stamped here only when both

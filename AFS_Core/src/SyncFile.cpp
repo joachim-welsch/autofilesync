@@ -36,7 +36,6 @@
 #include "FileDifference.h"
 #include "Logging.h"
 #include "Config.h"
-#include "FileDelete.h"
 #include "SyncFileSsh.h"
 #include "CopyLog.h"
 #include "Translation.h"
@@ -453,7 +452,7 @@ std::optional<PlannedAction> SyncFile::decide(const FileDifference& fd) const  /
     const FDResult fdiff = fd.result();
     if (fdiff == FDResult::SourceDeleted || (fdiff == FDResult::SourceNotExits && sync_item_.delete_in_target()))
         return PlannedAction::DeleteInTarget;
-    if (fdiff == FDResult::DestDeleted)  // [SyncFile.md#state]
+    if (fdiff == FDResult::DestDeleted || (fdiff == FDResult::Equal && completes_moves()))  // [SyncFile.md#state] [SyncFile.md#move-catch-up]
         return PlannedAction::DeleteInSource;
     const bool copy_to_target = fdiff == FDResult::DestNotExists || fdiff == FDResult::SourceModified
         || (fdiff == FDResult::DestModified && sync_item_.copy_when_target_newer());
@@ -752,24 +751,14 @@ bool SyncFile::delete_target_file(const wstring& source, const wstring& destinat
 {
     log_info(translation::translate("target_deleted_source_missing"), destination,
         translation::translate("source_label"), source);
-    const bool removed = ssh_dest() ? ssh_remove_file(destination) : delete_file(destination);  // [SyncFile.md#ssh-target-delete]
-    if (!removed) {
-        log_error(translation::translate("target_delete_failed"), destination);
-        report_sync_error(translation::translate("target_delete_failed") + destination);
-    }
-    return removed;
+    return deleted(destination, ssh_dest(), "target_delete_failed");  // [SyncFile.md#ssh-target-delete]
 }
 
 bool SyncFile::delete_source_file(const wstring& source, const wstring& destination)  // [SyncFile.md#state]
 {
-    log_info(translation::translate("source_deleted_target_missing"), source,
+    log_info(translation::translate(completes_moves() ? "source_deleted_already_in_target" : "source_deleted_target_missing"), source,
         translation::translate("target_label"), destination);
-    const bool removed = ssh_source() ? ssh_remove_file(source) : delete_file(source);
-    if (!removed) {
-        log_error(translation::translate("source_delete_failed"), source);
-        report_sync_error(translation::translate("source_delete_failed") + source);
-    }
-    return removed;
+    return deleted(source, ssh_source(), "source_delete_failed");
 }
 
 bool SyncFile::copy_source_to_dest(const wstring& source, const wstring& destination, uint64_t size)
@@ -808,7 +797,7 @@ bool SyncFile::copy_source_to_dest(const wstring& source, const wstring& destina
     ++copy_count_;
     report_sync_volume(size);
     if (sync_item_.del_aftercopy() && !ssh_source())  // an SSH source cannot be deleted through the local filesystem
-        delete_file(source);
+        deleted(source, false, "source_delete_failed");  // [SyncFile.md#move-keeps-the-copy]
     return true;
 }
 

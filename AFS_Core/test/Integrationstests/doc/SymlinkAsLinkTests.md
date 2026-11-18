@@ -136,3 +136,11 @@ back as it always did.
 Linux only. A device and a file of the kernel: neither arrives, one line names them, and the
 default mode skips such a link too instead of copying the kernel's file
 (SyncBase.md#system_link_skipped).
+
+## MoveRemovesASourceLinkThatIsAlreadyInTheTarget
+
+A moving item finds the same link on both sides - the move stopped after the target link was
+made, or the link was copied before the item moved. The source link goes
+(SyncBase.md#completes_moves); a link that says something else is carried over and then
+removed, as always.
+

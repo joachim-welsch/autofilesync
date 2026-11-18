@@ -244,6 +244,18 @@ TEST_F(RecycleBinTest, ConcurrentAddsLoseNoItem)  // [RecycleBinTests.md#Concurr
     EXPECT_EQ(RecycleBin::instance().list_items().size(), static_cast<size_t>(THREADS * ITEMS_PER_THREAD));
 }
 
+TEST_F(RecycleBinTest, AddRefusalSaysWhyAnItemDidNotGoIn)  // [RecycleBinTests.md#AddRefusalSaysWhyAnItemDidNotGoIn]
+{
+    create_file("data.txt");
+    create_file(bin_ / "taken.txt");
+
+    EXPECT_EQ(RecycleBin::instance().add_refusal("gone.txt", "gone.txt"), fsu::FileInfoResult::FileNotExist);
+    EXPECT_EQ(RecycleBin::instance().add_refusal("data.txt", "taken.txt"), fsu::FileInfoResult::ErrorWriteFileInfo);
+    EXPECT_TRUE(fs::exists("data.txt"));
+    EXPECT_EQ(RecycleBin::instance().add_refusal("data.txt", "data.txt"), fsu::FileInfoResult::OK);
+    EXPECT_FALSE(fs::exists("data.txt"));
+}
+
 #ifdef __linux__
 class RecycleBinOnAnotherFilesystemTest : public RecycleBinTest {  // [RecycleBinTests.md#RecycleBinOnAnotherFilesystemTest]
 protected:

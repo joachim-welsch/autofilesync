@@ -802,6 +802,10 @@ msgstr "La suppression du répertoire vide a échoué : "
 msgid "source_deleted_target_missing"
 msgstr "Suppression du fichier source, car il a été supprimé dans la cible : "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "source_deleted_already_in_target"
+msgstr "Suppression du fichier source, car il se trouve déjà dans la cible : "
+
 #: AFS_Core/src/SyncFile.cpp:423
 msgid "source_delete_failed"
 msgstr "La suppression du fichier source a échoué : "

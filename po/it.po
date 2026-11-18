@@ -802,6 +802,10 @@ msgstr "Eliminazione della directory vuota non riuscita: "
 msgid "source_deleted_target_missing"
 msgstr "Eliminazione del file di origine perché è stato eliminato nella destinazione: "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "source_deleted_already_in_target"
+msgstr "Eliminazione del file di origine perché è già presente nella destinazione: "
+
 #: AFS_Core/src/SyncFile.cpp:423
 msgid "source_delete_failed"
 msgstr "Eliminazione del file di origine non riuscita: "

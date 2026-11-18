@@ -23,6 +23,9 @@
 #include <filesystem>
 #include <fstream>
 #include <regex>
+#ifdef _UNIX
+#include <unistd.h>
+#endif
 
 using namespace AFS_Core;
 
@@ -128,6 +131,52 @@ TEST_F(FileDeleteTest, MissingFileFailsInBothModes)
     Config::instance().settings().delete_mode(DeleteMode::Permanent);
     EXPECT_FALSE(delete_file(missing.wstring()));
 }
+
+TEST_F(FileDeleteTest, RefusalOfAMissingFileIsFileNotExistInBothModes)  // [FileDeleteTests.md#refusal]
+{
+    const fs::path missing = root_ / "sub" / "gone.txt";
+
+    EXPECT_EQ(delete_refusal(missing.wstring()), fsu::FileInfoResult::FileNotExist);
+    Config::instance().settings().delete_mode(DeleteMode::Permanent);
+    EXPECT_EQ(delete_refusal(missing.wstring()), fsu::FileInfoResult::FileNotExist);
+}
+
+#ifdef _UNIX
+TEST_F(FileDeleteTest, RefusalInAWriteProtectedDirectoryIsPermissionDeniedInBothModes)  // [FileDeleteTests.md#refusal]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root ignoriert Dateirechte";
+    const fs::path source = create_file("locked/data.txt");
+    fs::permissions(root_ / "locked", fs::perms::owner_read | fs::perms::owner_exec);
+
+    const fsu::FileInfoResult binned = delete_refusal(source.wstring());
+    Config::instance().settings().delete_mode(DeleteMode::Permanent);
+    const fsu::FileInfoResult removed = delete_refusal(source.wstring());
+    fs::permissions(root_ / "locked", fs::perms::owner_all);
+
+    EXPECT_EQ(binned, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_EQ(removed, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_TRUE(fs::exists(source));
+    EXPECT_TRUE(RecycleBin::instance().list_items().empty()) << "die Kopie eines nicht geloeschten Originals bleibt nicht im Papierkorb";
+}
+
+TEST_F(FileDeleteTest, RefusalBehindAnUnsearchableDirectoryIsNotAMissingFile)  // [FileDeleteTests.md#refusal]
+{
+    if (geteuid() == 0)
+        GTEST_SKIP() << "root ignoriert Dateirechte";
+    const fs::path source = create_file("locked/data.txt");
+    fs::permissions(root_ / "locked", fs::perms::none);
+
+    const fsu::FileInfoResult binned = delete_refusal(source.wstring());
+    Config::instance().settings().delete_mode(DeleteMode::Permanent);
+    const fsu::FileInfoResult removed = delete_refusal(source.wstring());
+    fs::permissions(root_ / "locked", fs::perms::owner_all);
+
+    EXPECT_EQ(binned, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_EQ(removed, fsu::FileInfoResult::PermissionDenied);
+    EXPECT_TRUE(fs::exists(source));
+}
+#endif
 
 TEST_F(FileDeleteTest, RecycleBinModeMovesDirectories)
 {

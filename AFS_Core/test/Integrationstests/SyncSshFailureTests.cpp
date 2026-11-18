@@ -23,11 +23,13 @@
 #include "FileUtil.h"
 #include "SshHostKeyVerification.h"
 #include "SshTest.h"
+#include "SyncFileSsh.h"
 #include "SyncItem.h"
 #include "SyncRunner.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
 #include "StrUtil.h"
+#include "Translation.h"
 #include <chrono>
 #include <filesystem>
 
@@ -149,5 +151,28 @@ TEST_F(SyncSshFailureTest, PartFileThatCannotReplaceTheTargetLeavesTheOldFile)  
     EXPECT_FALSE(outcome.report.successful());
     EXPECT_EQ(tu::read_text_file(server_dir_ / "a.txt"), "alt") << "die alte Datei muss bleiben, wenn die neue sie nicht ersetzen kann";
     EXPECT_FALSE(fs::exists(server_dir_ / ("a.txt" + util::wstring_to_string(PART_SUFFIX)))) << "die Teildatei darf nicht liegen bleiben";
+}
+
+TEST_F(SyncSshFailureTest, RemoteFileAndDirectoryThatCannotBeRemovedNameTheirReason)  // [SyncSshFailureTests.md#RemoteFileAndDirectoryThatCannotBeRemovedNameTheirReason]
+{
+    tu::write_text_file(server_dir_ / "a.txt", "nur auf dem Server");
+    fs::create_directories(server_dir_ / "leer");
+    fs::permissions(server_dir_, fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec | fs::perms::others_read | fs::perms::others_exec);
+    SyncItem si;
+    si.sync_cycle(0);
+    si.sync_item_type(SyncItemType::File);
+    si.source((local_dir_ / "a.txt").wstring());
+    si.target(on_server(PLAIN_ACCOUNT) + L"/a.txt");
+    si.delete_in_target(true);
+
+    const Outcome outcome = run(si);
+
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    const std::wstring& error = outcome.report.errors().front();
+    EXPECT_NE(error.find(translation::translate("target_delete_failed") + on_server(PLAIN_ACCOUNT) + L"/a.txt"), std::wstring::npos) << error;
+    EXPECT_NE(error.find(translation::translate("permission_denied")), std::wstring::npos) << error;
+    EXPECT_TRUE(fs::exists(server_dir_ / "a.txt"));
+    EXPECT_EQ(ssh_rmdir_refusal(on_server(PLAIN_ACCOUNT) + L"/leer"), fsu::FileInfoResult::PermissionDenied);
+    EXPECT_TRUE(fs::exists(server_dir_ / "leer"));
 }
 #endif

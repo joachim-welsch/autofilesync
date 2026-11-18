@@ -20,6 +20,16 @@ replace the file lying there, and the bin would lose exactly what it was asked t
 caller picks the name, so the caller has to pick a free one (FileDelete.md#free_bin_item);
 has_item() tells it.
 
+## add_refusal
+
+add_item() with the reason for a failure, for the report of a deletion that did not happen
+(FileDelete.md#delete_refusal): FileNotExist when the source is gone, the reason the system
+gave when the bin's directory could not be created or the move failed, and a write error for a
+taken name or a path the bin refuses. FileNotExist is only said when the system says so: a
+source that cannot be looked at, behind a directory without search permission, gets that
+reason instead, because the caller reads FileNotExist as "nothing left to delete"
+(SyncBase.md#deleted).
+
 ## take_item
 
 Moves an item out of the bin to any destination, which restore_item() does for the place the
@@ -38,6 +48,14 @@ another drive than the file. The entry is then copied and the original removed. 
 do what the rename did for free: take a whole directory along, keep a symlink a symlink, and
 keep every modification time - a file restored from the bin with the time of its restoring
 would look freshly edited to the next sync and overwrite the other side.
+
+## move-takes-the-copy-back
+
+The copy that stands in for a rename is only a move once the original is gone. A copy that
+broke off, and a copy whose original would not go, is removed again: otherwise the bin kept one
+more copy with every attempt while the file stayed where it was, and a restore gave back a
+file that was never deleted. The exception is a directory whose removal failed: part of it may
+already be gone, and then the copy is the only place that still has everything.
 
 ## list_items
 

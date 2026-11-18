@@ -24,10 +24,25 @@ depend on where the recycle bin lives.
 In the default mode the deleted source has to be recoverable like every other deletion of the
 program, so it must end up in the (scoped) recycle bin.
 
-## MoveLeavesAnUnchangedSourceAlone
+## MoveDeletesASourceThatIsAlreadyInTheTarget
 
-A move is "copy, then delete": identical files are not copied, so nothing may be deleted
-either - otherwise a second pass of a move item would wipe the source without a copy.
+A file that lies equal on both sides of a moving item is a move that stopped half way, or a
+copy from before the item moved: the source file is deleted without a new copy
+(SyncBase.md#completes_moves). This replaces the earlier rule that an equal source stays,
+under which a move whose deletion had failed once was never finished. In recycle bin mode the
+file goes to the bin like every deletion.
+
+## MoveKeepsAnEqualSourceWhereItsDeletionWouldTravelOn
+
+With two-way sync or "delete in target" the next pass would read the emptied source as a
+deletion and remove the target's file as well. The dialog does not offer a move together with
+either; a configuration that has it keeps its equal files.
+
+## MoveKeepsASourceThatDiffersFromANewerTarget
+
+Only an equal pair is a finished copy. Compared by time, a newer target is left alone and
+nothing is copied; the older source must then stay as well and is not deleted on the strength
+of the target merely existing.
 
 ## MoveEmptiesTheSourceDirectoryFileByFile
 

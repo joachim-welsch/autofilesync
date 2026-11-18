@@ -817,6 +817,10 @@ msgstr ""
 msgid "source_deleted_target_missing"
 msgstr ""
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "source_deleted_already_in_target"
+msgstr ""
+
 #: AFS_Core/src/SyncFile.cpp:423
 msgid "source_delete_failed"
 msgstr ""

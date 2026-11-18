@@ -796,7 +796,7 @@ msgstr "Ziel:"
 
 #: AFS_Core/src/SyncFile.cpp:294 AFS_Core/src/SyncFile.cpp:295
 msgid "target_delete_failed"
-msgstr "Loeschen der Zieldatei fehlgeschlagen: "
+msgstr "Löschen der Zieldatei fehlgeschlagen: "
 
 #: AFS_Core/src/SyncBase.cpp:123
 msgid "empty_dir_removed"
@@ -809,6 +809,10 @@ msgstr "Löschen des leeren Verzeichnisses fehlgeschlagen: "
 #: AFS_Core/src/SyncFile.cpp:419
 msgid "source_deleted_target_missing"
 msgstr "Lösche Quelldatei, da sie im Ziel gelöscht wurde: "
+
+#: AFS_Core/src/SyncFile.cpp
+msgid "source_deleted_already_in_target"
+msgstr "Lösche Quelldatei, da sie bereits im Ziel liegt: "
 
 #: AFS_Core/src/SyncFile.cpp:423
 msgid "source_delete_failed"

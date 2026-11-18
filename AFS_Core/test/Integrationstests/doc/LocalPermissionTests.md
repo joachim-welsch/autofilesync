@@ -159,3 +159,30 @@ to pass for an empty one, silently.
 With the generation principle the old target is moved to its backup name before the copy.
 When the source cannot be read that move must not happen: the target would be left without
 the file under its name, and every failed pass would push the generations on by one.
+
+## deletion-that-fails-is-reported
+
+A file in a directory without write permission cannot be deleted. The run must say so with the
+file and the reason, whether the deletion is in the target (mirror), in the source (two-way,
+the file was deleted in the target) or goes to the recycle bin - "deleting failed" alone does
+not tell the user what to fix. The state keeps the file, so the next pass deletes it once the
+directory is writable again instead of copying it back. In recycle bin mode nothing may be
+left in the bin: the file was not deleted (RecycleBin.md#move-takes-the-copy-back).
+
+## MoveThatCannotDeleteTheSourceKeepsTheCopyAndReportsIt
+
+"Delete after copying" with a source directory that lets nothing be removed: the copy arrives
+and counts, the source stays. Before, the run looked successful and the source was never
+mentioned again (SyncFile.md#move-keeps-the-copy). Once the directory is writable the next
+pass deletes the source without copying again (SyncFile.md#move-catch-up).
+
+## LinkThatCannotBeDeletedNamesItsReason
+
+The same two failures for a symbolic link kept as a link: the source link of a move, and a
+target link whose source link is gone.
+
+## DirectoryThatCannotBeRemovedNamesItsReason
+
+A directory deleted in the target is emptied and removed in the source. Its own files go, but
+the parent is write-protected and keeps the entry: one error with the directory and the
+reason.

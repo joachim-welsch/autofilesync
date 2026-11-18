@@ -36,15 +36,15 @@ bool entry_exists(const fs::path& path)
     return fs::exists(fs::symlink_status(path, ec)) && !ec;
 }
 
-bool create_parent(const fs::path& path)
+fsu::FileInfoResult create_parent(const fs::path& path)
 {
     if (path.parent_path().empty())
-        return true;
+        return fsu::FileInfoResult::OK;
     std::error_code ec;
-    fs::create_directories(path.parent_path(), ec);
-    if (ec)
+    const fsu::FileInfoResult refusal = fsu::create_directory_refusal(path.parent_path(), ec);
+    if (refusal != fsu::FileInfoResult::OK)
         log_fatal(translation::translate("recycle_bin_dir_not_creatable"), path.parent_path().wstring());
-    return !ec;
+    return refusal;
 }
 }
 
@@ -76,6 +76,18 @@ bool RecycleBin::check_relative(const fs::path& item) const  // [RecycleBin.md#c
     return true;
 }
 
+static bool real_directory(const fs::path& path)
+{
+    std::error_code ec;
+    return fs::is_directory(fs::symlink_status(path, ec));
+}
+
+static void discard_copy(const fs::path& copy)  // [RecycleBin.md#move-takes-the-copy-back]
+{
+    std::error_code ec;
+    fs::remove_all(copy, ec);
+}
+
 static void keep_write_times(const fs::path& from, const fs::path& to)  // [RecycleBin.md#move]
 {
     std::error_code ec;
@@ -89,24 +101,27 @@ static void keep_write_times(const fs::path& from, const fs::path& to)  // [Recy
             fs::last_write_time(to / entry.path().lexically_relative(from), entry.last_write_time(ec), ec);
 }
 
-bool RecycleBin::move(const fs::path& from, const fs::path& to) const  // [RecycleBin.md#move]
+fsu::FileInfoResult RecycleBin::move(const fs::path& from, const fs::path& to) const  // [RecycleBin.md#move]
 {
     std::error_code ec;
     fs::rename(from, to, ec);
     if (!ec)
-        return true;
+        return fsu::FileInfoResult::OK;
     fs::copy(from, to, fs::copy_options::recursive | fs::copy_options::copy_symlinks | fs::copy_options::overwrite_existing, ec);
     if (ec) {
         log_error(translation::translate("recycle_bin_move_failed"), from.wstring(), to.wstring(), util::string_to_wstring(ec.message()));
-        return false;
+        discard_copy(to);
+        return fsu::reason_for_write_failure(ec);
     }
     keep_write_times(from, to);
+    const bool whole_while_there = !real_directory(from);  // [RecycleBin.md#move-takes-the-copy-back]
     fs::remove_all(from, ec);
-    if (ec) {
-        log_error(translation::translate("recycle_bin_source_not_deletable"), from.wstring());
-        return false;
-    }
-    return true;
+    if (!ec)
+        return fsu::FileInfoResult::OK;
+    log_error(translation::translate("recycle_bin_source_not_deletable"), from.wstring());
+    if (whole_while_there && entry_exists(from))
+        discard_copy(to);
+    return fsu::reason_for_write_failure(ec);
 }
 
 void RecycleBin::bin_path(const fs::path& path)
@@ -128,22 +143,32 @@ bool RecycleBin::add_item(const fs::path& item)
 
 bool RecycleBin::add_item(const fs::path& source, const fs::path& item)
 {
+    return add_refusal(source, item) == fsu::FileInfoResult::OK;
+}
+
+fsu::FileInfoResult RecycleBin::add_refusal(const fs::path& source, const fs::path& item)  // [RecycleBin.md#add_refusal]
+{
     std::lock_guard<std::mutex> lock(mutex_);
     if (!check_relative(item))
-        return false;
-    if (!entry_exists(source)) {
+        return fsu::FileInfoResult::ErrorWriteFileInfo;
+    std::error_code ec;
+    const fs::file_status status = fs::symlink_status(source, ec);
+    if (status.type() == fs::file_type::not_found)  // [RecycleBin.md#add_refusal]
+        return fsu::FileInfoResult::FileNotExist;
+    if (!fs::exists(status)) {
         log_error(translation::translate("recycle_bin_file_not_exist"), source.wstring());
-        return false;
+        return fsu::reason_for_write_failure(ec);
     }
     const fs::path target = path_ / item.lexically_normal();
     if (entry_exists(target)) {  // [RecycleBin.md#add_item-never-replaces]
         log_error(translation::translate("recycle_bin_target_exists"), target.wstring());
-        return false;
+        return fsu::FileInfoResult::ErrorWriteFileInfo;
     }
-    if (!create_parent(target) || !move(source, target))
-        return false;
-    log_debug(L"Papierkorb: verschoben " + source.wstring());
-    return true;
+    const fsu::FileInfoResult no_parent = create_parent(target);
+    const fsu::FileInfoResult refusal = no_parent == fsu::FileInfoResult::OK ? move(source, target) : no_parent;
+    if (refusal == fsu::FileInfoResult::OK)
+        log_debug(L"Papierkorb: verschoben " + source.wstring());
+    return refusal;
 }
 
 bool RecycleBin::has_item(const fs::path& item) const
@@ -171,7 +196,7 @@ bool RecycleBin::take_item(const fs::path& item, const fs::path& target)  // [Re
         log_error(translation::translate("recycle_bin_target_exists"), target.wstring());
         return false;
     }
-    if (!create_parent(target) || !move(source, target))
+    if (create_parent(target) != fsu::FileInfoResult::OK || move(source, target) != fsu::FileInfoResult::OK)
         return false;
     log_debug(L"Papierkorb: wiederhergestellt " + target.wstring());
     return true;

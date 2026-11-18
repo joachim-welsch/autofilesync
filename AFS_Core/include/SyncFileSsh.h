@@ -58,6 +58,8 @@ bool ssh_is_directory(const std::wstring& path);
 bool ssh_mkdir(const std::wstring& path);
 bool ssh_mkdir_p(const std::wstring& path);  // [SyncFileSsh.md#ssh_mkdir_p]
 bool ssh_remove_file(const std::wstring& path);
+fsu::FileInfoResult ssh_remove_refusal(const std::wstring& path);  // [SyncFileSsh.md#removal-refusal]
+fsu::FileInfoResult ssh_rmdir_refusal(const std::wstring& path);  // [SyncFileSsh.md#removal-refusal]
 bool ssh_rmdir(const std::wstring& path);  // [SyncFileSsh.md#ssh_rmdir]
 bool ssh_rename(const std::wstring& from, const std::wstring& to);  // [SyncFileSsh.md#ssh_rename]
 std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path);

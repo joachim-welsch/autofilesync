@@ -96,6 +96,16 @@ not empty, so the caller checks first and nothing with content is ever removed h
 libssh2 build the connection dance of ssh_remove_file() is shared, since only the final SFTP
 call differs.
 
+## removal-refusal
+
+ssh_remove_file() and ssh_rmdir() with the reason for a failure, for the report of a deletion
+(SyncBase.md#deleted): FileNotExist when the server says the entry is not there - which the
+caller takes for done (SyncBase.md#already-gone) and which is therefore no error line in the
+log -, PermissionDenied when the server refuses, ServerUnreachable when no connection came
+about, and a write error for everything the server or the library gives no known reason for.
+A WebDAV or cloud store only throws, so there a failure is unreachable or unknown and never
+"not there": a missing answer must not pass for a deleted file.
+
 ## ssh_mkdir_p
 
 sftp_mkdir() makes one level. A copy back into a directory the source side no longer has

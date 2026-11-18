@@ -34,6 +34,13 @@ program uses. They remain as the fallback.
 fs::remove() answers false when there was nothing to remove, which is not an error but must not
 be reported as a deletion either.
 
+## remove_refusal
+
+Removes a file and says why when that fails, where remove_file() only says that it did: the
+deletion of a sync needs the reason for its report (SyncBase.md#deleted). A file that was not
+there is FileNotExist (remove-returns-false); a failure the system gives no known reason for is
+a write error (reason_for_write_failure). Nothing is logged here, the caller words the message.
+
 ## utf8-files
 
 The configuration and the backup proofs are JSON, once written by boost's write_json() into a

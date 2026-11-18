@@ -810,6 +810,10 @@ msgstr "Deleting the empty directory failed: "
 msgid "source_deleted_target_missing"
 msgstr "Deleting the source file because it was deleted in the target: "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "source_deleted_already_in_target"
+msgstr "Deleting the source file because it is already in the target: "
+
 #: AFS_Core/src/SyncFile.cpp:423
 msgid "source_delete_failed"
 msgstr "Deleting the source file failed: "

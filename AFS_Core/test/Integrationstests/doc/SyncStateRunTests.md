@@ -61,3 +61,10 @@ carries out the deletions.
 
 The notebook must not switch on the rename detection: a new file that equals a kept one in
 size and time is a copy, not a move, when the kept one is still in the source.
+
+## already-gone
+
+A deletion the pass put off finds its file gone - removed by the user between the comparison
+and the end of the pass. The pass is asked to carry out exactly that deletion: no error, and
+the state forgets the file, in both delete modes and on both sides (SyncBase.md#already-gone).
+

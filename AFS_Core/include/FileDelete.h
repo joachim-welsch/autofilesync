@@ -17,10 +17,12 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <FilesystemUtil.h>
 #include <string>
 
 namespace AFS_Core {
 
 bool delete_file(const std::wstring& pathname);  // [FileDelete.md#delete_file]
+fsu::FileInfoResult delete_refusal(const std::wstring& pathname);  // [FileDelete.md#delete_refusal]
 
 } // namespace AFS_Core

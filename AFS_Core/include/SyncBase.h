@@ -82,6 +82,8 @@ protected:
 	bool local_dir_created(const std::wstring& dir, const char* message_id);  // [SyncBase.md#local_dir_created]
 	void report_failure(const std::wstring& where, const std::filesystem::filesystem_error& failure);  // [SyncBase.md#report_failure]
 	void remove_dir_if_empty(const std::wstring& dir, bool ssh);  // [SyncBase.md#remove_dir_if_empty]
+	bool deleted(const std::wstring& file, bool ssh, const char* message_id);  // [SyncBase.md#deleted]
+	bool completes_moves() const;  // [SyncBase.md#completes_moves]
 	void sync_dir_entry(const std::filesystem::directory_entry& dir_entry, const std::wstring& wildcard, const std::wstring& destination);
 	void sync_file(const std::wstring& source, const std::wstring& dest, const std::wstring& wildcard);  // [SyncBase.md#sync_file]
     bool drive_not_exist(const std::wstring& pathname, bool ssh);

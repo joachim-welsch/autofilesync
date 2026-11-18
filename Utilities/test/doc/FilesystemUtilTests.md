@@ -165,3 +165,8 @@ false, so the caller logs it as PasswordCrypto and DeviceIdentity do.
 Fehler 5 (round 6): remove_file() discarded fs::remove()'s own return value and always reported
 success regardless of whether anything was actually deleted - e.g. for an SSH "account:/path"
 string misinterpreted as a bogus local path, or any other path that simply didn't exist.
+
+## RemoveRefusalRemovesTheFileOrSaysWhyNot
+
+The three answers a deletion reports: the file was never there, the directory does not let it
+go (not on Windows, and not as root, who is not refused), and removed.

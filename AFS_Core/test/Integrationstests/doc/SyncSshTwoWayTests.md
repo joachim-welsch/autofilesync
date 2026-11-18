@@ -108,3 +108,10 @@ with the outermost scope and not with a nested one; and a real Synchronize pass 
 listing, uploads - logs in once, since sync_items() opens the scope
 (Synchronize.md#ssh-sessions). The tests live here for the fixture's remote directory, not
 because they are about two-way sync.
+
+## deletions-that-fail
+
+A remote file that is already gone when its deletion comes is no error and leaves the state; a
+server that does not answer is ServerUnreachable and never "not there"
+(SyncFileSsh.md#removal-refusal, SyncBase.md#already-gone). The refused deletion is in
+SyncSshFailureTests, whose directory the test can write-protect.

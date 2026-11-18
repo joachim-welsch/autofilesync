@@ -40,3 +40,10 @@ file of another user. The part file can be written; putting it in place of the o
 
 The last step of a copy through a part file fails. The old file must be untouched, the part
 file must be gone, and the run must count as failed.
+
+## RemoteFileAndDirectoryThatCannotBeRemovedNameTheirReason
+
+The server directory belongs to the user running the tests and gives the SSH user no write
+permission, so the server refuses both removals. The mirror's deletion is reported with the
+remote file and "permission denied" instead of only "deleting failed", and the removal of an
+empty directory gives the same reason (SyncFileSsh.md#removal-refusal).

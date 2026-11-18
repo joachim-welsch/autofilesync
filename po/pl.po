@@ -802,6 +802,10 @@ msgstr "Usunięcie pustego katalogu nie powiodło się: "
 msgid "source_deleted_target_missing"
 msgstr "Usuwanie pliku źródłowego, ponieważ został usunięty w miejscu docelowym: "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "source_deleted_already_in_target"
+msgstr "Usuwanie pliku źródłowego, ponieważ znajduje się już w miejscu docelowym: "
+
 #: AFS_Core/src/SyncFile.cpp:423
 msgid "source_delete_failed"
 msgstr "Usunięcie pliku źródłowego nie powiodło się: "

@@ -114,17 +114,56 @@ TEST_F(SyncFlagTest, MoveSendsTheSourceToTheRecycleBinInRecycleBinMode)  // [Syn
     EXPECT_EQ(tu::read_text_file(target_dir_ / "brief.txt"), "Inhalt");
 }
 
-TEST_F(SyncFlagTest, MoveLeavesAnUnchangedSourceAlone)  // [SyncFlagTests.md#MoveLeavesAnUnchangedSourceAlone]
+TEST_F(SyncFlagTest, MoveDeletesASourceThatIsAlreadyInTheTarget)  // [SyncFlagTests.md#MoveDeletesASourceThatIsAlreadyInTheTarget]
 {
-    const tu::ScopedDeleteMode permanent(DeleteMode::Permanent);
+    const tu::ScopedDeleteMode recycle(DeleteMode::RecycleBin);
+    const tu::ScopedRecycleBin bin;
     tu::write_text_file(source_dir_ / "brief.txt", "gleich");
     tu::write_text_file(target_dir_ / "brief.txt", "gleich");
     SyncItem si = file_item(L"brief.txt");
     si.del_aftercopy(true);
 
+    EXPECT_EQ(tu::run_sync(si), 0u) << "es wird nichts kopiert";
+
+    EXPECT_FALSE(fs::exists(source_dir_ / "brief.txt")) << "die Verschiebung wird nachgeholt";
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "brief.txt"), "gleich");
+    EXPECT_EQ(RecycleBin::instance().list_items().size(), 1u) << "wie jede Loeschung ueber den Papierkorb";
+}
+
+TEST_F(SyncFlagTest, MoveKeepsAnEqualSourceWhereItsDeletionWouldTravelOn)  // [SyncFlagTests.md#MoveKeepsAnEqualSourceWhereItsDeletionWouldTravelOn]
+{
+    const tu::ScopedDeleteMode permanent(DeleteMode::Permanent);
+    for (const bool two_way : {true, false}) {
+        tu::write_text_file(source_dir_ / "brief.txt", "gleich");
+        tu::write_text_file(target_dir_ / "brief.txt", "gleich");
+        SyncItem si = file_item(L"brief.txt");
+        si.del_aftercopy(true);
+        si.two_way_sync(two_way);
+        si.delete_in_target(!two_way);
+
+        EXPECT_EQ(tu::run_sync(si), 0u);
+
+        EXPECT_TRUE(fs::exists(source_dir_ / "brief.txt")) << two_way;
+        EXPECT_TRUE(fs::exists(target_dir_ / "brief.txt")) << two_way;
+    }
+}
+
+TEST_F(SyncFlagTest, MoveKeepsASourceThatDiffersFromANewerTarget)  // [SyncFlagTests.md#MoveKeepsASourceThatDiffersFromANewerTarget]
+{
+    const tu::ScopedDeleteMode permanent(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "brief.txt", "alt", std::chrono::seconds(3600));
+    tu::write_text_file(target_dir_ / "brief.txt", "neuer im Ziel");
+    SyncItem si = file_item(L"brief.txt");
+    si.del_aftercopy(true);
+    CompareItems by_time;
+    by_time.content(false);
+    by_time.time(true);
+    si.compare_items(by_time);
+
     EXPECT_EQ(tu::run_sync(si), 0u);
 
-    EXPECT_TRUE(fs::exists(source_dir_ / "brief.txt")) << "ohne Kopie darf die Quelle nicht geloescht werden";
+    EXPECT_EQ(tu::read_text_file(target_dir_ / "brief.txt"), "neuer im Ziel");
+    EXPECT_EQ(tu::read_text_file(source_dir_ / "brief.txt"), "alt") << "nur was gleich im Ziel liegt, wird in der Quelle geloescht";
 }
 
 TEST_F(SyncFlagTest, MoveEmptiesTheSourceDirectoryFileByFile)  // [SyncFlagTests.md#MoveEmptiesTheSourceDirectoryFileByFile]

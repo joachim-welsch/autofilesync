@@ -21,6 +21,8 @@
 #include "CopyLog.h"
 #include "FileUtil.h"
 #include "ScopedDeleteMode.h"
+#include "ScopedRecycleBin.h"
+#include <RecycleBin.h>
 #include "SyncState.h"
 #include "SyncRunner.h"
 #include "Synchronize.h"
@@ -131,6 +133,12 @@ protected:
     static void lock(const fs::path& path, fs::perms kept = fs::perms::owner_read | fs::perms::owner_exec)
     {
         fs::permissions(path, kept);
+    }
+
+    static bool names_failed_deletion(const Outcome& outcome, const char* message_id, const fs::path& file)  // [LocalPermissionTests.md#deletion-that-fails-is-reported]
+    {
+        return outcome.report.errors().size() == 1 && names(outcome.report.errors().front(), file)
+            && outcome.report.errors().front().find(translation::translate(message_id)) != std::wstring::npos;
     }
 };
 
@@ -619,5 +627,123 @@ TEST_F(LocalPermissionTest, SourceThatDoesNotOpenLeavesTheGenerationsAlone)  // 
     EXPECT_EQ(outcome.report.errors().size(), 1u);
     EXPECT_EQ(names_in(target_dir_), std::set<std::string>{"a.txt"}) << "kein Generationswechsel fuer eine Kopie, die nicht stattfindet";
     EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "alt");
+}
+TEST_F(LocalPermissionTest, TargetFileThatCannotBeDeletedNamesItsReason)  // [LocalPermissionTests.md#deletion-that-fails-is-reported]
+{
+    const tu::ScopedRecycleBin bin;
+    for (const DeleteMode mode : {DeleteMode::Permanent, DeleteMode::RecycleBin}) {
+        const tu::ScopedDeleteMode delete_mode(mode);
+        tu::write_text_file(target_dir_ / "a.txt", "alt");
+        lock(target_dir_);
+        SyncItem si = file_item("a.txt");
+        si.delete_in_target(true);
+
+        const Outcome outcome = run(si);
+        fs::permissions(target_dir_, fs::perms::owner_all);
+
+        EXPECT_TRUE(names_failed_deletion(outcome, "target_delete_failed", target_dir_ / "a.txt")) << (outcome.report.errors().empty() ? L"kein Fehler" : outcome.report.errors().front());
+        EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "alt");
+        EXPECT_TRUE(RecycleBin::instance().list_items().empty()) << "was nicht geloescht wurde, liegt auch nicht im Papierkorb";
+    }
+}
+
+TEST_F(LocalPermissionTest, SourceFileThatCannotBeDeletedIsReportedAndDeletedOnceItCan)  // [LocalPermissionTests.md#deletion-that-fails-is-reported]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "a.txt", "a", seconds(3600));
+    SyncItem si = dir_item(target_dir_);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    fs::remove(target_dir_ / "a.txt");
+    lock(source_dir_);
+    Outcome outcome;
+    {
+        SyncReportGuard guard(&outcome.report);
+        outcome.copies = tu::run_sync(si, state);
+    }
+    fs::permissions(source_dir_, fs::perms::owner_all);
+
+    EXPECT_TRUE(names_failed_deletion(outcome, "source_delete_failed", source_dir_ / "a.txt")) << (outcome.report.errors().empty() ? L"kein Fehler" : outcome.report.errors().front());
+    EXPECT_TRUE(fs::exists(source_dir_ / "a.txt"));
+    EXPECT_NE(state.find(L"a.txt"), nullptr) << "der Stand darf die nicht geloeschte Datei nicht vergessen";
+    const Outcome retry = [&] { Outcome o; SyncReportGuard guard(&o.report); o.copies = tu::run_sync(si, state); return o; }();
+    EXPECT_TRUE(retry.report.successful());
+    EXPECT_FALSE(fs::exists(source_dir_ / "a.txt")) << "die Loeschung wird nachgeholt, nicht die Datei zurueckkopiert";
+    EXPECT_FALSE(fs::exists(target_dir_ / "a.txt"));
+}
+
+TEST_F(LocalPermissionTest, MoveThatCannotDeleteTheSourceKeepsTheCopyAndReportsIt)  // [LocalPermissionTests.md#MoveThatCannotDeleteTheSourceKeepsTheCopyAndReportsIt]
+{
+    const tu::ScopedRecycleBin bin;
+    for (const DeleteMode mode : {DeleteMode::Permanent, DeleteMode::RecycleBin}) {
+        const tu::ScopedDeleteMode delete_mode(mode);
+        fs::remove(target_dir_ / "a.txt");
+        tu::write_text_file(source_dir_ / "a.txt", "neu");
+        lock(source_dir_);
+        SyncItem si = file_item("a.txt");
+        si.del_aftercopy(true);
+
+        const Outcome outcome = run(si);
+        fs::permissions(source_dir_, fs::perms::owner_all);
+
+        EXPECT_EQ(outcome.copies, 1u);
+        EXPECT_TRUE(names_failed_deletion(outcome, "source_delete_failed", source_dir_ / "a.txt")) << (outcome.report.errors().empty() ? L"kein Fehler" : outcome.report.errors().front());
+        EXPECT_EQ(tu::read_text_file(source_dir_ / "a.txt"), "neu");
+        EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "neu");
+        EXPECT_TRUE(RecycleBin::instance().list_items().empty()) << "was nicht geloescht wurde, liegt auch nicht im Papierkorb";
+        const Outcome retry = run(si);
+        EXPECT_TRUE(retry.report.successful());
+        EXPECT_FALSE(fs::exists(source_dir_ / "a.txt")) << "der naechste Lauf holt die Loeschung nach";
+        EXPECT_EQ(tu::read_text_file(target_dir_ / "a.txt"), "neu");
+    }
+}
+
+TEST_F(LocalPermissionTest, LinkThatCannotBeDeletedNamesItsReason)  // [LocalPermissionTests.md#LinkThatCannotBeDeletedNamesItsReason]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    fs::create_symlink("irgendwo.txt", source_dir_ / "zeiger.txt");
+    SyncItem moved = dir_item(target_dir_);
+    moved.symlink_mode(SymlinkMode::AsLink);
+    moved.del_aftercopy(true);
+    lock(source_dir_);
+
+    const Outcome move = run(moved);
+    fs::permissions(source_dir_, fs::perms::owner_all);
+
+    EXPECT_TRUE(names_failed_deletion(move, "source_delete_failed", source_dir_ / "zeiger.txt")) << (move.report.errors().empty() ? L"kein Fehler" : move.report.errors().front());
+    EXPECT_TRUE(fs::is_symlink(source_dir_ / "zeiger.txt"));
+    ASSERT_TRUE(fs::is_symlink(target_dir_ / "zeiger.txt"));
+    fs::remove(source_dir_ / "zeiger.txt");
+    SyncItem mirrored = dir_item(target_dir_);
+    mirrored.symlink_mode(SymlinkMode::AsLink);
+    mirrored.delete_in_target(true);
+    lock(target_dir_);
+
+    const Outcome removal = run(mirrored);
+
+    EXPECT_TRUE(names_failed_deletion(removal, "target_delete_failed", target_dir_ / "zeiger.txt")) << (removal.report.errors().empty() ? L"kein Fehler" : removal.report.errors().front());
+    EXPECT_TRUE(fs::is_symlink(target_dir_ / "zeiger.txt"));
+}
+TEST_F(LocalPermissionTest, DirectoryThatCannotBeRemovedNamesItsReason)  // [LocalPermissionTests.md#DirectoryThatCannotBeRemovedNamesItsReason]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    tu::write_text_file(source_dir_ / "sub" / "b.txt", "b", seconds(3600));
+    SyncItem si = dir_item(target_dir_);
+    si.sync_item_type(SyncItemType::Tree);
+    si.two_way_sync(true);
+    SyncState state(si.source(), si.target());
+    ASSERT_EQ(tu::run_sync(si, state), 1u);
+    fs::remove_all(target_dir_ / "sub");
+    lock(source_dir_);
+    Outcome outcome;
+    {
+        SyncReportGuard guard(&outcome.report);
+        outcome.copies = tu::run_sync(si, state);
+    }
+    fs::permissions(source_dir_, fs::perms::owner_all);
+
+    EXPECT_TRUE(names_failed_deletion(outcome, "dir_delete_failed", source_dir_ / "sub")) << (outcome.report.errors().empty() ? L"kein Fehler" : outcome.report.errors().front());
+    EXPECT_TRUE(fs::is_empty(source_dir_ / "sub")) << "die Datei darin liess sich loeschen, nur das Verzeichnis nicht";
 }
 #endif

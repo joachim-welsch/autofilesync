@@ -187,6 +187,19 @@ TEST_F(SyncPlanTest, DeleteAfterCopyIsPlannedAsAMove)
     EXPECT_TRUE(fs::exists(source_dir_ / "move-me.txt")) << "the preview must not move anything";
 }
 
+TEST_F(SyncPlanTest, MoveOfAFileAlreadyInTheTargetIsPlannedAsADeletionInTheSource)  // [SyncPlanTests.md#move-catch-up]
+{
+    tu::write_text_file(source_dir_ / "already-there.txt", "content");
+    tu::write_text_file(target_dir_ / "already-there.txt", "content");
+    SyncItem si = item(SyncItemType::Dir);
+    si.del_aftercopy(true);
+
+    const SyncPlan plan = preview(si);
+
+    EXPECT_EQ(plan.count(PlannedAction::DeleteInSource), 1u);
+    EXPECT_TRUE(fs::exists(source_dir_ / "already-there.txt")) << "the preview must not delete anything";
+}
+
 TEST_F(SyncPlanTest, SingleFileItemIsPlannedToo)
 {
     tu::write_text_file(source_dir_ / "one.txt", "1");

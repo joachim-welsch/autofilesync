@@ -18,6 +18,7 @@
  */
 #include "pch.h"
 #include "Config.h"
+#include "CopyLog.h"
 #include "DirUtil.h"
 #include "ScopedDeleteMode.h"
 #include "FileUtil.h"
@@ -25,6 +26,7 @@
 #include "SshFileInspector.h"
 #include "SftpConnection.h"
 #include "SshTest.h"
+#include "SyncFile.h"
 #include "SyncFileSsh.h"
 #include "SyncRunner.h"
 #include "SyncTree.h"
@@ -437,6 +439,34 @@ TEST_F(SyncSshTwoWayTest, ConflictWithTheServerKeepsBothVersions)  // [SyncSshTw
         }
     EXPECT_EQ(copies, 1u);
     EXPECT_EQ(tu::run_sync(si, state), 0u);
+}
+
+TEST_F(SyncSshTwoWayTest, RemoteFileAlreadyGoneIsNoErrorAndNoDeletionOnAnUnreachableServer)  // [SyncSshTwoWayTests.md#deletions-that-fail]
+{
+    const SyncItem si = ssh_target_item(SyncItemType::Dir, true);
+    SyncState state(si.source(), si.target());
+    state.record(L"a.txt", {});
+    std::size_t copies = 0;
+    SyncReport report;
+    {
+        SyncReportGuard guard(&report);
+        SyncFile(si, copies, false, false, &state, si.source(), si.target())
+            .carry_out_deferred({L"a.txt", (source_dir_ / "a.txt").wstring(), remote_path(L"a.txt"), true, 1});
+    }
+    SshAccount nowhere = test_account();
+    nowhere.set_name("nirgends");
+    nowhere.set_port(1);
+    Config::instance().add(nowhere);
+
+    EXPECT_TRUE(report.errors().empty()) << (report.errors().empty() ? L"" : report.errors().front());
+    EXPECT_EQ(state.find(L"a.txt"), nullptr) << "was auf dem Server weg ist, gilt als geloescht";
+    EXPECT_EQ(ssh_remove_refusal(remote_path(L"missing.txt")), fsu::FileInfoResult::FileNotExist);
+    EXPECT_EQ(ssh_rmdir_refusal(remote_path(L"missing")), fsu::FileInfoResult::FileNotExist);
+    EXPECT_EQ(ssh_remove_refusal(L"nirgends:" + string_to_wstring(remote_dir_) + L"/a.txt"), fsu::FileInfoResult::ServerUnreachable) << "keine Antwort ist keine Loeschung";
+    const auto accounts = Config::instance().ssh_accounts_snapshot();
+    for (std::size_t i = accounts.size(); i-- > 0;)
+        if (accounts[i].name() == "nirgends")
+            Config::instance().remove_ssh_account(i);
 }
 
 #ifdef _UNIX  // sftp_connect_count exists in the libssh build only

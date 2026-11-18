@@ -802,6 +802,10 @@ msgstr "Не вдалося видалити порожній каталог: "
 msgid "source_deleted_target_missing"
 msgstr "Видалення файлу джерела, оскільки його видалено в цілі: "
 
+#: AFS_Core/src/SyncFile.cpp
+msgid "source_deleted_already_in_target"
+msgstr "Видалення вихідного файлу, оскільки він уже є в цілі: "
+
 #: AFS_Core/src/SyncFile.cpp:423
 msgid "source_delete_failed"
 msgstr "Не вдалося видалити файл джерела: "

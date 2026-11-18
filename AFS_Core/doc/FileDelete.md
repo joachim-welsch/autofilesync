@@ -9,6 +9,15 @@ recycle bin under a timestamped name. Every deletion of data that belongs to the
 through here; our own temporary files (backups, half-copied targets, the config temp file) are
 removed directly, they have nothing to recover.
 
+## delete_refusal
+
+delete_file() with the reason for a failure. "Deleting failed" alone leaves the user guessing
+whether the file is write-protected, held by another program or already gone, so the sync puts
+the reason into its report (SyncBase.md#deleted), and takes FileNotExist as done
+(SyncBase.md#already-gone). A permanent deletion that fails is not logged
+here: the caller logs it together with the reason. A file that is not there is no error line
+in either mode, since the caller decides what that means.
+
 ## recycle-bin-layout
 
 relative_path() strips the root ("C:\" resp. "/") so the origin's directory structure is rebuilt

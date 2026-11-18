@@ -20,6 +20,7 @@
 #include "SyncBase.h"
 #include <FilesystemUtil.h>
 #include "CopyLog.h"
+#include "FileDelete.h"
 #include "Global.h"
 #include "Logging.h"
 #include "MountedDrives.h"
@@ -315,6 +316,11 @@ bool SyncBase::create_source_dir(const wstring& dir)  // [SyncBase.md#create_sou
     return false;
 }
 
+static wstring known_reason(fsu::FileInfoResult refusal)  // [SyncBase.md#deleted]
+{
+    return refusal == fsu::FileInfoResult::ErrorWriteFileInfo ? wstring() : L" (" + fsu::make_error_message(refusal) + L")";
+}
+
 void SyncBase::remove_dir_if_empty(const wstring& dir, bool ssh)  // [SyncBase.md#remove_dir_if_empty]
 {
     if (only_count_)
@@ -322,12 +328,34 @@ void SyncBase::remove_dir_if_empty(const wstring& dir, bool ssh)  // [SyncBase.m
     std::error_code ec;
     if (ssh ? !ssh_list_dir(dir).empty() : !fs::is_empty(dir, ec) || ec)
         return;
-    if (ssh ? ssh_rmdir(dir) : fs::remove(dir, ec) && !ec) {
+    const fsu::FileInfoResult refusal = ssh ? ssh_rmdir_refusal(dir) : fsu::remove_refusal(dir);
+    if (refusal == fsu::FileInfoResult::OK)
         log_info(translation::translate("empty_dir_removed"), dir);
+    if (refusal == fsu::FileInfoResult::OK || refusal == fsu::FileInfoResult::FileNotExist)  // [SyncBase.md#already-gone]
         return;
+    const wstring message = translation::translate("dir_delete_failed") + dir + known_reason(refusal);
+    log_error(message);
+    report_sync_error(message);
+}
+
+bool SyncBase::deleted(const wstring& file, bool ssh, const char* message_id)  // [SyncBase.md#deleted]
+{
+    const fsu::FileInfoResult refusal = ssh ? ssh_remove_refusal(file) : delete_refusal(file);
+    if (refusal == fsu::FileInfoResult::OK)
+        return true;
+    if (refusal == fsu::FileInfoResult::FileNotExist) {  // [SyncBase.md#already-gone]
+        log_debug(L"deleted: already gone: " + file);
+        return true;
     }
-    log_error(translation::translate("dir_delete_failed"), dir, string_to_wstring(ec.message()));
-    report_sync_error(translation::translate("dir_delete_failed") + dir);
+    const wstring message = translation::translate(message_id) + file + known_reason(refusal);
+    log_error(message);
+    report_sync_error(message);
+    return false;
+}
+
+bool SyncBase::completes_moves() const  // [SyncBase.md#completes_moves]
+{
+    return sync_item_.del_aftercopy() && !sync_item_.ssh_source() && !sync_item_.two_way_sync() && !sync_item_.delete_in_target();
 }
 
 void SyncBase::guarded(const wstring& source, const wstring& dest, const std::function<void()>& work)  // [SyncBase.md#sync_file]

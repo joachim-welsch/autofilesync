@@ -84,3 +84,10 @@ create, a link to delete and a plain file - and checks that only the file moves 
 second covers the two steps that do not come straight from SyncLink: a deletion that waits in
 the state until the end of the pass, and a conflict, which a preview used to pass over. Unix
 only: the tests create symbolic links.
+
+## move-catch-up
+
+The deletion a moving item makes for a file that is already in the target
+(SyncBase.md#completes_moves) loses a file in the source, so the preview has to show it as
+what it is before anything happens.
+

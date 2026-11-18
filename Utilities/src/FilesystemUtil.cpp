@@ -128,6 +128,8 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("disk_full");
     case FileInfoResult::LinksNotSupported:
         return translation::translate("links_not_supported");
+    case FileInfoResult::ServerUnreachable:
+        return translation::translate("server_connect_failed");
     default:
         return translation::translate("unknown_error");
     }
@@ -587,6 +589,14 @@ bool remove_file(const std::wstring& name, LogLevel ll)
         log_error(L"remove_file: ", name, translation::translate("unknown_error"));
     }
     return false;
+}
+
+FileInfoResult remove_refusal(const std::wstring& name)  // [FilesystemUtil.md#remove_refusal]
+{
+    std::error_code ec;
+    if (fs::remove(name, ec))
+        return FileInfoResult::OK;
+    return ec ? reason_for_write_failure(ec) : FileInfoResult::FileNotExist;  // [FilesystemUtil.md#remove-returns-false]
 }
 
 bool set_last_write_time(const std::wstring& fn, const fs::file_time_type& modify_time, LogLevel ll)

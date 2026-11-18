@@ -19,7 +19,6 @@
 #include "pch.h"
 #include "SyncLink.h"
 #include "CopyLog.h"
-#include "FileDelete.h"
 #include "Logging.h"
 #include "SyncFile.h"
 #include "SyncFileSsh.h"
@@ -159,7 +158,7 @@ std::optional<fs::path> SyncLink::base() const  // [SyncLink.md#decide]
 SyncLink::Action SyncLink::decide_two_links(const Side& here, const Side& there) const
 {
     if (same(here.text, there.text))
-        return Action::Settle;
+        return completes_moves() ? Action::DeleteInSource : Action::Settle;  // [SyncLink.md#move]
     if (!sync_item_.two_way_sync())
         return Action::ToTarget;
     const std::optional<fs::path> known = base();
@@ -273,7 +272,7 @@ void SyncLink::carried(const Side& from, const Place& origin, const Place& desti
     else if (!destination.ssh)
         tally_.created.push_back(destination.path);
     settle(from.text);
-    if (&destination == &target_ && sync_item_.del_aftercopy() && !origin.ssh && delete_file(origin.path) && state_ != nullptr)  // [SyncLink.md#move]
+    if (&destination == &target_ && sync_item_.del_aftercopy() && !origin.ssh && deleted(origin.path, false, "source_delete_failed") && state_ != nullptr)  // [SyncLink.md#move]
         state_->forget(key_);
 }
 
@@ -301,10 +300,8 @@ void SyncLink::remove(bool in_target)  // [SyncLink.md#remove]
         plan_step({sync_item_.name(), in_target ? PlannedAction::DeleteInTarget : PlannedAction::DeleteInSource, source_.path, target_.path, 0, true});
         return;
     }
-    if (doomed.ssh ? ssh_remove_file(doomed.path) : delete_file(doomed.path))
+    if (deleted(doomed.path, doomed.ssh, in_target ? "target_delete_failed" : "source_delete_failed"))
         log_info(translation::translate("link_removed"), doomed.path);
-    else
-        report(translation::translate(in_target ? "target_delete_failed" : "source_delete_failed") + doomed.path);
 }
 
 void SyncLink::resolve_conflict(const Side& here, const Side& there)  // [SyncLink.md#conflict]

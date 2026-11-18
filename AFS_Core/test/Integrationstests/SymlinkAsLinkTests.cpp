@@ -297,6 +297,25 @@ TEST_F(SymlinkAsLinkTest, MoveRemovesTheSourceLinkOnlyAfterTheTargetLinkExists) 
     EXPECT_FALSE(fs::is_symlink(source_ / "zeiger.txt"));
 }
 
+TEST_F(SymlinkAsLinkTest, MoveRemovesASourceLinkThatIsAlreadyInTheTarget)  // [SymlinkAsLinkTests.md#MoveRemovesASourceLinkThatIsAlreadyInTheTarget]
+{
+    const tu::ScopedDeleteMode delete_mode(DeleteMode::Permanent);
+    fs::create_symlink(root_ / "fremd.txt", source_ / "zeiger.txt");
+    fs::create_symlink(root_ / "fremd.txt", target_ / "zeiger.txt");
+    fs::create_symlink(root_ / "fremd.txt", source_ / "anders.txt");
+    fs::create_symlink(root_ / "woanders.txt", target_ / "anders.txt");
+    SyncItem si = item();
+    si.del_aftercopy(true);
+    Outcome outcome;
+
+    run(si, outcome);
+
+    EXPECT_FALSE(fs::is_symlink(source_ / "zeiger.txt")) << "the same link on both sides is a move to finish";
+    EXPECT_TRUE(fs::is_symlink(target_ / "zeiger.txt"));
+    EXPECT_EQ(fs::read_symlink(target_ / "anders.txt"), root_ / "fremd.txt") << "a link that differed is moved as before";
+    EXPECT_FALSE(fs::is_symlink(source_ / "anders.txt"));
+}
+
 TEST_F(SymlinkAsLinkTest, DirSyncCarriesTheLinksOfItsLevelOver)  // [SymlinkAsLinkTests.md#DirSyncCarriesTheLinksOfItsLevelOver]
 {
     fs::create_symlink("b.txt", source_ / "datei.txt");

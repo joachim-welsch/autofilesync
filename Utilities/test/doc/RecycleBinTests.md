@@ -61,3 +61,8 @@ not go at all, so every directory deletion of a sync failed with such a bin.
 
 The second file of the same name must stay where it is and the first must stay in the bin:
 before, the rename replaced the binned file without a word.
+
+## AddRefusalSaysWhyAnItemDidNotGoIn
+
+A missing source and a taken name are told apart, and neither moves anything; a free name
+takes the file.
