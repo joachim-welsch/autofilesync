@@ -1,0 +1,78 @@
+name: Bug report
+description: Report a problem with AutoFileSync
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill in as much as you can.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the problem and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Configure sync from ... to ...
+        2. Modify file ...
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - Windows
+        - macOS
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version / distribution
+      placeholder: e.g. Ubuntu 24.04, Windows 11 23H2
+    validations:
+      required: true
+
+  - type: input
+    id: afs-version
+    attributes:
+      label: AutoFileSync version or commit
+      placeholder: e.g. v0.4.1 or a1b2c3d
+    validations:
+      required: true
+
+  - type: textarea
+    id: paths
+    attributes:
+      label: Source and target
+      description: Paths (anonymized if needed) and file system types, e.g. ext4, NTFS, SMB/NFS share, USB drive.
+      placeholder: |
+        Source: /home/user/docs (ext4)
+        Target: /mnt/nas/backup (SMB)
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output
+      description: Relevant log excerpt. It will be formatted as code automatically.
+      render: text
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else that might help (screenshots, config file, number/size of files).
