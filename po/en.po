@@ -2944,11 +2944,11 @@ msgstr "The remaining files of this item were skipped."
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_read_only"
-msgstr "Target is read-only, nothing was synchronized: "
+msgstr "Target is read-only, the item cannot be synchronized: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only"
-msgstr "Source is read-only, nothing was synchronized: "
+msgstr "Source is read-only, the item cannot be synchronized: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"

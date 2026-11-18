@@ -22,6 +22,7 @@
 #include "FileUtil.h"
 #include "ScopedDeleteMode.h"
 #include "ScopedRecycleBin.h"
+#include "SyncPlan.h"
 #include "SyncRunner.h"
 #include "Synchronize.h"
 #include "TestPaths.h"
@@ -100,6 +101,22 @@ protected:
         Synchronize::destroy();
         const std::optional<LastRun> run = Config::instance().syncitems().at(0).last_run();
         return run.value_or(LastRun{false, 0, L"kein Lauf", std::nullopt});
+    }
+
+    struct Preview {
+        SyncPlan plan;
+        std::vector<LogMessage> notes;
+    };
+
+    static Preview preview(const SyncItem& si)  // [ReadOnlyFilesystemTests.md#preview]
+    {
+        Config::instance().reset();
+        Config::instance().add(si);
+        Synchronize* sync = Synchronize::create(SyncType::Preview);
+        std::this_thread::sleep_for(milliseconds(500));
+        Preview seen{sync->plan(), sync->notes()};
+        Synchronize::destroy();
+        return seen;
     }
 
     static std::size_t entries_in(const fs::path& dir)
@@ -201,6 +218,37 @@ TEST_F(ReadOnlyFilesystemTest, AMoveIsFinishedOnceTheSourceIsWritable)  // [Read
     EXPECT_EQ(run.errors, 0u) << util::wstring_to_string(run.first_error);
     EXPECT_EQ(entries_in(source_dir_), 0u);
     EXPECT_EQ(entries_in(target_dir_), 3u);
+}
+
+TEST_F(ReadOnlyFilesystemTest, ThePreviewOfAReadOnlyTargetPlansNothingAndSaysWhy)  // [ReadOnlyFilesystemTests.md#ThePreviewOfAReadOnlyTargetPlansNothingAndSaysWhy]
+{
+    write_three_source_files();
+    const ReadOnly target(target_dir_);
+
+    const Preview seen = preview(item());
+
+    EXPECT_EQ(seen.plan.count(), 0u) << "die Vorschau darf keine Kopien versprechen, die der Lauf ablehnt";
+    ASSERT_EQ(seen.notes.size(), 1u);
+    EXPECT_EQ(seen.notes.front().level, LogLevel::Error);
+    EXPECT_EQ(seen.notes.front().text, util::wstring_to_string(translation::translate("target_read_only") + target_dir_.wstring()));
+    EXPECT_FALSE(Config::instance().syncitems().at(0).last_run().has_value()) << "eine Vorschau ist kein Lauf";
+}
+
+TEST_F(ReadOnlyFilesystemTest, ThePreviewOfAMoveFromAReadOnlySourcePlansCopies)  // [ReadOnlyFilesystemTests.md#ThePreviewOfAMoveFromAReadOnlySourcePlansCopies]
+{
+    write_three_source_files();
+    SyncItem si = item();
+    si.del_aftercopy(true);
+    const std::size_t moves = preview(si).plan.count(PlannedAction::MoveToTarget);
+    const ReadOnly source(source_dir_);
+
+    const Preview seen = preview(si);
+
+    EXPECT_EQ(moves, 3u) << "ohne Schreibschutz ist es ein Verschieben";
+    EXPECT_EQ(seen.plan.count(PlannedAction::CopyToTarget), 3u);
+    EXPECT_EQ(seen.plan.count(PlannedAction::MoveToTarget), 0u);
+    ASSERT_EQ(seen.notes.size(), 1u);
+    EXPECT_EQ(seen.notes.front().text, util::wstring_to_string(translation::translate("source_read_only_not_moved") + source_dir_.wstring()));
 }
 
 TEST_F(ReadOnlyFilesystemTest, AWriteRefusedInTheMiddleOfAPassAbandonsTheItemWithOneError)  // [ReadOnlyFilesystemTests.md#AWriteRefusedInTheMiddleOfAPassAbandonsTheItemWithOneError]

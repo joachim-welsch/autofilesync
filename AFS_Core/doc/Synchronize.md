@@ -101,7 +101,16 @@ instead of one failed copy per file, and instead of "disk full" on media that re
 space because they have none to give. It is an error of every pass, like any other failed
 one, and the pause until the next pass counts as usual. SSH sides are not asked; a server
 that refuses is found out by the first write (CopyLog.md#abandon), as is a drive that turns
-read-only during the pass. Counting and the preview write nothing and are not held back.
+read-only during the pass. Counting writes nothing and is not held back.
+
+## preview-of-a-protected-item
+
+The preview asks the same question as the run, since it answers "what would a run do now":
+for a read-only side the answer is "nothing", and a plan full of copies would promise what
+the run then refuses. The item gets no steps, and the reason travels as a note (notes), which
+the preview shows whatever the message filter says. Nothing goes into the log or a report -
+a preview is not a failed pass. A move from a read-only source is planned as the copies it
+will be (SyncBase.md#moves_), with the note that the source keeps its files.
 
 ## move-from-a-protected-source
 

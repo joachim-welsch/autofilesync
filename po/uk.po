@@ -2911,11 +2911,11 @@ msgstr "Решту файлів цього елемента пропущено."
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_read_only"
-msgstr "Ціль доступна лише для читання, нічого не синхронізовано: "
+msgstr "Ціль доступна лише для читання, елемент неможливо синхронізувати: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only"
-msgstr "Джерело доступне лише для читання, нічого не синхронізовано: "
+msgstr "Джерело доступне лише для читання, елемент неможливо синхронізувати: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"

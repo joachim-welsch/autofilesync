@@ -453,12 +453,15 @@ bool read_only(const wstring& path, bool ssh)  // [Synchronize.md#write-protecte
     return !ssh && fsu::read_only_filesystem(without_volume_spec(path));
 }
 
-void report_protected(const char* message_id, const wstring& path)
+}
+
+void Synchronize::report_protected(const char* message_id, const wstring& path) const  // [Synchronize.md#write-protected]
 {
     const wstring message = translation::translate(message_id) + path;
+    if (sync_type_ == SyncType::Preview)  // [Synchronize.md#preview-of-a-protected-item]
+        return note(LogLevel::Error, message);
     log_error(message);
     report_sync_error(message);
-}
 }
 
 bool Synchronize::write_protected(const SyncItem& i) const  // [Synchronize.md#write-protected]
@@ -484,7 +487,7 @@ void Synchronize::run_sync_item(SyncItem& i)
             return;
         }
         item_reachable_[i.name()] = true;
-        if (touches_nothing() || !write_protected(i))
+        if (sync_type_ == SyncType::CountFiles || !write_protected(i))
             run_reachable_item(i);
     }
     catch (std::filesystem::filesystem_error const& ex) {

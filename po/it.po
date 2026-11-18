@@ -2911,11 +2911,11 @@ msgstr "I file rimanenti di questo elemento sono stati saltati."
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_read_only"
-msgstr "La destinazione è di sola lettura, non è stato sincronizzato nulla: "
+msgstr "La destinazione è di sola lettura, l'elemento non può essere sincronizzato: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only"
-msgstr "L'origine è di sola lettura, non è stato sincronizzato nulla: "
+msgstr "L'origine è di sola lettura, l'elemento non può essere sincronizzato: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"

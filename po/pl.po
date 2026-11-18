@@ -2911,11 +2911,11 @@ msgstr "Pozostałe pliki tego elementu zostały pominięte."
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_read_only"
-msgstr "Cel jest tylko do odczytu, niczego nie zsynchronizowano: "
+msgstr "Cel jest tylko do odczytu, elementu nie można zsynchronizować: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only"
-msgstr "Źródło jest tylko do odczytu, niczego nie zsynchronizowano: "
+msgstr "Źródło jest tylko do odczytu, elementu nie można zsynchronizować: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"

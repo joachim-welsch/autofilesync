@@ -55,6 +55,22 @@ it tried to finish the move (SyncFile.md#move-catch-up).
 The move is not given up, only postponed: with the protection gone the next pass removes
 the source files that are already in the target.
 
+## preview
+
+One preview pass of the real Synchronize; the plan and the notes are read from the instance
+before it goes, the way the tests of the plan do it (SyncPlanTests.md).
+
+## ThePreviewOfAReadOnlyTargetPlansNothingAndSaysWhy
+
+The preview used to list three copies the run would then refuse. It now plans nothing for
+the item and carries the reason as a note (Synchronize.md#preview-of-a-protected-item); it
+records no run.
+
+## ThePreviewOfAMoveFromAReadOnlySourcePlansCopies
+
+The same item is three moves while the source is writable and three copies while it is not,
+with the note that the source keeps its files - the preview says what the run will do.
+
 ## AWriteRefusedInTheMiddleOfAPassAbandonsTheItemWithOneError
 
 A drive that turns read-only during the pass is not caught by the check before it. The file

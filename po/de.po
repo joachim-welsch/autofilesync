@@ -2944,11 +2944,11 @@ msgstr "Die übrigen Dateien dieses Elements wurden übersprungen."
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_read_only"
-msgstr "Ziel ist schreibgeschützt, nichts wurde synchronisiert: "
+msgstr "Ziel ist schreibgeschützt, das Element kann nicht synchronisiert werden: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only"
-msgstr "Quelle ist schreibgeschützt, nichts wurde synchronisiert: "
+msgstr "Quelle ist schreibgeschützt, das Element kann nicht synchronisiert werden: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"

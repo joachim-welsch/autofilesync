@@ -2911,11 +2911,11 @@ msgstr "Se omitieron los demás archivos de este elemento."
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_read_only"
-msgstr "El destino es de solo lectura, no se sincronizó nada: "
+msgstr "El destino es de solo lectura, el elemento no se puede sincronizar: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only"
-msgstr "El origen es de solo lectura, no se sincronizó nada: "
+msgstr "El origen es de solo lectura, el elemento no se puede sincronizar: "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"

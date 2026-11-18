@@ -2911,11 +2911,11 @@ msgstr "Les autres fichiers de cet élément ont été ignorés."
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "target_read_only"
-msgstr "La cible est en lecture seule, rien n'a été synchronisé : "
+msgstr "La cible est en lecture seule, l'élément ne peut pas être synchronisé : "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only"
-msgstr "La source est en lecture seule, rien n'a été synchronisé : "
+msgstr "La source est en lecture seule, l'élément ne peut pas être synchronisé : "
 
 #: AFS_Core/src/Synchronize.cpp
 msgid "source_read_only_not_moved"
