@@ -78,3 +78,10 @@ or disappears) resets to frequent checks instead of keeping the old backoff of u
 Strip only a real volume spec ("Label (C:)rest", paren before colon). Merely containing
 parentheses ("/home/x/Docs (2023)/f") must not strip, or the path degenerates to a wrong/empty
 one and the item never syncs.
+
+## refusal
+
+The reason the last check of a pair of paths failed for, where the server gave one
+(SftpConnection.md#RemoteFailure): kept with the cached answer, so that the caller who
+reports "not reachable" can say why (Synchronize.md#unreachable-reason). A local path that
+is not there has no reason beyond that.

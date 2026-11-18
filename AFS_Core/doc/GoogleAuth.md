@@ -121,3 +121,14 @@ the user what to do: sign in again.
 
 The access token for an account, fetched with its refresh token at the provider the account
 belongs to and kept until a minute before it expires.
+
+## expired
+
+A token is renewed before it runs out, but a provider can withdraw one earlier. The request
+that is then refused with 401 makes the remote layer forget the token and ask once more
+(SyncFileSsh.md#token-renewed-once); forget_access_token() says whether there was anything
+to forget, and never for an account that has no tokens. When the provider refuses the
+renewal itself - "invalid_grant", which comes as 400 - the sign-in is gone and only the user
+can renew it: that is AccessTokenExpired, where a first login that is refused is
+AuthenticationFailed. A token address that answers "later" keeps that reason. Tests put a
+stale token into the cache.

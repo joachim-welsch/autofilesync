@@ -35,7 +35,9 @@ A remote directory that cannot be opened or read to its end yields no entries or
 the pass then copies nothing or too little from it. That must count as a failed run in the
 proof and the last-run record, like an unreadable local directory does - logging alone left
 the run looking clean. Nothing is deleted on the strength of such a listing: a target-only
-file is only removed after its own source file was looked up and found missing.
+file is only removed after its own source file was looked up and found missing. A listing
+that failed because the server could not be reached used to be a line in the log only; it is
+reported with that reason now, which ends the item's pass (CopyLog.md#reach).
 
 ## transfer-keeps-the-modification-time
 
@@ -116,8 +118,8 @@ caller takes for done (SyncBase.md#already-gone) and which is therefore no error
 log -, PermissionDenied when the server refuses, ReadOnlyFilesystem when its drive takes no
 writes (ssh_read_only_filesystem), ServerUnreachable when no connection came
 about, and a write error for everything the server or the library gives no known reason for.
-A WebDAV or cloud store only throws, so there a failure is unreachable or unknown and never
-"not there": a missing answer must not pass for a deleted file.
+A WebDAV or cloud store throws with its reason (webdav-errors): "not there" only when the
+server said 404 to the request itself; a missing answer never passes for a deleted file.
 
 ## ssh_read_only_filesystem
 
@@ -133,6 +135,28 @@ A removal the server refused without a known reason asks the same question after
 the report names the write protection instead of nothing (removal-refusal); servers that do
 send "write protect" are taken at their word. A copy and a new directory that failed ask it
 as well (SyncFile.md#remote-copy-failure-reason, SyncBase.md#report_remote_dir).
+
+## failure-reason
+
+The transfers answer OK, error or stopped, and the directory calls answer yes or no; the
+reason behind a "no" is kept beside the answer, per thread, for the caller that wants it:
+ssh_take_failure_reason() hands it over and forgets it. The last reason noted wins, and a
+caller that is about to ask takes whatever is left first, so that an earlier failure is not
+blamed on this call. What is noted: the reason a connection did not come about
+(SftpConnection.md#RemoteFailure), and after a request that failed what the session says -
+gone (ConnectionLost), "permission denied", "no such file", "not supported", "write
+protect". A write that failed while the drive has less room left than one request carries is
+RemoteStorageFull; OpenSSH answers that with the same plain "failure" as everything else.
+A failure without a known reason notes nothing, and the caller reports it as before. The
+libssh2 branch for Windows notes nothing yet.
+
+## no-repeated-logins
+
+ssh_mkdir_p() asks for the path and, when it is not there, for every level above it. When
+the question failed because the server is not there or refuses the login, the levels above
+would each connect again only to be told the same - and a refused login repeated that often
+is what servers answer by locking the address out for a while. So such a reason
+(CopyLog.md#reach) ends the walk at once.
 
 ## ssh_room_for
 
@@ -212,7 +236,17 @@ work over WebDAV without knowing it. The names still say "ssh" for that reason.
 
 The WebDAV client throws; the remote functions answer with false or CopyResult::Error like
 their SFTP counterparts. An unreachable server is logged as a warning, everything else as an
-error (SyncFileSsh.md#unreachable-is-a-warning).
+error (SyncFileSsh.md#unreachable-is-a-warning). The reason the exception carries
+(HttpClient.md#reason_of) is the refusal and is noted for the caller (failure-reason), so a
+store that is full, says "later" or refuses the login is reported as that and with what
+follows from it (CopyLog.md#reach).
+
+## token-renewed-once
+
+A request a token store refused as unauthorized is made once more with a fresh token
+(GoogleAuth.md#expired). A second refusal is an expired sign-in. A WebDAV or S3 account has
+no token to renew, so its refused login is not repeated - a second wrong password is what
+servers lock addresses out for.
 
 ## webdav-through-a-local-file
 

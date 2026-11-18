@@ -355,4 +355,34 @@ TEST(SyncReportTests, AReadOnlyRefusalAbandonsTheReportOnce)  // [ReadOnlyFilesy
     EXPECT_FALSE(sync_abandoned());
 }
 
+TEST(SyncReportTests, EveryReasonHasAReachAndTheItemWideOnesAbandon)  // [ReadOnlyFilesystemTests.md#EveryReasonHasAReachAndTheItemWideOnesAbandon]
+{
+    using fsu::FileInfoResult;
+    for (const FileInfoResult reason : {FileInfoResult::ReadOnlyFilesystem, FileInfoResult::ServerUnreachable, FileInfoResult::NetworkUnavailable,
+            FileInfoResult::ConnectionTimeout, FileInfoResult::ServerUnavailable, FileInfoResult::AuthenticationFailed, FileInfoResult::AccessTokenExpired}) {
+        SyncReport report;
+        SyncReportGuard guard(&report);
+        report_sync_refusal(L"erste", reason);
+        report_sync_refusal(L"zweite", reason);
+        EXPECT_EQ(reach_of(reason), Reach::Item) << static_cast<int>(reason);
+        EXPECT_TRUE(sync_abandoned()) << static_cast<int>(reason);
+        EXPECT_EQ(report.errors().size(), 1u) << static_cast<int>(reason);
+    }
+    for (const FileInfoResult reason : {FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::ConnectionLost, FileInfoResult::SourceFileChanged,
+            FileInfoResult::TargetFileChanged, FileInfoResult::FileConflict, FileInfoResult::FileSizeMismatch, FileInfoResult::ChecksumMismatch,
+            FileInfoResult::InvalidFileType, FileInfoResult::SymbolicLinkError, FileInfoResult::UnknownError}) {
+        SyncReport report;
+        SyncReportGuard guard(&report);
+        report_sync_refusal(L"erste", reason);
+        report_sync_refusal(L"zweite", reason);
+        EXPECT_EQ(reach_of(reason), Reach::File) << static_cast<int>(reason);
+        EXPECT_FALSE(sync_abandoned()) << static_cast<int>(reason);
+        EXPECT_EQ(report.errors().size(), 2u) << static_cast<int>(reason);
+    }
+    EXPECT_EQ(reach_of(FileInfoResult::DiskFull), Reach::Shortage);
+    EXPECT_EQ(reach_of(FileInfoResult::RemoteStorageFull), Reach::Shortage);
+    EXPECT_EQ(reach_of(FileInfoResult::LinksNotSupported), Reach::Hint);
+    EXPECT_EQ(reach_of(FileInfoResult::UnsupportedOperation), Reach::Hint);
+}
+
 } // namespace

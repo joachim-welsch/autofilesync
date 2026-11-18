@@ -43,3 +43,20 @@ escapes, umlauts and a percent sign, which the address encodes.
 
 The removed file is gone for the client and for the listing of the drive, and a second removal
 fails because there is nothing to remove.
+
+## StatusAndAnswerGiveTheReason
+
+The table of HttpClient.md#reason_of by itself, with the answers the three services give for
+a full store, and a conflict that must not be taken for one.
+
+## AStaleAccessTokenIsRenewedOnceAndTheRequestRepeated
+
+A token the test server never issued is put into the cache. The server refuses the request
+with 401; the remote layer forgets the token, fetches a new one with the refresh token and
+asks again, and the caller sees none of it (SyncFileSsh.md#token-renewed-once).
+
+## ARefusedRenewalIsAnExpiredSignInAndEndsTheItem
+
+An account whose refresh token the server does not know: the renewal is refused with
+"invalid_grant". Listing through that account is one error that names the expired sign-in
+and abandons the pass, and a removal answers AccessTokenExpired (GoogleAuth.md#expired).

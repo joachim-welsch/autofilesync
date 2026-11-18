@@ -13,11 +13,26 @@ Synchronize::create()).
 No-ops while no proof is being collected, so the call sites deep in the sync classes need no
 condition of their own.
 
+## reach
+
+How far a reason reaches decides what follows from it, and that is laid down once for every
+reason (FilesystemUtil.md#FileInfoResult) instead of at each place that meets it. Most reach
+one file: an error, and the pass goes on. Some hold for everything else the item would do
+on that side - the drive takes no writes, the server is gone or does not answer in time or
+says "later", the login is refused or has expired - and end the item's pass (abandon). A
+shortage is a file that does not fit: the pass goes on, and the files are summed up
+(shortage). A hint is no failure at all but something the place cannot do, told once per
+pass with a count (SyncBase.md#report_links). Shortages and hints need more than a message -
+a size, a tally - so their callers report them through the calls made for that;
+report_sync_refusal() only acts on the reach "item" and takes every other reason for an
+ordinary error.
+
 ## abandon
 
-A refusal that holds for the whole drive ends the item's pass: after "read-only file system"
-(FilesystemUtil.md#read_only_error) every further file would fail the same way and fill the
-report up to its limit. report_sync_refusal() takes the reason along with the message; for
+A refusal that holds for the whole drive or server ends the item's pass (reach): after
+"read-only file system" (FilesystemUtil.md#read_only_error) every further file would fail
+the same way and fill the report up to its limit, and after a server that cannot be reached
+every further file would also wait for the connect timeout first. report_sync_refusal() takes the reason along with the message; for
 this reason the report keeps the message once, with the note that the remaining files were
 skipped, and counts as abandoned. Synchronize::stopping() then answers yes for the rest of
 this report's life, so every loop that honours a stop leaves the item alone - and the next
@@ -75,5 +90,7 @@ of the pass, and one error per file would bury the one fact the user needs under
 lines. So the report keeps a single entry for it: the first file with the room it needs and
 the room there is, and from the second file on a summary in the same place - how many files,
 how much they need together, and the first of them as an example. The entry keeps its
-position among the other errors. Megabytes are decimal, as file managers show them. Past the
+position among the other errors. The entry begins with the reason - the local disk or the
+server (SyncFile.md#disk-full-on-a-server) - and keeps the first one's. Megabytes are
+decimal, as file managers show them. Past the
 error limit no entry is kept, and successful() asks the count as well, so the run still fails.

@@ -19,6 +19,7 @@
 #include "pch.h"
 #include "GoogleDrive.h"
 #include "Config.h"
+#include "CopyLog.h"
 #include "GoogleAuth.h"
 #include "HttpClient.h"
 #include "PercentEncoding.h"
@@ -190,7 +191,54 @@ TEST_F(GoogleDriveTest, RefusedRequestTellsTheReasonOfTheServer)  // [GoogleDriv
         FAIL() << "A request without a valid token was accepted.";
     } catch (const http::Error& e) {
         EXPECT_NE(std::string(e.what()).find("HTTP 401: Invalid Credentials "), std::string::npos) << e.what();
+        EXPECT_EQ(e.reason, fsu::FileInfoResult::AuthenticationFailed);
     }
+}
+
+TEST(HttpReasonTests, StatusAndAnswerGiveTheReason)  // [GoogleDriveTests.md#StatusAndAnswerGiveTheReason]
+{
+    using fsu::FileInfoResult;
+    EXPECT_EQ(http::reason_of(401, ""), FileInfoResult::AuthenticationFailed);
+    EXPECT_EQ(http::reason_of(403, ""), FileInfoResult::PermissionDenied);
+    EXPECT_EQ(http::reason_of(404, ""), FileInfoResult::FileNotExist);
+    EXPECT_EQ(http::reason_of(405, ""), FileInfoResult::UnsupportedOperation);
+    EXPECT_EQ(http::reason_of(501, ""), FileInfoResult::UnsupportedOperation);
+    for (const long later : {429L, 502L, 503L, 504L})
+        EXPECT_EQ(http::reason_of(later, ""), FileInfoResult::ServerUnavailable) << later;
+    EXPECT_EQ(http::reason_of(507, ""), FileInfoResult::RemoteStorageFull);
+    EXPECT_EQ(http::reason_of(403, R"({"error":{"errors":[{"reason":"storageQuotaExceeded"}]}})"), FileInfoResult::RemoteStorageFull) << "Google Drive";
+    EXPECT_EQ(http::reason_of(409, R"({"error_summary":"path/insufficient_space/.."})"), FileInfoResult::RemoteStorageFull) << "Dropbox";
+    EXPECT_EQ(http::reason_of(507, R"({"error":{"code":"quotaLimitReached"}})"), FileInfoResult::RemoteStorageFull) << "OneDrive";
+    EXPECT_EQ(http::reason_of(409, R"({"error_summary":"path/conflict/file/.."})"), FileInfoResult::UnknownError) << "ein Konflikt ist kein voller Speicher";
+    EXPECT_EQ(http::reason_of(500, ""), FileInfoResult::UnknownError);
+}
+
+TEST_F(GoogleDriveTest, AStaleAccessTokenIsRenewedOnceAndTheRequestRepeated)  // [GoogleDriveTests.md#AStaleAccessTokenIsRenewedOnceAndTheRequestRepeated]
+{
+    put_on_server("ordner/brief.txt", "hallo");
+    oauth::set_access_token_for_test(account_, "veraltet");
+
+    EXPECT_TRUE(ssh_exists(remote_path("ordner/brief.txt"))) << "nach HTTP 401 wird das Token erneuert und die Anfrage wiederholt";
+    EXPECT_NE(oauth::access_token(account_), "veraltet");
+}
+
+TEST_F(GoogleDriveTest, ARefusedRenewalIsAnExpiredSignInAndEndsTheItem)  // [GoogleDriveTests.md#ARefusedRenewalIsAnExpiredSignInAndEndsTheItem]
+{
+    SshAccount revoked = account_;
+    revoked.set_name(account_.name() + "-widerrufen");
+    revoked.set_password("widerrufen");
+    Config::instance().add(revoked);
+    const std::wstring folder = util::string_to_wstring(revoked.name()) + L":/ordner";
+    SyncReport report;
+    {
+        SyncReportGuard guard(&report);
+        EXPECT_TRUE(ssh_list_dir(folder).empty());
+        EXPECT_TRUE(sync_abandoned());
+    }
+
+    EXPECT_EQ(ssh_remove_refusal(folder + L"/brief.txt"), fsu::FileInfoResult::AccessTokenExpired);
+    ASSERT_EQ(report.errors().size(), 1u);
+    EXPECT_NE(report.errors().front().find(fsu::make_error_message(fsu::FileInfoResult::AccessTokenExpired)), std::wstring::npos) << report.errors().front();
 }
 
 TEST_F(GoogleDriveTest, StatTellsFileFolderAndAbsenceApart)

@@ -297,8 +297,92 @@ TEST_F(SyncSshFailureTest, AnUploadTheServerHasNoRoomForIsNotTriedAndTheOldFileS
     EXPECT_EQ(outcome.copies, 0u);
     EXPECT_EQ(tu::read_text_file(server_dir_ / "a.txt"), "alt") << "ein Upload, der nicht passt, darf die alte Datei nicht leeren";
     ASSERT_EQ(outcome.report.errors().size(), 1u);
-    EXPECT_NE(outcome.report.errors().front().find(fsu::make_error_message(fsu::FileInfoResult::DiskFull)), std::wstring::npos);
+    EXPECT_NE(outcome.report.errors().front().find(fsu::make_error_message(fsu::FileInfoResult::RemoteStorageFull)), std::wstring::npos) << "voll ist der Server, nicht der eigene Datentraeger";
     EXPECT_FALSE(outcome.report.successful());
+}
+
+TEST_F(SyncSshFailureTest, ARefusedLoginIsNamedOnceAndEndsTheItem)  // [SyncSshFailureTests.md#ARefusedLoginIsNamedOnceAndEndsTheItem]
+{
+    SshAccount wrong = account("afs_failure_wrong", "");
+    wrong.set_password("falsches-passwort");
+    Config::instance().add(wrong);
+    SyncReport report;
+    {
+        SyncReportGuard guard(&report);
+        EXPECT_TRUE(ssh_list_dir(on_server("afs_failure_wrong")).empty());
+        EXPECT_TRUE(sync_abandoned()) << "nach einer abgelehnten Anmeldung wird nichts weiter versucht";
+    }
+    remove_account("afs_failure_wrong");
+
+    ASSERT_EQ(report.errors().size(), 1u);
+    const std::wstring& error = report.errors().front();
+    EXPECT_NE(error.find(fsu::make_error_message(fsu::FileInfoResult::AuthenticationFailed)), std::wstring::npos) << error;
+    EXPECT_NE(error.find(translation::translate("remaining_files_skipped")), std::wstring::npos) << error;
+}
+
+TEST_F(SyncSshFailureTest, AHostThatCannotBeResolvedOrDoesNotListenIsToldApart)  // [SyncSshFailureTests.md#AHostThatCannotBeResolvedOrDoesNotListenIsToldApart]
+{
+    SshAccount unknown = account("afs_failure_unknown", "");
+    unknown.set_host("afs-gibt-es-nicht.invalid");
+    SshAccount closed = account("afs_failure_closed", "");
+    closed.set_port(1);
+    Config::instance().add(unknown);
+    Config::instance().add(closed);
+
+    const fsu::FileInfoResult no_name = ssh_remove_refusal(L"afs_failure_unknown:/tmp/a.txt");
+    const fsu::FileInfoResult no_listener = ssh_remove_refusal(L"afs_failure_closed:/tmp/a.txt");
+    SyncReport report;
+    {
+        SyncReportGuard guard(&report);
+        EXPECT_TRUE(ssh_list_dir(L"afs_failure_closed:/tmp").empty());
+        EXPECT_TRUE(sync_abandoned()) << "ein Verzeichnis, das sich nicht auflisten laesst, weil der Server fehlt, beendet das Element";
+    }
+    remove_account("afs_failure_unknown");
+    remove_account("afs_failure_closed");
+
+    EXPECT_EQ(no_name, fsu::FileInfoResult::NetworkUnavailable);
+    EXPECT_EQ(no_listener, fsu::FileInfoResult::ServerUnreachable);
+    ASSERT_EQ(report.errors().size(), 1u);
+    EXPECT_NE(report.errors().front().find(fsu::make_error_message(fsu::FileInfoResult::ServerUnreachable)), std::wstring::npos);
+}
+
+TEST_F(SyncSshFailureTest, AnItemThatCannotBeReachedSaysWhy)  // [SyncSshFailureTests.md#AnItemThatCannotBeReachedSaysWhy]
+{
+    SshAccount unknown = account("afs_failure_unknown", "");
+    unknown.set_host("afs-gibt-es-nicht.invalid");
+    Config::instance().add(unknown);
+    SyncItem si(L"ohne-namen", SyncItemType::Dir, local_dir_.wstring(), L"afs_failure_unknown:/tmp/afs-ziel", L"*");
+    si.sync_cycle(0);
+    Config::instance().add(si);
+
+    Synchronize* sync = Synchronize::create(SyncType::Single);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    const std::vector<UnreachableItem> unreachable = sync->unreachable();
+    Synchronize::destroy();
+    Config::instance().erase_by_name(L"ohne-namen");
+    remove_account("afs_failure_unknown");
+
+    ASSERT_EQ(unreachable.size(), 1u);
+    EXPECT_NE(unreachable.front().message.find(fsu::make_error_message(fsu::FileInfoResult::NetworkUnavailable)), std::wstring::npos) << unreachable.front().message;
+}
+
+TEST_F(SyncSshFailureTest, AnUploadTheServerRefusesNamesTheReason)  // [SyncSshFailureTests.md#AnUploadTheServerRefusesNamesTheReason]
+{
+    fs::permissions(server_dir_, fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec | fs::perms::others_read | fs::perms::others_exec);
+    if (!owned_by_another_than_the_ssh_user(server_dir_))
+        GTEST_SKIP() << "der SSH-Testbenutzer ist der Besitzer des Verzeichnisses und darf darin schreiben";
+    tu::write_text_file(local_dir_ / "a.txt", "a");
+    tu::write_text_file(local_dir_ / "b.txt", "b");
+    SyncItem si(L"kein-schreibrecht", SyncItemType::Dir, local_dir_.wstring(), on_server(PLAIN_ACCOUNT), L"*");
+    si.sync_cycle(0);
+
+    const Outcome outcome = run(si);
+
+    ASSERT_EQ(outcome.report.errors().size(), 2u) << "fehlendes Schreibrecht gilt je Datei, der Lauf geht weiter";
+    for (const std::wstring& error : outcome.report.errors()) {
+        EXPECT_NE(error.find(translation::translate("copy_failed_for")), std::wstring::npos) << error;
+        EXPECT_NE(error.find(fsu::make_error_message(fsu::FileInfoResult::PermissionDenied)), std::wstring::npos) << error;
+    }
 }
 
 TEST_F(SyncSshFailureTest, ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks)  // [SyncSshFailureTests.md#ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks]

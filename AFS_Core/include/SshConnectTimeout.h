@@ -18,6 +18,8 @@
  */
 #pragma once
 
+#include <chrono>
+
 #ifdef _UNIX
     #include <libssh/libssh.h>
 #else
@@ -28,6 +30,7 @@
 
 namespace AFS_Core {
 
+std::chrono::seconds ssh_connect_timeout();  // [SshConnectTimeout.md#apply_ssh_connect_timeout]
 #ifdef _UNIX
 void apply_ssh_connect_timeout(ssh_session session);  // [SshConnectTimeout.md#apply_ssh_connect_timeout]
 #else

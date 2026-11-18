@@ -74,7 +74,36 @@ tolerance allow for what else writes to the disk between the questions.
 
 The server is said to have five bytes. The upload used to empty the old file, fail and
 remove the rest; now it is not started, the old content is still on the server and the
-report has the shortage (SyncFile.md#disk-full-on-a-server).
+report has the shortage, named as the server's (SyncFile.md#disk-full-on-a-server).
+
+## ARefusedLoginIsNamedOnceAndEndsTheItem
+
+An account with a wrong password: listing a directory through it is one error that names the
+refused login and the skipped rest, and the pass is abandoned (SyncFileSsh.md#failure-reason,
+CopyLog.md#reach). The test logs in wrongly exactly once. An OpenSSH server counts refused
+logins against the address they come from and drops its connections for a while once they
+add up - a first version of this test, with one attempt per file and directory level, locked
+the whole test run out of the server.
+
+## AHostThatCannotBeResolvedOrDoesNotListenIsToldApart
+
+A name under ".invalid", which no resolver knows, is NetworkUnavailable; a port nobody
+listens on is ServerUnreachable (SftpConnection.md#connect-refusal). Listing a directory of
+the second is an error with that reason and abandons the pass. The third case, a connect
+that runs into the timeout, needs an address that swallows packets and is not tested here.
+
+## AnItemThatCannotBeReachedSaysWhy
+
+One pass of the real Synchronize for an item whose server name does not resolve: the entry
+for the unreachable item carries the reason in brackets (Synchronize.md#unreachable-reason).
+That a refused login is reported whatever the item says about warnings is not tested - it
+would cost a second wrong login per run (ARefusedLoginIsNamedOnceAndEndsTheItem).
+
+## AnUploadTheServerRefusesNamesTheReason
+
+Two files for a server directory the SSH test user may not write to: each is "copy failed"
+with "permission denied" in brackets, and the pass goes on to the second - a missing right
+concerns the file, not the server.
 
 ## ALinkTheServerRefusesForLackOfRightsIsNotTakenForAServerWithoutLinks
 

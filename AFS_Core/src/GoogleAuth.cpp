@@ -138,7 +138,7 @@ std::string query_of(const std::string& request)  // "GET /?code=...&state=... H
     return begin == std::string::npos || end == std::string::npos ? "" : request.substr(begin + 1, end - begin - 1);
 }
 
-pt::ptree token_answer(const Settings& settings, const std::string& form)  // [GoogleAuth.md#token-endpoint]
+pt::ptree token_answer(const Settings& settings, const std::string& form, fsu::FileInfoResult refused = fsu::FileInfoResult::AuthenticationFailed)  // [GoogleAuth.md#token-endpoint]
 {
     if (!webdav::address_allowed(settings.token_url))
         throw http::Error(util::wstring_to_string(translation::translate("webdav_url_not_https")) + settings.token_url);
@@ -155,8 +155,11 @@ pt::ptree token_answer(const Settings& settings, const std::string& form)  // [G
         request.expect_success(status);
         throw http::Error("the token answer is not JSON");
     }
-    if (!status || *status != http::OK)
-        throw http::Error(util::wstring_to_string(translation::translate("google_login_refused")) + answer.get<std::string>("error_description", answer.get<std::string>("error", "")));
+    if (!status || *status != http::OK) {
+        const fsu::FileInfoResult said = status ? http::reason_of(*status, request.response()) : fsu::FileInfoResult::UnknownError;
+        const bool says_no = said == fsu::FileInfoResult::UnknownError || said == fsu::FileInfoResult::AuthenticationFailed || said == fsu::FileInfoResult::PermissionDenied;  // [GoogleAuth.md#expired] "invalid_grant" comes as 400
+        throw http::Error(util::wstring_to_string(translation::translate("google_login_refused")) + answer.get<std::string>("error_description", answer.get<std::string>("error", "")), says_no ? refused : said);
+    }
     return answer;
 }
 
@@ -313,13 +316,30 @@ void keep_renewed_refresh_token(const SshAccount& account, const std::string& re
 }
 }
 
+bool forget_access_token(const SshAccount& account)  // [GoogleAuth.md#expired]
+{
+    if (!account.google_drive() && !account.one_drive() && !account.dropbox())
+        return false;
+    std::lock_guard<std::mutex> lock(token_mutex);
+    return tokens.erase(account.name()) > 0;
+}
+
+#ifdef _TEST
+void set_access_token_for_test(const SshAccount& account, const std::string& token)  // [GoogleAuth.md#expired]
+{
+    std::lock_guard<std::mutex> lock(token_mutex);
+    tokens[account.name()].token = token;
+    tokens[account.name()].expires = steady_clock::now() + std::chrono::hours(1);
+}
+#endif
+
 std::string access_token(const SshAccount& account)
 {
     std::lock_guard<std::mutex> lock(token_mutex);
     AccessToken& cached = tokens[account.name()];
     if (!cached.token.empty() && steady_clock::now() + TOKEN_MARGIN < cached.expires)
         return cached.token;
-    const pt::ptree answer = token_answer(provider_of(account).settings(), "grant_type=refresh_token&refresh_token=" + percent::encoded(account.password()));
+    const pt::ptree answer = token_answer(provider_of(account).settings(), "grant_type=refresh_token&refresh_token=" + percent::encoded(account.password()), fsu::FileInfoResult::AccessTokenExpired);  // [GoogleAuth.md#expired]
     cached.token = answer.get<std::string>("access_token");
     cached.expires = steady_clock::now() + std::chrono::seconds(answer.get<long>("expires_in", 0));
     keep_renewed_refresh_token(account, answer.get<std::string>("refresh_token", ""), cached);

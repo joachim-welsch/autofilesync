@@ -85,16 +85,27 @@ SftpConnection::SftpConnection(const SshAccount& account)
 
 SftpConnection::~SftpConnection() = default;
 
-void SftpConnection::fail(const std::string& message)
+void SftpConnection::fail(const std::string& message, fsu::FileInfoResult reason)  // [SftpConnection.md#RemoteFailure]
 {
     session_.reset();
-    throw std::runtime_error(message);
+    throw RemoteFailure(reason, message);
 }
 
-void SftpConnection::unreachable(const std::string& message)
+void SftpConnection::unreachable(const std::string& message, fsu::FileInfoResult reason)
 {
     session_.reset();
-    throw SshUnreachable(message);
+    throw SshUnreachable(message, reason);
+}
+
+static fsu::FileInfoResult connect_refusal(const std::string& host, std::chrono::steady_clock::duration waited)  // [SftpConnection.md#connect-refusal]
+{
+    addrinfo* addresses = nullptr;
+    const bool resolved = getaddrinfo(host.c_str(), nullptr, nullptr, &addresses) == 0;
+    if (addresses != nullptr)
+        freeaddrinfo(addresses);
+    if (!resolved)
+        return fsu::FileInfoResult::NetworkUnavailable;
+    return waited + std::chrono::seconds(1) >= ssh_connect_timeout() ? fsu::FileInfoResult::ConnectionTimeout : fsu::FileInfoResult::ServerUnreachable;
 }
 
 void SftpConnection::connect(const SshAccount& account)  // [SftpConnection.md#connect]
@@ -125,14 +136,15 @@ void SftpConnection::open_session(const SshAccount& account)  // [SftpConnection
     ssh_options_set(session_->ssh, SSH_OPTIONS_PORT, &port);
     ssh_options_set(session_->ssh, SSH_OPTIONS_USER, account.user().c_str());
     apply_ssh_connect_timeout(session_->ssh);
+    const auto started = std::chrono::steady_clock::now();
     if (ssh_connect(session_->ssh) != SSH_OK)
-        unreachable(translation::translate_utf8("libssh_connect_error") + error());
+        unreachable(translation::translate_utf8("libssh_connect_error") + error(), connect_refusal(account.host(), std::chrono::steady_clock::now() - started));
     const bool key_ok = account.host_key().empty() ? verify_ssh_host_key(session_->ssh, account.host())
         : verify_pinned_host_key(session_->ssh, account.host_key(), account.host());  // [SshHostKeyVerification.md#verify_pinned_host_key]
     if (!key_ok)
         fail(translation::translate_utf8("host_key_verification_failed"));
     if (ssh_userauth_password(session_->ssh, nullptr, account.password().c_str()) != SSH_AUTH_SUCCESS)
-        fail(translation::translate_utf8("libssh_auth_error") + error());
+        fail(translation::translate_utf8("libssh_auth_error") + error(), fsu::FileInfoResult::AuthenticationFailed);
     session_->sftp = sftp_new(session_->ssh);
     if (!session_->sftp)
         fail(translation::translate_utf8("sftp_session_create_error"));

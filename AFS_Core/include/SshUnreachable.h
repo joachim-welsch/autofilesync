@@ -18,11 +18,19 @@
  */
 #pragma once
 #include <stdexcept>
+#include <string>
+#include <FilesystemUtil.h>
 
 namespace AFS_Core {
 
-struct SshUnreachable : std::runtime_error {  // [SftpConnection.md#SshUnreachable]
-    using std::runtime_error::runtime_error;
+struct RemoteFailure : std::runtime_error {  // [SftpConnection.md#RemoteFailure]
+    Utilities::FilesystemUtil::FileInfoResult reason;
+    RemoteFailure(Utilities::FilesystemUtil::FileInfoResult why, const std::string& message) : std::runtime_error(message), reason(why) {}
+};
+
+struct SshUnreachable : RemoteFailure {  // [SftpConnection.md#SshUnreachable]
+    explicit SshUnreachable(const std::string& message, Utilities::FilesystemUtil::FileInfoResult why = Utilities::FilesystemUtil::FileInfoResult::ServerUnreachable)
+        : RemoteFailure(why, message) {}
 };
 
 } // namespace AFS_Core

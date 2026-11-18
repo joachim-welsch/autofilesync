@@ -35,6 +35,7 @@ class SyncReport {
         std::size_t files = 0;
         uint64_t bytes = 0;
         std::wstring first_file;
+        std::wstring reason;
         std::optional<std::size_t> entry;
     } shortage_;
     bool abandoned_ = false;  // [CopyLog.md#abandon]
@@ -44,7 +45,7 @@ public:
     void error(const std::wstring& message);
     void abandon(const std::wstring& message);  // [CopyLog.md#abandon]
     bool abandoned() const { return abandoned_; }
-    void shortage(const std::wstring& file, uint64_t needed, uint64_t available);  // [CopyLog.md#shortage]
+    void shortage(const std::wstring& file, uint64_t needed, uint64_t available, fsu::FileInfoResult reason = fsu::FileInfoResult::DiskFull);  // [CopyLog.md#shortage]
     uint64_t bytes_transferd() const { return bytes_transfered_; }
     const WStringVector& errors() const { return errors_; }
     bool successful() const { return errors_.empty() && shortage_.files == 0; }
@@ -60,10 +61,12 @@ public:
     SyncReportGuard& operator=(const SyncReportGuard&) = delete;
 };
 
+enum class Reach { File, Item, Shortage, Hint };  // [CopyLog.md#reach]
+Reach reach_of(fsu::FileInfoResult reason);  // [CopyLog.md#reach]
 void report_sync_error(const std::wstring& message);  // [CopyLog.md#report_sync_error]
 void report_sync_refusal(const std::wstring& message, fsu::FileInfoResult refusal);  // [CopyLog.md#abandon]
 bool sync_abandoned();  // [CopyLog.md#abandon]
-void report_sync_shortage(const std::wstring& file, uint64_t needed, uint64_t available);  // [CopyLog.md#shortage]
+void report_sync_shortage(const std::wstring& file, uint64_t needed, uint64_t available, fsu::FileInfoResult reason = fsu::FileInfoResult::DiskFull);  // [CopyLog.md#shortage]
 void report_sync_volume(uint64_t bytes);
 
 bool write_copy_log(const std::filesystem::path& directory, const SyncItem& item,

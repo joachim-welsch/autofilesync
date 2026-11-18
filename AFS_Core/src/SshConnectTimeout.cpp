@@ -25,6 +25,11 @@ namespace {
     constexpr long SSH_CONNECT_TIMEOUT_SECONDS = 15;
 }
 
+std::chrono::seconds ssh_connect_timeout()
+{
+    return std::chrono::seconds(SSH_CONNECT_TIMEOUT_SECONDS);
+}
+
 #ifdef _UNIX
 
 void apply_ssh_connect_timeout(ssh_session session)

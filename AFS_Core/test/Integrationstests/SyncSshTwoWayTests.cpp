@@ -17,6 +17,7 @@
  * AutoFileSync. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pch.h"
+#include "Translation.h"
 #include "Config.h"
 #include "CopyLog.h"
 #include "DirUtil.h"
@@ -463,6 +464,15 @@ TEST_F(SyncSshTwoWayTest, RemoteFileAlreadyGoneIsNoErrorAndNoDeletionOnAnUnreach
     EXPECT_EQ(ssh_remove_refusal(remote_path(L"missing.txt")), fsu::FileInfoResult::FileNotExist);
     EXPECT_EQ(ssh_rmdir_refusal(remote_path(L"missing")), fsu::FileInfoResult::FileNotExist);
     EXPECT_EQ(ssh_remove_refusal(L"nirgends:" + string_to_wstring(remote_dir_) + L"/a.txt"), fsu::FileInfoResult::ServerUnreachable) << "keine Antwort ist keine Loeschung";
+    SyncReport gone;
+    {
+        SyncReportGuard guard(&gone);
+        const std::wstring lost = L"nirgends:" + string_to_wstring(remote_dir_) + L"/a.txt";
+        SyncFile(si, copies, false, false, &state, si.source(), si.target()).carry_out_deferred({L"a.txt", (source_dir_ / "a.txt").wstring(), lost, true, 1});
+        EXPECT_TRUE(sync_abandoned()) << "nach einem Server, der nicht antwortet, wird keine weitere Datei versucht";
+    }
+    ASSERT_EQ(gone.errors().size(), 1u);
+    EXPECT_NE(gone.errors().front().find(translation::translate("remaining_files_skipped")), std::wstring::npos);
     const auto accounts = Config::instance().ssh_accounts_snapshot();
     for (std::size_t i = accounts.size(); i-- > 0;)
         if (accounts[i].name() == "nirgends")

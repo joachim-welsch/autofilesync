@@ -130,6 +130,11 @@ bool CheckPath::ssh_path_reachable(const wstring& pathname, bool must_exist) con
             log_info(translation::translate("ssh_path_not_exist") + pathname);
         return info.exists;
     }
+    catch (const RemoteFailure& e) {  // [CheckPath.md#refusal]
+        refusal_ = e.reason;
+        log_info(translation::translate("ssh_path_not_reachable") + pathname + L" - " + string_to_wstring(e.what()));
+        return false;
+    }
     catch (const std::exception& e) {
         log_info(translation::translate("ssh_path_not_reachable") + pathname + L" - " + string_to_wstring(e.what()));
         return false;
@@ -157,6 +162,7 @@ bool CheckPath::expired(const DriveCheckCacheEntry& entry)
 bool CheckPath::both_sides_reachable(const std::wstring& source, const std::wstring& dest) const
 {
     bool result = true;  // [CheckPath.md#reachability-rules]
+    refusal_ = fsu::FileInfoResult::OK;
     if (!side_reachable(source, true)) {
         log_info(translation::translate("source_dir_not_reachable") + source);
         result = false;
@@ -181,8 +187,15 @@ bool CheckPath::operator()(const std::wstring& source, const std::wstring& dest,
     const bool result = both_sides_reachable(source, dest);
     const uint16_t previous_interval = have_previous ? cached->second.time_interval : BASE_INTERVAL;  // [CheckPath.md#interval-growth]
     const bool repeats = have_previous && cached->second.result == result;
-    drive_check_cache_[cache_key] = {result, next_check_interval(previous_interval, repeats, result), std::chrono::steady_clock::now()};
+    drive_check_cache_[cache_key] = {result, refusal_, next_check_interval(previous_interval, repeats, result), std::chrono::steady_clock::now()};
     return result;
+}
+
+fsu::FileInfoResult CheckPath::refusal(const std::wstring& source, const std::wstring& dest) const  // [CheckPath.md#refusal]
+{
+    std::lock_guard<std::mutex> lock(drive_check_cache_mutex_);
+    const auto cached = drive_check_cache_.find(source + L"|" + dest);
+    return cached == drive_check_cache_.end() ? fsu::FileInfoResult::OK : cached->second.refusal;
 }
 
 wstring root_name(const wstring& path)

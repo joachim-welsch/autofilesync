@@ -345,14 +345,17 @@ void Synchronize::report_unreachable(const SyncItem& i)
     bool& reachable = item_reachable_.try_emplace(i.name(), true).first->second;
     if (!std::exchange(reachable, false))
         return;
-    const wstring message = translation::translate("source_or_target_not_reachable") + i.source() + L" -> " + i.target();
-    if (i.warn_if_unreachable()) {  // [Synchronize.md#unreachable_]
+    const fsu::FileInfoResult why = check_path_.refusal(i.source(), i.target());  // [Synchronize.md#unreachable-reason]
+    const bool told = why != fsu::FileInfoResult::OK && why != fsu::FileInfoResult::UnknownError;
+    const bool needs_the_user = why == fsu::FileInfoResult::AuthenticationFailed || why == fsu::FileInfoResult::AccessTokenExpired;
+    const wstring message = translation::translate("source_or_target_not_reachable") + i.source() + L" -> " + i.target() + (told ? L" (" + fsu::make_error_message(why) + L")" : wstring());
+    if (i.warn_if_unreachable() || needs_the_user) {  // [Synchronize.md#unreachable_]
         log_warning(message);
         report_sync_error(message);
     }
     else
         log_info(message);
-    unreachable_.push_back({i.name(), message, i.warn_if_unreachable()});
+    unreachable_.push_back({i.name(), message, i.warn_if_unreachable() || needs_the_user});
 }
 
 void Synchronize::note(LogLevel level, const wstring& text)  // [Synchronize.md#notes]

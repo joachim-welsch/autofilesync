@@ -24,6 +24,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include "SshUnreachable.h"
 
 namespace AFS_Core {
 
@@ -34,9 +35,12 @@ constexpr long MULTIPLE_CHOICES = 300;
 constexpr long UNAUTHORIZED = 401;
 constexpr long NOT_FOUND = 404;
 
-struct Error : std::runtime_error {  // [HttpClient.md#errors]
-    using std::runtime_error::runtime_error;
+struct Error : RemoteFailure {  // [HttpClient.md#errors]
+    explicit Error(const std::string& message, Utilities::FilesystemUtil::FileInfoResult why = Utilities::FilesystemUtil::FileInfoResult::UnknownError)
+        : RemoteFailure(why, message) {}
 };
+
+Utilities::FilesystemUtil::FileInfoResult reason_of(long status, const std::string& answer);  // [HttpClient.md#reason_of]
 
 using HeaderCallback = std::size_t (*)(char* data, std::size_t size, std::size_t count, void* context);
 

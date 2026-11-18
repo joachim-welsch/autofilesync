@@ -198,7 +198,7 @@ std::size_t note_header(char* data, std::size_t size, std::size_t count, void* h
     const auto begin = request.response().find("<Message>");
     const auto end = request.response().find("</Message>");
     const std::string reason = begin != std::string::npos && end != std::string::npos ? ": " + request.response().substr(begin + 9, end - begin - 9) : "";
-    throw Error("S3 HTTP " + std::to_string(status) + reason);
+    throw Error("S3 HTTP " + std::to_string(status) + reason, http::reason_of(status, request.response()));
 }
 
 void expect_success(const http::Request& request, std::optional<long> status)

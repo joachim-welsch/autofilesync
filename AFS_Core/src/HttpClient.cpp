@@ -20,6 +20,7 @@
 #include "HttpClient.h"
 #include "SshUnreachable.h"
 #include "Synchronize.h"
+#include <StrUtil.h>
 #include <algorithm>
 #include <mutex>
 #include <sstream>
@@ -103,6 +104,31 @@ bool unreachable(CURLcode code)  // [HttpClient.md#errors]
 {
     return code == CURLE_COULDNT_RESOLVE_HOST || code == CURLE_COULDNT_RESOLVE_PROXY || code == CURLE_COULDNT_CONNECT
         || code == CURLE_OPERATION_TIMEDOUT || code == CURLE_SSL_CONNECT_ERROR;
+}
+
+fsu::FileInfoResult transport_reason(CURLcode code)  // [HttpClient.md#errors]
+{
+    switch (code) {
+    case CURLE_COULDNT_RESOLVE_HOST:
+    case CURLE_COULDNT_RESOLVE_PROXY: return fsu::FileInfoResult::NetworkUnavailable;
+    case CURLE_OPERATION_TIMEDOUT: return fsu::FileInfoResult::ConnectionTimeout;
+    case CURLE_COULDNT_CONNECT:
+    case CURLE_SSL_CONNECT_ERROR: return fsu::FileInfoResult::ServerUnreachable;
+    case CURLE_SEND_ERROR:
+    case CURLE_RECV_ERROR:
+    case CURLE_PARTIAL_FILE:
+    case CURLE_GOT_NOTHING: return fsu::FileInfoResult::ConnectionLost;
+    default: return fsu::FileInfoResult::UnknownError;
+    }
+}
+
+bool names_a_full_store(const std::string& answer)  // [HttpClient.md#reason_of]
+{
+    const std::string text = util::lowercase(answer);
+    for (const char* sign : {"insufficient_space", "insufficient storage", "storagequotaexceeded", "quotalimitreached", "quotaexceeded", "quota exceeded"})
+        if (text.find(sign) != std::string::npos)
+            return true;
+    return false;
 }
 
 CURL* handle_of(void* curl)
@@ -238,9 +264,9 @@ std::optional<long> Request::perform()
         return std::nullopt;
     const std::string reason = error_[0] != 0 ? error_ : curl_easy_strerror(code);
     if (unreachable(code))
-        throw SshUnreachable(reason);
+        throw SshUnreachable(reason, transport_reason(code));
     if (code != CURLE_OK)
-        throw Error(reason);
+        throw Error(reason, transport_reason(code));
     long status = 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status);
     return status;
@@ -253,10 +279,30 @@ std::optional<std::time_t> Request::file_time() const
     return modified > 0 ? std::optional<std::time_t>(static_cast<std::time_t>(modified)) : std::nullopt;
 }
 
+fsu::FileInfoResult reason_of(long status, const std::string& answer)  // [HttpClient.md#reason_of]
+{
+    constexpr long FORBIDDEN = 403, CONFLICT = 409, METHOD_NOT_ALLOWED = 405, TOO_LARGE = 413, TOO_MANY_REQUESTS = 429, NOT_IMPLEMENTED = 501,
+        BAD_GATEWAY = 502, SERVICE_UNAVAILABLE = 503, GATEWAY_TIMEOUT = 504, INSUFFICIENT_STORAGE = 507;
+    if (status == INSUFFICIENT_STORAGE || ((status == FORBIDDEN || status == CONFLICT || status == TOO_LARGE) && names_a_full_store(answer)))
+        return fsu::FileInfoResult::RemoteStorageFull;
+    switch (status) {
+    case UNAUTHORIZED: return fsu::FileInfoResult::AuthenticationFailed;
+    case FORBIDDEN: return fsu::FileInfoResult::PermissionDenied;
+    case NOT_FOUND: return fsu::FileInfoResult::FileNotExist;
+    case METHOD_NOT_ALLOWED:
+    case NOT_IMPLEMENTED: return fsu::FileInfoResult::UnsupportedOperation;
+    case TOO_MANY_REQUESTS:
+    case BAD_GATEWAY:
+    case SERVICE_UNAVAILABLE:
+    case GATEWAY_TIMEOUT: return fsu::FileInfoResult::ServerUnavailable;
+    default: return fsu::FileInfoResult::UnknownError;
+    }
+}
+
 void Request::fail(long status) const
 {
     const std::string reason = reason_in(response_);
-    throw Error("HTTP " + std::to_string(status) + (reason.empty() ? " " : ": " + reason + " ") + url_);  // [HttpClient.md#reason]
+    throw Error("HTTP " + std::to_string(status) + (reason.empty() ? " " : ": " + reason + " ") + url_, reason_of(status, response_));  // [HttpClient.md#reason]
 }
 
 void Request::expect_success(std::optional<long> status) const

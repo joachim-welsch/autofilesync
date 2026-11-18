@@ -174,9 +174,11 @@ wstring megabytes(uint64_t bytes)  // [CopyLog.md#shortage]
 }
 }
 
-void SyncReport::shortage(const wstring& file, uint64_t needed, uint64_t available)  // [CopyLog.md#shortage]
+void SyncReport::shortage(const wstring& file, uint64_t needed, uint64_t available, fsu::FileInfoResult reason)  // [CopyLog.md#shortage]
 {
-    const wstring disk_full = fsu::make_error_message(fsu::FileInfoResult::DiskFull) + L": ";
+    if (shortage_.files == 0)
+        shortage_.reason = fsu::make_error_message(reason) + L": ";
+    const wstring& disk_full = shortage_.reason;
     shortage_.bytes += needed;
     if (++shortage_.files == 1) {
         shortage_.first_file = file;
@@ -188,10 +190,10 @@ void SyncReport::shortage(const wstring& file, uint64_t needed, uint64_t availab
         errors_[*shortage_.entry] = disk_full + translation::translate("disk_full_files", {std::to_wstring(shortage_.files), megabytes(shortage_.bytes), shortage_.first_file});
 }
 
-void report_sync_shortage(const wstring& file, uint64_t needed, uint64_t available)
+void report_sync_shortage(const wstring& file, uint64_t needed, uint64_t available, fsu::FileInfoResult reason)
 {
     if (current_report != nullptr)
-        current_report->shortage(file, needed, available);
+        current_report->shortage(file, needed, available, reason);
 }
 
 void report_sync_error(const wstring& message)
@@ -200,9 +202,32 @@ void report_sync_error(const wstring& message)
         current_report->error(message);
 }
 
+Reach reach_of(fsu::FileInfoResult reason)  // [CopyLog.md#reach]
+{
+    using fsu::FileInfoResult;
+    switch (reason) {
+    case FileInfoResult::ReadOnlyFilesystem:
+    case FileInfoResult::ServerUnreachable:
+    case FileInfoResult::NetworkUnavailable:
+    case FileInfoResult::ConnectionTimeout:
+    case FileInfoResult::ServerUnavailable:
+    case FileInfoResult::AuthenticationFailed:
+    case FileInfoResult::AccessTokenExpired:
+        return Reach::Item;
+    case FileInfoResult::DiskFull:
+    case FileInfoResult::RemoteStorageFull:
+        return Reach::Shortage;
+    case FileInfoResult::LinksNotSupported:
+    case FileInfoResult::UnsupportedOperation:
+        return Reach::Hint;
+    default:
+        return Reach::File;
+    }
+}
+
 void report_sync_refusal(const wstring& message, fsu::FileInfoResult refusal)  // [CopyLog.md#abandon]
 {
-    if (current_report == nullptr || refusal != fsu::FileInfoResult::ReadOnlyFilesystem)
+    if (current_report == nullptr || reach_of(refusal) != Reach::Item)
         return report_sync_error(message);
     current_report->abandon(message);
 }

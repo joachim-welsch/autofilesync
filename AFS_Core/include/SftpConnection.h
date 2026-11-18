@@ -39,8 +39,8 @@ public:
     struct Session;  // [SftpConnection.md#Session]
 private:
     std::shared_ptr<Session> session_;
-    [[noreturn]] void fail(const std::string& message);
-    [[noreturn]] void unreachable(const std::string& message);
+    [[noreturn]] void fail(const std::string& message, fsu::FileInfoResult reason = fsu::FileInfoResult::UnknownError);  // [SftpConnection.md#RemoteFailure]
+    [[noreturn]] void unreachable(const std::string& message, fsu::FileInfoResult reason);
     void open_session(const SshAccount& account);
 public:
     SftpConnection() = default;

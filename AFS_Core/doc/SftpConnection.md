@@ -18,8 +18,9 @@ the header so that the handle can be used where libssh's types should not spread
 
 Takes the pass's session for the account when an SshSessionScope is alive on this thread and
 that session is still connected; otherwise connects, verifies the host key and logs in, and
-hands the new session to the scope for the next caller. Throws std::runtime_error when a step
-fails - SshUnreachable when the host cannot be reached at all.
+hands the new session to the scope for the next caller. Throws when a step fails - a
+RemoteFailure with the reason where one is known, SshUnreachable when the host cannot be
+reached at all.
 
 ## SshSessionScope
 
@@ -54,3 +55,20 @@ SshFileInspector.md#shared-message-ids.
 The host could not be reached: switched off, no network, name not resolvable. Kept apart from
 the other failures because it is an expected state of a target that is not always there - the
 callers log it as a warning - while a rejected password or host key needs a person to act.
+
+## RemoteFailure
+
+A failure of the other side with its reason (FilesystemUtil.md#FileInfoResult), so that the
+caller can do what the reason calls for (CopyLog.md#reach) instead of only knowing that
+something threw. It is a std::runtime_error, so every place that caught one still does. A
+refused login is AuthenticationFailed; a step without a reason of its own - the host key,
+the SFTP subsystem - carries UnknownError and is reported with its text alone.
+SshUnreachable is a RemoteFailure whose reason says why the host was not reached.
+
+## connect-refusal
+
+libssh says that the connect failed and gives a sentence. Which of three things happened is
+asked of the system instead of read out of that sentence: a name that does not resolve is
+NetworkUnavailable - the usual cause is no network at all -, a failure that took as long as
+the timeout allows is ConnectionTimeout, and anything quicker is ServerUnreachable, a host
+that answered "nobody listens here".

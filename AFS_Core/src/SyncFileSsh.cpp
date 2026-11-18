@@ -27,6 +27,7 @@
 #include "SftpConnection.h"
 #include "SshUnreachable.h"
 #include "CloudStore.h"
+#include "GoogleAuth.h"
 #include "CopyLog.h"
 #include <filesystem>
 #include <fstream>
@@ -103,6 +104,14 @@ namespace {
         std::error_code ec;
         const auto time = std::filesystem::last_write_time(path, ec);
         return ec ? 0 : file_time::to_time_t(time);
+    }
+
+    thread_local fsu::FileInfoResult failure_reason = fsu::FileInfoResult::OK;  // [SyncFileSsh.md#failure-reason]
+
+    void note_reason(fsu::FileInfoResult reason)  // [SyncFileSsh.md#failure-reason]
+    {
+        if (reason != fsu::FileInfoResult::OK)
+            failure_reason = reason;
     }
 
     void report_unkept(const wstring& dest, bool time_kept, bool rights_kept)  // [SyncFileSsh.md#unkept-is-reported]
@@ -224,13 +233,36 @@ namespace {
         return CopyResult::Error;
     }
 
-    void listing_failed(const wstring& message)  // [SyncFileSsh.md#listing-failure-is-reported]
+    void listing_failed(const wstring& message, fsu::FileInfoResult reason = fsu::FileInfoResult::ErrorReadFileInfo)  // [SyncFileSsh.md#listing-failure-is-reported]
     {
         log_error(message);
-        report_sync_error(message);
+        report_sync_refusal(message, reason);
     }
 
-    std::optional<std::string> connect_to(const wstring& path, SftpConnection& connection, bool* unreachable = nullptr)  // [SyncFileSsh.md#connect_to]
+    fsu::FileInfoResult session_reason(const SftpConnection& connection)  // [SyncFileSsh.md#failure-reason]
+    {
+        if (connection.ssh() == nullptr || !ssh_is_connected(connection.ssh()))
+            return fsu::FileInfoResult::ConnectionLost;
+        switch (sftp_get_error(connection.sftp())) {
+        case SSH_FX_NO_CONNECTION:
+        case SSH_FX_CONNECTION_LOST: return fsu::FileInfoResult::ConnectionLost;
+        case SSH_FX_PERMISSION_DENIED: return fsu::FileInfoResult::PermissionDenied;
+        case SSH_FX_NO_SUCH_FILE:
+        case SSH_FX_NO_SUCH_PATH: return fsu::FileInfoResult::FileNotExist;
+        case SSH_FX_OP_UNSUPPORTED: return fsu::FileInfoResult::UnsupportedOperation;
+        case SSH_FX_WRITE_PROTECT: return fsu::FileInfoResult::ReadOnlyFilesystem;
+        default: return fsu::FileInfoResult::OK;
+        }
+    }
+
+    CopyResult noted(CopyResult result, const SftpConnection& connection)  // [SyncFileSsh.md#failure-reason]
+    {
+        if (result == CopyResult::Error)
+            note_reason(session_reason(connection));
+        return result;
+    }
+
+    std::optional<std::string> connect_to(const wstring& path, SftpConnection& connection, fsu::FileInfoResult* refusal = nullptr)  // [SyncFileSsh.md#connect_to]
     {
         const auto account = get_account_from_path(path);
         if (!account) {
@@ -241,8 +273,15 @@ namespace {
             connection.connect(*account);
         } catch (const SshUnreachable& e) {
             log_warning(L"SSH: " + string_to_wstring(e.what()));  // [SyncFileSsh.md#unreachable-is-a-warning]
-            if (unreachable != nullptr)
-                *unreachable = true;
+            note_reason(e.reason);
+            if (refusal != nullptr)
+                *refusal = e.reason;
+            return std::nullopt;
+        } catch (const RemoteFailure& e) {
+            log_error(L"SSH: " + string_to_wstring(e.what()));
+            note_reason(e.reason);
+            if (refusal != nullptr && e.reason != fsu::FileInfoResult::UnknownError)
+                *refusal = e.reason;
             return std::nullopt;
         } catch (const std::exception& e) {
             log_error(L"SSH: " + string_to_wstring(e.what()));
@@ -266,13 +305,26 @@ namespace {
         }
     }
 
+    bool remote_full(const SftpConnection& connection, const std::string& remote_file)  // [SyncFileSsh.md#failure-reason]
+    {
+        if (connection.ssh() == nullptr || !ssh_is_connected(connection.ssh()))
+            return false;
+        const std::string directory = remote_file.substr(0, std::max<std::size_t>(remote_file.find_last_of('/'), 1));
+        const sftp_statvfs_t volume = sftp_statvfs(connection.sftp(), directory.c_str());
+        if (volume == nullptr)
+            return false;
+        const bool full = volume->f_blocks > 0 && volume->f_bavail * volume->f_frsize < SFTP_BUFFER_SIZE;
+        sftp_statvfs_free(volume);
+        return full;
+    }
+
     fsu::FileInfoResult removal_refusal(const wstring& path, int (*remove)(sftp_session, const char*), const char* message_id)  // [SyncFileSsh.md#removal-refusal]
     {
         SftpConnection connection;
-        bool unreachable = false;
-        const auto remote_path = connect_to(path, connection, &unreachable);
+        fsu::FileInfoResult no_connection = fsu::FileInfoResult::ErrorWriteFileInfo;
+        const auto remote_path = connect_to(path, connection, &no_connection);
         if (!remote_path)
-            return unreachable ? fsu::FileInfoResult::ServerUnreachable : fsu::FileInfoResult::ErrorWriteFileInfo;
+            return no_connection;
         if (remove(connection.sftp(), remote_path->c_str()) == SSH_OK)
             return fsu::FileInfoResult::OK;
         const int refusal = sftp_get_error(connection.sftp());
@@ -466,13 +518,18 @@ namespace {
     SftpFile open_for_write(const SftpConnection& connection, const std::string& remote_path, mode_t mode)  // [SyncFileSsh.md#read-only-target-made-writable]
     {
         SftpFile file = connection.open(remote_path, WRITE_FLAGS, mode);
+        if (!file)
+            note_reason(session_reason(connection));  // [SyncFileSsh.md#failure-reason] before the questions below overwrite the answer
         if (file || sftp_get_error(connection.sftp()) != SSH_FX_PERMISSION_DENIED)
             return file;
         const SftpAttributes attributes = connection.stat(remote_path);
         if (!attributes)
             return file;
         keep_remote_permissions(connection, remote_path, attributes->permissions);
-        return connection.open(remote_path, WRITE_FLAGS, mode);
+        SftpFile writable = connection.open(remote_path, WRITE_FLAGS, mode);
+        if (!writable)
+            note_reason(session_reason(connection));
+        return writable;
     }
 
     bool keep_remote_time(const SftpConnection& connection, const std::string& remote_path, std::time_t mtime)  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
@@ -529,14 +586,14 @@ CopyResult copy_ssh_to_fs(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     const SftpFile remote_file = connection.open(*remote_path, O_RDONLY, 0);
     if (!remote_file)
-        return copy_failed(translation::translate("remote_file_open_error") + string_to_wstring(*remote_path));
+        return noted(copy_failed(translation::translate("remote_file_open_error") + string_to_wstring(*remote_path)), connection);
     const SftpAttributes attributes = connection.stat(*remote_path);
     CopyResult result = CopyResult::Error;
     {
         std::ofstream local_file(std::filesystem::path(dest), std::ios::binary);  // [SyncFileSsh.md#wide-file-names]
         if (!local_file.is_open())
             return copy_failed(translation::translate("local_file_open_error") + dest);
-        result = download(remote_file.get(), local_file);
+        result = noted(download(remote_file.get(), local_file), connection);
     }
     if (result == CopyResult::OK && attributes) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
         keep_local_permissions(dest, attributes->permissions);
@@ -557,7 +614,7 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         return CopyResult::Error;
     const SftpFile src_file = source.open(*src_path, O_RDONLY, 0);
     if (!src_file)
-        return copy_failed(translation::translate("source_file_open_error") + string_to_wstring(*src_path));
+        return noted(copy_failed(translation::translate("source_file_open_error") + string_to_wstring(*src_path)), source);
     const SftpAttributes attributes = source.stat(*src_path);
     const bool through_part = writes_through_part(dest);
     const std::string write_path = through_part ? *dest_path + wstring_to_string(PART_SUFFIX) : *dest_path;
@@ -566,7 +623,9 @@ CopyResult copy_ssh_to_ssh(const wstring& src, const wstring& dest)
         const SftpFile dest_file = open_for_write(target, write_path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (!dest_file)
             return copy_failed(translation::translate("target_file_open_error") + string_to_wstring(write_path));
-        result = transfer(src_file.get(), dest_file.get());
+        result = noted(noted(transfer(src_file.get(), dest_file.get()), source), target);
+        if (result == CopyResult::Error && remote_full(target, write_path))
+            note_reason(fsu::FileInfoResult::RemoteStorageFull);
     }
     bool time_kept = true, rights_kept = true;
     if (result == CopyResult::OK && attributes) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
@@ -596,7 +655,9 @@ CopyResult copy_fs_to_ssh(const wstring& src, const wstring& dest)
         const SftpFile remote_file = open_for_write(connection, remote_path, S_IRUSR | S_IWUSR);
         if (!remote_file)
             return copy_failed(translation::translate("remote_file_open_write_error") + string_to_wstring(remote_path));
-        result = upload(local_file, remote_file.get());
+        result = noted(upload(local_file, remote_file.get()), connection);
+        if (result == CopyResult::Error && remote_full(connection, remote_path))
+            note_reason(fsu::FileInfoResult::RemoteStorageFull);
     }
     bool time_kept = true, rights_kept = true;
     if (result == CopyResult::OK) {  // [SyncFileSsh.md#transfer-keeps-the-modification-time]
@@ -639,9 +700,11 @@ bool ssh_mkdir(const std::wstring& path)
     const auto remote_path = connect_to(path, connection);
     if (!remote_path)
         return false;
-    if (sftp_mkdir(connection.sftp(), remote_path->c_str(), DIRECTORY_MODE) != SSH_OK)
-        return failed(translation::translate("remote_dir_create_error") + string_to_wstring(*remote_path));
-    return true;
+    if (sftp_mkdir(connection.sftp(), remote_path->c_str(), DIRECTORY_MODE) == SSH_OK)
+        return true;
+    if (const fsu::FileInfoResult reason = session_reason(connection); reason != fsu::FileInfoResult::FileNotExist)  // [SyncFileSsh.md#failure-reason] libssh asks for the directory after a failure, and "not there" is the answer to that
+        note_reason(reason);
+    return failed(translation::translate("remote_dir_create_error") + string_to_wstring(*remote_path));
 }
 
 bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_read_only_filesystem]
@@ -699,9 +762,12 @@ std::vector<SshDirEntry> ssh_list_dir(const std::wstring& path)
     log_debug(L"ssh_list_dir: " + path);
     std::vector<SshDirEntry> entries;
     SftpConnection connection;
-    const auto remote_path = connect_to(path, connection);
-    if (!remote_path)
+    fsu::FileInfoResult refusal = fsu::FileInfoResult::ErrorReadFileInfo;
+    const auto remote_path = connect_to(path, connection, &refusal);
+    if (!remote_path) {
+        listing_failed(translation::translate("remote_dir_open_error") + path + L" (" + fsu::make_error_message(refusal) + L")", refusal);  // [SyncFileSsh.md#listing-failure-is-reported]
         return entries;
+    }
     const SftpDir dir = connection.open_dir(*remote_path);
     if (!dir) {
         listing_failed(translation::translate("remote_dir_open_error") + string_to_wstring(*remote_path));
@@ -1835,18 +1901,36 @@ std::optional<SshAccount> webdav_account(const wstring& path)  // [SyncFileSsh.m
 }
 
 template <typename Action>
-fsu::FileInfoResult webdav_refusal(const wstring& path, Action action)  // [SyncFileSsh.md#webdav-errors]
+fsu::FileInfoResult webdav_attempt(const wstring& path, Action& action)  // [SyncFileSsh.md#webdav-errors]
 {
     try {
         action();
         return fsu::FileInfoResult::OK;
     } catch (const SshUnreachable& e) {
         log_warning(L"WebDAV: " + path + L": " + string_to_wstring(e.what()));
-        return fsu::FileInfoResult::ServerUnreachable;
+        return e.reason;
+    } catch (const RemoteFailure& e) {
+        log_error(L"WebDAV: " + path + L": " + string_to_wstring(e.what()));
+        return e.reason == fsu::FileInfoResult::UnknownError ? fsu::FileInfoResult::ErrorWriteFileInfo : e.reason;
     } catch (const std::exception& e) {
         log_error(L"WebDAV: " + path + L": " + string_to_wstring(e.what()));
     }
     return fsu::FileInfoResult::ErrorWriteFileInfo;
+}
+
+template <typename Action>
+fsu::FileInfoResult webdav_refusal(const wstring& path, Action action)  // [SyncFileSsh.md#webdav-errors]
+{
+    fsu::FileInfoResult refusal = webdav_attempt(path, action);
+    const auto account = get_account_from_path(path);
+    if (refusal == fsu::FileInfoResult::AuthenticationFailed && account && oauth::forget_access_token(*account)) {  // [SyncFileSsh.md#token-renewed-once]
+        refusal = webdav_attempt(path, action);
+        if (refusal == fsu::FileInfoResult::AuthenticationFailed)
+            refusal = fsu::FileInfoResult::AccessTokenExpired;
+    }
+    if (refusal != fsu::FileInfoResult::ErrorWriteFileInfo)
+        note_reason(refusal);  // [SyncFileSsh.md#failure-reason]
+    return refusal;
 }
 
 template <typename Action>
@@ -1877,8 +1961,11 @@ std::vector<SshDirEntry> webdav_list_dir(const SshAccount& account, const wstrin
         for (const webdav::Entry& entry : cloud_store::list(account, get_remote_path(path)))
             entries.push_back({string_to_wstring(entry.name), entry.is_directory, !entry.is_directory, false, entry.size});
     });
-    if (!listed)
-        report_sync_error(translation::translate("remote_dir_open_error") + path);  // [SyncFileSsh.md#listing-failure-is-reported]
+    if (!listed) {
+        const fsu::FileInfoResult reason = std::exchange(failure_reason, fsu::FileInfoResult::OK);
+        const bool told = reason != fsu::FileInfoResult::OK;
+        report_sync_refusal(translation::translate("remote_dir_open_error") + path + (told ? L" (" + fsu::make_error_message(reason) + L")" : wstring()), told ? reason : fsu::FileInfoResult::ErrorReadFileInfo);  // [SyncFileSsh.md#listing-failure-is-reported]
+    }
     return entries;
 }
 
@@ -1959,6 +2046,11 @@ bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_
     return !webdav_account(path) && sftp_backend::ssh_read_only_filesystem(path);
 }
 
+fsu::FileInfoResult ssh_take_failure_reason()  // [SyncFileSsh.md#failure-reason]
+{
+    return std::exchange(failure_reason, fsu::FileInfoResult::OK);
+}
+
 #ifdef _TEST
 static std::optional<uint64_t> ssh_room_for_test;
 
@@ -2022,8 +2114,11 @@ fsu::FileInfoResult ssh_create_link(const std::wstring& text, const std::wstring
 
 bool ssh_mkdir_p(const std::wstring& path)  // [SyncFileSsh.md#ssh_mkdir_p]
 {
+    failure_reason = fsu::FileInfoResult::OK;  // [SyncFileSsh.md#no-repeated-logins] only what this question says counts
     if (ssh_exists(path))
         return true;
+    if (reach_of(failure_reason) == Reach::Item)  // [SyncFileSsh.md#no-repeated-logins]
+        return false;
     const std::size_t slash = path.find_last_of(L'/');
     const std::size_t root = path.find(L':') + 1;
     if (slash != std::wstring::npos && slash > root && !ssh_mkdir_p(path.substr(0, slash)))

@@ -291,6 +291,19 @@ TEST(SyncReportShortage, FirstShortageNamesItsFileAndLaterOnesAreSummedUpInItsPl
     EXPECT_FALSE(report.successful());
 }
 
+TEST(SyncReportShortage, AShortageOnAServerNamesTheServer)  // [DiskFullTests.md#SyncReportShortage]
+{
+    SyncReport report;
+    report.shortage(L"konto:/a.bin", 3000000, 1000000, fsu::FileInfoResult::RemoteStorageFull);
+    const std::wstring first = report.errors().front();
+    report.shortage(L"konto:/b.bin", 3000000, 1000000, fsu::FileInfoResult::RemoteStorageFull);
+
+    const std::wstring server_full = fsu::make_error_message(fsu::FileInfoResult::RemoteStorageFull);
+    ASSERT_EQ(report.errors().size(), 1u);
+    EXPECT_EQ(first.rfind(server_full, 0), 0u) << "der erste Eintrag nennt den Server";
+    EXPECT_EQ(report.errors().front().rfind(server_full, 0), 0u) << "die Zusammenfassung auch";
+}
+
 TEST(SyncReportShortage, ShortageBehindTheErrorLimitIsNotLost)  // [DiskFullTests.md#SyncReportShortage]
 {
     SyncReport report;

@@ -63,6 +63,14 @@ progress dialog on its timer: one atomic in place of a message per block, which 
 stack would have to keep and the dialog pop. set_progress_message() resets it, so the count
 always belongs to the file the latest message named.
 
+## unreachable-reason
+
+Why a side could not be reached is kept by the check (CheckPath.md#refusal) and stands in
+the message in brackets. Two reasons are not the expected state of a target that is not
+always there: a refused login and an expired sign-in need the user and do not mend
+themselves. They are reported whatever the item says about warnings, where they used to
+disappear into "not reachable" - with the warning off, in an info line of the log.
+
 ## preview
 
 A SyncType::Preview pass is a counting pass that records what it would have done: it

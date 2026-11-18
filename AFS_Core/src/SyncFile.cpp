@@ -297,8 +297,14 @@ static CopyResult copy_normal_file(const wstring& src, const wstring& dest, Copy
 CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
 {
     copy_failure_ = {};
+    ssh_take_failure_reason();  // [SyncFile.md#remote-copy-failure-reason] what an earlier call left is not this copy's
     const CopyResult result = copy_normal_file(src, dest, copy_failure_);
-    if (result == CopyResult::Error && copy_failure_.reason == fsu::FileInfoResult::OK && get_account_from_path(dest).has_value() && ssh_read_only_filesystem(dest))  // [SyncFile.md#remote-copy-failure-reason]
+    if (result != CopyResult::Error || copy_failure_.reason != fsu::FileInfoResult::OK)
+        return result;
+    const fsu::FileInfoResult told = ssh_take_failure_reason();
+    if (told != fsu::FileInfoResult::OK && told != fsu::FileInfoResult::UnknownError)
+        copy_failure_ = {told, fsu::make_error_message(told)};
+    else if (get_account_from_path(dest).has_value() && ssh_read_only_filesystem(dest))
         copy_failure_ = {fsu::FileInfoResult::ReadOnlyFilesystem, fsu::make_error_message(fsu::FileInfoResult::ReadOnlyFilesystem) + L": " + dest};
     return result;
 }
@@ -384,8 +390,9 @@ bool SyncFile::space_short(const wstring& file, uint64_t needed) const  // [Sync
         return false;
     if (remote ? ssh_read_only_filesystem(file) : fsu::read_only_filesystem(fs::path(file).parent_path()))  // [SyncFile.md#no-room-on-a-read-only-drive]
         return refused(file, fsu::FileInfoResult::ReadOnlyFilesystem);
-    log_warning(fsu::make_error_message(fsu::FileInfoResult::DiskFull) + L": " + file);
-    report_sync_shortage(file, needed, *available);
+    const fsu::FileInfoResult reason = remote ? fsu::FileInfoResult::RemoteStorageFull : fsu::FileInfoResult::DiskFull;
+    log_warning(fsu::make_error_message(reason) + L": " + file);
+    report_sync_shortage(file, needed, *available, reason);
     return true;
 }
 
@@ -397,9 +404,11 @@ bool SyncFile::copy_refused(const wstring& src, const wstring& dest, uint64_t si
 void SyncFile::report_failed_copy(const wstring& src, const wstring& dest) const  // [SyncFile.md#copy-failure-reason]
 {
     log_error(translation::translate("copying_label"), src, dest, translation::translate("copy_failed") + L" " + copy_failure_.text);
-    if (copy_failure_.reason == fsu::FileInfoResult::DiskFull) {
+    if (reach_of(copy_failure_.reason) == Reach::Shortage) {  // [CopyLog.md#reach]
         std::error_code ec;
-        report_sync_shortage(dest, fs::file_size(src, ec), fsu::free_space(fs::path(dest).parent_path()).value_or(0));
+        const bool remote = get_account_from_path(dest).has_value();
+        const std::optional<uint64_t> room = remote ? ssh_room_for(dest, sync_item_.father_son_principle()) : fsu::free_space(fs::path(dest).parent_path());
+        report_sync_shortage(dest, fs::file_size(src, ec), room.value_or(0), copy_failure_.reason);
         return;
     }
     report_sync_refusal(translation::translate("copy_failed_for") + src + L" -> " + dest + (copy_failure_.text.empty() ? wstring() : L" (" + copy_failure_.text + L")"), copy_failure_.reason);

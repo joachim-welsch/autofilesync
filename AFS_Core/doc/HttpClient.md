@@ -13,7 +13,19 @@ perform() throws `SshUnreachable` when the server could not be reached at all (n
 resolved, connection refused, timeout, TLS handshake) and `Error` for every other transport
 failure. The callers treat the first as "not there at the moment", like an SSH host that is
 switched off. An HTTP status is no error here; the caller judges it, usually with
-expect_success().
+expect_success(). Both exceptions carry the reason (SftpConnection.md#RemoteFailure): a
+name that does not resolve is NetworkUnavailable, a timeout ConnectionTimeout, a refused
+connection or failed TLS handshake ServerUnreachable, and a transfer that broke off -
+nothing received, nothing sent, part of a file - ConnectionLost.
+
+## reason_of
+
+The reason behind an HTTP status, in one place for every store: 401 is a refused login, 403
+a missing right, 404 a missing file, 405 and 501 something the server does not do, and 429,
+502, 503 and 504 a server that says "later". A full store has no status of its own outside
+WebDAV's 507: Google answers 403, Dropbox 409, and say what they mean in the body, so the
+statuses that can mean it are looked at for the words the services use. Everything else is
+UnknownError, and the caller reports the text.
 
 ## reason
 

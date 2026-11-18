@@ -287,7 +287,9 @@ static wstring known_reason(fsu::FileInfoResult refusal)  // [SyncBase.md#delete
 
 static void report_remote_dir(const char* message_id, const wstring& dir)  // [SyncBase.md#report_remote_dir]
 {
-    const fsu::FileInfoResult refusal = ssh_read_only_filesystem(dir) ? fsu::FileInfoResult::ReadOnlyFilesystem : fsu::FileInfoResult::ErrorWriteFileInfo;
+    const fsu::FileInfoResult told = ssh_take_failure_reason();  // [SyncFileSsh.md#failure-reason]
+    const bool known = told != fsu::FileInfoResult::OK && told != fsu::FileInfoResult::UnknownError;
+    const fsu::FileInfoResult refusal = known ? told : ssh_read_only_filesystem(dir) ? fsu::FileInfoResult::ReadOnlyFilesystem : fsu::FileInfoResult::ErrorWriteFileInfo;
     report_sync_refusal(translation::translate(message_id) + dir + known_reason(refusal), refusal);
 }
 
@@ -308,6 +310,7 @@ bool SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)  //
         return true;
     if (!sync_item_.ssh_target())
         return local_dir_created(without_volume_spec(destination), "target_dir_not_creatable");
+    ssh_take_failure_reason();  // [SyncFileSsh.md#failure-reason] what an earlier call left is not this directory's
     if (ssh_mkdir_p(destination))
         return true;
     log_error(translation::translate("ssh_dir_create_error") + destination);
@@ -322,6 +325,7 @@ bool SyncBase::create_source_dir(const wstring& dir)  // [SyncBase.md#create_sou
         return true;
     if (!sync_item_.ssh_source())
         return local_dir_created(dir, "source_dir_create_error");
+    ssh_take_failure_reason();
     if (ssh_mkdir_p(dir))
         return true;
     log_error(translation::translate("source_dir_create_error"), dir);

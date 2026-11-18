@@ -114,4 +114,6 @@ because they are about two-way sync.
 A remote file that is already gone when its deletion comes is no error and leaves the state; a
 server that does not answer is ServerUnreachable and never "not there"
 (SyncFileSsh.md#removal-refusal, SyncBase.md#already-gone). The refused deletion is in
-SyncSshFailureTests, whose directory the test can write-protect.
+SyncSshFailureTests, whose directory the test can write-protect. A deferred deletion on a
+server that does not answer is one error and abandons the pass, so that the files after it
+do not each wait for the connect timeout (CopyLog.md#reach).

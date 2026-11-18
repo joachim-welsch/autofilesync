@@ -70,6 +70,10 @@ public:
 };
 
 std::string access_token(const SshAccount& account);  // [GoogleAuth.md#access_token]
+bool forget_access_token(const SshAccount& account);  // [GoogleAuth.md#expired]
+#ifdef _TEST
+void set_access_token_for_test(const SshAccount& account, const std::string& token);  // [GoogleAuth.md#expired]
+#endif
 
 }
 

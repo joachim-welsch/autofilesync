@@ -21,14 +21,17 @@
 #include <mutex>
 #include <map>
 #include <chrono>
+#include <FilesystemUtil.h>
 
 namespace AFS_Core {
 
 class CheckPath {
     mutable std::mutex  drive_check_cache_mutex_;
 
+    mutable fsu::FileInfoResult refusal_ = fsu::FileInfoResult::OK;  // [CheckPath.md#refusal]
     struct DriveCheckCacheEntry {
         bool result;
+        fsu::FileInfoResult refusal;
         uint16_t time_interval;
         std::chrono::steady_clock::time_point timestamp;
     };
@@ -40,6 +43,7 @@ class CheckPath {
 public:
     CheckPath() = default;
     bool operator()(const std::wstring& source, const std::wstring& dest, bool ssh);
+    fsu::FileInfoResult refusal(const std::wstring& source, const std::wstring& dest) const;  // [CheckPath.md#refusal]
     bool ssh_path_reachable(const std::wstring& pathname, bool must_exist) const;  // [CheckPath.md#ssh_path_reachable]
 };
 

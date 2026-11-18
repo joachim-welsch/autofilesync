@@ -138,7 +138,11 @@ on the source as a read.
 
 ## remote-copy-failure-reason
 
-A transfer to a server says only that it failed. One reason is worth asking for afterwards:
+A transfer to a server says only that it failed; the reason is kept beside that answer
+(SyncFileSsh.md#failure-reason) and goes into the report in brackets, like a local copy's.
+What follows from it is the reason's own business (CopyLog.md#reach): a refused login or a
+server that is gone ends the item's pass, a server without room is a shortage, a missing
+right is this file's error. Where no reason was noted, one is worth asking for afterwards:
 a drive that takes no writes (SyncFileSsh.md#ssh_read_only_filesystem), because it holds for
 every further file - the report then names it and the item's pass ends
 (CopyLog.md#abandon), as for a local drive. The check before the pass
