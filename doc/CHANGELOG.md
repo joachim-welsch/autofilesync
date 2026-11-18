@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.5.0 – in Arbeit
+## 0.5.0 – 2026-11-18
 
 - Neue Einstellung **Symbolische Links** je Synchronisation. Neben dem
   bisherigen Verhalten (Datei-Links als Datei kopieren, Ordner-Links
