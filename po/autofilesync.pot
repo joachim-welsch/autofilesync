@@ -2927,3 +2927,63 @@ msgstr ""
 #: Utilities/src/FilesystemUtil.cpp
 msgid "recycle_bin_full"
 msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "invalid_file_type"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "symbolic_link_error"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "network_unavailable"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_lost"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_timeout"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "server_unavailable"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "authentication_failed"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "access_token_expired"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "remote_storage_full"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "source_file_changed"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "target_file_changed"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_conflict"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_size_mismatch"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "checksum_mismatch"
+msgstr ""
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "unsupported_operation"
+msgstr ""

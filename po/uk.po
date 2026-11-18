@@ -2928,3 +2928,63 @@ msgstr "Попередня ціль тепер зберігається як: "
 #: Utilities/src/FilesystemUtil.cpp
 msgid "recycle_bin_full"
 msgstr "Немає місця на диску кошика"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "invalid_file_type"
+msgstr "Це не звичайний файл"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "symbolic_link_error"
+msgstr "Помилка символічного посилання"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "network_unavailable"
+msgstr "Мережа недоступна"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_lost"
+msgstr "З'єднання втрачено"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_timeout"
+msgstr "Час очікування з'єднання вичерпано"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "server_unavailable"
+msgstr "Сервер тимчасово недоступний"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "authentication_failed"
+msgstr "Помилка автентифікації"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "access_token_expired"
+msgstr "Вхід прострочено, підключіть обліковий запис знову"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "remote_storage_full"
+msgstr "На сервері немає місця"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "source_file_changed"
+msgstr "Вихідний файл змінився під час синхронізації"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "target_file_changed"
+msgstr "Цільовий файл змінився під час синхронізації"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_conflict"
+msgstr "Конфлікт: джерело і ціль змінено по-різному"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_size_mismatch"
+msgstr "Розмір файлу не збігається після копіювання"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "checksum_mismatch"
+msgstr "Вміст не збігається після копіювання"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "unsupported_operation"
+msgstr "Операція там не підтримується"

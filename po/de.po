@@ -2961,3 +2961,63 @@ msgstr "Das bisherige Ziel liegt jetzt unter: "
 #: Utilities/src/FilesystemUtil.cpp
 msgid "recycle_bin_full"
 msgstr "Kein Speicherplatz mehr auf dem Datenträger des Papierkorbs"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "invalid_file_type"
+msgstr "Keine gewöhnliche Datei"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "symbolic_link_error"
+msgstr "Fehler bei symbolischem Link"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "network_unavailable"
+msgstr "Netzwerk nicht verfügbar"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_lost"
+msgstr "Verbindung abgebrochen"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_timeout"
+msgstr "Zeitüberschreitung der Verbindung"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "server_unavailable"
+msgstr "Server vorübergehend nicht verfügbar"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "authentication_failed"
+msgstr "Anmeldung fehlgeschlagen"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "access_token_expired"
+msgstr "Anmeldung abgelaufen, bitte das Konto neu verbinden"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "remote_storage_full"
+msgstr "Kein Speicherplatz mehr auf dem Server"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "source_file_changed"
+msgstr "Quelldatei hat sich während des Abgleichs geändert"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "target_file_changed"
+msgstr "Zieldatei hat sich während des Abgleichs geändert"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_conflict"
+msgstr "Konflikt: Quelle und Ziel wurden unterschiedlich geändert"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_size_mismatch"
+msgstr "Dateigröße stimmt nach dem Kopieren nicht überein"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "checksum_mismatch"
+msgstr "Inhalt stimmt nach dem Kopieren nicht überein"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "unsupported_operation"
+msgstr "Vorgang wird dort nicht unterstützt"

@@ -435,14 +435,15 @@ TEST_F(FilesystemUtilTest, PermissionsErrorForTestRefusesWithoutTouchingTheFile)
 TEST(FilesystemUtilTests, EveryFileInfoResultHasItsOwnMessage)  // [FilesystemUtilTests.md#EveryFileInfoResultHasItsOwnMessage]
 {
     using fsu::FileInfoResult;
+    const int unknown = static_cast<int>(FileInfoResult::UnknownError);
     std::set<std::wstring> messages;
 
-    for (const FileInfoResult result : { FileInfoResult::FileNotExist, FileInfoResult::DirectoryNotExist, FileInfoResult::DriveNotMounted,
-            FileInfoResult::CannotReadFileAttributes, FileInfoResult::PermissionDenied, FileInfoResult::FileLocked, FileInfoResult::InvalidFileTime, FileInfoResult::ErrorReadFileInfo, FileInfoResult::ErrorWriteFileInfo, FileInfoResult::CannotSetFileAttributes, FileInfoResult::CannotCreateDirectory, FileInfoResult::DiskFull, FileInfoResult::LinksNotSupported })
-        messages.insert(fsu::make_error_message(result));
+    for (int value = static_cast<int>(FileInfoResult::OK) + 1; value < unknown; ++value)
+        messages.insert(fsu::make_error_message(static_cast<FileInfoResult>(value)));
 
-    EXPECT_EQ(messages.size(), 13u);
-    EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::OK))) << "no failure may share the text of the unknown error";
+    EXPECT_EQ(messages.size(), static_cast<std::size_t>(unknown - 1)) << "zwei Gruende teilen sich einen Text, oder einer hat keinen";
+    EXPECT_FALSE(messages.contains(fsu::make_error_message(FileInfoResult::UnknownError))) << "no failure may share the text of the unknown error";
+    EXPECT_EQ(fsu::make_error_message(FileInfoResult::OK), fsu::make_error_message(FileInfoResult::UnknownError));
     EXPECT_FALSE(messages.contains(L""));
 }
 

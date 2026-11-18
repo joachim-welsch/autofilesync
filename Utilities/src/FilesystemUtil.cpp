@@ -100,7 +100,7 @@ bool file_exists(const std::wstring& filename)
     return fs::exists(filename, ec);
 }
 
-wstring make_error_message(FileInfoResult result)
+wstring make_error_message(FileInfoResult result)  // [FilesystemUtil.md#make_error_message]
 {
     switch (result) {
     case FileInfoResult::FileNotExist:
@@ -127,17 +127,49 @@ wstring make_error_message(FileInfoResult result)
         return translation::translate("directory_not_creatable");
     case FileInfoResult::DiskFull:
         return translation::translate("disk_full");
+    case FileInfoResult::ReadOnlyFilesystem:
+        return translation::translate("filesystem_read_only");
     case FileInfoResult::LinksNotSupported:
         return translation::translate("links_not_supported");
     case FileInfoResult::ServerUnreachable:
         return translation::translate("server_connect_failed");
-    case FileInfoResult::ReadOnlyFilesystem:
-        return translation::translate("filesystem_read_only");
+    case FileInfoResult::InvalidFileType:
+        return translation::translate("invalid_file_type");
+    case FileInfoResult::SymbolicLinkError:
+        return translation::translate("symbolic_link_error");
     case FileInfoResult::RecycleBinFull:
         return translation::translate("recycle_bin_full");
-    default:
-        return translation::translate("unknown_error");
+    case FileInfoResult::NetworkUnavailable:
+        return translation::translate("network_unavailable");
+    case FileInfoResult::ConnectionLost:
+        return translation::translate("connection_lost");
+    case FileInfoResult::ConnectionTimeout:
+        return translation::translate("connection_timeout");
+    case FileInfoResult::ServerUnavailable:
+        return translation::translate("server_unavailable");
+    case FileInfoResult::AuthenticationFailed:
+        return translation::translate("authentication_failed");
+    case FileInfoResult::AccessTokenExpired:
+        return translation::translate("access_token_expired");
+    case FileInfoResult::RemoteStorageFull:
+        return translation::translate("remote_storage_full");
+    case FileInfoResult::SourceFileChanged:
+        return translation::translate("source_file_changed");
+    case FileInfoResult::TargetFileChanged:
+        return translation::translate("target_file_changed");
+    case FileInfoResult::FileConflict:
+        return translation::translate("file_conflict");
+    case FileInfoResult::FileSizeMismatch:
+        return translation::translate("file_size_mismatch");
+    case FileInfoResult::ChecksumMismatch:
+        return translation::translate("checksum_mismatch");
+    case FileInfoResult::UnsupportedOperation:
+        return translation::translate("unsupported_operation");
+    case FileInfoResult::OK:
+    case FileInfoResult::UnknownError:
+        break;
     }
+    return translation::translate("unknown_error");
 }
 
 static bool lock_error(const std::error_code& ec)  // [FilesystemUtil.md#lock_error]

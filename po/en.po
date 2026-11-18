@@ -2961,3 +2961,63 @@ msgstr "The previous target is now kept as: "
 #: Utilities/src/FilesystemUtil.cpp
 msgid "recycle_bin_full"
 msgstr "No space left on the drive of the recycle bin"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "invalid_file_type"
+msgstr "Not a regular file"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "symbolic_link_error"
+msgstr "Symbolic link error"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "network_unavailable"
+msgstr "Network unavailable"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_lost"
+msgstr "Connection lost"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_timeout"
+msgstr "Connection timed out"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "server_unavailable"
+msgstr "Server temporarily unavailable"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "authentication_failed"
+msgstr "Authentication failed"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "access_token_expired"
+msgstr "Sign-in expired, please connect the account again"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "remote_storage_full"
+msgstr "No space left on the server"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "source_file_changed"
+msgstr "Source file changed during synchronization"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "target_file_changed"
+msgstr "Target file changed during synchronization"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_conflict"
+msgstr "Conflict: source and target were changed differently"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_size_mismatch"
+msgstr "File size does not match after copying"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "checksum_mismatch"
+msgstr "Content does not match after copying"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "unsupported_operation"
+msgstr "Operation is not supported there"

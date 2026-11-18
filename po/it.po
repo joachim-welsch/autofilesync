@@ -2928,3 +2928,63 @@ msgstr "La destinazione precedente si trova ora in: "
 #: Utilities/src/FilesystemUtil.cpp
 msgid "recycle_bin_full"
 msgstr "Spazio esaurito sull'unità del cestino"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "invalid_file_type"
+msgstr "Non è un file normale"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "symbolic_link_error"
+msgstr "Errore del collegamento simbolico"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "network_unavailable"
+msgstr "Rete non disponibile"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_lost"
+msgstr "Connessione interrotta"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_timeout"
+msgstr "Tempo di connessione scaduto"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "server_unavailable"
+msgstr "Server temporaneamente non disponibile"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "authentication_failed"
+msgstr "Autenticazione non riuscita"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "access_token_expired"
+msgstr "Accesso scaduto, ricollegare l'account"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "remote_storage_full"
+msgstr "Spazio esaurito sul server"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "source_file_changed"
+msgstr "Il file di origine è cambiato durante la sincronizzazione"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "target_file_changed"
+msgstr "Il file di destinazione è cambiato durante la sincronizzazione"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_conflict"
+msgstr "Conflitto: origine e destinazione sono state modificate in modo diverso"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_size_mismatch"
+msgstr "La dimensione del file non corrisponde dopo la copia"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "checksum_mismatch"
+msgstr "Il contenuto non corrisponde dopo la copia"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "unsupported_operation"
+msgstr "Operazione non supportata in quella posizione"

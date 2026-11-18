@@ -2928,3 +2928,63 @@ msgstr "L'ancienne cible se trouve maintenant sous : "
 #: Utilities/src/FilesystemUtil.cpp
 msgid "recycle_bin_full"
 msgstr "Plus d'espace sur le disque de la corbeille"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "invalid_file_type"
+msgstr "N'est pas un fichier ordinaire"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "symbolic_link_error"
+msgstr "Erreur de lien symbolique"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "network_unavailable"
+msgstr "Réseau indisponible"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_lost"
+msgstr "Connexion interrompue"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "connection_timeout"
+msgstr "Délai de connexion dépassé"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "server_unavailable"
+msgstr "Serveur temporairement indisponible"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "authentication_failed"
+msgstr "Échec de l'authentification"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "access_token_expired"
+msgstr "Connexion expirée, veuillez reconnecter le compte"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "remote_storage_full"
+msgstr "Plus d'espace sur le serveur"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "source_file_changed"
+msgstr "Le fichier source a changé pendant la synchronisation"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "target_file_changed"
+msgstr "Le fichier cible a changé pendant la synchronisation"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_conflict"
+msgstr "Conflit : la source et la cible ont été modifiées différemment"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "file_size_mismatch"
+msgstr "La taille du fichier ne correspond pas après la copie"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "checksum_mismatch"
+msgstr "Le contenu ne correspond pas après la copie"
+
+#: Utilities/src/FilesystemUtil.cpp
+msgid "unsupported_operation"
+msgstr "Opération non prise en charge à cet endroit"

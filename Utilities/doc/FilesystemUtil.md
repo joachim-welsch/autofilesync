@@ -214,3 +214,16 @@ and left an empty file. The callers write a ".tmp" file and rename it over the r
 (the configuration, the state of an item, the proof of a backup), so an unnoticed failure
 replaced the real file with an empty one. write_private_file() checks the close on Windows
 for the same reason; on other systems it always did.
+
+## FileInfoResult
+
+The catalogue of reasons a file operation can fail for, shared by everything that reports a
+failure. A reason is more than a text: what follows from it for the rest of the pass is
+decided by the reason, not by the place that met it (CopyLog.md#reach). UnknownError stays
+the last value - the test that every reason has a text of its own counts up to it.
+
+## make_error_message
+
+The words for a reason, one text per value. The switch has no default branch, so the
+compiler names a value that was added without a text. OK and UnknownError share "unknown
+error": a caller that asks for the text of "no failure" has lost its reason.

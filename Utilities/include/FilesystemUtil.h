@@ -29,10 +29,19 @@ namespace Utilities {
 
 namespace FilesystemUtil
 {
-	enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, CannotSetFileAttributes,
-        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory, DiskFull, LinksNotSupported, ServerUnreachable, ReadOnlyFilesystem, RecycleBinFull };
+    enum class FileInfoResult { OK, FileNotExist, DirectoryNotExist, DriveNotMounted, CannotReadFileAttributes, CannotSetFileAttributes,
+        PermissionDenied, FileLocked, InvalidFileTime, ErrorReadFileInfo, ErrorWriteFileInfo, CannotCreateDirectory,
+        DiskFull, ReadOnlyFilesystem, LinksNotSupported, ServerUnreachable, InvalidFileType,
+        SymbolicLinkError, RecycleBinFull, NetworkUnavailable, ConnectionLost, ConnectionTimeout, ServerUnavailable,
+        AuthenticationFailed, AccessTokenExpired, RemoteStorageFull,
+        SourceFileChanged, TargetFileChanged,
+        FileConflict,  // different changes to the source and destination
+        FileSizeMismatch,  // file sizes do not match after copying
+        ChecksumMismatch,  // contents do not match after copying
+        UnsupportedOperation,  // this operation is not supported by the file system
+        UnknownError };  // [FilesystemUtil.md#FileInfoResult] stays the last value
 
-	bool file_exists(const std::wstring& filename);
+    bool file_exists(const std::wstring& filename);
     FileInfoResult fileinfo(const std::wstring& fpathname, uint64_t& filesize, std::filesystem::file_time_type& last_write_time);
 	std::wstring make_error_message(FileInfoResult result);
     bool touch(const std::wstring& fpathname);

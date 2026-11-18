@@ -95,7 +95,10 @@ The three answers the override can provoke: the general one, a reason the system
 ## EveryFileInfoResultHasItsOwnMessage
 
 The message is all the user gets to see of a failed fileinfo(). Two results sharing one text - a
-missing translation key falls back to the same "unknown error", say - would hide the cause.
+missing translation key falls back to the same "unknown error", say - would hide the cause. Every
+value between OK and UnknownError is asked, by number, so a value added to the enumeration is
+covered without touching the test; only UnknownError itself may say "unknown error", and OK
+says the same.
 
 ## TouchMovesTheWriteTimeToNow
 
