@@ -32,6 +32,9 @@
 #include "Translation.h"
 #include <chrono>
 #include <filesystem>
+#include <fstream>
+#include <optional>
+#include <thread>
 
 using namespace AFS_Core;
 using namespace SSHTest;
@@ -101,6 +104,27 @@ protected:
     std::wstring on_server(const std::string& account_name) const
     {
         return util::string_to_wstring(account_name + ":" + server_dir_.string());
+    }
+
+    static std::optional<fs::path> read_only_mount()  // [SyncSshFailureTests.md#read_only_mount]
+    {
+        std::ifstream mounts("/proc/self/mounts");
+        std::string device, directory, type, options;
+        for (std::string rest; mounts >> device >> directory >> type >> options && std::getline(mounts, rest);) {
+            const bool read_only = options == "ro" || options.rfind("ro,", 0) == 0;
+            if (read_only && directory.find('\\') == std::string::npos && first_file_in(directory))
+                return directory;
+        }
+        return std::nullopt;
+    }
+
+    static std::optional<fs::path> first_file_in(const fs::path& directory)
+    {
+        std::error_code ec;
+        for (fs::directory_iterator entry(directory, ec); !ec && entry != fs::directory_iterator(); entry.increment(ec))
+            if (entry->is_regular_file(ec) && (entry->status(ec).permissions() & fs::perms::others_read) != fs::perms::none)
+                return entry->path();
+        return std::nullopt;
     }
 
     static Outcome run(const SyncItem& si)  // [LocalPermissionTests.md#run]
@@ -174,5 +198,45 @@ TEST_F(SyncSshFailureTest, RemoteFileAndDirectoryThatCannotBeRemovedNameTheirRea
     EXPECT_TRUE(fs::exists(server_dir_ / "a.txt"));
     EXPECT_EQ(ssh_rmdir_refusal(on_server(PLAIN_ACCOUNT) + L"/leer"), fsu::FileInfoResult::PermissionDenied);
     EXPECT_TRUE(fs::exists(server_dir_ / "leer"));
+}
+
+TEST_F(SyncSshFailureTest, AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedForARefusedRemoval)  // [SyncSshFailureTests.md#AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedForARefusedRemoval]
+{
+    const std::optional<fs::path> mount = read_only_mount();
+    if (!mount)
+        GTEST_SKIP() << "auf diesem Rechner ist kein Dateisystem mit einer lesbaren Datei nur lesbar eingehaengt";
+    const std::wstring remote_mount = util::string_to_wstring(PLAIN_ACCOUNT + ":" + mount->string());
+    const fs::path file = *first_file_in(*mount);
+
+    EXPECT_TRUE(ssh_read_only_filesystem(remote_mount));
+    EXPECT_TRUE(ssh_read_only_filesystem(remote_mount + L"/afs-gibt-es-nicht/datei.txt")) << "gemessen am vorhandenen Teil des Pfads";
+    EXPECT_FALSE(ssh_read_only_filesystem(on_server(PLAIN_ACCOUNT)));
+    EXPECT_FALSE(ssh_read_only_filesystem(on_server(PLAIN_ACCOUNT) + L"/afs-gibt-es-nicht/datei.txt"));
+    EXPECT_EQ(ssh_remove_refusal(util::string_to_wstring(PLAIN_ACCOUNT + ":" + file.string())), fsu::FileInfoResult::ReadOnlyFilesystem) << file.string();
+    EXPECT_TRUE(fs::exists(file));
+}
+
+TEST_F(SyncSshFailureTest, AReadOnlyTargetOnTheServerIsOneErrorOfThePass)  // [SyncSshFailureTests.md#AReadOnlyTargetOnTheServerIsOneErrorOfThePass]
+{
+    const std::optional<fs::path> mount = read_only_mount();
+    if (!mount)
+        GTEST_SKIP() << "auf diesem Rechner ist kein Dateisystem mit einer lesbaren Datei nur lesbar eingehaengt";
+    for (const char* name : {"a.txt", "b.txt", "c.txt"})
+        tu::write_text_file(local_dir_ / name, name);
+    const std::wstring target = util::string_to_wstring(PLAIN_ACCOUNT + ":" + (*mount / "afs-gibt-es-nicht").string());
+    SyncItem si(L"server-schreibschutz", SyncItemType::Dir, local_dir_.wstring(), target, L"*");
+    si.sync_cycle(0);
+    Config::instance().add(si);
+
+    Synchronize::create(SyncType::Single);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    Synchronize::destroy();
+    const std::optional<SyncItem> passed = Config::instance().find_by_name(L"server-schreibschutz");
+    Config::instance().erase_by_name(L"server-schreibschutz");
+    const std::optional<LastRun> run = passed ? passed->last_run() : std::nullopt;
+
+    ASSERT_TRUE(run.has_value());
+    EXPECT_EQ(run->errors, 1u);
+    EXPECT_EQ(run->first_error, translation::translate("target_read_only") + target);
 }
 #endif

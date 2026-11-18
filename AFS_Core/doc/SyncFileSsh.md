@@ -101,10 +101,26 @@ call differs.
 ssh_remove_file() and ssh_rmdir() with the reason for a failure, for the report of a deletion
 (SyncBase.md#deleted): FileNotExist when the server says the entry is not there - which the
 caller takes for done (SyncBase.md#already-gone) and which is therefore no error line in the
-log -, PermissionDenied when the server refuses, ServerUnreachable when no connection came
+log -, PermissionDenied when the server refuses, ReadOnlyFilesystem when its drive takes no
+writes (ssh_read_only_filesystem), ServerUnreachable when no connection came
 about, and a write error for everything the server or the library gives no known reason for.
 A WebDAV or cloud store only throws, so there a failure is unreachable or unknown and never
 "not there": a missing answer must not pass for a deleted file.
+
+## ssh_read_only_filesystem
+
+Whether the server's drive below a path takes writes, asked before an item runs
+(Synchronize.md#write-protected) the way the local side is. SFTP has no code for it that
+servers use: OpenSSH answers a write to a read-only file system with the plain "failure" it
+has for everything unnamed. What it does offer is the statvfs extension, whose flags say
+"read-only" - so that is asked, for the path or, when it is not there yet, for the nearest
+part of it that is. A server without the extension, one that cannot be reached, and a WebDAV
+or cloud store, which have no such question, count as writable: the write then tells.
+
+A removal the server refused without a known reason asks the same question afterwards, so
+the report names the write protection instead of nothing (removal-refusal); servers that do
+send "write protect" are taken at their word. A copy to the server still fails without a
+reason of its own - the check before the pass is what keeps it from being tried.
 
 ## ssh_mkdir_p
 

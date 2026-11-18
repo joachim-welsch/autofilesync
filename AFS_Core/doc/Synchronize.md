@@ -99,9 +99,11 @@ Before an item runs, the sides it writes to are asked whether their drive takes 
 too. A read-only one is a single error that names the side, and the item is left alone -
 instead of one failed copy per file, and instead of "disk full" on media that report no free
 space because they have none to give. It is an error of every pass, like any other failed
-one, and the pause until the next pass counts as usual. SSH sides are not asked; a server
-that refuses is found out by the first write (CopyLog.md#abandon), as is a drive that turns
-read-only during the pass. Counting writes nothing and is not held back.
+one, and the pause until the next pass counts as usual. A side on an SFTP server is asked
+through the server (SyncFileSsh.md#ssh_read_only_filesystem); WebDAV and cloud stores cannot
+be asked. The source is only asked where it is written to: for two-way, and for a move from
+a local source. A drive that turns read-only during the pass is found out by the first write
+(CopyLog.md#abandon). Counting writes nothing and is not held back.
 
 ## preview-of-a-protected-item
 

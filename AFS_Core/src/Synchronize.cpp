@@ -450,7 +450,7 @@ void Synchronize::report_sync_item(SyncItem& i)
 namespace {
 bool read_only(const wstring& path, bool ssh)  // [Synchronize.md#write-protected]
 {
-    return !ssh && fsu::read_only_filesystem(without_volume_spec(path));
+    return ssh ? ssh_read_only_filesystem(path) : fsu::read_only_filesystem(without_volume_spec(path));  // [SyncFileSsh.md#ssh_read_only_filesystem]
 }
 
 }
@@ -466,13 +466,14 @@ void Synchronize::report_protected(const char* message_id, const wstring& path) 
 
 bool Synchronize::write_protected(const SyncItem& i) const  // [Synchronize.md#write-protected]
 {
-    const bool source = read_only(i.source(), i.ssh_source());
+    const bool source_written = i.two_way_sync() || (i.del_aftercopy() && !i.ssh_source());  // an SSH source is never deleted for a move
+    const bool source = source_written && read_only(i.source(), i.ssh_source());
     if (read_only(i.target(), i.ssh_target()))
         report_protected("target_read_only", i.target());
     else if (source && i.two_way_sync())
         report_protected("source_read_only", i.source());
     else {
-        if (source && i.del_aftercopy())  // [Synchronize.md#move-from-a-protected-source]
+        if (source)  // [Synchronize.md#move-from-a-protected-source]
             report_protected("source_read_only_not_moved", i.source());
         return false;
     }

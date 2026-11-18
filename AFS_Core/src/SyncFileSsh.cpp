@@ -241,6 +241,21 @@ namespace {
         return get_remote_path(path);
     }
 
+    bool remote_read_only(const SftpConnection& connection, std::string remote_path)  // [SyncFileSsh.md#ssh_read_only_filesystem]
+    {
+        for (;;) {
+            if (const sftp_statvfs_t volume = sftp_statvfs(connection.sftp(), remote_path.c_str())) {
+                const bool read_only = (volume->f_flag & SSH_FXE_STATVFS_ST_RDONLY) != 0;
+                sftp_statvfs_free(volume);
+                return read_only;
+            }
+            const std::size_t slash = remote_path.find_last_of('/');
+            if (sftp_get_error(connection.sftp()) != SSH_FX_NO_SUCH_FILE || slash == std::string::npos || remote_path.size() <= 1)
+                return false;
+            remote_path = slash == 0 ? "/" : remote_path.substr(0, slash);
+        }
+    }
+
     fsu::FileInfoResult removal_refusal(const wstring& path, int (*remove)(sftp_session, const char*), const char* message_id)  // [SyncFileSsh.md#removal-refusal]
     {
         SftpConnection connection;
@@ -254,7 +269,10 @@ namespace {
         if (refusal == SSH_FX_NO_SUCH_FILE)
             return fsu::FileInfoResult::FileNotExist;
         log_error(translation::translate(message_id) + string_to_wstring(*remote_path));
-        return refusal == SSH_FX_PERMISSION_DENIED ? fsu::FileInfoResult::PermissionDenied : fsu::FileInfoResult::ErrorWriteFileInfo;
+        if (refusal == SSH_FX_PERMISSION_DENIED)
+            return fsu::FileInfoResult::PermissionDenied;
+        const bool read_only = refusal == SSH_FX_WRITE_PROTECT || remote_read_only(connection, *remote_path);  // [SyncFileSsh.md#ssh_read_only_filesystem]
+        return read_only ? fsu::FileInfoResult::ReadOnlyFilesystem : fsu::FileInfoResult::ErrorWriteFileInfo;
     }
 
     bool sftp_write_all(sftp_file file, const char* data, size_t length)  // [SyncFileSsh.md#short-write]
@@ -602,6 +620,13 @@ bool ssh_mkdir(const std::wstring& path)
     if (sftp_mkdir(connection.sftp(), remote_path->c_str(), DIRECTORY_MODE) != SSH_OK)
         return failed(translation::translate("remote_dir_create_error") + string_to_wstring(*remote_path));
     return true;
+}
+
+bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_read_only_filesystem]
+{
+    SftpConnection connection;
+    const auto remote_path = connect_to(path, connection);
+    return remote_path && remote_read_only(connection, *remote_path);
 }
 
 fsu::FileInfoResult ssh_remove_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]
@@ -1468,6 +1493,29 @@ static bool ssh_sftp_call(const std::wstring& path, const std::function<int(LIBS
     return success;
 }
 
+static bool remote_read_only(LIBSSH2_SFTP* sftp, std::string remote_path)  // [SyncFileSsh.md#ssh_read_only_filesystem]
+{
+    for (;;) {
+        LIBSSH2_SFTP_STATVFS volume {};
+        if (libssh2_sftp_statvfs(sftp, remote_path.c_str(), remote_path.size(), &volume) == 0)
+            return (volume.f_flag & LIBSSH2_SFTP_ST_RDONLY) != 0;
+        const std::size_t slash = remote_path.find_last_of('/');
+        if (libssh2_sftp_last_error(sftp) != LIBSSH2_FX_NO_SUCH_FILE || slash == std::string::npos || remote_path.size() <= 1)
+            return false;
+        remote_path = slash == 0 ? "/" : remote_path.substr(0, slash);
+    }
+}
+
+bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_read_only_filesystem]
+{
+    bool read_only = false;
+    ssh_sftp_call(path, [&](LIBSSH2_SFTP* sftp, const std::string& remote) {
+        read_only = remote_read_only(sftp, remote);
+        return 0;
+    }, "remote_file_delete_error");
+    return read_only;
+}
+
 static fsu::FileInfoResult removal_refusal(const std::wstring& path, const std::function<int(LIBSSH2_SFTP*, const std::string&)>& remove, const char* error_msgid)  // [SyncFileSsh.md#removal-refusal]
 {
     fsu::FileInfoResult refusal = fsu::FileInfoResult::ErrorWriteFileInfo;
@@ -1481,6 +1529,8 @@ static fsu::FileInfoResult removal_refusal(const std::wstring& path, const std::
             refusal = fsu::FileInfoResult::FileNotExist;
         else if (reason == LIBSSH2_FX_PERMISSION_DENIED)
             refusal = fsu::FileInfoResult::PermissionDenied;
+        else if (reason == LIBSSH2_FX_WRITE_PROTECT || remote_read_only(sftp, remote))  // [SyncFileSsh.md#ssh_read_only_filesystem]
+            refusal = fsu::FileInfoResult::ReadOnlyFilesystem;
         return refusal == fsu::FileInfoResult::FileNotExist ? 0 : failure;
     }, error_msgid, &unreachable);
     return unreachable ? fsu::FileInfoResult::ServerUnreachable : refusal;
@@ -1820,6 +1870,11 @@ fsu::FileInfoResult ssh_remove_refusal(const std::wstring& path)  // [SyncFileSs
 bool ssh_remove_file(const std::wstring& path)
 {
     return ssh_remove_refusal(path) == fsu::FileInfoResult::OK;
+}
+
+bool ssh_read_only_filesystem(const std::wstring& path)  // [SyncFileSsh.md#ssh_read_only_filesystem]
+{
+    return !webdav_account(path) && sftp_backend::ssh_read_only_filesystem(path);
 }
 
 fsu::FileInfoResult ssh_rmdir_refusal(const std::wstring& path)  // [SyncFileSsh.md#removal-refusal]

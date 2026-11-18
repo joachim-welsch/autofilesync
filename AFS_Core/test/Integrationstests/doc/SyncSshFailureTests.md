@@ -47,3 +47,25 @@ The server directory belongs to the user running the tests and gives the SSH use
 permission, so the server refuses both removals. The mirror's deletion is reported with the
 remote file and "permission denied" instead of only "deleting failed", and the removal of an
 empty directory gives the same reason (SyncFileSsh.md#removal-refusal).
+
+## read_only_mount
+
+The SSH test server is this machine, so a file system that is mounted read-only here is one
+on the server: the first "ro" entry of /proc/self/mounts that holds a file everyone may read
+(a snap image, most often). That makes these the tests against a real write protection,
+which the local ones cannot have (ReadOnlyFilesystemTests.md#ReadOnly). Skipped where
+nothing is mounted read-only.
+
+## AReadOnlyFilesystemOfTheServerIsRecognizedAndNamedForARefusedRemoval
+
+The server says "read-only" for the mount and for a path below it that does not exist, and
+not for the test's own directory. Removing a file of the mount is refused by the system
+itself - nothing can be lost - and the refusal carries the reason, although the server only
+answers "failure".
+
+## AReadOnlyTargetOnTheServerIsOneErrorOfThePass
+
+One pass of the real Synchronize with a target below the mount: one error that names the
+target as read-only, where the pass used to fail at creating the directory with no reason.
+The item is added to and taken out of the configuration by name, since the fixture's
+accounts live there too.
