@@ -99,6 +99,12 @@ A file system error that ended the work on a directory or a file, reported with 
 the user's language and the path the system named, in place of the exception's English
 sentence.
 
+## report_remote_dir
+
+A directory the server would not create is reported with the one reason that can be asked
+for: a read-only drive (SyncFileSsh.md#ssh_read_only_filesystem), which also ends the item's
+pass (CopyLog.md#abandon). Anything else stays the plain "cannot be created".
+
 ## create_source_dir
 
 The counterpart of create_target_dir_if_not_exist() for a directory that exists only in the

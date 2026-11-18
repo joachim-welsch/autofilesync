@@ -119,8 +119,8 @@ or cloud store, which have no such question, count as writable: the write then t
 
 A removal the server refused without a known reason asks the same question afterwards, so
 the report names the write protection instead of nothing (removal-refusal); servers that do
-send "write protect" are taken at their word. A copy to the server still fails without a
-reason of its own - the check before the pass is what keeps it from being tried.
+send "write protect" are taken at their word. A copy and a new directory that failed ask it
+as well (SyncFile.md#remote-copy-failure-reason, SyncBase.md#report_remote_dir).
 
 ## ssh_mkdir_p
 

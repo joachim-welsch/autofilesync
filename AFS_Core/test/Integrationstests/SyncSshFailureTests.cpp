@@ -239,4 +239,42 @@ TEST_F(SyncSshFailureTest, AReadOnlyTargetOnTheServerIsOneErrorOfThePass)  // [S
     EXPECT_EQ(run->errors, 1u);
     EXPECT_EQ(run->first_error, translation::translate("target_read_only") + target);
 }
+
+TEST_F(SyncSshFailureTest, ACopyRefusedByAReadOnlyServerNamesTheReasonAndAbandonsTheItem)  // [SyncSshFailureTests.md#ACopyRefusedByAReadOnlyServerNamesTheReasonAndAbandonsTheItem]
+{
+    const std::optional<fs::path> mount = read_only_mount();
+    if (!mount)
+        GTEST_SKIP() << "auf diesem Rechner ist kein Dateisystem mit einer lesbaren Datei nur lesbar eingehaengt";
+    for (const char* name : {"afs-a.txt", "afs-b.txt", "afs-c.txt"})
+        tu::write_text_file(local_dir_ / name, name);
+    SyncItem si(L"server-schreibschutz", SyncItemType::Dir, local_dir_.wstring(), util::string_to_wstring(PLAIN_ACCOUNT + ":" + mount->string()), L"afs-*.txt");
+    si.sync_cycle(0);
+
+    const Outcome outcome = run(si);
+
+    ASSERT_EQ(outcome.report.errors().size(), 1u) << "die zweite und dritte Datei werden nicht mehr versucht";
+    const std::wstring& error = outcome.report.errors().front();
+    EXPECT_NE(error.find(translation::translate("copy_failed_for")), std::wstring::npos) << error;
+    EXPECT_NE(error.find(translation::translate("filesystem_read_only")), std::wstring::npos) << error;
+    EXPECT_NE(error.find(translation::translate("remaining_files_skipped")), std::wstring::npos) << error;
+    EXPECT_EQ(outcome.copies, 0u);
+}
+
+TEST_F(SyncSshFailureTest, ADirectoryRefusedByAReadOnlyServerNamesTheReason)  // [SyncSshFailureTests.md#ADirectoryRefusedByAReadOnlyServerNamesTheReason]
+{
+    const std::optional<fs::path> mount = read_only_mount();
+    if (!mount)
+        GTEST_SKIP() << "auf diesem Rechner ist kein Dateisystem mit einer lesbaren Datei nur lesbar eingehaengt";
+    tu::write_text_file(local_dir_ / "a.txt", "a");
+    const std::wstring target = util::string_to_wstring(PLAIN_ACCOUNT + ":" + (*mount / "afs-gibt-es-nicht").string());
+    SyncItem si(L"server-schreibschutz", SyncItemType::Dir, local_dir_.wstring(), target, L"*");
+    si.sync_cycle(0);
+
+    const Outcome outcome = run(si);
+
+    ASSERT_EQ(outcome.report.errors().size(), 1u);
+    const std::wstring& error = outcome.report.errors().front();
+    EXPECT_NE(error.find(translation::translate("ssh_target_dir_not_creatable") + target), std::wstring::npos) << error;
+    EXPECT_NE(error.find(translation::translate("filesystem_read_only")), std::wstring::npos) << error;
+}
 #endif

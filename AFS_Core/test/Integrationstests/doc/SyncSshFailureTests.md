@@ -69,3 +69,15 @@ One pass of the real Synchronize with a target below the mount: one error that n
 target as read-only, where the pass used to fail at creating the directory with no reason.
 The item is added to and taken out of the configuration by name, since the fixture's
 accounts live there too.
+
+## ACopyRefusedByAReadOnlyServerNamesTheReasonAndAbandonsTheItem
+
+The sync classes run without the check before the pass, which stands for a server that
+turns read-only in the middle of one. Three files for a directory of the mount: the first
+copy fails, its error names the write protection and the skipped rest, and the other two are
+not tried. The wildcard keeps the pass to the test's own names in a directory that is not
+the test's.
+
+## ADirectoryRefusedByAReadOnlyServerNamesTheReason
+
+The same for a target directory that would have to be created below the mount.

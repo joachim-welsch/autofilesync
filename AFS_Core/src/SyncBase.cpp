@@ -280,6 +280,17 @@ bool SyncBase::local_dir_created(const wstring& dir, const char* message_id)  //
     return false;
 }
 
+static wstring known_reason(fsu::FileInfoResult refusal)  // [SyncBase.md#deleted]
+{
+    return refusal == fsu::FileInfoResult::ErrorWriteFileInfo ? wstring() : L" (" + fsu::make_error_message(refusal) + L")";
+}
+
+static void report_remote_dir(const char* message_id, const wstring& dir)  // [SyncBase.md#report_remote_dir]
+{
+    const fsu::FileInfoResult refusal = ssh_read_only_filesystem(dir) ? fsu::FileInfoResult::ReadOnlyFilesystem : fsu::FileInfoResult::ErrorWriteFileInfo;
+    report_sync_refusal(translation::translate(message_id) + dir + known_reason(refusal), refusal);
+}
+
 void SyncBase::report_failure(const wstring& where, const fs::filesystem_error& failure)  // [SyncBase.md#report_failure]
 {
     const wstring message = fsu::failure_text(failure.code()) + L": " + (failure.path1().empty() ? where : failure.path1().wstring());
@@ -300,7 +311,7 @@ bool SyncBase::create_target_dir_if_not_exist(const std::wstring& targetdir)  //
     if (ssh_mkdir_p(destination))
         return true;
     log_error(translation::translate("ssh_dir_create_error") + destination);
-    report_sync_error(translation::translate("ssh_target_dir_not_creatable") + destination);
+    report_remote_dir("ssh_target_dir_not_creatable", destination);
     return false;
 }
 
@@ -314,13 +325,8 @@ bool SyncBase::create_source_dir(const wstring& dir)  // [SyncBase.md#create_sou
     if (ssh_mkdir_p(dir))
         return true;
     log_error(translation::translate("source_dir_create_error"), dir);
-    report_sync_error(translation::translate("source_dir_create_error") + dir);
+    report_remote_dir("source_dir_create_error", dir);
     return false;
-}
-
-static wstring known_reason(fsu::FileInfoResult refusal)  // [SyncBase.md#deleted]
-{
-    return refusal == fsu::FileInfoResult::ErrorWriteFileInfo ? wstring() : L" (" + fsu::make_error_message(refusal) + L")";
 }
 
 void SyncBase::remove_dir_if_empty(const wstring& dir, bool ssh)  // [SyncBase.md#remove_dir_if_empty]

@@ -297,7 +297,10 @@ static CopyResult copy_normal_file(const wstring& src, const wstring& dest, Copy
 CopyResult SyncFile::core_copy_function(const wstring& src, const wstring& dest)
 {
     copy_failure_ = {};
-    return copy_normal_file(src, dest, copy_failure_);
+    const CopyResult result = copy_normal_file(src, dest, copy_failure_);
+    if (result == CopyResult::Error && copy_failure_.reason == fsu::FileInfoResult::OK && get_account_from_path(dest).has_value() && ssh_read_only_filesystem(dest))  // [SyncFile.md#remote-copy-failure-reason]
+        copy_failure_ = {fsu::FileInfoResult::ReadOnlyFilesystem, fsu::make_error_message(fsu::FileInfoResult::ReadOnlyFilesystem) + L": " + dest};
+    return result;
 }
 
 static void remove_partial_target(const wstring& dest)  // [SyncFile.md#restore_backup]

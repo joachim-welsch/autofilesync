@@ -103,7 +103,7 @@ one, and the pause until the next pass counts as usual. A side on an SFTP server
 through the server (SyncFileSsh.md#ssh_read_only_filesystem); WebDAV and cloud stores cannot
 be asked. The source is only asked where it is written to: for two-way, and for a move from
 a local source. A drive that turns read-only during the pass is found out by the first write
-(CopyLog.md#abandon). Counting writes nothing and is not held back.
+(CopyLog.md#abandon), on a server too (SyncFile.md#remote-copy-failure-reason). Counting writes nothing and is not held back.
 
 ## preview-of-a-protected-item
 

@@ -130,10 +130,21 @@ Why a local copy failed, with the file the failure belongs to: the target that c
 opened for writing, the disk that is full, the source that stops reading. The stream only says
 that it failed; the reason is the system's error at that moment
 (FilesystemUtil.md#failure_text), and it is added to the "copy failed" report in brackets. The
-transfers behind SSH and in a cloud log their own reasons and leave this empty. A write that
+transfers behind SSH and in a cloud log their own reasons and leave this empty, except for a
+read-only drive of the server (remote-copy-failure-reason). A write that
 ran out of room is no "copy failed" but a shortage like the one found beforehand (disk-full).
 A failure on the target is judged as a write (FilesystemUtil.md#reason_for_write_failure), one
 on the source as a read.
+
+## remote-copy-failure-reason
+
+A transfer to a server says only that it failed. One reason is worth asking for afterwards:
+a drive that takes no writes (SyncFileSsh.md#ssh_read_only_filesystem), because it holds for
+every further file - the report then names it and the item's pass ends
+(CopyLog.md#abandon), as for a local drive. The check before the pass
+(Synchronize.md#write-protected) catches the usual case; this one is for a server that turns
+read-only during the pass and for callers that run without that check. The question costs a
+connection, so it is asked only once a copy has failed, and whichever backend made the copy.
 
 ## disk-full
 
